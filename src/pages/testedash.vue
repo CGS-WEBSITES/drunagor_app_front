@@ -9,7 +9,7 @@
             <v-row no-gutters>
               <v-col cols="3">
                 <v-avatar size="100">
-                  <v-img src="@/assets/perfil.webp" alt="Profile" />
+                  <v-img src="@/assets/library.png" alt="Profile" />
                 </v-avatar>
               </v-col>
               <v-col cols="6">
@@ -42,9 +42,9 @@
       <v-row>
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img
+            <v-img height="300px"
               class="align-end text-white text-center"
-              src="@/assets/perfil.webp"
+              src="@/assets/Corebox.png"
               cover
             >
             </v-img>
@@ -58,7 +58,7 @@
 
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img
+            <v-img height="300px"
               class="align-end text-white text-center"
               src="@/assets/perfil.webp"
               cover
@@ -74,9 +74,9 @@
 
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img
-              class="align-end text-white text-center"
-              src="@/assets/perfil.webp"
+            <v-img height="300px"
+              class="align-end text-white text-center "
+              src="@/assets/events.jpg"
               cover
             >
             </v-img>
@@ -89,9 +89,9 @@
         </v-col>
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img
+            <v-img height="300px"
               class="align-end text-white text-center"
-              src="@/assets/perfil.webp"
+              src="@/assets/leaderboard.jpg"
               cover
             >
             </v-img>
@@ -106,37 +106,30 @@
     </v-container>
 
     <!-- Carousel Section (Campaign Progress) -->
-    <v-container class="mt-4">
-      <v-carousel hide-delimiters>
-        <v-carousel-item v-for="i in 6" :key="i">
-          <v-row>
-            <v-col cols="6">
-              <v-card class="mx-auto">
-                <v-img src="@/assets/perfil.webp" height="200"></v-img>
-                <v-card-title>Campaign 0%</v-card-title>
-                <v-card-subtitle
-                  >Chronicles of Drunagor: Age of Darkness</v-card-subtitle
-                >
-                <v-card-subtitle
-                  >Door X: in battle/exploring/finished</v-card-subtitle
-                >
-              </v-card>
-            </v-col>
-            <v-col cols="6">
-              <v-card class="mx-auto">
-                <v-img src="@/assets/perfil.webp" height="200"></v-img>
-                <v-card-title>Campaign 0%</v-card-title>
-                <v-card-subtitle>Awakenings</v-card-subtitle>
-                <v-card-subtitle
-                  >Door X: in battle/exploring/finished</v-card-subtitle
-                >
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-carousel-item>
-      </v-carousel>
-    </v-container>
-
+<v-container class="mt-4">
+  <v-carousel hide-delimiters height="300px"> <!-- Ajuste a altura do carrossel aqui -->
+    <v-carousel-item v-for="i in 6" :key="i">
+      <v-row>
+        <v-col cols="6">
+          <v-card class="mx-auto">
+            <v-img src="@/assets/perfil.webp" height="200"></v-img>
+            <v-card-title>Campaign 0%</v-card-title>
+            <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
+            <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+          </v-card>
+        </v-col>
+        <v-col cols="6">
+          <v-card class="mx-auto">
+            <v-img src="@/assets/perfil.webp" height="200"></v-img>
+            <v-card-title>Campaign 0%</v-card-title>
+            <v-card-subtitle>Awakenings</v-card-subtitle>
+            <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-carousel-item>
+  </v-carousel>
+</v-container>
 
  <!-- Main Event Cards -->
   
@@ -144,7 +137,7 @@
  
   <v-container class="mt-4">
     <v-card-text class="text-h4 white--text color-white bg-black" color="white">
-      EVENTS
+      EVENTS 
 
       <!-- Main Event Cards -->
       <v-row>
@@ -366,6 +359,24 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <v-btn
+      fab
+      dark
+      color="black"
+      class="fixed-bottom-right"
+      @click="showPopup = !showPopup"
+    >
+      <v-icon>mdi-bell</v-icon>
+      <v-badge
+        color="red"
+        content="10"
+        overlap
+        class="notification-badge"
+      ></v-badge>
+    </v-btn>
+
+  
   </v-app>
   <!-- Fixed Bottom Navigation for Mobile -->
   <v-bottom-navigation class="hidden-md-and-up fixed
@@ -391,6 +402,7 @@
     </v-btn>
   </v-bottom-navigation>
 
+  
   <!-- Footer Section -->
   <v-footer class="footer black bg-black" padless>
     <v-container fluid>
@@ -434,10 +446,44 @@
   
   
 <script>
+export default {
+  data() {
+    return {
+      showPopup: false, // Controla a exibição do popup
+      dialog: false,
+    };
+  },
+  methods: {
+    openDialog(eventId) {
+      this.dialog = true;
+    },
+    closeDialog() {
+      this.dialog = false;
+    },
 
+    // Método para abrir o Google Maps com o local clicado
+    openGoogleMaps(place) {
+      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`;
+      window.open(url, '_blank');
+    }
+  }
+};
 
-   
 </script>
-  <style scoped>
+
+<style>
+.fixed-bottom-right {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+}
+
 
 </style>
