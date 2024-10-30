@@ -1,31 +1,20 @@
-// Styles
+/**
+ * main.ts
+ *
+ * Bootstraps Vuetify and other plugins then mounts the App`
+ */
 
-import "./assets/main.css";
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
+// Plugins
+import { registerPlugins } from "@/plugins";
 
-import { createApp } from "vue";
-import { createPinia } from "pinia";
-import { createVuetify } from 'vuetify'
-
-// https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
-export default createVuetify({
-  theme: {
-    defaultTheme: 'dark',
-  },
-})
-
+// Components
 import App from "./App.vue";
-import router from "./router";
+
+// Composables
+import { createApp } from "vue";
 
 const app = createApp(App);
 
-app.use(createPinia());
-app.use(createVuetify({
-    theme: {
-      defaultTheme: 'dark',
-    },
-  }))
-app.use(router);
+registerPlugins(app);
 
 app.mount("#app");

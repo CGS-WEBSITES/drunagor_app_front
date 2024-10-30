@@ -49,6 +49,8 @@
     "vite": "^5.4.10",
     "vite-plugin-vue-devtools": "^7.5.3",
     "vite-plugin-vuetify": "^2.0.3",
+    "vite-plugin-vue-layouts": "^0.11.0",
+    "sass": "1.77.6",
     "vue-tsc": "^2.1.6"
   }
 }
