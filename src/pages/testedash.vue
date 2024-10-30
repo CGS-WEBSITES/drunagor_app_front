@@ -9,7 +9,7 @@
             <v-row no-gutters>
               <v-col cols="3">
                 <v-avatar size="100">
-                  <v-img src="@/assets/library.png" alt="Profile" />
+                  <v-img src="@/assets/perfil.webp" alt="Profile" />
                 </v-avatar>
               </v-col>
               <v-col cols="6">
@@ -42,9 +42,9 @@
       <v-row>
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
+            <v-img
               class="align-end text-white text-center"
-              src="@/assets/Corebox.png"
+              src="@/assets/perfil.webp"
               cover
             >
             </v-img>
@@ -58,7 +58,7 @@
 
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
+            <v-img
               class="align-end text-white text-center"
               src="@/assets/perfil.webp"
               cover
@@ -74,9 +74,9 @@
 
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
-              class="align-end text-white text-center "
-              src="@/assets/events.jpg"
+            <v-img
+              class="align-end text-white text-center"
+              src="@/assets/perfil.webp"
               cover
             >
             </v-img>
@@ -89,9 +89,9 @@
         </v-col>
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
+            <v-img
               class="align-end text-white text-center"
-              src="@/assets/leaderboard.jpg"
+              src="@/assets/perfil.webp"
               cover
             >
             </v-img>
@@ -144,7 +144,7 @@
  
   <v-container class="mt-4">
     <v-card-text class="text-h4 white--text color-white bg-black" color="white">
-      EVENTS 
+      EVENTS
 
       <!-- Main Event Cards -->
       <v-row>
@@ -156,32 +156,33 @@
             <div style="max-height: 300px; overflow-y: auto;">
               <v-list>
                 <v-list-item
-                  v-for="(place, index) in places"
-                  :key="index"
+                  v-for="i in 10"
+                  :key="i"
                   class="mb-4"
                   color="rgba(0,0,0,0.6)"
                   elevation="6"
                   shaped
+                  @click="openDialog(i)"
                 >
                   <v-list-item-content>
                     <v-row>
                       <v-col cols="3">
                         <v-avatar size="60">
-                          <v-img :src="place.icon" alt="Profile"></v-img>
+                          <v-img src="@/assets/perfil.webp" alt="Profile"></v-img>
                         </v-avatar>
                       </v-col>
                       <v-col cols="6">
                         <v-list-item-title class="text-h6 white--text">
-                          {{ place.name }}
+                          EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
                         </v-list-item-title>
                         <v-list-item-subtitle class="text-subtitle-2 white--text">
-                          {{ place.vicinity }}
+                          JORGINHO ULTIMATE MEGA STORE PLUS
                         </v-list-item-subtitle>
                       </v-col>
                       <v-col cols="3" class="text-right">
                         <!-- Clique para abrir o Google Maps -->
-                        <v-icon color="red" size="40" @click.stop="openGoogleMaps(place)">mdi-map-marker</v-icon>
-                        <v-list-item-subtitle class="text-subtitle-1 white--text">Aberto agora</v-list-item-subtitle>
+                        <v-icon color="red" size="40" @click.stop="openGoogleMaps">mdi-map-marker</v-icon>
+                        <v-list-item-subtitle class="text-subtitle-1 white--text">12/29/24</v-list-item-subtitle>
                       </v-col>
                     </v-row>
                   </v-list-item-content>
@@ -365,24 +366,6 @@
         </v-col>
       </v-row>
     </v-container>
-
-    <v-btn
-      fab
-      dark
-      color="black"
-      class="fixed-bottom-right"
-      @click="showPopup = !showPopup"
-    >
-      <v-icon>mdi-bell</v-icon>
-      <v-badge
-        color="red"
-        content="10"
-        overlap
-        class="notification-badge"
-      ></v-badge>
-    </v-btn>
-
-  
   </v-app>
   <!-- Fixed Bottom Navigation for Mobile -->
   <v-bottom-navigation class="hidden-md-and-up fixed
@@ -408,7 +391,6 @@
     </v-btn>
   </v-bottom-navigation>
 
-  
   <!-- Footer Section -->
   <v-footer class="footer black bg-black" padless>
     <v-container fluid>
@@ -452,89 +434,10 @@
   
   
 <script>
-export default {
-  data() {
-    return {
-      showPopup: false, // Controla a exibição do popup
-      dialog: false,
-      places: [], // Para armazenar os lugares próximos
-    };
-  },
-  mounted() {
-    this.getUserLocation();
-  },
-  methods: {
-    openDialog(eventId) {
-      this.dialog = true;
-    },
-    closeDialog() {
-      this.dialog = false;
-    },
-    // Obter localização do usuário
-    getUserLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(this.fetchNearbyPlaces, this.showError);
-      } else {
-        alert("Geolocalização não é suportada pelo navegador.");
-      }
-    },
 
-    // Chama a API Places com a localização do usuário
-    fetchNearbyPlaces(position) {
-      console.log('Posição:', position);
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-      const apiKey = 'YOUR_API_KEY'; // Insira sua chave da API Google Maps aqui
-      const url = `https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=1500&type=store&key=${apiKey}`;
 
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          this.places = data.results; // Atualiza a lista de lugares
-        })
-        .catch(error => console.log(error));
-    },
-
-    // Exibe erro de localização
-    showError(error) {
-      switch (error.code) {
-        case error.PERMISSION_DENIED:
-          alert("Usuário negou o pedido de geolocalização.");
-          break;
-        case error.POSITION_UNAVAILABLE:
-          alert("Informações de localização não estão disponíveis.");
-          break;
-        case error.TIMEOUT:
-          alert("O pedido para obter a localização do usuário expirou.");
-          break;
-        case error.UNKNOWN_ERROR:
-          alert("Ocorreu um erro desconhecido.");
-          break;
-      }
-    },
-
-    // Método para abrir o Google Maps com o local clicado
-    openGoogleMaps(place) {
-      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`;
-      window.open(url, '_blank');
-    }
-  }
-};
+   
 </script>
-
-<style>
-.fixed-bottom-right {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 10;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-}
-
+  <style scoped>
 
 </style>
