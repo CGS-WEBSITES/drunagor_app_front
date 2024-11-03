@@ -108,12 +108,20 @@ export class EquipmentItemRepository implements ItemDataRepository {
     return this.cards;
   }
 
-  findByType(type: ItemType, subType: ArmorType | ConsumableType | OffHandType | WeaponType | null = null): ItemData[] {
+  findByType(
+    type: ItemType,
+    subType:
+      | ArmorType
+      | ConsumableType
+      | OffHandType
+      | WeaponType
+      | null = null,
+  ): ItemData[] {
     const cards: ItemData[] = [];
 
     const isSubType = function (
       item: ItemData,
-      st: ArmorType | ConsumableType | OffHandType | WeaponType | null
+      st: ArmorType | ConsumableType | OffHandType | WeaponType | null,
     ): boolean {
       if (st === null) {
         return true;
@@ -126,10 +134,14 @@ export class EquipmentItemRepository implements ItemDataRepository {
         return (item as ConsumableItemData).consumableType === st;
       }
       if (instanceOfOffHandCardData(item)) {
-        return (item as OffHandItemData).offHandTypes.some((value) => value === st);
+        return (item as OffHandItemData).offHandTypes.some(
+          (value) => value === st,
+        );
       }
       if (instanceOfWeaponCardData(item)) {
-        return (item as WeaponItemData).weaponTypes.some((value) => value === st);
+        return (item as WeaponItemData).weaponTypes.some(
+          (value) => value === st,
+        );
       }
       return false;
     };

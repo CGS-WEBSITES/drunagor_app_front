@@ -35,7 +35,10 @@ function getExcludedCharacters(): string[] {
 }
 
 function getRandomMonster(color: MonsterColor) {
-  let monster: RandomMonster | null = new RandomizeMonster().randomizeByColor(color, getExcludedCharacters());
+  let monster: RandomMonster | null = new RandomizeMonster().randomizeByColor(
+    color,
+    getExcludedCharacters(),
+  );
 
   if (monster === null) {
     toast.add({
@@ -49,13 +52,17 @@ function getRandomMonster(color: MonsterColor) {
 
   currentCharacterId.value = monster.id;
   name.value = t(monster.translation_key);
-  variant.value = t(variantStore.find(monster.getRandomVariant()).translation_key);
+  variant.value = t(
+    variantStore.find(monster.getRandomVariant()).translation_key,
+  );
   frontImage.value = monster.image.main;
   backImage.value = monster.image.miniature;
 }
 
 function getRandomCommander() {
-  let commander: RandomCommander | null = new RandomizeCommander().randomize(getExcludedCharacters());
+  let commander: RandomCommander | null = new RandomizeCommander().randomize(
+    getExcludedCharacters(),
+  );
 
   if (commander === null) {
     toast.add({
@@ -90,14 +97,36 @@ function getRandomCommander() {
       :backImage="backImage"
     />
     <label class="cursor-pointer">
-      <span class="text-md pr-4">{{ $t("randomizer.exclude-current-monster") }}</span>
-      <Checkbox v-model="excludeCurrentCharacter" :binary="true" inputId="randomizer-exclude-current-character" />
+      <span class="text-md pr-4">{{
+        $t("randomizer.exclude-current-monster")
+      }}</span>
+      <Checkbox
+        v-model="excludeCurrentCharacter"
+        :binary="true"
+        inputId="randomizer-exclude-current-character"
+      />
     </label>
     <BaseButtonMenu>
-      <Button outlined :label="$t('randomizer.white')" @click="getRandomMonster('white')" />
-      <Button outlined :label="$t('randomizer.gray')" @click="getRandomMonster('gray')" />
-      <Button outlined :label="$t('randomizer.black')" @click="getRandomMonster('black')" />
-      <Button outlined :label="$t('randomizer.commander')" @click="getRandomCommander()" />
+      <Button
+        outlined
+        :label="$t('randomizer.white')"
+        @click="getRandomMonster('white')"
+      />
+      <Button
+        outlined
+        :label="$t('randomizer.gray')"
+        @click="getRandomMonster('gray')"
+      />
+      <Button
+        outlined
+        :label="$t('randomizer.black')"
+        @click="getRandomMonster('black')"
+      />
+      <Button
+        outlined
+        :label="$t('randomizer.commander')"
+        @click="getRandomCommander()"
+      />
     </BaseButtonMenu>
   </div>
 </template>

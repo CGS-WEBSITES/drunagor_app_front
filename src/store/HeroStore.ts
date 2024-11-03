@@ -7,7 +7,10 @@ export const HeroStore = defineStore("hero", () => {
   const heroes = useStorage("HeroStore.heroes", [] as Hero[]);
 
   function hasInCampaign(heroId: string, campaignId: string): boolean {
-    const inCampaign = _.find(heroes.value, { heroId: heroId, campaignId: campaignId });
+    const inCampaign = _.find(heroes.value, {
+      heroId: heroId,
+      campaignId: campaignId,
+    });
     if (inCampaign == undefined) {
       return false;
     }
@@ -15,7 +18,10 @@ export const HeroStore = defineStore("hero", () => {
   }
 
   function findInCampaign(heroId: string, campaignId: string): Hero {
-    const hero = _.find(heroes.value, { heroId: heroId, campaignId: campaignId });
+    const hero = _.find(heroes.value, {
+      heroId: heroId,
+      campaignId: campaignId,
+    });
     if (hero == undefined) {
       throw new Error("Hero could not be found: " + campaignId + " " + heroId);
     }

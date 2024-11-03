@@ -2,7 +2,8 @@
 keyword:
   - id: x-hp
     keyword: "+X PV"
-    description: La santé maximale du héros augmente de +X points. Comme expliqué à
+    description:
+      La santé maximale du héros augmente de +X points. Comme expliqué à
       la page 7 du livret de règles de l'Âge des Ténèbres, la santé maximale d'un héros
       ne peut cependant jamais dépasser 16. Si un héros a deux effets ou plus qui augmentent
       ses points de vie, vous devez toujours les additionner, mais ne jamais dépasser
@@ -10,7 +11,8 @@ keyword:
       à 16 est considérée comme gaspillée.
   - id: x-hp-(simple)
     keyword: "+X PV (SIMPLE)"
-    description: Si vous préférez ne pas vous soucier de la granularité de la règle
+    description:
+      Si vous préférez ne pas vous soucier de la granularité de la règle
       +X HP, vous pouvez choisir la version simple et ignorer les deuxième et troisième
       NOTES. Ainsi, si vous perdez un effet qui confère +X HP, vous perdez de la Santé
       en conséquence. Cependant, si vous récupérez ces effets plus tard, vous ne récupérerez
@@ -18,16 +20,19 @@ keyword:
       16 Santé.
   - id: x-dmg
     keyword: "+X ou -X DMG"
-    description: La valeur X est ajoutée ou soustraite aux dégâts infligés par votre
+    description:
+      La valeur X est ajoutée ou soustraite aux dégâts infligés par votre
       attaque. Les coups critiques et les DOUBLE DMG doublent également ce chiffre.
   - id: x-hit
     keyword: "+X ou -X COUP"
-    description: Effectuez une attaque avec une arme en ajoutant (ou en soustrayant)
+    description:
+      Effectuez une attaque avec une arme en ajoutant (ou en soustrayant)
       la valeur X à votre jet de dé. N'affecte que la précision, sans obtenir de coup
       critique.
   - id: x-to-hit
     keyword: "+X POUR TOUCHER"
-    description: "Toutes les attaques avec des armes que vous effectuez bénéficient
+    description:
+      "Toutes les attaques avec des armes que vous effectuez bénéficient
       d'un bonus de +X au test de précision pour atteindre vos cibles. Gardez à l'esprit
       que ce bonus n'affecte que le résultat de la Précision d'une arme, pas si vous
       obtenez un coup critique : si vous avez +6 POUR TOUCHER et que vous obtenez un
@@ -35,14 +40,16 @@ keyword:
       une précision de 20 et une précision de 14."
   - id: x-movement
     keyword: "+X MOUVEMENT"
-    description: Vous avez reçu X points de mouvement supplémentaires pour chaque effet
+    description:
+      Vous avez reçu X points de mouvement supplémentaires pour chaque effet
       de mouvement gagné.
   - id: action-cubes-(ac)
     keyword: CUBES D'ACTION (CA)
     description: Cubes colorés dépensés par les héros pour utiliser leurs compétences.
   - id: activate
     keyword: ACTIVER
-    description: "Activate est un terme compliqué qui apparaît dans de nombreux effets
+    description:
+      "Activate est un terme compliqué qui apparaît dans de nombreux effets
       au cours des trois générations du système AoD. À la base de sa conception, Activate
       est l’instruction de prendre son tour. Ainsi, lorsque vous activez un monstre,
       par exemple, vous jouez un tour avec ce monstre ; Chaque fois qu'un monstre joue
@@ -55,40 +62,47 @@ keyword:
       dans un espace adjacent inoccupé à côté de son maître."
   - id: adj-or-adjacent
     keyword: ADJ OU ADJACENT
-    description: Cet effet ne peut affecter qu'une cible située dans une case adjacente
+    description:
+      Cet effet ne peut affecter qu'une cible située dans une case adjacente
       au personnage qui lance le sort, quelle que soit la portée de la compétence.
   - id: area
     keyword: ZONE
     description: Fait référence à un carré bleu sur une tuile de carte.
   - id: all
     keyword: TOUS
-    description: Un effet avec ce terme signifie équivalent aux dégâts que la cible
+    description:
+      Un effet avec ce terme signifie équivalent aux dégâts que la cible
       reçoit. L'effet ne s'applique toujours qu'à une seule cible d'une attaque, pas
       aux deux ni à plusieurs, pendant MULTISHOT, CLEAVE ou STRIKE.
   - id: ambush
     keyword: EMBUSCADE
-    description: Le monstre se téléporte dans n'importe quel espace inoccupé adjacent
+    description:
+      Le monstre se téléporte dans n'importe quel espace inoccupé adjacent
       à sa cible au choix de cette cible. Souffre du terrain sur lequel il a atterri.
   - id: attack-twice
     keyword: ATTAQUEZ DEUX FOIS
-    description: Le monstre se déplace une fois puis attaque deux fois. Chaque attaque
+    description:
+      Le monstre se déplace une fois puis attaque deux fois. Chaque attaque
       est résolue séparément (inclut les réactions). Si le personnage est hors de portée
       entre deux attaques, le monstre peut choisir une autre cible pour une deuxième
       attaque tant qu'il n'a pas à bouger.
   - id: aura
     keyword: AURA
-    description: Un héros ne peut en avoir qu'un et est retiré lorsqu'il est assommé
+    description:
+      Un héros ne peut en avoir qu'un et est retiré lorsqu'il est assommé
       et reçoit un TRAUMA CUBE. (Non supprimé pendant la phase de camp)
   - id: aura-(token)
     keyword: AURA (TOKEN)
-    description: En tant qu'effet de résolution, un héros est souvent invité à écrire
+    description:
+      En tant qu'effet de résolution, un héros est souvent invité à écrire
       une aura sur son journal de campagne ou son application compagnon. Vous pouvez
       conserver ce jeton sur votre plateau pour vous rappeler tactilement et visuellement
       que vous y avez noté un effet spécial. Les jetons Aura sont des jetons de rappel
       et ont été introduits dans Apocalypse.
   - id: available
     keyword: DISPONIBLE
-    description: Disponible fait davantage référence à un terme de jeu qu'à nécessairement
+    description:
+      Disponible fait davantage référence à un terme de jeu qu'à nécessairement
       un mot-clé. Une Compétence Disponible, par exemple, est une Compétence apprise
       par un Héros dont l'emplacement n'est pas actuellement occupé (que ce soit par
       un Cube Action, un Cube Malédiction ou un Cube Trauma). Une résolution disponible,
@@ -96,36 +110,42 @@ keyword:
       facturée ou qui n'a pas été déclarée « indisponible » par un effet quelconque.
   - id: avoid
     keyword: ÉVITER
-    description: Éviter n'est pas à proprement parler un mot-clé, cependant, c'est un
+    description:
+      Éviter n'est pas à proprement parler un mot-clé, cependant, c'est un
       nouveau terme par rapport à la Corebox, il mérite donc d'être clarifié. « Éviter »
       est utilisé pour indiquer que vous ne subissez aucun effet, tout comme le ferait
       PREVENT, mais comme PREVENT est un mot clé, l'adoption d'un terme différent est
       nécessaire.
   - id: bash
     keyword: FRAPPER
-    description: Bash est un trait caractéristique du héros Andreas. Chaque fois qu'une
+    description:
+      Bash est un trait caractéristique du héros Andreas. Chaque fois qu'une
       compétence a Bash, au moment où vous êtes sur le point de résoudre l'effet contenant
       le mot-clé Bash, vous pouvez défausser 2 jetons Bouclier. Si vous le faites, ajoutez
       l’effet décrit entre les « [] » à votre résolution de compétence. Sinon, vous
       devez résoudre cette Compétence sans la considérer comme faisant partie de l’effet.
   - id: bear-trap
     keyword: PIÈGE À OURS
-    description: Tous les ennemis dans la ZONE subissent 2 dégâts non évitables, SAIGNEMENT
+    description:
+      Tous les ennemis dans la ZONE subissent 2 dégâts non évitables, SAIGNEMENT
       2, DÉFAUT.
   - id: beginning-of-turn-(bot)
     keyword: DÉBUT DE TOUR (BOT)
-    description: BOT est une abréviation utilisée pour décrire le moment du « Début
+    description:
+      BOT est une abréviation utilisée pour décrire le moment du « Début
       du tour », où les capacités spéciales de certains personnages sont déclenchées,
       juste après qu'ils aient subi les effets des conditions qu'ils possèdent et qui
       se déclenchent également au début de leur tour.
   - id: bleed-x
     keyword: SAIGNEMENT X
-    description: La cible prend X jetons BLEED. Au début du prochain tour de ce personnage,
+    description:
+      La cible prend X jetons BLEED. Au début du prochain tour de ce personnage,
       il subit 1 dégât non évitable pour chaque jeton BLEED qu'il possède, puis les
       retire tous de son plateau. BLEED est une condition empilable.
   - id: blindness
     keyword: CÉCITÉ
-    description: Il s'agit d'une capacité spéciale que possèdent quelques monstres et
+    description:
+      Il s'agit d'une capacité spéciale que possèdent quelques monstres et
       qui les transforme en ennemis très dangereux. Lorsqu'un personnage souffre de
       CÉCITÉ, il doit prendre un jeton AVEUGLE et le conserver sur son plateau. Lorsqu'il
       détient un jeton BLIND, le personnage rate automatiquement toute attaque avec
@@ -135,11 +155,13 @@ keyword:
       un effet NETTOYAGE.
   - id: bloodseeker
     keyword: CHERCHEUR DE SANG
-    description: Un monstre avec Bloodseeker cible le héros le plus faible (celui avec
+    description:
+      Un monstre avec Bloodseeker cible le héros le plus faible (celui avec
       le moins de santé en ce moment) comme cible principale.
   - id: bounty
     keyword: PRIME
-    description: Bounty remplace et met à jour le mot-clé « LOOT » que les compagnons
+    description:
+      Bounty remplace et met à jour le mot-clé « LOOT » que les compagnons
       avaient dans Age of Darkness. Par conséquent, lorsqu'un monstre est vaincu par
       une attaque dotée de BOUNTY, ce monstre laisse tomber un jeton BUTIN lorsqu'il
       est retiré du plateau (les jetons BUTIN sont des objets mobiles au sol qui peuvent
@@ -147,7 +169,8 @@ keyword:
       pioche un coffre. carte, mais ne lance pas le dé Piège).
   - id: brittle
     keyword: FRAGILE
-    description: Certaines attaques sont capables de rendre leurs adversaires vulnérables.
+    description:
+      Certaines attaques sont capables de rendre leurs adversaires vulnérables.
       Lorsqu'un personnage souffre de Fragile, il doit prendre un jeton Fragile et le
       conserver sur son plateau. S'il s'agit d'un héros, d'un animal de compagnie ou
       d'un compagnon de quelque sorte que ce soit, la prochaine fois qu'il subira des
@@ -159,12 +182,14 @@ keyword:
       condition redondante.
   - id: burn-x
     keyword: BRÛLER X
-    description: La cible prend X jetons BURN. Au début du prochain tour de ce personnage,
+    description:
+      La cible prend X jetons BURN. Au début du prochain tour de ce personnage,
       il subit 1 dégât non évitable pour chaque jeton BURN dont il dispose, puis retire
       l'un de ces jetons de son plateau. BURN est une condition empilable.
   - id: cancel
     keyword: ANNULER
-    description: Annuler est un terme qui est désormais associé aux interruptions en
+    description:
+      Annuler est un terme qui est désormais associé aux interruptions en
       raison de leur capacité à répondre à une attaque pendant qu'elle est lancée, plutôt
       qu'après qu'elle ait déjà atteint sa cible. Lorsqu’une attaque est annulée, cela
       signifie qu’elle n’existe plus et ne cause plus de dégâts à aucune de ses cibles.
@@ -174,13 +199,15 @@ keyword:
       aucune réaction) contre cette attaque.
   - id: cast
     keyword: CASTING
-    description: Ce terme est utilisé pour définir le moment où un effet est appliqué
+    description:
+      Ce terme est utilisé pour définir le moment où un effet est appliqué
       dans le jeu, souvent lié au Personnage chargé de le provoquer. Ainsi, lorsque
       votre Héros dépense un de ses Cubes d'Action pour utiliser une Compétence de Focus
       de Combat, par exemple, ce Héros lance un effet FOCUS 1 ET NETTOYAGE 1.
   - id: catalyze
     keyword: CATALYSER
-    description: Il s'agit d'un mot-clé conçu pour condenser un effet en un seul mot,
+    description:
+      Il s'agit d'un mot-clé conçu pour condenser un effet en un seul mot,
       économisant ainsi de l'espace dans le texte. Lorsqu'un Héros Catalyse, cela signifie
       que le prochain Cube d'Action qu'il utilise ce tour-ci (tour en cours uniquement)
       est traité comme un Wild Cube (s'il est utilisé pour utiliser une Compétence de
@@ -191,7 +218,8 @@ keyword:
       qu'une compétence de mêlée activée via un Wild Cube a toujours Portée de mêlée).
   - id: chain-up
     keyword: ENCHAÎNER
-    description: Les monstres dotés de cette compétence se spécialisent dans la capture
+    description:
+      Les monstres dotés de cette compétence se spécialisent dans la capture
       de héros. Au début de son tour, immédiatement après avoir subi les effets de toute
       condition qui pourrait l'affecter, un monstre avec Chain-Up cible le héros le
       plus fort qui n'est pas adjacent et à portée 1 (s'il existe un tel héros). Ce
@@ -200,20 +228,23 @@ keyword:
       subit 4 dégâts inévitables au lieu de 2, mais il n'est pas traîné.
   - id: channel
     keyword: CANAL
-    description: Tant qu'une Compétence avec Canalisation a un Cube Action occupant
+    description:
+      Tant qu'une Compétence avec Canalisation a un Cube Action occupant
       son emplacement (pas lorsqu'elle est bloquée par un Cube Malédiction ou un Cube
       Trauma), le bonus passif décrit dans « Canal - Effet » prend effet comme s'il
       s'agissait d'une Compétence Passive. Cet avantage s'applique également à la compétence
       même qui l'a généré. Cela dure jusqu'à ce que ce Cube d'Action soit rappelé.
   - id: character
     keyword: PERSONNAGE
-    description: Héros, monstres, animaux de compagnie, PNJ, compagnons, etc. Tous peuvent
+    description:
+      Héros, monstres, animaux de compagnie, PNJ, compagnons, etc. Tous peuvent
       recevoir des effets comme PRÉVENIR, mais seuls les personnages possédant des cartes
       ou des tableaux peuvent détenir des Conditions ou des Ressources. Les personnages
       sont des objets solides mobiles à des fins de règles.
   - id: charge
     keyword: CHARGE
-    description: "Certains monstres ont la capacité de charger leurs ennemis pour maximiser
+    description:
+      "Certains monstres ont la capacité de charger leurs ennemis pour maximiser
       leurs attaques. Chaque fois qu'un monstre doté de cette capacité se déplace de
       3 cases ou plus afin d'atteindre sa cible, considérez la valeur de base des dégâts
       de cette attaque comme si elle était le double. N'oubliez pas : les monstres
@@ -228,7 +259,8 @@ keyword:
       déterminée."
   - id: charm
     keyword: CHARME
-    description: "En enchantant la simplicité d'esprit d'une créature des ténèbres,
+    description:
+      "En enchantant la simplicité d'esprit d'une créature des ténèbres,
       un héros peut la forcer à attaquer ses propres alliés. Lorsqu'un Monstre est
       Charmé, le joueur qui l'a ensorcelé active immédiatement ce Monstre et contrôle
       son tour. De cette façon, vous pouvez le forcer à attaquer ses propres alliés,
@@ -241,7 +273,8 @@ keyword:
       valeur de base déterminée."
   - id: claim
     keyword: RÉCLAMER
-    description: La revendication est un effet typique des seigneurs de guerre, représentant
+    description:
+      La revendication est un effet typique des seigneurs de guerre, représentant
       leur capacité à coordonner les assauts de leurs alliés. Lorsqu'un Héros utilise
       Réclamation, il place (ou remplace) la Bannière sur une case vide qui lui est
       adjacente. Sous l'influence d'une bannière, en tant qu'action mineure, un héros
@@ -253,7 +286,8 @@ keyword:
       lancées sur un Personnage.
   - id: cleanse-x
     keyword: NETTOYER X
-    description: "La cible supprime jusqu'à X CC et tous les POISONS de son plateau.
+    description:
+      "La cible supprime jusqu'à X CC et tous les POISONS de son plateau.
       <br><br> *Apocalypse a mis à jour CLEANSE comme suit :* <br><br> La cible supprime
       jusqu'à X cubes de malédiction ou piles de conditions de son plateau. Une pile
       est : tous les jetons du même type que possède le personnage. Pour chaque point
@@ -262,15 +296,18 @@ keyword:
       la même manière."
   - id: cleave-x
     keyword: CLAVER X
-    description: Ciblez jusqu'à X ennemis adjacents à l'attaquant lors d'un seul jet
+    description:
+      Ciblez jusqu'à X ennemis adjacents à l'attaquant lors d'un seul jet
       d'attaque.
   - id: command
     keyword: COMMANDE
-    description: Active le prochain monstre le plus fort (pas lui-même), puis continue
+    description:
+      Active le prochain monstre le plus fort (pas lui-même), puis continue
       son tour.
   - id: command-a-draugr
     keyword: COMMANDER UN DRAUGR
-    description: Commander un Draugr signifie activer un Draugr de votre choix qui est
+    description:
+      Commander un Draugr signifie activer un Draugr de votre choix qui est
       déjà sur le plateau. Contrairement aux autres familiers, les Draugrs ne peuvent
       pas être « élevés » via un effet « Commande » ou vice versa. Pour eux, ces effets
       agissent indépendamment. En dehors de ce détail, les Draugrs suivent les mêmes
@@ -278,7 +315,8 @@ keyword:
       règles.
   - id: command-a-pet
     keyword: COMMANDER UN ANIMAL DE COMPAGNIE
-    description: Commander un familier est un effet similaire à Activer un familier,
+    description:
+      Commander un familier est un effet similaire à Activer un familier,
       avec la restriction qu'il ne peut jamais être utilisé pour invoquer un familier
       sur le plateau. Ainsi, lorsque vous commandez un animal que vous avez invoqué,
       vous devez choisir un animal qui est déjà sur le plateau et qui vous est affilié
@@ -289,18 +327,21 @@ keyword:
       que vous commandez un familier, vous pouvez choisir de le résoudre en premier.
   - id: companions
     keyword: COMPAGNONS
-    description: S'active après le héros qu'il suit, bouge puis attaque. Ne sera attaqué
+    description:
+      S'active après le héros qu'il suit, bouge puis attaque. Ne sera attaqué
       que si aucun héros n'est à portée. Le numéro en haut à gauche est ROBUSTESSE.
       Peut contenir des BOUCLIERS et recevoir des effets de PRÉVENTION. Déchargé pendant
       la phase de camp.
   - id: copy-effect
     keyword: EFFET DE COPIE
-    description: Copie l'effet d'une autre compétence de héros, y compris sa couleur
+    description:
+      Copie l'effet d'une autre compétence de héros, y compris sa couleur
       de base (portée). **Les compétences de jet de donjon, les compétences d'équipement
       et les réactions, sauf indication contraire, ne peuvent pas être copiées.**
   - id: counter-x
     keyword: COMPTEUR X
-    description: Certains Monstres sont versés dans l'art de l'escrime et savent profiter
+    description:
+      Certains Monstres sont versés dans l'art de l'escrime et savent profiter
       des dérapages d'un Héros lorsqu'ils les combattent. Chaque fois qu'un héros rate
       une attaque avec une arme contre un monstre doté de cette capacité (une attaque
       n'est considérée comme un échec qu'après avoir utilisé ses capacités de relance),
@@ -308,7 +349,8 @@ keyword:
       à tous les ennemis du Monstre qui lui est adjacent.
   - id: cover
     keyword: COUVERTURE
-    description: Certaines capacités de protection que possèdent les héros vont au-delà
+    description:
+      Certaines capacités de protection que possèdent les héros vont au-delà
       de la simple atténuation des dégâts ; ils peuvent également changer la cible d'une
       attaque. Lorsqu'un personnage couvre la cible d'une attaque, il redirige cette
       attaque vers lui-même, devenant ainsi la nouvelle cible de cette attaque. Tout
@@ -318,27 +360,32 @@ keyword:
       subirez les deux attaques comme si vous aviez été ciblé par lui deux fois.
   - id: covetous
     keyword: COUVEUX
-    description: Un monstre avec des cibles convoitées cible le héros qui détient plus
+    description:
+      Un monstre avec des cibles convoitées cible le héros qui détient plus
       de jetons de ressources (FOCUS, SHIELD et KI en sont des exemples) comme cible
       principale. Si deux Héros sont à égalité avec le même nombre de jetons Ressource,
       un Monstre avec Cupidité cible celui d'entre eux qui occupe l'emplacement d'Initiative
       le plus rapide.
   - id: crit-x
     keyword: CRIT X+
-    description: Lancer X ou plus sur D20 donne un coup critique (x2 DMG). N'inflige
+    description:
+      Lancer X ou plus sur D20 donne un coup critique (x2 DMG). N'inflige
       pas de doubles conditions.
   - id: cube-action-(ca)
     keyword: CUBE ACTION (CA)
-    description: Dépenser un AC. Un héros peut effectuer 2 CA par tour et peut utiliser
+    description:
+      Dépenser un AC. Un héros peut effectuer 2 CA par tour et peut utiliser
       d'autres actions avant, entre ou après chaque CA. Les réactions ne comptent pas.
   - id: cube-range-(cr)
     keyword: GAMME CUBES (CR)
-    description: Défini par la couleur du cube utilisé. Jaune (Mêlée) = Cible sur un
+    description:
+      Défini par la couleur du cube utilisé. Jaune (Mêlée) = Cible sur un
       CARRÉ adjacent. Rouge (à distance) = Ciblez sur n'importe quel CARRÉ jusqu'à 1
       ZONE de distance. Vert (Agilité) / Bleu (Sagesse) = Cible à n'importe quelle distance.
   - id: curse-cubes-(cc)
     keyword: CUBES DE MALÉDICTION (CC)
-    description: Cubes noirs alloués aux compétences de héros ou de rôles de donjon
+    description:
+      Cubes noirs alloués aux compétences de héros ou de rôles de donjon
       qui bloquent leur utilisation. Le héros est corrompu dès qu'il reçoit un 6ème
       CC et met fin à l'aventure.
   - id: curse-x
@@ -346,24 +393,28 @@ keyword:
     description: La cible gagne X CC comme effet.
   - id: darkness-behavior
     keyword: COMPORTEMENT DANS L'OBSCURITÉ
-    description: 'Essaie d''atteindre le héros le plus fort qui n''est pas au sommet
+    description:
+      'Essaie d''atteindre le héros le plus fort qui n''est pas au sommet
       des ténèbres. "Crush" : Si tous les héros sont déjà au-dessus des ténèbres lorsqu''une
       rune est tirée, sautez la tuile d''apparition et tous les héros subissent N dégâts.
       (N = Nombre de Héros).'
   - id: darkness-effect-(standing-on-it)
     keyword: EFFET OBSCURITÉ (DEBOUT SUR ELLE)
-    description: "Inflige 2 dégâts non évitables à un héros (une fois par tour), à un
+    description:
+      "Inflige 2 dégâts non évitables à un héros (une fois par tour), à un
       compagnon ou à un animal de compagnie attrapé par lui lors de son apparition ;
       j'ai marché dessus pour la première fois dans un virage ; ou a terminé son tour
       par-dessus. Héros : impose une pénalité de -2 HIT. Monstres : donne un bonus de
       +2 DMG."
   - id: defiant
     keyword: DE DÉFI
-    description: Un monstre avec Defiant cible le héros le plus vigoureux (celui avec
+    description:
+      Un monstre avec Defiant cible le héros le plus vigoureux (celui avec
       le plus de cubes d'action disponibles à l'heure actuelle) comme cible principale.
   - id: devourer
     keyword: DÉVOUREUR
-    description: "Les monstres dotés de cette capacité présentent un comportement atypique.
+    description:
+      "Les monstres dotés de cette capacité présentent un comportement atypique.
       Ils privilégient la recherche de proies plutôt que de victimes. Par conséquent,
       ces monstres ont des jetons PNJ blessés comme cible principale au lieu des héros.
       Lorsqu’ils attaquent l’un de ces jetons, ils le tuent immédiatement, rassasiant
@@ -376,24 +427,28 @@ keyword:
       passe au standard : le héros le plus fort à portée."
   - id: difficult-terrain
     keyword: TERRAIN DIFFICILE
-    description: Un personnage affecté par un terrain difficile (comme l'eau) perd 1
+    description:
+      Un personnage affecté par un terrain difficile (comme l'eau) perd 1
       point de mouvement à cause de son effet de mouvement actuel. Comme pour tout terrain
       dangereux, un personnage ne peut être affecté par un terrain difficile qu'une
       fois par tour.
   - id: disarm
     keyword: DÉSARMER
-    description: "(Compte comme FATIGUE) DÉPENDEZ toute la CA disponible en mêlée et
+    description:
+      "(Compte comme FATIGUE) DÉPENDEZ toute la CA disponible en mêlée et
       à distance."
   - id: discard
     keyword: JETER
     description: Supprimez cette chose de votre tableau.
   - id: drain-health
     keyword: SANTÉ DES VIDANGES
-    description: La cible perd X quantité de santé et le lanceur la gagne. Les réactions
+    description:
+      La cible perd X quantité de santé et le lanceur la gagne. Les réactions
       ne peuvent pas être utilisées.
   - id: empower
     keyword: HABILITER
-    description: En concentrant votre énergie, vous vous préparez à porter un coup puissant.
+    description:
+      En concentrant votre énergie, vous vous préparez à porter un coup puissant.
       Lorsque vous donnez du pouvoir, la prochaine attaque avec une arme ou une attaque
       magique que vous effectuez ce tour-ci gagne +4 DMG. Notez que cet effet ne dure
       que jusqu'à la fin de ce tour ou lorsque vous effectuez votre prochaine attaque
@@ -404,7 +459,8 @@ keyword:
       s'applique donc à toutes. d'eux).
   - id: end-of-turn-(eot)
     keyword: FIN DE TOUR (EOT)
-    description: "EOT est une abréviation utilisée pour décrire le moment de « Fin du
+    description:
+      "EOT est une abréviation utilisée pour décrire le moment de « Fin du
       tour », lorsque certains effets sont déclenchés, comme ceux qui durent jusqu'à
       la fin du tour du personnage. La fin du tour est exactement la dernière chose
       qui se produit dans un tour, avant que le marqueur Initiative 81 soit avancé :
@@ -414,15 +470,18 @@ keyword:
       la résolution de cet effet."
   - id: enemy
     keyword: ENNEMI
-    description: Tout personnage qui ne fait pas partie de votre groupe ou un PNJ. Les
+    description:
+      Tout personnage qui ne fait pas partie de votre groupe ou un PNJ. Les
       héros sont les ennemis des monstres.
   - id: engaged
     keyword: ENGAGÉ
-    description: Lorsqu'un personnage est adjacent à un ennemi. Les attaques à distance
+    description:
+      Lorsqu'un personnage est adjacent à un ennemi. Les attaques à distance
       et la plupart des actions mineures ne sont pas autorisées.
   - id: enrage
     keyword: ENRAGER
-    description: Certains Monstres ont un goût du combat qui grandit au fur et à mesure
+    description:
+      Certains Monstres ont un goût du combat qui grandit au fur et à mesure
       qu'ils infligent des blessures à leurs ennemis. Chaque fois qu'un monstre possédant
       cette capacité comme dommage collatéral peut réduire la santé d'un personnage
       ou retirer un personnage spécial (animal de compagnie, compagnon ou tout autre
@@ -432,7 +491,8 @@ keyword:
       de la première attaque.
   - id: entropy
     keyword: ENTROPIE
-    description: "Les spécialistes du lancement de sorts peuvent provoquer des transformations
+    description:
+      "Les spécialistes du lancement de sorts peuvent provoquer des transformations
       miraculeuses de leurs sorts en libérant de grandes quantités d'énergie. Chaque
       fois qu’ils le font, l’oscillation d’énergie résultant de ce processus génère
       ce que nous appelons l’entropie arcanique, ou simplement l’entropie. Lorsqu'un
@@ -446,20 +506,24 @@ keyword:
     description: Le monstre gagne +2 DMG et +1 MOVE.
   - id: expend
     keyword: DÉPENSER
-    description: Déplacez une CA disponible vers la case CA dépensée sur le plateau
+    description:
+      Déplacez une CA disponible vers la case CA dépensée sur le plateau
       des héros. La CA dépensée peut être rappelée mais ne peut pas être utilisée pour
       des compétences pendant votre séjour.
   - id: falling-damage
     keyword: DÉGÂTS DE CHUTE
-    description: Le personnage subit 2 dégâts non évitables en descendant deux niveaux
+    description:
+      Le personnage subit 2 dégâts non évitables en descendant deux niveaux
       en une seule étape.
   - id: fatigue-x
     keyword: FATIGUEX
-    description: La cible doit dépenser X (ou autant que possible) de sa CA disponible
+    description:
+      La cible doit dépenser X (ou autant que possible) de sa CA disponible
       sans effet.
   - id: fine
     keyword: BIEN
-    description: "Fine est un terme créé pour condenser un état de jeu plus vaste en
+    description:
+      "Fine est un terme créé pour condenser un état de jeu plus vaste en
       un seul mot : un personnage Fine est un personnage qui possède actuellement la
       moitié ou plus de sa santé maximale (arrondie au supérieur). Fine est le contraire
       de Blessé. Par exemple, tant qu'un héros avec 15 points de vie maximum a 8 PV
@@ -468,30 +532,35 @@ keyword:
       la moitié de sa santé maximale."
   - id: fire-trap
     keyword: PIÈGE DE FEU
-    description: Tous les ennemis dans la ZONE subissent 2 dégâts non évitables, BRÛLENT
+    description:
+      Tous les ennemis dans la ZONE subissent 2 dégâts non évitables, BRÛLENT
       4, DÉFAUTENT.
   - id: flyby
     keyword: SURVOL
-    description: Ce familier revient librement sur un CARRÉ de son choix adjacent à
+    description:
+      Ce familier revient librement sur un CARRÉ de son choix adjacent à
       son maître après avoir attaqué. Uniquement affecté par le terrain/les ténèbres
       une fois atterri.
   - id: focus-x
     keyword: FOCUS X
-    description: La cible gagne X jetons FOCUS, qu'elle peut ensuite dépenser pour utiliser
+    description:
+      La cible gagne X jetons FOCUS, qu'elle peut ensuite dépenser pour utiliser
       ses capacités de concentration. FOCUS est une ressource empilable.
   - id: free-recall-action
     keyword: ACTION DE RAPPEL GRATUITE
     description: Le héros effectue une ACTION DE RAPPEL sans subir de pénalité de CC.
   - id: fruit-of-life
     keyword: FRUIT DE VIE
-    description: "Avec une Action Mineure Utiliser un Objet Consommable, un Personnage
+    description:
+      "Avec une Action Mineure Utiliser un Objet Consommable, un Personnage
       détenant un FRUIT DE VIE peut le défausser pour : SOI, RETROUVER 2 SANTÉ. De plus,
       ces fruits sont considérés comme des objets et peuvent être échangés avec d’autres
       héros comme n’importe quel autre objet le serait normalement, mais ils n’occupent
       aucun espace dans le sac. FRUIT OF LIFE est une ressource empilable."
   - id: fury
     keyword: FUREUR
-    description: Lorsque vous frappez avec une attaque magique ou une attaque armée,
+    description:
+      Lorsque vous frappez avec une attaque magique ou une attaque armée,
       vous pouvez défausser 1 FUREUR pour ajouter +1 DÉG à votre attaque. Vous ne pouvez
       défausser qu'1 jeton FURY par tour ou Réaction (Si vous avez une capacité qui
       est aussi une Réaction, par exemple). FURY est une ressource empilable.<br><br>
@@ -509,7 +578,8 @@ keyword:
     description: La cible récupère X Health qui ne peut pas dépasser la santé maximale.
   - id: heavy-wield
     keyword: MANIEMENT LOURD
-    description: Les armes dotées de la propriété Heavy Wield sont plus difficiles à
+    description:
+      Les armes dotées de la propriété Heavy Wield sont plus difficiles à
       manipuler, mais font généralement plus de dégâts lorsqu'elles frappent. Tant que
       vous êtes équipé d'une arme dotée d'un maniement lourd, vous ne pouvez effectuer
       qu'une seule attaque avec une arme à partir de chaque action d'attaque avec une
@@ -522,7 +592,8 @@ keyword:
       ou en dépensant un jeton KI.
   - id: idol
     keyword: IDOLE
-    description: Les idoles sont des personnages possédant des propriétés magiques que
+    description:
+      Les idoles sont des personnages possédant des propriétés magiques que
       les héros peuvent invoquer pour les aider au combat. Lorsqu'une Idole est Invoquée,
       le Héros place ou repositionne (si cette Idole est déjà sur le plateau) son jeton
       correspondant à l'intersection centrale de la zone (carré bleu) dans laquelle
@@ -536,12 +607,14 @@ keyword:
       n'importe quelle combinaison de 2 jetons ressource.
   - id: immunity
     keyword: IMMUNITÉ
-    description: Ce personnage ne peut pas être affecté par les conditions/effets. L'immunité
+    description:
+      Ce personnage ne peut pas être affecté par les conditions/effets. L'immunité
       furtive signifie qu'ils peuvent cibler cette unité et ne peuvent pas être surpris
       (x2 DMG).
   - id: inflict
     keyword: INFLIGER
-    description: C'est le terme utilisé pour désigner un effet (généralement des Conditions)
+    description:
+      C'est le terme utilisé pour désigner un effet (généralement des Conditions)
       appliqué par un personnage qui lance un sort contre un personnage cible sans lui
       donner une chance de se défendre, comme le feraient des dommages non évitables.
       Ainsi, un effet Infligé ne génère aucune Attaque ou Menace (même s'il provient
@@ -551,20 +624,23 @@ keyword:
       pas lorsqu'elle lui est infligée.
   - id: inspire
     keyword: INSPIRER
-    description: Représentant un boost de moral, lorsqu'un héros devient inspiré, il
+    description:
+      Représentant un boost de moral, lorsqu'un héros devient inspiré, il
       reçoit un jeton Inspiration. En défaussant l'un de ces jetons (aucune action requise),
       un Héros peut relancer n'importe quel jet de d20 qu'il vient de faire, prenant
       le deuxième résultat même s'il est inférieur au premier. L'inspiration est une
       ressource redondante.
   - id: interact
     keyword: INTERAGIR
-    description: Les interactions sont des situations qui surviennent au cours d'une
+    description:
+      Les interactions sont des situations qui surviennent au cours d'une
       Aventure dans lesquelles votre Héros peut (ou devrait) intervenir. Certaines interactions
       seront présentées à votre groupe via des effets en jeu, mais la plupart d'entre
       elles se trouveront sur le plateau sous forme de jetons d'interaction.
   - id: interact-(stack-of-barrels)
     keyword: INTERAGIR (PILE DE BARILS)
-    description: Les nains et les halfelins (uniquement ceux-là) peuvent pénétrer dans
+    description:
+      Les nains et les halfelins (uniquement ceux-là) peuvent pénétrer dans
       les tonneaux et les utiliser comme cachettes. Pour arrêter de se cacher, le héros
       devra utiliser une autre action mineure.<br><br>- Lorsqu'un héros entre dans un
       tonneau, retirez sa figurine du plateau. Pendant leur présence, ils ne pourront
@@ -578,24 +654,28 @@ keyword:
       Ce Héros subit 2 dégâts irréversibles.
   - id: interact-(bookshelf)
     keyword: INTERAGIR (BIBLIOTHÈQUE)
-    description: Lorsqu'un Héros interagit avec une Bibliothèque, il peut rechercher
+    description:
+      Lorsqu'un Héros interagit avec une Bibliothèque, il peut rechercher
       dans la pioche Coffre une carte Parchemin et la conserver ou l'utiliser immédiatement
       comme une action libre, comme s'il venait de la piocher dans la pioche Coffre.
       Ensuite, retirez la bibliothèque du tableau.
   - id: interact-(chest)
     keyword: INTERAGIR (POITRINE)
-    description: "Lorsqu'un Héros interagit avec un Coffre : <br><br> - Il pioche une
+    description:
+      "Lorsqu'un Héros interagit avec un Coffre : <br><br> - Il pioche une
       carte du dessus du paquet Coffre. Ce Héros peut choisir de consommer cet Objet
       immédiatement en tant qu'Action Libre ou de le stocker dans son sac (s'il y
       a de la place).<br> - Enfin, lors de la recherche d'un Coffre, le Héros doit
       lancer le Dé Piège et en subir l'effet."
   - id: interact-(pile-of-crates)
     keyword: INTERAGIR (TAS DE CAISSES)
-    description: Les tas de caisses ne sont bonnes à rien en particulier. Ils comptent
+    description:
+      Les tas de caisses ne sont bonnes à rien en particulier. Ils comptent
       comme des obstacles jusqu'à ce qu'ils soient détruits ou jetés.
   - id: interact-(stone-fountain)
     keyword: INTERAGIR (FONTAINE EN PIERRE)
-    description: "Lorsqu'un Héros interagit avec une fontaine, il retourne le jeton
+    description:
+      "Lorsqu'un Héros interagit avec une fontaine, il retourne le jeton
       Concoction, applique ses effets, puis le défausse. Il y a trois effets possibles :<br><br>
       **Eau douce** (bleu) : rien de meilleur pour calmer les émotions rampantes ! Le
       personnage qui boit retrouve 2 points de vie et gagne 2 NETTOYAGES.<br><br> **Potion
@@ -607,11 +687,13 @@ keyword:
       4."
   - id: interact-(stone-pillar)
     keyword: INTERAGIR (PILIER DE PIERRE)
-    description: Les piliers de pierre ne servent à rien en particulier. Ils représentent
+    description:
+      Les piliers de pierre ne servent à rien en particulier. Ils représentent
       simplement un obstacle rigide.
   - id: interrupt
     keyword: INTERROMPRE
-    description: Cette compétence ne peut être utilisée qu'en réponse à un personnage
+    description:
+      Cette compétence ne peut être utilisée qu'en réponse à un personnage
       ciblé par une attaque, mais avant que le personnage ciblé ne dépense des jetons
       SHIELD et qu'une menace ne soit générée. Ainsi, les interruptions sont « plus
       rapides » que les réactions. Lors de l'utilisation d'une interruption, un personnage
@@ -623,7 +705,8 @@ keyword:
       par attaque, quel que soit le nombre de Personnages ciblés.
   - id: intimidate-x
     keyword: INTIMITER X
-    description: Le personnage a -X DMG pour chaque jeton INTIMIDATE qu'il détient.
+    description:
+      Le personnage a -X DMG pour chaque jeton INTIMIDATE qu'il détient.
       Contrairement aux autres conditions, INTIMIDATION ne prend pas effet au début
       du prochain tour, elle persiste jusqu'à ce qu'elle soit supprimée. La prochaine
       fois que le personnage affecté effectue une attaque (soit une attaque avec une
@@ -631,19 +714,22 @@ keyword:
       INTIMIDATION qu'il détient. INTIMIDATION est une condition empilable.
   - id: jump-x
     keyword: SAUT X
-    description: Identique à MOVE X mais uniquement affecté par le terrain sur lequel
+    description:
+      Identique à MOVE X mais uniquement affecté par le terrain sur lequel
       il atterrit et peut traverser les ennemis. Non affecté par les DOMMAGES DE CHUTE.
       Monter 2 niveaux coûte toujours 2 mouvements.
   - id: ki
     keyword: KI
-    description: Vous pouvez défausser un KI pour effectuer une attaque avec une arme
+    description:
+      Vous pouvez défausser un KI pour effectuer une attaque avec une arme
       avec +0 HIT. Peu importe si vous avez dépensé un KI pour effectuer une attaque
       avec une arme ou pour utiliser toute autre capacité que vous avez apprise, vous
       ne pouvez défausser qu'un seul KI par tour ou par réaction (si vous avez une capacité
       qui est également une réaction, par exemple). KI est une ressource empilable.
   - id: killing-blow
     keyword: COUP MEURTANT
-    description: Killing Blow n'est pas nécessairement un mot-clé, mais c'est un terme
+    description:
+      Killing Blow n'est pas nécessairement un mot-clé, mais c'est un terme
       qui mérite d'être clarifié. Le Killing Blow est l'attaque (et dans ce cas c'est
       forcément une attaque, les dégâts de Condition ne comptent pas par exemple) qui
       est chargée de vaincre le Monstre. Si un effet tue un personnage, naturellement,
@@ -655,7 +741,8 @@ keyword:
       l'attaque n'est pas considérée comme un coup fatal.
   - id: keen
     keyword: PASSIONNÉ
-    description: "Dans cette deuxième génération, nous avons remplacé le mot clé CRIT
+    description:
+      "Dans cette deuxième génération, nous avons remplacé le mot clé CRIT
       16+ par « Keen ». L'effet reste le même : si vous obtenez un 16 naturel ou plus
       sur le d20, vous obtenez un coup critique. Avec l'introduction des compétences
       de mise à niveau et de la mise à jour du trait Warlock, les interactions avec
@@ -665,14 +752,16 @@ keyword:
       cet avantage en Mot-clé pour éviter ce problème."
   - id: knock-down
     keyword: ABATTRE
-    description: La cible reçoit un jeton KNOCK DOWN. Contrairement à d'autres conditions,
+    description:
+      La cible reçoit un jeton KNOCK DOWN. Contrairement à d'autres conditions,
       KNOCK DOWN ne prend pas effet au début du prochain tour du personnage, il persiste
       jusqu'à ce qu'il soit supprimé. La prochaine fois que le personnage affecté reçoit
       un effet de déplacement, il annule cet effet et retire son jeton RENVERSEMENT
       de son plateau. KNOCK DOWN est une condition redondante.
   - id: knock-out
     keyword: ASSOMMER
-    description: Certaines compétences risquent tout en échange de la victoire. Lorsqu'un
+    description:
+      Certaines compétences risquent tout en échange de la victoire. Lorsqu'un
       Héros reçoit un effet K.O., il est immédiatement mis K.O. comme si sa Santé était
       réduite à zéro (il doit déposer sa figurine, prendre un Trauma Cube, et tout le
       reste comme décrit dans le Livre de Règles à la page 15). Un effet avec Knock
@@ -680,12 +769,14 @@ keyword:
       KO de cette manière.
   - id: large-monster
     keyword: GRAND MONSTRE
-    description: Ce Monstre est considéré comme Grand (même si sa base est de petite
+    description:
+      Ce Monstre est considéré comme Grand (même si sa base est de petite
       taille). Un grand monstre est immunisé contre le renversement, la poussée, l'étourdissement
       et la télékinésie.
   - id: learn
     keyword: APPRENDRE
-    description: Pendant la campagne, les termes utilisés pour représenter la progression
+    description:
+      Pendant la campagne, les termes utilisés pour représenter la progression
       de votre héros en acquérant une nouvelle compétence ou capacité de classe étaient
       « Apprend et débloque ». Désormais, ce terme a été simplifié pour simplement « Apprendre »,
       mais son objectif est le même. Ainsi, lorsque votre héros apprend une compétence
@@ -704,7 +795,8 @@ keyword:
       de niveau 1 ou 2 (respectivement). appartenant à ce même arbre de classes.
   - id: loot-(tokens)
     keyword: BUTIN (JETONS)
-    description: "Les jetons Butin sont des objets terrestres mobiles qui peuvent être
+    description:
+      "Les jetons Butin sont des objets terrestres mobiles qui peuvent être
       récupérés par les héros adjacents ou au-dessus d'eux avec une action mineure.
       Lorsqu’ils le font, ils piochent la première carte du paquet Coffre, mais n’ont
       pas besoin de lancer le dé Piège : le butin est toujours en sécurité. Comme pour
@@ -713,20 +805,24 @@ keyword:
       sac."
   - id: loot
     keyword: BUTIN
-    description: Si ce compagnon porte le coup fatal à un ennemi, remplacez la cible
+    description:
+      Si ce compagnon porte le coup fatal à un ennemi, remplacez la cible
       par un coffre. Il est sécuritaire (pas de dé Piège à l'ouverture) et n'est qu'un
       OBJET (non SOLIDE).
   - id: maelstrom
     keyword: MAELSTROM
-    description: Lors de l'activation d'Overlord, vous mélangez ses cartes d'Attaque
+    description:
+      Lors de l'activation d'Overlord, vous mélangez ses cartes d'Attaque
       dans le paquet et piochez un nouvel ensemble (une par Héros).
   - id: manifest
     keyword: MANIFESTE
-    description: Prenez au hasard une Rune du sac et révélez-la, déclenchant l'effet.
+    description:
+      Prenez au hasard une Rune du sac et révélez-la, déclenchant l'effet.
       Ne génère pas les Ténèbres et est replacé dans le sac.
   - id: mending-x
     keyword: RÉPARATION X
-    description: Les monstres dotés de cette capacité sont des médecins de terrain au
+    description:
+      Les monstres dotés de cette capacité sont des médecins de terrain au
       service de l'ennemi, gardant leurs alliés prêts pour un autre round. Lorsque cette
       capacité est déclenchée, un autre monstre plus faible (le monstre avec la santé
       la plus faible à ce moment-là) à portée 1 du monstre qui lance regagne X santé
@@ -737,7 +833,8 @@ keyword:
       un monstre ne peut pas utiliser la guérison sur lui-même.
   - id: mindlock
     keyword: BLOCAGE D'ESPRIT
-    description: Les monstres dotés de cette capacité sont capables d'interférer avec
+    description:
+      Les monstres dotés de cette capacité sont capables d'interférer avec
       les pensées des héros simplement en étant en leur présence. Tant qu'un monstre
       doté de cette capacité est sur le plateau, aucun héros ne peut dépenser des cubes
       d'action de sagesse (bleus) pour utiliser des compétences. Ils peuvent toujours
@@ -745,41 +842,48 @@ keyword:
       supplémentaires, des actions de déplacement supplémentaires, etc.
   - id: most-corrupted-hero
     keyword: LE HÉROS LE PLUS CORROMPU
-    description: Le héros avec le plus de cubes de malédiction est le héros le plus
+    description:
+      Le héros avec le plus de cubes de malédiction est le héros le plus
       corrompu. Si deux Héros sont à égalité avec le même nombre de Cubes Malédictions,
       le plus corrompu d'entre eux sera celui qui occupera l'emplacement d'Initiative
       le plus rapide.
   - id: most-tired-hero
     keyword: LE HÉROS LE PLUS FATIGUÉ
-    description: Le Héros avec le moins de Cubes d’Action disponibles est le Héros le
+    description:
+      Le Héros avec le moins de Cubes d’Action disponibles est le Héros le
       plus fatigué. Si deux Héros sont à égalité avec le même nombre de Cubes Action
       disponibles, le plus fatigué d'entre eux sera celui qui occupera l'emplacement
       d'Initiative le plus lent.
   - id: most-vigorous-hero
     keyword: HÉROS LE PLUS VIgoureux
-    description: Le Héros avec le plus de Cubes d’Action disponibles est le Héros le
+    description:
+      Le Héros avec le plus de Cubes d’Action disponibles est le Héros le
       plus Vigoureux. Si deux Héros sont à égalité avec le même nombre de Cubes Action
       disponibles, le plus Vigoureux d'entre eux sera celui qui occupera l'emplacement
       d'Initiative le plus rapide.
   - id: move-x
     keyword: DÉPLACER X
-    description: La cible peut se déplacer jusqu'à X CARRÉS orthogonalement ou en diagonale.
+    description:
+      La cible peut se déplacer jusqu'à X CARRÉS orthogonalement ou en diagonale.
       Ne peut pas traverser des OBJETS SOLIDES ou des ENNEMIS mais peut traverser sans
       atterrir sur les alliés. Le mouvement peut être interrompu pour effectuer une
       action mineure puis continué, mais l'utilisation d'une CA ou d'une RÉACTION fera
       perdre les points de mouvement restants.
   - id: multishot-x
     keyword: MULTISHOT X
-    description: Le personnage tire une seule attaque à distance sur X cibles différentes
+    description:
+      Le personnage tire une seule attaque à distance sur X cibles différentes
       à portée. Les héros effectuent 1 jet d’attaque.
   - id: non-preventable
     keyword: INÉVITABLE
-    description: Ces dommages ne peuvent être évités par aucun type d’effet, y compris
+    description:
+      Ces dommages ne peuvent être évités par aucun type d’effet, y compris
       SHIELD et/ou PREVENT. Les dommages non évitables ne sont pas considérés comme
       une menace et ne peuvent donc pas être traités par des réactions.
   - id: npc
     keyword: PNJ
-    description: Les PNJ (personnages non-joueurs) sont les spectateurs d'une campagne.
+    description:
+      Les PNJ (personnages non-joueurs) sont les spectateurs d'une campagne.
       Certains jetons PNJ sont utilisés pour représenter vos compagnons sur le plateau,
       tandis que d'autres incarnent simplement des PNJ génériques tels que « Villageois
       » ou « Enfants ». Quoi qu'il en soit, un jeton de PNJ est un objet solide et chaque
@@ -788,48 +892,57 @@ keyword:
       et l'aventure en cours.
   - id: object
     keyword: OBJET
-    description: Pièges, tuiles Ténèbres ou autres spécifiés comme tels. Les personnages
+    description:
+      Pièges, tuiles Ténèbres ou autres spécifiés comme tels. Les personnages
       peuvent les traverser et terminer leur mouvement.
   - id: overpressure
     keyword: SURPRESSION
-    description: Certains monstres possèdent une énergie surnaturelle si puissante qu'ils
+    description:
+      Certains monstres possèdent une énergie surnaturelle si puissante qu'ils
       déforment l'espace-temps et émettent souvent des vibrations perturbatrices. Par
       conséquent, tant qu'un Monstre avec cette capacité est sur le plateau, aucun Héros
       ne peut effectuer d'Actions Mineures à l'exception de « Utiliser un Objet Consommable »
       s'il effectue cette action pour boire une potion.
   - id: outcome
     keyword: RÉSULTAT
-    description: Effacé uniquement lorsque cela est commandé par une autre résolution
+    description:
+      Effacé uniquement lorsque cela est commandé par une autre résolution
       d’interaction.
   - id: passive
     keyword: PASSIF
-    description: La capacité est toujours active (y compris les cartes Commander Attack)
+    description:
+      La capacité est toujours active (y compris les cartes Commander Attack)
       à moins qu'elle ne soit bloquée par TRAUMA CUBE ou CURSE CUBE.
   - id: pay-x-life
     keyword: PAYER X VIE
-    description: Le héros subit X dégâts pour appliquer les avantages. Ne peut pas être
+    description:
+      Le héros subit X dégâts pour appliquer les avantages. Ne peut pas être
       utilisé si X > Santé actuelle.
   - id: penitence
     keyword: PÉNITENCE
     description: La cible subit 1 dégât non évitable par CURSE CUBE.
   - id: pet
     keyword: ANIMAL DE COMPAGNIE
-    description: Certains Héros ont des compagnons et chacun d'entre eux possède son
+    description:
+      Certains Héros ont des compagnons et chacun d'entre eux possède son
       propre jeton et une carte avec ses attributs.
   - id: poison
     keyword: POISON
-    description: La cible prend X jetons POISON. Au début du prochain tour de ce personnage,
+    description:
+      La cible prend X jetons POISON. Au début du prochain tour de ce personnage,
       il subit 1 dégât inévitable pour chaque jeton POISON qu'il possède. Contrairement
       à BLEED ou BURN, POISON n'est pas supprimé après avoir infligé ses dégâts. Cependant,
       chaque fois qu'un personnage reçoit un effet NETTOYAGE, il supprime également
       tous les POISONS qui l'affectent. POISON est une condition empilable.
   - id: poison-trap
     keyword: PIÈGE À POISON
-    description: Tous les ennemis dans la ZONE subissent 2 dégâts non évitables, POISON
+    description:
+      Tous les ennemis dans la ZONE subissent 2 dégâts non évitables, POISON
       2, DÉFAUT.
   - id: polymorph
     keyword: POLYMORPHE
-    description: "Il n'y a rien de plus satisfaisant que de ridiculiser une menace
+    description:
+      "Il n'y a rien de plus satisfaisant que de ridiculiser une menace
       et de transformer un ennemi autrefois puissant en un capybara sans défense ! Afin
       d'émuler cet effet avec son glamour approprié dans le système AoD, vous devrez
       suivre quelques étapes de préparation supplémentaires. Cependant, ne vous inquiétez
@@ -842,7 +955,8 @@ keyword:
       explique pleinement le concept."
   - id: polymorph-(simple)
     keyword: POLYMORPHE (SIMPLE)
-    description: "Si vous avez essayé les mécanismes de Polymorph et que vous les considérez
+    description:
+      "Si vous avez essayé les mécanismes de Polymorph et que vous les considérez
       toujours trop compliqués, vous pouvez, en règle générale, ignorer l'utilisation
       du deck Errant Behaviour et du modèle capybara. Vous pouvez alors établir que
       le personnage métamorphosé ne peut tout simplement pas entreprendre d’actions
@@ -858,20 +972,24 @@ keyword:
     description: Ignorez jusqu'à X dégâts qui seraient infligés à la cible à portée.
   - id: primary-target
     keyword: CIBLE PRINCIPALE
-    description: La cible principale d'un monstre est le personnage qu'il cherche à
+    description:
+      La cible principale d'un monstre est le personnage qu'il cherche à
       attaquer pendant son tour. Tous les monstres qui suivent le comportement standard
       ont par exemple le héros le plus fort comme cible principale.
   - id: protect
     keyword: PROTÉGER
-    description: Ce personnage devient la cible à moins qu'il ne soit déjà une cible
+    description:
+      Ce personnage devient la cible à moins qu'il ne soit déjà une cible
       en raison de CLEAVE, MULTISHOT ou STRIKE.
   - id: push-x
     keyword: APPUYER SUR X
-    description: Poussez les CARRÉS Target X loin de la roulette en ligne droite. Doit
+    description:
+      Poussez les CARRÉS Target X loin de la roulette en ligne droite. Doit
       être poussé sur toute la longueur.
   - id: pushback
     keyword: REPOUSSER
-    description: Cet effet est similaire à Push, mais c'est une version adaptée pour
+    description:
+      Cet effet est similaire à Push, mais c'est une version adaptée pour
       être utilisée par les Monstres. Lorsqu'un personnage subit un refoulement, il
       doit repousser sa figurine d'une case en arrière, c'est-à-dire plus loin de la
       source qui l'a poussé. En effet, ils disposeront de trois cases vers lesquelles
@@ -882,7 +1000,8 @@ keyword:
       Objets Solides, le Personnage ne peut pas être poussé.
   - id: raise-a-draugr
     keyword: LEVER UN DRAUGR
-    description: En réutilisant l'énergie maléfique utilisée par les Ténèbres pour créer
+    description:
+      En réutilisant l'énergie maléfique utilisée par les Ténèbres pour créer
       leurs créatures, les Nécromanciens peuvent créer leur propre armée. Élever un
       Draugr signifie en placer un dans une case vide de votre choix adjacente à vous,
       fidèle au Nécromancien qui l'a invoqué. Contrairement aux autres familiers, les
@@ -902,27 +1021,32 @@ keyword:
       que deux pendant son tour.
   - id: range-x
     keyword: GAMME X
-    description: "La portée est comptée en utilisant X ZONES éloignées. RAPPEL X : Récupérer
+    description:
+      "La portée est comptée en utilisant X ZONES éloignées. RAPPEL X : Récupérer
       X CA dépensé ou dépensé."
   - id: rangers-mark
     keyword: MARQUE DU RANGER
-    description: Lorsqu'un personnage est marqué, il reçoit un jeton RANGER'S MARK.
+    description:
+      Lorsqu'un personnage est marqué, il reçoit un jeton RANGER'S MARK.
       Toutes les attaques avec des armes et des sorts effectuées par le Ranger contre
       un personnage qu'il a marqué infligent +1 DMG. Comme mentionné précédemment, ces
       dégâts sont doublés si le personnage obtient un coup critique comme d'habitude.
   - id: reaction
     keyword: RÉACTION
-    description: Compétence qui peut être utilisée en réponse à une menace (subir des
+    description:
+      Compétence qui peut être utilisée en réponse à une menace (subir des
       dégâts évitables). Chaque héros ne peut utiliser qu'une seule réaction par menace.
       Les boucliers doivent être appliqués avant et les réactions peuvent toujours être
       utilisées même si les dégâts ont été réduits à 0.
   - id: recall-x
     keyword: RAPPEL X
-    description: Vous récupérez dans votre boîte de cubes d'action disponibles jusqu'à
+    description:
+      Vous récupérez dans votre boîte de cubes d'action disponibles jusqu'à
       X cubes d'action dépensés ou dépensés depuis votre plateau.
   - id: redirect
     keyword: RÉORIENTER
-    description: Lorsqu'un effet vous demande de rediriger une attaque vers vous ou
+    description:
+      Lorsqu'un effet vous demande de rediriger une attaque vers vous ou
       vers un autre personnage, ce personnage devient à la place la cible de cette attaque.
       Si le personnage en question est déjà ciblé par cette attaque (comme cela pourrait
       l'être en Multishot, Cleave ou Strike, par exemple), il la subit deux fois, en
@@ -930,11 +1054,13 @@ keyword:
       supplémentaire, et ne permet donc pas de Réaction supplémentaire.
   - id: reckoner
     keyword: RECONNEUR
-    description: Un monstre avec Reckoner cible le héros le plus corrompu (celui qui
+    description:
+      Un monstre avec Reckoner cible le héros le plus corrompu (celui qui
       possède actuellement le plus de cubes de malédiction) comme cible principale.
   - id: regain-x-health
     keyword: RETROUVER X SANTÉ
-    description: La cible récupère X Health. Un personnage ne peut jamais gagner plus
+    description:
+      La cible récupère X Health. Un personnage ne peut jamais gagner plus
       de santé que sa valeur maximale. Tout excès de santé est perdu. Puisque cet effet
       n'est pas lié au mot-clé HEAL, votre Héros ne reçoit aucun bonus des capacités
       « HEAL +X ».
@@ -943,7 +1069,8 @@ keyword:
     description: Récupérez après avoir été assommé.
   - id: redundant
     keyword: REDONDANT
-    description: Un effet redondant signifie qu'un personnage ne peut détenir qu'un
+    description:
+      Un effet redondant signifie qu'un personnage ne peut détenir qu'un
       seul jeton de cet effet spécifique. Si un personnage devait gagner un deuxième
       jeton pour un effet redondant, ignorez-le.
   - id: regeneration-x
@@ -951,7 +1078,8 @@ keyword:
     description: Le personnage récupère X Santé qui ne peut pas dépasser la Santé maximale.
   - id: relearn
     keyword: RÉAPPRENDRE
-    description: Réapprendre est un terme associé à la progression du personnage. Il
+    description:
+      Réapprendre est un terme associé à la progression du personnage. Il
       peut faire référence à un niveau de compétence de rôle de héros ou de donjon 1
       ou 2, à une amélioration de compétence ou au choix d'un rôle de donjon, par exemple.
       Réapprendre quelque chose signifie remplacer un choix que vous avez fait concernant
@@ -965,16 +1093,19 @@ keyword:
       associée à cet arbre de compétences).*
   - id: relentless
     keyword: SANS RELÂCHE
-    description: Un monstre avec des cibles implacables le héros le plus fatigué (celui
+    description:
+      Un monstre avec des cibles implacables le héros le plus fatigué (celui
       avec moins de cubes d'action disponibles pour le moment) comme cible principale.
   - id: reroll
     keyword: REROLLER
-    description: Lorsqu'une compétence a REROLL, cela signifie que vous obtenez une
+    description:
+      Lorsqu'une compétence a REROLL, cela signifie que vous obtenez une
       relance gratuite du d20 pour une attaque avec arme effectuée par cette compétence
       que vous pouvez choisir d'utiliser lorsque vous manquez.
   - id: resolved
     keyword: RÉSOLU
-    description: '« Résolu » est le terme utilisé pour désigner la fin d''une situation
+    description:
+      '« Résolu » est le terme utilisé pour désigner la fin d''une situation
       de jeu. Ainsi, lorsqu’il est mentionné avec un effet, cela signifie juste après
       que cet effet soit appliqué. Par exemple, analysez la déclaration suivante concernant
       une règle de base concernant les dommages collatéraux : <br><br> *"Les effets
@@ -996,7 +1127,8 @@ keyword:
       ne spécifie le contraire, bien sûr).'
   - id: restrain
     keyword: RESTREINDRE
-    description: Les personnages dotés de la capacité Retenue sont armés de contraintes
+    description:
+      Les personnages dotés de la capacité Retenue sont armés de contraintes
       naturelles ou artificielles et peuvent utiliser cette capacité pour toujours garder
       leurs adversaires à portée. Lorsqu'un personnage est retenu par un ennemi, il
       reçoit un jeton Retenue et ne peut pas quitter l'espace qu'il occupe tant qu'il
@@ -1008,15 +1140,18 @@ keyword:
       personnage, l'effet de retenue prend fin.
   - id: retaliate-x
     keyword: REPRÉSENTER X
-    description: Infliger X dégâts à l'attaquant dans le CR ou à n'importe quelle distance
+    description:
+      Infliger X dégâts à l'attaquant dans le CR ou à n'importe quelle distance
       autrement. Le lanceur de sorts doit être l'une des cibles.
   - id: roll-x
     keyword: ROULEAU X
-    description: Déclenche un avantage pour les jets d'attaque sur les jets naturels.
+    description:
+      Déclenche un avantage pour les jets d'attaque sur les jets naturels.
       Les modificateurs +X HIT ne déclenchent pas cela.
   - id: round
     keyword: ROND
-    description: Le tour est un terme utilisé pour désigner la fenêtre de temps allant
+    description:
+      Le tour est un terme utilisé pour désigner la fenêtre de temps allant
       de la première carte à recevoir un tour sur la piste d'initiative jusqu'à la dernière.
       Ainsi, on peut dire que le Héros jouant le Rôle Défenseur du Donjon sera toujours
       le premier Personnage à agir dans un Round alors que la carte Rune sera toujours
@@ -1024,7 +1159,8 @@ keyword:
       ce tour ») prennent fin dès que le tour de la carte Rune dans ce tour est résolu.
   - id: self
     keyword: SOI
-    description: "Les capacités avec le mot-clé SELF ne peuvent cibler que le personnage
+    description:
+      "Les capacités avec le mot-clé SELF ne peuvent cibler que le personnage
       qui lance le sort. Par exemple : « SELF, PREVENT 3 » signifie que le personnage
       peut éviter 3 dégâts provenant de lui-même uniquement."
   - id: shadow-aura
@@ -1032,7 +1168,8 @@ keyword:
     description: Une petite tuile Ténèbres est placée sous la cible.
   - id: shield-x
     keyword: BOUCLIER X
-    description: La cible gagne des jetons X SHIELD. Chaque jeton SHIELD peut être utilisé
+    description:
+      La cible gagne des jetons X SHIELD. Chaque jeton SHIELD peut être utilisé
       pour absorber 1 point de dégâts reçus contre le personnage. Vous devez utiliser
       tous vos jetons BOUCLIER avant de perdre de la santé ou d'utiliser un effet PRÉVENTION.
       Vous ne pouvez pas choisir de subir les dégâts et de conserver vos jetons BOUCLIER
@@ -1040,7 +1177,8 @@ keyword:
       jetons SHIELD sont une ressource empilable.
   - id: shove
     keyword: POUSSER
-    description: Lorsque deux personnages occuperaient le même espace et que l'un d'eux
+    description:
+      Lorsque deux personnages occuperaient le même espace et que l'un d'eux
       a la priorité sur l'autre, on dit que le premier poussera le second. Lorsqu'un
       personnage est poussé, il est déplacé vers une case adjacente à la zone (carré
       bleu) qu'il occupait précédemment. Le chef du groupe choisit l'endroit où un monstre
@@ -1052,7 +1190,8 @@ keyword:
     description: "(Compte comme FATIGUE) DÉPENSEZ toute l'Agilité et la Sagesse."
   - id: skull-cracker
     keyword: CRACKER DE CRÂNE
-    description: "Les monstres dotés de cette capacité sont terriblement dangereux.
+    description:
+      "Les monstres dotés de cette capacité sont terriblement dangereux.
       Les attaques effectuées par des créatures dotées de cette capacité transperceront
       automatiquement toute valeur de robustesse. Soyez donc prudent : l'attaque de
       telles créatures est mortelle contre les alliés tels que les compagnons, les suiveurs,
@@ -1061,11 +1200,13 @@ keyword:
       un suiveur allié d'être tué). vaincu)."
   - id: slaughter
     keyword: ABATTAGE
-    description: Un monstre avec massacre cible les jetons PNJ (non-compagnons) comme
+    description:
+      Un monstre avec massacre cible les jetons PNJ (non-compagnons) comme
       cible principale.
   - id: slayer
     keyword: Tueuse
-    description: Un monstre doté de cette capacité poursuivra les jetons, les cohortes
+    description:
+      Un monstre doté de cette capacité poursuivra les jetons, les cohortes
       et les adeptes des PNJ blessés comme cible principale, dans cet ordre de préférence.
       S'il y en a deux ou plus à sa portée, le chef du groupe choisit lequel d'entre
       eux sera la cible de ce monstre ce tour-ci. Si aucun de ces PNJ n'est sur le plateau
@@ -1073,18 +1214,21 @@ keyword:
       fort.
   - id: slow
     keyword: LENT
-    description: La cible reçoit un jeton SLOW. Contrairement aux autres conditions,
+    description:
+      La cible reçoit un jeton SLOW. Contrairement aux autres conditions,
       SLOW ne prend pas effet au début du prochain tour de ce personnage, il persiste
       jusqu'à ce qu'il soit supprimé. La prochaine fois que le personnage affecté reçoit
       un effet de mouvement, il perd 2 points de mouvement dus à cet effet et retire
       son jeton LENT de son plateau. SLOW est une condition redondante.
   - id: solid-objects
     keyword: OBJETS SOLIDES
-    description: Personnages, coffres, interactions, tas de runes, PNJ et autres spécifiés
+    description:
+      Personnages, coffres, interactions, tas de runes, PNJ et autres spécifiés
       comme tels lors d'une configuration.
   - id: soul-shard
     keyword: ÉCLAT D'ÂME
-    description: En confinant en eux un fragment d'énergie vitale provenant de l'esprit
+    description:
+      En confinant en eux un fragment d'énergie vitale provenant de l'esprit
       d'une créature, ces cristaux peuvent être utilisés pour renforcer les héros. En
       tant qu'action mineure, un héros peut défausser un éclat d'âme pour infliger des
       dégâts doubles à la prochaine attaque avec une arme ou avec une attaque magique
@@ -1098,12 +1242,14 @@ keyword:
       qui peuvent être échangés entre héros comme s'il s'agissait d'objets consommables.
   - id: special-mechanic-tokens
     keyword: JETONS MÉCANICIEN SPÉCIAUX
-    description: Ces éléments du plateau sont utilisés comme jalons visuels pour le
+    description:
+      Ces éléments du plateau sont utilisés comme jalons visuels pour le
       fonctionnement de tout mécanicien spécial établi pour une aventure. Les jetons
       Mécanicien spécial sont des objets terrestres inamovibles.
   - id: spent
     keyword: DÉPENSÉ
-    description: Dépensé n'est pas à proprement parler un mot clé, mais c'est un terme
+    description:
+      Dépensé n'est pas à proprement parler un mot clé, mais c'est un terme
       qui mérite d'être clarifié. Un Cube Action est considéré comme dépensé lorsqu'il
       est alloué à un emplacement de Compétence. Les Cubes de Malédiction et les Cubes
       de Trauma ne sont pas considérés comme des Cubes d'Action même lorsqu'ils sont
@@ -1111,7 +1257,8 @@ keyword:
       une fois attribuées à un emplacement.
   - id: split
     keyword: DIVISER
-    description: Le personnage qui lance le sort peut choisir de répartir l'effet décrit
+    description:
+      Le personnage qui lance le sort peut choisir de répartir l'effet décrit
       entre n'importe quel nombre de cibles (à portée) de son choix. Pour être considéré
       comme une cible, un Personnage doit recevoir une part d'au moins 1 point. Tout
       bonus d'habilitation dont dispose ce personnage est appliqué au montant total,
@@ -1120,7 +1267,8 @@ keyword:
       individuels de HEAL 2.*
   - id: spread
     keyword: PROPAGÉ
-    description: Certaines attaques se dispersent autour de la victime. Chaque fois
+    description:
+      Certaines attaques se dispersent autour de la victime. Chaque fois
       qu'un héros est touché par SPREAD, il reflète le même montant de dégâts qu'il
       a subi (les dégâts subis sont les dégâts qui ont été subis et n'ont pas été atténués
       ou EMPÊCHÉS) sur chaque autre héros adjacent à lui. Ces dégâts réfléchis sont
@@ -1133,7 +1281,8 @@ keyword:
     description: Compétence magique qui réussit toujours, infligeant des dégâts.
   - id: stackable
     keyword: EMPILABLE
-    description: La propriété Stackable signifie qu'un personnage peut détenir jusqu'à
+    description:
+      La propriété Stackable signifie qu'un personnage peut détenir jusqu'à
       4 copies d'un même jeton sur ses plateaux/cartes. Un jeton recto-verso qui affiche
       les faces 1 et 2 doit toujours être considéré comme s'il s'agissait du nombre
       de jetons individuels indiqué. Si un personnage devait recevoir un cinquième jeton
@@ -1142,7 +1291,8 @@ keyword:
       cas.*
   - id: stalker-(trait)
     keyword: TRAQUEUR (TRAIT)
-    description: Certains tueurs se spécialisent dans l’utilisation de la furtivité
+    description:
+      Certains tueurs se spécialisent dans l’utilisation de la furtivité
       à leur avantage. Tant que la Compétence Traqueur n'est pas bloquée, chaque fois
       que la Discrétion du Slayer disparaît *(c'est-à-dire qu'elle est supprimée d'elle-même
       au début du tour de son Héros)*, le Slayer reste Caché jusqu'à la fin du tour
@@ -1156,7 +1306,8 @@ keyword:
       aux attaques des monstres).*
   - id: status
     keyword: STATUT
-    description: Le statut est une récompense liée à un choix fait par un personnage
+    description:
+      Le statut est une récompense liée à un choix fait par un personnage
       au cours de l'histoire. Certains statuts peuvent donner des capacités spéciales
       comme s'il s'agissait d'une sorte de bénédiction, tandis que d'autres sont simplement
       liés à l'histoire. Quoi qu'il en soit, un personnage peut avoir n'importe quel
@@ -1164,7 +1315,8 @@ keyword:
       effacés lors de la phase de camp suivante.
   - id: stealth
     keyword: FURTIVITÉ
-    description: La cible reçoit un jeton STEALTH et est considérée comme cachée tant
+    description:
+      La cible reçoit un jeton STEALTH et est considérée comme cachée tant
       qu'elle le détient. <br><br>- Les personnages sans immunité contre la furtivité
       ne comptent pas un personnage caché comme leur cible ni comme un ennemi à des
       fins d'engagement (ils ne peuvent toujours pas les traverser s'ils sont ennemis).
@@ -1183,17 +1335,20 @@ keyword:
     description: Fait référence à un carré blanc sur une tuile de carte.
   - id: strike-x
     keyword: GRÈVE X
-    description: Cible tous les personnages dans les ZONES X à portée. La mêlée doit
+    description:
+      Cible tous les personnages dans les ZONES X à portée. La mêlée doit
       être une ZONE adjacente à son CARRÉ.
   - id: strongest-hero
     keyword: LE HÉROS LE PLUS FORT
-    description: Le héros avec le plus de santé en ce moment. Les monstres ciblent souvent
+    description:
+      Le héros avec le plus de santé en ce moment. Les monstres ciblent souvent
       le héros le plus fort. Si deux Héros sont à égalité avec le plus de Santé, le
       plus Fort parmi ceux-ci sera celui qui occupera l’Emplacement d’Initiative le
       plus rapide.
   - id: stun
     keyword: ÉTOURDIR
-    description: STUN fonctionne différemment entre les héros et les monstres. Lorsque
+    description:
+      STUN fonctionne différemment entre les héros et les monstres. Lorsque
       l'effet STUN est résolu au début du tour d'un Monstre, ce Monstre perd son action
       d'Attaque pour ce tour puis retire le jeton STUN *(il effectuera toujours son
       action de Mouvement)*. En revanche, au début du tour d'un Héros concerné, il perd
@@ -1204,7 +1359,8 @@ keyword:
     description: Les dégâts dépassant ce nombre vainquent le compagnon.
   - id: suffer
     keyword: SOUFFRIR
-    description: Souffrir n'est pas à proprement parler un mot-clé, mais c'est un terme
+    description:
+      Souffrir n'est pas à proprement parler un mot-clé, mais c'est un terme
       qui mérite d'être clarifié. Souffrir est utilisé pour définir quelque chose qui
       « frappe » un personnage après qu'il ait tenté de s'en protéger. Ainsi, « subir
       des dégâts » signifie perdre de la santé à cause des dégâts après avoir essayé
@@ -1212,11 +1368,13 @@ keyword:
       de bouclier, etc.
   - id: swap
     keyword: ÉCHANGER
-    description: Deux objets échangent des positions et des PERSONNAGES sont affectés
+    description:
+      Deux objets échangent des positions et des PERSONNAGES sont affectés
       par un terrain dangereux ou par l'obscurité sur laquelle ils ont atterri.
   - id: swarm
     keyword: ESSAIM
-    description: Les Swarm Monsters sont de minuscules créatures qui, réunies, forment
+    description:
+      Les Swarm Monsters sont de minuscules créatures qui, réunies, forment
       un seul être et n'ont donc aucun point vital dans leur corps. De telles créatures
       ne subissent que la moitié des dégâts (arrondis au supérieur, après application
       des réductions de prévention) de toutes les attaques avec arme qui les frappent.<br><br>
@@ -1226,7 +1384,8 @@ keyword:
       est ensuite arrondi à 2).*
   - id: take
     keyword: PRENDRE
-    description: Prendre n'est pas à proprement parler un mot-clé, mais c'est un terme
+    description:
+      Prendre n'est pas à proprement parler un mot-clé, mais c'est un terme
       qui mérite d'être clarifié. Take est utilisé pour décrire quelque chose qui est
       donné à un personnage. Chaque fois qu'il s'agit d'un dommage, ils ont la possibilité
       de l'atténuer grâce à des jetons Bouclier ou des effets de prévention (à moins,
@@ -1238,13 +1397,15 @@ keyword:
       effet ne peut être évité même si le personnage est immunisé contre la malédiction.
   - id: telekinesis-x
     keyword: TÉLÉKINÈSE X
-    description: Déplacez n'importe quel objet de petite taille (y compris les petites
+    description:
+      Déplacez n'importe quel objet de petite taille (y compris les petites
       tuiles Ténèbres) ou OBJETS SOLIDES (sauf interactions) jusqu'à X CARRÉS. La cible
       est affectée par un terrain dangereux ou par des ténèbres sur lesquelles il atterrit,
       y compris des DÉGÂTS DE CHUTE.
   - id: threat
     keyword: MENACE
-    description: La menace est le terme utilisé pour définir le moment où un héros peut
+    description:
+      La menace est le terme utilisé pour définir le moment où un héros peut
       voir ses points de vie réduits par une attaque ou un effet, mais est capable de
       se défendre et d'essayer d'empêcher que cela ne se produise.<br><br>Ainsi, la
       menace définit essentiellement le moment où un héros peut utiliser une réaction
@@ -1257,7 +1418,8 @@ keyword:
       à la page 14 du livre de règles de Corebox.
   - id: throw-(stack-of-barrels)
     keyword: LANCER (PILE DE BARILS)
-    description: Lorsqu'il est lancé sur un personnage, un baril inflige 2 DÉG et inflige
+    description:
+      Lorsqu'il est lancé sur un personnage, un baril inflige 2 DÉG et inflige
       RENVERSEMENT à sa cible si c'est un petit personnage. Les corps des grands monstres
       sont si puissants que les barils ne les dérangent même pas. <br><br> - Cependant,
       si un Héros était caché à l'intérieur du tonneau, le lancer provoque +2 DMG et
@@ -1268,7 +1430,8 @@ keyword:
       du plateau).*
   - id: throw-(bookshelf)
     keyword: JETÉ (BIBLIOTHÈQUE)
-    description: "Les étagères sont trop lourdes pour être lancées sur un personnage
+    description:
+      "Les étagères sont trop lourdes pour être lancées sur un personnage
       avec une action mineure. Au lieu de cela, il est simplement renversé, affectant
       un personnage adjacent (choisi par le héros qui a utilisé l'action mineure Lancer
       des meubles). La TÉLÉKINÈSE, en revanche, peut normalement jeter une étagère.
@@ -1277,23 +1440,27 @@ keyword:
       cassés et retirés du plateau.)"
   - id: throw-(chest)
     keyword: JETER (POITRINE)
-    description: "Lorsqu'il est lancé sur un Personnage, un Coffre provoque 2 DMG et
+    description:
+      "Lorsqu'il est lancé sur un Personnage, un Coffre provoque 2 DMG et
       vous devez lancer le Dé Piège : ajoutez le résultat à ces dégâts comme effet secondaire.
       *(N'oubliez pas que les meubles lancés sont cassés et retirés du plateau.)*"
   - id: throw-(piles-of-crates)
     keyword: JETER (TAS DE CAISSES)
-    description: Lorsqu'il est lancé, le Pile de Caisse inflige BRITTLE à sa cible si
+    description:
+      Lorsqu'il est lancé, le Pile de Caisse inflige BRITTLE à sa cible si
       elle est un Petit Personnage. <br><br>- Les corps des grands monstres sont si
       puissants que les caisses ne les dérangent même pas. (N'oubliez pas que les meubles
       lancés sont cassés et retirés du plateau.)
   - id: throw-(stone-fountains)
     keyword: JETÉ (FONTAINE EN PIERRE)
-    description: Les Fontaines de Pierre sont fixées au sol et ne peuvent donc en aucun
+    description:
+      Les Fontaines de Pierre sont fixées au sol et ne peuvent donc en aucun
       cas être lancées sur d'autres personnages *(mais elles peuvent toujours être détruites
       par de Grands Monstres qui terminent leur mouvement en marchant dessus).*
   - id: throw-(stone-pillar)
     keyword: JETÉ (PILIER EN PIERRE)
-    description: Les piliers de pierre sont fixés au sol et au plafond et ne peuvent
+    description:
+      Les piliers de pierre sont fixés au sol et au plafond et ne peuvent
       donc en aucun cas être lancés sur d'autres personnages. Cependant, c'est précisément
       parce qu'ils sont si fermes que l'inverse se produit :<br><br>- Lorsqu'un personnage
       est projeté contre un pilier de pierre (par des effets comme TELEKINESIS ou PUSH),
@@ -1302,27 +1469,32 @@ keyword:
       plateau.
   - id: trample-x
     keyword: PIÉTINE X
-    description: Traversez mais ne terminez pas sur les ENNEMIS. Inflige X dégâts à
+    description:
+      Traversez mais ne terminez pas sur les ENNEMIS. Inflige X dégâts à
       chaque ennemi piétiné une fois.
   - id: trap
     keyword: PIÈGE
-    description: Placez un jeton Piège au centre d'une zone adjacente à votre zone (carré
+    description:
+      Placez un jeton Piège au centre d'une zone adjacente à votre zone (carré
       bleu). La première fois qu'un ennemi s'active dans cette zone ou s'y déplace,
       le piège est déclenché. Tous les ennemis à l'intérieur de cette zone sont affectés
       par le piège, puis retirez le jeton Piège. Il ne peut y avoir qu’un seul jeton
       Piège à la fois dans une zone.
   - id: trauma-cube-(tc)
     keyword: CUBE DE TRAUMATISME (TC)
-    description: Cubes violets alloués aux compétences de héros ou de rôles de donjon
+    description:
+      Cubes violets alloués aux compétences de héros ou de rôles de donjon
       qui bloquent leur utilisation. Le héros est tué après avoir reçu un 2ème TRAUMA
       CUBE et met fin à l'aventure.
   - id: trick-or-treat
     keyword: LA CHARITÉ S'IL-VOUS-PLAÎT
-    description: Le contrôleur de Tharmagar choisit RANGE 1, HEAL 2 ou RANGE 1, (BLEED
+    description:
+      Le contrôleur de Tharmagar choisit RANGE 1, HEAL 2 ou RANGE 1, (BLEED
       2 ou BURN 2 ou POISON 2).
   - id: turn
     keyword: TOURNER
-    description: Le tour est le terme utilisé pour désigner la fenêtre temporelle pendant
+    description:
+      Le tour est le terme utilisé pour désigner la fenêtre temporelle pendant
       laquelle un personnage ou une carte sur la piste d'initiative peut agir. Même
       si un type de monstre n'a qu'une seule carte sur la piste d'initiative pour représenter
       toutes les unités de ce type, le tour de chaque monstre est pris individuellement.
@@ -1332,19 +1504,22 @@ keyword:
       pendant le tour de chacun de ces Chevaliers de l'Ombre par exemple.
   - id: unavailable
     keyword: INDISPONIBLE
-    description: Il s'agit d'un terme de jeu généralement associé aux interactions.
+    description:
+      Il s'agit d'un terme de jeu généralement associé aux interactions.
       Lorsqu'un effet indique qu'une résolution devient indisponible, cela signifie
       que les héros ne peuvent plus choisir cette résolution. Chaque fois qu'un Héros
       choisit une Résolution lors d'une Interaction Chargée, par exemple, elle devient
       indisponible et ne peut plus être choisie au cours de cette Aventure.
   - id: unique
     keyword: UNIQUE
-    description: Ce familier ne peut être invoqué qu'avec une compétence spécifique.
+    description:
+      Ce familier ne peut être invoqué qu'avec une compétence spécifique.
       Sinon, une fois invoqués, les compétences d'activation des animaux de compagnie
       peuvent être utilisées.
   - id: unlife
     keyword: UNLIFE
-    description: Les animaux présentant ce trait ont une vie couchée et ont besoin d'un
+    description:
+      Les animaux présentant ce trait ont une vie couchée et ont besoin d'un
       pouvoir nécrotique pour rester debout. Au début du tour de leur maître, ils seront
       renvoyés. À ce stade, le Nécromancien peut choisir de prendre un cube de malédiction
       pour prolonger la non-vie d'un tel animal d'un tour. C'est ce qu'on appelle la
@@ -1352,7 +1527,8 @@ keyword:
       ce trait, en payant le coût de la Souillure pour chacun individuellement.
   - id: versatile
     keyword: POLYVALENT
-    description: Un équipement Polyvalent peut être manipulé de deux manières différentes
+    description:
+      Un équipement Polyvalent peut être manipulé de deux manières différentes
       par son utilisateur. Lorsque vous recevez pour la première fois cette carte Équipement
       recto-verso, vous pouvez choisir la face que vous souhaitez utiliser. Dès lors,
       en tant qu'action mineure, vous pouvez retourner la carte si aucun cube d'action
@@ -1365,7 +1541,8 @@ keyword:
     description: Les dégâts infligés par l'attaque de ce monstre sont inévitables.
   - id: voodoo
     keyword: VAUDOU
-    description: Lorsqu'un Monstre possède cette capacité, il est capable de supprimer
+    description:
+      Lorsqu'un Monstre possède cette capacité, il est capable de supprimer
       ses Conditions Empilables en les infligeant en retour aux Héros. Ainsi, au début
       du tour de ces Monstres, lorsqu'ils doivent être affectés par des Conditions Empilables
       *(Brûler, Saigner et Intimider sont des exemples de Conditions Empilables)*, si
@@ -1375,13 +1552,15 @@ keyword:
       subit de tels effets.
   - id: war-cry
     keyword: CRI DE GUERRE
-    description: War Cry est une capacité déclenchée que possèdent certains monstres.
+    description:
+      War Cry est une capacité déclenchée que possèdent certains monstres.
       Lorsqu'il est activé, chaque autre monstre à portée 1 de ce monstre s'enrage et
       gagne +1 DMG de manière permanente (placez ce jeton sur son tableau de statut
       de monstre).
   - id: warden-(trait)
     keyword: GARDIEN (TRAIT)
-    description: Les personnages dotés du trait Gardien peuvent utiliser des interruptions
+    description:
+      Les personnages dotés du trait Gardien peuvent utiliser des interruptions
       et des réactions avec le mot-clé « SELF » sur d'autres personnages tant qu'ils
       sont adjacents à eux. De plus, les Gardiens peuvent utiliser ces Compétences lorsque
       les Personnages adjacents à eux sont attaqués ou menacés (si la Compétence que
@@ -1389,7 +1568,8 @@ keyword:
       les utiliser uniquement lorsqu'ils sont eux-mêmes attaqués ou menacés.
   - id: warlock-(trait)
     keyword: DÉMONISTE (TRAIT)
-    description: Négociant avec les Ténèbres, les Démonistes flirtent avec la corruption
+    description:
+      Négociant avec les Ténèbres, les Démonistes flirtent avec la corruption
       en échange de pouvoir. Tant que la compétence Pacte d'un autre monde n'est pas
       bloquée, ils reçoivent leurs cubes de malédiction comme s'il s'agissait de cubes
       d'action, et lorsqu'ils les dépensent, ceux-ci sont traités comme des cubes sauvages.
@@ -1397,12 +1577,14 @@ keyword:
       et ne sont supprimés que via les effets de purification.
   - id: weakest-hero
     keyword: HÉROS LE PLUS FAIBLE
-    description: Le héros avec le moins de santé actuellement est le héros le plus faible.
+    description:
+      Le héros avec le moins de santé actuellement est le héros le plus faible.
       Si deux Héros sont à égalité avec la Santé la plus faible, le plus faible d'entre
       eux sera celui qui occupe l'emplacement d'Initiative le plus lent.
   - id: weapon-attack
     keyword: ATTAQUE PAR ARME
-    description: Compétence d'attaque en utilisant votre arme. Lancez D20, l'attaque
+    description:
+      Compétence d'attaque en utilisant votre arme. Lancez D20, l'attaque
       réussit si le jet est égal ou supérieur aux chances de toucher de l'arme après
       application des modificateurs HIT. Attaquer depuis un niveau supérieur à celui
       de la cible donne +2 HIT ; cependant, attaquer depuis un niveau inférieur donne
@@ -1410,24 +1592,28 @@ keyword:
       critique et un jet de 20 est un coup critique (x2 DMG).
   - id: wild-copy
     keyword: COPIE SAUVAGE
-    description: Copier l'effet d'un allié est l'une des expériences AoD les plus enrichissantes.
+    description:
+      Copier l'effet d'un allié est l'une des expériences AoD les plus enrichissantes.
       Et vous pourrez désormais le faire avec prééminence ! Un effet qui copie sauvagement
       une compétence applique les mêmes effets qu'une copie, mais il double tous les
       nombres écrits sous sa forme numérique, comme cela aurait été le cas si ces effets
       avaient été lancés en dépensant un cube sauvage.
   - id: wild-cube
     keyword: CUBE SAUVAGE
-    description: Considéré comme n’importe quelle couleur AC. Les effets des compétences
+    description:
+      Considéré comme n’importe quelle couleur AC. Les effets des compétences
       de héros (et non des rôles ou équipements de donjon) sont doublés, conditions
       comprises.
   - id: wounded
     keyword: BLESSÉS
-    description: "Blessé est un terme rare qui a été créé pour condenser un effet plus
+    description:
+      "Blessé est un terme rare qui a été créé pour condenser un effet plus
       important en un seul mot : un personnage blessé est un personnage qui possède
       actuellement la moitié ou moins de sa santé maximale (arrondie à l'inférieur).
       Un personnage peut être considéré à la fois blessé et en bonne santé lorsqu'il
       possède exactement la moitié de sa santé maximale."
   - id: x
     keyword: X
-    description: Toute variable « X » sur une carte Monstre ou Attaque signifie le nombre
+    description:
+      Toute variable « X » sur une carte Monstre ou Attaque signifie le nombre
       de jetons Rune sur la piste d'initiative qui correspond à la Rune de cette attaque.

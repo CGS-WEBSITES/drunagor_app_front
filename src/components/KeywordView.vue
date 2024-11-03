@@ -28,8 +28,11 @@ let filteredKeyword = computed(() =>
   query.value === ""
     ? keywords
     : keywords.filter((keyword) =>
-        keyword.keyword.toLowerCase().replace(/\s+/g, "").includes(query.value.toLowerCase().replace(/\s+/g, ""))
-      )
+        keyword.keyword
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(query.value.toLowerCase().replace(/\s+/g, "")),
+      ),
 );
 
 let query = ref("");
@@ -41,7 +44,11 @@ query.value = preselectedKeyword;
     <Card class="w-full sticky top-16 z-10 mb-3">
       <template #title> {{ t("menu.keyword") }} </template>
       <template #content>
-        <BaseListSearch id="keyword-search" @search="query = $event" :value="query" />
+        <BaseListSearch
+          id="keyword-search"
+          @search="query = $event"
+          :value="query"
+        />
       </template>
     </Card>
 

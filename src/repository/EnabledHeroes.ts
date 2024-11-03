@@ -10,7 +10,11 @@ export class EnabledHeroes {
     const data = this.repository.findAll();
 
     const enabledHeroes = data.filter((hero: HeroData) => {
-      if (this.configurationStore.getEnabledHeroContent().includes(hero.content) === false) {
+      if (
+        this.configurationStore
+          .getEnabledHeroContent()
+          .includes(hero.content) === false
+      ) {
         return false;
       }
 

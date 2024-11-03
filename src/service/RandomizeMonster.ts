@@ -11,7 +11,10 @@ export class RandomizeMonster {
   private configurationStore = ConfigurationStore();
   private monsterDataStore = MonsterDataStore();
 
-  public randomizeByColor(requestedColor: MonsterColor, excludedMonsterIds: string[] = []): RandomMonster | null {
+  public randomizeByColor(
+    requestedColor: MonsterColor,
+    excludedMonsterIds: string[] = [],
+  ): RandomMonster | null {
     let monsters = _.cloneDeep(this.monsterDataStore.findAll());
 
     monsters.forEach((monster) => {
@@ -22,7 +25,10 @@ export class RandomizeMonster {
       if (monster.variants.length === 0) {
         return false;
       }
-      if (this.configurationStore.isEnabledMonsterContent(monster.content) === false) {
+      if (
+        this.configurationStore.isEnabledMonsterContent(monster.content) ===
+        false
+      ) {
         return false;
       }
       if (monster.color !== requestedColor) {
@@ -38,7 +44,9 @@ export class RandomizeMonster {
       return null;
     }
 
-    return RandomMonsterFactory.fromMonsterData(monsters[Math.floor(Math.random() * monsters.length)]);
+    return RandomMonsterFactory.fromMonsterData(
+      monsters[Math.floor(Math.random() * monsters.length)],
+    );
   }
 
   private filterDisabledVariants(variants: VariantId[]): VariantId[] {

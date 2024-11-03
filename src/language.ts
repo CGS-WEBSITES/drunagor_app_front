@@ -7,15 +7,26 @@ export function setLanguage(language: string) {
 }
 
 export async function loadLanguage(language: string) {
-  const supportedLanguages = ["en_US", "de_DE", "fr_FR", "es_ES", "it_IT", "pl_PL", "pt_BR"];
+  const supportedLanguages = [
+    "en_US",
+    "de_DE",
+    "fr_FR",
+    "es_ES",
+    "it_IT",
+    "pl_PL",
+    "pt_BR",
+  ];
+
+  console.log("dando pau");
 
   if (!supportedLanguages.includes(language)) {
     throw new Error(`Unsupported language: ${language}`);
   }
 
   let messages = await import(`@/locales/${language}/app.yaml`);
+
   if (messages.default === null) {
-    messages = await import("@/locales/en_US/app.yaml");
+    messages = await import("@/locales/en_US/keywords.yaml");
   }
 
   let keywords = await import(`@/locales/${language}/keywords.yaml`);
@@ -33,7 +44,12 @@ export async function loadLanguage(language: string) {
     campaign = await import("@/locales/en_US/campaign.yaml");
   }
 
-  messages = { ...messages.default, ...keywords.default, ...items.default, ...campaign.default };
+  messages = {
+    ...messages.default,
+    ...keywords.default,
+    ...items.default,
+    ...campaign.default,
+  };
 
   i18n.global.locale.value = language;
   i18n.global.setLocaleMessage(language, messages);

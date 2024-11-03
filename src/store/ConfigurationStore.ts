@@ -5,7 +5,9 @@ import type { ContentId } from "@/data/type/ContentId";
 import type { VariantId } from "@/data/type/VariantId";
 
 export const ConfigurationStore = defineStore("configuration", () => {
-  const enabledMonsterContent = useStorage("ContentStore.enabled", ["core"] as ContentId[]);
+  const enabledMonsterContent = useStorage("ContentStore.enabled", [
+    "core",
+  ] as ContentId[]);
   const enabledHeroContent = useStorage("ContentStore.enabled.hero", [
     "core",
     "spoils-of-war",
@@ -14,7 +16,9 @@ export const ConfigurationStore = defineStore("configuration", () => {
     "handuriel",
     "lordwrath",
   ] as ContentId[]);
-  const enabledVariants = useStorage("VariantStore.enabled", ["standard"] as VariantId[]);
+  const enabledVariants = useStorage("VariantStore.enabled", [
+    "standard",
+  ] as VariantId[]);
   const enabledLanguage = useStorage("LanguageStore.enabled", "en_US");
 
   function getEnabledMonsterContent(): ContentId[] {

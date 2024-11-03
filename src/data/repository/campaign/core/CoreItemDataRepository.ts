@@ -298,7 +298,8 @@ export class CoreItemDataRepository implements ItemDataRepository {
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Pattern",
-      translation_key: "consumable.core.dreamcrafted-pattern-bracers-of-endurance",
+      translation_key:
+        "consumable.core.dreamcrafted-pattern-bracers-of-endurance",
     } as ConsumableItemData,
     {
       id: "dreamcrafted-pattern-dream-weaveplate",
@@ -312,7 +313,8 @@ export class CoreItemDataRepository implements ItemDataRepository {
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Pattern",
-      translation_key: "consumable.core.dreamcrafted-pattern-dreamcrafted-buckler",
+      translation_key:
+        "consumable.core.dreamcrafted-pattern-dreamcrafted-buckler",
     } as ConsumableItemData,
     {
       id: "dreamcrafted-pattern-dreampiercer-bow",
@@ -326,14 +328,16 @@ export class CoreItemDataRepository implements ItemDataRepository {
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Pattern",
-      translation_key: "consumable.core.dreamcrafted-pattern-exquisite-dreamblade",
+      translation_key:
+        "consumable.core.dreamcrafted-pattern-exquisite-dreamblade",
     } as ConsumableItemData,
     {
       id: "dreamcrafted-pattern-sigil-of-narangerel",
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Pattern",
-      translation_key: "consumable.core.dreamcrafted-pattern-sigil-of-narangerel",
+      translation_key:
+        "consumable.core.dreamcrafted-pattern-sigil-of-narangerel",
     } as ConsumableItemData,
     {
       id: "dreampiercer-bow",
@@ -1040,12 +1044,20 @@ export class CoreItemDataRepository implements ItemDataRepository {
     return this.cards;
   }
 
-  findByType(type: ItemType, subType: ArmorType | ConsumableType | OffHandType | WeaponType | null = null): ItemData[] {
+  findByType(
+    type: ItemType,
+    subType:
+      | ArmorType
+      | ConsumableType
+      | OffHandType
+      | WeaponType
+      | null = null,
+  ): ItemData[] {
     const cards: ItemData[] = [];
 
     const isSubType = function (
       item: ItemData,
-      st: ArmorType | ConsumableType | OffHandType | WeaponType | null
+      st: ArmorType | ConsumableType | OffHandType | WeaponType | null,
     ): boolean {
       if (st === null) {
         return true;
@@ -1058,10 +1070,14 @@ export class CoreItemDataRepository implements ItemDataRepository {
         return (item as ConsumableItemData).consumableType === st;
       }
       if (instanceOfOffHandCardData(item)) {
-        return (item as OffHandItemData).offHandTypes.some((value) => value === st);
+        return (item as OffHandItemData).offHandTypes.some(
+          (value) => value === st,
+        );
       }
       if (instanceOfWeaponCardData(item)) {
-        return (item as WeaponItemData).weaponTypes.some((value) => value === st);
+        return (item as WeaponItemData).weaponTypes.some(
+          (value) => value === st,
+        );
       }
       return false;
     };

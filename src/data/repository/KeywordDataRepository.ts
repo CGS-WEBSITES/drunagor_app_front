@@ -17,7 +17,8 @@ export class KeywordDataRepository implements DataRepository {
 
     let keywords = i18n.messages.value[locale].keyword as KeywordData[];
     if (keywords.length < 1) {
-      keywords = i18n.messages.value[i18n.fallbackLocale.value as string].keyword as KeywordData[];
+      keywords = i18n.messages.value[i18n.fallbackLocale.value as string]
+        .keyword as KeywordData[];
     }
     this.keywords = keywords;
     this.keywords = _.sortBy(this.keywords, ["keyword"]);

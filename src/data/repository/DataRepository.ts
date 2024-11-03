@@ -6,6 +6,8 @@ import type { Status } from "@/data/repository/campaign/Status";
 import type { ItemData } from "@/data/repository/ItemData";
 
 export interface DataRepository {
-  find(id: string): Aura | ItemData | HeroData | Outcome | Status | KeywordData | undefined;
+  find(
+    id: string,
+  ): Aura | ItemData | HeroData | Outcome | Status | KeywordData | undefined;
   findAll(): Object[];
 }

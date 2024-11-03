@@ -43,19 +43,34 @@ function onStash() {
 
 <template>
   <div>
-    <Button outlined id="campaign-export" :label="t('label.back')" @click="$router.go(-1)"></Button>
+    <Button
+      outlined
+      id="campaign-export"
+      :label="t('label.back')"
+      @click="$router.go(-1)"
+    ></Button>
   </div>
-  <div id="hero-card" class="bg-neutral form-control drop-shadow rounded-lg p-4 mt-4" style="background-color: #1f2937">
+  <div
+    id="hero-card"
+    class="bg-neutral form-control drop-shadow rounded-lg p-4 mt-4"
+    style="background-color: #1f2937"
+  >
     <div class="flex h-28">
       <div>
-        <img class="-ml-1 w-14 rounded-full hero-image" :src="hero.images.avatar" />
+        <img
+          class="-ml-1 w-14 rounded-full hero-image"
+          :src="hero.images.avatar"
+        />
       </div>
       <div class="pl-8">
         <p>{{ hero.name }}</p>
         <p>
-          {{ t("label." + hero.race.toLowerCase()) }} {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
+          {{ t("label." + hero.race.toLowerCase()) }}
+          {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
         </p>
-        <p>{{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}</p>
+        <p>
+          {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
+        </p>
       </div>
     </div>
 
@@ -74,13 +89,21 @@ function onStash() {
     <Divider>{{ t("label.stash") }}</Divider>
 
     <div class="hero-stash-wrapper py-2 w-full">
-      <CampaignHeroStash :campaign-id="campaignId" :repository="repository" :hero-id="heroId" :key="stash" />
+      <CampaignHeroStash
+        :campaign-id="campaignId"
+        :repository="repository"
+        :hero-id="heroId"
+        :key="stash"
+      />
     </div>
 
     <Divider>{{ t("label.skills") }}</Divider>
 
     <div class="py-2 w-full">
-      <CampaignHeroSkills :campaign-id="campaignId" :hero-id="heroId"></CampaignHeroSkills>
+      <CampaignHeroSkills
+        :campaign-id="campaignId"
+        :hero-id="heroId"
+      ></CampaignHeroSkills>
     </div>
   </div>
 </template>

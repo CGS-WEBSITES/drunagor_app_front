@@ -6,7 +6,12 @@ export class RandomCommander {
   public translation_key: string;
   public image: RandomImage;
 
-  constructor(id: string, name: string, translation_key: string, image: RandomImage) {
+  constructor(
+    id: string,
+    name: string,
+    translation_key: string,
+    image: RandomImage,
+  ) {
     this.id = id;
     this.name = name;
     this.translation_key = translation_key;

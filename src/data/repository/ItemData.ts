@@ -32,14 +32,20 @@ export function instanceOfArmorCardData(object: any): object is ArmorItemData {
   return "armorTypes" in object;
 }
 
-export function instanceOfConsumableCardData(object: any): object is ConsumableItemData {
+export function instanceOfConsumableCardData(
+  object: any,
+): object is ConsumableItemData {
   return "consumableType" in object;
 }
 
-export function instanceOfOffHandCardData(object: any): object is OffHandItemData {
+export function instanceOfOffHandCardData(
+  object: any,
+): object is OffHandItemData {
   return "offHandTypes" in object;
 }
 
-export function instanceOfWeaponCardData(object: any): object is WeaponItemData {
+export function instanceOfWeaponCardData(
+  object: any,
+): object is WeaponItemData {
   return "weaponTypes" in object;
 }

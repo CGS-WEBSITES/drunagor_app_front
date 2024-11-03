@@ -24,7 +24,8 @@ const campaign = campaignStore.find(campaignId);
 const heroStore = HeroStore();
 
 const isSequentialAdventure = ref(false);
-isSequentialAdventure.value = campaignStore.find(campaignId).isSequentialAdventure ?? false;
+isSequentialAdventure.value =
+  campaignStore.find(campaignId).isSequentialAdventure ?? false;
 
 const update = ref(0);
 
@@ -60,13 +61,23 @@ function onSequentialAdventure() {
       <CampaignRunes :campaign-id="campaignId" />
     </template>
   </Card>
-  <template v-if="campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'">
-    <div class="bg-neutral form-control drop-shadow rounded-lg mb-2" :key="update">
+  <template
+    v-if="
+      campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
+    "
+  >
+    <div
+      class="bg-neutral form-control drop-shadow rounded-lg mb-2"
+      :key="update"
+    >
       <StoryRecord :campaign-id="campaignId" />
     </div>
   </template>
   <template v-if="campaign.campaign == 'apocalypse'">
-    <div class="bg-neutral form-control drop-shadow rounded-lg mb-2" :key="update">
+    <div
+      class="bg-neutral form-control drop-shadow rounded-lg mb-2"
+      :key="update"
+    >
       <div class="p-4" style="background-color: #1f2937">
         <div class="pt-2 w-full">
           <StoryRecordLegacyTrail :campaign-id="campaignId" />
@@ -82,7 +93,10 @@ function onSequentialAdventure() {
     <CampaignLogRemoveHero :campaign-id="campaignId" />
   </BaseButtonMenu>
   <div id="heroes" class="grid pt-2 gap-2 w-full" :key="update">
-    <template v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId">
+    <template
+      v-for="hero in heroStore.findAllInCampaign(campaignId)"
+      :key="hero.heroId"
+    >
       <div class="bg-neutral form-control drop-shadow rounded-lg">
         <CampaignLog
           :campaign-id="campaignId"

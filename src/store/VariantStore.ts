@@ -7,7 +7,11 @@ import { defineStore } from "pinia";
 import type { VariantId } from "../data/type/VariantId";
 
 export const VariantStore = defineStore("variant", () => {
-  const variants = [new Standard(), new Alternate(), new Complex()] as Variant[];
+  const variants = [
+    new Standard(),
+    new Alternate(),
+    new Complex(),
+  ] as Variant[];
 
   function getAll(): Variant[] {
     return variants;

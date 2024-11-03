@@ -32,5 +32,4 @@ export async function registerPlugins(app: App) {
   const configurationStore = ConfigurationStore();
 
   await loadLanguage(configurationStore.enabledLanguage);
-
 }

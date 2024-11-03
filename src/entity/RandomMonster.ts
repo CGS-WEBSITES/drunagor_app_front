@@ -8,7 +8,13 @@ export class RandomMonster {
   public variants: VariantId[];
   public image: RandomImage;
 
-  constructor(id: string, name: string, translation_key: string, variants: VariantId[], image: RandomImage) {
+  constructor(
+    id: string,
+    name: string,
+    translation_key: string,
+    variants: VariantId[],
+    image: RandomImage,
+  ) {
     this.id = id;
     this.name = name;
     this.translation_key = translation_key;

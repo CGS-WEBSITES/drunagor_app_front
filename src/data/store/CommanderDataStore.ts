@@ -51,7 +51,11 @@ export const CommanderDataStore = defineStore("data-commander", () => {
 
   function findAllEnabled(): CommanderData[] {
     const enabledCommanders = commanders.filter((commander: CommanderData) => {
-      if (configurationStore.getEnabledMonsterContent().includes(commander.content) === false) {
+      if (
+        configurationStore
+          .getEnabledMonsterContent()
+          .includes(commander.content) === false
+      ) {
         return false;
       }
 

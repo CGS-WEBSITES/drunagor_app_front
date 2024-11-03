@@ -6,7 +6,8 @@
           <!-- Links para navegação -->
           <v-spacer></v-spacer>
           <v-btn @click="$router.push({ name: 'Login' })">Login</v-btn>
-          <v-btn @click="$router.push({ name: 'CampaignOverviewView' })">
+          <v-btn @click="$router.push({ name: 'CampaignTracker'})">
+            Campaign Tracker
           </v-btn>
           <v-btn @click="$router.push({ name: 'Teste' })">teste</v-btn>
         </v-app-bar>
@@ -20,4 +21,11 @@
   </v-app>
 </template>
 <script>
+
 </script>
+<style>
+.row{
+  width: 100%
+}
+
+</style>

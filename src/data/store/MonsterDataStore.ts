@@ -85,7 +85,11 @@ export const MonsterDataStore = defineStore("data-monster", () => {
 
   function findAllEnabled(): MonsterData[] {
     const enabledMonsters = monsters.filter((monster: MonsterData) => {
-      if (configurationStore.getEnabledMonsterContent().includes(monster.content) === false) {
+      if (
+        configurationStore
+          .getEnabledMonsterContent()
+          .includes(monster.content) === false
+      ) {
         return false;
       }
 

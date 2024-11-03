@@ -8,7 +8,7 @@ export class RandomCommanderFactory {
       commander.id,
       commander.name,
       commander.translation_key,
-      new RandomImage(commander.images.big, commander.images.miniature)
+      new RandomImage(commander.images.big, commander.images.miniature),
     );
   }
 }

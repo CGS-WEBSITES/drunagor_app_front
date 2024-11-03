@@ -13,7 +13,9 @@ export class RandomizeHero {
     let heroes = _.cloneDeep(this.repository.findAll());
 
     heroes = heroes.filter((hero: HeroData) => {
-      if (this.configurationStore.isEnabledHeroContent(hero.content) === false) {
+      if (
+        this.configurationStore.isEnabledHeroContent(hero.content) === false
+      ) {
         return false;
       }
       if (excludedHeroIds.includes(hero.id)) {
@@ -26,6 +28,8 @@ export class RandomizeHero {
       return null;
     }
 
-    return RandomHeroFactory.fromHeroData(heroes[Math.floor(Math.random() * heroes.length)]);
+    return RandomHeroFactory.fromHeroData(
+      heroes[Math.floor(Math.random() * heroes.length)],
+    );
   }
 }

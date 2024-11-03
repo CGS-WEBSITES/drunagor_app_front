@@ -21,7 +21,10 @@ export class Campaign {
   public isSequentialAdventure: boolean = false;
   public sequentialAdventureRunes: number = 0;
 
-  constructor(campaignId: string, campaign: "core" | "apocalypse" | "awakenings") {
+  constructor(
+    campaignId: string,
+    campaign: "core" | "apocalypse" | "awakenings",
+  ) {
     this.campaignId = campaignId;
     this.campaign = campaign;
   }

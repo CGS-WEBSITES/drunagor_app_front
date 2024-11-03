@@ -9,7 +9,7 @@ export class RandomMonsterFactory {
       monsterData.name,
       monsterData.translation_key,
       monsterData.variants,
-      new RandomImage(monsterData.images.big, monsterData.images.miniature)
+      new RandomImage(monsterData.images.big, monsterData.images.miniature),
     );
   }
 }

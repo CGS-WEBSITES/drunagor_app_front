@@ -264,9 +264,11 @@ consumable:
   core:
     cosmic-gemstone: Kosmischer Edelstein
     cosmic-gemstone-chest: Kosmischer Edelstein (Truhe)
-    cosmic-gemstone-from-sigil-of-honor: Kosmischer Edelstein (entfernt vom Siegel
+    cosmic-gemstone-from-sigil-of-honor:
+      Kosmischer Edelstein (entfernt vom Siegel
       der Ehre)
-    dreamcrafted-pattern-bracers-of-endurance: Traumhaftes Muster (Armschienen der
+    dreamcrafted-pattern-bracers-of-endurance:
+      Traumhaftes Muster (Armschienen der
       Ausdauer)
     dreamcrafted-pattern-dream-weaveplate: Traumhaftes Muster (Traumgewebte Rüstung)
     dreamcrafted-pattern-dreamcrafted-buckler: Traumhaftes Muster (Traumhafter Schild)

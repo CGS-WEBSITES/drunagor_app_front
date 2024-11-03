@@ -9,11 +9,16 @@ export class RandomizeCommander {
   private configurationStore = ConfigurationStore();
   private commanderDataStore = CommanderDataStore();
 
-  public randomize(excludedCommanderIds: string[] = []): RandomCommander | null {
+  public randomize(
+    excludedCommanderIds: string[] = [],
+  ): RandomCommander | null {
     let commanders = _.cloneDeep(this.commanderDataStore.findAll());
 
     commanders = commanders.filter((commander: CommanderData) => {
-      if (this.configurationStore.isEnabledMonsterContent(commander.content) === false) {
+      if (
+        this.configurationStore.isEnabledMonsterContent(commander.content) ===
+        false
+      ) {
         return false;
       }
       if (excludedCommanderIds.includes(commander.id)) {
@@ -26,6 +31,8 @@ export class RandomizeCommander {
       return null;
     }
 
-    return RandomCommanderFactory.fromCommanderData(commanders[Math.floor(Math.random() * commanders.length)]);
+    return RandomCommanderFactory.fromCommanderData(
+      commanders[Math.floor(Math.random() * commanders.length)],
+    );
   }
 }

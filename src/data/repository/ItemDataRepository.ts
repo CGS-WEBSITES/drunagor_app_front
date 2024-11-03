@@ -8,5 +8,8 @@ import type { WeaponType } from "@/data/type/WeaponType";
 export interface ItemDataRepository {
   find(id: string): ItemData | undefined;
   findAll(): ItemData[];
-  findByType(type: ItemType, subType: ArmorType | ConsumableType | OffHandType | WeaponType | null): ItemData[];
+  findByType(
+    type: ItemType,
+    subType: ArmorType | ConsumableType | OffHandType | WeaponType | null,
+  ): ItemData[];
 }

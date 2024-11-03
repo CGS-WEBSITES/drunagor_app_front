@@ -52,8 +52,14 @@ function findHeroes(campaignId: string): HeroData[] {
     <CampaignImport />
   </BaseButtonMenu>
   <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
-    <template v-for="campaign in campaignStore.findAll()" :key="campaign.campaignId">
-      <router-link :to="{ name: 'Campaign', params: { id: campaign.campaignId } }" class="w-full">
+    <template
+      v-for="campaign in campaignStore.findAll()"
+      :key="campaign.campaignId"
+    >
+      <router-link
+        :to="{ name: 'Campaign', params: { id: campaign.campaignId } }"
+        class="w-full"
+      >
         <Card>
           <template #title>
             <span class="capitalize">{{ campaign.campaign }}</span>
@@ -61,8 +67,16 @@ function findHeroes(campaignId: string): HeroData[] {
           </template>
           <template #content>
             <div class="flex flex-wrap justify-center min-h-16">
-              <template v-for="hero in findHeroes(campaign.campaignId)" :key="hero.heroId">
-                <Avatar :image="hero.images.avatar" class="mr-2" size="large" shape="circle" />
+              <template
+                v-for="hero in findHeroes(campaign.campaignId)"
+                :key="hero.heroId"
+              >
+                <Avatar
+                  :image="hero.images.avatar"
+                  class="mr-2"
+                  size="large"
+                  shape="circle"
+                />
               </template>
             </div>
           </template>
