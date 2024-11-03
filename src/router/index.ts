@@ -7,11 +7,6 @@ import Teste from "@/pages/teste.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/dashboard',
-    //   name: 'Dashboard',
-    //   component: Dashboard
-    // },
     {
       path: "/",
       name: "Login",
@@ -22,11 +17,6 @@ const router = createRouter({
       name: "Teste",
       component: Teste,
     },
-    // {
-    //   path: '/testedash',  // Defina a rota para o arquivo TesteDash.vue
-    //   name: 'TesteDash',
-    //   component: TesteDash
-    // }
   ],
 });
 
