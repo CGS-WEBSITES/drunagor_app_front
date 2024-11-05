@@ -1,148 +1,127 @@
 <template>
-  <v-app class="bg-grey-lighten-4">
-    <!-- Profile Section -->
-    <v-container class="mt-4">
-      <v-row align="center" justify="center">
-        <!-- Profile Picture and Info -->
-        <v-col cols="12" md="8">
-          <v-card>
-            <v-row no-gutters>
-              <v-col cols="3">
-                <v-avatar size="100">
-                  <v-img src="@/assets/library.png" alt="Profile" />
-                </v-avatar>
-              </v-col>
-              <v-col cols="6">
-                <v-card-title>MAGOVEIO92MAGI</v-card-title>
-                <v-card-subtitle>RANKING: 5123</v-card-subtitle>
-                <!-- Icons below the name -->
-                <v-row no-gutters>
-                  <v-col cols="auto" class="mr-2">
-                    <v-icon>mdi-shield</v-icon>
-                  </v-col>
-                  <v-col cols="auto" class="mr-2">
-                    <v-icon>mdi-sword</v-icon>
-                  </v-col>
-                  <v-col cols="auto" class="mr-2">
-                    <v-icon>mdi-book</v-icon>
-                  </v-col>
-                  <v-col cols="auto">
-                    <v-icon>mdi-map</v-icon>
-                  </v-col>
-                </v-row>
-              </v-col>
+  <!-- Profile Section -->
+  <v-container class="mt-4">
+    <v-row align="center" justify="center">
+      <!-- Profile Picture and Info -->
+      <v-col cols="12" md="8">
+        <v-card>
+          <v-row no-gutters>
+            <v-col cols="3">
+              <v-avatar size="100">
+                <v-img src="@/assets/library.png" alt="Profile" />
+              </v-avatar>
+            </v-col>
+            <v-col cols="6">
+              <v-card-title>MAGOVEIO92MAGI</v-card-title>
+              <v-card-subtitle>RANKING: 5123</v-card-subtitle>
+              <!-- Icons below the name -->
+              <v-row no-gutters>
+                <v-col cols="auto" class="mr-2">
+                  <v-icon>mdi-shield</v-icon>
+                </v-col>
+                <v-col cols="auto" class="mr-2">
+                  <v-icon>mdi-sword</v-icon>
+                </v-col>
+                <v-col cols="auto" class="mr-2">
+                  <v-icon>mdi-book</v-icon>
+                </v-col>
+                <v-col cols="auto">
+                  <v-icon>mdi-map</v-icon>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
+
+  <!-- Navigation Boxes (Library, Campaign, Events, Leaderboard) -->
+  <v-container class="mt-4">
+    <v-row>
+      <v-col cols="12" md="4" lg="3">
+        <v-card flat class="border">
+          <v-img height="300px" class="align-end text-white text-center" src="@/assets/Corebox.png" cover />
+          <v-card-actions>
+            <v-row class="d-flex justify-center">
+              <v-btn class="text-center">LIBRARY</v-btn>
             </v-row>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+          </v-card-actions>
+        </v-card>
+      </v-col>
 
-    <!-- Navigation Boxes (Library, Campaign, Events, Leaderboard) -->
-    <v-container class="mt-4">
-      <v-row>
-        <v-col cols="12" md="4" lg="3">
-          <v-card flat class="border">
-            <v-img
-              height="300px"
-              class="align-end text-white text-center"
-              src="@/assets/Corebox.png"
-              cover
-            >
-            </v-img>
-            <v-card-actions>
-              <v-row class="d-flex justify-center">
-                <v-btn class="text-center">LIBRARY </v-btn>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-col>
+      <v-col cols="12" md="4" lg="3">
+        <v-card flat class="border">
+          <v-img height="300px" class="align-end text-white text-center" src="@/assets/perfil.webp" cover />
+          <v-card-actions>
+            <v-row class="d-flex justify-center">
+              <v-btn class="text-center">CAMPAIGN</v-btn>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-col>
 
-        <v-col cols="12" md="4" lg="3">
-          <v-card flat class="border">
-            <v-img
-              height="300px"
-              class="align-end text-white text-center"
-              src="@/assets/perfil.webp"
-              cover
-            >
-            </v-img>
-            <v-card-actions>
-              <v-row class="d-flex justify-center">
-                <v-btn class="text-center">CAMPAIGN </v-btn>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-col>
+      <v-col cols="12" md="4" lg="3">
+        <v-card flat class="border">
+          <v-img height="300px" class="align-end text-white text-center" src="@/assets/events.jpg" cover />
+          <v-card-actions>
+            <v-row class="d-flex justify-center">
+              <v-btn class="text-center">EVENTS</v-btn>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-col>
 
-        <v-col cols="12" md="4" lg="3">
-          <v-card flat class="border">
-            <v-img
-              height="300px"
-              class="align-end text-white text-center"
-              src="@/assets/events.jpg"
-              cover
-            >
-            </v-img>
-            <v-card-actions>
-              <v-row class="d-flex justify-center">
-                <v-btn class="text-center">EVENTS </v-btn>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="4" lg="3">
-          <v-card flat class="border">
-            <v-img
-              height="300px"
-              class="align-end text-white text-center"
-              src="@/assets/leaderboard.jpg"
-              cover
-            >
-            </v-img>
-            <v-card-actions>
-              <v-row class="d-flex justify-center">
-                <v-btn class="text-center">LEADERBOARD </v-btn>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+      <v-col cols="12" md="4" lg="3">
+        <v-card flat class="border">
+          <v-img height="300px" class="align-end text-white text-center" src="@/assets/leaderboard.jpg" cover />
+          <v-card-actions>
+            <v-row class="d-flex justify-center">
+              <v-btn class="text-center">LEADERBOARD</v-btn>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 
-    <!-- Carousel Section (Campaign Progress) -->
-<v-container class="mt-4">
-  <v-carousel hide-delimiters height="300px"> <!-- Ajuste a altura do carrossel aqui -->
-    <v-carousel-item v-for="i in 6" :key="i">
-      <v-row>
-        <v-col cols="6">
-          <v-card class="mx-auto">
-            <v-img src="@/assets/perfil.webp" height="200"></v-img>
-            <v-card-title>Campaign 0%</v-card-title>
-            <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
-            <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
-          </v-card>
-        </v-col>
-        <v-col cols="6">
-          <v-card class="mx-auto">
-            <v-img src="@/assets/perfil.webp" height="200"></v-img>
-            <v-card-title>Campaign 0%</v-card-title>
-            <v-card-subtitle>Awakenings</v-card-subtitle>
-            <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-carousel-item>
-  </v-carousel>
-</v-container>
+  <!-- Carousel Section (Campaign Progress) -->
+  <v-container class="mt-4">
+    <v-carousel hide-delimiters height="300px">
+      <v-carousel-item v-for="i in 6" :key="i">
+        <v-row>
+          <v-col cols="6">
+            <v-card class="mx-auto">
+              <v-img src="@/assets/perfil.webp" height="200" />
+              <v-card-title>Campaign 0%</v-card-title>
+              <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
+              <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+            </v-card>
+          </v-col>
+          <v-col cols="6">
+            <v-card class="mx-auto">
+              <v-img src="@/assets/perfil.webp" height="200" />
+              <v-card-title>Campaign 0%</v-card-title>
+              <v-card-subtitle>Awakenings</v-card-subtitle>
+              <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-carousel-item>
+    </v-carousel>
+  </v-container>
 
-    <v-container class="mt-4">
+     <!-- Main Event Cards -->
+
+     <v-container class="mt-4">
       <v-card-text
         class="text-h4 white--text color-white bg-black"
         color="white"
       >
         EVENTS
 
-      <!-- Main Event Cards -->
+        <!-- Main Event Cards -->
+       <!-- Main Event Cards -->
       <v-row>
         <!-- Next Section (visible on desktop, hidden on mobile) -->
         <v-col cols="12" md="6">
@@ -401,22 +380,8 @@
       </v-row>
     </v-container>
 
-    <v-btn
-      fab
-      dark
-      color="black"
-      class="fixed-bottom-right"
-      @click="showPopup = !showPopup"
-    >
-      <v-icon>mdi-bell</v-icon>
-      <v-badge
-        color="red"
-        content="10"
-        overlap
-        class="notification-badge"
-      ></v-badge>
-    </v-btn>
-  </v-app>
+    
+
   <!-- Fixed Bottom Navigation for Mobile -->
   <v-bottom-navigation
     class="hidden-md-and-up fixed app color-white bg-black"
@@ -439,79 +404,87 @@
     </v-btn>
   </v-bottom-navigation>
 
-  <!-- Footer Section -->
-  <v-footer class="footer black bg-black" padless>
-    <v-container fluid>
-      <v-row justify="center" align="center" class="text-center">
-        <v-col cols="12" sm="4">
-          <v-img
-            class="logocgs mx-auto"
-            src="@/assets/cgs.png"
-            max-width="92"
-            alt="logo"
-          />
-        </v-col>
+  <!-- Notification Button -->
+  <v-row style="position: fixed; bottom: 20px; right: 20px; z-index: 10;">
+    <v-col cols="auto">
+      <v-badge color="red" content="10" overlap location="top-end">
+        <v-btn fab dark color="black" @click="showPopup = !showPopup">
+          <v-icon>mdi-bell</v-icon>
+        </v-btn>
+      </v-badge>
+    </v-col>
+  </v-row>
 
-        <v-col cols="12" sm="4" class="info-footer text-center">
-          <h3 class="white--text">Footer Infos Here</h3>
-          <p class="white--text">Big name info 1</p>
-          <p class="white--text">Big name info 2</p>
-          <p class="white--text">Big name info 3</p>
-        </v-col>
+  <!-- Notification Dialog -->
+  <v-dialog v-model="showPopup" max-width="600px">
+    <v-card>
+      <v-card-title>Notificações</v-card-title>
+      <v-card-text>
+        <!-- Conteúdo do diálogo -->
+      </v-card-text>
+      <v-card-actions>
+        <v-btn text @click="showPopup = false">Fechar</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
-        <v-col cols="12" sm="4" class="text-center">
-          <h3 class="white--text">Social medias</h3>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-instagram</v-icon>
-          </v-btn>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-facebook</v-icon>
-          </v-btn>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-youtube</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-footer>
 </template>
 
-<script>
-const[showPopup].value = false
-export default {
-  data() {
-    return {
-      showPopup: false, // Controla a exibição do popup
-      dialog: false,
-    };
-  },
-  methods: {
-    openDialog(eventId) {
-      this.dialog = true;
-    },
-    closeDialog() {
-      this.dialog = false;
-    },
+<script lang="ts" setup>
+import { ref } from "vue";
 
-    // Método para abrir o Google Maps com o local clicado
-    openGoogleMaps(place) {
-      const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`;
-      window.open(url, '_blank');
-    }
-  }
+// Variáveis reativas
+const showPopup = ref(false);
+const dialog = ref(false);
+
+// Métodos de ação para os botões da navegação
+const action1 = () => {
+  console.log("Home button clicked");
+  // Adicione a lógica específica para essa ação
 };
 
+const action2 = () => {
+  console.log("Search button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action3 = () => {
+  console.log("Add button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action4 = () => {
+  console.log("Favorites button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action5 = () => {
+  console.log("Account button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+// Métodos para o diálogo e Google Maps
+const openDialog = (eventId: number) => {
+  dialog.value = true;
+};
+
+const closeDialog = () => {
+  dialog.value = false;
+};
+
+const openGoogleMaps = (place: { name: string }) => {
+  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`;
+  window.open(url, "_blank");
+};
 </script>
 
+
 <style>
-.fixed-bottom-right {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 10;
+.notification-button {
+  position: relative;
 }
 
-.notification-badge {
+.v-badge__badge {
   position: absolute;
   top: -5px;
   right: -5px;
