@@ -91,16 +91,16 @@
       <v-carousel-item v-for="i in 6" :key="i">
         <v-row>
           <v-col cols="6">
-            <v-card class="mx-auto">
-              <v-img src="@/assets/perfil.webp" height="200" />
+            <v-card class="mx-auto" width="80%">
+              <v-img src="@/assets/campaign.jpg" height="200" cover />
               <v-card-title>Campaign 0%</v-card-title>
               <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
               <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
             </v-card>
           </v-col>
           <v-col cols="6">
-            <v-card class="mx-auto">
-              <v-img src="@/assets/perfil.webp" height="200" />
+            <v-card class="mx-auto" width="80%">
+              <v-img src="@/assets/campaign.jpg" height="200" cover />
               <v-card-title>Campaign 0%</v-card-title>
               <v-card-subtitle>Awakenings</v-card-subtitle>
               <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
