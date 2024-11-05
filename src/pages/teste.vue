@@ -178,57 +178,26 @@
 
     <!-- Video Section -->
     <v-container fluid class="bg-white">
-      <v-row align="center" justify="center" class="bg-white h-screen">
-        <v-col cols="12" class="text-center">
-          <div class="video-section">
-            <h2>Video Section</h2>
-            <v-img
-              v-if="videoThumbnail !== ''"
-              :src="videoThumbnail"
-              alt="Video"
-              class="video-placeholder"
-            ></v-img>
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-row align="center" justify="center" style="height: 50vh;">
+    <v-col cols="12" class="text-center">
+      <div>
+        <h2>Video Section</h2>
+        <v-img
+          v-if="videoThumbnail !== ''"
+          :src="videoThumbnail"
+          alt="Video"
+          max-width="80%"
+          max-height="80%"
+          cover
+        ></v-img>
+      </div>
+    </v-col>
+  </v-row>
+</v-container>
+
     <hr />
 
-    <!-- Footer Section -->
-    <v-footer class="footer black bg-black" padless>
-      <v-container fluid>
-        <v-row justify="center" align="center" class="text-center">
-          <v-col cols="12" sm="4">
-            <v-img
-              class="logocgs mx-auto"
-              src="@/assets/cgs.png"
-              max-width="92"
-              alt="logo"
-            />
-          </v-col>
-
-          <v-col cols="12" sm="4" class="info-footer text-center">
-            <h3 class="white--text">Footer Infos Here</h3>
-            <p class="white--text">Big name info 1</p>
-            <p class="white--text">Big name info 2</p>
-            <p class="white--text">Big name info 3</p>
-          </v-col>
-
-          <v-col cols="12" sm="4" class="text-center">
-            <h3 class="white--text">Social medias</h3>
-            <v-btn fab icon color="black" dark>
-              <v-icon color="white">mdi-instagram</v-icon>
-            </v-btn>
-            <v-btn fab icon color="black" dark>
-              <v-icon color="white">mdi-facebook</v-icon>
-            </v-btn>
-            <v-btn fab icon color="black" dark>
-              <v-icon color="white">mdi-youtube</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-footer>
+   
   </v-app>
 </template>
 
