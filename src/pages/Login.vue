@@ -2,7 +2,6 @@
   <v-app id="inspire" fluid>
     <p class="tittle-login pt-16">Drunagor App</p>
     <v-content>
-      
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
           <v-col cols="12" sm="8" md="8">
@@ -45,7 +44,9 @@
                         <br /><br />
                       </v-card-text>
                       <div class="text-center mt-3">
-                        <v-btn style="background-color: black; color: white">SIGN IN</v-btn>
+                        <v-btn style="background-color: black; color: white"
+                          >SIGN IN</v-btn
+                        >
                       </div>
                       <br /><br />
                     </v-col>
@@ -56,7 +57,9 @@
                       class="teal accent-3"
                     >
                       <v-card-text class="white--text mt-12">
-                        <h1 class="text-center text-white display-1">Don’t have an account?</h1>
+                        <h1 class="text-center text-white display-1">
+                          Don’t have an account?
+                        </h1>
                         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
                         <h5 class="text-center text-white text-h6">
                           Enter your personal details and start journay with us
@@ -82,7 +85,9 @@
                             alt="Create Account Icon"
                             class="center-icon"
                           ></v-img>
-                          <h1 class="text-center display-2">Create an User Account</h1>
+                          <h1 class="text-center display-2">
+                            Create an User Account
+                          </h1>
                         </div>
 
                         <h4 class="text-center mt-4">
@@ -185,7 +190,9 @@
                     >
                       <v-card-text class="white--text mt-12">
                         <h2 class="text-center text-white">Welcome to</h2>
-                        <h1 class="text-center display-1 text-white">Drunagor App</h1>
+                        <h1 class="text-center display-1 text-white">
+                          Drunagor App
+                        </h1>
                         <br /><br /><br /><br /><br />
                         <h5 class="text-center text-white text-h6">
                           Enter your personal details and start your journey
@@ -194,7 +201,9 @@
                       </v-card-text>
                       <div class="text-center text-white mt-8">
                         <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-                        <h5 class="white--text text-white text-h6">Already have an account?</h5>
+                        <h5 class="white--text text-white text-h6">
+                          Already have an account?
+                        </h5>
                         <br />
                         <v-btn outlined light @click="step--">Login</v-btn>
                       </div>
@@ -211,11 +220,16 @@
 
       <!-- Texto limitado -->
       <v-container class="pa-4" color="white" fluid>
-  <v-card class="pa-4" color="white" elevation="2">
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus, dignissimos in, ipsam fugit, dolores quisquam blanditiis id quae pariatur harum sequi praesentium! Officiis officia omnis facilis expedita suscipit molestiae eius? Lorem ipsum dolor sit amet, consectetur adipisicing elit. Saepe sunt, delectus nulla alias ex, exercitationem enim, eaque odit impedit quas repellendus itaque voluptates architecto fuga? Eveniet vel velit omnis enim.
-  </v-card>
-</v-container>
-
+        <v-card class="pa-4" color="white" elevation="2">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+          Voluptatibus, dignissimos in, ipsam fugit, dolores quisquam blanditiis
+          id quae pariatur harum sequi praesentium! Officiis officia omnis
+          facilis expedita suscipit molestiae eius? Lorem ipsum dolor sit amet,
+          consectetur adipisicing elit. Saepe sunt, delectus nulla alias ex,
+          exercitationem enim, eaque odit impedit quas repellendus itaque
+          voluptates architecto fuga? Eveniet vel velit omnis enim.
+        </v-card>
+      </v-container>
 
       <!-- Video Section -->
       <v-container fluid class="bg-white">
@@ -277,12 +291,12 @@ export default {
   data: () => ({
     videoThumbnail: "",
     step: 1,
-    loginEmail: '', // Variável de e-mail de login
-    loginPassword: '', // Variável de senha de login
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    loginEmail: "", // Variável de e-mail de login
+    loginPassword: "", // Variável de senha de login
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     selectedCountry: null,
     agreeTerms: false,
     countries: [

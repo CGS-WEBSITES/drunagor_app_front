@@ -42,7 +42,8 @@
       <v-row>
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
+            <v-img
+              height="300px"
               class="align-end text-white text-center"
               src="@/assets/Corebox.png"
               cover
@@ -58,7 +59,8 @@
 
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
+            <v-img
+              height="300px"
               class="align-end text-white text-center"
               src="@/assets/perfil.webp"
               cover
@@ -74,8 +76,9 @@
 
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
-              class="align-end text-white text-center "
+            <v-img
+              height="300px"
+              class="align-end text-white text-center"
               src="@/assets/events.jpg"
               cover
             >
@@ -89,7 +92,8 @@
         </v-col>
         <v-col cols="12" md="4" lg="3">
           <v-card flat class="border">
-            <v-img height="300px"
+            <v-img
+              height="300px"
               class="align-end text-white text-center"
               src="@/assets/leaderboard.jpg"
               cover
@@ -131,13 +135,12 @@
   </v-carousel>
 </v-container>
 
- <!-- Main Event Cards -->
-  
- 
- 
-  <v-container class="mt-4">
-    <v-card-text class="text-h4 white--text color-white bg-black" color="white">
-      EVENTS 
+    <v-container class="mt-4">
+      <v-card-text
+        class="text-h4 white--text color-white bg-black"
+        color="white"
+      >
+        EVENTS
 
       <!-- Main Event Cards -->
       <v-row>
@@ -185,134 +188,172 @@
           </v-card>
         </v-col>
 
-        <!-- Count Me In Section (visible on desktop, hidden on mobile) -->
-        <v-col cols="12" md="6">
-          <v-card class="pa-4 hidden-sm-and-down" color="grey-darken-4" dark>
-            <v-card-title class="white--text hidden-sm-and-down">Count Me In</v-card-title>
-            <!-- Container com rolagem -->
-            <div style="max-height: 300px; overflow-y: auto;">
-              <v-list>
-                <v-list-item
-                  v-for="i in 10"
-                  :key="i"
-                  class="mb-4"
-                  color="rgba(0,0,0,0.6)"
-                  elevation="6"
-                  shaped
-                  @click="openDialog(i)"
-                >
-                  <v-list-item-content>
-                    <v-row>
-                      <v-col cols="3">
-                        <v-avatar size="60">
-                          <v-img src="@/assets/perfil.webp" alt="Profile"></v-img>
-                        </v-avatar>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-list-item-title class="text-h6 white--text">
-                          EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle class="text-subtitle-2 white--text">
-                          JORGINHO ULTIMATE MEGA STORE PLUS
-                        </v-list-item-subtitle>
-                      </v-col>
-                      <v-col cols="3" class="text-right">
-                        <!-- Clique para abrir o Google Maps -->
-                        <v-icon color="red" size="40" @click.stop="openGoogleMaps">mdi-map-marker</v-icon>
-                        <v-list-item-subtitle class="text-subtitle-1 white--text">12/29/24</v-list-item-subtitle>
-                      </v-col>
-                    </v-row>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
+          <!-- Count Me In Section (visible on desktop, hidden on mobile) -->
+          <v-col cols="12" md="6">
+            <v-card class="pa-4 hidden-sm-and-down" color="grey-darken-4" dark>
+              <v-card-title class="white--text hidden-sm-and-down"
+                >Count Me In</v-card-title
+              >
+              <!-- Container com rolagem -->
+              <div style="max-height: 300px; overflow-y: auto">
+                <v-list>
+                  <v-list-item
+                    v-for="i in 10"
+                    :key="i"
+                    class="mb-4"
+                    color="rgba(0,0,0,0.6)"
+                    elevation="6"
+                    shaped
+                    @click="openDialog(i)"
+                  >
+                    <v-list-item-content>
+                      <v-row>
+                        <v-col cols="3">
+                          <v-avatar size="60">
+                            <v-img
+                              src="@/assets/perfil.webp"
+                              alt="Profile"
+                            ></v-img>
+                          </v-avatar>
+                        </v-col>
+                        <v-col cols="6">
+                          <v-list-item-title class="text-h6 white--text">
+                            EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle
+                            class="text-subtitle-2 white--text"
+                          >
+                            JORGINHO ULTIMATE MEGA STORE PLUS
+                          </v-list-item-subtitle>
+                        </v-col>
+                        <v-col cols="3" class="text-right">
+                          <!-- Clique para abrir o Google Maps -->
+                          <v-icon
+                            color="red"
+                            size="40"
+                            @click.stop="openGoogleMaps"
+                            >mdi-map-marker</v-icon
+                          >
+                          <v-list-item-subtitle
+                            class="text-subtitle-1 white--text"
+                            >12/29/24</v-list-item-subtitle
+                          >
+                        </v-col>
+                      </v-row>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
 
-      <!-- Dialog for Event Details -->
-      <v-dialog v-model="dialog" max-width="600px">
-        <v-card>
-          <!-- Close button (X) in the top-right corner -->
-          <v-card-title class="headline d-flex justify-space-between align-center">
-            EVENTO DE LANÇAMENTO DRUNAGOR APPD
-            <v-btn icon @click="closeDialog">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-card-title>
+        <!-- Dialog for Event Details -->
+        <v-dialog v-model="dialog" max-width="600px">
+          <v-card>
+            <!-- Close button (X) in the top-right corner -->
+            <v-card-title
+              class="headline d-flex justify-space-between align-center"
+            >
+              EVENTO DE LANÇAMENTO DRUNAGOR APPD
+              <v-btn icon @click="closeDialog">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </v-card-title>
 
-          <v-card-subtitle>
-            *event description* Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-          </v-card-subtitle>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" sm="4">
-                <v-avatar size="100">
-                  <v-img src="@/assets/perfil.webp" alt="Event"></v-img>
+            <v-card-subtitle>
+              *event description* Lorem Ipsum is simply dummy text of the
+              printing and typesetting industry.
+            </v-card-subtitle>
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" sm="4">
+                  <v-avatar size="100">
+                    <v-img src="@/assets/perfil.webp" alt="Event"></v-img>
+                  </v-avatar>
+                </v-col>
+                <v-col cols="12" sm="8">
+                  <v-list-item-title
+                    >JORGINHO ULTIMATE MEGA STORE PLUS</v-list-item-title
+                  >
+                  <v-list-item-subtitle
+                    >Engenheiro José Carlos de Morais Sarmento,
+                    5747</v-list-item-subtitle
+                  >
+                  <v-row>
+                    <v-col cols="auto">
+                      <v-icon>mdi-shield</v-icon>
+                      <v-icon>mdi-sword</v-icon>
+                      <v-icon>mdi-book</v-icon>
+                      <v-icon>mdi-map</v-icon>
+                    </v-col>
+                    <v-col class="d-flex justify-end">
+                      <v-icon>mdi-facebook</v-icon>
+                      <v-icon>mdi-instagram</v-icon>
+                      <v-icon>mdi-twitter</v-icon>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+
+              <v-divider></v-divider>
+
+              <v-card-subtitle class="mt-4">REWARDS:</v-card-subtitle>
+              <v-list-item>
+                <v-avatar size="60">
+                  <v-img src="@/assets/perfil.webp"></v-img>
                 </v-avatar>
-              </v-col>
-              <v-col cols="12" sm="8">
-                <v-list-item-title>JORGINHO ULTIMATE MEGA STORE PLUS</v-list-item-title>
-                <v-list-item-subtitle>Engenheiro José Carlos de Morais Sarmento, 5747</v-list-item-subtitle>
-                <v-row>
-                  <v-col cols="auto">
-                    <v-icon>mdi-shield</v-icon>
-                    <v-icon>mdi-sword</v-icon>
-                    <v-icon>mdi-book</v-icon>
-                    <v-icon>mdi-map</v-icon>
-                  </v-col>
-                  <v-col class="d-flex justify-end">
-                    <v-icon>mdi-facebook</v-icon>
-                    <v-icon>mdi-instagram</v-icon>
-                    <v-icon>mdi-twitter</v-icon>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
+                <v-list-item-content>
+                  <v-list-item-title>Reward Name</v-list-item-title>
+                  <v-list-item-subtitle
+                    >Reward description goes here...</v-list-item-subtitle
+                  >
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item>
+                <v-avatar size="60">
+                  <v-img src="@/assets/perfil.webp"></v-img>
+                </v-avatar>
+                <v-list-item-content>
+                  <v-list-item-title>Drunagor APP Badges</v-list-item-title>
+                  <v-list-item-subtitle
+                    >Check-in at the event to get an exclusive
+                    badge!</v-list-item-subtitle
+                  >
+                </v-list-item-content>
+              </v-list-item>
+            </v-card-text>
 
             <v-divider></v-divider>
 
-            <v-card-subtitle class="mt-4">REWARDS:</v-card-subtitle>
-            <v-list-item>
-              <v-avatar size="60">
-                <v-img src="@/assets/perfil.webp"></v-img>
-              </v-avatar>
-              <v-list-item-content>
-                <v-list-item-title>Reward Name</v-list-item-title>
-                <v-list-item-subtitle>Reward description goes here...</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-avatar size="60">
-                <v-img src="@/assets/perfil.webp"></v-img>
-              </v-avatar>
-              <v-list-item-content>
-                <v-list-item-title>Drunagor APP Badges</v-list-item-title>
-                <v-list-item-subtitle>Check-in at the event to get an exclusive badge!</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-card-text>
-
-          <v-divider></v-divider>
-
-          <!-- Updated Button Section -->
-          <v-card-actions>
-            <v-row class="d-flex justify-space-between">
-              <v-col>
-                <v-btn block color="#a87945" class="text-uppercase white--text" @click="closeDialog">MAYBE I'LL GO</v-btn>
-              </v-col>
-              <v-col>
-                <v-btn block color="green darken-1" class="text-uppercase white--text" @click="closeDialog">COUNT ME IN</v-btn>
-              </v-col>
-            </v-row>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-card-text>
-  </v-container>
-
-
+            <!-- Updated Button Section -->
+            <v-card-actions>
+              <v-row class="d-flex justify-space-between">
+                <v-col>
+                  <v-btn
+                    block
+                    color="#a87945"
+                    class="text-uppercase white--text"
+                    @click="closeDialog"
+                    >MAYBE I'LL GO</v-btn
+                  >
+                </v-col>
+                <v-col>
+                  <v-btn
+                    block
+                    color="green darken-1"
+                    class="text-uppercase white--text"
+                    @click="closeDialog"
+                    >COUNT ME IN</v-btn
+                  >
+                </v-col>
+              </v-row>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-card-text>
+    </v-container>
 
     <!-- My Library Section -->
     <v-container class="mt-4">
@@ -375,16 +416,12 @@
         class="notification-badge"
       ></v-badge>
     </v-btn>
-
-  
   </v-app>
   <!-- Fixed Bottom Navigation for Mobile -->
-  <v-bottom-navigation class="hidden-md-and-up fixed
-    app
-    color-white
-    bg-black"
+  <v-bottom-navigation
+    class="hidden-md-and-up fixed app color-white bg-black"
     :rounded="xs"
-    >
+  >
     <v-btn @click="action1">
       <v-icon>mdi-home</v-icon>
     </v-btn>
@@ -402,7 +439,6 @@
     </v-btn>
   </v-bottom-navigation>
 
-  
   <!-- Footer Section -->
   <v-footer class="footer black bg-black" padless>
     <v-container fluid>
@@ -439,13 +475,9 @@
     </v-container>
   </v-footer>
 </template>
-  
-   
-  
-    
-  
-  
+
 <script>
+const[showPopup].value = false
 export default {
   data() {
     return {
@@ -484,6 +516,4 @@ export default {
   top: -5px;
   right: -5px;
 }
-
-
 </style>

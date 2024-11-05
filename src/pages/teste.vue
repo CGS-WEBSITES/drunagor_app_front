@@ -196,44 +196,43 @@
 
     <!-- Footer Section -->
     <v-footer class="footer black bg-black" padless>
-  <v-container fluid>
-    <v-row justify="center" align="center" class="text-center">
-      <v-col cols="12" sm="4">
-        <v-img
-          class="logocgs mx-auto"
-          src="@/assets/cgs.png"
-          max-width="92"
-          alt="logo"
-        />
-       
-      </v-col>
-      
-      <v-col cols="12" sm="4" class="info-footer text-center">
-        <h3 class="white--text">Footer Infos Here</h3>
-        <p class="white--text">Big name info 1</p>
-        <p class="white--text">Big name info 2</p>
-        <p class="white--text">Big name info 3</p>
-      </v-col>
-      
-      <v-col cols="12" sm="4" class="text-center">
-        <h3 class="white--text">Social medias</h3>
-        <v-btn fab icon color="black" dark>
-          <v-icon color="white">mdi-instagram</v-icon>
-        </v-btn>
-        <v-btn fab icon color="black" dark>
-          <v-icon color="white">mdi-facebook</v-icon>
-        </v-btn>
-        <v-btn fab icon color="black" dark>
-          <v-icon color="white">mdi-youtube</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-  </v-container>
-</v-footer>
+      <v-container fluid>
+        <v-row justify="center" align="center" class="text-center">
+          <v-col cols="12" sm="4">
+            <v-img
+              class="logocgs mx-auto"
+              src="@/assets/cgs.png"
+              max-width="92"
+              alt="logo"
+            />
+          </v-col>
+
+          <v-col cols="12" sm="4" class="info-footer text-center">
+            <h3 class="white--text">Footer Infos Here</h3>
+            <p class="white--text">Big name info 1</p>
+            <p class="white--text">Big name info 2</p>
+            <p class="white--text">Big name info 3</p>
+          </v-col>
+
+          <v-col cols="12" sm="4" class="text-center">
+            <h3 class="white--text">Social medias</h3>
+            <v-btn fab icon color="black" dark>
+              <v-icon color="white">mdi-instagram</v-icon>
+            </v-btn>
+            <v-btn fab icon color="black" dark>
+              <v-icon color="white">mdi-facebook</v-icon>
+            </v-btn>
+            <v-btn fab icon color="black" dark>
+              <v-icon color="white">mdi-youtube</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-footer>
   </v-app>
 </template>
-  
-  <script>
+
+<script>
 export default {
   data() {
     return {
@@ -266,4 +265,3 @@ export default {
   },
 };
 </script>
-  
