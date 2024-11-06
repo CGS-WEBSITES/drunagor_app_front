@@ -32,23 +32,16 @@ watch(monsterContentSettings, async (newSettings) => {
 </script>
 
 <template>
-  <Card class="w-full" data-testid="configuration-content-monster">
-    <template #title> {{ $t("configuration.monster-content") }} </template>
-    <template #content>
-      <div v-for="content in contentStore.getAllWithMonsters()" :key="content.id" class="pb-4">
-        <label class="cursor-pointer"
-          >{{ $t(content.translation_key) }}
-          <Checkbox
-            variant="outlined"
-            v-model="monsterContentSettings"
-            :data-testid="'configuration-content-monster-' + content.id"
-            :value="content.id"
-            class="float-right"
-          />
-        </label>
-      </div>
-    </template>
-  </Card>
+  <v-card class="my-4">
+    <v-card-title>
+      {{ $t("configuration.monster-content") }}
+    </v-card-title>
+    <v-card-text>
+      <v-checkbox dense v-for="content in contentStore.getAllWithMonsters()" :key="content.id"
+        :label="$t(content.translation_key)" v-model="monsterContentSettings" :data-testid="'configuration-content-monster-' + content.id" :value="content.id" >
+      </v-checkbox>
+    </v-card-text>
+  </v-card>
 </template>
 
 <style scoped></style>

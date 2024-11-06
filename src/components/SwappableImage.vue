@@ -31,24 +31,25 @@ function swapImage() {
 </script>
 
 <template>
-  <div
-    class="border-silver bg-black relative w-[300px] h-[300px] lg:w-[400px] lg:h-[400px]"
-    :style="{ backgroundImage: 'url(' + props.background + ')' }"
-  >
-    <img id="swappable-image" :src="currentImage" />
-    <div class="absolute top-border-silver h-20 bottom-0 left-0 right-0 bg-black bg-opacity-70">
-      <p id="swappable-title" class="text-center font-semibold pt-2">{{ props.title }}</p>
-      <p id="swappable-sub-title" class="text-center">{{ props.subTitle }}</p>
-    </div>
-    <Button
-      icon="pi pi-arrow-right-arrow-left"
-      aria-label="Swap"
-      v-if="backImage"
-      class="absolute left-1/2 -bottom-3 transform -translate-x-1/2 p-2 w-6 h-6"
-      id="swappable-button"
-      @click="swapImage()"
-    />
-  </div>
+  <v-card class="d-flex flex-column justify-center align-center">
+    <v-card-item>
+      <v-card-title>
+        {{ props.title }}
+      </v-card-title>
+      <v-card-subtitle>
+        {{ props.subTitle }}
+      </v-card-subtitle>
+    </v-card-item>
+    <v-card-text>
+      <v-img rounded :src="currentImage" class="bg-black" width="378">
+      </v-img>
+    </v-card-text>
+    <v-card-actions>
+      <v-btn icon @click="swapImage()" v-if="backImage">
+        <v-icon>mdi-swap-horizontal</v-icon>
+      </v-btn>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <style scoped>
@@ -57,6 +58,7 @@ function swapImage() {
   border-style: solid;
   border-image: linear-gradient(to bottom, #d4d4d8, #111827) 1;
 }
+
 .top-border-silver {
   border-top: 2px solid #1f2937;
 }

@@ -13,28 +13,28 @@ function getMenuItems() {
   return [
     {
       label: t("menu.random-monster"),
-      icon: "pi pi-question",
+      icon: "mdi-help",
       command: () => {
         router.push({ name: "Home" });
       },
     },
     {
       label: t("menu.campaign"),
-      icon: "pi pi-users",
+      icon: "mdi-account-group",
       command: () => {
         router.push({ name: "Campaign Overview" });
       },
     },
     {
       label: t("menu.keyword"),
-      icon: "pi pi-search",
+      icon: "mdi-magnify",
       command: () => {
         router.push({ name: "Keyword" });
       },
     },
     {
       label: t("menu.settings"),
-      icon: "pi pi-cog",
+      icon: "mdi-cog",
       command: () => {
         router.push({ name: "Configuration" });
       },
@@ -49,6 +49,9 @@ watch(locale, () => {
 
 <template>
   <div class="card sticky top-0 z-20">
-    <Menubar :model="items" />
+    <v-tool-bar density="compact" class="d-flex justify-center">
+      <v-btn color="blue" class="mx-4 elevation-4" v-for="(item, i) in items" :key="i" @click="item.command()" :prepend-icon="item.icon">{{
+        item.label }} </v-btn>
+    </v-tool-bar>
   </div>
 </template>

@@ -31,23 +31,16 @@ watch(variantSettings, async (newSettings) => {
 </script>
 
 <template>
-  <Card class="w-full" data-testid="configuration-variant">
-    <template #title> {{ $t("configuration.enabled-variant") }} </template>
-    <template #content>
-      <div v-for="variant in variantStore.getAll()" :key="variant.id" class="pb-4">
-        <label class="cursor-pointer"
-          >{{ $t(variant.translation_key) }}
-          <Checkbox
-            variant="outlined"
-            v-model="variantSettings"
-            :data-testid="'configuration-variant-' + variant.id"
-            :value="variant.id"
-            class="float-right"
-          />
-        </label>
-      </div>
-    </template>
-  </Card>
+  <v-card class="my-4">
+    <v-card-title>
+      {{ $t("configuration.enabled-variant") }} 
+    </v-card-title>
+    <v-card-text>
+      <v-checkbox dense v-for="variant in variantStore.getAll()" :key="variant.id"
+        :label="$t(variant.translation_key)" v-model="variantSettings" :value="variant.id" >
+      </v-checkbox>
+    </v-card-text>
+  </v-card>
 </template>
 
 <style scoped></style>

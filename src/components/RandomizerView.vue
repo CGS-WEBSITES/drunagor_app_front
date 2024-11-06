@@ -87,48 +87,34 @@ function getRandomCommander() {
 </script>
 
 <template>
-  <div class="grid grid-cols-1 gap-4 place-items-center">
-    <RandomizerQuickSelect />
-    <SwappableImage
-      :title="name"
-      :sub-title="variant"
-      :background="backgroundImage"
-      :frontImage="frontImage"
-      :backImage="backImage"
-    />
-    <label class="cursor-pointer">
-      <span class="text-md pr-4">{{
-        $t("randomizer.exclude-current-monster")
-      }}</span>
-      <Checkbox
-        v-model="excludeCurrentCharacter"
-        :binary="true"
-        inputId="randomizer-exclude-current-character"
-      />
-    </label>
-    <BaseButtonMenu>
-      <Button
-        outlined
-        :label="$t('randomizer.white')"
-        @click="getRandomMonster('white')"
-      />
-      <Button
-        outlined
-        :label="$t('randomizer.gray')"
-        @click="getRandomMonster('gray')"
-      />
-      <Button
-        outlined
-        :label="$t('randomizer.black')"
-        @click="getRandomMonster('black')"
-      />
-      <Button
-        outlined
-        :label="$t('randomizer.commander')"
-        @click="getRandomCommander()"
-      />
-    </BaseButtonMenu>
-  </div>
+  <v-row no-gutters class="justify-center">
+    <v-col cols="12" class="pa-4">
+      <RandomizerQuickSelect />
+    </v-col>
+
+    <v-col cols="12" class="pa-4">
+      <SwappableImage :title="name" :sub-title="variant" :background="backgroundImage" :frontImage="frontImage"
+        :backImage="backImage" />
+    </v-col>
+
+    <v-col cols="12" class="pa-4">
+      <label class="cursor-pointer">
+        <span class="text-md pr-4">{{
+          $t("randomizer.exclude-current-monster")
+        }}</span>
+        <Checkbox v-model="excludeCurrentCharacter" :binary="true" inputId="randomizer-exclude-current-character" />
+      </label>
+    </v-col>
+
+    <v-col cols="12" class="pa-4">
+      <v-card class="d-flex justify-center pa-4">
+        <v-btn class="mx-2" outlined @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn class="mx-2" outlined @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn class="mx-2" outlined @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
+        <v-btn class="mx-2" outlined @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped></style>

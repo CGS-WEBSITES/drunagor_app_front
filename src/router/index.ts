@@ -14,7 +14,7 @@ const router = createRouter({
       name: "CampaignTracker",
       component: () => import("@/pages/CampaignTracker.vue"),
       children: [
-        { path: "/campaign-tracker/home", name: "Home", component: () => import("@/components/RandomizerView.vue") },
+        { path: "/campaign-tracker/", name: "Home", component: () => import("@/components/RandomizerView.vue") },
         {
           path: "/campaign-tracker/configuration",
           name: "Configuration",
