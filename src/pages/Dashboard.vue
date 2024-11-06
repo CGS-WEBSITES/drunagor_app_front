@@ -510,6 +510,16 @@ const carouselItems = ref([
 // Variáveis reativas
 const showPopup = ref(false);
 const dialog = ref(false);
+const drawer = ref(false); // Controle do drawer lateral
+
+// Itens do menu de navegação
+const menuItems = ref([
+  { title: "Dashboard", icon: "mdi-view-dashboard" },
+  { title: "Campaign", icon: "mdi-flag" },
+  { title: "Library", icon: "mdi-book" },
+  { title: "Profile", icon: "mdi-account" },
+  { title: "Events", icon: "mdi-calendar" },
+]);
 
 // Métodos de ação para os botões da navegação
 const action1 = () => {
@@ -557,10 +567,9 @@ const openGoogleMaps = (place: { name: string }) => {
 
 
 
+
 <style>
-.notification-button {
-  position: relative;
-}
+
 
 .v-badge__badge {
   position: absolute;
