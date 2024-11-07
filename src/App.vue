@@ -7,6 +7,7 @@
           <v-spacer></v-spacer>
           <v-btn @click="$router.push({ name: 'Login' })">Login</v-btn>
           <v-btn @click="$router.push({ name: 'Teste' })">teste</v-btn>
+          <v-btn @click="$router.push({ name: 'Dashboard' })">Dashboard</v-btn>
         </v-app-bar>
       </v-row>
 
@@ -16,7 +17,7 @@
       </v-row>
     </v-main>
      <!-- Footer Section -->
-     <v-footer class="footer black bg-black" padless>
+     <v-footer class="footer black bg-black pb-12" padless>
       <v-container fluid>
         <v-row justify="center" align="center" class="text-center">
           <v-col cols="12" sm="4">

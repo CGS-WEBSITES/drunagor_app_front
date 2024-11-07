@@ -1,7 +1,8 @@
 <template>
   <!-- Profile Section -->
-  <v-row class="mt-4" align="center" justify="center" style="width: 100%">
-    <v-col cols="12" md="9">
+   <v-main>
+    <v-row class="d-flex justify-center align-center ma-0 w-100" >
+      <v-col cols="12" sm="10" md="8" class="px-6">
       <v-card>
         <v-row no-gutters>
           <v-col cols="3">
@@ -9,12 +10,12 @@
               <v-img src="@/assets/library.png" alt="Profile" />
             </v-avatar>
           </v-col>
-          <v-col cols="6">
+          <v-col cols="9">
             <v-card-title>MAGOVEIO92MAGI</v-card-title>
             <v-card-subtitle>RANKING: 5123</v-card-subtitle>
             <!-- Icons below the name -->
             <v-row no-gutters>
-              <v-col cols="auto" class="mr-2">
+              <v-col cols="auto" class="mr-2 pl-3">
                 <v-icon>mdi-shield</v-icon>
               </v-col>
               <v-col cols="auto" class="mr-2">
@@ -34,8 +35,8 @@
   </v-row>
 
   <!-- Navigation Boxes Section -->
-  <v-row class="mt-4" align="center" justify="center" style="width: 100%">
-    <v-col cols="12" md="9">
+  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
+    <v-col cols="12" sm="10" md="8" class="px-6">
       <!-- Carrossel para dispositivos móveis -->
       <v-carousel hide-delimiters height="400px" v-if="isMobile">
         <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
@@ -51,18 +52,8 @@
       </v-carousel>
 
       <v-row v-else align="center" justify="center">
-        <v-col
-          cols="12"
-          md="4"
-          lg="3"
-          v-for="(item, index) in carouselItems"
-          :key="index"
-        >
-          <v-card
-            :style="{ height: isMobile ? '400px' : 'auto' }"
-            flat
-            class="border"
-          >
+        <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
+          <v-card :style="{ height: isMobile ? '400px' : 'auto' }" flat class="border">
             <v-img :src="item.img" height="300" cover />
             <v-card-actions>
               <v-row class="d-flex justify-center">
@@ -75,15 +66,13 @@
     </v-col>
   </v-row>
 
+
   <!-- Carousel Section -->
   <v-row
     v-if="isMobile"
-    class="mt-4"
-    align="center"
-    justify="center"
-    style="width: 100%"
+    class="mt-4 d-flex justify-center align-center ma-0 w-100"
   >
-    <v-col cols="12" md="10">
+  <v-col cols="12" sm="10" md="9" class="px-8">
       <v-carousel hide-delimiters height="300px">
         <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
           <v-card class="mx-auto" width="80%">
@@ -103,12 +92,9 @@
 
   <v-row
     v-else
-    class="mt-4"
-    align="center"
-    justify="center"
-    style="width: 100%"
+    class="mt-4 d-flex justify-center align-center ma-0 w-100"
   >
-    <v-col cols="12" md="10">
+  <v-col cols="12" sm="10" md="9" class="px-8">
       <v-carousel hide-delimiters height="300px">
         <v-carousel-item v-for="i in 3" :key="`desktop-${i}`">
           <v-row>
@@ -141,17 +127,17 @@
   </v-row>
 
   <!-- Main Event Cards Section -->
-  <v-row class="mt-4" align="center" justify="center" style="width: 100%">
-    <v-col class="bg-black" cols="12" md="9">
+  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
+    <v-col cols="12" sm="10" md="8" class="px-2 bg-black">
       <v-card-text
-        class="text-h4 white--text color-white bg-black"
+        class="text-h4 white--text color-white bg-black "
         color="white"
       >
         EVENTS
       </v-card-text>
 
       <!-- Main Event Cards -->
-      <v-row>
+      <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
         <!-- Next Section (visible on desktop, hidden on mobile) -->
         <v-col cols="12" md="6">
           <v-card class="pa-4" color="grey-darken-4" dark>
@@ -383,72 +369,78 @@
   <!-- My Library Section -->
 
   <!-- Title for My Library -->
-  <v-row class="mt-4" align="center" justify="center" style="width: 100%">
-    <v-col cols="12" md="9">
-      <v-card-title class="text-h5 font-weight-bold">MY LIBRARY</v-card-title>
-    </v-col>
-  </v-row>
+  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
+    <v-col cols="12" sm="10" md="8" class="px-6">
+    <v-card-title class="text-h5 font-weight-bold">MY LIBRARY</v-card-title>
+  </v-col>
+</v-row>
 
-  <!-- Library Section -->
-  <v-row class="mt-4" align="center" justify="center" style="width: 100%">
-    <v-col cols="12" md="9">
-      <!-- Buttons for Library Items -->
-      <v-row>
-        <v-col cols="6">
-          <v-btn block color="grey darken-2" class="white--text" height="60">
-            AWAKENINGS
-          </v-btn>
-        </v-col>
-        <v-col cols="6">
-          <v-btn block color="grey darken-2" class="white--text" height="60">
-            COREBOX
-          </v-btn>
-        </v-col>
-      </v-row>
+<!-- Library Section -->
+<v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
+  <v-col cols="12" sm="10" md="8" class="px-6">
+    <!-- Buttons for Library Items -->
+    <v-row>
+      <!-- Ajuste para ocupar 12 colunas em telas menores, e 6 em telas maiores -->
+      <v-col :cols="12" md="6">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          AWAKENINGS
+        </v-btn>
+      </v-col>
+      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          COREBOX
+        </v-btn>
+      </v-col>
+    </v-row>
 
-      <v-row class="mt-4">
-        <v-col cols="6">
-          <v-btn block color="grey darken-2" class="white--text" height="60">
-            APOCALYPSE
-          </v-btn>
-        </v-col>
-        <v-col cols="6">
-          <v-btn block color="grey darken-2" class="white--text" height="60">
-            RISE OF THE UNDEAD DRAGON
-          </v-btn>
-        </v-col>
-      </v-row>
+    <v-row class="mt-2 mt-md-4">
+      <v-col :cols="12" md="6">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          APOCALYPSE
+        </v-btn>
+      </v-col>
+      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          RISE OF THE UNDEAD DRAGON
+        </v-btn>
+      </v-col>
+    </v-row>
 
-      <!-- Manage Library Button -->
-      <v-row class="mt-4">
-        <v-col cols="12" class="text-right">
-          <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
+    <!-- Manage Library Button -->
+    <v-row class="mt-4">
+      <v-col cols="12" class="text-right">
+        <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
+      </v-col>
+    </v-row>
+  </v-col>
+</v-row>
+
 
   <!-- Fixed Bottom Navigation for Mobile -->
-  <v-bottom-navigation
-    class="hidden-md-and-up fixed app color-white bg-black"
-    :rounded="xs"
-  >
-    <v-btn @click="action1">
-      <v-icon>mdi-home</v-icon>
-    </v-btn>
-    <v-btn @click="action2">
-      <v-icon>mdi-magnify</v-icon>
-    </v-btn>
-    <v-btn @click="action3">
-      <v-icon>mdi-plus-circle</v-icon>
-    </v-btn>
-    <v-btn @click="action4">
-      <v-icon>mdi-heart</v-icon>
-    </v-btn>
-    <v-btn @click="action5">
-      <v-icon>mdi-account</v-icon>
-    </v-btn>
-  </v-bottom-navigation>
+<v-bottom-navigation
+  app
+  v-model="bottomNavVisible"
+  class="hidden-md-and-up fixed bg-black text-white"
+  elevation="10"
+>
+  <v-btn @click="action1">
+    <v-icon>mdi-home</v-icon>
+  </v-btn>
+  <v-btn @click="action2">
+    <v-icon>mdi-magnify</v-icon>
+  </v-btn>
+  <v-btn @click="action3">
+    <v-icon>mdi-plus-circle</v-icon>
+  </v-btn>
+  <v-btn @click="action4">
+    <v-icon>mdi-heart</v-icon>
+  </v-btn>
+  <v-btn @click="action5">
+    <v-icon>mdi-account</v-icon>
+  </v-btn>
+</v-bottom-navigation>
+
+
 
   <!-- Notification Button -->
   <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6" style="z-index: 10">
@@ -473,19 +465,35 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+</v-main>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
-// Verificação de mobile
-const isMobile = ref(false);
+// Controle de visibilidade do menu de navegação inferior
+const bottomNavVisible = ref(true);
+
+// Função de controle de rolagem para mostrar/ocultar o menu de navegação inferior
+function handleScroll() {
+  bottomNavVisible.value = window.scrollY <= 100; // Ajuste conforme necessário
+}
+
+// Configurações de evento para rolagem
 onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
   isMobile.value = window.innerWidth <= 600;
   window.addEventListener("resize", () => {
     isMobile.value = window.innerWidth <= 600;
   });
 });
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll);
+});
+
+// Verificação de mobile
+const isMobile = ref(false);
 
 // Dados do carrossel
 const carouselItems = ref([
@@ -563,6 +571,7 @@ const openGoogleMaps = (place: { name: string }) => {
   window.open(url, "_blank");
 };
 </script>
+
 
 
 
