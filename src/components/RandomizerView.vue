@@ -12,7 +12,6 @@ import SwappableImage from "@/components/SwappableImage.vue";
 import RandomizerTitle from "@/assets/Randomizer.webp";
 import backgroundImage from "@/assets/monster/big/Background.webp";
 import RandomizerQuickSelect from "@/components/RandomizerQuickSelect.vue";
-import BaseButtonMenu from "@/components/BaseButtonMenu.vue";
 
 const toast = useToast();
 const { t } = useI18n();
@@ -37,7 +36,7 @@ function getExcludedCharacters(): string[] {
 function getRandomMonster(color: MonsterColor) {
   let monster: RandomMonster | null = new RandomizeMonster().randomizeByColor(
     color,
-    getExcludedCharacters(),
+    getExcludedCharacters()
   );
 
   if (monster === null) {
@@ -53,7 +52,7 @@ function getRandomMonster(color: MonsterColor) {
   currentCharacterId.value = monster.id;
   name.value = t(monster.translation_key);
   variant.value = t(
-    variantStore.find(monster.getRandomVariant()).translation_key,
+    variantStore.find(monster.getRandomVariant()).translation_key
   );
   frontImage.value = monster.image.main;
   backImage.value = monster.image.miniature;
@@ -61,7 +60,7 @@ function getRandomMonster(color: MonsterColor) {
 
 function getRandomCommander() {
   let commander: RandomCommander | null = new RandomizeCommander().randomize(
-    getExcludedCharacters(),
+    getExcludedCharacters()
   );
 
   if (commander === null) {
@@ -83,6 +82,7 @@ function getRandomCommander() {
 
   frontImage.value = commander.image.main;
   backImage.value = commander.image.miniature;
+
 }
 </script>
 
@@ -97,21 +97,18 @@ function getRandomCommander() {
         :backImage="backImage" />
     </v-col>
 
-    <v-col cols="12" class="pa-4">
-      <label class="cursor-pointer">
-        <span class="text-md pr-4">{{
-          $t("randomizer.exclude-current-monster")
-        }}</span>
-        <Checkbox v-model="excludeCurrentCharacter" :binary="true" inputId="randomizer-exclude-current-character" />
-      </label>
+    <v-col cols="12" class="d-flex justify-center pa-4">
+      <v-checkbox
+        :label="$t('randomizer.exclude-current-monster')" v-model="excludeCurrentCharacter">
+      </v-checkbox>
     </v-col>
 
     <v-col cols="12" class="pa-4">
       <v-card class="d-flex justify-center pa-4">
-        <v-btn class="mx-2" outlined @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
-        <v-btn class="mx-2" outlined @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
-        <v-btn class="mx-2" outlined @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
-        <v-btn class="mx-2" outlined @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
+        <v-btn class="mx-2" variant="outlined" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn class="mx-2" variant="outlined" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn class="mx-2" variant="outlined" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
+        <v-btn class="mx-2" variant="outlined" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
       </v-card>
     </v-col>
   </v-row>

@@ -5,7 +5,6 @@ import CampaignLog from "@/components/CampaignLog.vue";
 import { useRoute } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import CampaignRemove from "@/components/CampaignRemove.vue";
-import BaseButtonMenu from "@/components/BaseButtonMenu.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";

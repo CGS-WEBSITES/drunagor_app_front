@@ -17,8 +17,6 @@ export async function loadLanguage(language: string) {
     "pt_BR",
   ];
 
-  console.log("dando pau");
-
   if (!supportedLanguages.includes(language)) {
     throw new Error(`Unsupported language: ${language}`);
   }

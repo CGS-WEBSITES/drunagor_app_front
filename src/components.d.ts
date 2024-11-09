@@ -45,6 +45,7 @@ declare module 'vue' {
     ConfigurationLanguage: typeof import('./components/ConfigurationLanguage.vue')['default']
     ConfigurationVariant: typeof import('./components/ConfigurationVariant.vue')['default']
     ConfigurationView: typeof import('./components/ConfigurationView.vue')['default']
+    ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     HeroDetailView: typeof import('./components/HeroDetailView.vue')['default']
     ItemCardSelect: typeof import('./components/ItemCardSelect.vue')['default']
