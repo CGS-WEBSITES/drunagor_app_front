@@ -7,8 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AppFooter: typeof import('./components/AppFooter.vue')['default']
-    BaseButtonMenu: typeof import('./components/BaseButtonMenu.vue')['default']
     BaseList: typeof import('./components/BaseList.vue')['default']
     BaseListItem: typeof import('./components/BaseListItem.vue')['default']
     BaseListSearch: typeof import('./components/BaseListSearch.vue')['default']
@@ -46,7 +44,6 @@ declare module 'vue' {
     ConfigurationVariant: typeof import('./components/ConfigurationVariant.vue')['default']
     ConfigurationView: typeof import('./components/ConfigurationView.vue')['default']
     ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     HeroDetailView: typeof import('./components/HeroDetailView.vue')['default']
     ItemCardSelect: typeof import('./components/ItemCardSelect.vue')['default']
     ItemCardSelectCategorized: typeof import('./components/ItemCardSelectCategorized.vue')['default']

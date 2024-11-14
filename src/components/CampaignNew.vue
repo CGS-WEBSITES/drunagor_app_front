@@ -24,30 +24,38 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings") {
 </script>
 
 <template>
-  <Button outlined id="campaign-new" :label="t('label.new-campaign')" @click="visible = true"></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.new-campaign')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
-  >
-    <div class="grid place-items-center gap-2">
-      <img id="campaign-core" class="cursor-pointer" :src="CoreLogo.toString()" @click="newCampaign('core')" />
-      <img
-        id="campaign-apocalypse"
-        class="cursor-pointer"
-        :src="ApocalypseLogo.toString()"
-        @click="newCampaign('apocalypse')"
-      />
-      <img
-        id="campaign-awakenings"
-        class="cursor-pointer"
-        :src="AwakeningsLogo.toString()"
-        @click="newCampaign('awakenings')"
-      />
-    </div>
-  </Dialog>
+  <v-btn variant="outlined" id="campaign-new" @click="visible = true">{{
+    t("label.new-campaign")
+  }}</v-btn>
+  <v-dialog v-model="visible">
+    <v-card>
+      <v-card-title class="text-center"> {{ t("label.new-campaign") }} </v-card-title>
+      <v-card-text class="d-flex flex-column align-center justify-center">
+        <v-img
+          center
+          width="300"
+          id="campaign-core"
+          class="cursor-pointer"
+          :src="CoreLogo.toString()"
+          @click="newCampaign('core')"
+        />
+        <v-img
+          width="300"
+          id="campaign-apocalypse"
+          class="cursor-pointer"
+          :src="ApocalypseLogo.toString()"
+          @click="newCampaign('apocalypse')"
+        />
+        <v-img
+          width="300"
+          id="campaign-awakenings"
+          class="cursor-pointer"
+          :src="AwakeningsLogo.toString()"
+          @click="newCampaign('awakenings')"
+        />
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped></style>

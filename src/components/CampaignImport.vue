@@ -9,7 +9,6 @@ import { customAlphabet } from "nanoid";
 import { HeroEquipment } from "@/store/Hero";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
-import BaseButtonMenu from "@/components/BaseButtonMenu.vue";
 
 const toast = useToast();
 
@@ -36,7 +35,12 @@ function importCampaign() {
       campaign = data.campaignData;
       campaign.campaignId = campaignId;
     } else {
-      toast.add({ severity: "error", summary: "Error", detail: "Invalid token.", life: 3000 });
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Invalid token.",
+        life: 3000,
+      });
       return;
     }
 
@@ -57,10 +61,20 @@ function importCampaign() {
       heroStore.add(h);
     });
     closeModal();
-    toast.add({ severity: "success", summary: t("label.success"), detail: t("text.campaign-imported"), life: 3000 });
+    toast.add({
+      severity: "success",
+      summary: t("label.success"),
+      detail: t("text.campaign-imported"),
+      life: 3000,
+    });
     router.push({ name: "Campaign", params: { id: campaignId } });
   } catch (e) {
-    toast.add({ severity: "error", summary: "Error", detail: "Invalid token", life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Invalid token",
+      life: 3000,
+    });
     return;
   }
 }
@@ -75,21 +89,29 @@ function closeModal() {
 </script>
 
 <template>
-  <Button outlined id="campaign-import" :label="t('label.import-campaign')" @click="openModal"></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.import-campaign')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
-  >
-    <div class="py-4">{{ t("text.input-token") }}</div>
-    <Textarea id="campaign-token" v-model="token" rows="5" cols="25" class="w-full"></Textarea>
-    <BaseButtonMenu>
-      <Button outlined id="import-button" :label="t('label.import')" @click="importCampaign"></Button>
-      <Button outlined id="import-button" :label="t('label.cancel')" @click="closeModal"></Button>
-    </BaseButtonMenu>
-  </Dialog>
+  <v-btn variant="outlined" id="campaign-import" @click="openModal">{{
+    t("label.import-campaign")
+  }}</v-btn>
+  <v-dialog v-model="visible">
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.import-campaign") }}
+      </v-card-title>
+      <v-card-text>
+        <div class="py-4">{{ t("text.input-token") }}</div>
+        <v-textarea id="campaign-token" v-model="token"></v-textarea>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions class="d-flex flex-row justify-space-around">
+        <v-btn outlined id="import-button" @click="importCampaign">{{
+          t("label.import")
+        }}</v-btn>
+        <v-btn outlined id="import-button" @click="closeModal">{{
+          t("label.cancel")
+        }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped></style>

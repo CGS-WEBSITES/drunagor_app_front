@@ -30,27 +30,40 @@ function removeCampaign() {
   heroStore.findAllInCampaign(props.campaignId).forEach((hero) => {
     heroStore.removeFromCampaign(hero.heroId, props.campaignId);
   });
-  toast.add({ severity: "success", summary: t("label.success"), detail: t("text.campaign-removed"), life: 3000 });
+  toast.add({
+    severity: "success",
+    summary: t("label.success"),
+    detail: t("text.campaign-removed"),
+    life: 3000,
+  });
   closeModal();
   router.push("/campaign/");
 }
 </script>
 
 <template>
-  <Button outlined id="campaign-remove" :label="t('label.remove-campaign')" @click="openModal"></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.remove-campaign')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
-  >
-    <span>{{ t("text.cannot-be-restored") }}</span>
-    <BaseButtonMenu>
-      <Button outlined :label="t('label.yes')" @click="removeCampaign"></Button>
-      <Button outlined :label="t('label.no')" @click="closeModal"></Button>
-    </BaseButtonMenu>
-  </Dialog>
+  <v-btn variant="outlined" id="campaign-remove" @click="openModal">{{
+    t("label.remove-campaign")
+  }}</v-btn>
+  <v-dialog v-model="visible">
+    <v-card>
+      <v-card-tile class="text-center">{{
+        t("label.remove-campaign")
+      }}</v-card-tile>
+      <v-card-text>
+        {{ t("text.cannot-be-restored") }}
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-btn variant="outlined" @click="removeCampaign">{{
+          t("label.yes")
+        }}</v-btn>
+        <v-btn variant="outlined" @click="closeModal">{{
+          t("label.no")
+        }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped></style>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import BaseButtonMenu from "@/components/BaseButtonMenu.vue";
 import CampaignNew from "@/components/CampaignNew.vue";
 import type { HeroData } from "@/data/repository/HeroData";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
@@ -47,10 +46,13 @@ function findHeroes(campaignId: string): HeroData[] {
 </script>
 
 <template>
-  <BaseButtonMenu>
-    <CampaignNew />
-    <CampaignImport />
-  </BaseButtonMenu>
+  <v-card class="pa-6">
+    <v-card-actions>
+      <CampaignNew />
+      <CampaignImport />
+    </v-card-actions>
+  </v-card>
+
   <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
     <template
       v-for="campaign in campaignStore.findAll()"
@@ -60,7 +62,7 @@ function findHeroes(campaignId: string): HeroData[] {
         :to="{ name: 'Campaign', params: { id: campaign.campaignId } }"
         class="w-full"
       >
-        <Card>
+        <v-card>
           <template #title>
             <span class="capitalize">{{ campaign.campaign }}</span>
             <template v-if="campaign.name"> - {{ campaign.name }} </template>
@@ -71,7 +73,7 @@ function findHeroes(campaignId: string): HeroData[] {
                 v-for="hero in findHeroes(campaign.campaignId)"
                 :key="hero.heroId"
               >
-                <Avatar
+                <v-img
                   :image="hero.images.avatar"
                   class="mr-2"
                   size="large"
@@ -80,7 +82,7 @@ function findHeroes(campaignId: string): HeroData[] {
               </template>
             </div>
           </template>
-        </Card>
+        </v-card>
       </router-link>
     </template>
   </div>

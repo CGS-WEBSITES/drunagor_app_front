@@ -18,7 +18,9 @@ const token = ref("");
 const { t } = useI18n();
 
 function openModal() {
-  const campaignCopy = JSON.parse(JSON.stringify(campaignStore.find(props.campaignId)));
+  const campaignCopy = JSON.parse(
+    JSON.stringify(campaignStore.find(props.campaignId))
+  );
   campaignCopy.campaignId = "";
 
   const heroes = heroStore.findAllInCampaign(props.campaignId);
@@ -53,21 +55,26 @@ function closeModal() {
 </script>
 
 <template>
-  <Button outlined id="campaign-export" :label="t('label.export-campaign')" @click="openModal"></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.export-campaign')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
-  >
-    <div class="py-4">{{ t("text.copy-this-token") }}</div>
-    <Textarea id="campaign-token" v-model="token" rows="5" cols="25" class="w-full"></Textarea>
-    <BaseButtonMenu>
-      <Button outlined :label="t('label.copy-to-clipboard')" @click="copyToClipboard"></Button>
-      <Button outlined :label="t('label.cancel')" @click="closeModal"></Button>
-    </BaseButtonMenu>
-  </Dialog>
+  <v-btn variant="outlined" id="campaign-export" @click="openModal">
+    {{ t("label.export-campaign") }}
+  </v-btn>
+  <v-dialog v-model="visible">
+    <v-card>
+      <v-card-title>{{ t("label.export-campaign") }}</v-card-title>
+      <v-card-text>
+        <div class="py-4">{{ t("text.copy-this-token") }}</div>
+        <v-textarea id="campaign-token" v-model="token"></v-textarea>
+      </v-card-text>
+    </v-card>
+    <v-card>
+      <v-btn variant="outlined" @click="copyToClipboard">{{
+        t("label.copy-to-clipboard")
+      }}</v-btn>
+      <v-btn variant="outlined" @click="closeModal">{{
+        t("label.cancel")
+      }}</v-btn>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped></style>

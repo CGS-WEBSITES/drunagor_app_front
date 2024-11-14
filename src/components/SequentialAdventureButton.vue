@@ -27,12 +27,12 @@ function startSequentialAdventure() {
 </script>
 
 <template>
-  <Button
-    outlined
+  <v-btn
+    variant="outlined"
     id="sequential-adventure-btn"
-    :label="t('label.sequential-adventure')"
     @click="startSequentialAdventure"
-  ></Button>
+    >{{ t("label.sequential-adventure") }}</v-btn
+  >
 </template>
 
 <style scoped></style>

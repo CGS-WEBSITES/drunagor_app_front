@@ -40,7 +40,7 @@ function onSequentialAdventure() {
 </script>
 
 <template>
-  <BaseButtonMenu class="mb-2">
+  <v-card class="mb-2">
     <CampaignRemove :campaign-id="campaignId" />
     <CampaignExport :campaign-id="campaignId" />
     <SequentialAdventureButton
@@ -49,17 +49,18 @@ function onSequentialAdventure() {
       :disabled="isSequentialAdventure"
     />
     <CampaignCampPhase :campaign-id="campaignId" @camp-phase="onCampPhase" />
-  </BaseButtonMenu>
-  <Card class="mb-2">
+  </v-card>
+
+  <v-card class="mb-2">
     <template #content>
       <CampaignName :campaign-id="campaignId" />
     </template>
-  </Card>
-  <Card v-if="isSequentialAdventure">
+  </v-card>
+  <v-card v-if="isSequentialAdventure">
     <template #content>
       <CampaignRunes :campaign-id="campaignId" />
     </template>
-  </Card>
+  </v-card>
   <template
     v-if="
       campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
