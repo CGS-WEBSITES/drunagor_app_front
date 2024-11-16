@@ -35,6 +35,16 @@ watch(followerIds, (newFollowerIds) => {
 
 <template>
   <span data-testid="story-record-follower">
+    <v-select
+      v-model="followerIds"
+      clearable
+      chips
+      :label="$t('text.add-or-remove-follower')"
+      :items="findFollowers(followerIds)"
+      multiple
+      variant="outlined"
+    ></v-select>
+
     <MultiSelect
       v-model="followerIds"
       :options="followers"
@@ -42,18 +52,8 @@ watch(followerIds, (newFollowerIds) => {
       filter
       optionLabel="name"
       optionValue="id"
-      :placeholder="$t('text.add-or-remove-follower')"
       class="w-full md:w-14rem"
     />
-    <template v-if="followerIds.length > 0">
-      <template v-for="follower in findFollowers(followerIds)" :key="follower.id">
-        <ul class="list-disc list-inside pt-2">
-          <li>
-            {{ follower.name }}
-          </li>
-        </ul>
-      </template>
-    </template>
   </span>
 </template>
 

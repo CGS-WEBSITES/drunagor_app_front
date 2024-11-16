@@ -16,48 +16,50 @@ import { ConfigurationStore } from "@/store/ConfigurationStore";
 import * as _ from "lodash-es";
 import { defineStore } from "pinia";
 export const CommanderDataStore = defineStore("data-commander", () => {
-    const configurationStore = ConfigurationStore();
-    const commanders = [
-        new Archon(),
-        new Bane(),
-        new DemonLord(),
-        new Doctor(),
-        new FallenSisters(),
-        new Flinch(),
-        new Hexer(),
-        new Horde(),
-        new Hunter(),
-        new Ox(),
-        new Spawn(),
-        new Witch(),
-        new Thern(),
-        new Twin(),
-    ];
-    function find(commanderId) {
-        const commander = _.find(commanders, { id: commanderId });
-        if (commander === undefined) {
-            throw new Error("Commander with id:" + commanderId + " can not be found");
-        }
-        return commander;
+  const configurationStore = ConfigurationStore();
+  const commanders = [
+    new Archon(),
+    new Bane(),
+    new DemonLord(),
+    new Doctor(),
+    new FallenSisters(),
+    new Flinch(),
+    new Hexer(),
+    new Horde(),
+    new Hunter(),
+    new Ox(),
+    new Spawn(),
+    new Witch(),
+    new Thern(),
+    new Twin(),
+  ];
+  function find(commanderId) {
+    const commander = _.find(commanders, { id: commanderId });
+    if (commander === undefined) {
+      throw new Error("Commander with id:" + commanderId + " can not be found");
     }
-    function findAll() {
-        return commanders;
-    }
-    function findAllEnabled() {
-        const enabledCommanders = commanders.filter((commander) => {
-            if (configurationStore
-                .getEnabledMonsterContent()
-                .includes(commander.content) === false) {
-                return false;
-            }
-            return true;
-        });
-        return enabledCommanders;
-    }
-    return {
-        commanders,
-        find,
-        findAll,
-        findAllEnabled,
-    };
+    return commander;
+  }
+  function findAll() {
+    return commanders;
+  }
+  function findAllEnabled() {
+    const enabledCommanders = commanders.filter((commander) => {
+      if (
+        configurationStore
+          .getEnabledMonsterContent()
+          .includes(commander.content) === false
+      ) {
+        return false;
+      }
+      return true;
+    });
+    return enabledCommanders;
+  }
+  return {
+    commanders,
+    find,
+    findAll,
+    findAllEnabled,
+  };
 });

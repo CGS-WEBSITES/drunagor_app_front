@@ -35,7 +35,7 @@ const toggleTheme = () => {
 };
 </script>
 <style>
-.row {
+.v-row {
   width: 100%;
 }
 </style>

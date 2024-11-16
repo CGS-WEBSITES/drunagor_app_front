@@ -29,7 +29,9 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings") {
   }}</v-btn>
   <v-dialog v-model="visible">
     <v-card>
-      <v-card-title class="text-center"> {{ t("label.new-campaign") }} </v-card-title>
+      <v-card-title class="text-center">
+        {{ t("label.new-campaign") }}
+      </v-card-title>
       <v-card-text class="d-flex flex-column align-center justify-center">
         <v-img
           center

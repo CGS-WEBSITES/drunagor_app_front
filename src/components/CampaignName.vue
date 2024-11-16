@@ -2,7 +2,6 @@
 import { CampaignStore } from "@/store/CampaignStore";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import FloatLabel from "primevue/floatlabel";
 
 const props = defineProps<{
   campaignId: string;
@@ -19,10 +18,11 @@ watch(name, async (newName) => {
 </script>
 
 <template>
-  <FloatLabel>
-    <InputText class="w-full" id="campaign-log-name" v-model="name" />
-    <label for="campaign-log-name">{{ t("text.party-name") }}</label>
-  </FloatLabel>
+  <v-text-field
+    :label="t('text.party-name')"
+    variant="outlined"
+    v-model="name"
+  ></v-text-field>
 </template>
 
 <style scoped></style>

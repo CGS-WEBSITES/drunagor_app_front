@@ -45,7 +45,10 @@ watch(unfoldingIds, (newUnfoldingIds) => {
       class="w-full md:w-14rem"
     />
     <template v-if="unfoldingIds.length > 0">
-      <template v-for="unfolding in findUnfoldings(unfoldingIds)" :key="unfolding.id">
+      <template
+        v-for="unfolding in findUnfoldings(unfoldingIds)"
+        :key="unfolding.id"
+      >
         <ul class="list-disc list-inside py-2">
           <li>
             {{ unfolding.name }}

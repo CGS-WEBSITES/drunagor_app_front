@@ -21,7 +21,12 @@ function search(event: Event) {
 <template>
   <div :id="props.id" :class="props.class">
     <InputGroup>
-      <InputText placeholder="Search" name="search" :value="props.value" @input="(event) => search(event)" />
+      <InputText
+        placeholder="Search"
+        name="search"
+        :value="props.value"
+        @input="(event) => search(event)"
+      />
       <InputGroupAddon>
         <i class="pi pi-search"></i>
       </InputGroupAddon>

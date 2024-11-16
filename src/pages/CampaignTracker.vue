@@ -16,5 +16,4 @@
 import MainMenu from "@/components/MainMenu.vue";
 </script>
 
-<style>
-</style>
+<style></style>

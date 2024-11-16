@@ -41,8 +41,7 @@ function swapImage() {
       </v-card-subtitle>
     </v-card-item>
     <v-card-text>
-      <v-img rounded :src="currentImage" class="bg-black" width="378">
-      </v-img>
+      <v-img rounded :src="currentImage" class="bg-black" width="378"> </v-img>
     </v-card-text>
     <v-card-actions>
       <v-btn icon @click="swapImage()" v-if="backImage">

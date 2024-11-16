@@ -16,14 +16,23 @@ const followerRepository = new StoryRecordFollowerRepository();
 </script>
 
 <template>
+  <v-row no-gutters>
+    <StoryRecordFollower
+      :repository="followerRepository"
+      :campaign-id="props.campaignId"
+    />
+  </v-row>
   <div class="pt-2 w-full">
-    <StoryRecordFollower :repository="followerRepository" :campaign-id="props.campaignId" />
+    <StoryRecordStatus
+      :repository="statusRepository"
+      :campaign-id="props.campaignId"
+    />
   </div>
   <div class="pt-2 w-full">
-    <StoryRecordStatus :repository="statusRepository" :campaign-id="props.campaignId" />
-  </div>
-  <div class="pt-2 w-full">
-    <StoryRecordOutcome :repository="outcomeRepository" :campaign-id="props.campaignId" />
+    <StoryRecordOutcome
+      :repository="outcomeRepository"
+      :campaign-id="props.campaignId"
+    />
   </div>
 </template>
 

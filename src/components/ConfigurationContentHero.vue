@@ -35,7 +35,11 @@ watch(heroContentSettings, async (newSettings) => {
   <Card class="w-full" data-testid="configuration-content-hero">
     <template #title> {{ $t("configuration.hero-content") }} </template>
     <template #content>
-      <div v-for="content in contentStore.getAllWithHeroes()" :key="content.id" class="pb-4">
+      <div
+        v-for="content in contentStore.getAllWithHeroes()"
+        :key="content.id"
+        class="pb-4"
+      >
         <label class="cursor-pointer"
           >{{ $t(content.translation_key) }}
           <Checkbox

@@ -46,10 +46,17 @@ function addHeroToCampaign(heroId: string) {
 }
 
 function addRandomHeroToCampaign() {
-  const randomHero = new RandomizeHero().randomize(_.map(heroStore.findAllInCampaign(props.campaignId), "heroId"));
+  const randomHero = new RandomizeHero().randomize(
+    _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
+  );
 
   if (randomHero === null) {
-    toast.add({ severity: "error", summary: "Error", detail: "No random hero available.", life: 3000 });
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "No random hero available.",
+      life: 3000,
+    });
     return;
   }
   heroStore.add(new Hero(randomHero.id, props.campaignId));
@@ -58,7 +65,12 @@ function addRandomHeroToCampaign() {
 </script>
 
 <template>
-  <Button outlined id="campaign-add-hero" :label="t('label.add-hero')" @click="openModal"></Button>
+  <Button
+    outlined
+    id="campaign-add-hero"
+    :label="t('label.add-hero')"
+    @click="openModal"
+  ></Button>
   <Dialog
     v-model:visible="visible"
     modal
@@ -66,13 +78,20 @@ function addRandomHeroToCampaign() {
     :dismissableMask="true"
     class="w-full md:w-1/3 m-2"
   >
-    <BaseListItem id="party-random-hero" @click="addRandomHeroToCampaign" :avatar="RandomImage.toString()">
+    <BaseListItem
+      id="party-random-hero"
+      @click="addRandomHeroToCampaign"
+      :avatar="RandomImage.toString()"
+    >
       Random hero
     </BaseListItem>
     <Divider class="m-2" />
     <BaseList id="campaign-add-heroes">
       <template v-for="hero in filteredHeroes" :key="hero.id">
-        <BaseListItem :avatar="hero.images.avatar" @click="addHeroToCampaign(hero.id)">
+        <BaseListItem
+          :avatar="hero.images.avatar"
+          @click="addHeroToCampaign(hero.id)"
+        >
           {{ hero.name }}
         </BaseListItem>
         <Divider class="m-2" />

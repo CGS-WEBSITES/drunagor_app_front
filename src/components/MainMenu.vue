@@ -50,8 +50,15 @@ watch(locale, () => {
 <template>
   <div class="card sticky top-0 z-20">
     <v-tool-bar density="compact" class="d-flex justify-center">
-      <v-btn color="blue" class="mx-4 elevation-4" v-for="(item, i) in items" :key="i" @click="item.command()" :prepend-icon="item.icon">{{
-        item.label }} </v-btn>
+      <v-btn
+        color="blue"
+        class="mx-4 elevation-4"
+        v-for="(item, i) in items"
+        :key="i"
+        @click="item.command()"
+        :prepend-icon="item.icon"
+        >{{ item.label }}
+      </v-btn>
     </v-tool-bar>
   </div>
 </template>

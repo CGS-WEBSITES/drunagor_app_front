@@ -27,8 +27,8 @@ let items = computed(() =>
         name: t(item.translation_key),
       };
     }),
-    ["name"]
-  )
+    ["name"],
+  ),
 );
 
 function onStash() {
@@ -43,7 +43,10 @@ watch(selectedId, (newSelectedId) => {
 
 <template>
   <div class="flex flex-row">
-    <div class="hero-item-stash cursor-pointer text-slate-500 flex-shrink leading-10 pr-2" @click="onStash">
+    <div
+      class="hero-item-stash cursor-pointer text-slate-500 flex-shrink leading-10 pr-2"
+      @click="onStash"
+    >
       {{ t("label.stash") }}
     </div>
     <div class="flex-auto" :data-testid="'item-' + itemType">
@@ -60,9 +63,11 @@ watch(selectedId, (newSelectedId) => {
       >
         <template #option="slotProps">
           {{ slotProps.option.name }}
-          <span class="text-slate-500 text-xs px-2" v-if="subTypeList(slotProps.option) !== ''">{{
-            subTypeList(slotProps.option)
-          }}</span>
+          <span
+            class="text-slate-500 text-xs px-2"
+            v-if="subTypeList(slotProps.option) !== ''"
+            >{{ subTypeList(slotProps.option) }}</span
+          >
         </template>
       </Dropdown>
     </div>

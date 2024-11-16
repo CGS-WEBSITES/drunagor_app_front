@@ -33,11 +33,17 @@ watch(variantSettings, async (newSettings) => {
 <template>
   <v-card class="my-4">
     <v-card-title>
-      {{ $t("configuration.enabled-variant") }} 
+      {{ $t("configuration.enabled-variant") }}
     </v-card-title>
     <v-card-text>
-      <v-checkbox dense v-for="variant in variantStore.getAll()" :key="variant.id"
-        :label="$t(variant.translation_key)" v-model="variantSettings" :value="variant.id" >
+      <v-checkbox
+        dense
+        v-for="variant in variantStore.getAll()"
+        :key="variant.id"
+        :label="$t(variant.translation_key)"
+        v-model="variantSettings"
+        :value="variant.id"
+      >
       </v-checkbox>
     </v-card-text>
   </v-card>

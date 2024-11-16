@@ -56,7 +56,10 @@ function removeHeroFromCampaign(heroId: string) {
   >
     <BaseList id="campaign-remove-heroes">
       <template v-for="hero in filteredHeroes" :key="hero.id">
-        <BaseListItem :avatar="hero.images.avatar" @click="removeHeroFromCampaign(hero.id)">
+        <BaseListItem
+          :avatar="hero.images.avatar"
+          @click="removeHeroFromCampaign(hero.id)"
+        >
           {{ hero.name }}
         </BaseListItem>
         <Divider class="m-2" />

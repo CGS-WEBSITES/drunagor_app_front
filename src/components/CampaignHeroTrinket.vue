@@ -15,7 +15,10 @@ const props = defineProps<{
 
 const hero = heroStore.findInCampaign(props.heroId, props.campaignId);
 const trinketId = hero.equipment.trinketId ?? "";
-const offHandCards: ItemData[] = props.cardsDataRepository.findByType("Trinket", null);
+const offHandCards: ItemData[] = props.cardsDataRepository.findByType(
+  "Trinket",
+  null,
+);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function subTypeList(item: ItemData) {
@@ -27,13 +30,16 @@ function onClear() {
 }
 
 function onSelect(selectedId: string) {
-  heroStore.findInCampaign(props.heroId, props.campaignId).equipment.trinketId = selectedId;
+  heroStore.findInCampaign(props.heroId, props.campaignId).equipment.trinketId =
+    selectedId;
 }
 
 function onStash() {
   const heroState = heroStore.findInCampaign(props.heroId, props.campaignId);
   if (heroState.equipment.trinketId === "") return;
-  heroStore.findInCampaign(props.heroId, props.campaignId).stashedCardIds.push(heroState.equipment.trinketId!);
+  heroStore
+    .findInCampaign(props.heroId, props.campaignId)
+    .stashedCardIds.push(heroState.equipment.trinketId!);
   emit("stash");
 }
 </script>

@@ -20,20 +20,39 @@ const { t } = useI18n();
 
 <template>
   <div class="pt-2 w-full">
-    <CampaignLogStatus :repository="statusRepository" :campaign-id="props.campaignId" :hero-id="props.heroId" />
+    <CampaignLogStatus
+      :repository="statusRepository"
+      :campaign-id="props.campaignId"
+      :hero-id="props.heroId"
+    />
   </div>
   <div class="pt-2 w-full">
-    <CampaignLogOutcome :repository="outcomeRepository" :campaign-id="props.campaignId" :hero-id="props.heroId" />
+    <CampaignLogOutcome
+      :repository="outcomeRepository"
+      :campaign-id="props.campaignId"
+      :hero-id="props.heroId"
+    />
   </div>
   <div class="pt-2 w-full">
-    <CampaignLogAura :repository="auraRepository" :campaign-id="props.campaignId" :hero-id="props.heroId" />
+    <CampaignLogAura
+      :repository="auraRepository"
+      :campaign-id="props.campaignId"
+      :hero-id="props.heroId"
+    />
   </div>
   <div class="pt-4 w-full">
     <router-link
-      :to="{ name: 'Hero', params: { campaignId: campaignId, heroId: props.heroId } }"
+      :to="{
+        name: 'Hero',
+        params: { campaignId: campaignId, heroId: props.heroId },
+      }"
       class="hero-detail-btn"
     >
-      <Button outlined :label="t('label.equipment-skills')" class="w-full"></Button>
+      <Button
+        outlined
+        :label="t('label.equipment-skills')"
+        class="w-full"
+      ></Button>
     </router-link>
   </div>
 </template>

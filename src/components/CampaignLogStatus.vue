@@ -20,7 +20,8 @@ props.repository.load(configurationStore.enabledLanguage);
 const statuses = props.repository.findAll();
 
 const statusIds = ref([] as string[]);
-statusIds.value = heroStore.findInCampaign(props.heroId, props.campaignId).statusIds ?? [];
+statusIds.value =
+  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds ?? [];
 
 function findStatuses(statusIds: string[]): Status[] {
   const statuses: Status[] = [];
@@ -35,7 +36,8 @@ function findStatuses(statusIds: string[]): Status[] {
 }
 
 watch(statusIds, (newStatusIds) => {
-  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds = newStatusIds;
+  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds =
+    newStatusIds;
 });
 </script>
 

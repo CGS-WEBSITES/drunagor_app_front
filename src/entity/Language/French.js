@@ -1,5 +1,5 @@
 export class French {
-    locale = "fr_FR";
-    title = "French";
-    translation_key = "language.french";
+  locale = "fr_FR";
+  title = "French";
+  translation_key = "language.french";
 }

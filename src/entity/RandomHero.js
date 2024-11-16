@@ -1,8 +1,8 @@
 export class RandomHero {
-    id;
-    name;
-    constructor(id, name) {
-        this.id = id;
-        this.name = name;
-    }
+  id;
+  name;
+  constructor(id, name) {
+    this.id = id;
+    this.name = name;
+  }
 }

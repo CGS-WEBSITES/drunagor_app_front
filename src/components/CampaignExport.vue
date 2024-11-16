@@ -19,7 +19,7 @@ const { t } = useI18n();
 
 function openModal() {
   const campaignCopy = JSON.parse(
-    JSON.stringify(campaignStore.find(props.campaignId))
+    JSON.stringify(campaignStore.find(props.campaignId)),
   );
   campaignCopy.campaignId = "";
 

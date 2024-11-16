@@ -17,7 +17,11 @@ watch(locale, () => {
   <Card class="w-full" data-testid="configuration-language">
     <template #title> {{ $t("configuration.language") }} </template>
     <template #content>
-      <div v-for="language in languageStore.getAll()" :key="language.locale" class="pb-4">
+      <div
+        v-for="language in languageStore.getAll()"
+        :key="language.locale"
+        class="pb-4"
+      >
         <label class="cursor-pointer"
           >{{ $t(language.translation_key) }}
           <RadioButton

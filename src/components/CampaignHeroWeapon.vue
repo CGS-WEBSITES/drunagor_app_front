@@ -22,8 +22,10 @@ const hero = heroStore.findInCampaign(props.heroId, props.campaignId);
 const weaponCards = computed(() =>
   props.cardsDataRepository
     .findByType("Weapon", null)
-    .filter((item) => !props.filterProficiencies || heroCanUse(props.heroData, item))
-    .map((item) => item as WeaponItemData)
+    .filter(
+      (item) => !props.filterProficiencies || heroCanUse(props.heroData, item),
+    )
+    .map((item) => item as WeaponItemData),
 );
 
 let selectedId = hero.equipment.weaponId;
@@ -37,13 +39,16 @@ function onClear() {
 }
 
 function onSelect(selectedId: string) {
-  heroStore.findInCampaign(props.heroId, props.campaignId).equipment.weaponId = selectedId;
+  heroStore.findInCampaign(props.heroId, props.campaignId).equipment.weaponId =
+    selectedId;
 }
 
 function onStash() {
   const heroState = heroStore.findInCampaign(props.heroId, props.campaignId);
   if (heroState.equipment.weaponId === "") return;
-  heroStore.findInCampaign(props.heroId, props.campaignId).stashedCardIds.push(heroState.equipment.weaponId!);
+  heroStore
+    .findInCampaign(props.heroId, props.campaignId)
+    .stashedCardIds.push(heroState.equipment.weaponId!);
   emit("stash");
 }
 </script>

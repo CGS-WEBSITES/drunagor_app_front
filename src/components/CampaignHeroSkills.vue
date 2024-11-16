@@ -20,7 +20,11 @@ const { t } = useI18n();
 const cubeColors: Array<string> = ["Yellow", "Red", "Green", "Blue"];
 
 const skills = [
-  { id: "dungeon-role", name: "Dungeon Role", translationKey: "label.dungeon-role" },
+  {
+    id: "dungeon-role",
+    name: "Dungeon Role",
+    translationKey: "label.dungeon-role",
+  },
   { id: "melee", name: "Melee", translationKey: "label.melee" },
   { id: "ranged", name: "Ranged", translationKey: "label.ranged" },
   { id: "agility", name: "Agility", translationKey: "label.agility" },
@@ -43,8 +47,12 @@ function getSkillLabel(skillId: string, level: number): string {
     return `${t("label.level")} ${level}`;
   }
 
-  const selectedCubes = heroStore.findInCampaign(props.heroId, props.campaignId).dungeonRoleSkillCubeColors;
-  const selectedCube = level === 1 ? selectedCubes.rankOne : selectedCubes.rankTwo;
+  const selectedCubes = heroStore.findInCampaign(
+    props.heroId,
+    props.campaignId,
+  ).dungeonRoleSkillCubeColors;
+  const selectedCube =
+    level === 1 ? selectedCubes.rankOne : selectedCubes.rankTwo;
 
   return selectedCube !== null
     ? `${t("label.level")} ${level} (${t("label." + selectedCube.toLowerCase())})`
@@ -64,7 +72,10 @@ function onSkillSelect(skillId: string) {
     return;
   }
 
-  const wasSelected = selectedSkills.value.filter((selectedSkillId) => selectedSkillId === skillId).length > 0;
+  const wasSelected =
+    selectedSkills.value.filter(
+      (selectedSkillId) => selectedSkillId === skillId,
+    ).length > 0;
   if (!wasSelected) {
     clearCubeColor(skillId);
     return;
@@ -76,17 +87,29 @@ function onSkillSelect(skillId: string) {
 
 function clearCubeColor(skillId: string) {
   if (skillId === "dungeon-role-1") {
-    heroStore.findInCampaign(props.heroId, props.campaignId).dungeonRoleSkillCubeColors.rankOne = null;
+    heroStore.findInCampaign(
+      props.heroId,
+      props.campaignId,
+    ).dungeonRoleSkillCubeColors.rankOne = null;
   } else if (skillId === "dungeon-role-2") {
-    heroStore.findInCampaign(props.heroId, props.campaignId).dungeonRoleSkillCubeColors.rankTwo = null;
+    heroStore.findInCampaign(
+      props.heroId,
+      props.campaignId,
+    ).dungeonRoleSkillCubeColors.rankTwo = null;
   }
 }
 
 function setSelectedCubeColor(color: string) {
   if (selectedSkillId.value === "dungeon-role-1") {
-    heroStore.findInCampaign(props.heroId, props.campaignId).dungeonRoleSkillCubeColors.rankOne = color;
+    heroStore.findInCampaign(
+      props.heroId,
+      props.campaignId,
+    ).dungeonRoleSkillCubeColors.rankOne = color;
   } else if (selectedSkillId.value === "dungeon-role-2") {
-    heroStore.findInCampaign(props.heroId, props.campaignId).dungeonRoleSkillCubeColors.rankTwo = color;
+    heroStore.findInCampaign(
+      props.heroId,
+      props.campaignId,
+    ).dungeonRoleSkillCubeColors.rankTwo = color;
   }
   closeModal();
 }
@@ -109,7 +132,9 @@ watch(selectedSkills, (newSkills) => {
             :value="skill.id + '-' + level"
             @change="() => onSkillSelect(skill.id + '-' + level)"
           />
-          <span class="ml-1 skill-label">{{ getSkillLabel(skill.id + "-" + level, level) }}</span>
+          <span class="ml-1 skill-label">{{
+            getSkillLabel(skill.id + "-" + level, level)
+          }}</span>
         </label>
       </div>
     </div>

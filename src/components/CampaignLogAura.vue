@@ -19,7 +19,8 @@ props.repository.load(configurationStore.enabledLanguage);
 const auras = props.repository.findAll();
 
 const auraId = ref("");
-auraId.value = heroStore.findInCampaign(props.heroId, props.campaignId).auraId ?? "";
+auraId.value =
+  heroStore.findInCampaign(props.heroId, props.campaignId).auraId ?? "";
 
 watch(auraId, (newAuraId) => {
   heroStore.findInCampaign(props.heroId, props.campaignId).auraId = newAuraId;

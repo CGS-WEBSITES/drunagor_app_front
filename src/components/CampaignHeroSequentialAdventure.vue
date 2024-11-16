@@ -26,18 +26,24 @@ const campaignId = route.params.campaignId.toString();
 const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
 const sequentialAdventureState = ref({} as SequentialAdventureState);
 
-const currentSeqAdv = heroStore.findInCampaign(heroId, campaignId).sequentialAdventureState;
+const currentSeqAdv = heroStore.findInCampaign(
+  heroId,
+  campaignId,
+).sequentialAdventureState;
 const seqAdvState =
-  typeof currentSeqAdv !== "undefined" && currentSeqAdv !== null ? currentSeqAdv : new SequentialAdventureState();
+  typeof currentSeqAdv !== "undefined" && currentSeqAdv !== null
+    ? currentSeqAdv
+    : new SequentialAdventureState();
 
 sequentialAdventureState.value = seqAdvState;
 
 watch(
   sequentialAdventureState,
   (newState) => {
-    heroStore.findInCampaign(heroId, campaignId).sequentialAdventureState = newState;
+    heroStore.findInCampaign(heroId, campaignId).sequentialAdventureState =
+      newState;
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
@@ -45,22 +51,34 @@ watch(
   <div>
     <Button outlined label="Back" @click="$router.go(-1)"></Button>
   </div>
-  <div id="hero-card" class="bg-neutral form-control drop-shadow rounded-lg p-4 mt-4" style="background-color: #1f2937">
+  <div
+    id="hero-card"
+    class="bg-neutral form-control drop-shadow rounded-lg p-4 mt-4"
+    style="background-color: #1f2937"
+  >
     <div class="flex h-28">
       <div>
-        <img class="-ml-1 w-14 rounded-full hero-image" :src="hero.images.avatar" />
+        <img
+          class="-ml-1 w-14 rounded-full hero-image"
+          :src="hero.images.avatar"
+        />
       </div>
       <div class="pl-8">
         <p>{{ hero.name }}</p>
         <p>
-          {{ t("label." + hero.race.toLowerCase()) }} {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
+          {{ t("label." + hero.race.toLowerCase()) }}
+          {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
         </p>
-        <p>{{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}</p>
+        <p>
+          {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
+        </p>
       </div>
     </div>
 
     <div id="sequential-select" class="pt-4">
-      <label for="curse-cubes" class="block pt-4">{{ t("text.curse-cubes") }}</label>
+      <label for="curse-cubes" class="block pt-4">{{
+        t("text.curse-cubes")
+      }}</label>
       <InputNumber
         :inputStyle="{ width: '100%' }"
         incrementButtonIcon="pi pi-plus"
@@ -74,7 +92,9 @@ watch(
         v-model="sequentialAdventureState.curseCubes"
       />
 
-      <label for="trauma-cube" class="block py-2">{{ t("text.trauma-cubes") }}</label>
+      <label for="trauma-cube" class="block py-2">{{
+        t("text.trauma-cubes")
+      }}</label>
       <InputNumber
         :inputStyle="{ width: '100%' }"
         incrementButtonIcon="pi pi-plus"
@@ -93,7 +113,9 @@ watch(
 
     <div id="resource-select">
       <template v-for="resource in resourceDefinitions" :key="resource.id">
-        <label :for="resource.id" class="block py-2">{{ t(resource.translation_key) }}</label>
+        <label :for="resource.id" class="block py-2">{{
+          t(resource.translation_key)
+        }}</label>
         <InputNumber
           :inputStyle="{ width: '100%' }"
           incrementButtonIcon="pi pi-plus"
@@ -104,7 +126,9 @@ watch(
           buttonLayout="horizontal"
           :min="0"
           :max="4"
-          v-model.number="sequentialAdventureState.resources[resource.translation_key]"
+          v-model.number="
+            sequentialAdventureState.resources[resource.translation_key]
+          "
         />
       </template>
     </div>

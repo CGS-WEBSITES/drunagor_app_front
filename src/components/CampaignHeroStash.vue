@@ -45,7 +45,8 @@ function findItemCards(stashedItemIds: string[]): ItemData[] {
 }
 
 watch(stashedItemIds, (newStashedItemCardIds) => {
-  heroStore.findInCampaign(props.heroId, props.campaignId).stashedCardIds = newStashedItemCardIds;
+  heroStore.findInCampaign(props.heroId, props.campaignId).stashedCardIds =
+    newStashedItemCardIds;
 });
 </script>
 
@@ -63,8 +64,13 @@ watch(stashedItemIds, (newStashedItemCardIds) => {
     >
     </MultiSelect>
     <template v-if="stashedItemIds.length > 0">
-      <p class="text-sm text-gray-500 py-2">Cannot be used during a scenario.</p>
-      <template v-for="itemCard in findItemCards(stashedItemIds)" :key="itemCard.id">
+      <p class="text-sm text-gray-500 py-2">
+        Cannot be used during a scenario.
+      </p>
+      <template
+        v-for="itemCard in findItemCards(stashedItemIds)"
+        :key="itemCard.id"
+      >
         <ul id="hero-stash-display" class="list-disc list-inside">
           <li>
             {{ t(itemCard.translation_key) }}

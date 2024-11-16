@@ -9,10 +9,12 @@ const props = defineProps<{
 const campaignStore = CampaignStore();
 
 const perseverance = ref(0);
-perseverance.value = campaignStore.find(props.campaignId).legacyTrail.perseverance ?? 0;
+perseverance.value =
+  campaignStore.find(props.campaignId).legacyTrail.perseverance ?? 0;
 
 watch(perseverance, async (newPersverance) => {
-  campaignStore.find(props.campaignId).legacyTrail.perseverance = newPersverance;
+  campaignStore.find(props.campaignId).legacyTrail.perseverance =
+    newPersverance;
 });
 
 const tragedy = ref(0);

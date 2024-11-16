@@ -40,52 +40,52 @@ import { Sun } from "@/data/content/spoilsofwar/hero/Sun";
 import { Willow } from "@/data/content/spoilsofwar/hero/Willow";
 import * as _ from "lodash-es";
 export class HeroDataRepository {
-    heroes = [
-        new AndreasCleric(),
-        new AndreasNecromancer(),
-        new Arkhanos(),
-        new Azriel(),
-        new Barak(),
-        new Brihitte(),
-        new CatharinaMage(),
-        new CatharinaShaman(),
-        new Devron(),
-        new Diana(),
-        new Drasek(),
-        new Drixx(),
-        new Duncan(),
-        new Elros(),
-        new Flavian(),
-        new Gramosh(),
-        new Handuriel(),
-        new Jade(),
-        new Jaheen(),
-        new Katarina(),
-        new Kellam(),
-        new Lordwrath(),
-        new Lorelai(),
-        new Lorien(),
-        new Maya(),
-        new Mordred(),
-        new NyxAssassin(),
-        new NyxSwordmage(),
-        new Pietro(),
-        new Sahara(),
-        new Savran(),
-        new Shadow(),
-        new Siff(),
-        new Sskar(),
-        new Sun(),
-        new Tork(),
-        new VacrenWarlord(),
-        new VacrenWarrior(),
-        new Vorn(),
-        new Willow(),
-    ];
-    find(heroId) {
-        return _.find(this.heroes, { id: heroId });
-    }
-    findAll() {
-        return this.heroes;
-    }
+  heroes = [
+    new AndreasCleric(),
+    new AndreasNecromancer(),
+    new Arkhanos(),
+    new Azriel(),
+    new Barak(),
+    new Brihitte(),
+    new CatharinaMage(),
+    new CatharinaShaman(),
+    new Devron(),
+    new Diana(),
+    new Drasek(),
+    new Drixx(),
+    new Duncan(),
+    new Elros(),
+    new Flavian(),
+    new Gramosh(),
+    new Handuriel(),
+    new Jade(),
+    new Jaheen(),
+    new Katarina(),
+    new Kellam(),
+    new Lordwrath(),
+    new Lorelai(),
+    new Lorien(),
+    new Maya(),
+    new Mordred(),
+    new NyxAssassin(),
+    new NyxSwordmage(),
+    new Pietro(),
+    new Sahara(),
+    new Savran(),
+    new Shadow(),
+    new Siff(),
+    new Sskar(),
+    new Sun(),
+    new Tork(),
+    new VacrenWarlord(),
+    new VacrenWarrior(),
+    new Vorn(),
+    new Willow(),
+  ];
+  find(heroId) {
+    return _.find(this.heroes, { id: heroId });
+  }
+  findAll() {
+    return this.heroes;
+  }
 }

@@ -38,20 +38,25 @@ function campPhase() {
 </script>
 
 <template>
-  <Button outlined id="camp-phase" :label="t('label.camp-phase')" @click="openModal"></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.camp-phase')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
-  >
-    <span>{{ t("text.reset-state") }}</span>
-    <BaseButtonMenu>
-      <Button outlined :label="t('label.yes')" @click="campPhase"></Button>
-      <Button outlined :label="t('label.no')" @click="closeModal"></Button>
-    </BaseButtonMenu>
-  </Dialog>
+  <v-btn variant="outlined" id="camp-phase" @click="openModal">
+    {{ t("label.camp-phase") }}
+  </v-btn>
+  <v-dialog v-model="visible" modal>
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.camp-phase") }}
+      </v-card-title>
+    </v-card>
+
+    <v-card-text>
+      <span>{{ t("text.reset-state") }}</span>
+    </v-card-text>
+    <v-divider></v-divider>
+    <v-card-action>
+      <v-btn variant="outlined" @click="campPhase">{{ t("label.yes") }}</v-btn>
+      <v-btn variant="outlined" @click="closeModal">{{ t("label.no") }}</v-btn>
+    </v-card-action>
+  </v-dialog>
 </template>
 
 <style scoped></style>

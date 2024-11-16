@@ -40,72 +40,87 @@ function onSequentialAdventure() {
 </script>
 
 <template>
-  <v-card class="mb-2">
-    <CampaignRemove :campaign-id="campaignId" />
-    <CampaignExport :campaign-id="campaignId" />
-    <SequentialAdventureButton
-      :campaign-id="campaignId"
-      @sequential-adventure="onSequentialAdventure"
-      :disabled="isSequentialAdventure"
-    />
-    <CampaignCampPhase :campaign-id="campaignId" @camp-phase="onCampPhase" />
-  </v-card>
+  <v-row no-gutters class="d-flex justify-center">
+    <v-card class="mb-2" min-width="600">
+      <v-card-actions class="d-flex justify-space-between">
+        <CampaignRemove class="mr-2" :campaign-id="campaignId" />
+        <CampaignExport :campaign-id="campaignId" />
+        <SequentialAdventureButton
+          :campaign-id="campaignId"
+          @sequential-adventure="onSequentialAdventure"
+          :disabled="isSequentialAdventure"
+        />
+        <CampaignCampPhase
+          :campaign-id="campaignId"
+          @camp-phase="onCampPhase"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-row>
 
-  <v-card class="mb-2">
-    <template #content>
+  <v-row no-gutters class="d-flex justify-center">
+    <v-col cols="12 px-2">
       <CampaignName :campaign-id="campaignId" />
-    </template>
-  </v-card>
-  <v-card v-if="isSequentialAdventure">
-    <template #content>
+    </v-col>
+  </v-row>
+
+  <v-row v-if="isSequentialAdventure" no-gutters class="d-flex justify-center">
+    <v-col cols="12 px-2">
       <CampaignRunes :campaign-id="campaignId" />
-    </template>
-  </v-card>
-  <template
+    </v-col>
+  </v-row>
+
+  <v-row
+    no-gutters
+    class="d-flex justify-center"
     v-if="
       campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
     "
   >
-    <div
-      class="bg-neutral form-control drop-shadow rounded-lg mb-2"
-      :key="update"
-    >
-      <StoryRecord :campaign-id="campaignId" />
-    </div>
-  </template>
-  <template v-if="campaign.campaign == 'apocalypse'">
-    <div
-      class="bg-neutral form-control drop-shadow rounded-lg mb-2"
-      :key="update"
-    >
-      <div class="p-4" style="background-color: #1f2937">
-        <div class="pt-2 w-full">
-          <StoryRecordLegacyTrail :campaign-id="campaignId" />
+  <v-col cols="12" class="px-2">
+    <StoryRecord :campaign-id="campaignId" />
+  </v-col>
+  </v-row>
+
+  <v-row no-gutters class="d-flex justify-center">
+    <template v-if="campaign.campaign == 'apocalypse'">
+      <div
+        class="bg-neutral form-control drop-shadow rounded-lg mb-2"
+        :key="update"
+      >
+        <div class="p-4" style="background-color: #1f2937">
+          <div class="pt-2 w-full">
+            <StoryRecordLegacyTrail :campaign-id="campaignId" />
+          </div>
+          <div class="pt-4 w-full">
+            <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
+          </div>
         </div>
-        <div class="pt-4 w-full">
-          <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
-        </div>
-      </div>
-    </div>
-  </template>
-  <BaseButtonMenu>
-    <CampaignLogAddHero :campaign-id="campaignId" />
-    <CampaignLogRemoveHero :campaign-id="campaignId" />
-  </BaseButtonMenu>
-  <div id="heroes" class="grid pt-2 gap-2 w-full" :key="update">
-    <template
-      v-for="hero in heroStore.findAllInCampaign(campaignId)"
-      :key="hero.heroId"
-    >
-      <div class="bg-neutral form-control drop-shadow rounded-lg">
-        <CampaignLog
-          :campaign-id="campaignId"
-          :hero-id="hero.heroId"
-          :is-sequential-adventure="isSequentialAdventure"
-        />
       </div>
     </template>
-  </div>
+  </v-row>
+
+  <v-row no-gutters class="d-flex justify-center">
+    <CampaignLogAddHero :campaign-id="campaignId" />
+    <CampaignLogRemoveHero :campaign-id="campaignId" />
+  </v-row>
+
+  <v-row no-gutters class="d-flex justify-center">
+    <div id="heroes" class="grid pt-2 gap-2 w-full" :key="update">
+      <template
+        v-for="hero in heroStore.findAllInCampaign(campaignId)"
+        :key="hero.heroId"
+      >
+        <div class="bg-neutral form-control drop-shadow rounded-lg">
+          <CampaignLog
+            :campaign-id="campaignId"
+            :hero-id="hero.heroId"
+            :is-sequential-adventure="isSequentialAdventure"
+          />
+        </div>
+      </template>
+    </div>
+  </v-row>
 </template>
 
 <style scoped></style>

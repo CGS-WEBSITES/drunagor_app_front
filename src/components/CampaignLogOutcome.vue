@@ -19,7 +19,8 @@ props.repository.load(configurationStore.enabledLanguage);
 const outcomes = props.repository.findAll();
 
 const outcomeIds = ref([] as string[]);
-outcomeIds.value = heroStore.findInCampaign(props.heroId, props.campaignId).outcomeIds ?? [];
+outcomeIds.value =
+  heroStore.findInCampaign(props.heroId, props.campaignId).outcomeIds ?? [];
 
 function findOutcomes(outcomeIds: string[]): Outcome[] {
   const outcomes: Outcome[] = [];
@@ -34,7 +35,8 @@ function findOutcomes(outcomeIds: string[]): Outcome[] {
 }
 
 watch(outcomeIds, (newOutcomeIds) => {
-  heroStore.findInCampaign(props.heroId, props.campaignId).outcomeIds = newOutcomeIds;
+  heroStore.findInCampaign(props.heroId, props.campaignId).outcomeIds =
+    newOutcomeIds;
 });
 </script>
 

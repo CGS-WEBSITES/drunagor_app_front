@@ -1,5 +1,5 @@
 export class Portuguese {
-    locale = "pt_BR";
-    title = "Portuguese";
-    translation_key = "language.portuguese";
+  locale = "pt_BR";
+  title = "Portuguese";
+  translation_key = "language.portuguese";
 }

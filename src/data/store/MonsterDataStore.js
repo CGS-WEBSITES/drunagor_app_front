@@ -33,65 +33,67 @@ import { ConfigurationStore } from "@/store/ConfigurationStore";
 import * as _ from "lodash-es";
 import { defineStore } from "pinia";
 export const MonsterDataStore = defineStore("data-monster", () => {
-    const configurationStore = ConfigurationStore();
-    const monsters = [
-        new Abomination(),
-        new BoneReaper(),
-        new CorruptedFarmer(),
-        new CorruptedWorm(),
-        new DeathMessenger(),
-        new DreamTitan(),
-        new Executioner(),
-        new FacelessConjurer(),
-        new FellAsteris(),
-        new GorgonessWitch(),
-        new GorgonHexer(),
-        new GremlinHorde(),
-        new GrimDoctor(),
-        new HellishFlayer(),
-        new HellspawnBrute(),
-        new LadyClaw(),
-        new NagianHunter(),
-        new NightStalker(),
-        new SkeletonArcher(),
-        new ShadowCultist(),
-        new ShadowVampire(),
-        new Ravager(),
-        new RottenFlesh(),
-        new ScoutOfDarkness(),
-        new SkeletonKnight(),
-        new ShadowGuardian(),
-        new ShadowKnight(),
-        new ShadowMistress(),
-        new ShadowPain(),
-        new ShadowWitch(),
-        new WalkingHorror(),
-    ];
-    function find(monsterId) {
-        const monster = _.find(monsters, { id: monsterId });
-        if (monster === undefined) {
-            throw new Error("Monster with id:" + monsterId + " can not be found");
-        }
-        return monster;
+  const configurationStore = ConfigurationStore();
+  const monsters = [
+    new Abomination(),
+    new BoneReaper(),
+    new CorruptedFarmer(),
+    new CorruptedWorm(),
+    new DeathMessenger(),
+    new DreamTitan(),
+    new Executioner(),
+    new FacelessConjurer(),
+    new FellAsteris(),
+    new GorgonessWitch(),
+    new GorgonHexer(),
+    new GremlinHorde(),
+    new GrimDoctor(),
+    new HellishFlayer(),
+    new HellspawnBrute(),
+    new LadyClaw(),
+    new NagianHunter(),
+    new NightStalker(),
+    new SkeletonArcher(),
+    new ShadowCultist(),
+    new ShadowVampire(),
+    new Ravager(),
+    new RottenFlesh(),
+    new ScoutOfDarkness(),
+    new SkeletonKnight(),
+    new ShadowGuardian(),
+    new ShadowKnight(),
+    new ShadowMistress(),
+    new ShadowPain(),
+    new ShadowWitch(),
+    new WalkingHorror(),
+  ];
+  function find(monsterId) {
+    const monster = _.find(monsters, { id: monsterId });
+    if (monster === undefined) {
+      throw new Error("Monster with id:" + monsterId + " can not be found");
     }
-    function findAll() {
-        return monsters;
-    }
-    function findAllEnabled() {
-        const enabledMonsters = monsters.filter((monster) => {
-            if (configurationStore
-                .getEnabledMonsterContent()
-                .includes(monster.content) === false) {
-                return false;
-            }
-            return true;
-        });
-        return enabledMonsters;
-    }
-    return {
-        monsters,
-        find,
-        findAll,
-        findAllEnabled,
-    };
+    return monster;
+  }
+  function findAll() {
+    return monsters;
+  }
+  function findAllEnabled() {
+    const enabledMonsters = monsters.filter((monster) => {
+      if (
+        configurationStore
+          .getEnabledMonsterContent()
+          .includes(monster.content) === false
+      ) {
+        return false;
+      }
+      return true;
+    });
+    return enabledMonsters;
+  }
+  return {
+    monsters,
+    find,
+    findAll,
+    findAllEnabled,
+  };
 });

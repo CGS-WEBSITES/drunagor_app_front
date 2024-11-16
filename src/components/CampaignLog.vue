@@ -26,18 +26,32 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
   <div class="hero-list-item p-4" style="background-color: #1f2937">
     <div class="flex h-28">
       <div>
-        <img class="-ml-1 w-14 rounded-full hero-image" :src="hero.images.avatar" />
+        <img
+          class="-ml-1 w-14 rounded-full hero-image"
+          :src="hero.images.avatar"
+        />
       </div>
       <div class="pl-8">
         <p>{{ hero.name }}</p>
         <p>
-          {{ t("label." + hero.race.toLowerCase()) }} {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
+          {{ t("label." + hero.race.toLowerCase()) }}
+          {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
         </p>
-        <p>{{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}</p>
+        <p>
+          {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
+        </p>
       </div>
     </div>
-    <CampaignLogSequentialAdventure v-if="isSequentialAdventure" :hero="hero" :campaign-id="campaignId" />
-    <CampaignLogCore v-if="campaign.campaign == 'core'" :campaign-id="props.campaignId" :hero-id="props.heroId" />
+    <CampaignLogSequentialAdventure
+      v-if="isSequentialAdventure"
+      :hero="hero"
+      :campaign-id="campaignId"
+    />
+    <CampaignLogCore
+      v-if="campaign.campaign == 'core'"
+      :campaign-id="props.campaignId"
+      :hero-id="props.heroId"
+    />
     <CampaignLogAwakenings
       v-if="campaign.campaign == 'awakenings'"
       :campaign-id="props.campaignId"

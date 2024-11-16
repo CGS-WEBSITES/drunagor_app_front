@@ -8,28 +8,28 @@ import { Spanish } from "@/entity/Language/Spanish";
 import { Portuguese } from "@/entity/Language/Portuguese";
 import { Polish } from "@/entity/Language/Polish";
 export const LanguageStore = defineStore("language", () => {
-    const languages = [
-        new English(),
-        new German(),
-        new French(),
-        new Italian(),
-        new Spanish(),
-        new Portuguese(),
-        new Polish(),
-    ];
-    function getAll() {
-        return languages;
+  const languages = [
+    new English(),
+    new German(),
+    new French(),
+    new Italian(),
+    new Spanish(),
+    new Portuguese(),
+    new Polish(),
+  ];
+  function getAll() {
+    return languages;
+  }
+  function find(locale) {
+    const language = _.find(languages, { locale: locale });
+    if (language === undefined) {
+      throw new Error("Language with locale:" + locale + " can not be found");
     }
-    function find(locale) {
-        const language = _.find(languages, { locale: locale });
-        if (language === undefined) {
-            throw new Error("Language with locale:" + locale + " can not be found");
-        }
-        return language;
-    }
-    return {
-        languages,
-        getAll,
-        find,
-    };
+    return language;
+  }
+  return {
+    languages,
+    getAll,
+    find,
+  };
 });

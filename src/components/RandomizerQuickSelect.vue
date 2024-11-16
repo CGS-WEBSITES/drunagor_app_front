@@ -5,7 +5,11 @@ import ConfigurationVariant from "./ConfigurationVariant.vue";
 
 <template>
   <v-expansion-panels>
-    <v-expansion-panel dark :title="$t('randomizer.enabled-content')" class="px-4">
+    <v-expansion-panel
+      dark
+      :title="$t('randomizer.enabled-content')"
+      class="px-4"
+    >
       <v-expansion-panel-text>
         <ConfigurationVariant />
         <ConfigurationContentMonster />

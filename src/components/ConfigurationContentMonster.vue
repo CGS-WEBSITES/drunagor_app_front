@@ -37,8 +37,15 @@ watch(monsterContentSettings, async (newSettings) => {
       {{ $t("configuration.monster-content") }}
     </v-card-title>
     <v-card-text>
-      <v-checkbox dense v-for="content in contentStore.getAllWithMonsters()" :key="content.id"
-        :label="$t(content.translation_key)" v-model="monsterContentSettings" :data-testid="'configuration-content-monster-' + content.id" :value="content.id" >
+      <v-checkbox
+        dense
+        v-for="content in contentStore.getAllWithMonsters()"
+        :key="content.id"
+        :label="$t(content.translation_key)"
+        v-model="monsterContentSettings"
+        :data-testid="'configuration-content-monster-' + content.id"
+        :value="content.id"
+      >
       </v-checkbox>
     </v-card-text>
   </v-card>
