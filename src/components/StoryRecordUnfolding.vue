@@ -29,33 +29,40 @@ function findUnfoldings(followerIds: string[]): Unfolding[] {
 
 watch(unfoldingIds, (newUnfoldingIds) => {
   campaignStore.find(props.campaignId).unfoldingIds = newUnfoldingIds;
+  console.log("findUnfoldings",findUnfoldings(newUnfoldingIds))
 });
 </script>
 
 <template>
   <span data-testid="story-record-unfolding">
-    <MultiSelect
+    <v-select
       v-model="unfoldingIds"
-      :options="unfoldings"
-      :maxSelectedLabels="1"
-      filter
-      optionLabel="name"
-      optionValue="id"
-      placeholder="Add or remove unfolding"
-      class="w-full md:w-14rem"
-    />
-    <template v-if="unfoldingIds.length > 0">
-      <template
-        v-for="unfolding in findUnfoldings(unfoldingIds)"
-        :key="unfolding.id"
-      >
-        <ul class="list-disc list-inside py-2">
-          <li>
-            {{ unfolding.name }}
-          </li>
-        </ul>
-      </template>
-    </template>
+      clearable
+      chips
+      label="Add or remove unfolding"
+      :items="unfoldings"
+      item-title="name"
+      item-value="id"
+      multiple
+      variant="outlined"
+    ></v-select>
+
+    <v-sheet
+      v-if="unfoldingIds.length > 0"
+      rounded
+      border="md"
+      class="mb-6 pa-6 text-white"
+    >
+      <ul>
+        <li
+          class="py-1"
+          v-for="unfolding in findUnfoldings(unfoldingIds)"
+          :key="unfolding.id"
+        >
+          {{ unfolding.name }}
+        </li>
+      </ul>
+    </v-sheet>
   </span>
 </template>
 
