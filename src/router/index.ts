@@ -24,7 +24,7 @@ const router = createRouter({
           name: "Configuration",
           component: () => import("@/components/ConfigurationView.vue"),
         },
-        { path: "/campaign-tracker/party", redirect: "/campaign" },
+        { path: "/campaign-tracker/party", redirect: "/campaign-tracker/campaign" },
         {
           path: "/campaign-tracker/campaign/:id",
           name: "Campaign",
