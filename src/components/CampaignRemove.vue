@@ -37,7 +37,7 @@ function removeCampaign() {
     life: 3000,
   });
   closeModal();
-  router.push("/campaign/");
+  router.push("/campaign-tracker/campaign");
 }
 </script>
 

@@ -19,7 +19,7 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings") {
   let campaignId = nanoid();
   campaignStore.add(new Campaign(campaignId, campaign));
   visible.value = false;
-  router.push("/campaign/" + campaignId);
+  router.push("/campaign-tracker/campaign/" + campaignId);
 }
 </script>
 
