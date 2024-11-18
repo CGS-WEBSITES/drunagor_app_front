@@ -23,6 +23,10 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
     id="story-record-background-and-trait"
     class="grid gap-1 form-control w-full"
   >
+
+    <v-row no-gutters>
+      
+    </v-row>
     <label class="cursor-pointer">
       <span class="label-text text-base">Folk Hero</span>
       <Checkbox

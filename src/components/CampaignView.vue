@@ -77,27 +77,23 @@ function onSequentialAdventure() {
       campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
     "
   >
-  <v-col cols="12" class="px-2">
-    <StoryRecord :campaign-id="campaignId" />
-  </v-col>
+    <v-col cols="12" class="px-2">
+      <StoryRecord :campaign-id="campaignId" />
+    </v-col>
   </v-row>
 
-  <v-row no-gutters class="d-flex justify-center">
-    <template v-if="campaign.campaign == 'apocalypse'">
-      <div
-        class="bg-neutral form-control drop-shadow rounded-lg mb-2"
-        :key="update"
-      >
-        <div class="p-4" style="background-color: #1f2937">
-          <div class="pt-2 w-full">
-            <StoryRecordLegacyTrail :campaign-id="campaignId" />
-          </div>
-          <div class="pt-4 w-full">
-            <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
-          </div>
-        </div>
-      </div>
-    </template>
+  <v-row
+    no-gutters
+    class="d-flex justify-center"
+    v-if="campaign.campaign == 'apocalypse'"
+  >
+    <v-col cols="12" class="pa-2">
+      <v-sheet rounded border="md" class="mb-6 pa-6 text-white">
+        <StoryRecordLegacyTrail :campaign-id="campaignId" />
+
+        <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
+      </v-sheet>
+    </v-col>
   </v-row>
 
   <v-row no-gutters class="d-flex justify-center">

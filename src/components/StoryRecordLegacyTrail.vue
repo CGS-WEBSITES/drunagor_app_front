@@ -41,52 +41,47 @@ watch(heroism, async (newHeroism) => {
 
 <template>
   <div id="story-record-legacy-trail" class="form-control w-full">
-    <div class="flex flex-row">
-      <span class="w-1/2 lg:w-3/4"></span>
-      <div class="w-1/2 lg:w-1/4 grid grid-cols-4 place-items-end">
-        <span>0</span>
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
-      </div>
-    </div>
-    <div class="flex flex-row">
-      <span class="w-1/2 lg:w-3/4">Perseverance</span>
-      <div class="w-1/2 lg:w-1/4 grid grid-cols-4 place-items-end">
-        <RadioButton v-model="perseverance" name="perseverance" value="0" />
-        <RadioButton v-model="perseverance" name="perseverance" value="1" />
-        <RadioButton v-model="perseverance" name="perseverance" value="2" />
-        <RadioButton v-model="perseverance" name="perseverance" value="3" />
-      </div>
-    </div>
-    <div class="flex flex-row">
-      <span class="w-1/2 lg:w-3/4">Tragedy</span>
-      <div class="w-1/2 lg:w-1/4 grid grid-cols-4 place-items-end">
-        <RadioButton v-model="tragedy" name="tragedy" value="0" />
-        <RadioButton v-model="tragedy" name="tragedy" value="1" />
-        <RadioButton v-model="tragedy" name="tragedy" value="2" />
-        <RadioButton v-model="tragedy" name="tragedy" value="3" />
-      </div>
-    </div>
+    <v-row no-gutters>
+      <v-col cols="8" class="text-left"> Perseverance </v-col>
+      <v-col cols="4">
+        <v-radio-group v-model="perseverance" inline>
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
 
-    <div class="flex flex-row">
-      <span class="w-1/2 lg:w-3/4">Doom</span>
-      <div class="w-1/2 lg:w-1/4 grid grid-cols-4 place-items-end">
-        <RadioButton v-model="doom" name="doom" value="0" />
-        <RadioButton v-model="doom" name="doom" value="1" />
-        <RadioButton v-model="doom" name="doom" value="2" />
-        <RadioButton v-model="doom" name="doom" value="3" />
-      </div>
-    </div>
-    <div class="flex flex-row">
-      <span class="w-1/2 lg:w-3/4">Heroism</span>
-      <div class="w-1/2 lg:w-1/4 grid grid-cols-4 place-items-end">
-        <RadioButton v-model="heroism" name="heroism" value="0" />
-        <RadioButton v-model="heroism" name="heroism" value="1" />
-        <RadioButton v-model="heroism" name="heroism" value="2" />
-        <RadioButton v-model="heroism" name="heroism" value="3" />
-      </div>
-    </div>
+      <v-col cols="8" class="text-left"> Tragedy </v-col>
+      <v-col cols="4">
+        <v-radio-group v-model="tragedy" inline>
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+
+      <v-col cols="8" class="text-left"> Doom </v-col>
+      <v-col cols="4">
+        <v-radio-group v-model="doom" inline>
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+
+      <v-col cols="8" class="text-left"> Heroism </v-col>
+      <v-col cols="4">
+        <v-radio-group v-model="heroism" inline>
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
