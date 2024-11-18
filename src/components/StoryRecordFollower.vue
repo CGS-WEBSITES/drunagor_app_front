@@ -40,21 +40,22 @@ watch(followerIds, (newFollowerIds) => {
       clearable
       chips
       :label="$t('text.add-or-remove-follower')"
-      :items="findFollowers(followerIds)"
+      :items="followers"
+      item-title="name"
+      item-value="id"
       multiple
       variant="outlined"
     ></v-select>
 
-    <MultiSelect
-      v-model="followerIds"
-      :options="followers"
-      :maxSelectedLabels="1"
-      filter
-      optionLabel="name"
-      optionValue="id"
-      class="w-full md:w-14rem"
-    />
+    <v-sheet v-if="followerIds.length > 0"  border="md" class="pa-6 text-white"> 
+      <ul>
+        <li class="py-1" v-for="follower in findFollowers(followerIds)" :key="follower.id">
+          {{ follower.name }}
+        </li>
+      </ul>
+    </v-sheet>
   </span>
+  
 </template>
 
 <style scoped></style>
