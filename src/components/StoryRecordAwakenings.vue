@@ -17,23 +17,31 @@ const followerRepository = new StoryRecordFollowerRepository();
 
 <template>
   <v-row no-gutters>
-    <StoryRecordFollower
-      :repository="followerRepository"
-      :campaign-id="props.campaignId"
-    />
+    <v-col cols="12">
+      <StoryRecordFollower
+        :repository="followerRepository"
+        :campaign-id="props.campaignId"
+      />
+    </v-col>
   </v-row>
-  <div class="pt-2 w-full">
-    <StoryRecordStatus
-      :repository="statusRepository"
-      :campaign-id="props.campaignId"
-    />
-  </div>
-  <div class="pt-2 w-full">
-    <StoryRecordOutcome
-      :repository="outcomeRepository"
-      :campaign-id="props.campaignId"
-    />
-  </div>
+
+  <v-row no-gutters>
+    <v-col cols="12">
+      <StoryRecordStatus
+        :repository="statusRepository"
+        :campaign-id="props.campaignId"
+      />
+    </v-col>
+  </v-row>
+
+  <v-row no-gutters>
+    <v-col cols="12">
+      <StoryRecordOutcome
+        :repository="outcomeRepository"
+        :campaign-id="props.campaignId"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped></style>

@@ -40,29 +40,33 @@ watch(statusIds, (newStatusIds) => {
 
 <template>
   <span data-testid="story-record-status">
-    <MultiSelect
+    <v-select
       v-model="statusIds"
-      :options="statuses"
-      :maxSelectedLabels="1"
-      filter
-      optionLabel="name"
-      optionValue="id"
-      :placeholder="$t('text.add-or-remove-status')"
-      class="w-full md:w-14rem"
-    />
-    <template v-if="statusIds.length > 0">
-      <p class="text-sm text-gray-500 py-2">{{ t("text.status-info") }}</p>
-      <template v-for="status in findStatuses(statusIds)" :key="status.id">
-        <ul class="list-disc list-inside pt-2">
-          <li>
-            {{ status.name }}
-            <span class="px-4 block" v-if="status.effect">
-              {{ status.effect }}
-            </span>
-          </li>
-        </ul>
-      </template>
-    </template>
+      clearable
+      chips
+      :label="$t('text.add-or-remove-status')"
+      :hint="$t('text.status-info')"
+      :items="statuses"
+      item-title="name"
+      item-value="id"
+      multiple
+      variant="outlined"
+    ></v-select>
+
+    <v-sheet v-if="statusIds.length > 0" rounded border="md" class="mb-6 pa-6 text-white">
+      <ul>
+        <li
+          class="py-1"
+          v-for="status in findStatuses(statusIds)"
+          :key="status.id"
+        >
+          {{ status.name }}
+          <div class="px-4 font-italic" v-if="status.effect">
+            {{ status.effect }}
+          </div>
+        </li>
+      </ul>
+    </v-sheet>
   </span>
 </template>
 

@@ -47,7 +47,7 @@ watch(followerIds, (newFollowerIds) => {
       variant="outlined"
     ></v-select>
 
-    <v-sheet v-if="followerIds.length > 0"  border="md" class="pa-6 text-white"> 
+    <v-sheet v-if="followerIds.length > 0" rounded  border="md" class="mb-6 pa-6 text-white"> 
       <ul>
         <li class="py-1" v-for="follower in findFollowers(followerIds)" :key="follower.id">
           {{ follower.name }}

@@ -38,31 +38,33 @@ watch(outcomeIds, (newOutcomeIds) => {
 
 <template>
   <span data-testid="story-record-outcome">
-    <MultiSelect
+
+    <v-select
       v-model="outcomeIds"
-      :options="outcomes"
-      :maxSelectedLabels="1"
-      filter
-      optionLabel="name"
-      optionValue="id"
-      :placeholder="$t('text.add-or-remove-outcome')"
-      class="w-full md:w-14rem"
-    />
-    <template v-if="outcomeIds.length > 0">
-      <p class="text-sm text-gray-500 py-2">
-        {{ $t("text.outcome-info") }}
-      </p>
-      <template v-for="outcome in findOutcomes(outcomeIds)" :key="outcome.id">
-        <ul id="campaign-log-outcome-display" class="list-disc list-inside">
-          <li>
-            {{ outcome.name }}
-            <span class="px-4 block" v-if="outcome.effect">
-              {{ outcome.effect }}
-            </span>
-          </li>
-        </ul>
-      </template>
-    </template>
+      clearable
+      chips
+      :label="$t('text.add-or-remove-outcome')"
+      :hint="$t('text.outcome-info')"
+      :items="outcomes"
+      item-title="name"
+      item-value="id"
+      multiple
+      variant="outlined"
+    ></v-select>
+
+    <v-sheet v-if="outcomeIds.length > 0" rounded border="md" class="mb-6 pa-6 text-white">
+      <ul>
+        <li
+          class="py-1"
+          v-for="outcome in findOutcomes(outcomeIds)" :key="outcome.id"
+        >
+          {{ outcome.name }}
+          <div class="px-4 font-italic" v-if="outcome.effect">
+            {{ outcome.effect }}
+          </div>
+        </li>
+      </ul>
+    </v-sheet>
   </span>
 </template>
 <style scoped></style>
