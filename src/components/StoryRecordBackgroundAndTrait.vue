@@ -15,6 +15,7 @@ backgroundAndTraitIds.value =
 watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
   campaignStore.find(props.campaignId).backgroundAndTraitIds =
     newBackgroundAndTraitsIds;
+  console.log(newBackgroundAndTraitsIds);
 });
 </script>
 
@@ -23,46 +24,51 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
     id="story-record-background-and-trait"
     class="grid gap-1 form-control w-full"
   >
-
     <v-row no-gutters>
-      
+      <v-col cols="8" class="text-left"> Folk Hero </v-col>
+      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
+        <v-switch
+          v-model="backgroundAndTraitIds"
+          value="folk-hero"
+          color="primary"
+          hide-details
+          inset
+        ></v-switch>
+      </v-col>
+
+      <v-col cols="8" class="text-left"> Knight of Amira </v-col>
+      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
+        <v-switch
+          v-model="backgroundAndTraitIds"
+          value="knight-of-amir"
+          color="primary"
+          hide-details
+          inset
+        ></v-switch>
+      </v-col>
+
+      <v-col cols="8" class="text-left"> Redeemer </v-col>
+      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
+        <v-switch
+          v-model="backgroundAndTraitIds"
+          value="redeemer"
+          color="primary"
+          hide-details
+          inset
+        ></v-switch>
+      </v-col>
+
+      <v-col cols="8" class="text-left"> Passionate </v-col>
+      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
+        <v-switch
+          v-model="backgroundAndTraitIds"
+          value="passionate"
+          color="primary"
+          hide-details
+          inset
+        ></v-switch>
+      </v-col>
     </v-row>
-    <label class="cursor-pointer">
-      <span class="label-text text-base">Folk Hero</span>
-      <Checkbox
-        variant="outlined"
-        v-model="backgroundAndTraitIds"
-        value="folk-hero"
-        class="float-right"
-      />
-    </label>
-    <label class="cursor-pointer">
-      <span class="label-text text-base">Knight of Amira</span>
-      <Checkbox
-        variant="outlined"
-        v-model="backgroundAndTraitIds"
-        value="knight-of-amir"
-        class="float-right"
-      />
-    </label>
-    <label class="cursor-pointer">
-      <span class="label-text text-base">Redeemer</span>
-      <Checkbox
-        variant="outlined"
-        v-model="backgroundAndTraitIds"
-        value="redeemer"
-        class="float-right"
-      />
-    </label>
-    <label class="cursor-pointer">
-      <span class="label-text text-base">Passionate</span>
-      <Checkbox
-        variant="outlined"
-        v-model="backgroundAndTraitIds"
-        value="passionate"
-        class="float-right"
-      />
-    </label>
   </div>
 </template>
 
