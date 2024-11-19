@@ -34,6 +34,67 @@
     </v-col>
   </v-row>
 
+  <!-- Navigation Drawer (Barra de Navegação Lateral à Direita em Modo Temporário) -->
+  <v-navigation-drawer
+  v-model="drawer"
+  app
+  location="right"
+  temporary
+  width="435"
+  class="bg-black bg-opacity-20 d-none d-lg-flex"
+  style="top: 50px;"
+>
+  <v-list class="me-4"> <!-- Substitui "margin-right" -->
+    <v-list-item class="py-5"> <!-- Substitui "height: 114px" -->
+      <v-row align="center" class="w-168">
+        <!-- Coluna para o texto à esquerda -->
+        <v-col cols="8">
+          <v-list-item-title>Magoveio92magi</v-list-item-title>
+          <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
+        </v-col>
+
+        <!-- Coluna para o avatar à direita -->
+        <v-col cols="4" class="d-flex justify-end">
+          <v-avatar size="100">
+            <v-img
+              src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
+              alt="Avatar"
+            />
+          </v-avatar>
+        </v-col>
+      </v-row>
+    </v-list-item>
+
+    <v-list-item
+      v-for="(item, index) in menuItems"
+      :key="index"
+      link
+      @click="selectItem(item)"
+      :class="{ 'v-list-item--active': selectedItem === item }"
+    >
+      <v-list-item-icon>
+        <v-icon>{{ item.icon }}</v-icon>
+      </v-list-item-icon>
+      <v-list-item-content>
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
+  </v-list>
+</v-navigation-drawer>
+
+<!-- Toolbar (Barra de Topo) -->
+<v-app-bar app height="50">
+  <v-toolbar-title></v-toolbar-title>
+  <v-spacer></v-spacer>
+  <!-- Botão de Navegação alinhado à direita -->
+  <v-app-bar-nav-icon
+    class="me-4"
+    @click="drawer = !drawer"
+  ></v-app-bar-nav-icon>
+</v-app-bar>
+
+
+
   <!-- Navigation Boxes Section -->
   <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
     <v-col cols="12" sm="10" md="8" class="px-6">
