@@ -44,7 +44,7 @@ watch(heroism, async (newHeroism) => {
     <v-row no-gutters>
       <v-col cols="8" class="text-left"> Perseverance </v-col>
       <v-col cols="4">
-        <v-radio-group v-model="perseverance" inline>
+        <v-radio-group v-model="perseverance" inline  class="d-flex flex-row justify-end">
           <v-radio label="0" value="0"></v-radio>
           <v-radio label="1" value="1"></v-radio>
           <v-radio label="2" value="2"></v-radio>
@@ -54,7 +54,7 @@ watch(heroism, async (newHeroism) => {
 
       <v-col cols="8" class="text-left"> Tragedy </v-col>
       <v-col cols="4">
-        <v-radio-group v-model="tragedy" inline>
+        <v-radio-group v-model="tragedy" inline class="d-flex flex-row justify-end">
           <v-radio label="0" value="0"></v-radio>
           <v-radio label="1" value="1"></v-radio>
           <v-radio label="2" value="2"></v-radio>
@@ -64,7 +64,7 @@ watch(heroism, async (newHeroism) => {
 
       <v-col cols="8" class="text-left"> Doom </v-col>
       <v-col cols="4">
-        <v-radio-group v-model="doom" inline>
+        <v-radio-group v-model="doom" inline class="d-flex flex-row justify-end">
           <v-radio label="0" value="0"></v-radio>
           <v-radio label="1" value="1"></v-radio>
           <v-radio label="2" value="2"></v-radio>
@@ -74,7 +74,7 @@ watch(heroism, async (newHeroism) => {
 
       <v-col cols="8" class="text-left"> Heroism </v-col>
       <v-col cols="4">
-        <v-radio-group v-model="heroism" inline>
+        <v-radio-group v-model="heroism" inline class="d-flex flex-row justify-end">
           <v-radio label="0" value="0"></v-radio>
           <v-radio label="1" value="1"></v-radio>
           <v-radio label="2" value="2"></v-radio>
