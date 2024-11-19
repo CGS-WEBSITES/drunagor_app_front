@@ -8,6 +8,7 @@
           <v-btn @click="$router.push({ name: 'Login' })">Login</v-btn>
           <v-btn @click="$router.push({ name: 'Teste' })">teste</v-btn>
           <v-btn @click="$router.push({ name: 'Dashboard' })">Dashboard</v-btn>
+          <v-btn @click="$router.push({ name: 'Library' })">Library</v-btn>
         </v-app-bar>
       </v-row>
 
@@ -16,7 +17,55 @@
         <router-view />
       </v-row>
     </v-main>
-     <!-- Footer Section -->
+   
+
+
+<!-- Fixed Bottom Navigation for Mobile -->
+<v-bottom-navigation
+  app
+  v-model="bottomNavVisible"
+  class="hidden-md-and-up fixed bg-black text-white"
+  elevation="10"
+  :style="{ width: '100%', padding: '0', overflow: 'hidden' }" 
+>
+  <v-btn
+    @click="action1"
+    class="pa-0 flex-grow-1"
+    min-width="0" 
+  >
+    <v-icon>mdi-home</v-icon>
+  </v-btn>
+  <v-btn
+    @click="action2"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-magnify</v-icon>
+  </v-btn>
+  <v-btn
+    @click="action3"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-plus-circle</v-icon>
+  </v-btn>
+  <v-btn
+    @click="action4"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-heart</v-icon>
+  </v-btn>
+  <v-btn
+    @click="action5"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-account</v-icon>
+  </v-btn>
+</v-bottom-navigation>
+
+  <!-- Footer Section -->
      <v-footer class="footer black bg-black pb-12" padless>
       <v-container fluid>
         <v-row justify="center" align="center" class="text-center">
