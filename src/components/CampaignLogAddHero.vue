@@ -65,7 +65,7 @@ function addRandomHeroToCampaign() {
 </script>
 
 <template>
-  <v-btn outlined id="campaign-add-hero" @click="openModal">{{
+  <v-btn variant="outlined" id="campaign-add-hero" @click="openModal">{{
     t("label.add-hero")
   }}</v-btn>
 
