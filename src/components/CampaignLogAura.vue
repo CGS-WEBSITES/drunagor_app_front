@@ -29,21 +29,27 @@ watch(auraId, (newAuraId) => {
 
 <template>
   <span :data-testid="'campaign-log-aura-' + heroId">
-    <Dropdown
+    <v-autocomplete
+      clearable
       v-model="auraId"
-      :options="auras"
-      showClear
-      checkmark
-      filter
-      optionLabel="name"
-      optionValue="id"
-      :placeholder="$t('text.select-aura')"
-      class="w-full md:w-14rem"
-    />
-    <template v-if="auraId">
-      <p class="text-sm text-gray-500 py-2">{{ t("text.aura-info") }}</p>
+      label="Autocomplete"
+      :items="auras"
+      item-title="name"
+      item-value="id"
+      :label="$t('text.select-aura')"
+      :hint="t('text.aura-info') "
+      variant="outlined"
+    ></v-autocomplete>
+
+    <v-sheet
+      v-if="auraId"
+      rounded
+      border="md"
+      class="mb-6 pa-6 text-white"
+      style="background-color: #1f2937 !important"
+    >
       <p>{{ props.repository.find(auraId)?.effect }}</p>
-    </template>
+    </v-sheet>
   </span>
 </template>
 
