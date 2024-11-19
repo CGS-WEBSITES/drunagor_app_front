@@ -19,27 +19,34 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <div class="pt-2 w-full">
-    <CampaignLogStatus
-      :repository="statusRepository"
-      :campaign-id="props.campaignId"
-      :hero-id="props.heroId"
-    />
-  </div>
-  <div class="pt-2 w-full">
-    <CampaignLogOutcome
-      :repository="outcomeRepository"
-      :campaign-id="props.campaignId"
-      :hero-id="props.heroId"
-    />
-  </div>
-  <div class="pt-2 w-full">
-    <CampaignLogAura
-      :repository="auraRepository"
-      :campaign-id="props.campaignId"
-      :hero-id="props.heroId"
-    />
-  </div>
+  <v-row no-gutters>
+    <v-col cols="12">
+      <CampaignLogStatus
+        :repository="statusRepository"
+        :campaign-id="props.campaignId"
+        :hero-id="props.heroId"
+      />
+    </v-col>
+  </v-row>
+  <v-row no-gutters>
+    <v-col cols="12">
+      <CampaignLogOutcome
+        :repository="outcomeRepository"
+        :campaign-id="props.campaignId"
+        :hero-id="props.heroId"
+      />
+    </v-col>
+  </v-row>
+  <v-row no-gutters>
+    <v-col cols="12">
+      <CampaignLogAura
+        :repository="auraRepository"
+        :campaign-id="props.campaignId"
+        :hero-id="props.heroId"
+      />
+    </v-col>
+  </v-row>
+  
   <div class="pt-4 w-full">
     <router-link
       :to="{
