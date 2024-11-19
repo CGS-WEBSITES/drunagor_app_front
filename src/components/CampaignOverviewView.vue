@@ -9,7 +9,6 @@ import { HeroStore } from "@/store/HeroStore";
 import { PartyStore } from "@/store/PartyStore";
 import { customAlphabet } from "nanoid";
 import CampaignImport from "@/components/CampaignImport.vue";
-import Card from "primevue/card";
 
 const partyStore = PartyStore();
 const legacyCampaign = partyStore.findAll();
@@ -54,37 +53,44 @@ function findHeroes(campaignId: string): HeroData[] {
   </v-card>
 
   <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
-    <template
-      v-for="campaign in campaignStore.findAll()"
-      :key="campaign.campaignId"
-    >
-      <router-link
-        :to="{ name: 'Campaign', params: { id: campaign.campaignId } }"
-        class="w-full"
+    <v-row no-gutters>
+      <v-col
+        cols="12"
+        class="py-3"
+        v-for="campaign in campaignStore.findAll()"
+        :key="campaign.campaignId"
       >
-        <v-card>
-          <template #title>
-            <span class="capitalize">{{ campaign.campaign }}</span>
-            <template v-if="campaign.name"> - {{ campaign.name }} </template>
-          </template>
-          <template #content>
-            <div class="flex flex-wrap justify-center min-h-16">
-              <template
+        <v-card
+          elevation="16"
+          width="100%"
+          @click="
+            $router.push({
+              name: 'Campaign',
+              params: { id: campaign.campaignId },
+            })
+          "
+        >
+          <v-card-title>
+            {{ campaign.campaign }}
+          </v-card-title>
+          <v-card-subtitle v-if="campaign.name">
+            {{ campaign.name }}
+          </v-card-subtitle>
+          <v-card-text>
+            <v-row no-gutters class="justify-center">
+              <v-col
+                cols="1"
+                class="d-flex justify-center"
                 v-for="hero in findHeroes(campaign.campaignId)"
                 :key="hero.heroId"
               >
-                <v-img
-                  :image="hero.images.avatar"
-                  class="mr-2"
-                  size="large"
-                  shape="circle"
-                />
-              </template>
-            </div>
-          </template>
+                <v-avatar :image="hero.images.avatar" size="40" />
+              </v-col>
+            </v-row>
+          </v-card-text>
         </v-card>
-      </router-link>
-    </template>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
