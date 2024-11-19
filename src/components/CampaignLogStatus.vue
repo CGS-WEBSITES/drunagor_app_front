@@ -42,7 +42,36 @@ watch(statusIds, (newStatusIds) => {
 </script>
 
 <template>
+
   <span :data-testid="'campaign-log-status-' + heroId">
+
+    <v-select
+      v-model="outcomeIds"
+      clearable
+      chips
+      :label="$t('text.add-or-remove-outcome')"
+      :hint="$t('text.outcome-info')"
+      :items="outcomes"
+      item-title="name"
+      item-value="id"
+      multiple
+      variant="outlined"
+    ></v-select>
+
+    <v-sheet v-if="outcomeIds.length > 0" rounded border="md" class="mb-6 pa-6 text-white">
+      <ul>
+        <li
+          class="py-1"
+          v-for="outcome in findOutcomes(outcomeIds)" :key="outcome.id"
+        >
+          {{ outcome.name }}
+          <div class="px-4 font-italic" v-if="outcome.effect">
+            {{ outcome.effect }}
+          </div>
+        </li>
+      </ul>
+    </v-sheet>
+    
     <MultiSelect
       v-model="statusIds"
       :options="statuses"
