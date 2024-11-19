@@ -42,59 +42,40 @@ watch(statusIds, (newStatusIds) => {
 </script>
 
 <template>
-
   <span :data-testid="'campaign-log-status-' + heroId">
-
     <v-select
-      v-model="outcomeIds"
+      v-model="statusIds"
       clearable
       chips
-      :label="$t('text.add-or-remove-outcome')"
-      :hint="$t('text.outcome-info')"
-      :items="outcomes"
+      :label="$t('text.add-or-remove-status')"
+      :hint="$t('text.status-info')"
+      :items="statuses"
       item-title="name"
       item-value="id"
       multiple
       variant="outlined"
     ></v-select>
 
-    <v-sheet v-if="outcomeIds.length > 0" rounded border="md" class="mb-6 pa-6 text-white">
+    <v-sheet
+      v-if="statusIds.length > 0"
+      rounded
+      border="md"
+      class="mb-6 pa-6 text-white"
+      style="background-color: #1f2937 !important"
+    >
       <ul>
         <li
           class="py-1"
-          v-for="outcome in findOutcomes(outcomeIds)" :key="outcome.id"
+          v-for="statuses in findStatuses(statusIds)"
+          :key="statuses.id"
         >
-          {{ outcome.name }}
-          <div class="px-4 font-italic" v-if="outcome.effect">
-            {{ outcome.effect }}
+          {{ statuses.name }}
+          <div class="px-4 font-italic" v-if="statuses.effect">
+            {{ statuses.effect }}
           </div>
         </li>
       </ul>
     </v-sheet>
-    
-    <MultiSelect
-      v-model="statusIds"
-      :options="statuses"
-      :maxSelectedLabels="1"
-      filter
-      optionLabel="name"
-      optionValue="id"
-      :placeholder="$t('text.add-or-remove-status')"
-      class="w-full md:w-14rem"
-    />
-    <template v-if="statusIds.length > 0">
-      <p class="text-sm text-gray-500 py-2">{{ t("text.status-info") }}</p>
-      <ul id="campaign-log-status-display" class="list-disc list-inside">
-        <template v-for="status in findStatuses(statusIds)" :key="status.id">
-          <li>
-            {{ status.name }}
-            <span class="px-4 block" v-if="status.effect">
-              {{ status.effect }}
-            </span>
-          </li>
-        </template>
-      </ul>
-    </template>
   </span>
 </template>
 
