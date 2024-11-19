@@ -46,16 +46,30 @@ function campPhase() {
       <v-card-title class="text-center">
         {{ t("label.camp-phase") }}
       </v-card-title>
+      <v-card-text>
+        <span>{{ t("text.reset-state") }}</span>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-action>
+        <v-row no-gutters>
+          <v-col cols="6" class="d-flex flex-row justify-center">
+            <v-btn variant="text" @click="campPhase" width="100%">{{
+              t("label.yes")
+            }}</v-btn>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="6" class="d-flex flex-row justify-center">
+            <v-btn
+              variant="text"
+              @click="closeModal"
+              width="100%"
+              color="red-accent-2"
+              >{{ t("label.no") }}</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-card-action>
     </v-card>
-
-    <v-card-text>
-      <span>{{ t("text.reset-state") }}</span>
-    </v-card-text>
-    <v-divider></v-divider>
-    <v-card-action>
-      <v-btn variant="outlined" @click="campPhase">{{ t("label.yes") }}</v-btn>
-      <v-btn variant="outlined" @click="closeModal">{{ t("label.no") }}</v-btn>
-    </v-card-action>
   </v-dialog>
 </template>
 
