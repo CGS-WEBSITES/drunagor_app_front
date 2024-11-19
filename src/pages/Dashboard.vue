@@ -7,7 +7,7 @@
         <v-row no-gutters>
           <v-col cols="3">
             <v-avatar size="100">
-              <v-img src="@/assets/library.png" alt="Profile" />
+              <v-img src="@/assets/libraryy.png" alt="Profile" />
             </v-avatar>
           </v-col>
           <v-col cols="9">
@@ -73,7 +73,7 @@
     class="mt-4 d-flex justify-center align-center ma-0 w-100"
   >
   <v-col cols="12" sm="10" md="9" class="px-8">
-      <v-carousel hide-delimiters height="300px">
+      <v-carousel hide-delimiters  height="300px">
         <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
           <v-card class="mx-auto" width="80%">
             <v-img src="@/assets/campaign.jpg" height="200" cover />
@@ -445,7 +445,7 @@
   <!-- Notification Button -->
   <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6" style="z-index: 10">
     <v-col cols="auto">
-      <v-badge color="red" content="10" overlap location="top-end">
+      <v-badge color="red" content="10" overlap>
         <v-btn fab dark color="black" @click="showPopup = !showPopup">
           <v-icon>mdi-bell</v-icon>
         </v-btn>
