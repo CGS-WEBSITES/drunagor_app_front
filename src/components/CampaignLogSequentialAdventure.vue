@@ -44,64 +44,76 @@ function openSequentialStateEditor() {
 </script>
 
 <template>
-  <div
+  <v-row
+    no-gutters
     id="seq-adv"
-    class="pt-2 w-full cursor-pointer"
     @click="openSequentialStateEditor"
+    class="cursor-pointer justify-center"
   >
-    <div id="curse-cubes" class="resource-wrapper text-center flex justify-end">
-      <div class="w-full">
-        <span class="block border-b text-lg">{{
-          sequentialAdventureState.curseCubes
-        }}</span>
-        <span class="whitespace-nowrap">{{ t("text.curse-cubes") }}</span>
-      </div>
-    </div>
-
-    <div
-      id="trauma-cubes"
-      class="resource-wrapper text-center flex justify-end"
-    >
-      <div class="w-full">
-        <span class="block border-b text-lg">{{
-          sequentialAdventureState.traumaCubes
-        }}</span>
-        <span class="whitespace-nowrap">{{ t("text.trauma-cubes") }}</span>
-      </div>
-    </div>
-
-    <div class="text-center">
-      <div
-        id="resources"
-        class="block border-b text-lg"
-        v-if="resourceDisplay.length > 0"
+    <v-col cols="4" class="px-2" width="100%">
+      <v-sheet
+        rounded
+        border="md"
+        class="mb-6 pa-6 text-white"
+        width="100%"
+        style="background-color: #1f2937 !important"
       >
-        <span
-          v-for="resource in resourceDisplay"
-          :key="resource.name"
-          class="block"
-        >
-          {{ resource.count }} {{ t(resource.name) }}
-        </span>
-      </div>
-      <div class="block border-b text-lg" v-else>
-        <span class="italic text-sm text-gray-500">{{
-          t("text.no-resources")
-        }}</span>
-      </div>
-      <span>{{ t("label.resources") }}</span>
-    </div>
-  </div>
+        <div class="text-center">{{ sequentialAdventureState.curseCubes }}</div>
+
+        <v-divider></v-divider>
+
+        <div class="text-center">
+          {{ t("text.curse-cubes") }}
+        </div>
+      </v-sheet>
+    </v-col>
+
+    <v-col cols="4" class="px-2">
+      <v-sheet
+        rounded
+        border="md"
+        class="mb-6 pa-6 text-white"
+        width="100%"
+        style="background-color: #1f2937 !important"
+      >
+        <div class="text-center">
+          {{ sequentialAdventureState.traumaCubes }}
+        </div>
+
+        <v-divider></v-divider>
+
+        <div class="text-center">
+          {{ t("text.trauma-cubes") }}
+        </div>
+      </v-sheet>
+    </v-col>
+
+    <v-col cols="4" class="px-2">
+      <v-sheet
+        rounded
+        border="md"
+        class="mb-6 pa-6 text-white"
+        width="100%"
+        style="background-color: #1f2937 !important"
+      >
+        <div id="resources" v-if="resourceDisplay.length > 0">
+          <div
+            v-for="resource in resourceDisplay"
+            :key="resource.name"
+            class="text-center"
+          >
+            {{ resource.count }} - {{ t(resource.name) }}
+          </div>
+        </div>
+        <div class="text-center font-italic" v-else>
+          {{ t("text.no-resources") }}
+        </div>
+        <v-divider></v-divider>
+        <div class="text-center">{{ t("label.resources") }}</div>
+      </v-sheet>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>
-.resource-wrapper {
-  align-items: flex-end;
-}
-#seq-adv {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  grid-auto-rows: auto;
-  grid-gap: 0.8em;
-}
 </style>
