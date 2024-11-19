@@ -40,32 +40,33 @@ function removeHeroFromCampaign(heroId: string) {
 </script>
 
 <template>
-  <Button
-    outlined
+  <v-btn
+    variant="outlined"
     id="campaign-remove-hero"
-    :label="t('label.remove-hero')"
     @click="openModal"
     :disabled="filteredHeroes.length === 0"
-  ></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.remove-hero')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
   >
-    <BaseList id="campaign-remove-heroes">
-      <template v-for="hero in filteredHeroes" :key="hero.id">
-        <BaseListItem
-          :avatar="hero.images.avatar"
-          @click="removeHeroFromCampaign(hero.id)"
-        >
-          {{ hero.name }}
-        </BaseListItem>
-        <Divider class="m-2" />
-      </template>
-    </BaseList>
-  </Dialog>
+    {{ t("label.remove-hero") }}
+  </v-btn>
+
+  <v-dialog v-model="visible" max-width="500">
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.remove-hero") }}
+      </v-card-title>
+      <v-card-text>
+        <v-list lines="one" id="campaign-remove-heroes">
+          <v-list-item
+            v-for="hero in filteredHeroes"
+            :key="hero.id"
+            :title="hero.name"
+            :prepend-avatar="hero.images.avatar"
+            @click="removeHeroFromCampaign(hero.id)"
+          ></v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped></style>
