@@ -96,9 +96,9 @@ function onSequentialAdventure() {
     </v-col>
   </v-row>
 
-  <v-row no-gutters class="d-flex justify-center">
-    <v-col cols="12">
-      <CampaignLogAddHero :campaign-id="campaignId" />
+  <v-row no-gutters class="justify-center px-4">
+    <v-col cols="4" class="d-flex flex-row justify-space-around px-6">
+      <CampaignLogAddHero :campaign-id="campaignId"/>
       <CampaignLogRemoveHero :campaign-id="campaignId" />
     </v-col>
   </v-row>
