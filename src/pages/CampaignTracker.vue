@@ -5,7 +5,7 @@
     >
     <MainMenu />
     <v-row no-gutters class="pa-6 justify-center">
-      <v-card class="pa-6 elevation-12">
+      <v-card class="pa-6 elevation-12" width="100%">
         <router-view />
       </v-card>
     </v-row>
