@@ -96,28 +96,28 @@ function onSequentialAdventure() {
     </v-col>
   </v-row>
 
-  <v-row no-gutters class="justify-center px-4">
+  <v-row no-gutters class="justify-center pa-6">
     <v-col cols="4" class="d-flex flex-row justify-space-around px-6">
-      <CampaignLogAddHero :campaign-id="campaignId"/>
+      <CampaignLogAddHero :campaign-id="campaignId" />
       <CampaignLogRemoveHero :campaign-id="campaignId" />
     </v-col>
   </v-row>
 
   <v-row no-gutters class="d-flex justify-center">
-    <div id="heroes" class="grid pt-2 gap-2 w-full" :key="update">
-      <template
+    <v-sheet rounded border="md" class="mb-6 pa-6 text-white" width="100%">
+      <v-col
+        cols="12"
+        id="heroes"
         v-for="hero in heroStore.findAllInCampaign(campaignId)"
         :key="hero.heroId"
       >
-        <div class="bg-neutral form-control drop-shadow rounded-lg">
-          <CampaignLog
-            :campaign-id="campaignId"
-            :hero-id="hero.heroId"
-            :is-sequential-adventure="isSequentialAdventure"
-          />
-        </div>
-      </template>
-    </div>
+        <CampaignLog
+          :campaign-id="campaignId"
+          :hero-id="hero.heroId"
+          :is-sequential-adventure="isSequentialAdventure"
+        />
+      </v-col>
+    </v-sheet>
   </v-row>
 </template>
 
