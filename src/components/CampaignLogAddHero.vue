@@ -47,7 +47,7 @@ function addHeroToCampaign(heroId: string) {
 
 function addRandomHeroToCampaign() {
   const randomHero = new RandomizeHero().randomize(
-    _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
+    _.map(heroStore.findAllInCampaign(props.campaignId), "heroId")
   );
 
   if (randomHero === null) {
@@ -65,39 +65,34 @@ function addRandomHeroToCampaign() {
 </script>
 
 <template>
-  <Button
-    outlined
-    id="campaign-add-hero"
-    :label="t('label.add-hero')"
-    @click="openModal"
-  ></Button>
-  <Dialog
-    v-model:visible="visible"
-    modal
-    :header="t('label.add-hero')"
-    :dismissableMask="true"
-    class="w-full md:w-1/3 m-2"
-  >
-    <BaseListItem
-      id="party-random-hero"
-      @click="addRandomHeroToCampaign"
-      :avatar="RandomImage.toString()"
-    >
-      Random hero
-    </BaseListItem>
-    <Divider class="m-2" />
-    <BaseList id="campaign-add-heroes">
-      <template v-for="hero in filteredHeroes" :key="hero.id">
-        <BaseListItem
-          :avatar="hero.images.avatar"
-          @click="addHeroToCampaign(hero.id)"
-        >
-          {{ hero.name }}
-        </BaseListItem>
-        <Divider class="m-2" />
-      </template>
-    </BaseList>
-  </Dialog>
+  <v-btn outlined id="campaign-add-hero" @click="openModal">{{
+    t("label.add-hero")
+  }}</v-btn>
+
+  <v-dialog v-model="visible" max-width="500">
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.add-hero") }}
+      </v-card-title>
+      <v-card-text>
+        <v-list lines="one">
+          <v-list-item
+            id="party-random-hero"
+            @click="addRandomHeroToCampaign"
+            title="Random hero"
+            :prepend-avatar="RandomImage.toString()"
+          ></v-list-item>
+          <v-list-item
+            v-for="hero in filteredHeroes"
+            :key="hero.id"
+            :title="hero.name"
+            :prepend-avatar="hero.images.avatar"
+            @click="addHeroToCampaign(hero.id)"
+          ></v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped></style>
