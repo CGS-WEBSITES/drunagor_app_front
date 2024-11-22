@@ -34,7 +34,7 @@
     </v-col>
   </v-row>
 
-  <!-- Navigation Drawer (Barra de Navegação Lateral à Direita em Modo Temporário) -->
+  <!-- Navigation Drawer -->
   <v-navigation-drawer
   v-model="drawer"
   app
