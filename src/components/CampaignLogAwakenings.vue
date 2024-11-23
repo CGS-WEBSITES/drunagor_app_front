@@ -30,21 +30,20 @@ const { t } = useI18n();
       :hero-id="props.heroId"
     />
   </div>
-  <div class="pt-4 w-full">
-    <router-link
-      :to="{
-        name: 'Hero',
-        params: { campaignId: campaignId, heroId: props.heroId },
-      }"
-      class="hero-detail-btn"
-    >
-      <Button
-        outlined
-        :label="t('label.equipment-skills')"
-        class="w-full"
-      ></Button>
-    </router-link>
-  </div>
+  <v-row no-gutters>
+    <v-col cols="12">
+      <v-btn
+        variant="outlined"
+        @click="
+          $router.push({
+            name: 'Hero',
+            params: { campaignId: campaignId, heroId: props.heroId },
+          })
+        "
+        >{{ t("label.equipment-skills") }}</v-btn
+      >
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped></style>
