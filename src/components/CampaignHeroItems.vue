@@ -30,21 +30,24 @@ if (typeof campaignHero.equipment === "undefined") {
 </script>
 
 <template>
-  <div class="">
-    <label>
-      <input
-        type="checkbox"
-        v-model="filterProficiencies"
-        id="filter-proficiencies"
-        class="w-5 h-5 text-emerald-500 bg-base-100 rounded"
-      />
-      {{ t("label.filter-by-proficiency") }}
-    </label>
+  <v-row no-gutters>
+    <v-col cols="12" class="px-6 py-1">
+      <v-label>
+        <v-switch
+          v-model="filterProficiencies"
+          color="primary"
+          hide-details
+          inset
+          class="mr-3"
+        ></v-switch>
+        {{ t("label.filter-by-proficiency") }}
+      </v-label>
+    </v-col>
 
-    <div class="pt-4">
-      <span>{{ t("label.weapon") }}</span>
-    </div>
-    <div class="hero-weapon-wrapper">
+    <v-col cols="12" class="px-6 py-1">
+      <div class="pb-3">
+        <span>{{ t("label.weapon") }}</span>
+      </div>
       <CampaignHeroWeapon
         :campaign-id="campaignId"
         :hero-id="heroId"
@@ -53,12 +56,12 @@ if (typeof campaignHero.equipment === "undefined") {
         :filter-proficiencies="filterProficiencies"
         @stash="$emit('stash')"
       />
-    </div>
+    </v-col>
 
-    <div class="pt-2 col-auto leading-10">
-      <span>{{ t("label.off-hand") }}</span>
-    </div>
-    <div class="hero-offhand-wrapper">
+    <v-col cols="12" class="px-6 py-1">
+      <div class="pb-3">
+        <span>{{ t("label.off-hand") }}</span>
+      </div>
       <CampaignHeroOffHand
         :campaign-id="campaignId"
         :hero-id="heroId"
@@ -68,12 +71,12 @@ if (typeof campaignHero.equipment === "undefined") {
         @stash="$emit('stash')"
       >
       </CampaignHeroOffHand>
-    </div>
+    </v-col>
 
-    <div class="pt-2">
-      <span>{{ t("label.armor") }}</span>
-    </div>
-    <div class="hero-armor-wrapper">
+    <v-col cols="12" class="px-6 py-1">
+      <div class="pb-3">
+        <span>{{ t("label.armor") }}</span>
+      </div>
       <CampaignHeroArmor
         :campaign-id="campaignId"
         :hero-id="heroId"
@@ -83,12 +86,11 @@ if (typeof campaignHero.equipment === "undefined") {
         @stash="$emit('stash')"
       >
       </CampaignHeroArmor>
-    </div>
-
-    <div class="pt-2">
-      <span>{{ t("label.trinket") }}</span>
-    </div>
-    <div class="hero-trinket-wrapper">
+    </v-col>
+    <v-col cols="12" class="px-6 py-1">
+      <div class="pb-3">
+        <span>{{ t("label.trinket") }}</span>
+      </div>
       <CampaignHeroTrinket
         :campaign-id="campaignId"
         :hero-id="heroId"
@@ -96,28 +98,26 @@ if (typeof campaignHero.equipment === "undefined") {
         @stash="$emit('stash')"
       >
       </CampaignHeroTrinket>
-    </div>
-  </div>
-
-  <div class="mt-8">
+    </v-col>
+  </v-row>
+  <v-col cols="12" class="px-6 py-1">
     <div class="">
       <span>{{ t("label.bag-slot") }} 1</span>
     </div>
-    <div class="hero-bag1-wrapper">
-      <CampaignHeroBagItem
-        :campaign-id="campaignId"
-        :hero-id="heroId"
-        :cards-data-repository="repository"
-        :bagSlot="1"
-        @stash="$emit('stash')"
-      >
-      </CampaignHeroBagItem>
-    </div>
-
-    <div class="pt-2">
-      <span>{{ t("label.bag-slot") }} 2</span>
-    </div>
-    <div class="hero-bag2-wrapper">
+    <CampaignHeroBagItem
+      :campaign-id="campaignId"
+      :hero-id="heroId"
+      :cards-data-repository="repository"
+      :bagSlot="1"
+      @stash="$emit('stash')"
+    >
+    </CampaignHeroBagItem>
+  </v-col>
+  <div class="mt-8">
+    <v-col cols="12" class="px-6 py-1">
+      <div class="pb-3">
+        <span>{{ t("label.bag-slot") }} 2</span>
+      </div>
       <CampaignHeroBagItem
         :campaign-id="campaignId"
         :hero-id="heroId"
@@ -126,7 +126,7 @@ if (typeof campaignHero.equipment === "undefined") {
         @stash="$emit('stash')"
       >
       </CampaignHeroBagItem>
-    </div>
+    </v-col>
   </div>
 </template>
 
