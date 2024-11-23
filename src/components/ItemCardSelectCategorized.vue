@@ -47,6 +47,19 @@ watch(selectedId, (newSelectedId) => {
 </script>
 
 <template>
+
+<v-autocomplete
+      clearable
+      v-model="selectedId"
+      :items="categories"
+      item-title="name"
+      item-value="id"
+      :label="placeholder"
+      :hint="$t('label.stash') "
+      variant="outlined"
+      @input="onStash"
+    ></v-autocomplete>
+
   <div class="flex flex-row">
     <div
       class="hero-item-stash cursor-pointer text-slate-500 flex-shrink leading-10 pr-2"
