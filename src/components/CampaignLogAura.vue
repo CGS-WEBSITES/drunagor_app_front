@@ -32,14 +32,13 @@ watch(auraId, (newAuraId) => {
     <v-autocomplete
       clearable
       v-model="auraId"
-      label="Autocomplete"
       :items="auras"
       item-title="name"
       item-value="id"
       :label="$t('text.select-aura')"
       :hint="t('text.aura-info') "
       variant="outlined"
-    ></v-autocomplete>
+      ></v-autocomplete>      
 
     <v-sheet
       v-if="auraId"
