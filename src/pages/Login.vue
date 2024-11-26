@@ -505,6 +505,22 @@ export default {
     matchPasswords(value) {
       return value === this.password || "Passwords must match";
     },
+    isMobile() {
+      switch (this.$vuetify.breakpoint.name) {
+        case "xs":
+          return true;
+        case "sm":
+          return true;
+        case "md":
+          return true;
+        case "lg":
+          return false;
+        case "xl":
+          return false;
+        default:
+          return false;
+      }
+    },
     submitForm() {
       if (this.$refs.form.validate()) {
         console.log("Formulário válido e enviado");
