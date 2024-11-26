@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import Menubar from "primevue/menubar";
 import { useRouter } from "vue-router";
 
 const { t, locale } = useI18n();
@@ -15,7 +14,7 @@ function getMenuItems() {
       label: t("menu.random-monster"),
       icon: "mdi-help",
       command: () => {
-        router.push({ name: "Home" });
+        router.push({ name: "CampaignTracker" });
       },
     },
     {
