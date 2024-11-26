@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import InputGroup from "primevue/inputgroup";
-import InputGroupAddon from "primevue/inputgroupaddon";
-
 const props = defineProps<{
   id?: string;
   class?: string;
@@ -19,21 +16,19 @@ function search(event: Event) {
 </script>
 
 <template>
-  <div :id="props.id" :class="props.class">
-    <InputGroup>
-      <InputText
-        placeholder="Search"
+  <v-row no-gutters :id="props.id" :class="props.class">
+    <v-col cols="12">
+      <v-text-field
+        clearable
         name="search"
-        :value="props.value"
+        label="Search"
+        variant="outlined"
+        :v-model="props.value"
         @input="(event) => search(event)"
-      />
-      <InputGroupAddon>
-        <i class="pi pi-search"></i>
-      </InputGroupAddon>
-    </InputGroup>
-
-    <slot></slot>
-  </div>
+        append-icon="mdi-magnify"
+      ></v-text-field>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped></style>

@@ -3,12 +3,9 @@ import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { KeywordDataRepository } from "@/data/repository/KeywordDataRepository";
 import BaseListSearch from "@/components/BaseListSearch.vue";
-import { marked } from "marked";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
 import { useI18n } from "vue-i18n";
-import Card from "primevue/card";
-import Accordion from "primevue/accordion";
-import AccordionTab from "primevue/accordiontab";
+
 
 const { t } = useI18n();
 const route = useRoute();
@@ -31,8 +28,8 @@ let filteredKeyword = computed(() =>
         keyword.keyword
           .toLowerCase()
           .replace(/\s+/g, "")
-          .includes(query.value.toLowerCase().replace(/\s+/g, "")),
-      ),
+          .includes(query.value.toLowerCase().replace(/\s+/g, ""))
+      )
 );
 
 let query = ref("");
@@ -41,24 +38,28 @@ query.value = preselectedKeyword;
 
 <template>
   <div class="grid place-items-center w-full">
-    <Card class="w-full sticky top-16 z-10 mb-3">
-      <template #title> {{ t("menu.keyword") }} </template>
-      <template #content>
+    <v-card class="pa-6">
+      <v-card-title> {{ t("menu.keyword") }} </v-card-title>
+      <v-card-actions>
         <BaseListSearch
           id="keyword-search"
           @search="query = $event"
           :value="query"
         />
-      </template>
-    </Card>
-
-    <Accordion id="keyword-list" class="w-full">
-      <template v-for="keyword in filteredKeyword" :key="keyword.id">
-        <AccordionTab :header="keyword.keyword">
-          <span v-html="marked.parse(keyword.description)"></span>
-        </AccordionTab>
-      </template>
-    </Accordion>
+      </v-card-actions>
+      <v-card-text>
+        <v-expansion-panels color="blue-darken-4" >
+          <v-expansion-panel
+          class="my-2"
+            v-for="keyword in filteredKeyword"
+            :key="keyword.id"
+            :title="keyword.keyword"
+            :text="keyword.description"
+          >
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 
