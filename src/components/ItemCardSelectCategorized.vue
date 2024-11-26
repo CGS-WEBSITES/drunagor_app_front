@@ -18,8 +18,10 @@ const placeholder = "Select Bag Slot " + props.bagSlot;
 const selectedId = ref(props.value);
 const { t } = useI18n();
 
-let categories = computed(() => {
-  return props.categories.map((category) => {
+let items = computed(() => {
+  let globalItems: string[] = []
+  
+  props.categories.map((category) => {
     const translatedItems = category.items.map((item) => {
       return {
         ...item,
@@ -27,13 +29,12 @@ let categories = computed(() => {
       };
     });
 
-    const sortedItems = sortBy(translatedItems, ["name"]);
-
-    return {
-      ...category,
-      items: sortedItems,
-    };
+    sortBy(translatedItems, ["name"]).map((sortedItem)=>{
+      globalItems.push(sortedItem)
+    });
   });
+
+  return globalItems
 });
 
 function onStash() {
@@ -47,51 +48,17 @@ watch(selectedId, (newSelectedId) => {
 </script>
 
 <template>
-
-<v-autocomplete
-      clearable
-      v-model="selectedId"
-      :items="categories"
-      item-title="name"
-      item-value="id"
-      :label="placeholder"
-      :hint="$t('label.stash') "
-      variant="outlined"
-      @input="onStash"
-    ></v-autocomplete>
-
-  <div class="flex flex-row">
-    <div
-      class="hero-item-stash cursor-pointer text-slate-500 flex-shrink leading-10 pr-2"
-      @click="onStash"
-    >
-      {{ t("label.stash") }}
-    </div>
-    <div class="flex-auto" :data-testid="'item-bag-slot-' + props.bagSlot">
-      <Dropdown
-        v-model="selectedId"
-        :options="categories"
-        showClear
-        checkmark
-        filter
-        optionLabel="name"
-        optionValue="id"
-        optionGroupLabel="name"
-        optionGroupChildren="items"
-        :placeholder="placeholder"
-        class="w-full"
-      >
-        <template #option="slotProps">
-          {{ slotProps.option.name }}
-          <span
-            class="text-slate-500 text-xs px-2"
-            v-if="subTypeList(slotProps.option) !== ''"
-            >{{ subTypeList(slotProps.option) }}</span
-          >
-        </template>
-      </Dropdown>
-    </div>
-  </div>
+  <v-autocomplete
+    clearable
+    v-model="selectedId"
+    :items="items"
+    item-title="name"
+    item-value="id"
+    :label="placeholder"
+    :hint="$t('label.stash')"
+    variant="outlined"
+    @input="onStash"
+  ></v-autocomplete>
 </template>
 
 <style scoped></style>
