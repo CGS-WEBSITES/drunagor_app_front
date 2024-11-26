@@ -51,34 +51,37 @@ watch(stashedItemIds, (newStashedItemCardIds) => {
 </script>
 
 <template>
-  <span data-testid="item-stash">
-    <MultiSelect
+  <div>
+    <v-select
       v-model="stashedItemIds"
-      :options="items"
-      :maxSelectedLabels="1"
-      filter
-      optionLabel="name"
-      optionValue="id"
-      :placeholder="$t('text.add-or-remove-stashed-items')"
-      class="w-full md:w-14rem"
+      clearable
+      chips
+      :label="$t('text.add-or-remove-stashed-items')"
+      hint="Cannot be used during a scenario"
+      :items="items"
+      item-title="name"
+      item-value="id"
+      multiple
+      variant="outlined"
+    ></v-select>
+    <v-sheet
+      v-if="stashedItemIds.length > 0"
+      rounded
+      border="md"
+      class="mb-6 pa-6 text-white"
+      style="background-color: #1f2937 !important"
     >
-    </MultiSelect>
-    <template v-if="stashedItemIds.length > 0">
-      <p class="text-sm text-gray-500 py-2">
-        Cannot be used during a scenario.
-      </p>
-      <template
-        v-for="itemCard in findItemCards(stashedItemIds)"
-        :key="itemCard.id"
-      >
-        <ul id="hero-stash-display" class="list-disc list-inside">
-          <li>
-            {{ t(itemCard.translation_key) }}
-          </li>
-        </ul>
-      </template>
-    </template>
-  </span>
+      <ul>
+        <li
+          class="py-1"
+          v-for="itemCard in findItemCards(stashedItemIds)"
+          :key="itemCard.id"
+        >
+          {{ t(itemCard.translation_key) }}
+        </li>
+      </ul>
+    </v-sheet>
+  </div>
 </template>
 
 <style scoped></style>
