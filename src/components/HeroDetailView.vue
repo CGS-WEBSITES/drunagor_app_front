@@ -42,7 +42,7 @@ function onStash() {
 </script>
 
 <template>
-  <v-row no-gutters
+  <v-row no-gutters class="py-6"
     ><v-col cols="12">
       <v-btn variant="outlined" @click="$router.go(-1)">{{
         t("label.back")
@@ -80,7 +80,7 @@ function onStash() {
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-row no-gutters
+          <v-row no-gutters class="px-6"
             ><v-col cols="12">
               <v-divider></v-divider>
 
@@ -105,6 +105,7 @@ function onStash() {
                 :repository="repository"
                 :hero-id="heroId"
                 :key="stash"
+                class="px-2"
               /> </v-col
             ><v-col cols="12">
               <v-divider></v-divider>
@@ -120,32 +121,6 @@ function onStash() {
         </v-card-actions>
       </v-card> </v-col
   ></v-row>
-  <div
-    id="hero-card"
-    class="bg-neutral form-control drop-shadow rounded-lg p-4 mt-4"
-    style="background-color: #1f2937"
-  >
-    <div class="flex h-28">
-      <div>
-        <img
-          class="-ml-1 w-14 rounded-full hero-image"
-          :src="hero.images.avatar"
-        />
-      </div>
-      <div class="pl-8">
-        <p>{{ hero.name }}</p>
-        <p>
-          {{ t("label." + hero.race.toLowerCase()) }}
-          {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
-        </p>
-        <p>
-          {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
-        </p>
-      </div>
-    </div>
-
-    <Divider>{{ t("label.equipment") }}</Divider>
-  </div>
 </template>
 
 <style scoped>
