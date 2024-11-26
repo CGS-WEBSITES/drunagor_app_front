@@ -31,7 +31,7 @@ if (typeof campaignHero.equipment === "undefined") {
 
 <template>
   <v-row no-gutters>
-    <v-col cols="12" class="px-6 py-1">
+    <v-col cols="12" class="py-1">
       <v-label>
         <v-switch
           v-model="filterProficiencies"
@@ -44,7 +44,7 @@ if (typeof campaignHero.equipment === "undefined") {
       </v-label>
     </v-col>
 
-    <v-col cols="12" class="px-6 py-1">
+    <v-col cols="12" class="py-1">
       <div class="pb-3">
         <span>{{ t("label.weapon") }}</span>
       </div>
@@ -58,7 +58,7 @@ if (typeof campaignHero.equipment === "undefined") {
       />
     </v-col>
 
-    <v-col cols="12" class="px-6 py-1">
+    <v-col cols="12" class="py-1">
       <div class="pb-3">
         <span>{{ t("label.off-hand") }}</span>
       </div>
@@ -73,7 +73,7 @@ if (typeof campaignHero.equipment === "undefined") {
       </CampaignHeroOffHand>
     </v-col>
 
-    <v-col cols="12" class="px-6 py-1">
+    <v-col cols="12" class="py-1">
       <div class="pb-3">
         <span>{{ t("label.armor") }}</span>
       </div>
@@ -87,7 +87,7 @@ if (typeof campaignHero.equipment === "undefined") {
       >
       </CampaignHeroArmor>
     </v-col>
-    <v-col cols="12" class="px-6 py-1">
+    <v-col cols="12" class="py-1">
       <div class="pb-3">
         <span>{{ t("label.trinket") }}</span>
       </div>
@@ -100,8 +100,8 @@ if (typeof campaignHero.equipment === "undefined") {
       </CampaignHeroTrinket>
     </v-col>
   </v-row>
-  <v-col cols="12" class="px-6 py-1">
-    <div class="">
+  <v-col cols="12" class="py-1">
+    <div class="pb-3">
       <span>{{ t("label.bag-slot") }} 1</span>
     </div>
     <CampaignHeroBagItem
@@ -113,21 +113,20 @@ if (typeof campaignHero.equipment === "undefined") {
     >
     </CampaignHeroBagItem>
   </v-col>
-  <div class="mt-8">
-    <v-col cols="12" class="px-6 py-1">
-      <div class="pb-3">
-        <span>{{ t("label.bag-slot") }} 2</span>
-      </div>
-      <CampaignHeroBagItem
-        :campaign-id="campaignId"
-        :hero-id="heroId"
-        :cards-data-repository="repository"
-        :bagSlot="2"
-        @stash="$emit('stash')"
-      >
-      </CampaignHeroBagItem>
-    </v-col>
-  </div>
+
+  <v-col cols="12" class="py-1">
+    <div class="pb-3">
+      <span>{{ t("label.bag-slot") }} 2</span>
+    </div>
+    <CampaignHeroBagItem
+      :campaign-id="campaignId"
+      :hero-id="heroId"
+      :cards-data-repository="repository"
+      :bagSlot="2"
+      @stash="$emit('stash')"
+    >
+    </CampaignHeroBagItem>
+  </v-col>
 </template>
 
 <style scoped></style>
