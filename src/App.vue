@@ -11,6 +11,7 @@
             Campaign Tracker
           </v-btn>
           <v-btn @click="$router.push({ name: 'Teste' })">teste</v-btn>
+          <v-btn @click="$router.push({ name: 'Dashboard' })">Dashboard</v-btn>
           <v-btn variant="icon" @click="toggleTheme()"
             ><v-icon>mdi-theme-light-dark</v-icon></v-btn
           >
@@ -22,6 +23,41 @@
         <router-view />
       </v-row>
     </v-main>
+     <!-- Footer Section -->
+     <v-footer class="footer black bg-black pb-12" padless>
+      <v-container fluid>
+        <v-row justify="center" align="center" class="text-center">
+          <v-col cols="12" sm="4">
+            <v-img
+              class="logocgs mx-auto"
+              src="@/assets/cgs.png"
+              max-width="92"
+              alt="logo"
+            />
+          </v-col>
+
+          <v-col cols="12" sm="4" class="info-footer text-center">
+            <h3 class="white--text">Footer Infos Here</h3>
+            <p class="white--text">Big name info 1</p>
+            <p class="white--text">Big name info 2</p>
+            <p class="white--text">Big name info 3</p>
+          </v-col>
+
+          <v-col cols="12" sm="4" class="text-center">
+            <h3 class="white--text">Social medias</h3>
+            <v-btn fab icon color="black" dark>
+              <v-icon color="white">mdi-instagram</v-icon>
+            </v-btn>
+            <v-btn fab icon color="black" dark>
+              <v-icon color="white">mdi-facebook</v-icon>
+            </v-btn>
+            <v-btn fab icon color="black" dark>
+              <v-icon color="white">mdi-youtube</v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-footer>
   </v-app>
 </template>
 <script setup lang="ts">
