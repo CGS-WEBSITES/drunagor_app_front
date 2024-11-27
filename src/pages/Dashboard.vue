@@ -108,17 +108,6 @@
   ></v-app-bar-nav-icon>
 </v-app-bar>
 
-
-
-
-
-
-
-
-
-
-
->>>>>>> Stashed changes
   <!-- Navigation Boxes Section -->
   <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
     <v-col cols="12" sm="10" md="8" class="px-6">

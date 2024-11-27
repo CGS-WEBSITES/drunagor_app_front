@@ -61,7 +61,6 @@
   </v-app>
 </template>
 <script setup lang="ts">
-import Toast from "primevue/toast";
 import { ref } from "vue";
 
 const theme = ref("dark");

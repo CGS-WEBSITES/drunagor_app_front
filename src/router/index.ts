@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Login from "@/pages/Login.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,7 +6,12 @@ const router = createRouter({
     {
       path: "/",
       name: "Login",
-      component: Login,
+      component: ,
+    },
+    {
+      path: "/dashboard",
+      name: "Dashboard",
+      component: () => import("@/pages/Dashboard.vue"),
     },
     {
       path: "/tracker-parent",
@@ -53,6 +57,7 @@ const router = createRouter({
         },
       ],
     },
+    
   ],
 });
 
