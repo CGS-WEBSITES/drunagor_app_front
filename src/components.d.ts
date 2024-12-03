@@ -7,6 +7,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Dialog: typeof import('./components/Library/Dialog.vue')['default']
+    Filters: typeof import('./components/Library/Filters.vue')['default']
+    'Filters.vue': typeof import('./components/Library/Filters.vue.vue')['default']
+    ItemDialog: typeof import('./components/Library/ItemDialog.vue')['default']
+    LibraryFilters: typeof import('./components/Library/LibraryFilters.vue')['default']
+    LibraryHeader: typeof import('./components/Library/LibraryHeader.vue')['default']
+    LibraryPage: typeof import('./components/Library/LibraryPage.vue')['default']
+    ProductCard: typeof import('./components/Library/ProductCard.vue')['default']
+    ProductDialog: typeof import('./components/Library/ProductDialog.vue')['default']
+    ProductGallery: typeof import('./components/Library/ProductGallery.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

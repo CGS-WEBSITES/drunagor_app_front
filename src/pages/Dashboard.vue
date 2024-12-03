@@ -1,7 +1,7 @@
 <template>
   <!-- Profile Section -->
    <v-main>
-    <v-row class="d-flex justify-center align-center ma-0 w-100" >
+    <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="10" md="8" class="px-6">
       <v-card>
         <v-row no-gutters>
@@ -41,7 +41,7 @@
   location="right"
   temporary
   width="435"
-  class="bg-black bg-opacity-20 d-none d-lg-flex"
+  class="d-none d-md-flex"
   style="top: 50px;"
 >
   <v-list class="me-4"> <!-- Substitui "margin-right" -->
@@ -83,8 +83,18 @@
 </v-navigation-drawer>
 
 <!-- Toolbar (Barra de Topo) -->
-<v-app-bar app height="50">
-  <v-toolbar-title></v-toolbar-title>
+<v-app-bar app height="50" class="hidden-md-and-down" color="black">
+  <div class="d-flex align-center pl-6"> <!-- Ajuste o padding com pl-6 -->
+    <v-img
+      src="@/assets/darknessl.png"
+      height="30"
+      width="30"
+      alt="Drunagor Icon"
+      contain
+      class="mr-2"
+    ></v-img>
+    <span>App Drunagor</span>
+  </div>
   <v-spacer></v-spacer>
   <!-- Botão de Navegação alinhado à direita -->
   <v-app-bar-nav-icon
@@ -189,7 +199,7 @@
 
   <!-- Main Event Cards Section -->
   <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
-    <v-col cols="12" sm="10" md="8" class="px-2 bg-black">
+    <v-col cols="12" sm="10" md="8" class="px-2 bg-black rounded">
       <v-card-text
         class="text-h4 white--text color-white bg-black "
         color="white"
@@ -478,33 +488,34 @@
 
 
   <!-- Fixed Bottom Navigation for Mobile -->
-<v-bottom-navigation
+  <v-bottom-navigation
   app
   v-model="bottomNavVisible"
   class="hidden-md-and-up fixed bg-black text-white"
   elevation="10"
 >
-  <v-btn @click="action1">
+  <v-btn @click="action1" small>
     <v-icon>mdi-home</v-icon>
   </v-btn>
-  <v-btn @click="action2">
+  <v-btn @click="action2" small>
     <v-icon>mdi-magnify</v-icon>
   </v-btn>
-  <v-btn @click="action3">
+  <v-btn @click="action3" small>
     <v-icon>mdi-plus-circle</v-icon>
   </v-btn>
-  <v-btn @click="action4">
+  <v-btn @click="action4" small>
     <v-icon>mdi-heart</v-icon>
   </v-btn>
-  <v-btn @click="action5">
+  <v-btn @click="action5" small>
     <v-icon>mdi-account</v-icon>
   </v-btn>
 </v-bottom-navigation>
 
 
 
+
   <!-- Notification Button -->
-  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6" style="z-index: 10">
+  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6">
     <v-col cols="auto">
       <v-badge color="red" content="10" overlap>
         <v-btn fab dark color="black" @click="showPopup = !showPopup">

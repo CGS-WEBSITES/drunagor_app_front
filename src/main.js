@@ -6,6 +6,7 @@
 
 // Plugins
 import { registerPlugins } from '@/plugins'
+import '@mdi/font/css/materialdesignicons.css';
 
 // Vuetify
 import { createVuetify } from 'vuetify'
