@@ -6,10 +6,13 @@ import Layouts from 'vite-plugin-vue-layouts'
 import Vue from '@vitejs/plugin-vue'
 import VueRouter from 'unplugin-vue-router/vite'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 // Utilities
 import { defineConfig } from 'vite'
 import { fileURLToPath, URL } from 'node:url'
+import ViteYaml from "@modyfi/vite-plugin-yaml";
+import { splitVendorChunkPlugin } from "vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,7 +20,9 @@ export default defineConfig({
     VueRouter({
       dts: 'src/typed-router.d.ts',
     }),
+    ViteYaml(),
     Layouts(),
+    splitVendorChunkPlugin(),
     AutoImport({
       imports: [
         'vue',
@@ -37,6 +42,7 @@ export default defineConfig({
     Vue({
       template: { transformAssetUrls },
     }),
+    vueDevTools(),
     // https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin#readme
     Vuetify({
       autoImport: true,
@@ -70,5 +76,8 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+  },
+  optimizeDeps: {
+    include: ["@/locales/**/*.yaml"],
   },
 })

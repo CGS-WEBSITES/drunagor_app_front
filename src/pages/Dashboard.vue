@@ -1,146 +1,144 @@
 <template>
   <!-- Profile Section -->
-
-
-  
-
    <v-main>
-    <v-row class="d-flex justify-center align-center ma-0">
-    <v-col cols="12" sm="12" md="12" class="px-12" style="max-width: 955px;">
-      <v-card flat style="background-color: rgba(0, 0, 0, 0);"
-      image="">
-        
+    <v-row class="d-flex justify-center align-center ma-0 w-100" >
+      <v-col cols="12" sm="10" md="8" class="px-6">
+      <v-card>
         <v-row no-gutters>
-          <!-- Coluna da imagem de perfil -->
-          <v-col cols="3" class="d-flex justify-center align-center">
-            <v-img
-              src="@/assets/library.png"
-              alt="Profile"
-              max-width="150px"
-              max-height="150px"
-              class="profile-image"
-              />
-        </v-col>
-        <v-col cols="9">
-          <v-card-title>MAGOVEIO92MAGI</v-card-title>
-          <v-card-subtitle>RANKING: 5123</v-card-subtitle>
-          <!-- Ícones abaixo do nome -->
-          <v-row no-gutters>
-            <v-col cols="auto" class="mr-2 pl-3">
-              <v-icon>mdi-shield</v-icon>
-            </v-col>
-            <v-col cols="auto" class="mr-2">
-              <v-icon>mdi-sword</v-icon>
-            </v-col>
-            <v-col cols="auto" class="mr-2">
-              <v-icon>mdi-book</v-icon>
-            </v-col>
-            <v-col cols="auto">
-              <v-icon>mdi-map</v-icon>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-card>
-  </v-col>
-</v-row>
-
-
-  
-  
-<!-- Navigation Drawer (Barra de Navegação Lateral à Direita em Modo Temporário) -->
-<v-navigation-drawer
-      v-model="drawer"
-      app
-      location = "right"
-      temporary
-      width="435"
-      style="top: 65px;
-      background-color: rgba(0, 0, 0, 0.20);"
-      class="px-10"
-    >
-      <v-list >
-        <v-list-item style="height: 114px">
-    <v-row align="center" class="w-158">
-      <!-- Coluna para o texto à esquerda -->
-      <v-col cols="8">
-        <v-list-item-title>Magoveio92magi</v-list-item-title>
-        <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
-      </v-col>
-
-      <!-- Coluna para o avatar à direita -->
-      <v-col cols="4" class="d-flex justify-end">
-        <v-avatar size= 100px >
-          <v-img src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp" alt="Avatar" />
-        </v-avatar>
-      </v-col>
-    </v-row>
-  </v-list-item>
-
-        <v-list-item
-          v-for="(item, index) in menuItems"
-          :key="index"
-          link
-          @click="selectItem(item)"
-          :class="{ 'v-list-item--active': selectedItem === item }"
-        >
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
-    <!-- Toolbar (Barra de Topo) -->
-    <v-app-bar app dense class="px-6">
-  <v-toolbar-title>DRUNAGOR APP</v-toolbar-title>
-  <v-container class="d-flex justify-center" style="flex: 1;">
-    <!-- Botão de Navegação centralizado -->
-    <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-  </v-container>
-</v-app-bar>
-
-
-    <v-container class="my-background" fluid>
-    <div>
-    <!-- Seção de Navegação -->
-    <v-row class="d-flex justify-center align-center ma-0">
-      <v-col cols="12" sm="4" md="12" class="px-4" style="max-width: 955px;">
-        
-        <!-- Carrossel para dispositivos móveis -->
-        <v-carousel v-if="isMobile" hide-delimiters height="400px">
-          <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-            <v-card :style="{ height: '400px' }" class="mx-auto">
-              <v-img :src="item.img" height="300" cover />
-              <v-card-actions>
-                <v-row class="d-flex justify-center">
-                  <v-btn class="text-center">{{ item.label }}</v-btn>
-                </v-row>
-              </v-card-actions>
-            </v-card>
-          </v-carousel-item>
-        </v-carousel>
-        
-        <!-- Layout em colunas para desktop -->
-        <v-row v-else align="center" justify="center">
-          <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
-            <v-card flat class="border" :style="{ height: 'auto' }">
-              <v-img :src="item.img" height="200" cover />
-              <v-card-actions>
-                <v-row class="d-flex justify-center">
-                  <v-btn class="text-center">{{ item.label }}</v-btn>
-                </v-row>
-              </v-card-actions>
-            </v-card>
+          <v-col cols="3">
+            <v-avatar size="100">
+              <v-img src="@/assets/library.png" alt="Profile" />
+            </v-avatar>
+          </v-col>
+          <v-col cols="9">
+            <v-card-title>MAGOVEIO92MAGI</v-card-title>
+            <v-card-subtitle>RANKING: 5123</v-card-subtitle>
+            <!-- Icons below the name -->
+            <v-row no-gutters>
+              <v-col cols="auto" class="mr-2 pl-3">
+                <v-icon>mdi-shield</v-icon>
+              </v-col>
+              <v-col cols="auto" class="mr-2">
+                <v-icon>mdi-sword</v-icon>
+              </v-col>
+              <v-col cols="auto" class="mr-2">
+                <v-icon>mdi-book</v-icon>
+              </v-col>
+              <v-col cols="auto">
+                <v-icon>mdi-map</v-icon>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
+      </v-card>
+    </v-col>
+  </v-row>
 
-      </v-col>
-    </v-row>
+
+
+  <!-- Navigation Drawer (Barra de Navegação Lateral à Direita em Modo Temporário) -->
+  <v-navigation-drawer
+  v-model="drawer"
+  app
+  location="right"
+  temporary
+  width="435"
+  class="bg-black bg-opacity-20 d-none d-lg-flex"
+  style="top: 50px;"
+>
+  <v-list class="me-4">
+    <!-- Item do Usuário -->
+    <v-list-item class="py-5">
+      <v-row align="center" class="w-168">
+        <!-- Coluna para o texto à esquerda -->
+        <v-col cols="8">
+          <v-list-item-title>Magoveio92magi</v-list-item-title>
+          <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
+        </v-col>
+
+        <!-- Coluna para o avatar à direita -->
+        <v-col cols="4" class="d-flex justify-end">
+          <v-avatar size="100">
+            <v-img
+              src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
+              alt="Avatar"
+            />
+          </v-avatar>
+        </v-col>
+      </v-row>
+    </v-list-item>
+
+    <!-- Itens do Menu -->
+    <v-list-item
+      v-for="(item, index) in menuItems"
+      :key="index"
+      link
+      @click="selectItem(item)"
+      :class="{ 'v-list-item--active': selectedItem === item }"
+    >
+      <v-list-item-icon>
+        <v-icon>{{ item.icon }}</v-icon>
+      </v-list-item-icon>
+      <v-list-item-content>
+        <v-list-item-title>{{ item.title }}</v-list-item-title>
+      </v-list-item-content>
+    </v-list-item>
+  </v-list>
+</v-navigation-drawer>
+
+
+<!-- Toolbar (Barra de Topo) -->
+<v-app-bar app height="50" class="hidden-md-and-down" color="black">
+  <div class="d-flex align-center pl-16"> <!-- Ajuste o padding com pl-6 -->
+    <v-img
+      src="@/assets/darknessl.png"
+      height="30"
+      width="30"
+      alt="Drunagor Icon"
+      contain
+      class="mr-2"
+    ></v-img>
+    <span>App Drunagor</span>
   </div>
+  <v-spacer></v-spacer>
+  <!-- Botão de Navegação alinhado à direita -->
+  <v-app-bar-nav-icon
+    class="pr-16"
+    @click="drawer = !drawer"
+  ></v-app-bar-nav-icon>
+</v-app-bar>
+
+  <!-- Navigation Boxes Section -->
+  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
+    <v-col cols="12" sm="10" md="8" class="px-6">
+      <!-- Carrossel para dispositivos móveis -->
+      <v-carousel hide-delimiters height="400px" v-if="isMobile">
+        <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
+          <v-card :style="{ height: '400px' }" class="mx-auto">
+            <v-img :src="item.img" height="300" cover />
+            <v-card-actions>
+              <v-row class="d-flex justify-center">
+                <v-btn class="text-center">{{ item.label }}</v-btn>
+              </v-row>
+            </v-card-actions>
+          </v-card>
+        </v-carousel-item>
+      </v-carousel>
+
+      <v-row v-else align="center" justify="center">
+        <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
+          <v-card :style="{ height: isMobile ? '400px' : 'auto' }" flat class="border">
+            <v-img :src="item.img" height="300" cover />
+            <v-card-actions>
+              <v-row class="d-flex justify-center">
+                <v-btn class="text-center">{{ item.label }}</v-btn>
+              </v-row>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-col>
+  </v-row>
 
 
   <!-- Carousel Section -->
@@ -149,9 +147,9 @@
     class="mt-4 d-flex justify-center align-center ma-0 w-100"
   >
   <v-col cols="12" sm="10" md="9" class="px-8">
-      <v-carousel hide-delimiters  height="300px">
+      <v-carousel hide-delimiters height="300px">
         <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
-          <v-card class="mx-auto" width="120%">
+          <v-card class="mx-auto" width="80%">
             <v-img src="@/assets/campaign.jpg" height="200" cover />
             <v-card-title>Campaign 0%</v-card-title>
             <v-card-subtitle
@@ -168,14 +166,14 @@
 
   <v-row
     v-else
-    class="d-flex justify-center align-center ma-0">
+    class="mt-4 d-flex justify-center align-center ma-0 w-100"
   >
-    <v-col cols="12" sm="12" md="12" class="px-4" style="max-width: 956px;">
+  <v-col cols="12" sm="10" md="9" class="px-8">
       <v-carousel hide-delimiters height="300px">
         <v-carousel-item v-for="i in 3" :key="`desktop-${i}`">
           <v-row>
             <v-col cols="6">
-              <v-card class="mx-auto" width="100%">
+              <v-card class="mx-auto" width="80%">
                 <v-img src="@/assets/campaign.jpg" height="200" cover />
                 <v-card-title>Campaign 0%</v-card-title>
                 <v-card-subtitle
@@ -187,7 +185,7 @@
               </v-card>
             </v-col>
             <v-col cols="6">
-              <v-card class="mx-auto" width="100%">
+              <v-card class="mx-auto" width="80%">
                 <v-img src="@/assets/campaign.jpg" height="200" cover />
                 <v-card-title>Campaign 0%</v-card-title>
                 <v-card-subtitle>Awakenings</v-card-subtitle>
@@ -202,17 +200,11 @@
     </v-col>
   </v-row>
 
-</v-container>
-
-
-
   <!-- Main Event Cards Section -->
-  
-  <v-row class="d-flex justify-center align-center ma-0">
-    <v-col cols="12" sm="6" md="6" class="px-4" style="max-width: 955px;">
-      <v-container class="my-background2" fluid>
+  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
+    <v-col cols="12" sm="10" md="8" class="px-2 bg-black">
       <v-card-text
-        class="text-h4 white--text color-white bg-#212121 "
+        class="text-h4 white--text color-white bg-black "
         color="white"
       >
         EVENTS
@@ -240,16 +232,16 @@
                 >
                   <v-list-item-content>
                     <v-row>
-                      <v-col cols="2">
-                        <v-avatar size="50">
+                      <v-col cols="3">
+                        <v-avatar size="60">
                           <v-img
                             src="@/assets/perfil.webp"
                             alt="Profile"
                           ></v-img>
                         </v-avatar>
                       </v-col>
-                      <v-col cols="7">
-                        <v-list-item-title class="text-h8 white--text">
+                      <v-col cols="6">
+                        <v-list-item-title class="text-h6 white--text">
                           EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
                         </v-list-item-title>
                         <v-list-item-subtitle
@@ -266,7 +258,7 @@
                           >mdi-map-marker</v-icon
                         >
                         <v-list-item-subtitle
-                          class="text-subtitle-h2 white--text"
+                          class="text-subtitle-1 white--text"
                           >12/29/24</v-list-item-subtitle
                         >
                       </v-col>
@@ -297,16 +289,16 @@
                 >
                   <v-list-item-content>
                     <v-row>
-                      <v-col cols="2">
-                        <v-avatar size="50">
+                      <v-col cols="3">
+                        <v-avatar size="60">
                           <v-img
                             src="@/assets/perfil.webp"
                             alt="Profile"
                           ></v-img>
                         </v-avatar>
                       </v-col>
-                      <v-col cols="7">
-                        <v-list-item-title class="text-h8 white--text">
+                      <v-col cols="6">
+                        <v-list-item-title class="text-h6 white--text">
                           EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
                         </v-list-item-title>
                         <v-list-item-subtitle
@@ -323,7 +315,7 @@
                           >mdi-map-marker</v-icon
                         >
                         <v-list-item-subtitle
-                          class="text-subtitle-h2 white--text"
+                          class="text-subtitle-1 white--text"
                           >12/29/24</v-list-item-subtitle
                         >
                       </v-col>
@@ -335,9 +327,6 @@
           </v-card>
         </v-col>
       </v-row>
-      
-    </v-container>
-  
 
       <!-- Dialog for Event Details -->
       <v-dialog v-model="dialog" max-width="600px">
@@ -451,60 +440,52 @@
     </v-col>
   </v-row>
 
+  <!-- My Library Section -->
 
-  <<!-- My Library Section -->
-<v-row class="d-flex justify-center align-center ma-0">
-  <v-col cols="12" sm="12" md="12" class="px-4" style="max-width: 955px;">
-    <!-- Container com fundo branco -->
-    <v-container class="my-background3" fluid>
-      <!-- Title for My Library -->
-      <v-card-text
-        class="text-h5 white--text color-white bg-white "
-        color="black"
-      >
-        MY LIBRARY
-      </v-card-text>
+  <!-- Title for My Library -->
+  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
+    <v-col cols="12" sm="10" md="8" class="px-6">
+    <v-card-title class="text-h5 font-weight-bold">MY LIBRARY</v-card-title>
+  </v-col>
+</v-row>
 
-      <!-- Library Section -->
-      <v-row class="d-flex justify-center align-center ma-0">
-        <v-col cols="12" sm="12" md="12" class="px-4" style="max-width: 955px;">
-          <!-- Buttons for Library Items -->
-          <v-row>
-            <!-- Ajuste para ocupar 12 colunas em telas menores, e 6 em telas maiores -->
-            <v-col :cols="12" md="6">
-              <v-btn block color="grey darken-2" class="white--text" height="60">
-                AWAKENINGS
-              </v-btn>
-            </v-col>
-            <v-col :cols="12" md="6" class="mt-2 mt-md-0">
-              <v-btn block color="grey darken-2" class="white--text" height="60">
-                COREBOX
-              </v-btn>
-            </v-col>
-          </v-row>
+<!-- Library Section -->
+<v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
+  <v-col cols="12" sm="10" md="8" class="px-6">
+    <!-- Buttons for Library Items -->
+    <v-row>
+      <!-- Ajuste para ocupar 12 colunas em telas menores, e 6 em telas maiores -->
+      <v-col :cols="12" md="6">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          AWAKENINGS
+        </v-btn>
+      </v-col>
+      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          COREBOX
+        </v-btn>
+      </v-col>
+    </v-row>
 
-          <v-row class="mt-2 mt-md-4">
-            <v-col :cols="12" md="6">
-              <v-btn block color="grey darken-2" class="white--text" height="60">
-                APOCALYPSE
-              </v-btn>
-            </v-col>
-            <v-col :cols="12" md="6" class="mt-2 mt-md-0">
-              <v-btn block color="grey darken-2" class="white--text" height="60">
-                RISE OF THE UNDEAD DRAGON
-              </v-btn>
-            </v-col>
-          </v-row>
+    <v-row class="mt-2 mt-md-4">
+      <v-col :cols="12" md="6">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          APOCALYPSE
+        </v-btn>
+      </v-col>
+      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
+        <v-btn block color="grey darken-2" class="white--text" height="60">
+          RISE OF THE UNDEAD DRAGON
+        </v-btn>
+      </v-col>
+    </v-row>
 
-          <!-- Manage Library Button -->
-          <v-row class="mt-4">
-            <v-col cols="12" class="text-right">
-              <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-container>
+    <!-- Manage Library Button -->
+    <v-row class="mt-4">
+      <v-col cols="12" class="text-right">
+        <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
+      </v-col>
+    </v-row>
   </v-col>
 </v-row>
 
@@ -536,11 +517,11 @@
 
 
   <!-- Notification Button -->
-  <v-row class=" position-fixed bottom-0 right-0 mb-16 mr-6" style="z-index: 10">
+  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6" style="z-index: 10">
     <v-col cols="auto">
-      <v-badge color="red" content="10" overlap>
-        <v-btn fab dark color="00FFFFFF" @click="showPopup = !showPopup">
-          <v-icon class="bg-surface-variant rounded-pill mx-auto" >mdi-bell</v-icon>
+      <v-badge color="red" content="10" overlap location="top-end">
+        <v-btn fab dark color="black" @click="showPopup = !showPopup">
+          <v-icon>mdi-bell</v-icon>
         </v-btn>
       </v-badge>
     </v-col>
@@ -562,12 +543,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref,} from "vue";
-
-
-
-
-
+import { ref, onMounted, onUnmounted } from "vue";
 
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
@@ -578,22 +554,20 @@ function handleScroll() {
 }
 
 // Configurações de evento para rolagem
- onMounted(() => {
-   window.addEventListener("scroll", handleScroll);
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll);
   isMobile.value = window.innerWidth <= 600;
   window.addEventListener("resize", () => {
     isMobile.value = window.innerWidth <= 600;
   });
- });
-
-
+});
 
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
 
 // Verificação de mobile
- const isMobile = ref(false);
+const isMobile = ref(false);
 
 // Dados do carrossel
 const carouselItems = ref([
@@ -622,6 +596,7 @@ const drawer = ref(false); // Controle do drawer lateral
 
 // Itens do menu de navegação
 const menuItems = ref([
+  { title: "Dashboard", icon: "mdi-view-dashboard" },
   { title: "Campaign", icon: "mdi-flag" },
   { title: "Library", icon: "mdi-book" },
   { title: "Profile", icon: "mdi-account" },
@@ -672,59 +647,16 @@ const openGoogleMaps = (place: { name: string }) => {
 </script>
 
 
-<style scoped>
 
-html, body, #app {
-  background-color: white;
-}
+
+
+
+<style>
+
 
 .v-badge__badge {
   position: absolute;
   top: -5px;
   right: -5px;
 }
-
-.v-toolbar__content{
-  height: auto !important;
-  max-width: 64px;
-}
-
-.my-background {
-  background-color: white;
-  padding: 60px 10px 10px 10px;
-  max-width: 880px; /* Largura máxima opcional */
-  margin: auto; /* Centraliza a caixa */
-  margin-top: -40px;
-  border-radius: 4px; /* Deixa as bordas arredondadas */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
-  
-}
-
-.my-background2 {
-  background-color: #212121 ;
-  padding: 10px 10px 10px 10px;
-  max-width: 883px; /* Largura máxima opcional */
-  margin: auto; /* Centraliza a caixa */
-  margin-top: -40px;
-  border-radius: 2px; /* Deixa as bordas arredondadas */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
-  
-}
-.my-background3 {
-  background-color: white ;
-  padding: 10px 10px 10px 10px;
-  max-width: 883px; /* Largura máxima opcional */
-  margin: auto; /* Centraliza a caixa */
-  margin-top: -50px;
-  border-radius: 2px; /* Deixa as bordas arredondadas */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Adiciona uma sombra leve */
-  
-}
-
-.profile-image {
-  border-radius: 0; /* Remove as bordas arredondadas */
-  object-fit: cover; /* Garante que a imagem preencha todo o espaço */
-  border: 2px solid #fff; /* Opcional: borda para destacar a imagem */
-}
-
 </style>
