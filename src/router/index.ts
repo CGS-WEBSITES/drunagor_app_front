@@ -23,11 +23,8 @@ const router = createRouter({
       name: "Dashboard",
       component: Dashboard,
     },
-    {
-      path: "/perfil", // Defina a rota para o arquivo Dashboard.vue
-      name: "Perfil",
-      component: Perfil,
-    },
+    
+   
     {
       path: '/library',
       name: 'Library',

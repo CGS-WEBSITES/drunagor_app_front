@@ -171,7 +171,7 @@ export default defineComponent({
     const itemsPerPage = ref(6);
 
     const filteredProducts = ref(products.value);
-
+ 
     const paginatedProducts = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage.value;
       const end = start + itemsPerPage.value;
@@ -188,7 +188,7 @@ export default defineComponent({
       "Desert of Hellscar",
     ];
     const contentOptions = ["Core", "Cosmetic", "Game Content"];
-    const componentTypes = ["Books", "Cards", "Miniatures", "Maps"];
+    const componentTypes = ["Books", "Cards", "Miniatures", "Maps", " Doors", "Playerboards", "Punchboards", "Scorepad", "Trays"];
     const nameFilter = ["A-Z", "Z-A"];
 
     const showFilters = ref(false);

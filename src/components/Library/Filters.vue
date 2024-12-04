@@ -9,11 +9,13 @@
           <v-col cols="6">
             <v-btn
               block
-              height="36"
+              size="small"  
               rounded="lg"
               color="#0E7576"
               variant="flat"
               @click="$emit('update:filterStatus', 'owned')"
+              class="text--sm"  
+              :style="{ whiteSpace: 'normal' }"
             >
               OWNED
             </v-btn>
@@ -21,11 +23,13 @@
           <v-col cols="6">
             <v-btn
               block
-              height="36"
+              size="small"  
               rounded="lg"
               color="#947A11"
               variant="flat"
               @click="$emit('update:filterStatus', 'wishlist')"
+              class="text--sm"  
+              :style="{ whiteSpace: 'normal' }"
             >
               WISHLIST
             </v-btn>
@@ -44,11 +48,13 @@
           <v-col cols="6">
             <v-btn
               block
-              height="36"
+              size="small"  
               rounded="lg"
               color="#5D3C76"
               variant="flat"
               @click="$emit('update:rewardsStatus', 'rewards_owned')"
+              class="text--sm"  
+              :style="{ whiteSpace: 'normal' }"
             >
               REWARDS OWNED
             </v-btn>
@@ -56,11 +62,13 @@
           <v-col cols="6">
             <v-btn
               block
-              height="36"
+              size="small"  
               rounded="lg"
               color="#5D3C76"
               variant="flat"
               @click="$emit('update:rewardsStatus', 'all_rewards')"
+              class="text--sm"  
+              :style="{ whiteSpace: 'normal' }"
             >
               ALL REWARDS
             </v-btn>
@@ -117,14 +125,14 @@
           <span class="white--text">NAME</span>
         </div>
         <v-select
-        :model="nameFilter"
-        @update:model-value="$emit('update:nameFilter', $event)"
-        label="NAME"
-        :items="nameOptions"
-        variant="outlined"
-        density="compact"
-        class="mb-4"
-        color="grey-darken-3"
+          :model="nameFilter"
+          @update:model-value="$emit('update:nameFilter', $event)"
+          label="NAME"
+          :items="nameOptions"
+          variant="outlined"
+          density="compact"
+          class="mb-4"
+          color="grey-darken-3"
         ></v-select>
       </v-card-text>
     </div>
@@ -135,7 +143,7 @@
         block
         color="black"
         style="background-color: white;"
-        height="36"
+        size="small"  
         @click="$emit('apply-filters')"
       >
         APPLY
