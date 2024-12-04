@@ -66,7 +66,7 @@ import { ref } from "vue";
 const theme = ref("dark");
 
 const toggleTheme = () => {
-  theme.value = theme.value == "dark" ? "light" : "dark";
+  theme.value = theme.value == "dark" ? "myCustomTheme" : "dark";
 };
 </script>
 <style>

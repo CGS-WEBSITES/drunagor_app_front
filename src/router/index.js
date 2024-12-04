@@ -14,6 +14,23 @@ const router = createRouter({
       component: () => import("@/pages/Dashboard.vue"),
     },
     {
+      path: "/perfil",
+      name: "Perfil",
+      component: () => import("@/pages/Perfil.vue"),
+      children:[
+        {
+          path: "/perfil/home",
+          name: "PerfilHome",
+          component: () => import("@/components/PerfilHome.vue"),
+        },
+        {
+          path: "/perfil/friend-store",
+          name: "FriendStore",
+          component: () => import("@/components/FriendStore.vue"),
+        },
+      ]
+    },
+    {
       path: "/tracker-parent",
       name: "TrackerParent",
       component: () => import("@/pages/CampaignTracker.vue"),
