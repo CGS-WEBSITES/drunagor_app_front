@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Login from "@/pages/Login.vue";
-import Teste from "@/pages/teste.vue";
+import Login from "@/pages/teste.vue";
+import Teste from "@/pages/Login.vue";
 import Dashboard from "@/pages/Dashboard.vue"; // Descomentei a importação do Dashboard
 import Library from "@/pages/Library.vue";
 import Perfil from "@/pages/Perfil.vue";
