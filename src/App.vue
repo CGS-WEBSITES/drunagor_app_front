@@ -1,5 +1,5 @@
 <template>
-  <v-app theme="light">
+  <v-app theme="dark">
     <!-- Barra de Navegação Superior -->
     <v-main>
       <v-row no-gutters>
