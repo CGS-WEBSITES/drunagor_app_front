@@ -3,11 +3,11 @@
     <!-- Barra de Navegação Superior -->
     <v-main>
       <v-row no-gutters>
-        <v-app-bar flat class="border-b" title="App Drunagor">
+        <v-app-bar 
+        flat class="border-b" title="App Drunagor">
           <!-- Links para navegação -->
           <v-spacer></v-spacer>
           <v-btn @click="$router.push({ name: 'Login' })">Login</v-btn>
-          <v-btn @click="$router.push({ name: 'Teste' })">Teste</v-btn>
           <v-btn @click="$router.push({ name: 'Dashboard' })">Dashboard</v-btn>
           <v-btn @click="$router.push({ name: 'Library' })">Library</v-btn>
         </v-app-bar>
@@ -21,48 +21,48 @@
 
     <!-- Navegação Inferior Fixa (Mobile) -->
     <v-bottom-navigation
-      app
-      v-model="bottomNavVisible"
-      class="hidden-md-and-up fixed bg-black text-white"
-      elevation="10"
-      :style="{ width: '100%', padding: '0', overflow: 'hidden' }"
-    >
-      <v-btn
-        @click="navigateTo('Dashboard')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-home</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Search')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Add')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-plus-circle</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Favorites')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Profile')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-account</v-icon>
-      </v-btn>
-    </v-bottom-navigation>
+  app
+  v-model="bottomNavVisible"
+  class="hidden-md-and-up fixed bg-black text-white"
+  elevation="10"
+  style="width: 100%; max-width: 100vw; padding: 0; overflow: hidden;"
+>
+  <v-btn
+    @click="navigateTo('Dashboard')"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-home</v-icon>
+  </v-btn>
+  <v-btn
+    @click="navigateTo('Search')"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-magnify</v-icon>
+  </v-btn>
+  <v-btn
+    @click="navigateTo('Add')"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-plus-circle</v-icon>
+  </v-btn>
+  <v-btn
+    @click="navigateTo('Favorites')"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-heart</v-icon>
+  </v-btn>
+  <v-btn
+    @click="navigateTo('Profile')"
+    class="pa-0 flex-grow-1"
+    min-width="0"
+  >
+    <v-icon>mdi-account</v-icon>
+  </v-btn>
+</v-bottom-navigation>
 
     <!-- Rodapé -->
     <v-footer class="footer black bg-black pb-12" padless>
@@ -116,3 +116,11 @@ const navigateTo = (routeName) => {
   }
 };
 </script>
+<style scoped>
+html, body, #app, .v-application {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+</style>
