@@ -1,5 +1,6 @@
 <template>
-  <v-container class="fill-height" fluid>
+  <v-container class="pt-8" fluid>
+    <p class="pt-14 py-14 text-center text-h4">App Drunagor</p>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="elevation-12">
