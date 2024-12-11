@@ -1,30 +1,22 @@
 <template>
     <v-container max-width="800" style="min-width: 360px;" class="pa-4">
-    <v-card class="pa-4" rounded="lg" elevation="3" >
+    <v-card class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3" >
       <!-- Imagem -->
       <v-img
         :src="image"
         alt="Campaign Image"
-        width="800"
+        max-width="800"
         class="rounded-lg"
         contain
       ></v-img>
   
       <!-- Informações -->
-      <v-card-text>
-        <!-- Título Principal -->
-        <p class="text-h6 text-bold mb-2">{{ title }}</p>
-  
-        <!-- Subtítulo -->
-        <p class="text-body-2 grey--text mb-2">{{ subtitle }}</p>
-  
-        <!-- Progresso -->
-        <p class="text-body-2 text-bold mb-1">
-          Progression [{{ progress }}%]
-        </p>
-  
-        <!-- Detalhes Adicionais -->
-        <p class="text-caption grey--text">{{ details }}</p>
+      <v-card-text class="pl-2 pt-0 pb-0">
+        <p class="ext-uppercase font-weight-black text-bold text-h5 pb-0 pt-1">{{ title }}</p>
+        <p class="font-weight-bold grey--text pt-0">{{ subtitle }}</p>
+        <p class="font-weight-bold grey--text pt-0">{{ subtitle2}}</p>
+
+        
       </v-card-text>
     </v-card>
 </v-container>
@@ -46,6 +38,11 @@
       default: 'FAVORITE CAMPAIGN',
     },
     subtitle: {
+      type: String,
+      required: true,
+      default: 'Chronicles of Drunagor: Age of Darkness The Rise of the Undead Dragon',
+    },
+    subtitle2: {
       type: String,
       required: true,
       default: 'Chronicles of Drunagor: Age of Darkness The Rise of the Undead Dragon',
