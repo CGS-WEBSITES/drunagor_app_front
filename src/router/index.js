@@ -28,6 +28,21 @@ const router = createRouter({
           name: "FriendStore",
           component: () => import("@/components/FriendStore.vue"),
         },
+        {
+          path: "/perfil/friend-storelist",
+          name: "FriendStoreList",
+          component: () => import("@/components/FriendStoreList.vue"),
+        },
+        {
+          path: "/perfil/perfil-settings",
+          name: "PerfilSettings",
+          component: () => import("@/components/PerfilSettings.vue"),
+        },
+        {
+          path: "/perfil/perfil-image",
+          name: "PerfilImage",
+          component: () => import("@/components/PerfilImage.vue"),
+        },
       ]
     },
     {
