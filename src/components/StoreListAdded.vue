@@ -14,8 +14,8 @@
       <v-text-field
         v-model="searchQuery"
         label="Search"
-        variant="outlined"
-        class="mb-4"
+        variant="solo-filled"
+        class="pb-0"
       ></v-text-field>
 
       <!-- Lista Virtual -->
@@ -24,7 +24,7 @@
           <v-menu offset-y>
             <template #activator="{ props }">
               <v-card
-                class="pa-3 mb-3"
+                class="pa-1 mb-3"
                 rounded="lg"
                 elevation="10"
                 v-bind="props"
@@ -32,19 +32,19 @@
               >
                 <v-row>
                   <!-- Imagem -->
-                  <v-col cols="3" class="d-flex align-center justify-center">
+                  <v-col cols="4" lg="2" class="d-flex align-center justify-center">
                     <v-img
                       :src="item.image"
                       alt="Item Image"
-                      max-width="70"
-                      max-height="70"
+                      max-width="90"
+                      max-height="90"
                       class="rounded-lg"
                     ></v-img>
                   </v-col>
 
                   <!-- Informações -->
                   <v-col cols="7">
-                    <p class="text-body-1 text-bold">{{ item.name }}</p>
+                    <p class="font-weight-bold text-truncate">{{ item.name }}</p>
                     <p class="text-body-2 grey--text">{{ item.details }}</p>
                   </v-col>
 
@@ -78,13 +78,13 @@ import { ref, computed } from 'vue';
 // Dados simulados
 const friends = ref([
   {
-    image: 'src/assets/Imagem colada.png',
+    image: 'https://pbs.twimg.com/media/FOMtN45XIAEjvgo.png',
     name: 'Robiinho7flecha1killWOOD',
     details: '99845651pts',
     points: '946338°',
   },
   {
-    image: 'src/assets/cgsblue.png',
+    image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
     name: 'Lojinha de Bugigangas do inspetor Bugiganga',
     details: 'Rancho Santa Margarita, CA 92688-0001',
     points: '946338°',
@@ -93,13 +93,13 @@ const friends = ref([
 
 const requests = ref([
   {
-    image: 'src/assets/cgspurple.png',
+    image: 'https://pbs.twimg.com/media/FOMtN45XIAEjvgo.png',
     name: 'Request User 1',
     details: 'Pending Approval',
     points: '--',
   },
   {
-    image: 'src/assets/Imagem colada.png',
+    image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
     name: 'Request User 2',
     details: 'Pending Approval',
     points: '--',
