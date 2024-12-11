@@ -1,77 +1,10 @@
 <template>
   <v-container class="pb-12">
  <!-- Navigation Drawer -->
- <v-navigation-drawer
-  v-model="drawer"
-  app
-  location="right"
-  temporary
-  width="435"
-  class="d-none d-md-flex"
-  style="top: 50px;"
->
-  <v-list class="me-4"> <!-- Substitui "margin-right" -->
-    <v-list-item class="py-5"> <!-- Substitui "height: 114px" -->
-      <v-row align="center" class="w-168">
-        <!-- Coluna para o texto à esquerda -->
-        <v-col cols="8">
-          <v-list-item-title>Magoveio92magi</v-list-item-title>
-          <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
-        </v-col>
-
-        <!-- Coluna para o avatar à direita -->
-        <v-col cols="4" class="d-flex justify-end">
-          <v-avatar size="100">
-            <v-img
-              src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
-              alt="Avatar"
-            />
-          </v-avatar>
-        </v-col>
-      </v-row>
-    </v-list-item>
-
-    <v-list-item
-      v-for="(item, index) in menuItems"
-      :key="index"
-      link
-      @click="selectItem(item)"
-      :class="{ 'v-list-item--active': selectedItem === item }"
-    >
-      <v-list-item-icon>
-        <v-icon>{{ item.icon }}</v-icon>
-      </v-list-item-icon>
-      <v-list-item-content>
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-  </v-list>
-</v-navigation-drawer>
-
-<!-- Toolbar (Barra de Topo) -->
-<v-app-bar app height="50" class="hidden-md-and-down" color="black">
-  <div class="d-flex align-center pl-6"> <!-- Ajuste o padding com pl-6 -->
-    <v-img
-      src="@/assets/darknessl.png"
-      height="30"
-      width="30"
-      alt="Drunagor Icon"
-      contain
-      class="mr-2"
-    ></v-img>
-    <span>App Drunagor</span>
-  </div>
-  <v-spacer></v-spacer>
-  <!-- Botão de Navegação alinhado à direita -->
-  <v-app-bar-nav-icon
-    class="me-4"
-    @click="drawer = !drawer"
-  ></v-app-bar-nav-icon>
-</v-app-bar>
-
-    <v-row>
+     
+    <v-row> 
       <v-col cols="12" class="text-center">
-        <h1 class="text-h2 font-weight-bold">LIBRARY</h1>
+        <h1 class="text-h2 font-weight-bold pt-14">LIBRARY</h1>
       </v-col>
     </v-row>
     <v-row class="bg-grey-darken-3 pa-4 rounded">
@@ -223,6 +156,8 @@ export default defineComponent({
         dialogVisible.value = true;
       }
     };
+
+    
 
     onMounted(() => {
       const handleResize = () => {
