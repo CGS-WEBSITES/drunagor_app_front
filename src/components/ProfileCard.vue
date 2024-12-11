@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="776" style="min-width: 360px;" class="pa-0">
+  <v-container max-width="770" style="min-width: 360px;" class="pa-0 ">
   <v-card
     class="profile-card mx-auto py-0"
     rounded="0"
@@ -7,13 +7,22 @@
 
     style=";overflow: visible; position: relative; text-align: center;"
   >
+  <div class="position-relative">
+      <v-img
+        src="@/assets/backperfil.jpg"
+        alt="Background Image"
+        height="192px"
+        max-width="100%"
+      ></v-img>
 
-  <v-img
-      src="@/assets/backperfil.jpg"
-      alt="Background Image"
-      height="192px"
-      
-    ></v-img>
+      <v-btn
+  icon="mdi-pencil"
+  class="position-absolute top-0 right-0 ma-2"
+  color="rgba(0, 0, 0, 0.6)"
+  elevation="3"
+  :to="'/perfil/perfil-image'"
+></v-btn>
+    </div>
     
     <v-img
       :src="profileImage"
@@ -45,6 +54,8 @@
     </v-card-text>
   </v-card>
 </v-container>
+
+
 </template>
 
 <script lang="ts" setup>
