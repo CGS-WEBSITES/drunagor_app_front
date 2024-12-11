@@ -65,17 +65,17 @@ const activeButton = ref<string | null>(null);
 
 // Grupos de botões (divididos em 3 grupos)
 const group1 = ref([
-  { icon: 'mdi-account', value: 'Perfil', route: '/Perfil' },
+  { icon: 'mdi-account', value: 'Perfil', route: '/perfil/home' },
   { icon: 'mdi-square-edit-outline', value: 'edit', route: '/Perfil' },
 ]);
 
 const group2 = ref([
-  { icon: 'mdi-magnify', value: 'search', route: '/Perfil_FS' },
-  { icon: 'mdi-account-group', value: 'group', route: '/Perfil_FS-LIST' },
+  { icon: 'mdi-magnify', value: 'search', route: '/perfil/friend-store' },
+  { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist' },
 ]);
 
 const group3 = ref([
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/Perfil-Settings' },
+  { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings' },
   { icon: 'mdi-logout', value: 'logout', route: '/Perfil' },
 ]);
 </script>
