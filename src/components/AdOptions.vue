@@ -18,7 +18,7 @@
             <v-btn
               block
               color="#A02C2C"
-              class="text-white text-bold mb-3"
+              class="text-white text-body-1 font-weight-bold mb-3"
               @click="showDeleteAlert"
             >
               DELETE
@@ -27,7 +27,7 @@
             <v-btn
               block
               color="#C7A738"
-              class="text-white text-bold mb-3"
+              class="text-white text-body-1 font-weight-bold mb-3"
               @click="showFeedbackAlert"
             >
               FEEDBACK
@@ -36,7 +36,7 @@
             <v-btn
               block
               color="#550096"
-              class="text-white text-bold"
+              class="text-white text-body-1 font-weight-bold"
               @click="showUpdateAlert"
             >
               UPDATE
