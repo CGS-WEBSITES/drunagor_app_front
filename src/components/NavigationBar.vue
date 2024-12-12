@@ -66,7 +66,7 @@ const activeButton = ref<string | null>(null);
 // Grupos de botões (divididos em 3 grupos)
 const group1 = ref([
   { icon: 'mdi-account', value: 'Perfil', route: '/perfil/home' },
-  { icon: 'mdi-square-edit-outline', value: 'edit', route: '/Perfil' },
+  //{ icon: 'mdi-square-edit-outline', value: 'edit', route: '/Perfil' },
 ]);
 
 const group2 = ref([
