@@ -9,11 +9,11 @@
       class="d-none d-md-flex m"
     >
       <v-list class="me-4">
-        <!-- Substitui "margin-right" -->
+     
         <v-list-item class="py-5">
-          <!-- Substitui "height: 114px" -->
+       
           <v-row align="center" class="">
-            <!-- Coluna para o texto à esquerda -->
+            
             <v-col cols="8">
               <v-list-item-title>Magoveio92magi</v-list-item-title>
               <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
@@ -67,16 +67,12 @@
           class="me-4"
           @click="drawer = !drawer"
         ></v-app-bar-nav-icon>
-      </v-app-bar>
+        </v-app-bar>
     </v-row>
     <v-row no-gutters>
       <router-view />
     </v-row>
     <!-- Toolbar (Barra de Topo) -->
-
-    <!-- Conteúdo Principal -->
-
-
 
     <!-- Navegação Inferior Fixa (Mobile) -->
     <v-bottom-navigation
@@ -181,6 +177,13 @@ onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
 
+const navigateTo = (route) => {
+  if (route) {
+    router.push(route); // Use Vue Router para navegar para a rota
+  }
+};
+
+
 // Verificação de mobile
 const isMobile = ref(false);
 
@@ -191,12 +194,13 @@ const drawer = ref(false); // Controle do drawer lateral
 
 // Itens do menu de navegação
 const menuItems = ref([
-  { title: "Dashboard", icon: "mdi-view-dashboard" },
-  { title: "Campaign", icon: "mdi-flag" },
-  { title: "Library", icon: "mdi-book" },
-  { title: "Profile", icon: "mdi-account" },
-  { title: "Events", icon: "mdi-calendar" },
+  { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
+  { title: "Campaign", icon: "mdi-flag", to: { name: "Campaign" } }, 
+  { title: "Library", icon: "mdi-book", to: { name: "Library" } },
+  { title: "Profile", icon: "mdi-account", to: { name: "Profile" } }, 
+  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } }, 
 ]);
+
 
 // Métodos de ação para os botões da navegação
 const action1 = () => {
@@ -227,6 +231,10 @@ const action5 = () => {
 const closeDialog = () => {
   dialog.value = false;
 };
+
 </script>
+
+
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 </style>
