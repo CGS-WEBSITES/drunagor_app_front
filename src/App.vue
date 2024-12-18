@@ -1,5 +1,8 @@
 <template>
-  <v-app theme="dark">
+<v-app :theme="theme">
+  <Toast />
+
+    
     <!-- Barra de Navegação Superior -->
     <v-navigation-drawer
       v-model="drawer"
@@ -18,6 +21,10 @@
               <v-list-item-title>Magoveio92magi</v-list-item-title>
               <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
             </v-col>
+
+
+     
+
 
             <!-- Coluna para o avatar à direita -->
             <v-col cols="4" class="d-flex justify-end">
@@ -153,8 +160,12 @@
   </v-app>
 </template>
 
-<script setup>
+
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter(); // Importação do Vue Router
 
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
@@ -164,10 +175,14 @@ function handleScroll() {
   bottomNavVisible.value = window.scrollY <= 100; // Ajuste conforme necessário
 }
 
-// Configurações de evento para rolagem
+// Verificação de mobile
+const isMobile = ref(false);
+
+// Configuração de eventos de rolagem e resize
 onMounted(() => {
   window.addEventListener("scroll", handleScroll);
   isMobile.value = window.innerWidth <= 600;
+
   window.addEventListener("resize", () => {
     isMobile.value = window.innerWidth <= 600;
   });
@@ -177,17 +192,14 @@ onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
 });
 
-const navigateTo = (route) => {
-  if (route) {
-    router.push(route); // Use Vue Router para navegar para a rota
-  }
+// Tema: alternar entre 'dark' e 'myCustomTheme'
+const theme = ref("dark");
+
+const toggleTheme = () => {
+  theme.value = theme.value === "dark" ? "myCustomTheme" : "dark";
 };
 
-
-// Verificação de mobile
-const isMobile = ref(false);
-
-// Variáveis reativas
+// Controle de visibilidade de elementos reativos
 const showPopup = ref(false);
 const dialog = ref(false);
 const drawer = ref(false); // Controle do drawer lateral
@@ -201,40 +213,27 @@ const menuItems = ref([
   { title: "Events", icon: "mdi-calendar", to: { name: "Events" } }, 
 ]);
 
-
 // Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  // Adicione a lógica específica para essa ação
+const action1 = () => console.log("Home button clicked");
+const action2 = () => console.log("Search button clicked");
+const action3 = () => console.log("Add button clicked");
+const action4 = () => console.log("Favorites button clicked");
+const action5 = () => console.log("Account button clicked");
+
+// Função de navegação
+const navigateTo = (route: any) => {
+  if (route) router.push(route);
 };
 
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
+// Fechar diálogo
 const closeDialog = () => {
   dialog.value = false;
 };
-
 </script>
 
-
-<style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+<style>
+.v-row {
+  width: 100%;
+}
 </style>
+

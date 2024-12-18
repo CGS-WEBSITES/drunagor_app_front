@@ -1,6 +1,7 @@
 <template>
-  <v-container class="pt-8" fluid>
-    <p class="pt-14 py-14 text-center text-h4">App Drunagor</p>
+
+  <v-container class="fill-height" fluid>
+
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="elevation-12">
@@ -164,7 +165,7 @@
     </v-row>
   </v-container>
 
-  <!-- V-Card Section -->
+
   <v-container class="pa-4" color="white" fluid>
     <v-card class="pa-4" color="white" elevation="2">
       Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus,
@@ -198,6 +199,7 @@
 
   <hr />
 </template>
+
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
@@ -247,8 +249,8 @@ export default defineComponent({
       submitForm,
       videoThumbnail,
     };
+
   },
 });
 </script>
-
 
