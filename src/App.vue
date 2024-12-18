@@ -10,8 +10,8 @@
           <v-btn @click="$router.push({ name: 'CampaignTracker' })">
             Campaign Tracker
           </v-btn>
-          <v-btn @click="$router.push({ name: 'Teste' })">teste</v-btn>
           <v-btn @click="$router.push({ name: 'Dashboard' })">Dashboard</v-btn>
+          <v-btn @click="$router.push({ name: 'Library' })">Library</v-btn>
           <v-btn variant="icon" @click="toggleTheme()"
             ><v-icon>mdi-theme-light-dark</v-icon></v-btn
           >

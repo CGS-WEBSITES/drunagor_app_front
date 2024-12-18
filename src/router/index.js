@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "@/pages/Login.vue";
+import Library from "@/pages/Library.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -12,6 +13,11 @@ const router = createRouter({
       path: "/dashboard",
       name: "Dashboard",
       component: () => import("@/pages/Dashboard.vue"),
+    },
+    {
+      path: "/Library",
+      name: "Library",
+      component: Library, // Certifique-se de que o componente está importado corretamente
     },
     {
       path: "/perfil",
