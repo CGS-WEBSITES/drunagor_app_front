@@ -29,17 +29,17 @@
                 </v-col>
   
                 <!-- Detalhes -->
-                <v-col cols="7" class="pl-0 d-flex flex-column justify-center">
+                <v-col cols="8" class="pl-0 d-flex flex-column justify-center">
                   <p class="font-weight-bold white--text ma-0">{{ item.title }}</p>
                   <p class="text-body-2 grey--text ma-0">{{ item.description }}</p>
                   <p class="text-caption grey--text ma-0">Achieved {{ item.date }}</p>
                 </v-col>
   
                 <!-- Status -->
-                <v-col cols="1" lg="3" class="d-flex flex-column align-center justify-center">
+                <!-- <v-col cols="1" lg="3" class="d-flex flex-column align-center justify-center">
                   <v-icon color="grey darken-1" size="24">{{ item.icon }}</v-icon>
                   <p class="text-body-2 grey--text">{{ item.progress }}</p>
-                </v-col>
+                </v-col> -->
               </v-row>
             </v-card>
           </template>
