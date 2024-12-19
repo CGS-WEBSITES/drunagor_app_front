@@ -434,45 +434,46 @@
   </v-col>
 </v-row>
 
-<!-- Library Section -->
-<v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
-  <v-col cols="12" sm="10" md="8" class="px-6">
-    <!-- Buttons for Library Items -->
-    <v-row>
-      <!-- Ajuste para ocupar 12 colunas em telas menores, e 6 em telas maiores -->
-      <v-col :cols="12" md="6">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
+
+<v-row class="mt-4 justify-center ma-0">
+  <v-col cols="12" sm="10" md="8">
+    <v-row justify="center" align="center">
+      <v-col cols="12" md="6" class="d-flex justify-center">
+        <v-btn color="grey darken-2" class="white--text w-100 mb-4" height="60">
           AWAKENINGS
         </v-btn>
       </v-col>
-      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
+      <v-col cols="12" md="6" class="d-flex justify-center">
+        <v-btn color="grey darken-2" class="white--text w-100 mb-4" height="60">
           COREBOX
         </v-btn>
       </v-col>
     </v-row>
 
-    <v-row class="mt-2 mt-md-4">
-      <v-col :cols="12" md="6">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
+    <v-row justify="center" align="center">
+      <v-col cols="12" md="6" class="d-flex justify-center">
+        <v-btn color="grey darken-2" class="white--text w-100 mb-4" height="60">
           APOCALYPSE
         </v-btn>
       </v-col>
-      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
+      <v-col cols="12" md="6" class="d-flex justify-center">
+        <v-btn color="grey darken-2" class="white--text w-100 mb-4" height="60">
           RISE OF THE UNDEAD DRAGON
         </v-btn>
       </v-col>
     </v-row>
-
-    <!-- Manage Library Button -->
-    <v-row class="mt-4">
-      <v-col cols="12" class="text-right">
-        <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
-      </v-col>
-    </v-row>
   </v-col>
 </v-row>
+
+<!-- Manage Library Button -->
+<v-row class="mt-4">
+  <v-col cols="12" class="text-right">
+    <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
+  </v-col>
+</v-row>
+
+
+ 
 
 
   <!-- Fixed Bottom Navigation for Mobile -->
