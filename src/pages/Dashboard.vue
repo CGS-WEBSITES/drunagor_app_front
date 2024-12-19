@@ -109,96 +109,81 @@
 </v-app-bar>
 
   <!-- Navigation Boxes Section -->
-  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
-    <v-col cols="12" sm="10" md="8" class="px-6">
-      <!-- Carrossel para dispositivos móveis -->
-      <v-carousel hide-delimiters height="400px" v-if="isMobile">
-        <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-          <v-card :style="{ height: '400px' }" class="mx-auto">
-            <v-img :src="item.img" height="300" cover />
-            <v-card-actions>
-              <v-row class="d-flex justify-center">
-                <v-btn class="text-center">{{ item.label }}</v-btn>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-carousel-item>
-      </v-carousel>
+<v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
+  <v-col cols="12" sm="10" md="8" class="px-6">
+    <!-- Carrossel para dispositivos móveis -->
+    <v-carousel hide-delimiters height="400px" v-if="isMobile">
+      <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
+        <v-card :style="{ height: '400px' }" class="mx-auto">
+          <v-img :src="item.img" height="300" cover />
+          <v-card-actions>
+            <v-row class="d-flex justify-center">
+              <v-btn class="text-center">{{ item.label }}</v-btn>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-carousel-item>
+    </v-carousel>
 
-      <v-row v-else align="center" justify="center">
-        <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
-          <v-card :style="{ height: isMobile ? '400px' : 'auto' }" flat class="border">
-            <v-img :src="item.img" height="300" cover />
-            <v-card-actions>
-              <v-row class="d-flex justify-center">
-                <v-btn class="text-center">{{ item.label }}</v-btn>
-              </v-row>
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-col>
-  </v-row>
+    <v-row v-else align="center" justify="center">
+      <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
+        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" flat class="border">
+          <v-img :src="item.img" height="300" cover />
+          <v-card-actions>
+            <v-row class="d-flex justify-center">
+              <v-btn class="text-center">{{ item.label }}</v-btn>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-col>
+</v-row>
 
+<!-- Carousel Section -->
+<v-row v-if="isMobile" class="mt-4 d-flex justify-center align-center ma-0 w-100">
+  <v-col cols="12" sm="10" md="9" class="px-6">
+    <!-- Define a mesma altura do primeiro carousel -->
+    <v-carousel hide-delimiters height="400px">
+      <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
+        <v-card class="mx-auto" :style="{ height: '400px' }">
+          <v-img src="@/assets/campaign.jpg" height="300" cover />
+          <v-card-title>Campaign 0%</v-card-title>
+          <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
+          <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+        </v-card>
+      </v-carousel-item>
+    </v-carousel>
+  </v-col>
+</v-row>
 
-  <!-- Carousel Section -->
-  <v-row
-    v-if="isMobile"
-    class="mt-4 d-flex justify-center align-center ma-0 w-100"
-  >
-  <v-col cols="12" sm="10" md="9" class="px-8">
-      <v-carousel hide-delimiters height="300px">
-        <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
-          <v-card class="mx-auto" width="80%">
-            <v-img src="@/assets/campaign.jpg" height="200" cover />
-            <v-card-title>Campaign 0%</v-card-title>
-            <v-card-subtitle
-              >Chronicles of Drunagor: Age of Darkness</v-card-subtitle
-            >
-            <v-card-subtitle
-              >Door X: in battle/exploring/finished</v-card-subtitle
-            >
-          </v-card>
-        </v-carousel-item>
-      </v-carousel>
-    </v-col>
-  </v-row>
+<v-row v-else class="mt-4 d-flex justify-center align-center ma-0 w-100">
+  <v-col cols="12" sm="10" md="9" class="px-6">
+    <v-carousel hide-delimiters height="300px">
+      <v-carousel-item v-for="i in 3" :key="`desktop-${i}`">
+        <v-row>
+          <v-col cols="6">
+            <v-card class="mx-auto" width="80%">
+              <v-img src="@/assets/campaign.jpg" height="200" cover />
+              <v-card-title>Campaign 0%</v-card-title>
+              <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
+              <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+            </v-card>
+          </v-col>
+          <v-col cols="6">
+            <v-card class="mx-auto" width="80%">
+              <v-img src="@/assets/campaign.jpg" height="200" cover />
+              <v-card-title>Campaign 0%</v-card-title>
+              <v-card-subtitle>Awakenings</v-card-subtitle>
+              <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-carousel-item>
+    </v-carousel>
+  </v-col>
+</v-row>
 
-  <v-row
-    v-else
-    class="mt-4 d-flex justify-center align-center ma-0 w-100"
-  >
-  <v-col cols="12" sm="10" md="9" class="px-8">
-      <v-carousel hide-delimiters height="300px">
-        <v-carousel-item v-for="i in 3" :key="`desktop-${i}`">
-          <v-row>
-            <v-col cols="6">
-              <v-card class="mx-auto" width="80%">
-                <v-img src="@/assets/campaign.jpg" height="200" cover />
-                <v-card-title>Campaign 0%</v-card-title>
-                <v-card-subtitle
-                  >Chronicles of Drunagor: Age of Darkness</v-card-subtitle
-                >
-                <v-card-subtitle
-                  >Door X: in battle/exploring/finished</v-card-subtitle
-                >
-              </v-card>
-            </v-col>
-            <v-col cols="6">
-              <v-card class="mx-auto" width="80%">
-                <v-img src="@/assets/campaign.jpg" height="200" cover />
-                <v-card-title>Campaign 0%</v-card-title>
-                <v-card-subtitle>Awakenings</v-card-subtitle>
-                <v-card-subtitle
-                  >Door X: in battle/exploring/finished</v-card-subtitle
-                >
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-carousel-item>
-      </v-carousel>
-    </v-col>
-  </v-row>
 
   <!-- Main Event Cards Section -->
   <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
