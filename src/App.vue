@@ -18,10 +18,56 @@
         </v-app-bar>
       </v-row>
 
-      <v-row>
+
+      <v-bottom-navigation
+  app
+  v-model="bottomNavVisible"
+  class="hidden-md-and-up fixed bottom-0 bg-black text-white"
+  elevation="10"
+  dense
+>
+  <v-row align="center" justify="space-between" no-gutters>
+    <v-col class="text-center" cols="2">
+      <v-btn @click="action1" icon>
+        <v-icon>mdi-home</v-icon>
+      </v-btn>
+    </v-col>
+    <v-col class="text-center" cols="2">
+      <v-btn @click="action2" icon>
+        <v-icon>mdi-magnify</v-icon>
+      </v-btn>
+    </v-col>
+    <v-col class="text-center" cols="2">
+      <v-btn @click="action3" icon>
+        <v-icon>mdi-plus-circle</v-icon>
+      </v-btn>
+    </v-col>
+    <v-col class="text-center" cols="2">
+      <v-btn @click="action4" icon>
+        <v-icon>mdi-heart</v-icon>
+      </v-btn>
+    </v-col>
+    <v-col class="text-center" cols="2">
+      <v-btn @click="action5" icon>
+        <v-icon>mdi-account</v-icon>
+      </v-btn>
+    </v-col>
+  </v-row>
+</v-bottom-navigation>
+
+
+
+
+
+
+
+
+
+
+     
         <!-- Exibe o conteúdo da rota -->
         <router-view />
-      </v-row>
+     
     </v-main>
      <!-- Footer Section -->
      <v-footer class="footer black bg-black pb-12" padless>
@@ -64,10 +110,43 @@
 import { ref } from "vue";
 
 const theme = ref("dark");
+// Controle de visibilidade do menu de navegação inferior
+const bottomNavVisible = ref(true);
+
+// Função de controle de rolagem para mostrar/ocultar o menu de navegação inferior
+function handleScroll() {
+  bottomNavVisible.value = window.scrollY <= 100; // Ajuste conforme necessário
+}
 
 const toggleTheme = () => {
   theme.value = theme.value == "dark" ? "myCustomTheme" : "dark";
 };
+// Métodos de ação para os botões da navegação
+const action1 = () => {
+  console.log("Home button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action2 = () => {
+  console.log("Search button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action3 = () => {
+  console.log("Add button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action4 = () => {
+  console.log("Favorites button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action5 = () => {
+  console.log("Account button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
 </script>
 <style>
 .v-row {

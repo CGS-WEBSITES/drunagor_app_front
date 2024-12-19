@@ -1,5 +1,5 @@
 <template>
-  <v-container class="fill-height" fluid>
+  <v-container class="fill-height pa-4" fluid>
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="elevation-12">
@@ -14,7 +14,7 @@
             <!-- Login Tab -->
             <v-tab-item :value="0">
               <v-card-text v-if="activeTab === 0">
-                <v-container class="text-center">
+                <v-container class="text-center pa-4">
                   <v-row justify="center">
                     <v-col cols="12" class="text-center">
                       <v-img
@@ -39,6 +39,8 @@
                     type="text"
                     v-model="loginEmail"
                     color="black"
+                    outlined
+                    dense
                   />
                   <v-text-field
                     label="Password"
@@ -46,6 +48,8 @@
                     type="password"
                     v-model="loginPassword"
                     color="black"
+                    outlined
+                    dense
                   />
                 </v-form>
                 <h3 class="text-center mt-4">Forgot your password?</h3>
@@ -56,7 +60,7 @@
             <!-- Sign Up Tab -->
             <v-tab-item :value="1">
               <v-card-text v-if="activeTab === 1">
-                <v-container class="text-center">
+                <v-container class="text-center pa-4">
                   <v-row justify="center">
                     <v-col cols="12" class="text-center">
                       <v-img
@@ -87,6 +91,8 @@
                         prepend-icon="mdi-account"
                         :rules="[rules.required]"
                         color="black"
+                        outlined
+                        dense
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -97,6 +103,8 @@
                         type="email"
                         :rules="[rules.required, rules.email]"
                         color="black"
+                        outlined
+                        dense
                       />
                     </v-col>
                   </v-row>
@@ -109,6 +117,8 @@
                         type="password"
                         :rules="[rules.required, rules.min]"
                         color="black"
+                        outlined
+                        dense
                       />
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -119,6 +129,8 @@
                         type="password"
                         :rules="[rules.required, matchPasswords]"
                         color="black"
+                        outlined
+                        dense
                       />
                     </v-col>
                   </v-row>
@@ -131,6 +143,8 @@
                         prepend-icon="mdi-earth"
                         :rules="[rules.required]"
                         color="black"
+                        outlined
+                        dense
                       />
                     </v-col>
                   </v-row>
@@ -162,39 +176,6 @@
       </v-col>
     </v-row>
   </v-container>
-
-  <v-container class="pa-4" color="white" fluid>
-    <v-card class="pa-4" color="white" elevation="2">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus,
-      dignissimos in, ipsam fugit, dolores quisquam blanditiis id quae pariatur
-      harum sequi praesentium! Officiis officia omnis facilis expedita suscipit
-      molestiae eius? Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-      Saepe sunt, delectus nulla alias ex, exercitationem enim, eaque odit
-      impedit quas repellendus itaque voluptates architecto fuga? Eveniet vel
-      velit omnis enim.
-    </v-card>
-  </v-container>
-
-  <!-- Video Section -->
-  <v-container fluid class="bg-white">
-    <v-row align="center" justify="center" style="height: 50vh">
-      <v-col cols="12" class="text-center">
-        <div>
-          <h2>Video Section</h2>
-          <v-img
-            v-if="videoThumbnail !== ''"
-            :src="videoThumbnail"
-            alt="Video"
-            max-width="80%"
-            max-height="80%"
-            cover
-          ></v-img>
-        </div>
-      </v-col>
-    </v-row>
-  </v-container>
-
-  <hr />
 </template>
 
 <script>

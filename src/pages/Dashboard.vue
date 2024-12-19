@@ -476,28 +476,7 @@
 
 
   <!-- Fixed Bottom Navigation for Mobile -->
-<v-bottom-navigation
-  app
-  v-model="bottomNavVisible"
-  class="hidden-md-and-up fixed bg-black text-white"
-  elevation="10"
->
-  <v-btn @click="action1">
-    <v-icon>mdi-home</v-icon>
-  </v-btn>
-  <v-btn @click="action2">
-    <v-icon>mdi-magnify</v-icon>
-  </v-btn>
-  <v-btn @click="action3">
-    <v-icon>mdi-plus-circle</v-icon>
-  </v-btn>
-  <v-btn @click="action4">
-    <v-icon>mdi-heart</v-icon>
-  </v-btn>
-  <v-btn @click="action5">
-    <v-icon>mdi-account</v-icon>
-  </v-btn>
-</v-bottom-navigation>
+
 
 
 
@@ -594,36 +573,6 @@ const menuItems = ref([
   { title: "Events", icon: "mdi-calendar" },
 ]);
 
-// Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-// Métodos para o diálogo e Google Maps
-const openDialog = (eventId: number) => {
-  dialog.value = true;
-};
 
 const closeDialog = () => {
   dialog.value = false;
