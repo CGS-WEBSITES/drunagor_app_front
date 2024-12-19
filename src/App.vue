@@ -68,6 +68,7 @@
         <!-- Exibe o conteúdo da rota -->
         <router-view />
      
+        
     </v-main>
      <!-- Footer Section -->
      <v-footer class="footer black bg-black pb-12" padless>

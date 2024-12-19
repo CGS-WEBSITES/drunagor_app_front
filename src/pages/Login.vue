@@ -1,5 +1,8 @@
 <template>
-  <v-container class="fill-height pa-4" fluid>
+  <v-container
+    class="fill-height d-flex align-center justify-center pa-4"
+    fluid
+  >
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="elevation-12">
@@ -14,22 +17,22 @@
             <!-- Login Tab -->
             <v-tab-item :value="0">
               <v-card-text v-if="activeTab === 0">
-                <v-container class="text-center pa-4">
+                <v-container class="d-flex justify-center align-center">
                   <v-row justify="center">
-                    <v-col cols="12" class="text-center">
+                    <v-col cols="12" md="6" class="text-center">
                       <v-img
                         src="@/assets/darkness.png"
                         max-width="50"
-                        alt="Welcome Back Icon"
+                        alt="Centered Icon"
                         class="mx-auto"
-                      ></v-img>
+                      />
                     </v-col>
                     <v-col cols="12">
-                      <h1 class="text-center display-2">Welcome Back!</h1>
+                      <h1 class="display-2 font-weight-bold">Welcome Back!</h1>
                     </v-col>
                   </v-row>
                 </v-container>
-                <h4 class="text-center mt-4">
+                <h4 class="text-center mt-4 py-3">
                   Ensure your email for registration
                 </h4>
                 <v-form>
@@ -60,25 +63,25 @@
             <!-- Sign Up Tab -->
             <v-tab-item :value="1">
               <v-card-text v-if="activeTab === 1">
-                <v-container class="text-center pa-4">
+                <v-container class="d-flex justify-center align-center">
                   <v-row justify="center">
-                    <v-col cols="12" class="text-center">
+                    <v-col cols="12" md="6" class="text-center">
                       <v-img
                         src="@/assets/darkness.png"
                         max-width="50"
-                        alt="Create Account Icon"
+                        alt="Centered Icon"
                         class="mx-auto"
-                      ></v-img>
+                      />
                     </v-col>
                     <v-col cols="12">
-                      <h1 class="text-center display-2">
+                      <h1 class="display-2 font-weight-bold pl-3">
                         Create an User Account
                       </h1>
                     </v-col>
                   </v-row>
                 </v-container>
 
-                <h4 class="text-center mt-4">
+                <h4 class="text-center mt-4 py-3">
                   Ensure your email for registration
                 </h4>
 
@@ -182,7 +185,7 @@
 export default {
   data() {
     return {
-      activeTab: 0, // Control the active tab (0 = Login, 1 = Sign Up)
+      activeTab: 0,
       loginEmail: "",
       loginPassword: "",
       signupUsername: "",
@@ -191,7 +194,7 @@ export default {
       signupConfirmPassword: "",
       selectedCountry: null,
       agreeTerms: false,
-      countries: ["USA", "Canada", "Brazil", "Mexico", "Germany"], // Example countries
+      countries: ["USA", "Canada", "Brazil", "Mexico", "Germany"],
       rules: {
         required: (value) => !!value || "Required.",
         email: (value) => /.+@.+\..+/.test(value) || "E-mail must be valid",
