@@ -517,15 +517,21 @@
 
 
   <!-- Notification Button -->
-  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6" style="z-index: 10">
-    <v-col cols="auto">
-      <v-badge color="red" content="10" overlap location="top-end">
-        <v-btn fab dark color="black" @click="showPopup = !showPopup">
-          <v-icon>mdi-bell</v-icon>
-        </v-btn>
-      </v-badge>
-    </v-col>
-  </v-row>
+  <v-row
+  justify="end" 
+  align="center"
+  class="position-fixed bottom-0 mb-16 pr-6" 
+  style="z-index: 10"
+>
+  <v-col cols="auto">
+    <v-badge color="red" content="10" overlap location="top-end">
+      <v-btn fab dark color="black" @click="showPopup = !showPopup">
+        <v-icon>mdi-bell</v-icon>
+      </v-btn>
+    </v-badge>
+  </v-col>
+</v-row>
+
 
   <!-- Notification Dialog -->
   <v-dialog v-model="showPopup" max-width="600px">
