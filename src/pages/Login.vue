@@ -178,6 +178,38 @@
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Card com Lorem Ipsum -->
+    <v-container class="pa-4" color="white" fluid>
+      <v-card class="pa-4" color="white" elevation="2">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus,
+        dignissimos in, ipsam fugit, dolores quisquam blanditiis id quae
+        pariatur harum sequi praesentium! Officiis officia omnis facilis
+        expedita suscipit molestiae eius? Lorem ipsum dolor sit amet,
+        consectetur adipisicing elit. Saepe sunt, delectus nulla alias ex,
+        exercitationem enim, eaque odit impedit quas repellendus itaque
+        voluptates architecto fuga? Eveniet vel velit omnis enim.
+      </v-card>
+    </v-container>
+
+    <!-- Seção de Vídeo -->
+    <v-container fluid class="bg-white">
+      <v-row align="center" justify="center" style="height: 50vh">
+        <v-col cols="12" class="text-center">
+          <div>
+            <h2>Video Section</h2>
+            <v-img
+              v-if="videoThumbnail !== ''"
+              :src="videoThumbnail"
+              alt="Video"
+              max-width="80%"
+              max-height="80%"
+              cover
+            />
+          </div>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-container>
 </template>
 
@@ -200,6 +232,7 @@ export default {
         email: (value) => /.+@.+\..+/.test(value) || "E-mail must be valid",
         min: (v) => v.length >= 8 || "Min 8 characters",
       },
+      videoThumbnail: "", // Insira o caminho da imagem ou URL do thumbnail
     };
   },
   methods: {
