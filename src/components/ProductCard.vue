@@ -1,9 +1,13 @@
 <template>
-  <v-card class="pa-0 mx-auto" max-width="488px">
+  <v-card
+    class="pa-0 mx-auto d-flex"
+    max-width="488px"
+    :class="isMobile ? 'my-mobile-card' : ''"
+  >
     <v-row class="ma-0 pa-0 d-flex align-stretch flex-nowrap">
       <!-- Coluna Esquerda: Imagem do Produto com Fundo Verde -->
       <v-col
-        :cols="isMobile ? 3 : 6"
+        :cols="isMobile ? 4 : 6"
         :md="4"
         class="d-flex flex-column align-center"
         :class="isMobile ? 'pa-2' : 'pa-4'"
@@ -13,7 +17,7 @@
         <v-img
           :src="product.image || require('@/assets/default-box.png')"
           class="rounded"
-          :height="isMobile ? '100px' : '150px'"
+          :height="isMobile ? '75px' : '150px'"
           width="100%"
           alt="Product Image"
         ></v-img>
@@ -21,7 +25,7 @@
 
       <!-- Coluna Direita: Imagem de Fundo com Informações -->
       <v-col
-        :cols="isMobile ? 9 : 6"
+        :cols="isMobile ? 8 : 6"
         :md="8"
         class="text-white"
         :class="isMobile ? 'pa-2' : 'pa-4'"
@@ -61,15 +65,40 @@ export default {
       required: true,
     },
   },
-  computed: {
-    isMobile() {
-      return window.innerWidth < 600; // Defina o limite do breakpoint
+  data() {
+    return {
+      isMobile: false,
+    };
+  },
+  mounted() {
+    this.checkIfMobile();
+    window.addEventListener("resize", this.checkIfMobile);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.checkIfMobile);
+  },
+  methods: {
+    checkIfMobile() {
+      this.isMobile = window.innerWidth < 600;
     },
   },
 };
 </script>
 
 <style scoped>
+/* Centralização dos v-cards no mobile */
+.my-mobile-card {
+  margin-left: auto;
+  margin-right: auto;
+  width: 90%;
+}
+
+/* Ajuste da altura no mobile */
+.my-mobile-card {
+  height: 50%;
+}
+
+/* Ajuste do padding e alinhamento */
 #right-column {
   background-image: url('@/assets/bg_apoc.png');
   background-size: cover;
