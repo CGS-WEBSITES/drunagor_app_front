@@ -1,13 +1,11 @@
 <template>
-  <v-container class="pb-12">
- <!-- Navigation Drawer -->
-     
-    <v-row> 
+  <v-container class="pb-12 pa-0">
+    <v-row class="ma-0">
       <v-col cols="12" class="text-center">
         <h1 class="text-h2 font-weight-bold pt-14">LIBRARY</h1>
       </v-col>
     </v-row>
-    <v-row class="bg-grey-darken-3 pa-4 rounded">
+    <v-row class="bg-grey-darken-3 pa-4 rounded ma-0">
       <!-- Botão de Filtros no Mobile -->
       <v-btn class="d-md-none mb-4" color="#222222" block @click="toggleFilters">
         Filters
@@ -31,7 +29,7 @@
       </v-col>
 
       <!-- Galeria de Produtos -->
-      <v-col cols="12" md="9">
+      <v-col cols="12" md="9" class="pa-0">
         <ProductGallery
           :products="paginatedProducts"
           @open-dialog="openDialog"
@@ -156,8 +154,6 @@ export default defineComponent({
         dialogVisible.value = true;
       }
     };
-
-    
 
     onMounted(() => {
       const handleResize = () => {
