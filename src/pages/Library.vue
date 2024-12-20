@@ -84,9 +84,16 @@ export default defineComponent({
     const selectedProduct = ref(null);
 
     const products = ref([
-      { id: 1, name: "Companions and Furnitures", description: "Product 1", price: 100,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 2, name: "Item with lore in aodarkness", description: "Product 2", price: 150,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 3, name: "Desert of Hellscar", description: "Product 3", price: 200 ,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
+    { 
+  id: 1, 
+  name: "Companions and Furnitures", 
+  description: "Product 1", 
+  price: 100,  
+  image: "https://druna-assets.s3.us-east-2.amazonaws.com/Caixas+Library/Hero+Pack.png"
+},
+
+      { id: 2, name: "Item with lore in aodarkness", description: "Product 2", price: 150, rightColumnBg:"https://druna-assets.s3.us-east-2.amazonaws.com/Caixas+Library/bg-companions-and-fornitures.png",  image: "https://druna-assets.s3.us-east-2.amazonaws.com/Caixas+Library/Rise+of+the+Undead+Dragon.png"},
+      { id: 3, name: "Desert of Hellscar", description: "Product 3", price: 200 , dialogRightBg: "https://druna-assets.s3.us-east-2.amazonaws.com/Caixas+Library/dialog-shadow-world.png",rightColumnBg:"https://druna-assets.s3.us-east-2.amazonaws.com/Caixas+Library/shadow+world.png",  image: "https://druna-assets.s3.us-east-2.amazonaws.com/Caixas+Library/shadow+world.png"},
       { id: 4, name: "New Expansion Set", description: "Product 4", price: 250,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
       { id: 5, name: "Bosses of Darkness", description: "Product 5", price: 300,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
       { id: 6, name: "Ancient Relics", description: "Product 6", price: 350,  image: new URL("@/assets/apoc.png", import.meta.url).href, },

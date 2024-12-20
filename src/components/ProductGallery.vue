@@ -1,16 +1,19 @@
 <template>
-  <v-row justify="center" align="center" class="gap-2">
+  <v-row justify="center" align="center" class="ml-1 ">
     <v-col
       cols="12"
       md="6"
       lg="6"
-      class="d-flex justify-center"
+      class="d-flex justify-center px-1"
       v-for="item in products"
       :key="item.id"
     >
+  
+  
       <ProductCard
         id="product-card"
         :product="item"
+        class="w-100"
         @click="$emit('open-dialog', item)"
       />
     </v-col>
@@ -27,8 +30,5 @@ export default {
 </script>
 
 <style scoped>
-#product-card {
-  max-width: 488px;
-  width: 100%;
-}
+
 </style>

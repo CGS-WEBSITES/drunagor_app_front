@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="pa-0 mx-auto d-flex"
-    max-width="488px"
+    
     :class="isMobile ? 'my-mobile-card' : ''"
   >
     <v-row class="ma-0 pa-0 d-flex align-stretch flex-nowrap">
@@ -10,14 +10,14 @@
         :cols="isMobile ? 4 : 6"
         :md="4"
         class="d-flex flex-column align-center"
-        :class="isMobile ? 'pa-2' : 'pa-4'"
+        :class="isMobile ? 'pa-' : 'pa-4'"
         style="background-color: #00635D;"
       >
         <!-- Imagem da Caixa -->
         <v-img
           :src="product.image || require('@/assets/default-box.png')"
           class="rounded"
-          :height="isMobile ? '75px' : '150px'"
+          :height="isMobile ? '75px' : '75px'"
           width="100%"
           alt="Product Image"
         ></v-img>
@@ -28,7 +28,7 @@
         :cols="isMobile ? 8 : 6"
         :md="8"
         class="text-white"
-        :class="isMobile ? 'pa-2' : 'pa-4'"
+        :class="isMobile ? 'pa-3' : 'pa-4'"
         id="right-column"
       >
         <!-- Texto Sobreposto -->
@@ -42,7 +42,7 @@
         <v-card-subtitle>
           <div
             class="d-flex align-center"
-            :class="isMobile ? 'mb-1' : 'mb-2'"
+            :class="isMobile ? 'mb-2' : 'mb-2'"
           >
             <v-icon class="mr-2" color="white">mdi-content-save</v-icon>
             <span>CONTENT</span>
