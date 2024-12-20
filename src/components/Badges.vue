@@ -2,7 +2,7 @@
     <v-container max-width="800" style="min-width: 360px;" class="pa-4">
       <v-card rounded="lg" elevation="3" class="pl-1 pt-1 pr-1 pb-0">
         <!-- Cabeçalho -->
-        <v-card-title class="d-flex justify-space-between">
+        <v-card-title class="d-flex justify-space-between pb-0 ">
           <span class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0">{{ title }}</span>
           <span class="text-uppercase text-bold text-h5 mb-4 pb-0">{{ total }}</span>
         </v-card-title>
@@ -22,7 +22,6 @@
                   <v-img
                     :src="item.image"
                     alt="Achievement Icon"
-                    max-width="80"
                     max-height="80"
                     class="rounded-lg"
                   ></v-img>
