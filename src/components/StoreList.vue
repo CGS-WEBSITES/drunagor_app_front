@@ -41,9 +41,9 @@
                   </v-col>
 
                   <!-- Pontuação -->
-                  <v-col cols="1" class="d-flex align-self-end justify-center">
+                  <!-- <v-col cols="" class="d-flex align-self-end justify-center">
                     <p class="text-body-2 text-bold">{{ item.points }}</p>
-                  </v-col>
+                  </v-col> -->
                 </v-row>
               </v-card>
             </template>
