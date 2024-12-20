@@ -72,7 +72,7 @@
     </v-main>
      <!-- Footer Section -->
      <v-footer class="footer black bg-black pb-12" padless>
-      <v-container fluid>
+    
         <v-row justify="center" align="center" class="text-center">
           <v-col cols="12" sm="4">
             <v-img
@@ -103,7 +103,7 @@
             </v-btn>
           </v-col>
         </v-row>
-      </v-container>
+     
     </v-footer>
   </v-app>
 </template>
