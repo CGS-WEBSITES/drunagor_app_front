@@ -7,7 +7,7 @@
         <span class="text-uppercase text-bold text-h5 mb-4 pb-0">{{ total }}</span>
       </v-card-title>
 
-      <!-- Virtual Scroller -->
+        
       <v-virtual-scroll class="pt-0":items="achievements" :item-height="130">
         <template #default="{ item }">
           <v-card
@@ -22,7 +22,6 @@
                 <v-img
                   :src="item.image"
                   alt="Achievement Icon"
-                  max-width="80"
                   max-height="80"
                   class="rounded-lg"
                 ></v-img>
