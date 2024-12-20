@@ -1,18 +1,21 @@
 <template>
-  <v-container max-width="770" style="min-width: 360px;" class="pa-0 ">
+  <v-container style="min-width: 360px;" class="pa-0 ">
   <v-card
     class="profile-card mx-auto py-0"
     rounded="0"
     elevation="3"
+    
 
     style=";overflow: visible; position: relative; text-align: center;"
   >
   <div class="position-relative">
       <v-img
-        src="@/assets/backperfil.jpg"
+        src="/home/dudu/Documentos/app-drunagor-front/src/assets/AGE_Arte271.png"
         alt="Background Image"
-        height="192px"
+        max-height="729px"
         max-width="100%"
+        cover
+        
       ></v-img>
 
       <v-btn
@@ -28,12 +31,11 @@
       :src="profileImage"
       :alt="altText"
       max-width="118"
-      max-height="118"
       style="
         top: -30px;
         left: 50%;
         transform: translate(-50%, -50%);
-        border: 2px solid white;
+        border: 0.5px solid white;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
       "
     ></v-img>
