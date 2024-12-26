@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
+    "clean": "tsc --build --clean",
     "preview": "vite preview",
     "test": "playwright test",
     "build-only": "vite build",
