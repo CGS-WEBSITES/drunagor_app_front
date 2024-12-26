@@ -7,7 +7,7 @@
         <span class="text-uppercase text-bold text-h5 mb-4 pb-0">{{ total }}</span>
       </v-card-title>
 
-      <!-- Virtual Scroller -->
+        
       <v-virtual-scroll class="pt-0":items="achievements" :item-height="130">
         <template #default="{ item }">
           <v-card
@@ -22,23 +22,22 @@
                 <v-img
                   :src="item.image"
                   alt="Achievement Icon"
-                  max-width="80"
                   max-height="80"
                   class="rounded-lg"
                 ></v-img>
               </v-col>
 
-              <v-col cols="7" class="pl-0 d-flex flex-column justify-center">
+              <v-col cols="8" class="pl-0 d-flex flex-column justify-center">
                 <p class="font-weight-bold white--text">{{ item.title }}</p>
                 <p class="text-body-2 grey--text ">{{ item.description }}</p>
                 <p class="text-caption  grey--text ">Achieved {{ item.date }}</p>
              </v-col>
 
               <!-- Status -->
-              <v-col cols="1" lg="3" class="d-flex flex-column align-center justify-center">
+              <!-- <v-col cols="1" lg="3" class="d-flex flex-column align-center justify-center">
                 <v-icon color="grey darken-1" size="24">{{ item.icon }}</v-icon>
-                <p class="text-body-2 grey--text">{{ item.progress }}</p>
-              </v-col>
+                <p class="text-caption grey--text">{{ item.progress }}</p>
+              </v-col> -->
             </v-row>
           </v-card>
         </template>

@@ -4,8 +4,9 @@
  <v-btn 
         density="default"
         color="#5CA148"
-        min-width="330"
-        :min-height="50"
+        style="width: 100%;
+        max-width: 685px;"
+        min-height="50"
         class="text-h5 font-weight-black pa-0"
         >Save All Changes</v-btn>
       </v-col>

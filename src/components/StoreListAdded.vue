@@ -49,22 +49,22 @@
                   </v-col>
 
                   <!-- Pontuação -->
-                  <v-col cols="1" class="d-flex align-self-end justify-center">
+                  <!-- <v-col cols="1" class="d-flex align-self-end justify-center">
                     <p class="text-body-2 text-bold">{{ item.points }}</p>
-                  </v-col>
+                  </v-col> -->
                 </v-row>
               </v-card>
             </template>
 
             <!-- Conteúdo do menu -->
-            <v-card class="pa-4">
+            <!-- <v-card class="pa-4">
               <p class="text-h6 text-bold mb-2">{{ selectedItem?.name }}</p>
               <p class="text-body-2">{{ selectedItem?.details }}</p>
               <p class="text-body-2">Points: {{ selectedItem?.points }}</p>
               <v-btn text color="primary" class="mt-2" @click="closeMenu">
                 Fechar
               </v-btn>
-            </v-card>
+            </v-card> -->
           </v-menu>
         </template>
       </v-virtual-scroll>
