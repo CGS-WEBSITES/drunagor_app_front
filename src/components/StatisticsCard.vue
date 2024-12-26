@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="800" style="min-width: 360px;" class="pa-4">
+  <v-container max-width="800" style="min-width: 320px;" class="pa-4">
     <v-card rounded="lg" elevation="3" class="pl-1 pt-1">
       <!-- Título -->
       <v-card-title class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0">

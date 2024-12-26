@@ -2,14 +2,14 @@
 
     <v-row no-gutters>
         <v-col cols="12">
-            <statistics-card title="STATISTICS" :stats="statsData" user-since="11/11/2011" />
-            <achievements-list title="ACHIEVEMENTS" total="13/37" :achievements="achievementsData" />
             <FavoriteCampaignCard
                 image="https://i.ibb.co/bJzLDg8/21312312313123.png"
                 title="FAVORITE CAMPAIGN"
                 subtitle="CoD: Age of Darkness"
                 subtitle2="The Rise of the Undead Dragon" 
                 details="Door 01 - The entrance to the citadel - Chapter 2" />
+            <statistics-card title="STATISTICS" :stats="statsData" user-since="11/11/2011" />
+            <achievements-list title="ACHIEVEMENTS" total="13/37" :achievements="achievementsData" />
             <badges-list title="BADGES" total="13/37" :badges="badgesData" />
         </v-col>
     </v-row>
@@ -67,6 +67,7 @@ const achievementsData = [
         icon: 'mdi-trophy',
         progress: '15/43',
     },
+
     // Adicione mais conquistas conforme necessário
 ];
 
