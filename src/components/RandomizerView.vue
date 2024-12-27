@@ -88,29 +88,34 @@ function getRandomCommander() {
 
 <template>
   <v-row no-gutters class="justify-center">
-    <v-col cols="12" class="pa-4">
-      <RandomizerQuickSelect />
-    </v-col>
 
-    <v-col cols="12" class="pa-4">
+    <v-col cols="12" class="pa-0">
       <SwappableImage :title="name" :sub-title="variant" :background="backgroundImage" :frontImage="frontImage"
         :backImage="backImage" />
     </v-col>
 
-    <v-col cols="12" class="d-flex justify-center pa-4">
+    <v-col cols="12" class="d-flex justify-center pa-0">
       <v-checkbox
         :label="$t('randomizer.exclude-current-monster')" v-model="excludeCurrentCharacter">
       </v-checkbox>
     </v-col>
 
-    <v-col cols="12" class="pa-4">
-      <v-card class="d-flex justify-center pa-4">
-        <v-btn class="mx-2" variant="outlined" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
-        <v-btn class="mx-2" variant="outlined" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
-        <v-btn class="mx-2" variant="outlined" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
-        <v-btn class="mx-2" variant="outlined" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
+    <v-col cols="12" class="pa-2">
+      <v-card class="d-flex justify-center pa-3 elevation-0">
+        <v-btn class="mx-1" variant="outlined" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn class="mx-1" variant="outlined" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn class="mx-1" variant="outlined" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
+        <v-btn class="mx-1" variant="outlined" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
       </v-card>
     </v-col>
+
+    <v-col cols="12" class="pa-2">
+      <RandomizerQuickSelect />
+    </v-col>
+
+  
+
+    
   </v-row>
 </template>
 
