@@ -1,20 +1,79 @@
 <template>
-  <v-app :theme="theme">
-    <Toast />
-    <v-main>
-      <v-row no-gutters>
-        <v-app-bar flat class="border-b" title="App Drunagor">
-          <!-- Links para navegação -->
-          <v-spacer></v-spacer>
-          <v-btn @click="$router.push({ name: 'Login' })">Login</v-btn>
-          <v-btn @click="$router.push({ name: 'CampaignTracker' })">
-            Campaign Tracker
-          </v-btn>
-          <v-btn @click="$router.push({ name: 'Dashboard' })">Dashboard</v-btn>
-          <v-btn @click="$router.push({ name: 'Library' })">Library</v-btn>
-          <v-btn variant="icon" @click="toggleTheme()"
-            ><v-icon>mdi-theme-light-dark</v-icon></v-btn
-          >
+<v-app :theme="theme">
+  <Toast />
+
+    
+    <!-- Barra de Navegação Superior -->
+    <v-navigation-drawer
+      v-model="drawer"
+      app
+      location="right"
+      temporary
+      class="d-none d-md-flex m"
+    >
+      <v-list class="me-4">
+     
+        <v-list-item class="py-5">
+       
+          <v-row align="center" class="">
+            
+            <v-col cols="8">
+              <v-list-item-title>Magoveio92magi</v-list-item-title>
+              <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
+            </v-col>
+
+
+     
+
+
+            <!-- Coluna para o avatar à direita -->
+            <v-col cols="4" class="d-flex justify-end">
+              <v-avatar size="100">
+                <v-img
+                  src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
+                  alt="Avatar"
+                />
+              </v-avatar>
+            </v-col>
+          </v-row>
+        </v-list-item>
+
+        <v-list-item
+          v-for="(item, index) in menuItems"
+          :key="index"
+          link
+          @click="selectItem(item)"
+          :class="{ 'v-list-item--active': selectedItem === item }"
+        >
+          <v-list-item-icon>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+    <v-row no-gutters>
+      <v-app-bar app min-height="50" class="hidden-md-and-down" color="black">
+        <div class="d-flex align-center pl-6">
+          <!-- Ajuste o padding com pl-6 -->
+          <v-img
+            src="@/assets/darknessl.png"
+            height="30"
+            width="30"
+            alt="Drunagor Icon"
+            contain
+            class="mr-2"
+          ></v-img>
+          <span>App Drunagor</span>
+        </div>
+        <v-spacer></v-spacer>
+        <!-- Botão de Navegação alinhado à direita -->
+        <v-app-bar-nav-icon
+          class="me-4"
+          @click="drawer = !drawer"
+        ></v-app-bar-nav-icon>
         </v-app-bar>
       </v-row>
 
@@ -93,6 +152,8 @@
     </v-footer>
   </v-app>
 </template>
+
+
 <script setup lang="ts">
 import { ref } from "vue";
 
@@ -106,7 +167,64 @@ function handleScroll() {
 }
 
 const toggleTheme = () => {
-  theme.value = theme.value == "dark" ? "myCustomTheme" : "dark";
+  theme.value = theme.value === "dark" ? "myCustomTheme" : "dark";
+};
+
+// Controle de visibilidade de elementos reativos
+const showPopup = ref(false);
+const dialog = ref(false);
+const drawer = ref(false); // Controle do drawer lateral
+
+// Itens do menu de navegação
+const menuItems = ref([
+  { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
+  { title: "Campaign", icon: "mdi-flag", to: { name: "Campaign" } }, 
+  { title: "Library", icon: "mdi-book", to: { name: "Library" } },
+  { title: "Profile", icon: "mdi-account", to: { name: "Profile" } }, 
+  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } }, 
+]);
+
+// Métodos de ação para os botões da navegação
+const action1 = () => console.log("Home button clicked");
+const action2 = () => console.log("Search button clicked");
+const action3 = () => console.log("Add button clicked");
+const action4 = () => console.log("Favorites button clicked");
+const action5 = () => console.log("Account button clicked");
+
+// Função de navegação
+const navigateTo = (route: any) => {
+  if (route) router.push(route);
+};
+
+// Fechar diálogo
+const closeDialog = () => {
+  dialog.value = false;
+};
+
+// Métodos de ação para os botões da navegação
+const action1 = () => {
+  console.log("Home button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action2 = () => {
+  console.log("Search button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action3 = () => {
+  console.log("Add button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action4 = () => {
+  console.log("Favorites button clicked");
+  // Adicione a lógica específica para essa ação
+};
+
+const action5 = () => {
+  console.log("Account button clicked");
+  // Adicione a lógica específica para essa ação
 };
 
 // Métodos de ação para os botões da navegação
@@ -135,8 +253,10 @@ const action5 = () => {
   // Adicione a lógica específica para essa ação
 };
 </script>
+
 <style>
 .v-row {
   width: 100%;
 }
 </style>
+

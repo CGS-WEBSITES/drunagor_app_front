@@ -1,13 +1,13 @@
 <template>
   <!-- Profile Section -->
    <v-main>
-    <v-row class="d-flex justify-center align-center ma-0 w-100" >
+    <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="10" md="8" class="px-6">
       <v-card>
         <v-row no-gutters>
           <v-col cols="3">
             <v-avatar size="100">
-              <v-img src="@/assets/library.png" alt="Profile" />
+              <v-img src="@/assets/libraryy.png" alt="Profile" />
             </v-avatar>
           </v-col>
           <v-col cols="9">
@@ -34,87 +34,16 @@
     </v-col>
   </v-row>
 
+  <!-- Navigation Drawer -->
+  
 
-
-  <!-- Navigation Drawer (Barra de Navegação Lateral à Direita em Modo Temporário) -->
-  <v-navigation-drawer
-  v-model="drawer"
-  app
-  location="right"
-  temporary
-  width="435"
-  class="bg-black bg-opacity-20 d-none d-lg-flex"
-  style="top: 50px;"
->
-  <v-list class="me-4">
-    <!-- Item do Usuário -->
-    <v-list-item class="py-5">
-      <v-row align="center" class="w-168">
-        <!-- Coluna para o texto à esquerda -->
-        <v-col cols="8">
-          <v-list-item-title>Magoveio92magi</v-list-item-title>
-          <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
-        </v-col>
-
-        <!-- Coluna para o avatar à direita -->
-        <v-col cols="4" class="d-flex justify-end">
-          <v-avatar size="100">
-            <v-img
-              src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
-              alt="Avatar"
-            />
-          </v-avatar>
-        </v-col>
-      </v-row>
-    </v-list-item>
-
-    <!-- Itens do Menu -->
-    <v-list-item
-      v-for="(item, index) in menuItems"
-      :key="index"
-      link
-      @click="selectItem(item)"
-      :class="{ 'v-list-item--active': selectedItem === item }"
-    >
-      <v-list-item-icon>
-        <v-icon>{{ item.icon }}</v-icon>
-      </v-list-item-icon>
-      <v-list-item-content>
-        <v-list-item-title>{{ item.title }}</v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-  </v-list>
-</v-navigation-drawer>
-
-
-<!-- Toolbar (Barra de Topo) -->
-<v-app-bar app height="50" class="hidden-md-and-down" color="black">
-  <div class="d-flex align-center pl-16"> <!-- Ajuste o padding com pl-6 -->
-    <v-img
-      src="@/assets/darknessl.png"
-      height="30"
-      width="30"
-      alt="Drunagor Icon"
-      contain
-      class="mr-2"
-    ></v-img>
-    <span>App Drunagor</span>
-  </div>
-  <v-spacer></v-spacer>
-  <!-- Botão de Navegação alinhado à direita -->
-  <v-app-bar-nav-icon
-    class="pr-16"
-    @click="drawer = !drawer"
-  ></v-app-bar-nav-icon>
-</v-app-bar>
-
-  <!-- Navigation Boxes Section -->
-<v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
+<!-- Navigation Boxes Section -->
+<v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
   <v-col cols="12" sm="10" md="8" class="px-6">
-    <!-- Carrossel para dispositivos móveis -->
-    <v-carousel hide-delimiters height="400px" v-if="isMobile">
+    <!-- Primeiro Carrossel para dispositivos móveis -->
+    <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
       <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-        <v-card :style="{ height: '400px' }" class="mx-auto">
+        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto">
           <v-img :src="item.img" height="300" cover />
           <v-card-actions>
             <v-row class="d-flex justify-center">
@@ -127,7 +56,7 @@
 
     <v-row v-else align="center" justify="center">
       <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
-        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" flat class="border">
+        <v-card class="border">
           <v-img :src="item.img" height="300" cover />
           <v-card-actions>
             <v-row class="d-flex justify-center">
@@ -141,12 +70,15 @@
 </v-row>
 
 <!-- Carousel Section -->
-<v-row v-if="isMobile" class="mt-4 d-flex justify-center align-center ma-0 w-100">
-  <v-col cols="12" sm="10" md="9" class="px-6">
-    <!-- Define a mesma altura do primeiro carousel -->
-    <v-carousel hide-delimiters height="400px">
+<v-row
+  v-if="isMobile"
+  class="mt-4 d-flex justify-center align-center ma-0 w-100"
+>
+  <v-col cols="12" sm="10" md="9" class="px-8">
+    <!-- Segundo Carrossel -->
+    <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters>
       <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
-        <v-card class="mx-auto" :style="{ height: '400px' }">
+        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto">
           <v-img src="@/assets/campaign.jpg" height="300" cover />
           <v-card-title>Campaign 0%</v-card-title>
           <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
@@ -157,13 +89,17 @@
   </v-col>
 </v-row>
 
-<v-row v-else class="mt-4 d-flex justify-center align-center ma-0 w-100">
-  <v-col cols="12" sm="10" md="9" class="px-6">
-    <v-carousel hide-delimiters height="300px">
+<v-row
+  v-else
+  class="mt-4 d-flex justify-center align-center w-100"
+  no-gutters
+>
+  <v-col cols="12" sm="10" md="8" class="px-5 mb-0">
+    <v-carousel hide-delimiters>
       <v-carousel-item v-for="i in 3" :key="`desktop-${i}`">
         <v-row>
           <v-col cols="6">
-            <v-card class="mx-auto" width="80%">
+            <v-card class="mx-auto">
               <v-img src="@/assets/campaign.jpg" height="200" cover />
               <v-card-title>Campaign 0%</v-card-title>
               <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
@@ -171,7 +107,7 @@
             </v-card>
           </v-col>
           <v-col cols="6">
-            <v-card class="mx-auto" width="80%">
+            <v-card class="mx-auto">
               <v-img src="@/assets/campaign.jpg" height="200" cover />
               <v-card-title>Campaign 0%</v-card-title>
               <v-card-subtitle>Awakenings</v-card-subtitle>
@@ -185,9 +121,11 @@
 </v-row>
 
 
+
+
   <!-- Main Event Cards Section -->
   <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
-    <v-col cols="12" sm="10" md="8" class="px-2 bg-black">
+    <v-col cols="12" sm="10" md="8" class="px-2 bg-black rounded">
       <v-card-text
         class="text-h4 white--text color-white bg-black "
         color="white"
@@ -477,26 +415,42 @@
 
 
   <!-- Fixed Bottom Navigation for Mobile -->
+  <v-bottom-navigation
+  app
+  v-model="bottomNavVisible"
+  class="hidden-md-and-up fixed bg-black text-white"
+  elevation="10"
+>
+  <v-btn @click="action1" small>
+    <v-icon>mdi-home</v-icon>
+  </v-btn>
+  <v-btn @click="action2" small>
+    <v-icon>mdi-magnify</v-icon>
+  </v-btn>
+  <v-btn @click="action3" small>
+    <v-icon>mdi-plus-circle</v-icon>
+  </v-btn>
+  <v-btn @click="action4" small>
+    <v-icon>mdi-heart</v-icon>
+  </v-btn>
+  <v-btn @click="action5" small>
+    <v-icon>mdi-account</v-icon>
+  </v-btn>
+</v-bottom-navigation>
 
 
 
 
   <!-- Notification Button -->
-  <v-row
-  justify="end" 
-  align="center"
-  class="position-fixed bottom-0 mb-16 pr-6" 
-  style="z-index: 10"
->
-  <v-col cols="auto">
-    <v-badge color="red" content="10" overlap location="top-end">
-      <v-btn fab dark color="black" @click="showPopup = !showPopup">
-        <v-icon>mdi-bell</v-icon>
-      </v-btn>
-    </v-badge>
-  </v-col>
-</v-row>
-
+  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6">
+    <v-col cols="auto">
+      <v-badge color="red" content="10" overlap>
+        <v-btn fab dark color="black" @click="showPopup = !showPopup">
+          <v-icon>mdi-bell</v-icon>
+        </v-btn>
+      </v-badge>
+    </v-col>
+  </v-row>
 
   <!-- Notification Dialog -->
   <v-dialog v-model="showPopup" max-width="600px">
