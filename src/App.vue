@@ -115,7 +115,6 @@
 
       <!-- Exibe o conteúdo da rota -->
       <router-view :style="{ 'background-image': 'url(' + $assetsBucket + '/backgrounds/backgrounds.png' +')' }"/>
-    </v-main>
 
     <!-- Footer Section -->
     <v-footer class="footer black bg-black pb-12" padless>
@@ -184,13 +183,6 @@ const menuItems = ref([
   { title: "Events", icon: "mdi-calendar", to: { name: "Events" } }, 
 ]);
 
-// Métodos de ação para os botões da navegação
-const action1 = () => console.log("Home button clicked");
-const action2 = () => console.log("Search button clicked");
-const action3 = () => console.log("Add button clicked");
-const action4 = () => console.log("Favorites button clicked");
-const action5 = () => console.log("Account button clicked");
-
 // Função de navegação
 const navigateTo = (route: any) => {
   if (route) router.push(route);
@@ -199,32 +191,6 @@ const navigateTo = (route: any) => {
 // Fechar diálogo
 const closeDialog = () => {
   dialog.value = false;
-};
-
-// Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
 };
 
 // Métodos de ação para os botões da navegação
