@@ -32,31 +32,65 @@
                     </v-col>
                   </v-row>
                 </v-container>
+                <v-alert
+                  closable
+                  v-model="showAlert"
+                  :icon="alertIcon"
+                  :title="alertTitle"
+                  :text="alertText"
+                  :type="alertType"
+                ></v-alert>
                 <h4 class="text-center mt-4 py-3">
                   Ensure your email for registration
                 </h4>
-                <v-form>
-                  <v-text-field
-                    label="Email"
-                    prepend-icon="mdi-email"
-                    type="text"
-                    v-model="loginEmail"
-                    color="black"
-                    outlined
-                    dense
-                  />
-                  <v-text-field
-                    label="Password"
-                    prepend-icon="mdi-lock"
-                    type="password"
-                    v-model="loginPassword"
-                    color="black"
-                    outlined
-                    dense
-                  />
+                <v-form ref="login">
+                  <v-row>
+                    <v-col cols="11">
+                      <v-text-field
+                        label="Email or User Name"
+                        prepend-icon="mdi-email"
+                        type="text"
+                        v-model="login"
+                        color="black"
+                        outlined
+                        dense
+                      />
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="11">
+                      <v-text-field
+                        label="Password"
+                        prepend-icon="mdi-lock"
+                        :type="showPass ? 'text' : 'password'"
+                        v-model="password"
+                        color="black"
+                        outlined
+                        dense
+                      />
+                    </v-col>
+                    <v-col cols="1" class="d-flex justify-center align-center">
+                      <v-icon
+                        v-if="showPass"
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye</v-icon
+                      >
+                      <v-icon
+                        v-else
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye-off</v-icon
+                      >
+                    </v-col>
+                  </v-row>
                 </v-form>
                 <h3 class="text-center mt-4">Forgot your password?</h3>
-                <v-btn class="mt-4" color="black" dark block> SIGN IN </v-btn>
+                <v-btn class="mt-4" color="black" dark block @click="loginUser">
+                  SIGN IN
+                </v-btn>
               </v-card-text>
             </v-tab-item>
 
@@ -81,11 +115,20 @@
                   </v-row>
                 </v-container>
 
+                <v-alert
+                  closable
+                  v-model="showAlert"
+                  :icon="alertIcon"
+                  :title="alertTitle"
+                  :text="alertText"
+                  :type="alertType"
+                ></v-alert>
+
                 <h4 class="text-center mt-4 py-3">
                   Ensure your email for registration
                 </h4>
 
-                <v-form ref="form">
+                <v-form ref="regForm">
                   <v-row>
                     <v-col cols="12" sm="6">
                       <v-text-field
@@ -112,17 +155,33 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col cols="12" sm="6">
+                    <v-col cols="11" sm="5">
                       <v-text-field
                         label="Password"
-                        v-model="signupPassword"
                         prepend-icon="mdi-lock"
-                        type="password"
+                        :type="showPass ? 'text' : 'password'"
+                        v-model="signupPassword"
                         :rules="[rules.required, rules.min]"
                         color="black"
                         outlined
                         dense
                       />
+                    </v-col>
+                    <v-col cols="1" class="d-flex justify-center align-center">
+                      <v-icon
+                        v-if="showPass"
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye</v-icon
+                      >
+                      <v-icon
+                        v-else
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye-off</v-icon
+                      >
                     </v-col>
                     <v-col cols="12" sm="6">
                       <v-text-field
@@ -130,34 +189,10 @@
                         v-model="signupConfirmPassword"
                         prepend-icon="mdi-lock"
                         type="password"
-                        :rules="[rules.required, matchPasswords]"
+                        :rules="[rules.required, rules.matchPasswords]"
                         color="black"
                         outlined
                         dense
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-select
-                        v-model="selectedCountry"
-                        :items="countries"
-                        label="Select your country"
-                        prepend-icon="mdi-earth"
-                        :rules="[rules.required]"
-                        color="black"
-                        outlined
-                        dense
-                      />
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-checkbox
-                        v-model="agreeTerms"
-                        label="I have read and agree to the terms and conditions"
-                        :rules="[rules.required]"
-                        color="black"
                       />
                     </v-col>
                   </v-row>
@@ -183,29 +218,28 @@
     <v-container class="pa-4" color="white" fluid>
       <v-card class="pa-4" color="white" elevation="2">
         <p>
-          <strong>Welcome to the Drunagor App!</strong> 
+          <strong>Welcome to the Drunagor App!</strong>
         </p>
-        
+
         <p>
-          Get ready to revolutionize your gaming
-          experience! The Drunagor App is your ultimate companion for immersive
-          adventures, campaign tracking, and epic events. Seamlessly manage your
-          progress, connect with the community, and join exclusive <strong>Drunagor
-          Nights</strong> for rewards and rankings. Be among the first to explore this
-          exciting new platform and take your gameplay to the next level. Whether
-          you're a seasoned adventurer or new to the world of Drunagor, this is
-          your moment to shine. 
-        </p>    
-        
+          Get ready to revolutionize your gaming experience! The Drunagor App is
+          your ultimate companion for immersive adventures, campaign tracking,
+          and epic events. Seamlessly manage your progress, connect with the
+          community, and join exclusive <strong>Drunagor Nights</strong> for
+          rewards and rankings. Be among the first to explore this exciting new
+          platform and take your gameplay to the next level. Whether you're a
+          seasoned adventurer or new to the world of Drunagor, this is your
+          moment to shine.
+        </p>
+
         <p>
           <strong>Sign up now and embark on your next adventure!</strong>
         </p>
-        
       </v-card>
     </v-container>
 
     <!-- Seção de Vídeo -->
-    <v-container fluid class="bg-white">
+    <v-container class="bg-white">
       <v-row align="center" justify="center" style="height: 50vh">
         <v-col cols="12" class="text-center">
           <div>
@@ -222,56 +256,139 @@
 </template>
 
 
-<script lang="ts">
-import { defineComponent, ref } from "vue";
+<script setup lang="ts">
+import { ref, inject } from "vue";
+import { useRouter } from "vue-router";
+import md5 from "js-md5"; // Certifique-se de que md5 esteja instalado e importado corretamente.
+import type { VForm } from "vuetify/components";
+import { flatMap } from "lodash-es";
 
-export default defineComponent({
-  name: "AuthForm",
-  setup() {
-    const activeTab = ref<number>(0);
-    const loginEmail = ref<string>("");
-    const loginPassword = ref<string>("");
-    const signupUsername = ref<string>("");
-    const signupEmail = ref<string>("");
-    const signupPassword = ref<string>("");
-    const signupConfirmPassword = ref<string>("");
-    const selectedCountry = ref<string | null>(null);
-    const agreeTerms = ref<boolean>(false);
-    const videoThumbnail = ref<string>("");
+const regForm = ref<VForm>();
+const router = useRouter();
+const activeTab = ref<number>(1);
+const login = ref<string>("");
+const password = ref<string>("");
+const signupUsername = ref<string>("");
+const signupEmail = ref<string>("");
+const signupPassword = ref<string>("");
+const signupConfirmPassword = ref<string>("");
+const selectedCountry = ref<string | null>(null);
+const agreeTerms = ref<boolean>(false);
+const regValid = ref<boolean>(false);
+const loginValid = ref<boolean>(false);
+const videoThumbnail = ref<string>("");
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref("");
+const showAlert = ref(false);
+const showPass = ref(false);
 
-    const countries = ref<string[]>(["USA", "Canada", "Brazil", "Mexico", "Germany"]);
+const countries = ref<string[]>([
+  "USA",
+  "Canada",
+  "Brazil",
+  "Mexico",
+  "Germany",
+]);
 
-    const rules = {
-      required: (value: string) => !!value || "Required.",
-      email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
-      min: (v: string) => v.length >= 8 || "Min 8 characters",
-    };
+const rules = {
+  required: (value: string) => !!value || "Required.",
+  email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
+  min: (v: string) => v.length >= 3 || "Min 8 characters",
+  matchPasswords: (v: string) =>
+    v === signupPassword.value || "The passwords must match",
+};
 
-    const matchPasswords = (value: string) =>
-      value === signupPassword.value || "Passwords must match";
+const axios: any = inject("axios");
+const url: string = inject("apiUrl");
 
-    const submitForm = () => {
-      console.log("Form Submitted!");
-    };
+const setAllert = (icon: string, title: string, text: string, type: string) => {
+  alertIcon.value = icon;
+  alertTitle.value = title;
+  alertText.value = text;
+  showAlert.value = true;
+  alertType.value = type;
+};
 
-    return {
-      activeTab,
-      loginEmail,
-      loginPassword,
-      signupUsername,
-      signupEmail,
-      signupPassword,
-      signupConfirmPassword,
-      selectedCountry,
-      agreeTerms,
-      countries,
-      rules,
-      matchPasswords,
-      submitForm,
-      videoThumbnail,
-    };
+const loginUser = async () => {
+  if (!login.value?.trim() || !password.value?.trim()) {
+    setAllert(
+      "mdi-alert-circle",
+      400,
+      "The email and password fields were not filled out correctly.",
+      "warning"
+    );
+    return;
+  }
 
-  },
-});
+  login.value = login.value.trim();
+  password.value = password.value.trim();
+  console.log(axios, url);
+
+  await axios
+    .post(url + "users/login", {
+      login: login.value,
+      password: md5(password.value),
+      // senha: skipMd5.value ? password.value : md5(password.value),
+    })
+    .then((response) => {
+      console.log(response);
+      setAllert("mdi-check", response.status, response.data.message, "success");
+      router.push({ name: "Dashboard" });
+    })
+    .catch((response) => {
+      console.log(response);
+      setAllert(
+        "mdi-alert-circle",
+        response.status,
+        response.response.data.message,
+        "error"
+      );
+    });
+};
+
+const valReg = async () => {
+  const { valid, errors } = await regForm.value?.validate();
+  console.log(valid, errors);
+  regValid.value = valid;
+};
+
+const submitForm = async () => {
+  await valReg();
+
+  if (regValid.value) {
+    await axios
+      .post(url + "users/cadastro", {
+        name: login.value,
+        user_name: signupUsername.value,
+        email: signupEmail.value,
+        password: signupConfirmPassword.value,
+        roles_fk: 2,
+        active: true,
+        verified: false,
+        agreement: false,
+      })
+      .then((response) => {
+        console.log(response);
+        setAllert(
+          "mdi-check",
+          response.status,
+          response.data.message,
+          "success"
+        );
+        router.push({ name: "Login" });
+      })
+      .catch((response) => {
+        console.log(response);
+        setAllert(
+          "mdi-alert-circle",
+          response.status,
+          response.response.data.message,
+          "error"
+        );
+      });
+  }
+};
 </script>
 
