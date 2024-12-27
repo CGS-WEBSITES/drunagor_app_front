@@ -1,5 +1,7 @@
 <template>
+
   <v-container class="fill-height" fluid>
+
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="6">
         <v-card class="elevation-12">
@@ -163,6 +165,7 @@
     </v-row>
   </v-container>
 
+
   <v-container class="pa-4" color="white" fluid>
     <v-card class="pa-4" color="white" elevation="2">
       Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus,
@@ -197,36 +200,57 @@
   <hr />
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      activeTab: 0, // Control the active tab (0 = Login, 1 = Sign Up)
-      loginEmail: "",
-      loginPassword: "",
-      signupUsername: "",
-      signupEmail: "",
-      signupPassword: "",
-      signupConfirmPassword: "",
-      selectedCountry: null,
-      agreeTerms: false,
-      countries: ["USA", "Canada", "Brazil", "Mexico", "Germany"], // Example countries
-      rules: {
-        required: (value) => !!value || "Required.",
-        email: (value) => /.+@.+\..+/.test(value) || "E-mail must be valid",
-        min: (v) => v.length >= 8 || "Min 8 characters",
-      },
+
+<script lang="ts">
+import { defineComponent, ref } from "vue";
+
+export default defineComponent({
+  name: "AuthForm",
+  setup() {
+    const activeTab = ref<number>(0);
+    const loginEmail = ref<string>("");
+    const loginPassword = ref<string>("");
+    const signupUsername = ref<string>("");
+    const signupEmail = ref<string>("");
+    const signupPassword = ref<string>("");
+    const signupConfirmPassword = ref<string>("");
+    const selectedCountry = ref<string | null>(null);
+    const agreeTerms = ref<boolean>(false);
+    const videoThumbnail = ref<string>("");
+
+    const countries = ref<string[]>(["USA", "Canada", "Brazil", "Mexico", "Germany"]);
+
+    const rules = {
+      required: (value: string) => !!value || "Required.",
+      email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
+      min: (v: string) => v.length >= 8 || "Min 8 characters",
     };
+
+    const matchPasswords = (value: string) =>
+      value === signupPassword.value || "Passwords must match";
+
+    const submitForm = () => {
+      console.log("Form Submitted!");
+    };
+
+    return {
+      activeTab,
+      loginEmail,
+      loginPassword,
+      signupUsername,
+      signupEmail,
+      signupPassword,
+      signupConfirmPassword,
+      selectedCountry,
+      agreeTerms,
+      countries,
+      rules,
+      matchPasswords,
+      submitForm,
+      videoThumbnail,
+    };
+
   },
-  methods: {
-    matchPasswords(value) {
-      return value === this.signupPassword || "Passwords must match";
-    },
-    submitForm() {
-      if (this.$refs.form.validate()) {
-        console.log("Form Submitted!");
-      }
-    },
-  },
-};
+});
 </script>
+

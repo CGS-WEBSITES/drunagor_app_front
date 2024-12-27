@@ -1,17 +1,34 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import Login from "@/pages/Login.vue";
+import Dashboard from "@/pages/Dashboard.vue";
+import Library from "@/pages/Library.vue";
+
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: "/",
+      redirect: "/login", 
+    },
+    {
+      path: "/login",
       name: "Login",
-      component: ,
+      component: Login,
     },
     {
       path: "/dashboard",
       name: "Dashboard",
-      component: () => import("@/pages/Dashboard.vue"),
+
+      component: Dashboard,
+    },
+    {
+      path: "/library",
+      name: "Library",
+      component: Library,
+
+
     },
     {
       path: "/tracker-parent",
@@ -62,3 +79,4 @@ const router = createRouter({
 });
 
 export default router;
+
