@@ -1,8 +1,6 @@
 <template>
-<v-app :theme="theme">
-  <Toast />
-
-    
+  <v-app :theme="theme">
+    <Toast />
     <!-- Barra de Navegação Superior -->
     <v-navigation-drawer
       v-model="drawer"
@@ -12,19 +10,12 @@
       class="d-none d-md-flex m"
     >
       <v-list class="me-4">
-     
         <v-list-item class="py-5">
-       
           <v-row align="center" class="">
-            
             <v-col cols="8">
               <v-list-item-title>Magoveio92magi</v-list-item-title>
               <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
             </v-col>
-
-
-     
-
 
             <!-- Coluna para o avatar à direita -->
             <v-col cols="4" class="d-flex justify-end">
@@ -54,6 +45,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+
     <v-row no-gutters>
       <v-app-bar app min-height="50" class="hidden-md-and-down" color="black">
         <div class="d-flex align-center pl-6">
@@ -74,48 +66,57 @@
           class="me-4"
           @click="drawer = !drawer"
         ></v-app-bar-nav-icon>
-        </v-app-bar>
-      </v-row>
+      </v-app-bar>
+    </v-row>
 
-      <v-bottom-navigation
-        app
-        v-model="bottomNavVisible"
-        class="hidden-md-and-up fixed bottom-0 bg-black text-white"
-        elevation="10"
-        dense
-      >
-        <v-row align="center" justify="space-between" no-gutters>
-          <v-col class="text-center" cols="2">
-            <v-btn @click="action1" icon>
-              <v-icon>mdi-home</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col class="text-center" cols="2">
-            <v-btn @click="action2" icon>
-              <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col class="text-center" cols="2">
-            <v-btn @click="action3" icon>
-              <v-icon>mdi-plus-circle</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col class="text-center" cols="2">
-            <v-btn @click="action4" icon>
-              <v-icon>mdi-heart</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col class="text-center" cols="2">
-            <v-btn @click="action5" icon>
-              <v-icon>mdi-account</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-bottom-navigation>
-
+    <v-row
+      no-gutters
+      class="mt-9 py-8"
+      :style="{
+        'background-image':
+          'url(' + assets + '/backgrounds/backgrounds.png' + ')',
+        'background-repeat': 'repeat-y',
+      }"
+    >
       <!-- Exibe o conteúdo da rota -->
-      <router-view :style="{ 'background-image': 'url(' + $assetsBucket + '/backgrounds/backgrounds.png' +')' }"/>
-    </v-main>
+      <router-view />
+    </v-row>
+
+    <v-bottom-navigation
+      app
+      v-model="bottomNavVisible"
+      class="hidden-md-and-up fixed bottom-0 bg-black text-white"
+      elevation="10"
+      dense
+    >
+      <v-row align="center" justify="space-between" no-gutters>
+        <v-col class="text-center" cols="2">
+          <v-btn @click="action1" icon>
+            <v-icon>mdi-home</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col class="text-center" cols="2">
+          <v-btn @click="action2" icon>
+            <v-icon>mdi-magnify</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col class="text-center" cols="2">
+          <v-btn @click="action3" icon>
+            <v-icon>mdi-plus-circle</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col class="text-center" cols="2">
+          <v-btn @click="action4" icon>
+            <v-icon>mdi-heart</v-icon>
+          </v-btn>
+        </v-col>
+        <v-col class="text-center" cols="2">
+          <v-btn @click="action5" icon>
+            <v-icon>mdi-account</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-bottom-navigation>
 
     <!-- Footer Section -->
     <v-footer class="footer black bg-black pb-12" padless>
@@ -155,7 +156,9 @@
 
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, inject } from "vue";
+
+const assets = inject<string>("assets");
 
 const theme = ref("myCustomTheme");
 // Controle de visibilidade do menu de navegação inferior
@@ -178,10 +181,10 @@ const drawer = ref(false); // Controle do drawer lateral
 // Itens do menu de navegação
 const menuItems = ref([
   { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
-  { title: "Campaign", icon: "mdi-flag", to: { name: "Campaign" } }, 
+  { title: "Campaign", icon: "mdi-flag", to: { name: "Campaign" } },
   { title: "Library", icon: "mdi-book", to: { name: "Library" } },
-  { title: "Profile", icon: "mdi-account", to: { name: "Profile" } }, 
-  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } }, 
+  { title: "Profile", icon: "mdi-account", to: { name: "Profile" } },
+  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } },
 ]);
 
 // Métodos de ação para os botões da navegação
@@ -199,58 +202,6 @@ const navigateTo = (route: any) => {
 // Fechar diálogo
 const closeDialog = () => {
   dialog.value = false;
-};
-
-// Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-// Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
 };
 </script>
 
