@@ -45,7 +45,7 @@ function findHeroes(campaignId: string): HeroData[] {
 </script>
 
 <template>
-  <v-card class="pa-6">
+  <v-card class="d-flex justify-center pa-3 elevation-0">
     <v-card-actions>
       <CampaignNew />
       <CampaignImport />
