@@ -123,7 +123,7 @@ watch(selectedSkills, (newSkills) => {
 
 <template>
   <v-row no-gutters class="justify-space-around">
-    <v-col cols="2" v-for="skill in skills" :key="skill.id" class="skill">
+    <v-col cols="12" md="2" lg="2" v-for="skill in skills" :key="skill.id" class="skill">
       <h3>{{ t(skill.translationKey) }}</h3>
       <v-checkbox
         v-for="level in 2"
