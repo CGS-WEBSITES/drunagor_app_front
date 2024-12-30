@@ -38,7 +38,7 @@ function campPhase() {
 </script>
 
 <template>
-  <v-btn variant="outlined" id="camp-phase" @click="openModal">
+  <v-btn variant="elevated" id="camp-phase" @click="openModal">
     {{ t("label.camp-phase") }}
   </v-btn>
   <v-dialog v-model="visible" modal>

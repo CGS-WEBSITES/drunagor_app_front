@@ -44,7 +44,7 @@ function onStash() {
 <template>
   <v-row no-gutters class="py-6"
     ><v-col cols="12">
-      <v-btn variant="outlined" @click="$router.go(-1)">{{
+      <v-btn variant="elevated" @click="$router.go(-1)">{{
         t("label.back")
       }}</v-btn>
     </v-col></v-row

@@ -28,7 +28,7 @@ function startSequentialAdventure() {
 
 <template>
   <v-btn
-    variant="outlined"
+    variant="elevated"
     id="sequential-adventure-btn"
     @click="startSequentialAdventure"
     >{{ t("label.sequential-adventure") }}</v-btn
