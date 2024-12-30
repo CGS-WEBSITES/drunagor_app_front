@@ -50,7 +50,7 @@ query.value = preselectedKeyword;
       <v-card-text>
         <v-expansion-panels color="blue-darken-4" >
           <v-expansion-panel
-          color="#795E1F"
+          color="#172A2C"
           class="my-2"
             v-for="keyword in filteredKeyword"
             :key="keyword.id"
