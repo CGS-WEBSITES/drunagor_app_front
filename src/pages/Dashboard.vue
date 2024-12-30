@@ -1,75 +1,73 @@
 <template>
   <!-- Profile Section -->
-   <v-main>
+  <v-main>
     <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="10" md="8" class="px-6">
-      <v-card>
-        <v-row no-gutters>
-          <v-col cols="3">
-            <v-avatar size="100">
-              <v-img src="@/assets/libraryy.png" alt="Profile" />
-            </v-avatar>
-          </v-col>
-          <v-col cols="9">
-            <v-card-title>MAGOVEIO92MAGI</v-card-title>
-            <v-card-subtitle>RANKING: 5123</v-card-subtitle>
-            <!-- Icons below the name -->
-            <v-row no-gutters>
-              <v-col cols="auto" class="mr-2 pl-3">
-                <v-icon>mdi-shield</v-icon>
-              </v-col>
-              <v-col cols="auto" class="mr-2">
-                <v-icon>mdi-sword</v-icon>
-              </v-col>
-              <v-col cols="auto" class="mr-2">
-                <v-icon>mdi-book</v-icon>
-              </v-col>
-              <v-col cols="auto">
-                <v-icon>mdi-map</v-icon>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-      </v-card>
-    </v-col>
-  </v-row>
-
-  <!-- Navigation Drawer -->
-  
-
-<!-- Navigation Boxes Section -->
-<v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
-  <v-col cols="12" sm="10" md="8" class="px-6">
-    <!-- Primeiro Carrossel para dispositivos móveis -->
-    <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
-      <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto">
-          <v-img :src="item.img" height="300" cover />
-          <v-card-actions>
-            <v-row class="d-flex justify-center">
-              <v-btn class="text-center">{{ item.label }}</v-btn>
-            </v-row>
-          </v-card-actions>
-        </v-card>
-      </v-carousel-item>
-    </v-carousel>
-
-    <v-row v-else align="center" justify="center">
-      <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
-        <v-card class="border">
-          <v-img :src="item.img" height="300" cover />
-          <v-card-actions>
-            <v-row class="d-flex justify-center">
-              <v-btn class="text-center">{{ item.label }}</v-btn>
-            </v-row>
-          </v-card-actions>
+        <v-card>
+          <v-row no-gutters>
+            <v-col cols="3">
+              <v-avatar size="100">
+                <v-img src="@/assets/libraryy.png" alt="Profile" />
+              </v-avatar>
+            </v-col>
+            <v-col cols="9">
+              <!-- Exibe o username do Pinia -->
+              <v-card-title>{{ appStore.user?.username || "Default Username" }}</v-card-title>
+              <v-card-subtitle>RANKING: 5123</v-card-subtitle>
+              <!-- Icons below the name -->
+              <v-row no-gutters>
+                <v-col cols="auto" class="mr-2 pl-3">
+                  <v-icon>mdi-shield</v-icon>
+                </v-col>
+                <v-col cols="auto" class="mr-2">
+                  <v-icon>mdi-sword</v-icon>
+                </v-col>
+                <v-col cols="auto" class="mr-2">
+                  <v-icon>mdi-book</v-icon>
+                </v-col>
+                <v-col cols="auto">
+                  <v-icon>mdi-map</v-icon>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
-  </v-col>
-</v-row>
 
-<!-- Carousel Section -->
+    <!-- Navigation Boxes Section -->
+    <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
+      <v-col cols="12" sm="10" md="8" class="px-6">
+        <!-- Primeiro Carrossel para dispositivos móveis -->
+        <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
+          <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
+            <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto">
+              <v-img :src="item.img" height="300" cover />
+              <v-card-actions>
+                <v-row class="d-flex justify-center">
+                  <v-btn class="text-center">{{ item.label }}</v-btn>
+                </v-row>
+              </v-card-actions>
+            </v-card>
+          </v-carousel-item>
+        </v-carousel>
+
+        <v-row v-else align="center" justify="center">
+          <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
+            <v-card class="border">
+              <v-img :src="item.img" height="300" cover />
+              <v-card-actions>
+                <v-row class="d-flex justify-center">
+                  <v-btn class="text-center">{{ item.label }}</v-btn>
+                </v-row>
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
+    
+   <!-- Carousel Section -->
 <v-row
   v-if="isMobile"
   class="mt-4 d-flex justify-center align-center ma-0 w-100"
@@ -120,11 +118,8 @@
   </v-col>
 </v-row>
 
-
-
-
-  <!-- Main Event Cards Section -->
-  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
+ <!-- Main Event Cards Section -->
+ <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
     <v-col cols="12" sm="10" md="8" class="px-2 bg-black rounded">
       <v-card-text
         class="text-h4 white--text color-white bg-black "
@@ -363,6 +358,12 @@
     </v-col>
   </v-row>
 
+
+
+
+
+
+
   <!-- My Library Section -->
 
   <!-- Title for My Library -->
@@ -440,35 +441,17 @@
 
 
 
+ 
 
-  <!-- Notification Button -->
-  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6">
-    <v-col cols="auto">
-      <v-badge color="red" content="10" overlap>
-        <v-btn fab dark color="black" @click="showPopup = !showPopup">
-          <v-icon>mdi-bell</v-icon>
-        </v-btn>
-      </v-badge>
-    </v-col>
-  </v-row>
-
-  <!-- Notification Dialog -->
-  <v-dialog v-model="showPopup" max-width="600px">
-    <v-card>
-      <v-card-title>Notificações</v-card-title>
-      <v-card-text>
-        <!-- Conteúdo do diálogo -->
-      </v-card-text>
-      <v-card-actions>
-        <v-btn text @click="showPopup = false">Fechar</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</v-main>
+  </v-main>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
+import { useAppStore } from "@/store/app"; // Importa a store do Pinia
+
+// Inicializa a store
+const appStore = useAppStore();
 
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
@@ -528,11 +511,12 @@ const menuItems = ref([
   { title: "Events", icon: "mdi-calendar" },
 ]);
 
-
+// Função para fechar o diálogo
 const closeDialog = () => {
   dialog.value = false;
 };
 
+// Função para abrir Google Maps com um local específico
 const openGoogleMaps = (place: { name: string }) => {
   const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     place.name
@@ -542,13 +526,7 @@ const openGoogleMaps = (place: { name: string }) => {
 </script>
 
 
-
-
-
-
-<style>
-
-
+<style scoped>
 .v-badge__badge {
   position: absolute;
   top: -5px;

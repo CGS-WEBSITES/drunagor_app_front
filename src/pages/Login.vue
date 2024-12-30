@@ -213,85 +213,37 @@
         </v-card>
       </v-col>
     </v-row>
-
-    <!-- Card com Lorem Ipsum -->
-    <v-container class="pa-4" color="white" fluid>
-      <v-card class="pa-4" color="white" elevation="2">
-        <p>
-          <strong>Welcome to the Drunagor App!</strong>
-        </p>
-
-        <p>
-          Get ready to revolutionize your gaming experience! The Drunagor App is
-          your ultimate companion for immersive adventures, campaign tracking,
-          and epic events. Seamlessly manage your progress, connect with the
-          community, and join exclusive <strong>Drunagor Nights</strong> for
-          rewards and rankings. Be among the first to explore this exciting new
-          platform and take your gameplay to the next level. Whether you're a
-          seasoned adventurer or new to the world of Drunagor, this is your
-          moment to shine.
-        </p>
-
-        <p>
-          <strong>Sign up now and embark on your next adventure!</strong>
-        </p>
-      </v-card>
-    </v-container>
-
-    <!-- Seção de Vídeo -->
-    <v-container class="bg-white">
-      <v-row align="center" justify="center" style="height: 50vh">
-        <v-col cols="12" class="text-center">
-          <div>
-            <h2>Video Section</h2>
-            <v-img
-              :src="$assetsBucket + '/landing-page/presentation-video.mp4'"
-              alt="Video"
-            />
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
   </v-container>
 </template>
-
 
 <script setup lang="ts">
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
-import md5 from "js-md5"; // Certifique-se de que md5 esteja instalado e importado corretamente.
+import { useAppStore } from "@/store/app"; // Importa a store do Pinia
+import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
 import type { VForm } from "vuetify/components";
-import { flatMap } from "lodash-es";
 
+// Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
-const activeTab = ref<number>(1);
-const login = ref<string>("");
-const password = ref<string>("");
-const signupUsername = ref<string>("");
-const signupEmail = ref<string>("");
-const signupPassword = ref<string>("");
-const signupConfirmPassword = ref<string>("");
-const selectedCountry = ref<string | null>(null);
-const agreeTerms = ref<boolean>(false);
-const regValid = ref<boolean>(false);
-const loginValid = ref<boolean>(false);
-const videoThumbnail = ref<string>("");
-const alertIcon = ref("");
-const alertText = ref("");
-const alertTitle = ref("");
-const alertType = ref("");
-const showAlert = ref(false);
-const showPass = ref(false);
+const activeTab = ref<number>(0); // Controla as abas (Login/Sign Up)
+const login = ref<string>(""); // Login do usuário
+const password = ref<string>(""); // Senha do usuário
+const signupUsername = ref<string>(""); // Nome de usuário para cadastro
+const signupEmail = ref<string>(""); // Email para cadastro
+const signupPassword = ref<string>(""); // Senha para cadastro
+const signupConfirmPassword = ref<string>(""); // Confirmação de senha
+const showAlert = ref(false); // Controla a exibição de alertas
+const alertIcon = ref(""); // Ícone do alerta
+const alertText = ref(""); // Texto do alerta
+const alertTitle = ref(""); // Título do alerta
+const alertType = ref(""); // Tipo de alerta (success, error, etc.)
+const showPass = ref(false); // Alterna entre mostrar/ocultar senha
 
-const countries = ref<string[]>([
-  "USA",
-  "Canada",
-  "Brazil",
-  "Mexico",
-  "Germany",
-]);
+// Store do Pinia
+const appStore = useAppStore();
 
+// Regras de validação
 const rules = {
   required: (value: string) => !!value || "Required.",
   email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
@@ -300,95 +252,56 @@ const rules = {
     v === signupPassword.value || "The passwords must match",
 };
 
+// Configurações para requisições (axios e URL base)
 const axios: any = inject("axios");
 const url: string = inject("apiUrl");
 
-const setAllert = (icon: string, title: string, text: string, type: string) => {
+// Função para exibir alertas
+const setAlert = (icon: string, title: string, text: string, type: string) => {
   alertIcon.value = icon;
   alertTitle.value = title;
   alertText.value = text;
-  showAlert.value = true;
   alertType.value = type;
+  showAlert.value = true;
 };
 
+// Função de login
 const loginUser = async () => {
   if (!login.value?.trim() || !password.value?.trim()) {
-    setAllert(
+    setAlert(
       "mdi-alert-circle",
-      400,
+      "Login Error",
       "The email and password fields were not filled out correctly.",
       "warning"
     );
     return;
   }
 
-  login.value = login.value.trim();
-  password.value = password.value.trim();
-  console.log(axios, url);
-
-  await axios
-    .post(url + "users/login", {
-      login: login.value,
-      password: md5(password.value),
-      // senha: skipMd5.value ? password.value : md5(password.value),
-    })
-    .then((response) => {
-      console.log(response);
-      setAllert("mdi-check", response.status, response.data.message, "success");
-      router.push({ name: "Dashboard" });
-    })
-    .catch((response) => {
-      console.log(response);
-      setAllert(
-        "mdi-alert-circle",
-        response.status,
-        response.response.data.message,
-        "error"
-      );
+  try {
+    const response = await axios.post(url + "users/login", {
+      login: login.value.trim(),
+      password: md5(password.value.trim()), // Usa md5 para criptografar a senha
     });
-};
 
-const valReg = async () => {
-  const { valid, errors } = await regForm.value?.validate();
-  console.log(valid, errors);
-  regValid.value = valid;
-};
+    console.log("API Response:", response.data);
 
-const submitForm = async () => {
-  await valReg();
+    // Armazena os dados do usuário no Pinia
+    appStore.setUser({
+      username: response.data.data.user_name, // Pega o `user_name` da resposta
+      email: response.data.data.email,       // Pega o email, se necessário
+    });
 
-  if (regValid.value) {
-    await axios
-      .post(url + "users/cadastro", {
-        name: login.value,
-        user_name: signupUsername.value,
-        email: signupEmail.value,
-        password: signupConfirmPassword.value,
-        roles_fk: 2,
-        active: true,
-        verified: false,
-        agreement: false,
-      })
-      .then((response) => {
-        console.log(response);
-        setAllert(
-          "mdi-check",
-          response.status,
-          response.data.message,
-          "success"
-        );
-        router.push({ name: "Login" });
-      })
-      .catch((response) => {
-        console.log(response);
-        setAllert(
-          "mdi-alert-circle",
-          response.status,
-          response.response.data.message,
-          "error"
-        );
-      });
+    // Exibe sucesso e redireciona para o Dashboard
+    setAlert("mdi-check", "Success", response.data.message, "success");
+    router.push({ name: "Dashboard" });
+  } catch (error) {
+    // Exibe erro em caso de falha
+    setAlert(
+      "mdi-alert-circle",
+      "Login Error",
+      error.response?.data?.message || "An error occurred.",
+      "error"
+    );
   }
 };
 </script>
-
