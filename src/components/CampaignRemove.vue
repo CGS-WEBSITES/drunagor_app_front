@@ -42,7 +42,7 @@ function removeCampaign() {
 </script>
 
 <template>
-  <v-btn variant="outlined" id="campaign-remove" @click="openModal">{{
+  <v-btn variant="elevated" id="campaign-remove" @click="openModal">{{
     t("label.remove-campaign")
   }}</v-btn>
   <v-dialog v-model="visible">
@@ -55,12 +55,23 @@ function removeCampaign() {
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-btn variant="outlined" @click="removeCampaign">{{
-          t("label.yes")
-        }}</v-btn>
-        <v-btn variant="outlined" @click="closeModal">{{
-          t("label.no")
-        }}</v-btn>
+        <v-row no-gutters>
+          <v-col cols="6" class="d-flex flex-row justify-center">
+            <v-btn variant="text" @click="removeCampaign" width="100%">{{
+              t("label.yes")
+            }}</v-btn>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="6" class="d-flex flex-row justify-center">
+            <v-btn
+              variant="text"
+              @click="closeModal"
+              width="100%"
+              color="red-accent-2"
+              >{{ t("label.no") }}</v-btn
+            >
+          </v-col>
+        </v-row>
       </v-card-actions>
     </v-card>
   </v-dialog>
