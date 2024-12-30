@@ -40,8 +40,10 @@ function onSequentialAdventure() {
 </script>
 
 <template>
+  <v-col cols="12">
+  <v-container class="d-none d-md-flex">
   <v-row no-gutters class="d-flex justify-center">
-    <v-card class="mb-2" min-width="600">
+    <v-card class="mb-2" min-width="800">
       <v-card-actions class="d-flex justify-space-between">
         <CampaignRemove class="mr-2" :campaign-id="campaignId" />
         <CampaignExport :campaign-id="campaignId" />
@@ -57,6 +59,36 @@ function onSequentialAdventure() {
       </v-card-actions>
     </v-card>
   </v-row>
+</v-container>
+
+<v-container class="d-md-none pa-4">
+  <v-row no-gutters class="d-flex justify-center">
+    <v-card class="mb-2">
+      <v-card-actions class="d-flex justify-center">
+        <CampaignRemove class="mr-2" :campaign-id="campaignId" />
+      </v-card-actions>
+        <v-card-actions class="d-flex justify-center">
+        <CampaignExport :campaign-id="campaignId" />
+      </v-card-actions>
+      <v-card-actions class="d-flex justify-center">
+        <SequentialAdventureButton
+          :campaign-id="campaignId"
+          @sequential-adventure="onSequentialAdventure"
+          :disabled="isSequentialAdventure"
+        />
+      </v-card-actions>
+      <v-card-actions class="d-flex justify-center">
+        <CampaignCampPhase
+          :campaign-id="campaignId"
+          @camp-phase="onCampPhase"
+        />
+      </v-card-actions>
+    </v-card>
+  </v-row>
+</v-container>
+</v-col>
+
+
 
   <v-row no-gutters class="d-flex justify-center">
     <v-col cols="12 px-2">
@@ -97,14 +129,14 @@ function onSequentialAdventure() {
   </v-row>
 
   <v-row no-gutters class="justify-center pa-6">
-    <v-col cols="4" class="d-flex flex-row justify-space-around px-6">
+    <v-col cols="12" sm="12" md="6" lg="4" class="d-flex flex-row justify-space-around px-0">
       <CampaignLogAddHero :campaign-id="campaignId" />
       <CampaignLogRemoveHero :campaign-id="campaignId" />
     </v-col>
   </v-row>
 
   <v-row no-gutters class="d-flex justify-center">
-    <v-sheet rounded border="md" class="mb-6 pa-6 text-white" width="100%">
+    <v-sheet rounded border="md" class="text-white" width="100%">
       <v-col
         cols="12"
         id="heroes"
