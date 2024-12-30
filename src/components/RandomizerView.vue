@@ -100,16 +100,37 @@ function getRandomCommander() {
       </v-checkbox>
     </v-col>
 
-    <v-col cols="12" class="pa-2">
-      <v-card class="d-flex justify-center pa-3 elevation-0">
-        <v-btn class="mx-1" variant="outlined" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
-        <v-btn class="mx-1" variant="outlined" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
-        <v-btn class="mx-1" variant="outlined" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
-        <v-btn class="mx-1" variant="outlined" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
+
+    <v-container max-width="680" class="d-none d-md-flex">
+    <v-col cols="12" >
+      <v-card rounded="" class="d-flex justify-center pa-3 elevation-0">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
       </v-card>
     </v-col>
+  </v-container>
+    
 
-    <v-col cols="12" class="pa-2">
+
+    <v-container class="d-md-none pa-4">
+      <v-card>
+      <v-card class="d-flex justify-center pa-3 elevation-0">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
+      </v-card>
+      <v-card class="d-flex justify-center pa-3 elevation-0">
+      <v-btn  rounded variant="elevated" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
+    </v-card>
+  </v-card>
+      
+    </v-container>
+
+
+
+    <v-col cols="12" class="">
       <RandomizerQuickSelect />
     </v-col>
 
