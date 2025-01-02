@@ -32,6 +32,7 @@ watch(monsterContentSettings, async (newSettings) => {
 </script>
 
 <template>
+   <v-container max-width="680">
   <v-card class="my-4">
     <v-card-title>
       {{ $t("configuration.monster-content") }}
@@ -49,6 +50,7 @@ watch(monsterContentSettings, async (newSettings) => {
       </v-checkbox>
     </v-card-text>
   </v-card>
+</v-container>
 </template>
 
 <style scoped></style>

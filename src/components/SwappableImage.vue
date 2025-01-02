@@ -31,7 +31,7 @@ function swapImage() {
 </script>
 
 <template>
-  <v-container max-width="680">
+  <v-container max-width="666">
   <v-card class="d-flex flex-column justify-center align-center">
     <v-card-item>
       <v-card-title>

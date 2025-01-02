@@ -38,6 +38,7 @@ query.value = preselectedKeyword;
 
 <template>
   <div class="grid place-items-center w-full">
+    <v-container max-width="680">
     <v-card class="pa-1">
       <v-card-title> {{ t("menu.keyword") }} </v-card-title>
       <v-card-actions>
@@ -61,6 +62,7 @@ query.value = preselectedKeyword;
         </v-expansion-panels>
       </v-card-text>
     </v-card>
+  </v-container>
   </div>
 </template>
 
