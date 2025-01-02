@@ -38,7 +38,7 @@ function campPhase() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="camp-phase" @click="openModal">
+  <v-btn variant="elevated" id="camp-phase" rounded @click="openModal">
     {{ t("label.camp-phase") }}
   </v-btn>
   <v-dialog v-model="visible" modal>
@@ -52,13 +52,13 @@ function campPhase() {
       <v-divider></v-divider>
       <v-card-action>
         <v-row no-gutters>
-          <v-col cols="6" class="d-flex flex-row justify-center">
+          <v-col cols="12" class="d-flex flex-row justify-center">
             <v-btn variant="text" @click="campPhase" width="100%">{{
               t("label.yes")
             }}</v-btn>
           </v-col>
           <v-divider vertical></v-divider>
-          <v-col cols="6" class="d-flex flex-row justify-center">
+          <v-col cols="12" class="d-flex flex-row justify-center">
             <v-btn
               variant="text"
               @click="closeModal"

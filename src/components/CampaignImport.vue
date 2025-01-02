@@ -89,7 +89,7 @@ function closeModal() {
 </script>
 
 <template>
-  <v-btn variant="elevated"id="campaign-import" @click="openModal">{{
+  <v-btn variant="elevated"id="campaign-import" rounded @click="openModal">{{
     t("label.import-campaign")
   }}</v-btn>
   <v-dialog v-model="visible">
