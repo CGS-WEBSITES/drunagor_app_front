@@ -195,6 +195,28 @@
                         dense
                       />
                     </v-col>
+
+                    <v-col cols="12">
+                      <v-checkbox
+                        v-model="agreeTerms"
+                        color="green"
+                        :rules="[rules.required]"
+                      ></v-checkbox>
+                      <v-label>
+                        I agree with the
+                        <strong
+                          style="cursor: pointer"
+                          @click="termsDialog.value = true"
+                          >Terms & Conditions</strong
+                        >
+                        and
+                        <strong
+                          style="cursor: pointer"
+                          @click="privacyDialog.value = true"
+                          >Privacy Policy</strong
+                        >
+                      </v-label>
+                    </v-col>
                   </v-row>
 
                   <v-btn
@@ -252,6 +274,59 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <!-- Terms dialog -->
+    <v-dialog v-model="termsDialog" max-width="500">
+      <v-card title="Terms & Conditions">
+        <v-card-text>
+          **Effective Date:** January 2nd 2025 **~~Last Updated:** [Insert
+          Date]~~ **1. Acceptance of Terms** By accessing or using the Drunagor
+          App (“App”), you agree to comply with these Terms & Conditions. If you
+          do not agree, please refrain from using the App. **2. Eligibility**
+          You must be at least 16 years old or have parental consent to use the
+          App. By using the App, you confirm you meet this requirement. **3.
+          User Responsibilities** You agree to: • Provide accurate and truthful
+          information during registration. • Use the App for its intended
+          purposes. • Not engage in prohibited activities, including hacking,
+          transmitting viruses, or using automated systems. **4. Intellectual
+          Property** All content, including but not limited to text, graphics,
+          logos, and code, is the property of [Your Company Name] and protected
+          under intellectual property laws. **5. Privacy** Your use of the App
+          is governed by our **Privacy Policy**, which explains how we collect,
+          use, and store your data. **6. Disclaimer of Warranties** The App is
+          provided “as-is” and “as available.” We make no guarantees regarding
+          its performance, reliability, or suitability for your purposes. **7.
+          Limitation of Liability** We are not liable for indirect, incidental,
+          or consequential damages arising from your use of the App. **8.
+          Modifications to Terms** We may update these Terms & Conditions.
+          Continued use of the App after changes constitutes acceptance. **9.
+          Governing Law** These Terms are governed by the laws of Montana. **10.
+          Contact** For inquiries, email: customerservice@wearecgs.com
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Close Dialog" @click="termsDialog.value = false"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="privacyDialog" max-width="500">
+      <v-card title="Privacy Policy">
+        <v-card-text>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            text="Close Dialog"
+            @click="privacyDialog.value = false"
+          ></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -281,6 +356,8 @@ const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
 const alertType = ref("");
+const termsDialog = ref(false);
+const privacyDialog = ref(false);
 const showAlert = ref(false);
 const showPass = ref(false);
 
