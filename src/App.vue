@@ -1,24 +1,17 @@
 <template>
   <v-app :theme="theme">
     <Toast />
-
-
+    
     <!-- Barra de Navegação Superior -->
     <v-navigation-drawer v-model="drawer" app location="right" temporary class="d-none d-md-flex m">
       <v-list class="me-4">
 
         <v-list-item class="py-5">
-
           <v-row align="center" class="">
-
             <v-col cols="8">
               <v-list-item-title>Magoveio92magi</v-list-item-title>
               <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
             </v-col>
-
-
-
-
 
             <!-- Coluna para o avatar à direita -->
             <v-col cols="4" class="d-flex justify-end">
@@ -41,6 +34,7 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
+
     <v-row no-gutters>
       <v-app-bar app min-height="50" class="hidden-md-and-down" color="black">
         <div class="d-flex align-center pl-6">
@@ -68,6 +62,7 @@
 
     <!-- Exibe o conteúdo da rota -->
     <router-view :style="{ 'background-image': 'url(' + $assetsBucket + '/backgrounds/backgrounds.png' + ')' }" />
+
 
     <!-- Footer Section -->
     <v-footer class="footer black bg-black pb-12" padless>
@@ -108,8 +103,9 @@ import Dashboard from "./pages/Dashboard.vue";
 
 const router = useRouter();
 
-router.push({ name: "" })
+import { ref, inject } from "vue";
 
+const assets = inject<string>("assets");
 
 const theme = ref("myCustomTheme");
 // Controle de visibilidade do menu de navegação inferior
@@ -135,6 +131,7 @@ const menuItems = ref([
   { title: "Campaign Tracker", icon: "mdi-flag", to: { name: "CampaignTracker" } },
   { title: "Library", icon: "mdi-book", to: { name: "Library" } },
   { title: "Profile", icon: "mdi-account", to: { name: "Perfil" } },
+
   { title: "Events", icon: "mdi-calendar", to: { name: "Events" } },
 ]);
 
@@ -146,32 +143,6 @@ const navigateTo = (route: any) => {
 // Fechar diálogo
 const closeDialog = () => {
   dialog.value = false;
-};
-
-// Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  router.push;
-};
-
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
 };
 </script>
 

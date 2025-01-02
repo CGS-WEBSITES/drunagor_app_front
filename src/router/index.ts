@@ -19,6 +19,11 @@ const router = createRouter({
       component: () => import("@/pages/Login.vue"),
     },
     {
+      path: "/library",
+      name: "Library",
+      component: () => import("@/pages/Library.vue"),
+    },
+    {
       path: "/dashboard",
       name: "Dashboard",
 
@@ -72,9 +77,42 @@ const router = createRouter({
           path: "/campaign-tracker/keyword",
           name: "Keyword",
           component: () => import("@/components/KeywordView.vue"),
-        },
+        }     
       ],
     },
+      {
+        path: "/perfil",
+        name: "Perfil",
+        component: () => import("@/pages/Perfil.vue"),
+        children: [
+          {
+            path: "/perfil/home",
+            name: "PerfilHome",
+            component: () => import("@/components/PerfilHome.vue"),
+          },
+          {
+            path: "/perfil/friend-store",
+            name: "search",
+            component: () => import("@/components/FriendStore.vue"),
+          },
+          {
+            path: "/perfil/friend-storelist",
+            name: "group",
+            component: () => import("@/components/FriendStoreList.vue"),
+          },
+          {
+            path: "/perfil/perfil-settings",
+            name: "settings",
+            component: () => import("@/components/PerfilSettings.vue"),
+          },
+          {
+            path: "/perfil",
+            name: "logout",
+            component: () =>
+              import("@/components/CampaignHeroSequentialAdventure.vue"),
+          },
+        ]
+    }
     
   ],
 });
