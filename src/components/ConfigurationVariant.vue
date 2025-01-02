@@ -31,6 +31,7 @@ watch(variantSettings, async (newSettings) => {
 </script>
 
 <template>
+  <v-container max-width="680">
   <v-card class="my-4">
     <v-card-title>
       {{ $t("configuration.enabled-variant") }}
@@ -47,6 +48,7 @@ watch(variantSettings, async (newSettings) => {
       </v-checkbox>
     </v-card-text>
   </v-card>
+</v-container>
 </template>
 
 <style scoped></style>

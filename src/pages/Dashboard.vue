@@ -414,30 +414,6 @@
  
 
 
-  <!-- Fixed Bottom Navigation for Mobile -->
-  <v-bottom-navigation
-  app
-  v-model="bottomNavVisible"
-  class="hidden-md-and-up fixed bg-black text-white"
-  elevation="10"
->
-  <v-btn @click="action1" small>
-    <v-icon>mdi-home</v-icon>
-  </v-btn>
-  <v-btn @click="action2" small>
-    <v-icon>mdi-magnify</v-icon>
-  </v-btn>
-  <v-btn @click="action3" small>
-    <v-icon>mdi-plus-circle</v-icon>
-  </v-btn>
-  <v-btn @click="action4" small>
-    <v-icon>mdi-heart</v-icon>
-  </v-btn>
-  <v-btn @click="action5" small>
-    <v-icon>mdi-account</v-icon>
-  </v-btn>
-</v-bottom-navigation>
-
 
 
 

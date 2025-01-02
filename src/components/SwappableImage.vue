@@ -31,6 +31,7 @@ function swapImage() {
 </script>
 
 <template>
+  <v-container max-width="666">
   <v-card class="d-flex flex-column justify-center align-center">
     <v-card-item>
       <v-card-title>
@@ -41,14 +42,16 @@ function swapImage() {
       </v-card-subtitle>
     </v-card-item>
     <v-card-text>
-      <v-img rounded :src="currentImage" class="bg-black" width="378"> </v-img>
+      <v-img rounded :src="currentImage" class="" width="378"> </v-img>
     </v-card-text>
     <v-card-actions>
       <v-btn icon @click="swapImage()" v-if="backImage">
         <v-icon>mdi-swap-horizontal</v-icon>
       </v-btn>
     </v-card-actions>
+    
   </v-card>
+</v-container>
 </template>
 
 <style scoped>

@@ -4,7 +4,8 @@ import ConfigurationVariant from "./ConfigurationVariant.vue";
 </script>
 
 <template>
-  <v-expansion-panels>
+  <v-container max-width="660">
+  <v-expansion-panels >
     <v-expansion-panel
       dark
       :title="$t('randomizer.enabled-content')"
@@ -16,6 +17,8 @@ import ConfigurationVariant from "./ConfigurationVariant.vue";
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
+</v-container>
+  
 </template>
 
 <style scoped></style>

@@ -41,8 +41,9 @@ function removeHeroFromCampaign(heroId: string) {
 
 <template>
   <v-btn
-    variant="outlined"
+    variant="elevated"
     id="campaign-remove-hero"
+    rounded
     @click="openModal"
     :disabled="filteredHeroes.length === 0"
   >

@@ -23,11 +23,11 @@ export default createVuetify({
       myCustomTheme: {
         dark: false,
         colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
-          background: '#6F5312',
-          surface: '#856722',
-          primary: '#856722',
+          background: '#172A2C',
+          surface: '#274B4E',
+          primary: '#274B4E',
           'primary-darken-1': '#3700B3',
-          secondary: '#03DAC6',
+          secondary: '#3C7376',
           'secondary-darken-1': '#018786',
           error: '#B00020',
           info: '#2196F3',

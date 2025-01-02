@@ -24,7 +24,7 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings") {
 </script>
 
 <template>
-  <v-btn variant="outlined" id="campaign-new" @click="visible = true">{{
+  <v-btn variant="elevated" id="campaign-new" rounded @click="visible = true">{{
     t("label.new-campaign")
   }}</v-btn>
   <v-dialog v-model="visible">
