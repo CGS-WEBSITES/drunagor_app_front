@@ -45,12 +45,25 @@ function findHeroes(campaignId: string): HeroData[] {
 </script>
 
 <template>
-  <v-card class="d-flex justify-center pa-3 elevation-0">
+  <v-container max-width="680">
+  <v-card class="d-none d-md-flex justify-center pa-3 elevation-0">
     <v-card-actions>
       <CampaignNew />
       <CampaignImport />
     </v-card-actions>
   </v-card>
+
+  <v-card class="d-md-none justify-center pa-3 elevation-0">
+    <v-card-actions class="d-flex justify-center">
+      <CampaignNew />
+    </v-card-actions>
+    <v-card-actions class="d-flex justify-center">
+    <CampaignImport />
+  </v-card-actions>
+  </v-card>
+
+
+  
 
   <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
     <v-row no-gutters>
@@ -92,6 +105,7 @@ function findHeroes(campaignId: string): HeroData[] {
       </v-col>
     </v-row>
   </div>
+</v-container>
 </template>
 
 <style scoped></style>
