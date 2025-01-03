@@ -11,7 +11,11 @@
             </v-avatar>
           </v-col>
           <v-col cols="9">
-            <v-card-title>MAGOVEIO92MAGI</v-card-title>
+           
+    <!-- Exibe o username -->
+    <v-card-title>{{ appStore.getUsername() }}</v-card-title>
+    
+
             <v-card-subtitle>RANKING: 5123</v-card-subtitle>
             <!-- Icons below the name -->
             <v-row no-gutters>
@@ -469,6 +473,11 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from "vue";
+import { useAppStore } from "@/store/app";
+
+
+const appStore = useAppStore();
+
 
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
