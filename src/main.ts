@@ -15,6 +15,6 @@ import { createApp } from "vue";
 
 const app = createApp(App);
 
-registerPlugins(app,"test");
+registerPlugins(app,"local");
 
 app.mount("#app");
