@@ -18,13 +18,6 @@ import { createPinia } from "pinia";
 
 const app = createApp(App);
 
-// Cria a instância do Pinia
-const pinia = createPinia();
-
-// Registra o Pinia como plugin
-app.use(pinia);
-
-// Registra outros plugins
-registerPlugins(app, "test");
+registerPlugins(app,"local");
 
 app.mount("#app");

@@ -195,6 +195,30 @@
                         dense
                       />
                     </v-col>
+
+                    <v-col cols="12" class="d-flex align-center">
+                      <v-checkbox
+                        v-model="agreeTerms"
+                        color="green"
+                        :rules="[rules.required]"
+                      ></v-checkbox>
+                      <span>
+                        I agree with the
+                        <strong
+                          style="cursor: pointer"
+                          @click="termsDialog = true"
+                        >
+                          Terms & Conditions
+                        </strong>
+                        and
+                        <strong
+                          style="cursor: pointer"
+                          @click="privacyDialog = true"
+                        >
+                          Privacy Policy
+                        </strong>
+                      </span>
+                    </v-col>
                   </v-row>
 
                   <v-btn
@@ -251,6 +275,239 @@
         </v-col>
       </v-row>
     </v-container>
+
+    <!-- Terms dialog -->
+    <v-dialog v-model="termsDialog" max-width="500">
+      <v-card title="Terms & Conditions">
+        <v-card-text>
+          <p><strong>Effective Date:</strong> January 2nd 2025</p>
+          <p>
+            <strong>1. Acceptance of Terms</strong> By accessing or using the
+            Drunagor App (“App”), you agree to comply with these Terms &
+            Conditions. If you do not agree, please refrain from using the App.
+          </p>
+
+          <p>
+            <strong>2. Eligibility</strong>
+            You must be at least 16 years old or have parental consent to use
+            the App. By using the App, you confirm you meet this requirement.
+          </p>
+
+          <p><strong>3. User Responsibilities</strong> You agree to:</p>
+          <ul class="ml-8"></ul>
+          <li>
+            Provide accurate and truthful information during registration.
+          </li>
+          <li>Use the App for its intended purposes.</li>
+
+          <li>
+            Not engage in prohibited activities, including hacking, transmitting
+            viruses, or using automated systems.
+          </li>
+          <p>
+            <strong>4. Intellectual Property</strong> All content, including but
+            not limited to text, graphics, logos, and code, is the property of
+            [Your Company Name] and protected under intellectual property laws.
+          </p>
+          <p>
+            <strong>5. Privacy</strong> Your use of the App is governed by our
+            <strong>Privacy Policy</strong>, which explains how we collect, use,
+            and store your data.
+          </p>
+
+          <p>
+            <strong>6. Disclaimer of Warranties</strong> The App is provided
+            “as-is” and “as available.” We make no guarantees regarding its
+            performance, reliability, or suitability for your purposes.
+          </p>
+
+          <p>
+            <strong>7. Limitation of Liability</strong> We are not liable for
+            indirect, incidental, or consequential damages arising from your use
+            of the App.
+          </p>
+
+          <p>
+            <strong>8. Modifications to Terms</strong> We may update these Terms
+            & Conditions. Continued use of the App after changes constitutes
+            acceptance.
+          </p>
+
+          <p>
+            <strong>9. Governing Law</strong> These Terms are governed by the
+            laws of Montana.
+          </p>
+          <p>
+            <strong>10. Contact</strong> For inquiries, email:
+            customerservice@wearecgs.com
+          </p>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Close Dialog" @click="termsDialog = false"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="privacyDialog" max-width="500">
+      <v-card title="Privacy Policy">
+        <v-card-text>
+          <p><strong>Effective Date:</strong> January 2nd 2025</p>
+
+          <p>
+            <strong>1. Introduction</strong>
+
+            This Privacy Policy explains how [Creative Games Studio LLC
+            collects, uses, and protects your personal data in compliance with
+            GDPR and CCPA.
+          </p>
+
+          <p>
+            <strong>2. Data We Collect</strong>
+          </p>
+
+          <ul class="ml-8">
+            <li>
+              <strong>Personal Information:</strong> Name, email, and location.
+            </li>
+
+            <li>
+              <strong>Device Information:</strong> IP address, browser type, and
+              operating system.
+            </li>
+            <li>
+              <strong>Cookies and Cache:</strong> To improve user experience and
+              analyze usage patterns.
+            </li>
+          </ul>
+
+          <p>
+            <strong>3. How We Use Your Data</strong>
+
+            We use your data to:
+          </p>
+
+          <ul class="ml-8">
+            <li>Provide App services and features.</li>
+
+            <li>Communicate important updates.</li>
+
+            <li>Improve user experience.</li>
+            <li>Comply with legal obligations.</li>
+          </ul>
+
+          <p>
+            <strong>4. Legal Bases for Processing (GDPR)</strong>
+            We process your data based on:
+          </p>
+
+          <ul class="ml-8">
+            <li>Your consent (e.g., signing up for the App).</li>
+            <li>
+              Fulfillment of a contract (e.g., providing App functionality).
+            </li>
+            <li>Legitimate interests (e.g., enhancing user experience).</li>
+          </ul>
+
+          <p>
+            <strong>5. Your Rights</strong>
+          </p>
+
+          <p>
+            <strong>Under GDPR (European Users):</strong>
+            You have the right to:
+          </p>
+
+          <ul class="ml-8">
+            <li>Access your data.</li>
+
+            <li>Request corrections or deletion of your data.</li>
+
+            <li>Restrict or object to data processing.</li>
+
+            <li>Data portability.</li>
+          </ul>
+
+          <p>
+            <strong>Under CCPA (California Users):</strong>
+            You have the right to:
+          </p>
+
+          <ul class="ml-8">
+            <li>Know what personal data is collected.</li>
+
+            <li>Request deletion of personal data.</li>
+
+            <li>Opt out of data selling (we do not sell personal data).</li>
+          </ul>
+
+          <p>
+            <strong>6. Data Retention</strong>
+
+            We retain your data for as long as necessary to provide the App
+            services or comply with legal obligations.
+          </p>
+
+          <p>
+            <strong>7. Cookies</strong>
+
+            We use cookies to:
+          </p>
+
+          <ul class="ml-8">
+            <li>Remember user preferences.</li>
+            <li>Monitor App usage.</li>
+          </ul>
+
+          <p>
+            <strong>8. Data Security</strong>
+
+            We use encryption and other security measures to protect your data.
+          </p>
+
+          <p>
+            <strong>9. Third-Party Services</strong>
+
+            We may share your data with third-party service providers for the
+            purposes of App functionality. These parties are contractually
+            obligated to protect your data.
+          </p>
+
+          <p>
+            <strong>10. International Data Transfers</strong>
+
+            Data may be transferred to servers located outside of your country.
+            We comply with GDPR and CCPA requirements for such transfers.
+          </p>
+
+          <p>
+            <strong>11. Children's Privacy</strong>
+
+            We do not knowingly collect data from children under 16 without
+            parental consent.
+          </p>
+
+          <p>
+            <strong>12. Updates to Policy</strong>
+
+            We may update this Privacy Policy. Changes will be communicated via
+            the App or email.
+          </p>
+
+          <p>
+            <strong>13. Contact</strong>
+
+            For privacy-related inquiries, email: customerservice@wearecgs.com
+          </p>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text="Close Dialog" @click="privacyDialog = false"></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -278,12 +535,15 @@ const agreeTerms = ref<boolean>(false);
 const regValid = ref<boolean>(false);
 const loginValid = ref<boolean>(false);
 const videoThumbnail = ref<string>("");
-const showAlert = ref(false); // Controla a exibição de alertas
-const alertIcon = ref(""); // Ícone do alerta
-const alertText = ref(""); // Texto do alerta
-const alertTitle = ref(""); // Título do alerta
-const alertType = ref(""); // Tipo de alerta (success, error, etc.)
-const showPass = ref(false); // Alterna entre mostrar/ocultar senha
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref("");
+const termsDialog = ref(false);
+const privacyDialog = ref(false);
+const showAlert = ref(false);
+const showPass = ref(false);
+
 
 const countries = ref<string[]>([
   "USA",
