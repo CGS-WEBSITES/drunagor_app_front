@@ -237,9 +237,8 @@
         </v-card>
       </v-col>
     </v-row>
-
-    <!-- Card com Lorem Ipsum -->
-    <v-container class="pa-4" color="white" fluid>
+  <!-- Card com Lorem Ipsum -->
+  <v-container class="pa-4" color="white" fluid>
       <v-card class="pa-4" color="white" elevation="2">
         <p>
           <strong>Welcome to the Drunagor App!</strong>
@@ -512,23 +511,25 @@
   </v-container>
 </template>
 
-
 <script setup lang="ts">
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
-import md5 from "js-md5"; // Certifique-se de que md5 esteja instalado e importado corretamente.
+import { useAppStore } from "@/store/userstore";
+import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
 import type { VForm } from "vuetify/components";
 import { flatMap } from "lodash-es";
+import { defineStore } from "pinia";
 
+// Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
-const activeTab = ref<number>(1);
-const login = ref<string>("");
-const password = ref<string>("");
-const signupUsername = ref<string>("");
-const signupEmail = ref<string>("");
-const signupPassword = ref<string>("");
-const signupConfirmPassword = ref<string>("");
+const activeTab = ref<number>(1); // Controla as abas (Login/Sign Up)
+const login = ref<string>(""); // Login do usuário
+const password = ref<string>(""); // Senha do usuário
+const signupUsername = ref<string>(""); // Nome de usuário para cadastro
+const signupEmail = ref<string>(""); // Email para cadastro
+const signupPassword = ref<string>(""); // Senha para cadastro
+const signupConfirmPassword = ref<string>(""); // Confirmação de senha
 const selectedCountry = ref<string | null>(null);
 const agreeTerms = ref<boolean>(false);
 const regValid = ref<boolean>(false);
@@ -543,6 +544,7 @@ const privacyDialog = ref(false);
 const showAlert = ref(false);
 const showPass = ref(false);
 
+
 const countries = ref<string[]>([
   "USA",
   "Canada",
@@ -551,6 +553,10 @@ const countries = ref<string[]>([
   "Germany",
 ]);
 
+// Store do Pinia
+const appStore = useAppStore();
+
+// Regras de validação
 const rules = {
   required: (value: string) => !!value || "Required.",
   email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
@@ -562,7 +568,13 @@ const rules = {
 const axios: any = inject("axios");
 const url: string = inject("apiUrl");
 
-const setAllert = (icon: string, title: string, text: string, type: string) => {
+// Função para exibir alertas
+const setAllert = (
+  icon: string,
+  title: string,
+  text: string,
+  type: string
+) => {
   alertIcon.value = icon;
   alertTitle.value = title;
   alertText.value = text;
@@ -570,6 +582,7 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertType.value = type;
 };
 
+// Função de login
 const loginUser = async () => {
   if (!login.value?.trim() || !password.value?.trim()) {
     setAllert(
@@ -583,29 +596,51 @@ const loginUser = async () => {
 
   login.value = login.value.trim();
   password.value = password.value.trim();
-  console.log(axios, url);
 
   await axios
     .post(url + "users/login", {
       login: login.value,
       password: md5(password.value),
-      // senha: skipMd5.value ? password.value : md5(password.value),
     })
     .then((response) => {
-      console.log(response);
-      setAllert("mdi-check", response.status, response.data.message, "success");
-      router.push({ name: "Dashboard" });
+      console.log("API Response:", response.data);
+
+      if (response.data && response.data.data) {
+        const userName = response.data.data.user_name; // Certifique-se de que 'user_name' existe
+        const email = response.data.data.email;
+
+        // Atualiza a store com os dados do usuário
+        appStore.setUser(userName, email);
+        console.log("Store State Updated:", appStore.user);
+
+        // Exibe alerta de sucesso
+        setAllert("mdi-check", response.status, response.data.message, "success");
+
+        // Redireciona para o Dashboard
+        router.push({ name: "Dashboard" });
+      } else {
+        setAllert(
+          "mdi-alert-circle",
+          500,
+          "Invalid API response structure.",
+          "error"
+        );
+      }
     })
-    .catch((response) => {
-      console.log(response);
+    .catch((error) => {
+      console.error("Error during login:", error);
+
+      // Trata erros com mensagens apropriadas
       setAllert(
         "mdi-alert-circle",
-        response.status,
-        response.response.data.message,
+        error.response?.status || 500,
+        error.response?.data?.message || "A network error occurred.",
         "error"
       );
     });
 };
+
+
 
 const valReg = async () => {
   const { valid, errors } = await regForm.value?.validate();
@@ -647,7 +682,14 @@ const submitForm = async () => {
           "error"
         );
       });
+
+    console.log("API Response:", response.data);
+
+    // Armazena os dados do usuário no Pinia
+    appStore.setUser({
+      username: response.data.data.user_name, // Pega o user_name da resposta
+      email: response.data.data.email, // Pega o email, se necessário
+    });
   }
 };
 </script>
-
