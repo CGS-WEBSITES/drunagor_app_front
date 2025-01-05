@@ -66,6 +66,7 @@ declare module 'vue' {
     PerfilImage: typeof import('./components/PerfilImage.vue')['default']
     PerfilSettings: typeof import('./components/PerfilSettings.vue')['default']
     Privacy: typeof import('./components/Privacy.vue')['default']
+    PrivacyCard: typeof import('./components/PrivacyCard.vue')['default']
     ProductCard: typeof import('./components/ProductCard.vue')['default']
     ProductDialog: typeof import('./components/ProductDialog.vue')['default']
     ProductGallery: typeof import('./components/ProductGallery.vue')['default']
@@ -88,5 +89,7 @@ declare module 'vue' {
     StoryRecordStatus: typeof import('./components/StoryRecordStatus.vue')['default']
     StoryRecordUnfolding: typeof import('./components/StoryRecordUnfolding.vue')['default']
     SwappableImage: typeof import('./components/SwappableImage.vue')['default']
+    TermsCard: typeof import('./components/TermsCard.vue')['default']
+    TermsDialog: typeof import('./components/TermsDialog.vue')['default']
   }
 }
