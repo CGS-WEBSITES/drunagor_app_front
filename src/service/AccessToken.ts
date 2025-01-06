@@ -1,7 +1,6 @@
 import { decodeJwt } from 'jose';
 import { useRouter } from "vue-router";
 
-const router = useRouter();
 
 export function setToken(Token: string) {
     localStorage.setItem("accessToken", Token);
@@ -9,11 +8,12 @@ export function setToken(Token: string) {
 
 export function getToken() {
 
+    const router = useRouter();
+
     const accessToken = localStorage.getItem('accessToken');
 
     if (accessToken) {
         const { exp: expiration } = decodeJwt(accessToken);
-        console.log(expiration);
         const isExpired = !!expiration && Date.now() > expiration * 1000;
 
         if (!isExpired) {
@@ -28,7 +28,7 @@ export function getToken() {
         }
     }
 
-    router.push({ name: 'Login' })
+    router.push("/login")
     return null;
 
 }

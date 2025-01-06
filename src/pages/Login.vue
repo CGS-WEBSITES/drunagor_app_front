@@ -297,6 +297,7 @@ import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 
+
 const userStore = useUserStore();
 
 // Variáveis reativas
@@ -316,15 +317,15 @@ const alertText = ref("");
 const alertTitle = ref("");
 const alertType = ref("");
 const termsDialog = ref(false);
-const privacyDialog = ref(false);
 const showAlert = ref(false);
 const showPass = ref(false);
+const privacyDialog = ref(false);
 
 // Regras de validação
 const rules = {
   required: (value: string) => !!value || "Required.",
   email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
-  min: (v: string) => v.length >= 3 || "Min 8 characters",
+  min: (v: string) => v.length >= 8 || "Min 8 characters",
   matchPasswords: (v: string) =>
     v === signupPassword.value || "The passwords must match",
 };
@@ -373,7 +374,7 @@ const loginUser = async () => {
         picture_hash: dbUser.picture_hash,
         roles_fk: dbUser.roles_fk,
         user_name: dbUser.user_name,
-        user_pk: dbUser.user_pk,
+        user_pk: dbUser.users_pk,
         verified: dbUser.verified,
         zip_code: dbUser.zip_code,
       });

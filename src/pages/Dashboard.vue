@@ -54,44 +54,47 @@
           hide-delimiters
           v-if="isMobile"
         >
-          <v-carousel-item
-            v-for="(item, index) in carouselItems"
-            :key="index"
-            class="d-flex justify-center"
-          >
-            <v-card
-              :style="{ height: isMobile ? '400px' : 'auto' }"
-              class="mx-auto"
-              :disabled="index > 0 ? true : false"
-              @click="router.push(item.route)"
-            >
-              <v-img
-                :src="item.img"
-                height="300"
-                cover
-                :gradient="
-                  index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
-                "
-              />
-              <v-card-actions>
-                <v-row class="d-flex justify-center">
-                  <v-btn class="text-center">{{ item.label }}</v-btn>
-                </v-row>
-              </v-card-actions>
-              <div
-                v-if="index > 0"
-                style="
-                  height: 0px;
-                  width: 100%;
-                  position: relative;
-                  left: 0;
-                  bottom: 200px;
-                "
-                class="text-center"
-              >
-                WIP
-              </div>
-            </v-card>
+          <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
+            <v-row no-gutters class="justify-center">
+              <v-col cols="10">
+                <v-card
+                  :style="{ height: isMobile ? '400px' : 'auto' }"
+                  class="mx-auto"
+                  :disabled="index > 0 ? true : false"
+                  @click="router.push(item.route)"
+                >
+                  <v-img
+                    style="background-color: rgb(0, 0, 0)"
+                    :src="item.img"
+                    height="300"
+                    cover
+                    :gradient="
+                      index > 0
+                        ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
+                        : false
+                    "
+                  />
+                  <v-card-actions>
+                    <v-row class="d-flex justify-center">
+                      <v-btn class="text-center">{{ item.label }}</v-btn>
+                    </v-row>
+                  </v-card-actions>
+                  <div
+                    v-if="index > 0"
+                    style="
+                      height: 0px;
+                      width: 100%;
+                      position: relative;
+                      left: 0;
+                      bottom: 200px;
+                    "
+                    class="text-center"
+                  >
+                    <coming-soon></coming-soon>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
           </v-carousel-item>
         </v-carousel>
 
@@ -135,7 +138,7 @@
                   "
                   class="text-center"
                 >
-                  WIP
+                  <coming-soon></coming-soon>
                 </div>
               </v-card>
             </v-hover>
@@ -146,16 +149,31 @@
 
     <!-- Carousel Section -->
 
-    <v-row class="mt-4 d-flex justify-center align-center w-100" no-gutters>
+    <v-row
+      class="mt-4 d-flex justify-center align-center w-100 py-6"
+      no-gutters
+    >
       <v-col cols="12" sm="10" md="8" class="px-5 mb-0">
-        <v-carousel hide-delimiters v-if="campaignList.length > 0">
+        <v-carousel
+          hide-delimiters
+          v-if="campaignList.length > 0"
+          :height="isMobile ? '400px' : 'auto'"
+        >
           <v-carousel-item
             v-for="(item, index) in campaignStore.findAll()"
             :key="index"
           >
             <v-row no-gutters class="justify-center">
-              <v-col cols="10">
-                <v-card class="mx-auto">
+              <v-col cols="10" sm="10" md="12">
+                <v-card
+                  class="mx-auto"
+                  @click="
+                    router.push({
+                      name: 'Campaign',
+                      params: { id: item.campaignId },
+                    })
+                  "
+                >
                   <v-img src="@/assets/campaign.jpg" height="200" cover />
                   <v-card-title>
                     {{ item.campaign }}
@@ -540,7 +558,6 @@ import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
-import CampaignOverviewView from "@/components/CampaignOverviewView.vue";
 
 const campaignStore = CampaignStore();
 

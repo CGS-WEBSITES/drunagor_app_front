@@ -2,18 +2,14 @@
   <v-row no-gutters>
     <v-col cols="12">
       <profile-card
-        profileImage="https://pbs.twimg.com/media/FBPOkeXXMAE9-lN.jpg"
-        altText="User Profile"
-        :title="appStore.getUsername()" 
-        :points="9844522"
-        :ranking="99999"
-        user-since="11/11/2011"
-        style="background-image: src/assets/awakenings.webp"
       />
     </v-col>
-    <v-col cols="12">
-      <navigation-bar :buttons="buttons" :separators="[true, false, true, true, false]" />
-    </v-col>
+    <!-- <v-col cols="12">
+      <navigation-bar
+        :buttons="buttons"
+        :separators="[true, false, true, true, false]"
+      />
+    </v-col> -->
     <v-col cols="12">
       <router-view />
     </v-col>
@@ -21,9 +17,13 @@
 </template>
 
 <script lang="ts" setup>
-import { useAppStore } from "@/store/userstore"; // Ou ajuste para o caminho correto
+import {inject} from "vue";
+import { useUserStore } from "@/store/UserStore";
 
-const appStore = useAppStore(); // Inicializa a store
+const user = useUserStore().user; // Inicializa a store
+
+const assets = inject<string>("assets");
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>

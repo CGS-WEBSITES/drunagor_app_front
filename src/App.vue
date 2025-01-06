@@ -37,7 +37,8 @@
           v-for="(item, index) in menuItems"
           :key="index"
           link
-          @click="router.push(item.to)"
+          :disabled="item.disabled"
+          @click="item.to ? router.push(item.to): item.do()"
           :class="{ 'v-list-item--active': selectedItem === item }"
         >
           <v-list-item-icon>
@@ -87,7 +88,7 @@
       v-else-if="route.name != 'Home' && route.name != 'Login'"
       app
       v-model="bottomNavVisible"
-      class="hidden-md-and-up fixed bottom-0 bg-black text-white"
+      class="hidden-md-and-up fixed bg-black text-white"
       elevation="10"
       dense
     >
@@ -96,11 +97,10 @@
           v-for="(item, index) in menuItems"
           :key="index"
           link
-          @click="router.push(item.to)"
           :class="{ 'v-list-item--active': selectedItem === item }"
           cols="2"
         >
-          <v-btn @click="router.push(to)" icon>
+          <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
             <v-icon>{{ item.icon }}</v-icon>
           </v-btn>
         </v-col>
@@ -174,18 +174,50 @@ const bottomNavVisible = ref(true);
 
 const drawer = ref(false); // Controle do drawer lateral
 
+const logOut = () => {
+  localStorage.removeItem("accessToken");
+  router.push({ name: "Login" });
+};
+
 // Itens do menu de navegação
 const menuItems = ref([
-  { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
+  {
+    title: "Dashboard",
+    icon: "mdi-view-dashboard",
+    to: { name: "Dashboard" },
+    disabled: false,
+  },
   {
     title: "Campaign Tracker",
     icon: "mdi-flag",
-    to: { name: "CampaignTracker" },
+    to: { name: "CampaignTracker", disabled: false },
   },
-  { title: "Library", icon: "mdi-book", to: { name: "Library" } },
-  { title: "Profile", icon: "mdi-account", to: { name: "PerfilHome" } },
+  {
+    title: "Library",
+    icon: "mdi-book",
+    to: { name: "Library" },
+    disabled: true,
+  },
+  {
+    title: "Profile",
+    icon: "mdi-account",
+    to: { name: "PerfilHome" },
+    disabled: false,
+  },
 
-  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } },
+  {
+    title: "Events",
+    icon: "mdi-calendar",
+    to: { name: "Events" },
+    disabled: true,
+  },
+
+  {
+    title: "Logout",
+    icon: "mdi-logout",
+    disabled: false,
+    do: logOut,
+  },
 ]);
 
 const contentStyle = computed(() => {
@@ -202,6 +234,8 @@ const contentStyle = computed(() => {
         "background-repeat": "repeat-y",
       };
 });
+
+
 </script>
 
 <style>

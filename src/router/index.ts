@@ -140,10 +140,21 @@ const router = createRouter({
         }
       },
       children: [
+        // {
+        //   path: "/perfil/home",
+        //   name: "PerfilHome",
+        //   component: () => import("@/components/PerfilHome.vue"),
+        //   beforeEnter(to, from, next) {
+        //     if (isSignedIn()) {
+        //       next()
+        //       return
+        //     }
+        //   },
+        // },
         {
           path: "/perfil/home",
           name: "PerfilHome",
-          component: () => import("@/components/PerfilHome.vue"),
+          component: () => import("@/components/PerfilSettings.vue"),
           beforeEnter(to, from, next) {
             if (isSignedIn()) {
               next()
@@ -173,17 +184,17 @@ const router = createRouter({
             }
           },
         },
-        {
-          path: "/perfil/perfil-settings",
-          name: "settings",
-          component: () => import("@/components/PerfilSettings.vue"),
-          beforeEnter(to, from, next) {
-            if (isSignedIn()) {
-              next()
-              return
-            }
-          },
-        },
+        // {
+        //   path: "/perfil/perfil-settings",
+        //   name: "settings",
+        //   component: () => import("@/components/PerfilSettings.vue"),
+        //   beforeEnter(to, from, next) {
+        //     if (isSignedIn()) {
+        //       next()
+        //       return
+        //     }
+        //   },
+        // },
         {
           path: "/perfil",
           name: "logout",

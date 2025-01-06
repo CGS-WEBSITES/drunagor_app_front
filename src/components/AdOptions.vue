@@ -8,23 +8,36 @@
           class="d-flex justify-space-between align-center"
           @click="toggleOptions"
         >
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2">ADDITIONAL OPTIONS</span>
-          <v-icon>{{ isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2"
+            >ADDITIONAL OPTIONS</span
+          >
+          <v-icon>{{
+            isExpanded ? "mdi-chevron-up" : "mdi-chevron-down"
+          }}</v-icon>
         </v-card-title>
 
         <!-- Conteúdo do formulário (visível apenas se expandido) -->
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
+            <v-alert
+              closable
+              v-model="showAlert"
+              :icon="alertIcon"
+              :title="alertTitle"
+              :text="alertText"
+              :type="alertType"
+              class="mb-6"
+            ></v-alert>
             <v-btn
               block
               color="#A02C2C"
               class="text-white text-body-1 font-weight-bold mb-3"
-              @click="showDeleteAlert"
+              @click="deleteUser()"
             >
               DELETE
             </v-btn>
 
-            <v-btn
+            <!-- <v-btn
               block
               color="#C7A738"
               class="text-white text-body-1 font-weight-bold mb-3"
@@ -40,7 +53,7 @@
               @click="showUpdateAlert"
             >
               UPDATE
-            </v-btn>
+            </v-btn> -->
           </v-card-text>
         </v-expand-transition>
       </v-card>
@@ -91,34 +104,64 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue';
+import { ref, inject } from "vue";
+import { getToken } from "@/service/AccessToken";
+import { useUserStore } from "@/store/UserStore";
+import { useRouter } from "vue-router";
 
+const user = useUserStore().user;
+const axios: any = inject("axios");
+const url: string = inject("apiUrl");
+const router = useRouter();
 // Estado de expansão
 const isExpanded = ref(false);
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref("");
+const showAlert = ref(false);
 
 // Alternar abertura/fechamento
 const toggleOptions = () => {
   isExpanded.value = !isExpanded.value;
 };
 
-// Estados para alertas
-const alertDelete = ref(false);
-const alertFeedback = ref(false);
-const alertUpdate = ref(false);
-
-// Funções para os botões
-const showDeleteAlert = () => {
-  alertDelete.value = true;
-  console.log('Delete Account');
+// Função para exibir alertas
+const setAllert = (icon: string, title: string, text: string, type: string) => {
+  alertIcon.value = icon;
+  alertTitle.value = title;
+  alertText.value = text;
+  showAlert.value = true;
+  alertType.value = type;
 };
 
-const showFeedbackAlert = () => {
-  alertFeedback.value = true;
-  console.log('Give Feedback');
+const deleteUser = async () => {
+  await axios
+    .delete(url + `users/${user.user_pk}/delete/`, {
+      // Headers
+      headers: getToken(),
+    })
+    .then(async (response: any) => {
+      console.log("API Response:", response);
+      // Exibe alerta de sucesso
+      setAllert("mdi-check", response.status, response.data.message, "success");
+      logOut()
+    })
+    .catch((error: any) => {
+      console.error("Error during login:", error);
+      // Trata erros com mensagens apropriadas
+      setAllert(
+        "mdi-alert-circle",
+        error.response?.status || 500,
+        error.response?.data?.message || "A network error occurred.",
+        "error"
+      );
+
+    });
 };
 
-const showUpdateAlert = () => {
-  alertUpdate.value = true;
-  console.log('Update to Retailer Account');
+const logOut = () => {
+  localStorage.removeItem("accessToken");
+  router.push({ name: "Login" });
 };
 </script>
