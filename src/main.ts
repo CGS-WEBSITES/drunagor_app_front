@@ -13,8 +13,6 @@ import App from "./App.vue";
 // Composables
 import { createApp } from "vue";
 
-// Adicione o Pinia
-import { createPinia } from "pinia";
 
 const app = createApp(App);
 

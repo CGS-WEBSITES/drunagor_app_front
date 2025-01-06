@@ -1,15 +1,19 @@
 <template>
-  <v-container class="fill-height d-flex justify-center" fluid>
+  <v-container class="d-flex flex-column justify-center pa-0" fluid>
     <!-- The video -->
     <video autoplay muted loop id="myVideo">
       <source
         :src="assets + '/landing-page/presentation-video.mp4'"
         type="video/mp4"
       />
+      <div class="video-shader"></div>
     </video>
-    <div class="content d-flex flex-column justify-center align-center">
+    <div
+      style="height: 0px"
+      class="content d-flex flex-column justify-center align-center"
+    >
       <div>
-        <v-img width="500" src="@/assets/core.webp"></v-img>
+        <v-img :width="logoWidth" src="@/assets/core.webp"></v-img>
       </div>
       <div class="mt-2">
         <v-btn color="#B8860B" large @click="$router.push({ name: 'Login' })"
@@ -21,17 +25,43 @@
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
+import { inject, computed, onMounted } from "vue";
+import { useDisplay } from "vuetify";
+
+const display = ref(useDisplay());
 const assets = inject<string>("assets");
+
+const logoWidth = computed(() => {
+  switch (display.value.name) {
+    case "xs":
+      return "300";
+    case "sm":
+      return "400";
+    case "md":
+      return "500";
+    case "lg":
+      return "500";
+    case "xl":
+      return "600";
+    case "xxl":
+      return "700";
+  }
+});
+
 </script>
 <style scoped>
 #myVideo {
-  min-width: auto;
-  min-height: 100%;
+  min-width: 100%;
+  min-height: auto;
 }
 .content {
   position: relative;
-  bottom: 60%;
+  bottom: 50%;
   width: 100%;
+}
+.video-shader{
+  width: 100%;
+  height: 100%;
+  background-color: black;
 }
 </style>

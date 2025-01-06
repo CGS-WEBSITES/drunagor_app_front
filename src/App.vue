@@ -14,16 +14,19 @@
         <v-list-item class="py-5">
           <v-row align="center" class="">
             <v-col cols="8">
-              <v-list-item-title>Magoveio92magi</v-list-item-title>
-              <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
+              <v-list-item-title>{{ user.user_name }}</v-list-item-title>
+              <!-- <v-list-item-subtitle>Points: 1337</v-list-item-subtitle> -->
             </v-col>
 
             <!-- Coluna para o avatar à direita -->
             <v-col cols="4" class="d-flex justify-end">
-              <v-avatar size="100">
+              <v-avatar size="70">
                 <v-img
-                  src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
-                  alt="Avatar"
+                  :src="
+                    user.picture_hash
+                      ? assets + '/Profile/' + user.picture_hash
+                      : assets + '/Profile/user.png'
+                  "
                 />
               </v-avatar>
             </v-col>
@@ -34,7 +37,8 @@
           v-for="(item, index) in menuItems"
           :key="index"
           link
-          @click="router.push(item.to)"
+          :disabled="item.disabled"
+          @click="item.to ? router.push(item.to): item.do()"
           :class="{ 'v-list-item--active': selectedItem === item }"
         >
           <v-list-item-icon>
@@ -47,8 +51,8 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-row no-gutters>
-      <v-app-bar app min-height="50" class="hidden-md-and-down" color="black">
+    <v-row no-gutters v-if="display.mdAndUp">
+      <v-app-bar app min-height="50" color="black">
         <div class="d-flex align-center pl-6">
           <!-- Ajuste o padding com pl-6 -->
           <v-img
@@ -63,7 +67,17 @@
         </div>
         <v-spacer></v-spacer>
         <!-- Botão de Navegação alinhado à direita -->
+
+        <v-btn
+          v-if="route.name === 'Home' || route.name === 'Login'"
+          color="#B8860B"
+          large
+          @click="$router.push({ name: 'Login' })"
+          >Sign up</v-btn
+        >
+
         <v-app-bar-nav-icon
+          v-else
           class="me-4"
           @click="drawer = !drawer"
         ></v-app-bar-nav-icon>
@@ -71,9 +85,10 @@
     </v-row>
 
     <v-bottom-navigation
+      v-else-if="route.name != 'Home' && route.name != 'Login'"
       app
       v-model="bottomNavVisible"
-      class="hidden-md-and-up fixed bottom-0 bg-black text-white"
+      class="hidden-md-and-up fixed bg-black text-white"
       elevation="10"
       dense
     >
@@ -82,11 +97,10 @@
           v-for="(item, index) in menuItems"
           :key="index"
           link
-          @click="router.push(item.to)"
           :class="{ 'v-list-item--active': selectedItem === item }"
           cols="2"
         >
-          <v-btn @click="router.push(to)" icon>
+          <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
             <v-icon>{{ item.icon }}</v-icon>
           </v-btn>
         </v-col>
@@ -94,12 +108,7 @@
     </v-bottom-navigation>
 
     <!-- Exibe o conteúdo da rota -->
-    <router-view
-      :style="{
-        'background-image':
-          'url(' + $assetsBucket + '/backgrounds/backgrounds.png' + ')',
-      }"
-    />
+    <router-view :style="contentStyle" />
 
     <!-- Footer Section -->
     <v-footer class="footer black bg-black pb-12" padless>
@@ -113,11 +122,17 @@
           />
         </v-col>
 
-        <v-col cols="12" sm="4" class="info-footer text-center">
-          <h3 class="white--text">Footer Infos Here</h3>
-          <p class="white--text">Big name info 1</p>
-          <p class="white--text">Big name info 2</p>
-          <p class="white--text">Big name info 3</p>
+        <v-col
+          cols="12"
+          sm="4"
+          class="d-flex flex-column info-footer text-center align-center"
+        >
+          <h3 class="white--text">Join us on Discord</h3>
+          <v-img
+            class="mt-4"
+            width="30"
+            src="@/assets/discord-mark-white.svg"
+          ></v-img>
         </v-col>
 
         <v-col cols="12" sm="4" class="text-center">
@@ -139,10 +154,17 @@
 
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
-import { useRouter } from "vue-router";
+import { ref, inject, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify";
+import { useUserStore } from "@/store/UserStore";
+
+const user = useUserStore().user;
+
+const display = ref(useDisplay());
 
 const router = useRouter();
+const route = useRoute();
 
 const assets = inject<string>("assets");
 
@@ -150,43 +172,70 @@ const theme = ref("myCustomTheme");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
-// Função de controle de rolagem para mostrar/ocultar o menu de navegação inferior
-function handleScroll() {
-  bottomNavVisible.value = window.scrollY <= 100; // Ajuste conforme necessário
-}
-
-const toggleTheme = () => {
-  theme.value = theme.value === "dark" ? "myCustomTheme" : "dark";
-};
-
-// Controle de visibilidade de elementos reativos
-const showPopup = ref(false);
-const dialog = ref(false);
 const drawer = ref(false); // Controle do drawer lateral
+
+const logOut = () => {
+  localStorage.removeItem("accessToken");
+  router.push({ name: "Login" });
+};
 
 // Itens do menu de navegação
 const menuItems = ref([
-  { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
+  {
+    title: "Dashboard",
+    icon: "mdi-view-dashboard",
+    to: { name: "Dashboard" },
+    disabled: false,
+  },
   {
     title: "Campaign Tracker",
     icon: "mdi-flag",
-    to: { name: "CampaignTracker" },
+    to: { name: "CampaignTracker", disabled: false },
   },
-  { title: "Library", icon: "mdi-book", to: { name: "Library" } },
-  { title: "Profile", icon: "mdi-account", to: { name: "PerfilHome" } },
+  {
+    title: "Library",
+    icon: "mdi-book",
+    to: { name: "Library" },
+    disabled: true,
+  },
+  {
+    title: "Profile",
+    icon: "mdi-account",
+    to: { name: "PerfilHome" },
+    disabled: false,
+  },
 
-  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } },
+  {
+    title: "Events",
+    icon: "mdi-calendar",
+    to: { name: "Events" },
+    disabled: true,
+  },
+
+  {
+    title: "Logout",
+    icon: "mdi-logout",
+    disabled: false,
+    do: logOut,
+  },
 ]);
 
-// Função de navegação
-const navigateTo = (route: any) => {
-  if (route) router.push(route);
-};
+const contentStyle = computed(() => {
+  return display.value.mdAndUp
+    ? {
+        "background-image":
+          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+        "background-repeat": "repeat-y",
+        "margin-top": "65px",
+      }
+    : {
+        "background-image":
+          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+        "background-repeat": "repeat-y",
+      };
+});
 
-// Fechar diálogo
-const closeDialog = () => {
-  dialog.value = false;
-};
+
 </script>
 
 <style>
