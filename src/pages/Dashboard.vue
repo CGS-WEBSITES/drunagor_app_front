@@ -66,7 +66,7 @@
                   <v-img
                     style="background-color: rgb(0, 0, 0)"
                     :src="item.img"
-                    height="300"
+                    height="500"
                     cover
                     :gradient="
                       index > 0
@@ -116,8 +116,7 @@
               >
                 <v-img
                   :src="item.img"
-                  height="300"
-                  cover
+                  height with cover
                   :gradient="
                     index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                   "
@@ -174,7 +173,7 @@
                     })
                   "
                 >
-                  <v-img src="@/assets/campaign.jpg" height="200" cover />
+                  <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
                   <v-card-title>
                     {{ item.campaign }}
                   </v-card-title>
@@ -586,23 +585,23 @@ const isMobile = computed(() => {
 
 // Dados do carrossel
 const carouselItems = ref([
-  {
-    img: new URL("@/assets/perfil.webp", import.meta.url).href,
-    label: "CAMPAIGN",
+{
+    img: new URL(assets+"/Dashboard/btn-campaigns.png", import.meta.url).href,
+    label: "COMPANION",
     route: { name: "CampaignTracker" },
   },
   {
-    img: new URL("@/assets/Corebox.png", import.meta.url).href,
+    img: new URL(assets+"/Dashboard/btn-library.png", import.meta.url).href,
     label: "LIBRARY",
     route: { name: "Library" },
   },
   {
-    img: new URL("@/assets/events.jpg", import.meta.url).href,
+    img: new URL(assets+"/Dashboard/btn-events.png", import.meta.url).href,
     label: "EVENTS",
     route: { name: "Library" },
   },
   {
-    img: new URL("@/assets/leaderboard.jpg", import.meta.url).href,
+    img: new URL(assets+"/Dashboard/btn-profile.png", import.meta.url).href,
     label: "LEADERBOARD",
     route: { name: "Library" },
   },
