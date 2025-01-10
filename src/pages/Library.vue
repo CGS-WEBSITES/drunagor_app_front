@@ -1,13 +1,14 @@
 <template>
-  <v-container class="pb-12">
- <!-- Navigation Drawer -->
-     
-    <v-row> 
+  <v-container class="pa-0 mx-auto">
+    <!-- Título -->
+    <v-row justify="center">
       <v-col cols="12" class="text-center">
         <h1 class="text-h2 font-weight-bold pt-14">LIBRARY</h1>
       </v-col>
     </v-row>
-    <v-row class="bg-grey-darken-3 pa-4 rounded">
+
+    <!-- Conteúdo com Filtros e Produtos -->
+    <v-row justify="center" class="bg-grey-darken-3 pa-4 rounded">
       <!-- Botão de Filtros no Mobile -->
       <v-btn class="d-md-none mb-4" color="#222222" block @click="toggleFilters">
         Filters
@@ -32,47 +33,36 @@
 
       <!-- Galeria de Produtos -->
       <v-col cols="12" md="9">
-        <ProductGallery
-          :products="paginatedProducts"
-          @open-dialog="openDialog"
-        />
-        <!-- Paginação -->
-        <v-row justify="center" class="mt-4">
-          <v-pagination
-            v-model="currentPage"
-            :length="totalPages"
-            color="primary"
-          ></v-pagination>
+        <v-row justify="center" align="center" dense>
+          <v-col
+            cols="12"
+            sm="6"
+            md="6"
+            class="d-flex justify-center"
+            v-for="product in products"
+            :key="product.id"
+          >
+            <!-- Componente de Card -->
+            <ProductCard
+              :product="product"
+              class="w-100"
+              @click="openLink(product.link)"
+            />
+          </v-col>
         </v-row>
       </v-col>
     </v-row>
-
-    <!-- Diálogo para itens do tipo "item" -->
-    <ItemDialog
-      v-if="itemDialogVisible"
-      v-model="itemDialogVisible"
-      :product="selectedProduct"
-    />
-
-    <!-- Diálogo padrão para outros produtos -->
-    <ProductDialog
-      v-if="dialogVisible"
-      v-model="dialogVisible"
-      :product="selectedProduct"
-    />
   </v-container>
 </template>
 
-<script>
-import { defineComponent, ref, computed, onMounted } from "vue";
+<script lang="ts">
+import { defineComponent, ref, computed } from "vue";
 import Filters from "@/components/Library/Filters.vue";
-import ProductGallery from "@/components/Library/ProductGallery.vue";
-import ProductDialog from "@/components/Library/ProductDialog.vue";
-import ItemDialog from "@/components/Library/ItemDialog.vue";
+import ProductCard from "@/components/ProductCard.vue";
 
 export default defineComponent({
   name: "Library",
-  components: { Filters, ProductGallery, ProductDialog, ItemDialog },
+  components: { Filters, ProductCard },
   setup() {
     const filterStatus = ref("owned");
     const rewardsStatus = ref("rewards_owned");
@@ -81,91 +71,77 @@ export default defineComponent({
     const selectedComponentType = ref("");
     const contentChecked = ref(false);
     const selectedContent = ref("");
-    const dialogVisible = ref(false);
-    const itemDialogVisible = ref(false);
-    const selectedProduct = ref(null);
 
-    const products = ref([
-      { id: 1, name: "Companions and Furnitures", description: "Product 1", price: 100,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 2, name: "Item with lore in aodarkness", description: "Product 2", price: 150,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 3, name: "Desert of Hellscar", description: "Product 3", price: 200 ,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 4, name: "New Expansion Set", description: "Product 4", price: 250,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 5, name: "Bosses of Darkness", description: "Product 5", price: 300,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 6, name: "Ancient Relics", description: "Product 6", price: 350,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 7, name: "Dark Crystals", description: "Product 7", price: 400,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 8, name: "Lightbringer Set", description: "Product 8", price: 450,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 9, name: "Shadow of the Past", description: "Product 9", price: 500,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 10, name: "Fury of the Storm", description: "Product 10", price: 550,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 11, name: "Ancient Guardians", description: "Product 11", price: 600 ,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 12, name: "Rise of the Phoenix", description: "Product 12", price: 650,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-    ]);
-
-    const currentPage = ref(1);
-    const itemsPerPage = ref(6);
-
-    const filteredProducts = ref(products.value);
- 
-    const paginatedProducts = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage.value;
-      const end = start + itemsPerPage.value;
-      return filteredProducts.value.slice(start, end);
-    });
-
-    const totalPages = computed(() =>
-      Math.ceil(filteredProducts.value.length / itemsPerPage.value)
-    );
-
-    const boxOptions = [
-      "Companions and Furnitures",
-      "AoDarkness",
-      "Desert of Hellscar",
-    ];
+    const boxOptions = ["Companions and Furnitures", "AoDarkness", "Desert of Hellscar"];
     const contentOptions = ["Core", "Cosmetic", "Game Content"];
-    const componentTypes = ["Books", "Cards", "Miniatures", "Maps", " Doors", "Playerboards", "Punchboards", "Scorepad", "Trays"];
-    const nameFilter = ["A-Z", "Z-A"];
+    const componentTypes = ["Books", "Cards", "Miniatures", "Maps", "Doors", "Playerboards", "Punchboards", "Scorepad", "Trays"];
 
     const showFilters = ref(false);
     const isDesktop = computed(() => window.innerWidth >= 960);
+
+    const products = ref([
+      {
+        id: 1,
+        name: "Corebox",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+        link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
+      },
+      {
+        id: 2,
+        name: "Desert Of Hellscar",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-hellscar.png",
+        link: "https://aodarkness.com/boxes/desert-of-hellscar/",
+      },
+      {
+        id: 3,
+        name: "Lordwrath",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-handuriel.png",
+        link: "https://aodarkness.com/boxes/lordwrath/",
+      },
+      {
+        id: 4,
+        name: "Monster Pack",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
+        link: "https://aodarkness.com/boxes/monster-pack/",
+      },
+      {
+        id: 5,
+        name: "Ruin of Luccanor",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
+        link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
+      },
+      {
+        id: 6,
+        name: "Shadow World",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
+        link: "https://aodarkness.com/boxes/shadow-world/",
+      },
+      {
+        id: 7,
+        name: "Spoils of War",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+        link: "https://aodarkness.com/boxes/spoils-of-war/",
+      },
+      {
+        id: 8,
+        name: "Undead Dragon",
+        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+        link: "https://aodarkness.com/boxes/undead-dragon/",
+      },
+    
+    ]);
 
     const toggleFilters = () => {
       showFilters.value = !showFilters.value;
     };
 
+    const openLink = (link: string) => {
+      window.open(link, "_blank");
+    };
+
     const applyFilters = () => {
-      filteredProducts.value = products.value.filter((product) => {
-        const matchesBox =
-          !selectedBox.value || product.box === selectedBox.value;
-
-        const matchesComponentType =
-          !componentChecked.value ||
-          (!selectedComponentType.value || product.componentType === selectedComponentType);
-
-        const matchesContentType =
-          !contentChecked.value ||
-          (!selectedContent.value || product.contentType === selectedContent);
-
-        return matchesBox && matchesComponentType && matchesContentType;
-      });
+      // Aqui pode-se implementar lógica de filtros para ajustar os produtos exibidos
     };
-
-    const openDialog = (product) => {
-      selectedProduct.value = product;
-      if (product.type === "item") {
-        itemDialogVisible.value = true;
-      } else {
-        dialogVisible.value = true;
-      }
-    };
-
-    
-
-    onMounted(() => {
-      const handleResize = () => {
-        showFilters.value = isDesktop.value;
-      };
-      window.addEventListener("resize", handleResize);
-      handleResize();
-    });
 
     return {
       filterStatus,
@@ -178,20 +154,12 @@ export default defineComponent({
       boxOptions,
       contentOptions,
       componentTypes,
-      dialogVisible,
-      itemDialogVisible,
-      selectedProduct,
-      products,
-      filteredProducts,
-      paginatedProducts,
-      currentPage,
-      totalPages,
-      itemsPerPage,
-      applyFilters,
-      toggleFilters,
       showFilters,
       isDesktop,
-      openDialog,
+      products,
+      toggleFilters,
+      applyFilters,
+      openLink,
     };
   },
 });
