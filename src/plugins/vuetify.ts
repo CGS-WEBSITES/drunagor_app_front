@@ -7,6 +7,10 @@
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
+import '@fontsource/poppins'; // Import Poppins font
+import '@fontsource/cinzel'
+
+
 
 
 // Composables
@@ -36,6 +40,9 @@ export default createVuetify({
         },
       },
     },
+  },
+  typography: {
+    defaultFontFamily: 'Poppins', // Set Poppins as the default font
   },
   components: {
     ...components,
