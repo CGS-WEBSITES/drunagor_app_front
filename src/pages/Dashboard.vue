@@ -30,7 +30,7 @@
       </v-card>
       <v-col cols="12" sm="12" md="12">
         <v-row no-gutters>
-          <v-col cols="2" class="avatar-mobile">
+          <v-col cols="12" class="avatar-mobile">
             <v-avatar size="140" rounded="0">
               <v-img :src="user.picture_hash
                 ? assets + '/Profile/' + user.picture_hash
@@ -41,10 +41,10 @@
                 background-color: black;
               " />
             </v-avatar>
+            <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
           </v-col>
         </v-row>
       </v-col>
-      <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
     </v-row>
 
 
@@ -732,7 +732,7 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .user_name2 {
   position: relative;
-  transform: translateY(-245px) translateX(-10px);
+  transform: translateY(-85px) translateX(130px);
   z-index: 2;
 }
 
