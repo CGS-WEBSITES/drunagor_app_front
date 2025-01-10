@@ -1,7 +1,7 @@
 <template>
   <v-container>
-    <v-row no-gutters class="pt-15 pb-4 justify-center text-center text-h2">
-      Campaign Tracker</v-row
+    <v-row no-gutters class=" cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+      COMPANION</v-row
     >
     <MainMenu />
         <router-view />
@@ -13,4 +13,11 @@
 import MainMenu from "@/components/MainMenu.vue";
 </script>
 
-<style></style>
+<style>
+.cinzel-text {
+  font-family: 'Cinzel', serif;
+}
+
+
+
+</style>
