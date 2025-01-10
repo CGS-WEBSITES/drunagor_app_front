@@ -759,4 +759,9 @@ function findHeroes(campaignId: string): HeroData[] {
   position: relative;
   z-index: 1;
 }
+
+body {
+  font-family: 'Poppins', sans-serif !important;
+}
+
 </style>

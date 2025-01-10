@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@babel/types": "^7.24.6",
+    "@fontsource/cinzel": "^5.1.1",
+    "@fontsource/poppins": "^5.1.1",
     "@heroicons/vue": "^2.0.13",
     "@mdi/font": "7.4.47",
     "@types/marked": "^4.0.8",
