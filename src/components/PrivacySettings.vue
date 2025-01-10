@@ -2,16 +2,12 @@
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="804" class="py-4">
       <v-card elevation="2" rounded="lg">
-        <v-card-title
-          class="d-flex justify-space-between align-center"
-          @click="togglePrivacy"
-        >
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2"
-            >The hronicles of Drunagor Community is coming soon!</span
-          >
+        <v-card-title class="d-flex justify-space-between align-center" @click="togglePrivacy">
+          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-wrap text-uppercase">The Chronicles of Drunagor
+            Community is coming soon!</span>
           <v-icon>{{
             isExpanded ? "mdi-chevron-up" : "mdi-chevron-down"
-          }}</v-icon>
+            }}</v-icon>
         </v-card-title>
 
         <v-expand-transition>
@@ -77,8 +73,8 @@
     </v-container>
   </v-col>
 </template>
-  
-  <script lang="ts" setup>
+
+<script lang="ts" setup>
 import { reactive, ref } from "vue";
 
 const isExpanded = ref(false);
@@ -111,4 +107,3 @@ const switches = [
   { key: "showStatistics", label: "Show your statistics to other users" },
 ];
 </script>
-  
