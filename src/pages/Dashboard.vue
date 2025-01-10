@@ -219,7 +219,7 @@
                         params: { id: item.campaignId },
                       })
                       ">
-                      <v-img :src="campFig(item.name)" height with cover />
+                      <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
                       <v-card-title>
                         {{ item.campaign }}
                       </v-card-title>
@@ -618,7 +618,7 @@ const campFig = (campName: string) => {
 
   console.log(campName)
   switch (campName) {
-    case 'core':
+    case 'apocalypse':
       return assets + '/Dashboard/img-campaigncore.png';
     case 'core':
       return "400";
