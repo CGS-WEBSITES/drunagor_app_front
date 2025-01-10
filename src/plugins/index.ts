@@ -53,7 +53,7 @@ export async function registerPlugins(app: App, env: string) {
     }
   }
 
-  const assets = "http://druna-assets.s3-website.us-east-2.amazonaws.com"
+  const assets = "https://assets.drunagor.app"
 
   app.provide('axios', app.config.globalProperties.axios)
   app.provide('assets', assets)

@@ -109,11 +109,11 @@ const rules = {
     value.length === 0 || /.+@.+\..+/.test(value) || "E-mail must be valid",
   min: (v: string) => v.length === 0 || v.length >= 8 || "Min 8 characters",
   matchPasswords: (v: string) =>
-    form.new_password.length === 0 ||
+    form.new_password  ||
     v === form.new_password ||
     "The passwords must match",
   matchEmails: (v: string) =>
-    form.new_email.length === 0 ||
+    form.new_email ||
     v === form.new_email ||
     "The Emails must match",
 };
