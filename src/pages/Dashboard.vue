@@ -5,395 +5,258 @@
     <!-- PC -->
     <v-row class="d-none d-md-flex justify-center align-center ml-16 ">
       <v-col cols="12" sm="10" md="8" class="px-6">
-          <v-row no-gutters>
-            <v-col cols="4">
-              <v-avatar size="210" rounded="0" class="avatar-overlay">
-                <v-img
-                  :src="
-                    user.picture_hash
-                      ? assets + '/Profile/' + user.picture_hash
-                      : assets + '/Profile/user.png'
-                  "
-                  alt="Profile"
-                  style="
+        <v-row no-gutters>
+          <v-col cols="4">
+            <v-avatar size="210" rounded="0" class="avatar-overlay">
+              <v-img :src="user.picture_hash
+                ? assets + '/Profile/' + user.picture_hash
+                : assets + '/Profile/user.png'
+                " alt="Profile" style="
                   border: 0.5px solid black;
                   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
                   background-color: black;
-                  "
-                />
-              </v-avatar>
-              <v-card-title class="user_name text-h3"  >{{ user.user_name }}</v-card-title>
-            </v-col>
-              <!-- Exibe o username -->
-
-              <!-- <v-card-subtitle>RANKING: 5123</v-card-subtitle> -->
-              <!-- Icons below the name -->
-              <!-- <v-row no-gutters>
-              <v-col cols="auto" class="mr-2 pl-3">
-                <v-icon>mdi-shield</v-icon>
-              </v-col>
-              <v-col cols="auto" class="mr-2">
-                <v-icon>mdi-sword</v-icon>
-              </v-col>
-              <v-col cols="auto" class="mr-2">
-                <v-icon>mdi-book</v-icon>
-              </v-col>
-              <v-col cols="auto">
-                <v-icon>mdi-map</v-icon>
-              </v-col>
-            </v-row> -->
-          </v-row>
+                  " />
+            </v-avatar>
+            <v-card-title class="user_name text-h3">{{ user.user_name }}</v-card-title>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
 
-      <!-- MOBILE -->
-      <v-row class="d-md-none justify-center align-center ml-0">
-  <v-card
-    class="card-overlay full-screen-card"
-    :image="assets + '/Profile/profile-bg-corewar-transparent.png'"
-    flat
-  >
-    </v-card>
-    <v-col cols="12" sm="12" md="12">
-      <v-row no-gutters>
-        <v-col cols="2" class="avatar-mobile">
-          <v-avatar size="140" rounded="0">
-            <v-img
-              :src="
-                user.picture_hash
-                  ? assets + '/Profile/' + user.picture_hash
-                  : assets + '/Profile/user.png'
-              "
-              alt="Profile"
-              style="
+    <!-- MOBILE -->
+    <v-row class="d-md-none justify-center align-center ml-0">
+      <v-card class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
+        flat>
+      </v-card>
+      <v-col cols="12" sm="12" md="12">
+        <v-row no-gutters>
+          <v-col cols="2" class="avatar-mobile">
+            <v-avatar size="140" rounded="0">
+              <v-img :src="user.picture_hash
+                ? assets + '/Profile/' + user.picture_hash
+                : assets + '/Profile/user.png'
+                " alt="Profile" style="
                 border: 3.5px solid black;
                 box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
                 background-color: black;
-              "
-            />
-          </v-avatar>
-        </v-col>
-      </v-row>
-    </v-col>
-    <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
-</v-row>
+              " />
+            </v-avatar>
+          </v-col>
+        </v-row>
+      </v-col>
+      <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
+    </v-row>
 
 
     <!-- Navigation Drawer -->
     <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="12" md="8" class="px-6">
-    <v-card class="move_topo pt-12">
+        <v-card class="move_topo pt-12">
 
-    <!-- Navigation Boxes Section -->
-    <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
-      <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
-        <!-- Primeiro Carrossel para dispositivos móveis -->
-        <v-carousel
-          :height="isMobile ? '400px' : 'auto'"
-          hide-delimiters
-          v-if="isMobile"
-        >
-          <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-            <v-row no-gutters class="justify-center">
-              <v-col cols="10">
-                <v-card
-                  :style="{ height: isMobile ? '400px' : 'auto' }"
-                  class="mx-auto"
-                  :disabled="index > 0 ? true : false"
-                  @click="router.push(item.route)"
-                >
-                  <v-img
-                    style="background-color: rgb(0, 0, 0)"
-                    :src="item.img"
-                    height="500"
-                    cover
-                    :gradient="
-                      index > 0
-                        ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
-                        : false
-                    "
-                  />
-                  <v-card-actions>
-                    <v-row class="d-flex justify-center">
-                      <v-btn class="text-center">{{ item.label }}</v-btn>
-                    </v-row>
-                  </v-card-actions>
-                  <div
-                    v-if="index > 0"
-                    style="
+          <!-- Navigation Boxes Section -->
+          <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
+            <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
+              <!-- Primeiro Carrossel para dispositivos móveis -->
+              <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
+                <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
+                  <v-row no-gutters class="justify-center">
+                    <v-col cols="10">
+                      <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto"
+                        :disabled="index > 0 ? true : false" @click="router.push(item.route)">
+                        <v-img style="background-color: rgb(0, 0, 0)" :src="item.img" height="500" cover :gradient="index > 0
+                          ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
+                          : false
+                          " />
+                        <v-card-actions>
+                          <v-row class="d-flex justify-center">
+                            <v-btn class="text-center">{{ item.label }}</v-btn>
+                          </v-row>
+                        </v-card-actions>
+                        <div v-if="index > 0" style="
                       height: 0px;
                       width: 100%;
                       position: relative;
                       left: 0;
                       bottom: 200px;
-                    "
-                    class="text-center"
-                  >
-                    <coming-soon></coming-soon>
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-carousel-item>
-        </v-carousel>
-
-        <v-row v-else align="center" justify="center">
-          <v-col
-            cols="12"
-            md="4"
-            lg="3"
-            v-for="(item, index) in carouselItems"
-            :key="index"
-          >
-            <v-hover v-slot="{ isHovering, props }">
-              <v-card
-                :class="{ 'on-hover': isHovering }"
-                :elevation="isHovering ? 12 : 2"
-                v-bind="props"
-                :disabled="index > 0 ? true : false"
-                @click="router.push(item.route)"
-              >
-                <v-img
-                  :src="item.img"
-                  height with cover
-                  :gradient="
-                    index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
-                  "
-                />
-                <v-card-actions>
-                  <v-row class="d-flex justify-center">
-                    <v-btn class="text-center">{{ item.label }}</v-btn>
+                    " class="text-center">
+                          <coming-soon></coming-soon>
+                        </div>
+                      </v-card>
+                    </v-col>
                   </v-row>
-                </v-card-actions>
-                <div
-                  v-if="index > 0"
-                  style="
+                </v-carousel-item>
+              </v-carousel>
+
+              <v-row v-else align="center" justify="center">
+                <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
+                  <v-hover v-slot="{ isHovering, props }">
+                    <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
+                      :disabled="index > 0 ? true : false" @click="router.push(item.route)">
+                      <v-img :src="item.img" height with cover :gradient="index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                        " />
+                      <v-card-actions>
+                        <v-row class="d-flex justify-center">
+                          <v-btn class="text-center">{{ item.label }}</v-btn>
+                        </v-row>
+                      </v-card-actions>
+                      <div v-if="index > 0" style="
                     height: 0px;
                     width: 100%;
                     position: relative;
                     left: 0;
                     bottom: 200px;
-                  "
-                  class="text-center"
-                >
+                  " class="text-center">
+                        <coming-soon></coming-soon>
+                      </div>
+                    </v-card>
+                  </v-hover>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+
+          <!-- Carousel Section -->
+
+          <v-row class="mt-4 d-flex justify-center align-center w-100 py-6" no-gutters>
+            <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
+              <v-carousel hide-delimiters v-if="campaignList.length > 0" :height="isMobile ? '400px' : 'auto'">
+                <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
+                  <v-row no-gutters class="justify-center">
+                    <v-col cols="10" sm="10" md="12">
+                      <v-card class="mx-auto" @click="
+                        router.push({
+                          name: 'Campaign',
+                          params: { id: item.campaignId },
+                        })
+                        ">
+                        <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
+                        <v-card-title>
+                          {{ item.campaign }}
+                        </v-card-title>
+                        <v-card-subtitle v-if="item.name">
+                          {{ item.name }}
+                        </v-card-subtitle>
+                        <v-card-text>
+                          <v-row no-gutters>
+                            <v-col cols="4" sm="2" md="2" lg="2" xl="1" class="d-flex"
+                              v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
+                              <v-avatar :image="hero.images.avatar" size="40" />
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-carousel-item>
+              </v-carousel>
+
+              <v-row v-else no-gutters class="justify-center py-6">
+                <v-col cols="12">
+                  <v-card class="mx-auto">
+                    <v-card-title>
+                      You don't have any campaign saved yet. Click on the folowing
+                      button to create one
+                    </v-card-title>
+                    <v-card-actions class="d-flex justify-center">
+                      <v-btn @click="router.push({ name: 'Campaign Overview' })">create campaign</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Navigation Drawer -->
+    <v-row class="move_topo2 d-md-none justify-center align-center ">
+      <v-col cols="12" sm="12" md="12" class="px-0">
+
+        <!-- Navigation Boxes Section -->
+
+
+        <v-row class="d-sm justify-center align-center ma-0 w-100" justify="center">
+          <v-col cols="6" v-for="(item, index) in carouselItems" :key="index">
+            <v-hover v-slot="{ isHovering, props }">
+              <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
+                :disabled="index > 0 ? true : false" @click="router.push(item.route)">
+                <v-img :src="item.img" height with cover :gradient="index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                  " />
+                <v-card-actions>
+                  <v-row class="d-flex justify-center">
+                    <v-btn class="text-center">{{ item.label }}</v-btn>
+                  </v-row>
+                </v-card-actions>
+                <div v-if="index > 0" style="
+                    height: 0px;
+                    width: 100%;
+                    position: relative;
+                    left: 0;
+                    bottom: 200px;
+                  " class="text-center">
                   <coming-soon></coming-soon>
                 </div>
               </v-card>
             </v-hover>
           </v-col>
         </v-row>
-      </v-col>
-    </v-row>
 
-    <!-- Carousel Section -->
+        <!-- Carousel Section -->
 
-    <v-row
-      class="mt-4 d-flex justify-center align-center w-100 py-6"
-      no-gutters
-    >
-      <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
-        <v-carousel
-          hide-delimiters
-          v-if="campaignList.length > 0"
-          :height="isMobile ? '400px' : 'auto'"
-        >
-          <v-carousel-item
-            v-for="(item, index) in campaignStore.findAll()"
-            :key="index"
-          >
-            <v-row no-gutters class="justify-center">
-              <v-col cols="10" sm="10" md="12">
-                <v-card
-                  class="mx-auto"
-                  @click="
-                    router.push({
-                      name: 'Campaign',
-                      params: { id: item.campaignId },
-                    })
-                  "
-                >
-                  <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
-                  <v-card-title>
-                    {{ item.campaign }}
-                  </v-card-title>
-                  <v-card-subtitle v-if="item.name">
-                    {{ item.name }}
-                  </v-card-subtitle>
-                  <v-card-text>
-                    <v-row no-gutters class="justify-center">
-                      <v-col
-                        cols="4"
-                        sm="2"
-                        md="2"
-                        lg="2"
-                        xl="1"
-                        class="d-flex justify-center"
-                        v-for="hero in findHeroes(item.campaignId)"
-                        :key="hero.heroId"
-                      >
-                        <v-avatar :image="hero.images.avatar" size="40" />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-carousel-item>
-        </v-carousel>
 
-        <v-row v-else no-gutters class="justify-center py-6">
-          <v-col cols="12">
-            <v-card class="mx-auto">
-              <v-card-title>
-                You don't have any campaign saved yet. Click on the folowing
-                button to create one
-              </v-card-title>
-              <v-card-actions class="d-flex justify-center">
-                <v-btn @click="router.push({ name: 'Campaign Overview' })"
-                  >create campaign</v-btn
-                >
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-card>
-</v-col>
-</v-row>
+        <v-card-title class="text-h5"> MY CAMPAIGNS</v-card-title>
 
-<!-- Navigation Drawer -->
-<v-row class="move_topo2 d-md-none justify-center align-center ">
-      <v-col cols="12" sm="12" md="12" class="px-0">
+        <v-row class="d-flex justify-center align-center w-100 " no-gutters>
+          <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
+            <v-carousel show-arrows="hover" hide-delimiters v-if="campaignList.length > 0" height="500">
+              <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
+                <v-row no-gutters class="justify-center">
+                  <v-col cols="12" sm="12" md="12">
+                    <v-card class="mx-4" @click="
+                      router.push({
+                        name: 'Campaign',
+                        params: { id: item.campaignId },
+                      })
+                      ">
+                      <v-img :src="campFig(item.name)" height with cover />
+                      <v-card-title>
+                        {{ item.campaign }}
+                      </v-card-title>
+                      <v-card-subtitle v-if="item.name">
+                        {{ item.name }}
+                      </v-card-subtitle>
+                      <v-card-text>
+                        <v-row no-gutters>
+                          <v-col cols="1" sm="2" md="2" lg="2" xl="1" class="d-flex"
+                            v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
+                            <v-avatar :image="hero.images.avatar" size="40" />
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-carousel-item>
+            </v-carousel>
 
-    <!-- Navigation Boxes Section -->
-    <v-row class=" d-flex justify-center align-center ma-0 w-100">
-      <v-col cols="12" sm="12" md="12" class="px-0">
-        <!-- Primeiro Carrossel para dispositivos móveis -->
-        <v-carousel
-         height="580"
-          hide-delimiters
-
-        >
-          <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-            <v-row no-gutters class="justify-center">
+            <v-row v-else no-gutters class="justify-center py-6">
               <v-col cols="10">
-                <v-card
-                  class="mx-auto"
-                  :disabled="index > 0 ? true : false"
-                  @click="router.push(item.route)"
-                >
-                  <v-img
-                    style="background-color: rgb(0, 0, 0)"
-                    :src="item.img"
-                    contain
-                    :gradient="
-                      index > 0
-                        ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
-                        : false
-                    "
-                  />
-                  <v-card-actions>
-                    <v-row class="d-flex justify-center">
-                      <v-btn class="text-center">{{ item.label }}</v-btn>
-                    </v-row>
-                  </v-card-actions>
-                  <div
-                    v-if="index > 0"
-                    style="
-                      height: 0px;
-                      width: 100%;
-                      position: absolute;
-                      left: 0;
-                      bottom: 200px;
-                    "
-                    class="text-center"
-                  >
-                    <coming-soon></coming-soon>
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-carousel-item>
-        </v-carousel>
-      </v-col>
-    </v-row>
-
-    <!-- Carousel Section -->
-
-    <v-row
-      class="mt-4 d-flex justify-center align-center w-100 py-"
-      no-gutters
-    >
-      <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
-        <v-carousel
-          hide-delimiters
-          v-if="campaignList.length > 0"
-          :height="isMobile ? '400px' : 'auto'"
-        >
-          <v-carousel-item
-            v-for="(item, index) in campaignStore.findAll()"
-            :key="index"
-          >
-            <v-row no-gutters class="justify-center">
-              <v-col cols="10" sm="10" md="12">
-                <v-card
-                  class="mx-auto"
-                  @click="
-                    router.push({
-                      name: 'Campaign',
-                      params: { id: item.campaignId },
-                    })
-                  "
-                >
-                  <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
+                <v-card class="mx-auto">
                   <v-card-title>
-                    {{ item.campaign }}
+                    You don't have any campaign saved yet. Click on the folowing
+                    button to create one
                   </v-card-title>
-                  <v-card-subtitle v-if="item.name">
-                    {{ item.name }}
-                  </v-card-subtitle>
-                  <v-card-text>
-                    <v-row no-gutters class="justify-center">
-                      <v-col
-                        cols="4"
-                        sm="2"
-                        md="2"
-                        lg="2"
-                        xl="1"
-                        class="d-flex justify-center"
-                        v-for="hero in findHeroes(item.campaignId)"
-                        :key="hero.heroId"
-                      >
-                        <v-avatar :image="hero.images.avatar" size="40" />
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
+                  <v-card-actions class="d-flex justify-center">
+                    <v-btn @click="router.push({ name: 'Campaign Overview' })">create campaign</v-btn>
+                  </v-card-actions>
                 </v-card>
               </v-col>
             </v-row>
-          </v-carousel-item>
-        </v-carousel>
-
-        <v-row v-else no-gutters class="justify-center py-6">
-          <v-col cols="10">
-            <v-card class="mx-auto">
-              <v-card-title>
-                You don't have any campaign saved yet. Click on the folowing
-                button to create one
-              </v-card-title>
-              <v-card-actions class="d-flex justify-center">
-                <v-btn @click="router.push({ name: 'Campaign Overview' })"
-                  >create campaign</v-btn
-                >
-              </v-card-actions>
-            </v-card>
           </v-col>
         </v-row>
       </v-col>
     </v-row>
-</v-col>
-</v-row>
 
     <!-- Main Event Cards Section -->
     <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
@@ -733,6 +596,8 @@ import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
 
+
+
 const campaignStore = CampaignStore();
 
 const campaignList = computed(() => {
@@ -749,8 +614,27 @@ const display = ref(useDisplay());
 
 const assets = inject<string>("assets");
 
+const campFig = (campName: string) => {
+
+  console.log(campName)
+  switch (campName) {
+    case 'core':
+      return assets + '/Dashboard/img-campaigncore.png';
+    case 'core':
+      return "400";
+    case 'core':
+      return "500";
+    case 'core':
+      return "500";
+    case 'core':
+      return "600";
+    case 'core':
+      return "700";
+  }
+
+}
 // Configurações de evento para rolagem
-onMounted(() => {});
+onMounted(() => { });
 
 // Verificação de mobile
 const isMobile = computed(() => {
@@ -760,23 +644,23 @@ const isMobile = computed(() => {
 
 // Dados do carrossel
 const carouselItems = ref([
-{
-    img: new URL(assets+"/Dashboard/btn-campaigns.png", import.meta.url).href,
+  {
+    img: new URL(assets + "/Dashboard/btn-campaigns.png", import.meta.url).href,
     label: "COMPANION",
     route: { name: "CampaignTracker" },
   },
   {
-    img: new URL(assets+"/Dashboard/btn-library.png", import.meta.url).href,
+    img: new URL(assets + "/Dashboard/btn-library.png", import.meta.url).href,
     label: "LIBRARY",
     route: { name: "Library" },
   },
   {
-    img: new URL(assets+"/Dashboard/btn-events.png", import.meta.url).href,
+    img: new URL(assets + "/Dashboard/btn-events.png", import.meta.url).href,
     label: "EVENTS",
     route: { name: "Library" },
   },
   {
-    img: new URL(assets+"/Dashboard/btn-profile.png", import.meta.url).href,
+    img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
     label: "LEADERBOARD",
     route: { name: "Library" },
   },
@@ -824,32 +708,32 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .avatar-overlay {
   position: relative;
-  transform: translateY(-18px); /* Move o avatar parcialmente para cima */
-  z-index: 2; /* Garante que o avatar fique acima do card */
+  transform: translateY(-18px);
+  z-index: 2;
 }
 
 .avatar-mobile {
   position: relative;
-  transform: translateY(-130px); /* Move o avatar parcialmente para cima */
-  z-index: 3; /* Garante que o avatar fique acima do card */
+  transform: translateY(-130px);
+  z-index: 3
 }
 
 .card-overlay {
   position: relative;
-  transform: translateY(-6px); /* Move o avatar parcialmente para cima */
-  z-index: 2; /* Garante que o avatar fique acima do card */
+  transform: translateY(-6px);
+  z-index: 2;
 }
 
 .user_name {
   position: relative;
   transform: translateY(-145px) translateX(204px);
-  z-index: 2; /* Garante que o avatar fique acima do card */
+  z-index: 2;
 }
 
 .user_name2 {
   position: relative;
   transform: translateY(-245px) translateX(-10px);
-  z-index: 2; /* Garante que o avatar fique acima do card */
+  z-index: 2;
 }
 
 
@@ -864,17 +748,15 @@ function findHeroes(campaignId: string): HeroData[] {
 }
 
 .full-screen-card {
-  width: 100vw; /* Preenche toda a largura da tela */
-  height: 24vh; /* Preenche toda a altura da tela */
-  background-size: cover; /* Ajusta o fundo da imagem */
-  background-position: center; /* Centraliza a imagem */
-  display: flex; /* Para alinhar o conteúdo */
+  width: 100vw;
+  height: 24vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* Esconde qualquer excesso */
+  overflow: hidden;
   position: relative;
   z-index: 1;
 }
-
 </style>
-
