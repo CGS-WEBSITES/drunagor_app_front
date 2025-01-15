@@ -238,7 +238,7 @@ const contentStyle = computed(() => {
 
 <style>
 .v-app {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
 }
 
 .v-row {

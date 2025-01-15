@@ -28,9 +28,8 @@ export function getToken() {
         }
     }
 
-    router.push("/login")
+    // router.push("/login")
     return null;
-
 }
 
 export function isSignedIn() {
