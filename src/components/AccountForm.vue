@@ -8,7 +8,7 @@
           class="d-flex justify-space-between align-center"
           @click="toggleForm"
         >
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2"
+          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase"
             >MY ACCOUNT</span
           >
           <v-icon>{{
@@ -54,51 +54,105 @@
               ></v-text-field>
 
               <!-- Email -->
-              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">New Email</p>
-              <v-text-field
-                label=""
-                variant="solo-filled"
-                v-model="form.new_email"
-                :rules="[rules.email]"
-                class="mb-0"
-              ></v-text-field>
-              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
-                Confirm New Email
-              </p>
-              <v-text-field
-                label=""
-                variant="solo-filled"
-                v-model="form.confirm_email"
-                :rules="[rules.matchEmails]"
-                class="mb-0"
-              ></v-text-field>
+              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Email</p>
+              <v-row no-gutters>
+                <v-col cols="10" sm="11">
+                  <v-text-field
+                    :disabled="!changeEmail"
+                    label=""
+                    variant="solo-filled"
+                    v-model="form.new_email"
+                    :rules="[rules.email]"
+                    class="mb-0"
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                  cols="2"
+                  sm="1"
+                  class="d-flex justify-center align-center"
+                >
+                  <v-icon @click="changeEmail = !changeEmail" class="mb-4"
+                    >mdi-pencil</v-icon
+                  >
+                </v-col>
+              </v-row>
+
+              <v-row v-if="changeEmail" no-gutters>
+                <v-col>
+                  <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
+                    Confirm Email
+                  </p>
+                  <v-text-field
+                    label=""
+                    variant="solo-filled"
+                    v-model="form.confirm_email"
+                    :rules="[rules.matchEmails]"
+                    class="mb-0"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
 
               <!-- Switch para atualizações por email -->
-              <v-switch
+              <!-- <v-switch
                 v-model="form.email_updates"
                 label="Send email updates for friend requests, events next to you and app updates."
                 inset
                 class="mb-0"
                 color="green"
-              ></v-switch>
+              ></v-switch> -->
 
               <v-row no-gutters>
                 <v-col cols="12">
                   <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
-                    New Password
+                    Password
                   </p>
                 </v-col>
-                <v-col cols="11">
+                <v-col cols="10" sm="11">
                   <v-text-field
                     label=""
                     variant="solo-filled"
                     v-model="form.new_password"
                     class="mb-0"
-                    :rules="[rules.min]"
-                    :type="showPass ? 'text' : 'password'"
+                    :rules="changePassword ? [rules.min] : []"
+                    type="password"
+                    :disabled="!changePassword"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="1" class="d-flex justify-center align-start pt-5">
+                <v-col
+                  cols="2"
+                  sm="1"
+                  class="d-flex justify-center align-start pt-5"
+                >
+                  <v-icon
+                    class="olho"
+                    tag="i"
+                    @click="changePassword = !changePassword"
+                    >mdi-pencil</v-icon
+                  >
+                </v-col>
+              </v-row>
+
+              <v-row no-gutters v-if="changePassword">
+                <v-col cols="12">
+                  <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
+                    Confirm New Password
+                  </p>
+                </v-col>
+                <v-col cols="10" sm="11">
+                  <v-text-field
+                    label=""
+                    variant="solo-filled"
+                    :type="showPass ? 'text' : 'password'"
+                    v-model="form.confirm_password"
+                    class="mb-0"
+                    :rules="[rules.matchPasswords]"
+                  ></v-text-field>
+                </v-col>
+                <v-col
+                  cols="2"
+                  sm="1"
+                  class="d-flex justify-center align-start pt-5"
+                >
                   <v-icon
                     v-if="showPass"
                     class="olho"
@@ -115,20 +169,6 @@
                   >
                 </v-col>
               </v-row>
-
-              <!-- Senha -->
-
-              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
-                Confirm New Password
-              </p>
-              <v-text-field
-                label=""
-                variant="solo-filled"
-                type="password"
-                v-model="form.confirm_password"
-                class="mb-0"
-                :rules="[rules.matchPasswords]"
-              ></v-text-field>
             </v-form>
             <!-- Botões de Ação -->
             <v-card-actions>
@@ -141,9 +181,9 @@
     </v-container>
   </v-col>
 </template>
-  
-  <script lang="ts" setup>
-import { reactive, ref, inject } from "vue";
+
+<script lang="ts" setup>
+import { ref, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import type { VForm } from "vuetify/components";
 import { getToken } from "@/service/AccessToken";
@@ -168,18 +208,15 @@ const form = reactive({
   new_password: null,
   confirm_password: null,
 });
+
 const rules = {
   email: (value: string) =>
     value.length === 0 || /.+@.+\..+/.test(value) || "E-mail must be valid",
   min: (v: string) => v.length === 0 || v.length >= 8 || "Min 8 characters",
   matchPasswords: (v: string) =>
-    form.new_password.length === 0 ||
-    v === form.new_password ||
-    "The passwords must match",
+    v === form.new_password || "The passwords must match",
   matchEmails: (v: string) =>
-    form.new_email.length === 0 ||
-    v === form.new_email ||
-    "The Emails must match",
+    v === form.new_email || "The Emails must match",
 };
 const alertIcon = ref("");
 const alertText = ref("");
@@ -190,6 +227,8 @@ const showPass = ref(false);
 const axios: any = inject("axios");
 const url: string = inject("apiUrl");
 const validForm = ref<boolean>(false);
+const changeEmail = ref<boolean>(false);
+const changePassword = ref<boolean>(false);
 
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
@@ -218,8 +257,8 @@ const saveForm = async () => {
           name: form.name,
           user_name: form.user_name,
           zip_code: form.zip_code,
-          email: form.confirm_email ? form.confirm_email : null,
-          password: form.confirm_password ? form.confirm_password : null,
+          email: form.confirm_email,
+          password: form.confirm_password,
         },
         {
           // Headers
