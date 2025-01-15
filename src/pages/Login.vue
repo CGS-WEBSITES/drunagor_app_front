@@ -288,7 +288,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
 import type { VForm } from "vuetify/components";
@@ -296,7 +296,6 @@ import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
-
 
 
 const userStore = useUserStore();
