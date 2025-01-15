@@ -18,6 +18,7 @@ import "primevue/resources/themes/lara-dark-green/theme.css";
 import "primeicons/primeicons.css";
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import {getToken} from '@/service/AccessToken'
 
 // Types
 import type { App } from "vue";
@@ -53,7 +54,22 @@ export async function registerPlugins(app: App, env: string) {
     }
   }
 
-  const assets = "http://druna-assets.s3-website.us-east-2.amazonaws.com"
+  const assets = "https://assets.drunagor.app"
+
+  const globalAxios = app.config.globalProperties.axios
+
+  globalAxios.interceptors.request.use(
+    (config) => {
+      const token = getToken(); // Replace with your token retrieval logic
+      if (token) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
 
   app.provide('axios', app.config.globalProperties.axios)
   app.provide('assets', assets)
