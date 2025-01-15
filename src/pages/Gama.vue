@@ -129,7 +129,7 @@
             <p class="d-flex justify-center align-center">
               
               
-              Limited Spots Available! :::
+              Limited Spots Available! 
             </p>
             <p class="d-flex justify-center align-center font-italic">
                 <br>
