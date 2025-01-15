@@ -38,7 +38,7 @@
           :key="index"
           link
           :disabled="item.disabled"
-          @click="item.to ? router.push(item.to): item.do()"
+          @click="item.to ? router.push(item.to) : item.do()"
           :class="{ 'v-list-item--active': selectedItem === item }"
         >
           <v-list-item-icon>
@@ -234,12 +234,9 @@ const contentStyle = computed(() => {
         "background-repeat": "repeat-y",
       };
 });
-
-
 </script>
 
 <style>
-
 .v-app {
   font-family: 'Poppins', sans-serif !important;
 }

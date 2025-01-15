@@ -1,9 +1,9 @@
 <template>
   <!-- Profile Section -->
   <v-main>
-
     <!-- PC -->
-    <v-row class="d-none d-md-flex justify-center align-center ml-16 ">
+    <v-row class="d-none d-md-flex justify-center align-center ml-16">
+
       <v-col cols="12" sm="10" md="8" class="px-6">
         <v-row no-gutters>
           <v-col cols="4">
@@ -715,6 +715,7 @@ function findHeroes(campaignId: string): HeroData[] {
 .avatar-mobile {
   position: relative;
   transform: translateY(-130px);
+
   z-index: 3
 }
 
@@ -735,7 +736,6 @@ function findHeroes(campaignId: string): HeroData[] {
   transform: translateY(-85px) translateX(130px);
   z-index: 2;
 }
-
 
 .move_topo {
   position: relative;
@@ -761,7 +761,7 @@ function findHeroes(campaignId: string): HeroData[] {
 }
 
 body {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
 }
 
 </style>
