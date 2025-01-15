@@ -90,7 +90,7 @@
             <br>
             <v-card class="pa-4 pl-6" color="white" elevation="2">            <p>
               <strong
-                class="d-flex justify-center align-center text-h6 pt-12 text-md-h5 pr-7"
+                class="d-flex justify-center align-center text-h6 pt-6 text-md-h5 pr-7"
                 style="white-space: nowrap; font-size: clamp(1rem, 2.5vw, 2rem)"
               >
                 Don’t Miss Out!</strong

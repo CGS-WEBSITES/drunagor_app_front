@@ -69,7 +69,7 @@
         <!-- Botão de Navegação alinhado à direita -->
 
         <v-btn
-          v-if="route.name === 'Home' || route.name === 'Login'"
+          v-if="route.name === 'Home' || route.name === 'Login' || route.name === 'Gama'"
           color="#B8860B"
           large
           @click="$router.push({ name: 'Login' })"
