@@ -11,47 +11,27 @@
           <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase"
             >MY ACCOUNT</span
           >
+
           <v-icon>{{
             isExpanded ? "mdi-chevron-up" : "mdi-chevron-down"
-          }}</v-icon>
+            }}</v-icon>
         </v-card-title>
 
         <!-- Conteúdo do formulário (visível apenas se expandido) -->
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
-            <v-alert
-              closable
-              v-model="showAlert"
-              :icon="alertIcon"
-              :title="alertTitle"
-              :text="alertText"
-              :type="alertType"
-            ></v-alert>
+            <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
+              :type="alertType"></v-alert>
             <v-form ref="userForm">
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Name</p>
-              <v-text-field
-                label=""
-                variant="solo-filled"
-                v-model="form.name"
-                class="mb-0"
-              ></v-text-field>
+              <v-text-field label="" variant="solo-filled" v-model="form.name" class="mb-0"></v-text-field>
 
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Username</p>
-              <v-text-field
-                label=""
-                variant="solo-filled"
-                v-model="form.user_name"
-                class="mb-0"
-              ></v-text-field>
+              <v-text-field label="" variant="solo-filled" v-model="form.user_name" class="mb-0"></v-text-field>
 
               <!-- CEP -->
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Zipcode</p>
-              <v-text-field
-                label=""
-                variant="solo-filled"
-                v-model="form.zipcode"
-                class="mb-0"
-              ></v-text-field>
+              <v-text-field label="" variant="solo-filled" v-model="form.zipcode" class="mb-0"></v-text-field>
 
               <!-- Email -->
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Email</p>
@@ -184,6 +164,7 @@
 
 <script lang="ts" setup>
 import { ref, inject } from "vue";
+
 import { useUserStore } from "@/store/UserStore";
 import type { VForm } from "vuetify/components";
 import { getToken } from "@/service/AccessToken";
@@ -217,6 +198,7 @@ const rules = {
     v === form.new_password || "The passwords must match",
   matchEmails: (v: string) =>
     v === form.new_email || "The Emails must match",
+
 };
 const alertIcon = ref("");
 const alertText = ref("");
@@ -307,4 +289,3 @@ const cancelForm = () => {
   console.log("Form Cancelled");
 };
 </script>
-  

@@ -188,7 +188,7 @@ const menuItems = ref([
     disabled: false,
   },
   {
-    title: "Campaign Tracker",
+    title: "Companion",
     icon: "mdi-flag",
     to: { name: "CampaignTracker", disabled: false },
   },
@@ -238,7 +238,7 @@ const contentStyle = computed(() => {
 
 <style>
 .v-app {
-  font-family: "Poppins", sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 .v-row {

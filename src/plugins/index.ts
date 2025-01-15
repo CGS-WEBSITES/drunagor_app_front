@@ -39,13 +39,13 @@ export async function registerPlugins(app: App, env: string) {
   let apiUrl: string;
 
   if (env === 'local') {
-    apiUrl = 'http://localhost:5002/';
+    apiUrl = 'http://localhost/test/system/';
   } else {
     if (env === 'prod') {
       apiUrl = '';
     } else {
       if (env === 'test') {
-        apiUrl = 'http://ec2-18-189-52-115.us-east-2.compute.amazonaws.com:5002/';
+        apiUrl = 'https://api.drunagor.app/test/system/';
       }
       else{
         console.log("ddeu ruim")
@@ -53,7 +53,7 @@ export async function registerPlugins(app: App, env: string) {
     }
   }
 
-  const assets = "http://druna-assets.s3-website.us-east-2.amazonaws.com"
+  const assets = "https://assets.drunagor.app"
 
   app.provide('axios', app.config.globalProperties.axios)
   app.provide('assets', assets)
