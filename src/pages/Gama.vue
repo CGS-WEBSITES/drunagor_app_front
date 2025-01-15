@@ -142,11 +142,12 @@
               </v-col>
             </v-row>
             <p class="d-flex justify-center align-center">
-              <br />
-              <br />
+              
+              
               Limited Spots Available! :::
             </p>
             <p class="d-flex justify-center align-center font-italic">
+                <br>
               Shipping starts May 2025
             </p>
           </v-card>
