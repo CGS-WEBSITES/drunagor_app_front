@@ -29,7 +29,7 @@
       <v-row>
         <v-col cols="12" class="d-flex justify-center align-center">
           <p
-            class="text-center text-body-1"
+            class="text-center text-body-1 font-italic"
             style="font-size: clamp(1rem, 1.5vw, 1.2rem)"
           >
             Watch the video above to learn why
@@ -41,28 +41,13 @@
       <v-row>
         <v-col cols="12">
           <v-card class="pa-4 pl-6" color="white" elevation="2">
-            <v-row class="d-flex justify-center align-center">
-              <!-- Texto Principal -->
-              <v-col
-                cols="12"
-                class="text-center text-h6 p-0"
-                style="margin-bottom: 0"
-              >
-                Drunagor Nights 2025:
-              </v-col>
-
-              <!-- Subtítulo -->
-              <v-col
-                cols="12"
-                class="text-center text-h6 p-0"
-                style="margin-top: 0"
-              >
-                The Ultimate Organized Play Event for Your Store!
-              </v-col>
-            </v-row>
+           <p class="d-flex justify-center align-center"> <strong>Drunagor Nights 2025: The Ultimate Organized Play Event for Your Store!</strong></p>
+            
+               
+             
 
             <br />
-            <p>
+            <p style="text-align: center; margin-top: 0;">
               Welcome to <strong>Drunagor Nights</strong>, the most exciting
               <strong>Organized Play event</strong> of 2025! Drive customers
               into your FLGS with <strong>exclusive content</strong>, amazing
@@ -71,7 +56,7 @@
               event.
             </p>
             <br />
-
+       </v-card><br>
             <strong
               class="d-flex justify-center align-center text-h7 text-md-h5"
               >Secure Your Store’s Spot NOW!</strong
@@ -102,13 +87,13 @@
                 </ul>
               </v-col>
             </v-row>
-
-            <p>
+            <br>
+            <v-card class="pa-4 pl-6" color="white" elevation="2">            <p>
               <strong
                 class="d-flex justify-center align-center text-h6 pt-12 text-md-h5 pr-7"
                 style="white-space: nowrap; font-size: clamp(1rem, 2.5vw, 2rem)"
               >
-                <br />Don’t Miss Out!</strong
+                Don’t Miss Out!</strong
               >
             </p>
             <br />
