@@ -3,44 +3,45 @@
     <!-- Título -->
     <v-row justify="center">
       <v-col cols="12" class="text-center">
-        <h1 class="text-h2 font-weight-bold pt-14">LIBRARY</h1>
+        <h1 class=" cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">LIBRARY</h1>
       </v-col>
     </v-row>
 
     <!-- Conteúdo com Filtros e Produtos -->
     <v-row justify="center" class="bg-grey-darken-3 pa-4 rounded">
-      <!-- Botão de Filtros no Mobile -->
-      <v-btn class="d-md-none mb-4" color="#222222" block @click="toggleFilters">
-        Filters
-      </v-btn>
+   
 
-      <!-- Filtros -->
-      <v-col cols="12" md="3" v-show="showFilters || isDesktop">
-        <Filters @apply-filters="applyFilters" />
-      </v-col>
+ 
 
       <!-- Galeria de Produtos -->
-      <v-col cols="12" md="9">
+      <v-col cols="12" md="12">
         <v-row justify="center" align="center" dense>
           <v-col cols="12" sm="6" md="6" class="d-flex justify-center" v-for="product in products" :key="product.id">
             <!-- Componente de Card -->
-            <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />
+            <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />       
           </v-col>
         </v-row>
       </v-col>
     </v-row>
+
+    <!-- 
     <v-dialog v-model="dialog" max-width="500">
       <v-card>
-        <v-card-title>
+        
+        <v-card-title class="text-h5">
           {{ cardName }}
         </v-card-title>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn text="Close Dialog" @click="dialog = false"></v-btn>
-        </v-card-actions>
+        <v-img :src="dialogProduct?.image" class="my-4" height="200"></v-img>
+        <v-btn elevation="0"  class="" text="MORE DETAILS... " @click="openLink(product.link)"> </v-btn>
+          <v-btn class="rounded-0" color="#0E7576" text="ADD TO OWNED" @click="toggleOwned(product)"> </v-btn>
+          <v-btn class="rounded-0" color="#947A11" text="ADD TO WISHLIST" @click="toggleWishlist(product)"> </v-btn>    
+        <v-btn class="rounded-0" color="red" text="Close Dialog" @click="dialog = false"></v-btn>
       </v-card>
+      
     </v-dialog>
+    -->
+
+    
   </v-container>
 </template>
 
@@ -59,6 +60,7 @@ const contentChecked = ref(false);
 const selectedContent = ref("");
 const user = useUserStore().user
 const cardName = ref("")
+const boximage = ref("")
 
 const boxOptions = ["Companions and Furnitures", "AoDarkness", "Desert of Hellscar"];
 const contentOptions = ["Core", "Cosmetic", "Game Content"];
@@ -73,6 +75,7 @@ const setDialog = (name: string) => {
 
 const dialog = ref(true)
 
+
 const products = ref([
   {
     id: 1,
@@ -85,36 +88,42 @@ const products = ref([
     name: "Desert Of Hellscar",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-hellscar.png",
     link: "https://aodarkness.com/boxes/desert-of-hellscar/",
+   
   },
   {
     id: 3,
     name: "Lordwrath",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-handuriel.png",
     link: "https://aodarkness.com/boxes/lordwrath/",
+   
   },
   {
     id: 4,
     name: "Monster Pack",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
     link: "https://aodarkness.com/boxes/monster-pack/",
+  
   },
   {
     id: 5,
     name: "Ruin of Luccanor",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
     link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
+   
   },
   {
     id: 6,
     name: "Shadow World",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
     link: "https://aodarkness.com/boxes/shadow-world/",
+    
   },
   {
     id: 7,
     name: "Spoils of War",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
     link: "https://aodarkness.com/boxes/spoils-of-war/",
+    
   },
   {
     id: 8,
@@ -122,6 +131,9 @@ const products = ref([
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
+
+
+  
 
 ]);
 
@@ -133,9 +145,6 @@ const openLink = (link: string) => {
   window.open(link, "_blank");
 };
 
-const applyFilters = () => {
-  // Aqui pode-se implementar lógica de filtros para ajustar os produtos exibidos
-};
 
 const axios: any = inject("axios");
 const url: string = inject("apiUrl");
@@ -154,3 +163,14 @@ onBeforeMount(async () => {
 })
 
 </script>
+
+
+<style>
+.cinzel-text {
+  font-family: 'Cinzel', serif;
+}
+
+
+
+</style>
+

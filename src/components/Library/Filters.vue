@@ -5,17 +5,13 @@
 
     <!-- OWNED e WISHLIST -->
     <v-row class="" dense>
-      <v-col cols="6">
-        <v-btn block size="small" rounded="lg" color="#0E7576" variant="flat"
-          @click="$emit('update:filterStatus', 'owned')" class="text--sm" :style="{ whiteSpace: 'normal' }">
-          OWNED
-        </v-btn>
+      <v-col cols=12> <v-btn block size="small" rounded="lg" color="primary" @click="filter = 'all'">Show All</v-btn>
       </v-col>
       <v-col cols="6">
-        <v-btn block size="small" rounded="lg" color="#947A11" variant="flat"
-          @click="$emit('update:filterStatus', 'wishlist')" class="text--sm" :style="{ whiteSpace: 'normal' }">
-          WISHLIST
-        </v-btn>
+        <v-btn block size="small" rounded="lg" color="#0E7576" variant="flat" @click="filter = 'owned'">Owned</v-btn>
+      </v-col>
+      <v-col cols="6">
+        <v-btn block size="small" rounded="lg" color="#947A11" variant="flat" @click="filter = 'wishlist'">Wishlist</v-btn>
       </v-col>
     </v-row>
   </v-card>
@@ -37,4 +33,6 @@ export default {
     "apply-filters",
   ],
 };
+
+
 </script>
