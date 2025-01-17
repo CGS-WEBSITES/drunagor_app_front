@@ -30,7 +30,7 @@
       </v-card>
       <v-col cols="12" sm="12" md="12">
         <v-row no-gutters>
-          <v-col cols="12" class="avatar-mobile">
+          <v-col cols="8" class="avatar-mobile">
             <v-avatar size="140" rounded="0">
               <v-img :src="user.picture_hash
                 ? assets + '/Profile/' + user.picture_hash
