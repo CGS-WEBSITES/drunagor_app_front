@@ -9,39 +9,50 @@
 
     <!-- Conteúdo com Filtros e Produtos -->
     <v-row justify="center" class="bg-grey-darken-3 pa-4 rounded">
-   
 
- 
+
+
 
       <!-- Galeria de Produtos -->
       <v-col cols="12" md="12">
         <v-row justify="center" align="center" dense>
           <v-col cols="12" sm="6" md="6" class="d-flex justify-center" v-for="product in products" :key="product.id">
             <!-- Componente de Card -->
-            <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />       
+            <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />
           </v-col>
         </v-row>
       </v-col>
     </v-row>
 
-    <!-- 
-    <v-dialog v-model="dialog" max-width="500">
-      <v-card>
-        
+
+    <v-dialog v-model="dialog" max-width="440">
+
+      <v-card class="custom-background">
+
         <v-card-title class="text-h5">
           {{ cardName }}
         </v-card-title>
-        <v-img :src="dialogProduct?.image" class="my-4" height="200"></v-img>
-        <v-btn elevation="0"  class="" text="MORE DETAILS... " @click="openLink(product.link)"> </v-btn>
-          <v-btn class="rounded-0" color="#0E7576" text="ADD TO OWNED" @click="toggleOwned(product)"> </v-btn>
-          <v-btn class="rounded-0" color="#947A11" text="ADD TO WISHLIST" @click="toggleWishlist(product)"> </v-btn>    
-        <v-btn class="rounded-0" color="red" text="Close Dialog" @click="dialog = false"></v-btn>
-      </v-card>
-      
-    </v-dialog>
-    -->
+        <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
+          height="200"></v-img>
 
-    
+
+        <v-col cols="12">
+          <v-btn block prepend-icon="$vuetify" color="#312F2F" class="explore rounded-lg" @click="openLink(product.link)"> Explore</v-btn>
+        </v-col>
+
+        <h3 class=" cinzel-text font-weight-black text-h5">Description</h3>
+        <h2 class="  text-body-1">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+          been the
+          industry's standard dummy text ever since the 1500s, when an unknown </h2>
+         
+        <v-btn class="rounded-0" color="red" text="Close Dialog" @click="dialog = false"></v-btn>
+
+      </v-card>
+
+    </v-dialog>
+
+
+
   </v-container>
 </template>
 
@@ -82,48 +93,50 @@ const products = ref([
     name: "Corebox",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
     link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
+    description: "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
   },
   {
     id: 2,
     name: "Desert Of Hellscar",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-hellscar.png",
     link: "https://aodarkness.com/boxes/desert-of-hellscar/",
-   
+
   },
   {
     id: 3,
     name: "Lordwrath",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-handuriel.png",
     link: "https://aodarkness.com/boxes/lordwrath/",
-   
+
   },
   {
     id: 4,
     name: "Monster Pack",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
     link: "https://aodarkness.com/boxes/monster-pack/",
-  
+
   },
   {
     id: 5,
     name: "Ruin of Luccanor",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
     link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
-   
+
+
   },
   {
     id: 6,
     name: "Shadow World",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
     link: "https://aodarkness.com/boxes/shadow-world/",
-    
+
   },
   {
     id: 7,
     name: "Spoils of War",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
     link: "https://aodarkness.com/boxes/spoils-of-war/",
-    
+
   },
   {
     id: 8,
@@ -133,7 +146,7 @@ const products = ref([
   },
 
 
-  
+
 
 ]);
 
@@ -170,7 +183,20 @@ onBeforeMount(async () => {
   font-family: 'Cinzel', serif;
 }
 
+.nometopo{
+  background-position-y: -35px; /* Move a imagem 10px para cima */
+}
 
 
+
+.custom-background {
+  background-image: url('src/assets/Frame.png');
+  background-size: cover; /* Garante que a imagem se ajuste ao conteúdo */
+  background-repeat: no-repeat; /* Evita repetição da imagem */
+  background-position: top center; /* Posiciona o fundo no topo e centraliza horizontalmente */
+  background-position-y: -0px; /* Move a imagem 10px para cima */
+  width: 100%; /* Ajusta para preencher a largura */
+  height: 100%; /* Ajusta para preencher a altura */
+  padding-top: px; /* Move o conteúdo para baixo para evitar cortes */
+}
 </style>
-

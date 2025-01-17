@@ -92,7 +92,7 @@ export default {
 
 /* Ajuste do padding e alinhamento */
 #right-column {
-  background-image: url('@/assets/bg_apoc.png');
+  background-image: url('@/assets/mb-bg-corebox.png');
   background-size: cover;
   background-position: right;
 }
