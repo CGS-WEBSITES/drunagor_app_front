@@ -105,8 +105,11 @@ const products = ref([
     name: "Corebox",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
     link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
+    content: "Core",
+    componentType: "Box",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
     description: "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
-  },
+   },
   {
     id: 2,
     name: "Desert Of Hellscar",
