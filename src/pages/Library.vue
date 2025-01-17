@@ -7,29 +7,39 @@
       </v-col>
     </v-row>
 
-    <!-- Conteúdo com Filtros e Produtos -->
-    <v-row justify="center" class="bg-grey-darken-3 pa-4 rounded">
 
+    <v-card class="mx-2">
+    <v-row justify="center" class="pa-4 rounded">
+
+      <v-tabs v-model="tab"
+      align-tabs="center"
+      class="box-shadow centered-tabs d-flex justify-center">
+        <v-tab :value="1">Show All</v-tab>
+      <v-tab :value="2">Owned</v-tab>
+      <v-tab :value="3">Wishlist</v-tab>
+      </v-tabs>
+      
+    
 
 
 
       <!-- Galeria de Produtos -->
-      <v-col cols="12" md="12">
+      <v-col  cols="12" md="12">
         <v-row justify="center" align="center" dense>
-          <v-col cols="12" sm="6" md="6" class="d-flex justify-center" v-for="product in products" :key="product.id">
+          <v-col cols="12" sm="4" md="3" class="movecaixas d-flex justify-left" v-for="product in products" :key="product.id">
             <!-- Componente de Card -->
             <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />
           </v-col>
         </v-row>
       </v-col>
     </v-row>
-
+  </v-card>
 
     <v-dialog v-model="dialog" max-width="440">
 
       <v-card class="custom-background">
 
-        <v-card-title class="text-h5">
+        <v-card-title class="font-weight-bold text-h4">
           {{ cardName }}
         </v-card-title>
         <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
@@ -37,15 +47,17 @@
 
 
         <v-col cols="12">
-          <v-btn block prepend-icon="$vuetify" color="#312F2F" class="explore rounded-lg" @click="openLink(product.link)"> Explore</v-btn>
+          <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
+            @click="openLink(product.link)"> Explore</v-btn>
         </v-col>
 
-        <h3 class=" cinzel-text font-weight-black text-h5">Description</h3>
-        <h2 class="  text-body-1">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
+        <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
+        <h2 class="pl-4 pb-4 text-body-1">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
+          has
           been the
           industry's standard dummy text ever since the 1500s, when an unknown </h2>
-         
-        <v-btn class="rounded-0" color="red" text="Close Dialog" @click="dialog = false"></v-btn>
+
+        <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
 
       </v-card>
 
@@ -145,6 +157,62 @@ const products = ref([
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
 
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 8,
+    name: "Undead Dragon",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
 
 
 
@@ -183,20 +251,37 @@ onBeforeMount(async () => {
   font-family: 'Cinzel', serif;
 }
 
-.nometopo{
-  background-position-y: -35px; /* Move a imagem 10px para cima */
+.movecaixas {
+  position: 30;
+  /* Move a imagem 10px para cima */
+}
+
+.box-shadow {
+  background-color: rgba(0, 0, 0, 0.25); /* Preto com 70% de opacidade */
+  
+}
+
+.centered-tabs {
+  width: 100%;
 }
 
 
 
 .custom-background {
   background-image: url('src/assets/Frame.png');
-  background-size: cover; /* Garante que a imagem se ajuste ao conteúdo */
-  background-repeat: no-repeat; /* Evita repetição da imagem */
-  background-position: top center; /* Posiciona o fundo no topo e centraliza horizontalmente */
-  background-position-y: -0px; /* Move a imagem 10px para cima */
-  width: 100%; /* Ajusta para preencher a largura */
-  height: 100%; /* Ajusta para preencher a altura */
-  padding-top: px; /* Move o conteúdo para baixo para evitar cortes */
+  background-size: cover;
+  /* Garante que a imagem se ajuste ao conteúdo */
+  background-repeat: no-repeat;
+  /* Evita repetição da imagem */
+  background-position: top center;
+  /* Posiciona o fundo no topo e centraliza horizontalmente */
+  background-position-y: -0px;
+  /* Move a imagem 10px para cima */
+  width: 100%;
+  /* Ajusta para preencher a largura */
+  height: 100%;
+  /* Ajusta para preencher a altura */
+  padding-top: px;
+  /* Move o conteúdo para baixo para evitar cortes */
 }
 </style>
