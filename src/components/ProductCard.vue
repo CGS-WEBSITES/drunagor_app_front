@@ -38,7 +38,7 @@
         <!-- Texto Sobreposto -->
         <v-card-title
           :class="isMobile ? 'text-h6' : 'text-h5'"
-          class="font-weight-bold"
+          class="element3 font-weight-bold"
         >
           {{ product.name || "No Product Selected" }}
         </v-card-title>
@@ -111,12 +111,19 @@ export default {
 .element {
   position: relative;
   top: 28px;
+  right: 10px;
 }
 
 .element1 {
   position: relative;
   top: -50px;
-  right: -100px;
+  right: -90px;
+}
+
+.element3 {
+  position: relative;
+  top: -18px;
+  right: 15px;
 }
 
 
