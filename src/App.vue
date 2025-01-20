@@ -197,7 +197,7 @@ const menuItems = ref([
     title: "Library",
     icon: "mdi-book",
     to: { name: "Library" },
-    disabled: true,
+    disabled: false,
   },
   {
     title: "Profile",
@@ -226,7 +226,7 @@ const contentStyle = computed(() => {
     ? {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-        "background-repeat": "repeat-y",
+        "background-repeat": "repeat",
         "margin-top": "65px",
       }
     : {
