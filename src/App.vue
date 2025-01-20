@@ -52,7 +52,7 @@
     </v-navigation-drawer>
 
     <v-row no-gutters v-if="display.mdAndUp">
-      <v-app-bar app min-height="50" color="black">
+      <v-app-bar app min-height="50" color="primary">
         <div class="d-flex align-center pl-6">
           <!-- Ajuste o padding com pl-6 -->
           <v-img
@@ -62,6 +62,7 @@
             alt="Drunagor Icon"
             contain
             class="mr-2"
+            @click="$router.push({ name: 'Dashboard' })"
           ></v-img>
           <span>App Drunagor</span>
         </div>
