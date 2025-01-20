@@ -26,9 +26,9 @@
       <!-- Galeria de Produtos -->
       <v-col  cols="12" md="12">
         <v-row justify="center" align="center" dense>
-          <v-col cols="12" sm="12" md="3" class="pl2 movecaixas d-flex justify-left" v-for="product in products" :key="product.id">
+          <v-col cols="12" sm="6" md="3" class="pl2 movecaixas d-flex justify-left" v-for="product in products" :key="product.id">
             <!-- Componente de Card -->
-            <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />
+            <ProductCard :product="product" class="w-100" @click="setDialog(product.name) " />
           </v-col>
         </v-row>
       </v-col>
@@ -48,14 +48,11 @@
 
         <v-col cols="12">
           <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
-            @click="openLink(product.link)"> Explore</v-btn>
+          @click="() => goToLink('https://aodarkness.com')"  > Explore</v-btn>
         </v-col>
 
         <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
-        <h2 class="pl-4 pb-4 text-body-1">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum
-          has
-          been the
-          industry's standard dummy text ever since the 1500s, when an unknown </h2>
+        <h2 class="pl-4 pb-4 text-body-1">{{ Description}} </h2>
 
         <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
 
@@ -84,6 +81,7 @@ const selectedContent = ref("");
 const user = useUserStore().user
 const cardName = ref("")
 const boximage = ref("")
+const Description = ref("");
 
 const boxOptions = ["Companions and Furnitures", "AoDarkness", "Desert of Hellscar"];
 const contentOptions = ["Core", "Cosmetic", "Game Content"];
@@ -91,9 +89,11 @@ const componentTypes = ["Books", "Cards", "Miniatures", "Maps", "Doors", "Player
 
 const showFilters = ref(false);
 const isDesktop = computed(() => window.innerWidth >= 960);
-const setDialog = (name: string) => {
+const setDialog = (name: string, description: string, boximage: string ) => {
   cardName.value = name
   dialog.value = true
+  Description.value = description
+  boximage.value = image
 }
 
 const dialog = ref(true)
@@ -105,34 +105,43 @@ const products = ref([
     name: "Corebox",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
     link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
+    color: "#136D6D",
     cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
     description: "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
    },
   {
     id: 2,
-    name: "Desert Of Hellscar",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-hellscar.png",
+    name: "Apocalypse",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-apoc.png",
+    color: "#660912",
     link: "https://aodarkness.com/boxes/desert-of-hellscar/",
 
   },
   {
     id: 3,
     name: "Lordwrath",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-handuriel.png",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lordwrath.png",
+    color: "#136D6D",
     link: "https://aodarkness.com/boxes/lordwrath/",
 
   },
   {
     id: 4,
     name: "Monster Pack",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-monsterpack.png",
+    color: "#136D6D",
     link: "https://aodarkness.com/boxes/monster-pack/",
 
   },
   {
     id: 5,
     name: "Ruin of Luccanor",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-luccanor.png",
+    color: "#4D5564",
     link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
 
 
@@ -141,6 +150,8 @@ const products = ref([
     id: 6,
     name: "Shadow World",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-shadowworld.png",
+    color: "#955021",
     link: "https://aodarkness.com/boxes/shadow-world/",
 
   },
@@ -148,69 +159,53 @@ const products = ref([
     id: 7,
     name: "Spoils of War",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-spoils.png",
+    color: "#261D43",
     link: "https://aodarkness.com/boxes/spoils-of-war/",
 
   },
   {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    id: 9,
+    name: "Fallen Sisters",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-fallen.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-fallen.png",
+    color: "#28242A",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
 
   {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    id: 10,
+    name: "Companions & Fornitures",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-compandfurt.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-compandfurt.png",
+    color: "#660912",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
 
   {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    id: 11,
+    name: "Hero Pack",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-heropack.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-heropack.png",
+    color: "#033E55",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
 
   {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    id: 12,
+    name: "Lorien",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lorien.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lorien.png",
+    color: "#136D6D",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
 
   {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
-    link: "https://aodarkness.com/boxes/undead-dragon/",
-  },
-
-  {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
-    link: "https://aodarkness.com/boxes/undead-dragon/",
-  },
-
-  {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
-    link: "https://aodarkness.com/boxes/undead-dragon/",
-  },
-
-  {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
-    link: "https://aodarkness.com/boxes/undead-dragon/",
-  },
-
-  {
-    id: 8,
-    name: "Undead Dragon",
-    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-undeaddragon.png",
+    id: 13,
+    name: "Four Horseman",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-horseman.png",
+    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-horseman.png",
+    color: "#660912",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
 
@@ -219,13 +214,19 @@ const products = ref([
 
 ]);
 
-const toggleFilters = () => {
-  showFilters.value = !showFilters.value;
+
+
+
+const goToLink = (link: string) => {
+  if (link) {
+    window.location.href = link; 
+  } else {
+    console.warn("Nenhum link encontrado para redirecionar.");
+  }
 };
 
-const openLink = (link: string) => {
-  window.open(link, "_blank");
-};
+
+
 
 
 const axios: any = inject("axios");
