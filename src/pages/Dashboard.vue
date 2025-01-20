@@ -91,15 +91,15 @@
                 <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
                   <v-hover v-slot="{ isHovering, props }">
                     <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
-                      :disabled="index > 0 ? true : false" @click="router.push(item.route)">
-                      <v-img :src="item.img" height with cover :gradient="index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                      :disabled="index > 1 ? true : false" @click="router.push(item.route)">
+                      <v-img :src="item.img" height with cover :gradient="index > 1 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                         " />
                       <v-card-actions>
                         <v-row class="d-flex justify-center">
                           <v-btn class="text-center">{{ item.label }}</v-btn>
                         </v-row>
                       </v-card-actions>
-                      <div v-if="index > 0" style="
+                      <div v-if="index > 1" style="
                     height: 0px;
                     width: 100%;
                     position: relative;
