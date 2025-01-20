@@ -3,13 +3,13 @@
     <!-- Título -->
     <v-row justify="center">
       <v-col cols="12" class="text-center">
-        <h1 class=" cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">LIBRARY</h1>
+        <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">LIBRARY</h1>
       </v-col>
     </v-row>
 
 
     <v-card class="mx-2">
-    <v-row justify="center" class="pa-4 rounded">
+    <v-row justify="center" class="ma-0 pa-2 rounded">
 
       <v-tabs v-model="tab"
       align-tabs="center"
@@ -26,7 +26,7 @@
       <!-- Galeria de Produtos -->
       <v-col  cols="12" md="12">
         <v-row justify="center" align="center" dense>
-          <v-col cols="12" sm="4" md="3" class="movecaixas d-flex justify-left" v-for="product in products" :key="product.id">
+          <v-col cols="12" sm="12" md="3" class="pl2 movecaixas d-flex justify-left" v-for="product in products" :key="product.id">
             <!-- Componente de Card -->
             <ProductCard :product="product" class="w-100" @click="setDialog(product.name)" />
           </v-col>
@@ -105,8 +105,6 @@ const products = ref([
     name: "Corebox",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
     link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
-    content: "Core",
-    componentType: "Box",
     cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
     description: "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
    },
@@ -273,18 +271,11 @@ onBeforeMount(async () => {
 .custom-background {
   background-image: url('src/assets/Frame.png');
   background-size: cover;
-  /* Garante que a imagem se ajuste ao conteúdo */
   background-repeat: no-repeat;
-  /* Evita repetição da imagem */
   background-position: top center;
-  /* Posiciona o fundo no topo e centraliza horizontalmente */
   background-position-y: -0px;
-  /* Move a imagem 10px para cima */
   width: 100%;
-  /* Ajusta para preencher a largura */
   height: 100%;
-  /* Ajusta para preencher a altura */
   padding-top: px;
-  /* Move o conteúdo para baixo para evitar cortes */
 }
 </style>
