@@ -117,7 +117,7 @@
 
           <!-- Carousel Section -->
 
-          <v-row class="mt-4 d-flex justify-center align-center w-100 py-6" no-gutters>
+          <v-row class="mt-4 d-flex justify-center align-center  py-6" no-gutters>
             <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
               <v-carousel hide-delimiters v-if="campaignList.length > 0" :height="isMobile ? '400px' : 'auto'">
                 <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
@@ -129,7 +129,7 @@
                           params: { id: item.campaignId },
                         })
                         ">
-                        <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
+                        <v-img :src="assets + '/Dashboard/img-campaigncore(1).png'" height with cover />
                         <v-card-title>
                           {{ item.campaign }}
                         </v-card-title>
