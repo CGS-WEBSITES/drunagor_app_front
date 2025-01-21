@@ -1,5 +1,7 @@
 <template>
-  <v-container class="pa-0 mx-auto">
+
+
+<v-container class="pa-0 ">
     <!-- Título -->
     <v-row justify="center">
       <v-col cols="12" class="text-center">
@@ -8,61 +10,157 @@
     </v-row>
 
 
-    <v-card class="mx-2">
-    <v-row justify="center" class="ma-0 pa-2 rounded">
-
-      <v-tabs v-model="tab"
-      align-tabs="center"
-      class="box-shadow centered-tabs d-flex justify-center">
-        <v-tab :value="1">Show All</v-tab>
-      <v-tab :value="2">Owned</v-tab>
-      <v-tab :value="3">Wishlist</v-tab>
-      </v-tabs>
-      
+  <v-card class="pa-2">
     
 
+    <v-tabs v-model="activeTab" align-tabs="center"
+    class="box-shadow centered-tabs d-flex justify-center">
+      <v-tab :value="1">All Products</v-tab>
+      <v-tab :value="2">Wishlist</v-tab>
+      <v-tab :value="3">Owned</v-tab>
+    </v-tabs>
 
+    <!-- Conteúdo Condicional das Abas -->
+    <div v-if="activeTab === 1">
+      <!-- Todos os Produtos -->
+      <v-row dense>
+        <v-col
+          v-for="product in products"
+          :key="product.id"
+          cols="12"
+          sm="6"
+          md="3"
+        >
+<!-- Product Card com Botões -->
+<div class="card-wrapper">
+        <!-- Componente do Product Card -->
+        <ProductCard
+          :product="product"
+          @click="setDialog(product.name)"
+        />
+        
+          <v-btn
+          prepend-icon="mdi-list-box-outline"
+           size="small"
+            variant="outlined"
+            class="movebotao"
+            @click="toggleWishlist(product.id)"
+          >
+            {{ isInWishlist(product.id) ? " - Wishlist" : "+  Wishlist" }}
+          </v-btn>
+          <v-btn
+          prepend-icon="mdi-tag-check-outline"
+          variant="outlined"
+            size="small"
+            class="movebotao2"
+            @click="toggleOwned(product.id)"
+          >
+            {{ isOwned(product.id) ? "-  Owned" : "+ Owned" }}
+          </v-btn>
+       
+      </div>
+    </v-col>
+      </v-row>
+    </div>
 
-      <!-- Galeria de Produtos -->
-      <v-col  cols="12" md="12">
-        <v-row justify="center" align="center" dense>
-          <v-col cols="12" sm="6" md="3" class="pl2 movecaixas d-flex justify-left" v-for="product in products" :key="product.id">
-            <!-- Componente de Card -->
-            <ProductCard :product="product" class="w-100" @click="setDialog(product.name) " />
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-card>
+    <div v-if="activeTab === 2">
+      <!-- Wishlist -->
+      <v-row dense>
+        <v-col
+          v-for="product in wishlistItems"
+          :key="product.id"
+          cols="12"
+          sm="6"
+          md="4"
+        >
 
-    <v-dialog v-model="dialog" max-width="440">
-
-      <v-card class="custom-background">
-
-        <v-card-title class="font-weight-bold text-h4">
-          {{ cardName }}
-        </v-card-title>
-        <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
-          height="200"></v-img>
-
-
-        <v-col cols="12">
-          <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
-          @click="() => goToLink('https://aodarkness.com')"  > Explore</v-btn>
+          <v-card>
+            <ProductCard
+              :product="product"
+              class="w-100"
+              @click="setDialog(product.name)"
+            />
+            <v-btn
+           size="small"
+           prepend-icon="mdi-list-box-outline"
+            variant="outlined"
+            class="movebotao3"
+            @click="toggleWishlist(product.id)"
+          >
+            {{ isInWishlist(product.id) ? " - Wishlist" : "+  Wishlist" }}
+          </v-btn>
+          </v-card>
         </v-col>
+      </v-row>
+    </div>
 
-        <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
-        <h2 class="pl-4 pb-4 text-body-1">{{ Description}} </h2>
-
-        <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
-
-      </v-card>
-
-    </v-dialog>
-
-
-
+    <div v-if="activeTab === 3">
+      <!-- Owned -->
+      <v-row dense>
+        <v-col
+          v-for="product in ownedItems"
+          :key="product.id"
+          cols="12"
+          sm="6"
+          md="4"
+        >
+          <v-card>
+            <ProductCard
+              :product="product"
+              class="w-100"
+              @click="setDialog(product.name)"
+            />
+          <v-btn
+          variant="outlined"
+          prepend-icon="mdi-tag-check-outline"
+            size="small"
+            class="movebotao3"
+            @click="toggleOwned(product.id)"
+          >
+            {{ isOwned(product.id) ? "- to Owned" : "+ to Owned" }}
+          </v-btn>
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
+  </v-card>
   </v-container>
+
+  
+
+  <v-dialog v-model="dialog" max-width="440">
+
+<v-card class="custom-background">
+
+
+  <v-card-title class="font-weight-bold text-h4">
+    {{ cardName }}
+  </v-card-title>
+  <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
+    height="200"></v-img>
+
+
+  <v-col cols="12">
+    <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
+    @click="() => goToLink('https://aodarkness.com')"  > Explore</v-btn>
+  </v-col>
+
+  <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
+  <h2 class="pl-4 pb-4 text-body-1">{{ Description}} </h2>
+
+  <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
+
+</v-card>
+
+</v-dialog>
+
+
+
+
+  
+
+
+
 </template>
 
 <script lang="ts" setup>
@@ -226,6 +324,56 @@ const goToLink = (link: string) => {
 };
 
 
+const activeTab = ref(1); // Tab ativa (1 = All, 2 = Wishlist, 3 = Owned)
+
+// Lista de IDs para Wishlist e Owned
+const wishlist = ref<number[]>([]);
+const owned = ref<number[]>([]);
+
+// Adicionar ou remover da Wishlist
+const toggleWishlist = (productId: number) => {
+  const index = wishlist.value.indexOf(productId);
+  if (index === -1) {
+    wishlist.value.push(productId);
+    // Remove de Owned se estiver lá
+    const ownedIndex = owned.value.indexOf(productId);
+    if (ownedIndex !== -1) owned.value.splice(ownedIndex, 1);
+  } else {
+    wishlist.value.splice(index, 1);
+  }
+};
+
+// Adicionar ou remover de Owned
+const toggleOwned = (productId: number) => {
+  const index = owned.value.indexOf(productId);
+  if (index === -1) {
+    owned.value.push(productId);
+    // Remove da Wishlist se estiver lá
+    const wishlistIndex = wishlist.value.indexOf(productId);
+    if (wishlistIndex !== -1) wishlist.value.splice(wishlistIndex, 1);
+  } else {
+    owned.value.splice(index, 1);
+  }
+};
+
+// Verificar se está na Wishlist
+const isInWishlist = (productId: number) => {
+  return wishlist.value.includes(productId);
+};
+
+// Verificar se está em Owned
+const isOwned = (productId: number) => {
+  return owned.value.includes(productId);
+};
+
+// Computed para exibir itens de Wishlist e Owned
+const wishlistItems = computed(() =>
+  products.value.filter((product) => wishlist.value.includes(product.id))
+);
+const ownedItems = computed(() =>
+  products.value.filter((product) => owned.value.includes(product.id))
+);
+
 
 
 
@@ -254,7 +402,7 @@ onBeforeMount(async () => {
 }
 
 .movecaixas {
-  position: 30;
+  position: 0;
   /* Move a imagem 10px para cima */
 }
 
@@ -266,6 +414,26 @@ onBeforeMount(async () => {
 .centered-tabs {
   width: 100%;
 }
+
+
+.movebotao{
+  position: absolute;
+  margin-left: 168px;
+  margin-top: -38px;
+}
+
+.movebotao2{
+  position: absolute;
+  margin-left: 175px;
+  margin-top: -72px;
+}
+
+.movebotao3{
+  position: absolute;
+  margin-left: 208px;
+  margin-top: -38px;
+}
+
 
 
 
