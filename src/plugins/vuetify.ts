@@ -24,15 +24,26 @@ export default createVuetify({
   theme: {
     defaultTheme: "dark",
     themes: {
-      myCustomTheme: {
+      CoreTheme: {
         dark: false,
         colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
           background: '#172A2C',
           surface: '#274B4E',
           primary: '#274B4E',
-          'primary-darken-1': '#3700B3',
           secondary: '#3C7376',
-          'secondary-darken-1': '#018786',
+          error: '#B00020',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FB8C00',
+        },
+      },
+      ApocTheme: {
+        dark: false,
+        colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
+          background: '#421111',
+          surface: '#6B1C1C',
+          primary: '#6B1C1C',
+          secondary: '#3D3D3D',
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
