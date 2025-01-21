@@ -52,7 +52,7 @@
     </v-navigation-drawer>
 
     <v-row no-gutters v-if="display.mdAndUp">
-      <v-app-bar app min-height="50" color="primary">
+      <v-app-bar app min-height="50" color="secundary">
         <div class="d-flex align-center pl-6">
           <!-- Ajuste o padding com pl-6 -->
           <v-img
@@ -169,7 +169,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("myCustomTheme");
+const theme = ref("dark");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
