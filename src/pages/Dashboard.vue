@@ -123,7 +123,7 @@
                 <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
                   <v-row no-gutters class="justify-center">
                     <v-col cols="10" sm="10" md="12">
-                      <v-card class="mx-auto" @click="
+                      <v-card  class="mx-auto" @click="
                         router.push({
                           name: 'Campaign',
                           params: { id: item.campaignId },
@@ -165,7 +165,32 @@
               </v-row>
             </v-col>
           </v-row>
+          <v-card-title class="text-h4">
+            MY LIBRARY
+          </v-card-title>
+          <v-row dense>
+            <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="6" class="pa-2 ">
+              <!-- Card Content -->
+              <div class="library-item" :style="{
+                backgroundImage: `url(${item.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }"
+              @click="$router.push({ name: 'Library' })">
+                <h3 class="library-title">{{ item.name }}</h3>
+              </div>
+            </v-col>
+          </v-row>
+
+
+
         </v-card>
+
+
+
+
+
+
       </v-col>
     </v-row>
 
@@ -180,15 +205,15 @@
           <v-col cols="6" v-for="(item, index) in carouselItems" :key="index">
             <v-hover v-slot="{ isHovering, props }">
               <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
-                :disabled="index > 0 ? true : false" @click="router.push(item.route)">
-                <v-img :src="item.img" height with cover :gradient="index > 0 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                :disabled="index > 1 ? true : false" @click="router.push(item.route)">
+                <v-img :src="item.img" height with cover :gradient="index > 1 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                   " />
                 <v-card-actions>
                   <v-row class="d-flex justify-center">
                     <v-btn class="text-center">{{ item.label }}</v-btn>
                   </v-row>
                 </v-card-actions>
-                <div v-if="index > 0" style="
+                <div v-if="index > 1" style="
                     height: 0px;
                     width: 100%;
                     position: relative;
@@ -255,6 +280,26 @@
             </v-row>
           </v-col>
         </v-row>
+        <v-card-title class="librarytext text-h5">
+          MY LIBRARY
+        </v-card-title>
+        <v-row dense>
+          <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="10" class="px-4 py-2">
+            <!-- Card Content -->
+            <div class="library-item2" :style="{
+              backgroundImage: `url(${item.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }">
+              <h3 class="library-title">{{ item.name }}</h3>
+            </div>
+          </v-col>
+        </v-row>
+
+
+
+
+
       </v-col>
     </v-row>
 
@@ -655,16 +700,40 @@ const carouselItems = ref([
     route: { name: "Library" },
   },
   {
+    img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
+    label: "MY PROFILE",
+    route: { name: "Profile" },
+  },
+
+  {
     img: new URL(assets + "/Dashboard/btn-events.png", import.meta.url).href,
     label: "EVENTS",
     route: { name: "Library" },
   },
+]);
+
+
+const libraryItems = ref([
   {
-    img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
-    label: "LEADERBOARD",
-    route: { name: "Library" },
+    name: "COREBOX",
+    image: new URL(assets + "/Dashboard/btn-corebox.png", import.meta.url).href,
+  },
+  {
+    name: "DESERT OF HELLSCAR",
+    image: new URL(assets + "/Dashboard/btn-hellscar.png", import.meta.url).href,
+  },
+  {
+    name: "APOCALYPSE",
+    image: new URL(assets + "/Dashboard/btn-apoc.png", import.meta.url).href,
+  },
+  {
+    name: "AWAKENINGS",
+    image: new URL(assets + "/Dashboard/btn-awakenings.png", import.meta.url).href,
   },
 ]);
+
+
+
 
 // Variáveis reativas
 const showPopup = ref(false);
@@ -764,4 +833,41 @@ body {
   font-family: 'Poppins', sans-serif !important;
 }
 
+.library-item {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding-left: 16px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.library-item2 {
+  transform: translateY(-195px);
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding-left: 16px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.librarytext{
+  transform: translateY(-195px);
+}
+
+
+.library-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
 </style>
