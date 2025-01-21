@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pa-0 mx-auto d-flex" :class="isMobile ? 'my-mobile-card' : ''">
+  <v-card class="pa-0 mt-2 mx-auto d-flex" :class="isMobile ? 'my-mobile-card' : ''">
 
 
     <v-row class="ma-0 pa-0 d-flex align-stretch flex-nowrap">
@@ -30,8 +30,8 @@
           {{ product.name || "No Product Selected" }}
         </v-card-title>
 
-        <v-checkbox class="element" color="success" label="Owned"></v-checkbox>
-        <v-checkbox class="element1" color="warning" label="Wishlist"></v-checkbox>
+
+
       </v-col>
     </v-row>
   </v-card>
