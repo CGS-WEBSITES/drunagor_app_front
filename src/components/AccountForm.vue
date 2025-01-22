@@ -167,6 +167,7 @@ import { ref, inject } from "vue";
 
 import { useUserStore } from "@/store/UserStore";
 import type { VForm } from "vuetify/components";
+import { getToken } from "@/service/AccessToken";
 
 const userForm = ref<VForm>();
 const userStore = useUserStore();
@@ -240,6 +241,10 @@ const saveForm = async () => {
           zip_code: form.zip_code,
           email: form.confirm_email,
           password: form.confirm_password,
+        },
+        {
+          // Headers
+          headers: getToken(),
         }
       )
       .then(async (response: any) => {

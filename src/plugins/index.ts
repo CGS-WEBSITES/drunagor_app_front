@@ -18,6 +18,7 @@ import "primevue/resources/themes/lara-dark-green/theme.css";
 import "primeicons/primeicons.css";
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import {getToken} from '@/service/AccessToken'
 
 // Types
 import type { App } from "vue";
@@ -55,7 +56,11 @@ export async function registerPlugins(app: App, env: string) {
 
   const assets = "https://assets.drunagor.app"
 
-  app.provide('axios', app.config.globalProperties.axios)
+  const globalAxios = app.config.globalProperties.axios
+
+  globalAxios.defaults.baseURL = apiUrl
+
+  app.provide('axios', globalAxios)
   app.provide('assets', assets)
   app.provide('apiUrl', apiUrl)
 
