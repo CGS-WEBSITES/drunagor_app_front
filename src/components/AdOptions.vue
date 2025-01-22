@@ -64,7 +64,6 @@
 
 <script lang="ts" setup>
 import { ref, inject } from "vue";
-import { getToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 
@@ -96,10 +95,7 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
 
 const deleteUser = async () => {
   await axios
-    .delete(url + `users/${user.user_pk}/delete/`, {
-      // Headers
-      headers: getToken(),
-    })
+    .delete(url + `users/${user.user_pk}/delete/`)
     .then(async (response: any) => {
       console.log("API Response:", response);
       // Exibe alerta de sucesso

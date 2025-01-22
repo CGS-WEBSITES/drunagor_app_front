@@ -91,15 +91,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ["@/locales/**/*.yaml"],
   },
-  build: {
-    manifest: true, // Generates a manifest file for advanced caching
-    outDir: 'dist', // Default output directory
-    rollupOptions: {
-      output: {
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]',
-      },
-    },
-  },
 })
