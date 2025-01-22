@@ -123,7 +123,7 @@
                   :text="alertText"
                   :type="alertType"
                 ></v-alert>
-                
+
                 <v-form ref="regForm">
                   <v-row>
                     <v-col cols="12" sm="6">
@@ -376,6 +376,8 @@ const loginUser = async () => {
 
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
+
+      setToken(response.data.access_token);
 
       axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 
