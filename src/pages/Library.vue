@@ -324,18 +324,14 @@ const goToLink = (link: string) => {
 };
 
 
-const activeTab = ref(1); // Tab ativa (1 = All, 2 = Wishlist, 3 = Owned)
-
-// Lista de IDs para Wishlist e Owned
+const activeTab = ref(1);
 const wishlist = ref<number[]>([]);
 const owned = ref<number[]>([]);
 
-// Adicionar ou remover da Wishlist
 const toggleWishlist = (productId: number) => {
   const index = wishlist.value.indexOf(productId);
   if (index === -1) {
     wishlist.value.push(productId);
-    // Remove de Owned se estiver lá
     const ownedIndex = owned.value.indexOf(productId);
     if (ownedIndex !== -1) owned.value.splice(ownedIndex, 1);
   } else {
@@ -343,12 +339,10 @@ const toggleWishlist = (productId: number) => {
   }
 };
 
-// Adicionar ou remover de Owned
 const toggleOwned = (productId: number) => {
   const index = owned.value.indexOf(productId);
   if (index === -1) {
     owned.value.push(productId);
-    // Remove da Wishlist se estiver lá
     const wishlistIndex = wishlist.value.indexOf(productId);
     if (wishlistIndex !== -1) wishlist.value.splice(wishlistIndex, 1);
   } else {
@@ -356,17 +350,14 @@ const toggleOwned = (productId: number) => {
   }
 };
 
-// Verificar se está na Wishlist
 const isInWishlist = (productId: number) => {
   return wishlist.value.includes(productId);
 };
 
-// Verificar se está em Owned
 const isOwned = (productId: number) => {
   return owned.value.includes(productId);
 };
 
-// Computed para exibir itens de Wishlist e Owned
 const wishlistItems = computed(() =>
   products.value.filter((product) => wishlist.value.includes(product.id))
 );
@@ -418,13 +409,13 @@ onBeforeMount(async () => {
 
 .movebotao{
   position: absolute;
-  margin-left: 168px;
+  margin-left: 162px;
   margin-top: -38px;
 }
 
 .movebotao2{
   position: absolute;
-  margin-left: 175px;
+  margin-left: 162px;
   margin-top: -72px;
 }
 
