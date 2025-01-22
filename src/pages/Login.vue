@@ -124,10 +124,6 @@
                   :type="alertType"
                 ></v-alert>
 
-                <h4 class="text-center mt-4 py-3">
-                  Ensure your email for registration
-                </h4>
-
                 <v-form ref="regForm">
                   <v-row>
                     <v-col cols="12" sm="6">
@@ -383,7 +379,18 @@ const loginUser = async () => {
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
 
-      setToken(response.data.access_token);
+      axios.interceptors.request.use(
+        (config) => {
+          const token = response.data.access_token; // Replace with your token retrieval logic
+          if (token) {
+            config.headers["Authorization"] = `Bearer ${token}`;
+          }
+          return config;
+        },
+        (error) => {
+          return Promise.reject(error);
+        }
+      );
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });

@@ -38,7 +38,7 @@
           :key="index"
           link
           :disabled="item.disabled"
-          @click="item.to ? router.push(item.to): item.do()"
+          @click="item.to ? router.push(item.to) : item.do()"
           :class="{ 'v-list-item--active': selectedItem === item }"
         >
           <v-list-item-icon>
@@ -70,7 +70,7 @@
         <!-- Botão de Navegação alinhado à direita -->
 
         <v-btn
-          v-if="route.name === 'Home' || route.name === 'Login'"
+          v-if="route.name === 'Home' || route.name === 'Login' || route.name === 'Gama'"
           color="#B8860B"
           large
           @click="$router.push({ name: 'Login' })"
@@ -235,14 +235,11 @@ const contentStyle = computed(() => {
         "background-repeat": "repeat-y",
       };
 });
-
-
 </script>
 
 <style>
-
 .v-app {
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
 }
 
 .v-row {

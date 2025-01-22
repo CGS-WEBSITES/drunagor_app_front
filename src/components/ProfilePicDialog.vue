@@ -110,7 +110,7 @@
                 @click="saveFig()"
                 :disabled="!selectedPicture.hash"
               >
-                Salvar
+                Save
               </v-btn>
             </v-col>
             <v-col cols="6">
@@ -126,7 +126,7 @@
                   }
                 "
               >
-                Clear
+                Cancel
               </v-btn>
             </v-col>
           </v-row>
@@ -139,7 +139,6 @@
   <script lang="ts" setup>
 import { ref, inject, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
-import { getToken } from "@/service/AccessToken";
 
 const UserStore = useUserStore(); // Inicializa a store
 const reloadKey = ref<number>(0);
@@ -200,10 +199,6 @@ const saveFig = async () => {
       {
         users_pk: user.user_pk,
         picture_hash: selectedPicture.value.hash,
-      },
-      {
-        // Headers
-        headers: getToken(),
       }
     )
     .then(async (response: any) => {

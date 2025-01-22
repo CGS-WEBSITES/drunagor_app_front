@@ -32,27 +32,25 @@ watch(heroContentSettings, async (newSettings) => {
 </script>
 
 <template>
-  <Card class="w-full" data-testid="configuration-content-hero">
-    <template #title> {{ $t("configuration.hero-content") }} </template>
-    <template #content>
-      <div
-        v-for="content in contentStore.getAllWithHeroes()"
-        :key="content.id"
-        class="pb-4"
-      >
-        <label class="cursor-pointer"
-          >{{ $t(content.translation_key) }}
-          <Checkbox
-            variant="outlined"
-            :data-testid="'configuration-content-hero-' + content.id"
-            v-model="heroContentSettings"
-            :value="content.id"
-            class="float-right"
-          />
-        </label>
-      </div>
-    </template>
-  </Card>
+  <v-container max-width="680">
+    <v-card class="my-4">
+      <v-card-title>
+        {{ $t("configuration.hero-content") }}
+      </v-card-title>
+      <v-card-text>
+        <v-checkbox
+          dense
+          v-for="content in contentStore.getAllWithHeroes()"
+          :key="content.id"
+          :label="$t(content.translation_key)"
+          v-model="heroContentSettings"
+          :data-testid="'configuration-content-monster-' + content.id"
+          :value="content.id"
+        >
+        </v-checkbox>
+      </v-card-text>
+    </v-card>
+  </v-container>
 </template>
 
 <style scoped></style>
