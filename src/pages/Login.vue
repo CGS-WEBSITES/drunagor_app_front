@@ -123,11 +123,7 @@
                   :text="alertText"
                   :type="alertType"
                 ></v-alert>
-
-                <h4 class="text-center mt-4 py-3">
-                  Ensure your email for registration
-                </h4>
-
+                
                 <v-form ref="regForm">
                   <v-row>
                     <v-col cols="12" sm="6">
