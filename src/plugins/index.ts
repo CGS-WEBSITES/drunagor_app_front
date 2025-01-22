@@ -58,20 +58,9 @@ export async function registerPlugins(app: App, env: string) {
 
   const globalAxios = app.config.globalProperties.axios
 
-  globalAxios.interceptors.request.use(
-    (config) => {
-      const token = getToken(); // Replace with your token retrieval logic
-      if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
-  );
+  globalAxios.defaults.baseURL = apiUrl
 
-  app.provide('axios', app.config.globalProperties.axios)
+  app.provide('axios', globalAxios)
   app.provide('assets', assets)
   app.provide('apiUrl', apiUrl)
 

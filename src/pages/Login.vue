@@ -331,7 +331,6 @@ const rules = {
 };
 
 const axios: any = inject("axios");
-const url: string = inject("apiUrl");
 
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
@@ -358,7 +357,7 @@ const loginUser = async () => {
   password.value = password.value.trim();
 
   await axios
-    .post(url + "users/login", {
+    .post("users/login", {
       login: login.value,
       password: md5(password.value),
     })
@@ -382,7 +381,7 @@ const loginUser = async () => {
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
 
-      setToken(response.data.access_token);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });
@@ -410,7 +409,7 @@ const submitForm = async () => {
 
   if (regValid.value) {
     await axios
-      .post(url + "users/cadastro", {
+      .post("users/cadastro", {
         name: login.value,
         user_name: signupUsername.value,
         email: signupEmail.value,
