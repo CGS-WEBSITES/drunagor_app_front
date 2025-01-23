@@ -207,7 +207,6 @@ const alertType = ref("");
 const showAlert = ref(false);
 const showPass = ref(false);
 const axios: any = inject("axios");
-const url: string = inject("apiUrl");
 const validForm = ref<boolean>(false);
 const changeEmail = ref<boolean>(false);
 const changePassword = ref<boolean>(false);
@@ -233,7 +232,7 @@ const saveForm = async () => {
   if (validForm.value) {
     await axios
       .put(
-        url + "users/alter",
+        "users/alter",
         {
           users_pk: user.user_pk,
           name: form.name,

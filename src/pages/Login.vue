@@ -124,10 +124,6 @@
                   :type="alertType"
                 ></v-alert>
 
-                <h4 class="text-center mt-4 py-3">
-                  Ensure your email for registration
-                </h4>
-
                 <v-form ref="regForm">
                   <v-row>
                     <v-col cols="12" sm="6">
@@ -381,6 +377,8 @@ const loginUser = async () => {
 
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
+
+      setToken(response.data.access_token);
 
       axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 

@@ -70,7 +70,6 @@ import { useRouter } from "vue-router";
 
 const user = useUserStore().user;
 const axios: any = inject("axios");
-const url: string = inject("apiUrl");
 const router = useRouter();
 // Estado de expansão
 const isExpanded = ref(false);
@@ -96,7 +95,7 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
 
 const deleteUser = async () => {
   await axios
-    .delete(url + `users/${user.user_pk}/delete/`, {
+    .delete(`users/${user.user_pk}/delete/`, {
       // Headers
       headers: getToken(),
     })

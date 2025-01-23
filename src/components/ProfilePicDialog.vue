@@ -110,7 +110,7 @@
                 @click="saveFig()"
                 :disabled="!selectedPicture.hash"
               >
-                Salvar
+                Save
               </v-btn>
             </v-col>
             <v-col cols="6">
@@ -126,7 +126,7 @@
                   }
                 "
               >
-                Clear
+                Cancel
               </v-btn>
             </v-col>
           </v-row>
@@ -171,7 +171,6 @@ const availblePictures = ref<Picture[]>([
   },
 ]);
 const axios: any = inject("axios");
-const url: string = inject("apiUrl");
 const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
@@ -196,7 +195,7 @@ const saveFig = async () => {
 
   await axios
     .put(
-      url + "users/alter",
+      "users/alter",
       {
         users_pk: user.user_pk,
         picture_hash: selectedPicture.value.hash,
