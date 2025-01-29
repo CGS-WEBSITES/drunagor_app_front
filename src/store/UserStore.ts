@@ -26,6 +26,10 @@ export const useUserStore = defineStore('user', () => {
     zip_code: null,
   });
 
+  if (localStorage.getItem("app_user")) {
+    user.value = localStorage.getItem("app_user");
+  }
+
   const setUser = (newUser: User) => {
     user.value = newUser
   }

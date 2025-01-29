@@ -237,7 +237,7 @@ const saveForm = async () => {
           users_pk: user.user_pk,
           name: form.name,
           user_name: form.user_name,
-          zip_code: form.zip_code,
+          zip_code: form.zipcode,
           email: form.confirm_email,
           password: form.confirm_password,
         },
