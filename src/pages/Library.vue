@@ -1,7 +1,7 @@
 <template>
 
 
-<v-container class="pa-0 ">
+  <v-container class="pa-0 ">
     <!-- Título -->
     <v-row justify="center">
       <v-col cols="12" class="text-center">
@@ -10,154 +10,104 @@
     </v-row>
 
 
-  <v-card class="pa-2">
-    
+    <v-card class="pa-2">
 
-    <v-tabs v-model="activeTab" align-tabs="center"
-    class="box-shadow centered-tabs d-flex justify-center">
-      <v-tab :value="1">All Products</v-tab>
-      <v-tab :value="2">Wishlist</v-tab>
-      <v-tab :value="3">Owned</v-tab>
-    </v-tabs>
 
-    <!-- Conteúdo Condicional das Abas -->
-    <div v-if="activeTab === 1">
-      <!-- Todos os Produtos -->
-      <v-row dense>
-        <v-col
-          v-for="product in products"
-          :key="product.id"
-          cols="12"
-          sm="6"
-          md="3"
-        >
-<!-- Product Card com Botões -->
-<div class="card-wrapper">
-        <!-- Componente do Product Card -->
-        <ProductCard
-          :product="product"
-          @click="setDialog(product.name)"
-        />
-        
-          <v-btn
-          prepend-icon="mdi-list-box-outline"
-           size="small"
-            variant="outlined"
-            class="movebotao"
-            @click="toggleWishlist(product.id)"
-          >
-            {{ isInWishlist(product.id) ? " - Wishlist" : "+  Wishlist" }}
-          </v-btn>
-          <v-btn
-          prepend-icon="mdi-tag-check-outline"
-          variant="outlined"
-            size="small"
-            class="movebotao2"
-            @click="toggleOwned(product.id)"
-          >
-            {{ isOwned(product.id) ? "-  Owned" : "+ Owned" }}
-          </v-btn>
-       
+      <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
+        <v-tab :value="1">All Products</v-tab>
+        <v-tab :value="2">Wishlist</v-tab>
+        <v-tab :value="3">Owned</v-tab>
+      </v-tabs>
+
+      <!-- Conteúdo Condicional das Abas -->
+      <div v-if="activeTab === 1">
+        <!-- Todos os Produtos -->
+        <v-row dense>
+          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="3">
+            <!-- Product Card com Botões -->
+            <div class="card-wrapper">
+              <!-- Componente do Product Card -->
+              <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
+
+              <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
+                @click="toggleWishlist(product.id)">
+                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
+              </v-btn>
+              <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small" class="movebotao2"
+                @click="toggleOwned(product.id)">
+                {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
+              </v-btn>
+
+            </div>
+          </v-col>
+        </v-row>
       </div>
-    </v-col>
-      </v-row>
-    </div>
 
-    <div v-if="activeTab === 2">
-      <!-- Wishlist -->
-      <v-row dense>
-        <v-col
-          v-for="product in wishlistItems"
-          :key="product.id"
-          cols="12"
-          sm="6"
-          md="4"
-        >
+      <div v-if="activeTab === 2">
+        <!-- Wishlist -->
+        <v-row dense>
+          <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
 
-          <v-card>
-            <ProductCard
-              :product="product"
-              class="w-100"
-              @click="setDialog(product.name)"
-            />
-            <v-btn
-           size="small"
-           prepend-icon="mdi-list-box-outline"
-            variant="outlined"
-            class="movebotao3"
-            @click="toggleWishlist(product.id)"
-          >
-            {{ isInWishlist(product.id) ? " - Wishlist" : "+  Wishlist" }}
-          </v-btn>
-          </v-card>
-        </v-col>
-      </v-row>
-    </div>
+            <v-card>
+              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
+              <v-btn size="small" prepend-icon="mdi-list-box-outline" variant="outlined" class="movebotao3"
+                @click="toggleWishlist(product.id)">
+                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
+              </v-btn>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
 
-    <div v-if="activeTab === 3">
-      <!-- Owned -->
-      <v-row dense>
-        <v-col
-          v-for="product in ownedItems"
-          :key="product.id"
-          cols="12"
-          sm="6"
-          md="4"
-        >
-          <v-card>
-            <ProductCard
-              :product="product"
-              class="w-100"
-              @click="setDialog(product.name)"
-            />
-          <v-btn
-          variant="outlined"
-          prepend-icon="mdi-tag-check-outline"
-            size="small"
-            class="movebotao3"
-            @click="toggleOwned(product.id)"
-          >
-            {{ isOwned(product.id) ? "- to Owned" : "+ to Owned" }}
-          </v-btn>
-          </v-card>
-        </v-col>
-      </v-row>
-    </div>
-  </v-card>
+      <div v-if="activeTab === 3">
+        <!-- Owned -->
+        <v-row dense>
+          <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
+            <v-card>
+              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
+              <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
+                @click="toggleOwned(product.id)">
+                {{ isOwned(product.id) ? "- to Owned" : "+ to Owned" }}
+              </v-btn>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
+    </v-card>
   </v-container>
 
-  
+
 
   <v-dialog v-model="dialog" max-width="440">
 
-<v-card class="custom-background">
+    <v-card class="custom-background">
 
 
-  <v-card-title class="font-weight-bold text-h4">
-    {{ cardName }}
-  </v-card-title>
-  <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
-    height="200"></v-img>
+      <v-card-title class="font-weight-bold text-h4">
+        {{ cardName }}
+      </v-card-title>
+      <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
+        height="200"></v-img>
 
 
-  <v-col cols="12">
-    <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
-    @click="() => goToLink('https://aodarkness.com')"  > Explore</v-btn>
-  </v-col>
+      <v-col cols="12">
+        <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
+          @click="() => goToLink('https://aodarkness.com')"> Explore</v-btn>
+      </v-col>
 
-  <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
-  <h2 class="pl-4 pb-4 text-body-1">{{ Description}} </h2>
+      <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
+      <h2 class="pl-4 pb-4 text-body-1">{{ Description }} </h2>
 
-  <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
+      <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
 
-</v-card>
+    </v-card>
 
-</v-dialog>
-
-
+  </v-dialog>
 
 
-  
+
+
+
 
 
 
@@ -187,7 +137,7 @@ const componentTypes = ["Books", "Cards", "Miniatures", "Maps", "Doors", "Player
 
 const showFilters = ref(false);
 const isDesktop = computed(() => window.innerWidth >= 960);
-const setDialog = (name: string, description: string, boximage: string ) => {
+const setDialog = (name: string, description: string, boximage: string) => {
   cardName.value = name
   dialog.value = true
   Description.value = description
@@ -204,23 +154,23 @@ const products = ref([
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
     link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
     color: "#136D6D",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
     description: "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
-   },
+  },
   {
     id: 2,
     name: "Apocalypse",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-apoc.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-apoc.png",
     color: "#660912",
-    link: "https://aodarkness.com/boxes/desert-of-hellscar/",
+    link: "https://aodarkness.com/boxes",
 
   },
   {
     id: 3,
     name: "Lordwrath",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lordwrath.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lordwrath.png",
     color: "#136D6D",
     link: "https://aodarkness.com/boxes/lordwrath/",
 
@@ -229,7 +179,7 @@ const products = ref([
     id: 4,
     name: "Monster Pack",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-monsterpack.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-monsterpack.png",
     color: "#136D6D",
     link: "https://aodarkness.com/boxes/monster-pack/",
 
@@ -238,7 +188,7 @@ const products = ref([
     id: 5,
     name: "Ruin of Luccanor",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-luccanor.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-luccanor.png",
     color: "#4D5564",
     link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
 
@@ -248,7 +198,7 @@ const products = ref([
     id: 6,
     name: "Shadow World",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-shadowworld.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-shadowworld.png",
     color: "#955021",
     link: "https://aodarkness.com/boxes/shadow-world/",
 
@@ -257,7 +207,7 @@ const products = ref([
     id: 7,
     name: "Spoils of War",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-spoils.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-spoils.png",
     color: "#261D43",
     link: "https://aodarkness.com/boxes/spoils-of-war/",
 
@@ -266,7 +216,7 @@ const products = ref([
     id: 9,
     name: "Fallen Sisters",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-fallen.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-fallen.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-fallen.png",
     color: "#28242A",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
@@ -275,16 +225,16 @@ const products = ref([
     id: 10,
     name: "Companions & Fornitures",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-compandfurt.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-compandfurt.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-compandfurt.png",
     color: "#660912",
-    link: "https://aodarkness.com/boxes/undead-dragon/",
+    link: "https://aodarkness.com",
   },
 
   {
     id: 11,
     name: "Hero Pack",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-heropack.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-heropack.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-heropack.png",
     color: "#033E55",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
@@ -293,7 +243,7 @@ const products = ref([
     id: 12,
     name: "Lorien",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lorien.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lorien.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lorien.png",
     color: "#136D6D",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
@@ -302,7 +252,7 @@ const products = ref([
     id: 13,
     name: "Four Horseman",
     image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-horseman.png",
-    cardbg:"https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-horseman.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-horseman.png",
     color: "#660912",
     link: "https://aodarkness.com/boxes/undead-dragon/",
   },
@@ -317,7 +267,7 @@ const products = ref([
 
 const goToLink = (link: string) => {
   if (link) {
-    window.location.href = link; 
+    window.location.href = link;
   } else {
     console.warn("Nenhum link encontrado para redirecionar.");
   }
@@ -371,18 +321,50 @@ const ownedItems = computed(() =>
 const axios: any = inject("axios");
 const url: string = inject("apiUrl");
 
-onBeforeMount(async () => {
-  await axios
-    .get(url + "skus/search", {
-      limit: 30,
-    })
-    .then((response: any) => {
-      console.log("API Response:", response);
-    })
-    .catch((error: any) => {
-      console.log("API Response:", error);
-    });
-})
+// onBeforeMount(async () => {
+//   await axios
+//     .get(url + "skus/search", {
+//        limit: 30,
+//     })
+//     .then((response: any) => {
+//       products.value = response.data.skus.map((el: any) => ({
+//       }));
+//       console.log("API Response:", products.value);
+//     })
+//     .catch((error: any) => {
+//       console.log("Erro na API:", error);
+//     });
+// });
+
+// const addLibrary = async () => {
+//   await axios
+//     .get(url + "/libraries/cadastro", {
+//     })
+//     .delete(url + "/wish_list/cadastro", {
+//     })
+//     .then((response: any) => {
+//       console.log("Adicionando a Owned:", products.value);
+//     })
+//     .catch((error: any) => {
+//       console.log("Erro ao adicionar a Owned:", error);
+//     });
+// };
+
+
+// const addWhish = () => {
+//   await axios
+//     .get(url + "/wish_list/cadastro", {
+//     })
+//     .delete(url + "/libraries/cadastro", {
+//     })
+//     .then((response: any) => {
+//       console.log("Adicionando a Wishlist:", products.value);
+//     })
+//     .catch((error: any) => {
+//       console.log("Erro ao adicionar a Wishlist:", error);
+//     });
+// };
+
 
 </script>
 
@@ -398,8 +380,9 @@ onBeforeMount(async () => {
 }
 
 .box-shadow {
-  background-color: rgba(0, 0, 0, 0.25); /* Preto com 70% de opacidade */
-  
+  background-color: rgba(0, 0, 0, 0.25);
+  /* Preto com 70% de opacidade */
+
 }
 
 .centered-tabs {
@@ -407,19 +390,19 @@ onBeforeMount(async () => {
 }
 
 
-.movebotao{
+.movebotao {
   position: absolute;
   margin-left: 162px;
   margin-top: -38px;
 }
 
-.movebotao2{
+.movebotao2 {
   position: absolute;
   margin-left: 162px;
   margin-top: -72px;
 }
 
-.movebotao3{
+.movebotao3 {
   position: absolute;
   margin-left: 208px;
   margin-top: -38px;
