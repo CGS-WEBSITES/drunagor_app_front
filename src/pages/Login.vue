@@ -185,8 +185,6 @@ import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 
-
-
 const userStore = useUserStore();
 
 // Variáveis reativas
@@ -263,7 +261,7 @@ const loginUser = async () => {
 
       const dbUser = response.data.data;
 
-      userStore.setUser({
+      const appUser: Object = {
         email: dbUser.email,
         google_id: dbUser.google_id,
         name: dbUser.name,
@@ -272,15 +270,21 @@ const loginUser = async () => {
         user_name: dbUser.user_name,
         user_pk: dbUser.users_pk,
         verified: dbUser.verified,
-        zip_code: dbUser.zip_code,
-      });
+        zip_code: dbUser.zipcode,
+      };
+
+      userStore.setUser(appUser);
+
+      localStorage.setItem("app_user", appUser);
 
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
 
       setToken(response.data.access_token);
 
-      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
+      axios.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${response.data.access_token}`;
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });
