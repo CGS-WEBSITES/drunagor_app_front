@@ -1,198 +1,424 @@
 <template>
-  <v-container class="pb-12">
- <!-- Navigation Drawer -->
-     
-    <v-row> 
+
+
+  <v-container class="pa-0 ">
+    <!-- Título -->
+    <v-row justify="center">
       <v-col cols="12" class="text-center">
-        <h1 class="text-h2 font-weight-bold pt-14">LIBRARY</h1>
+        <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">LIBRARY</h1>
       </v-col>
     </v-row>
-    <v-row class="bg-grey-darken-3 pa-4 rounded">
-      <!-- Botão de Filtros no Mobile -->
-      <v-btn class="d-md-none mb-4" color="#222222" block @click="toggleFilters">
-        Filters
-      </v-btn>
 
-      <!-- Filtros -->
-      <v-col cols="12" md="3" v-show="showFilters || isDesktop">
-        <Filters
-          v-model:filterStatus="filterStatus"
-          v-model:rewardsStatus="rewardsStatus"
-          v-model:selectedBox="selectedBox"
-          v-model:componentChecked="componentChecked"
-          v-model:selectedComponentType="selectedComponentType"
-          v-model:contentChecked="contentChecked"
-          v-model:selectedContent="selectedContent"
-          :box-options="boxOptions"
-          :content-options="contentOptions"
-          :component-types="componentTypes"
-          @apply-filters="applyFilters"
-        />
-      </v-col>
 
-      <!-- Galeria de Produtos -->
-      <v-col cols="12" md="9">
-        <ProductGallery
-          :products="paginatedProducts"
-          @open-dialog="openDialog"
-        />
-        <!-- Paginação -->
-        <v-row justify="center" class="mt-4">
-          <v-pagination
-            v-model="currentPage"
-            :length="totalPages"
-            color="primary"
-          ></v-pagination>
+    <v-card class="pa-2">
+
+
+      <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
+        <v-tab :value="1">All Products</v-tab>
+        <v-tab :value="2">Wishlist</v-tab>
+        <v-tab :value="3">Owned</v-tab>
+      </v-tabs>
+
+      <!-- Conteúdo Condicional das Abas -->
+      <div v-if="activeTab === 1">
+        <!-- Todos os Produtos -->
+        <v-row dense>
+          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="3">
+            <!-- Product Card com Botões -->
+            <div class="card-wrapper">
+              <!-- Componente do Product Card -->
+              <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
+
+              <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
+                @click="toggleWishlist(product.id)">
+                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
+              </v-btn>
+              <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small" class="movebotao2"
+                @click="toggleOwned(product.id)">
+                {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
+              </v-btn>
+
+            </div>
+          </v-col>
         </v-row>
-      </v-col>
-    </v-row>
+      </div>
 
-    <!-- Diálogo para itens do tipo "item" -->
-    <ItemDialog
-      v-if="itemDialogVisible"
-      v-model="itemDialogVisible"
-      :product="selectedProduct"
-    />
+      <div v-if="activeTab === 2">
+        <!-- Wishlist -->
+        <v-row dense>
+          <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
 
-    <!-- Diálogo padrão para outros produtos -->
-    <ProductDialog
-      v-if="dialogVisible"
-      v-model="dialogVisible"
-      :product="selectedProduct"
-    />
+            <v-card>
+              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
+              <v-btn size="small" prepend-icon="mdi-list-box-outline" variant="outlined" class="movebotao3"
+                @click="toggleWishlist(product.id)">
+                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
+              </v-btn>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
+
+      <div v-if="activeTab === 3">
+        <!-- Owned -->
+        <v-row dense>
+          <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
+            <v-card>
+              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
+              <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
+                @click="toggleOwned(product.id)">
+                {{ isOwned(product.id) ? "- to Owned" : "+ to Owned" }}
+              </v-btn>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
+    </v-card>
   </v-container>
+
+
+
+  <v-dialog v-model="dialog" max-width="440">
+
+    <v-card class="custom-background">
+
+
+      <v-card-title class="font-weight-bold text-h4">
+        {{ cardName }}
+      </v-card-title>
+      <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
+        height="200"></v-img>
+
+
+      <v-col cols="12">
+        <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
+          @click="() => goToLink('https://aodarkness.com')"> Explore</v-btn>
+      </v-col>
+
+      <h3 class="pl-4  font-weight-medium text-h5">Description</h3>
+      <h2 class="pl-4 pb-4 text-body-1">{{ Description }} </h2>
+
+      <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
+
+    </v-card>
+
+  </v-dialog>
+
+
+
+
+
+
+
+
 </template>
 
-<script>
-import { defineComponent, ref, computed, onMounted } from "vue";
+<script lang="ts" setup>
+import { ref, computed, onBeforeMount, inject } from "vue";
 import Filters from "@/components/Library/Filters.vue";
-import ProductGallery from "@/components/Library/ProductGallery.vue";
-import ProductDialog from "@/components/Library/ProductDialog.vue";
-import ItemDialog from "@/components/Library/ItemDialog.vue";
+import ProductCard from "@/components/ProductCard.vue";
+import { useUserStore } from "@/store/UserStore";
 
-export default defineComponent({
-  name: "Library",
-  components: { Filters, ProductGallery, ProductDialog, ItemDialog },
-  setup() {
-    const filterStatus = ref("owned");
-    const rewardsStatus = ref("rewards_owned");
-    const selectedBox = ref("");
-    const componentChecked = ref(false);
-    const selectedComponentType = ref("");
-    const contentChecked = ref(false);
-    const selectedContent = ref("");
-    const dialogVisible = ref(false);
-    const itemDialogVisible = ref(false);
-    const selectedProduct = ref(null);
+const filterStatus = ref("owned");
+const rewardsStatus = ref("rewards_owned");
+const selectedBox = ref("");
+const componentChecked = ref(false);
+const selectedComponentType = ref("");
+const contentChecked = ref(false);
+const selectedContent = ref("");
+const user = useUserStore().user
+const cardName = ref("")
+const boximage = ref("")
+const Description = ref("");
 
-    const products = ref([
-      { id: 1, name: "Companions and Furnitures", description: "Product 1", price: 100,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 2, name: "Item with lore in aodarkness", description: "Product 2", price: 150,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 3, name: "Desert of Hellscar", description: "Product 3", price: 200 ,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 4, name: "New Expansion Set", description: "Product 4", price: 250,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 5, name: "Bosses of Darkness", description: "Product 5", price: 300,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 6, name: "Ancient Relics", description: "Product 6", price: 350,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 7, name: "Dark Crystals", description: "Product 7", price: 400,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 8, name: "Lightbringer Set", description: "Product 8", price: 450,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 9, name: "Shadow of the Past", description: "Product 9", price: 500,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 10, name: "Fury of the Storm", description: "Product 10", price: 550,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-      { id: 11, name: "Ancient Guardians", description: "Product 11", price: 600 ,  image: new URL("@/assets/apoc.png", import.meta.url).href,},
-      { id: 12, name: "Rise of the Phoenix", description: "Product 12", price: 650,  image: new URL("@/assets/apoc.png", import.meta.url).href, },
-    ]);
+const boxOptions = ["Companions and Furnitures", "AoDarkness", "Desert of Hellscar"];
+const contentOptions = ["Core", "Cosmetic", "Game Content"];
+const componentTypes = ["Books", "Cards", "Miniatures", "Maps", "Doors", "Playerboards", "Punchboards", "Scorepad", "Trays"];
 
-    const currentPage = ref(1);
-    const itemsPerPage = ref(6);
+const showFilters = ref(false);
+const isDesktop = computed(() => window.innerWidth >= 960);
+const setDialog = (name: string, description: string, boximage: string) => {
+  cardName.value = name
+  dialog.value = true
+  Description.value = description
+  boximage.value = image
+}
 
-    const filteredProducts = ref(products.value);
- 
-    const paginatedProducts = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage.value;
-      const end = start + itemsPerPage.value;
-      return filteredProducts.value.slice(start, end);
-    });
+const dialog = ref(true)
 
-    const totalPages = computed(() =>
-      Math.ceil(filteredProducts.value.length / itemsPerPage.value)
-    );
 
-    const boxOptions = [
-      "Companions and Furnitures",
-      "AoDarkness",
-      "Desert of Hellscar",
-    ];
-    const contentOptions = ["Core", "Cosmetic", "Game Content"];
-    const componentTypes = ["Books", "Cards", "Miniatures", "Maps", " Doors", "Playerboards", "Punchboards", "Scorepad", "Trays"];
-    const nameFilter = ["A-Z", "Z-A"];
-
-    const showFilters = ref(false);
-    const isDesktop = computed(() => window.innerWidth >= 960);
-
-    const toggleFilters = () => {
-      showFilters.value = !showFilters.value;
-    };
-
-    const applyFilters = () => {
-      filteredProducts.value = products.value.filter((product) => {
-        const matchesBox =
-          !selectedBox.value || product.box === selectedBox.value;
-
-        const matchesComponentType =
-          !componentChecked.value ||
-          (!selectedComponentType.value || product.componentType === selectedComponentType);
-
-        const matchesContentType =
-          !contentChecked.value ||
-          (!selectedContent.value || product.contentType === selectedContent);
-
-        return matchesBox && matchesComponentType && matchesContentType;
-      });
-    };
-
-    const openDialog = (product) => {
-      selectedProduct.value = product;
-      if (product.type === "item") {
-        itemDialogVisible.value = true;
-      } else {
-        dialogVisible.value = true;
-      }
-    };
-
-    
-
-    onMounted(() => {
-      const handleResize = () => {
-        showFilters.value = isDesktop.value;
-      };
-      window.addEventListener("resize", handleResize);
-      handleResize();
-    });
-
-    return {
-      filterStatus,
-      rewardsStatus,
-      selectedBox,
-      componentChecked,
-      selectedComponentType,
-      contentChecked,
-      selectedContent,
-      boxOptions,
-      contentOptions,
-      componentTypes,
-      dialogVisible,
-      itemDialogVisible,
-      selectedProduct,
-      products,
-      filteredProducts,
-      paginatedProducts,
-      currentPage,
-      totalPages,
-      itemsPerPage,
-      applyFilters,
-      toggleFilters,
-      showFilters,
-      isDesktop,
-      openDialog,
-    };
+const products = ref([
+  {
+    id: 1,
+    name: "Corebox",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+    link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
+    color: "#136D6D",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
+    description: "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
   },
-});
+  {
+    id: 2,
+    name: "Apocalypse",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-apoc.png",
+    color: "#660912",
+    link: "https://aodarkness.com/boxes",
+
+  },
+  {
+    id: 3,
+    name: "Lordwrath",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lordwrath.png",
+    color: "#136D6D",
+    link: "https://aodarkness.com/boxes/lordwrath/",
+
+  },
+  {
+    id: 4,
+    name: "Monster Pack",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-monsterpack.png",
+    color: "#136D6D",
+    link: "https://aodarkness.com/boxes/monster-pack/",
+
+  },
+  {
+    id: 5,
+    name: "Ruin of Luccanor",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-luccanor.png",
+    color: "#4D5564",
+    link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
+
+
+  },
+  {
+    id: 6,
+    name: "Shadow World",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-shadowworld.png",
+    color: "#955021",
+    link: "https://aodarkness.com/boxes/shadow-world/",
+
+  },
+  {
+    id: 7,
+    name: "Spoils of War",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-spoils.png",
+    color: "#261D43",
+    link: "https://aodarkness.com/boxes/spoils-of-war/",
+
+  },
+  {
+    id: 9,
+    name: "Fallen Sisters",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-fallen.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-fallen.png",
+    color: "#28242A",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 10,
+    name: "Companions & Fornitures",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-compandfurt.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-compandfurt.png",
+    color: "#660912",
+    link: "https://aodarkness.com",
+  },
+
+  {
+    id: 11,
+    name: "Hero Pack",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-heropack.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-heropack.png",
+    color: "#033E55",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 12,
+    name: "Lorien",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lorien.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lorien.png",
+    color: "#136D6D",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+  {
+    id: 13,
+    name: "Four Horseman",
+    image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-horseman.png",
+    cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-horseman.png",
+    color: "#660912",
+    link: "https://aodarkness.com/boxes/undead-dragon/",
+  },
+
+
+
+
+]);
+
+
+
+
+const goToLink = (link: string) => {
+  if (link) {
+    window.location.href = link;
+  } else {
+    console.warn("Nenhum link encontrado para redirecionar.");
+  }
+};
+
+
+const activeTab = ref(1);
+const wishlist = ref<number[]>([]);
+const owned = ref<number[]>([]);
+
+const toggleWishlist = (productId: number) => {
+  const index = wishlist.value.indexOf(productId);
+  if (index === -1) {
+    wishlist.value.push(productId);
+    const ownedIndex = owned.value.indexOf(productId);
+    if (ownedIndex !== -1) owned.value.splice(ownedIndex, 1);
+  } else {
+    wishlist.value.splice(index, 1);
+  }
+};
+
+const toggleOwned = (productId: number) => {
+  const index = owned.value.indexOf(productId);
+  if (index === -1) {
+    owned.value.push(productId);
+    const wishlistIndex = wishlist.value.indexOf(productId);
+    if (wishlistIndex !== -1) wishlist.value.splice(wishlistIndex, 1);
+  } else {
+    owned.value.splice(index, 1);
+  }
+};
+
+const isInWishlist = (productId: number) => {
+  return wishlist.value.includes(productId);
+};
+
+const isOwned = (productId: number) => {
+  return owned.value.includes(productId);
+};
+
+const wishlistItems = computed(() =>
+  products.value.filter((product) => wishlist.value.includes(product.id))
+);
+const ownedItems = computed(() =>
+  products.value.filter((product) => owned.value.includes(product.id))
+);
+
+
+
+
+const axios: any = inject("axios");
+const url: string = inject("apiUrl");
+
+// onBeforeMount(async () => {
+//   await axios
+//     .get(url + "skus/search", {
+//        limit: 30,
+//     })
+//     .then((response: any) => {
+//       products.value = response.data.skus.map((el: any) => ({
+//       }));
+//       console.log("API Response:", products.value);
+//     })
+//     .catch((error: any) => {
+//       console.log("Erro na API:", error);
+//     });
+// });
+
+// const addLibrary = async () => {
+//   await axios
+//     .get(url + "/libraries/cadastro", {
+//     })
+//     .delete(url + "/wish_list/cadastro", {
+//     })
+//     .then((response: any) => {
+//       console.log("Adicionando a Owned:", products.value);
+//     })
+//     .catch((error: any) => {
+//       console.log("Erro ao adicionar a Owned:", error);
+//     });
+// };
+
+
+// const addWhish = () => {
+//   await axios
+//     .get(url + "/wish_list/cadastro", {
+//     })
+//     .delete(url + "/libraries/cadastro", {
+//     })
+//     .then((response: any) => {
+//       console.log("Adicionando a Wishlist:", products.value);
+//     })
+//     .catch((error: any) => {
+//       console.log("Erro ao adicionar a Wishlist:", error);
+//     });
+// };
+
+
 </script>
+
+
+<style>
+.cinzel-text {
+  font-family: 'Cinzel', serif;
+}
+
+.movecaixas {
+  position: 0;
+  /* Move a imagem 10px para cima */
+}
+
+.box-shadow {
+  background-color: rgba(0, 0, 0, 0.25);
+  /* Preto com 70% de opacidade */
+
+}
+
+.centered-tabs {
+  width: 100%;
+}
+
+
+.movebotao {
+  position: absolute;
+  margin-left: 162px;
+  margin-top: -38px;
+}
+
+.movebotao2 {
+  position: absolute;
+  margin-left: 162px;
+  margin-top: -72px;
+}
+
+.movebotao3 {
+  position: absolute;
+  margin-left: 208px;
+  margin-top: -38px;
+}
+
+
+
+
+.custom-background {
+  background-image: url('src/assets/Frame.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-position-y: -0px;
+  width: 100%;
+  height: 100%;
+  padding-top: px;
+}
+</style>

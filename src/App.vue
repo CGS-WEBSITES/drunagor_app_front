@@ -52,7 +52,7 @@
     </v-navigation-drawer>
 
     <v-row no-gutters v-if="display.mdAndUp">
-      <v-app-bar app min-height="50" color="black">
+      <v-app-bar app min-height="50" color="secundary">
         <div class="d-flex align-center pl-6">
           <!-- Ajuste o padding com pl-6 -->
           <v-img
@@ -62,6 +62,7 @@
             alt="Drunagor Icon"
             contain
             class="mr-2"
+            @click="$router.push({ name: 'Dashboard' })"
           ></v-img>
           <span>App Drunagor</span>
         </div>
@@ -168,7 +169,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("myCustomTheme");
+const theme = ref("dark");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
@@ -196,7 +197,7 @@ const menuItems = ref([
     title: "Library",
     icon: "mdi-book",
     to: { name: "Library" },
-    disabled: true,
+    disabled: false,
   },
   {
     title: "Profile",
@@ -225,7 +226,7 @@ const contentStyle = computed(() => {
     ? {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-        "background-repeat": "repeat-y",
+        "background-repeat": "repeat",
         "margin-top": "65px",
       }
     : {
