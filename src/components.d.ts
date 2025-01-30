@@ -52,6 +52,7 @@ declare module 'vue' {
     ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
     FavoriteCampaignCard: typeof import('./components/FavoriteCampaignCard.vue')['default']
     Filters: typeof import('./components/Filters.vue')['default']
+    ForgotPassword: typeof import('./components/ForgotPassword.vue')['default']
     FriendStore: typeof import('./components/FriendStore.vue')['default']
     FriendStoreList: typeof import('./components/FriendStoreList.vue')['default']
     HeroDetailView: typeof import('./components/HeroDetailView.vue')['default']
