@@ -141,135 +141,6 @@ const setDialog = (name: string, description: string, image: string) => {
 
 const dialog = ref(true);
 
-// const products = ref([
-//   {
-//     id: 1,
-//     name: "Corebox",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-//     link: "https://aodarkness.com/boxes/chronicles-of-drunagor-age-of-darkness-core-box/",
-//     color: "#136D6D",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
-//     description:
-//       "Navigate through the legends of the Defenders of Daren, uncover the secrets of the Powers of Darkness in monstrous creatures, and unravel the mysteries of this devastated world. Join us on this journey where darkness reveals secrets, and challenges await those who dare to explore. Venture into AODarkness.com and discover the uncharted in Drunagor!",
-//   },
-//   {
-//     id: 2,
-//     name: "Apocalypse",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-apoc.png",
-//     color: "#660912",
-//     link: "https://aodarkness.com/boxes",
-//   },
-//   {
-//     id: 3,
-//     name: "Lordwrath",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lordwrath.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lordwrath.png",
-//     color: "#136D6D",
-//     link: "https://aodarkness.com/boxes/lordwrath/",
-//   },
-//   {
-//     id: 4,
-//     name: "Monster Pack",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-monsterpack.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-monsterpack.png",
-//     color: "#136D6D",
-//     link: "https://aodarkness.com/boxes/monster-pack/",
-//   },
-//   {
-//     id: 5,
-//     name: "Ruin of Luccanor",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-luccanor.png",
-//     color: "#4D5564",
-//     link: "https://aodarkness.com/boxes/ruin-of-luccanor/",
-//   },
-//   {
-//     id: 6,
-//     name: "Shadow World",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-shadowworld.png",
-//     color: "#955021",
-//     link: "https://aodarkness.com/boxes/shadow-world/",
-//   },
-//   {
-//     id: 7,
-//     name: "Spoils of War",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-spoils.png",
-//     color: "#261D43",
-//     link: "https://aodarkness.com/boxes/spoils-of-war/",
-//   },
-//   {
-//     id: 9,
-//     name: "Fallen Sisters",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-fallen.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-fallen.png",
-//     color: "#28242A",
-//     link: "https://aodarkness.com/boxes/undead-dragon/",
-//   },
-
-//   {
-//     id: 10,
-//     name: "Companions & Fornitures",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-compandfurt.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-compandfurt.png",
-//     color: "#660912",
-//     link: "https://aodarkness.com",
-//   },
-
-//   {
-//     id: 11,
-//     name: "Hero Pack",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-heropack.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-heropack.png",
-//     color: "#033E55",
-//     link: "https://aodarkness.com/boxes/undead-dragon/",
-//   },
-
-//   {
-//     id: 12,
-//     name: "Lorien",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-lorien.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-lorien.png",
-//     color: "#136D6D",
-//     link: "https://aodarkness.com/boxes/undead-dragon/",
-//   },
-
-//   {
-//     id: 13,
-//     name: "Four Horseman",
-//     image:
-//       "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-horseman.png",
-//     cardbg:
-//       "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-horseman.png",
-//     color: "#660912",
-//     link: "https://aodarkness.com/boxes/undead-dragon/",
-//   },
-// ]);
-
 interface Product {
   id: number;
   name: string;
@@ -278,6 +149,8 @@ interface Product {
   description: string;
   color: string;
   cardbg: string;
+  owned: "true" | "false" | null;
+  wish: "true" | "false" | null;
 }
 
 const products = ref<Product[]>([]);
@@ -294,25 +167,109 @@ const activeTab = ref(1);
 const wishlist = ref<number[]>([]);
 const owned = ref<number[]>([]);
 
-const toggleWishlist = (productId: number) => {
-  const index = wishlist.value.indexOf(productId);
-  if (index === -1) {
-    wishlist.value.push(productId);
-    const ownedIndex = owned.value.indexOf(productId);
-    if (ownedIndex !== -1) owned.value.splice(ownedIndex, 1);
-  } else {
-    wishlist.value.splice(index, 1);
+const token = localStorage.getItem("accessToken");
+
+const toggleWishlist = async (productId: number) => {
+  const product = products.value.find((p) => p.id === productId);
+  if (!product) return;
+
+  const isCurrentlyWishlisted = wishlist.value.includes(productId);
+  const isCurrentlyOwned = owned.value.includes(productId);
+
+  if (!product.wish && !isCurrentlyWishlisted) {
+    await axios
+      .post(url + "libraries/cadastro", 
+        {
+          users_fk: 1,
+          skus_fk: productId,
+          wish: "true",
+          owned: isCurrentlyOwned ? "true" : "false", 
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        wishlist.value.push(productId);
+        owned.value = owned.value.filter((id) => id !== productId); 
+      })
+      .catch((error: any) => {
+        console.error("Erro ao adicionar à wishlist:", error);
+      });
+  } else if (product.wish) {
+    await axios
+      .put(url + "libraries/alter", 
+        {
+          libraries_pk: product.libraries_pk,
+          users_fk: 1,
+          skus_fk: productId,
+          wish: "false",
+          owned: isCurrentlyOwned ? "true" : "false",
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        wishlist.value = wishlist.value.filter((id) => id !== productId);
+      })
+      .catch((error: any) => {
+        console.error("Erro ao remover da wishlist:", error);
+      });
   }
 };
 
-const toggleOwned = (productId: number) => {
-  const index = owned.value.indexOf(productId);
-  if (index === -1) {
-    owned.value.push(productId);
-    const wishlistIndex = wishlist.value.indexOf(productId);
-    if (wishlistIndex !== -1) wishlist.value.splice(wishlistIndex, 1);
-  } else {
-    owned.value.splice(index, 1);
+const toggleOwned = async (productId: number) => {
+  const product = products.value.find((p) => p.id === productId);
+  if (!product) return;
+
+  const isCurrentlyOwned = owned.value.includes(productId);
+  const isCurrentlyWishlisted = wishlist.value.includes(productId);
+
+  if (!product.owned && !isCurrentlyOwned) {
+    await axios
+      .post(url + "libraries/cadastro", 
+        {
+          users_fk: 1,
+          skus_fk: productId,
+          owned: "true",
+          wish: isCurrentlyWishlisted ? "true" : "false",
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        owned.value.push(productId);
+        wishlist.value = wishlist.value.filter((id) => id !== productId); // Remove da wishlist caso esteja
+      })
+      .catch((error: any) => {
+        console.error("Erro ao adicionar ao owned:", error);
+      });
+  } else if (product.owned) {
+    await axios
+      .put(url + "libraries/alter", 
+        {
+          libraries_pk: product.libraries_pk,
+          users_fk: 1,
+          skus_fk: productId,
+          owned: "false",
+          wish: isCurrentlyWishlisted ? "true" : "false",
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        owned.value = owned.value.filter((id) => id !== productId);
+      })
+      .catch((error: any) => {
+        console.error("Erro ao remover do owned:", error);
+      });
   }
 };
 
@@ -334,11 +291,6 @@ const ownedItems = computed(() =>
 const axios: any = inject("axios");
 const url: string = inject("apiUrl") || "";
 
-const token = localStorage.getItem("accessToken");
-
-// const UsersFk = await axios
-//   .get(url + "users", {
-
 const getRandomColor = () => {
   const letters = '0123456789ABCDEF';
   let color = '#';
@@ -351,7 +303,10 @@ const getRandomColor = () => {
 onBeforeMount(async () => {
   await axios
     .get(url + "skus/search", {
-      limit: 30,
+      params: {
+        users_fk: 1,
+        limit: 30,
+      },
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -377,34 +332,6 @@ onBeforeMount(async () => {
       console.log("Erro na API:", error);
     });
 });
-
-// const addLibrary = async () => {
-//   await axios
-//     .get(url + "/libraries/cadastro", {
-//     })
-//     .delete(url + "/wish_list/cadastro", {
-//     })
-//     .then((response: any) => {
-//       console.log("Adicionando a Owned:", products.value);
-//     })
-//     .catch((error: any) => {
-//       console.log("Erro ao adicionar a Owned:", error);
-//     });
-// };
-
-// const addWhish = () => {
-//   await axios
-//     .get(url + "/wish_list/cadastro", {
-//     })
-//     .delete(url + "/libraries/cadastro", {
-//     })
-//     .then((response: any) => {
-//       console.log("Adicionando a Wishlist:", products.value);
-//     })
-//     .catch((error: any) => {
-//       console.log("Erro ao adicionar a Wishlist:", error);
-//     });
-// };
 </script>
 
 
