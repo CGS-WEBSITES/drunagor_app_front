@@ -1,8 +1,7 @@
 <template>
-<v-app :theme="theme">
-  <Toast />
+  <v-app :theme="theme">
+    <Toast />
 
-    
     <!-- Barra de Navegação Superior -->
     <v-navigation-drawer
       v-model="drawer"
@@ -12,26 +11,22 @@
       class="d-none d-md-flex m"
     >
       <v-list class="me-4">
-     
         <v-list-item class="py-5">
-       
           <v-row align="center" class="">
-            
             <v-col cols="8">
-              <v-list-item-title>Magoveio92magi</v-list-item-title>
-              <v-list-item-subtitle>Points: 1337</v-list-item-subtitle>
+              <v-list-item-title>{{ user.user_name }}</v-list-item-title>
+              <!-- <v-list-item-subtitle>Points: 1337</v-list-item-subtitle> -->
             </v-col>
-
-
-     
-
 
             <!-- Coluna para o avatar à direita -->
             <v-col cols="4" class="d-flex justify-end">
-              <v-avatar size="100">
+              <v-avatar size="70">
                 <v-img
-                  src="https://segredoquantico.com/wp-content/uploads/2023/07/o-arquetipo-do-mago.webp"
-                  alt="Avatar"
+                  :src="
+                    user.picture_hash
+                      ? assets + '/Profile/' + user.picture_hash
+                      : assets + '/Profile/user.png'
+                  "
                 />
               </v-avatar>
             </v-col>
@@ -42,7 +37,8 @@
           v-for="(item, index) in menuItems"
           :key="index"
           link
-          @click="selectItem(item)"
+          :disabled="item.disabled"
+          @click="item.to ? router.push(item.to) : item.do()"
           :class="{ 'v-list-item--active': selectedItem === item }"
         >
           <v-list-item-icon>
@@ -54,8 +50,9 @@
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
-    <v-row no-gutters>
-      <v-app-bar app min-height="50" class="hidden-md-and-down" color="black">
+
+    <v-row no-gutters v-if="display.mdAndUp">
+      <v-app-bar app min-height="50" color="secundary">
         <div class="d-flex align-center pl-6">
           <!-- Ajuste o padding com pl-6 -->
           <v-img
@@ -65,175 +62,187 @@
             alt="Drunagor Icon"
             contain
             class="mr-2"
+            @click="$router.push({ name: 'Dashboard' })"
           ></v-img>
           <span>App Drunagor</span>
         </div>
         <v-spacer></v-spacer>
         <!-- Botão de Navegação alinhado à direita -->
+
+        <v-btn
+          v-if="route.name === 'Home' || route.name === 'Login' || route.name === 'Gama'"
+          color="#B8860B"
+          large
+          @click="$router.push({ name: 'Login' })"
+          >Sign up</v-btn
+        >
+
         <v-app-bar-nav-icon
+          v-else
           class="me-4"
           @click="drawer = !drawer"
         ></v-app-bar-nav-icon>
-        </v-app-bar>
+      </v-app-bar>
     </v-row>
-    <v-row no-gutters>
-      <router-view />
-    </v-row>
-    <!-- Toolbar (Barra de Topo) -->
 
-    <!-- Navegação Inferior Fixa (Mobile) -->
     <v-bottom-navigation
+      v-else-if="route.name != 'Home' && route.name != 'Login'"
       app
       v-model="bottomNavVisible"
       class="hidden-md-and-up fixed bg-black text-white"
       elevation="10"
-      style="width: 100%; max-width: 100vw; padding: 0; overflow: hidden"
+      dense
     >
-      <v-btn
-        @click="navigateTo('Dashboard')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-home</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Search')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <v-btn @click="navigateTo('Add')" class="pa-0 flex-grow-1" min-width="0">
-        <v-icon>mdi-plus-circle</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Favorites')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-heart</v-icon>
-      </v-btn>
-      <v-btn
-        @click="navigateTo('Profile')"
-        class="pa-0 flex-grow-1"
-        min-width="0"
-      >
-        <v-icon>mdi-account</v-icon>
-      </v-btn>
+      <v-row align="center" justify="space-between" no-gutters>
+        <v-col
+          v-for="(item, index) in menuItems"
+          :key="index"
+          link
+          :class="{ 'v-list-item--active': selectedItem === item }"
+          cols="2"
+        >
+          <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-bottom-navigation>
 
-    <!-- Rodapé -->
+    <!-- Exibe o conteúdo da rota -->
+    <router-view :style="contentStyle" />
+
+    <!-- Footer Section -->
     <v-footer class="footer black bg-black pb-12" padless>
-      <v-container fluid>
-        <v-row justify="center" align="center" class="text-center">
-          <v-col cols="12" sm="4">
-            <v-img
-              class="logocgs mx-auto"
-              src="@/assets/cgs.png"
-              max-width="92"
-              alt="logo"
-            />
-          </v-col>
+      <v-row justify="center" align="center" class="text-center">
+        <v-col cols="12" sm="4">
+          <v-img
+            class="logocgs mx-auto"
+            src="@/assets/cgs.png"
+            max-width="92"
+            alt="logo"
+          />
+        </v-col>
 
-          <v-col cols="12" sm="4" class="info-footer text-center">
-            <h3 class="white--text">Footer Infos Here</h3>
-            <p class="white--text">Big name info 1</p>
-            <p class="white--text">Big name info 2</p>
-            <p class="white--text">Big name info 3</p>
-          </v-col>
+        <v-col
+          cols="12"
+          sm="4"
+          class="d-flex flex-column info-footer text-center align-center"
+        >
+          <h3 class="white--text">Join us on Discord</h3>
+          <v-img
+            class="mt-4"
+            width="30"
+            src="@/assets/discord-mark-white.svg"
+          ></v-img>
+        </v-col>
 
-          <v-col cols="12" sm="4" class="text-center">
-            <h3 class="white--text">Social medias</h3>
-            <v-btn fab icon color="black" dark>
-              <v-icon color="white">mdi-instagram</v-icon>
-            </v-btn>
-            <v-btn fab icon color="black" dark>
-              <v-icon color="white">mdi-facebook</v-icon>
-            </v-btn>
-            <v-btn fab icon color="black" dark>
-              <v-icon color="white">mdi-youtube</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-container>
+        <v-col cols="12" sm="4" class="text-center">
+          <h3 class="white--text">Social medias</h3>
+          <v-btn fab icon color="black" dark>
+            <v-icon color="white">mdi-instagram</v-icon>
+          </v-btn>
+          <v-btn fab icon color="black" dark>
+            <v-icon color="white">mdi-facebook</v-icon>
+          </v-btn>
+          <v-btn fab icon color="black" dark>
+            <v-icon color="white">mdi-youtube</v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
     </v-footer>
   </v-app>
 </template>
 
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, inject, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify";
+import { useUserStore } from "@/store/UserStore";
 
-const router = useRouter(); // Importação do Vue Router
+const user = useUserStore().user;
 
+const display = ref(useDisplay());
+
+const router = useRouter();
+const route = useRoute();
+
+const assets = inject<string>("assets");
+
+const theme = ref("dark");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
-// Função de controle de rolagem para mostrar/ocultar o menu de navegação inferior
-function handleScroll() {
-  bottomNavVisible.value = window.scrollY <= 100; // Ajuste conforme necessário
-}
-
-// Verificação de mobile
-const isMobile = ref(false);
-
-// Configuração de eventos de rolagem e resize
-onMounted(() => {
-  window.addEventListener("scroll", handleScroll);
-  isMobile.value = window.innerWidth <= 600;
-
-  window.addEventListener("resize", () => {
-    isMobile.value = window.innerWidth <= 600;
-  });
-});
-
-onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll);
-});
-
-// Tema: alternar entre 'dark' e 'myCustomTheme'
-const theme = ref("dark");
-
-const toggleTheme = () => {
-  theme.value = theme.value === "dark" ? "myCustomTheme" : "dark";
-};
-
-// Controle de visibilidade de elementos reativos
-const showPopup = ref(false);
-const dialog = ref(false);
 const drawer = ref(false); // Controle do drawer lateral
+
+const logOut = () => {
+  localStorage.removeItem("accessToken");
+  router.push({ name: "Login" });
+};
 
 // Itens do menu de navegação
 const menuItems = ref([
-  { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
-  { title: "Campaign", icon: "mdi-flag", to: { name: "Campaign" } }, 
-  { title: "Library", icon: "mdi-book", to: { name: "Library" } },
-  { title: "Profile", icon: "mdi-account", to: { name: "Profile" } }, 
-  { title: "Events", icon: "mdi-calendar", to: { name: "Events" } }, 
+  {
+    title: "Dashboard",
+    icon: "mdi-view-dashboard",
+    to: { name: "Dashboard" },
+    disabled: false,
+  },
+  {
+    title: "Companion",
+    icon: "mdi-flag",
+    to: { name: "CampaignTracker", disabled: false },
+  },
+  {
+    title: "Library",
+    icon: "mdi-book",
+    to: { name: "Library" },
+    disabled: false,
+  },
+  {
+    title: "Profile",
+    icon: "mdi-account",
+    to: { name: "PerfilHome" },
+    disabled: false,
+  },
+
+  {
+    title: "Events",
+    icon: "mdi-calendar",
+    to: { name: "Events" },
+    disabled: true,
+  },
+
+  {
+    title: "Logout",
+    icon: "mdi-logout",
+    disabled: false,
+    do: logOut,
+  },
 ]);
 
-// Métodos de ação para os botões da navegação
-const action1 = () => console.log("Home button clicked");
-const action2 = () => console.log("Search button clicked");
-const action3 = () => console.log("Add button clicked");
-const action4 = () => console.log("Favorites button clicked");
-const action5 = () => console.log("Account button clicked");
-
-// Função de navegação
-const navigateTo = (route: any) => {
-  if (route) router.push(route);
-};
-
-// Fechar diálogo
-const closeDialog = () => {
-  dialog.value = false;
-};
+const contentStyle = computed(() => {
+  return display.value.mdAndUp
+    ? {
+        "background-image":
+          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+        "background-repeat": "repeat",
+        "margin-top": "65px",
+      }
+    : {
+        "background-image":
+          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+        "background-repeat": "repeat-y",
+      };
+});
 </script>
 
 <style>
+.v-app {
+  font-family: "Poppins", sans-serif !important;
+}
+
 .v-row {
   width: 100%;
 }
 </style>
-

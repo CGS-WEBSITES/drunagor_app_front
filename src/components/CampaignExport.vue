@@ -55,7 +55,7 @@ function closeModal() {
 </script>
 
 <template>
-  <v-btn variant="outlined" id="campaign-export" @click="openModal">
+  <v-btn variant="elevated" id="campaign-export" rounded  @click="openModal">
     {{ t("label.export-campaign") }}
   </v-btn>
   <v-dialog v-model="visible">
@@ -67,10 +67,10 @@ function closeModal() {
       </v-card-text>
     </v-card>
     <v-card>
-      <v-btn variant="outlined" @click="copyToClipboard">{{
+      <v-btn variant="elevated" @click="copyToClipboard">{{
         t("label.copy-to-clipboard")
       }}</v-btn>
-      <v-btn variant="outlined" @click="closeModal">{{
+      <v-btn variant="elevated" @click="closeModal">{{
         t("label.cancel")
       }}</v-btn>
     </v-card>

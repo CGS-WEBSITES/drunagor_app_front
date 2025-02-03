@@ -33,8 +33,8 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
         <v-col cols="2">
           <v-avatar :image="hero.images.avatar" size="65" />
         </v-col>
-        <v-col cols="10">
-          <p>
+        <v-col cols="10" class="pl-8 d-md-none">
+          <p class>
             {{ t("label." + hero.race.toLowerCase()) }}
             {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
           </p>
@@ -42,6 +42,21 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
             {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
           </p>
         </v-col>
+
+        <v-col cols="12" class="pt-3 d-none d-md-flex">
+          <p class>
+            {{ t("label." + hero.race.toLowerCase()) }}
+            {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
+          </p>
+        </v-col>
+          <p class="d-none d-md-flex">
+            {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
+          </p>
+
+  
+        
+
+        
       </v-row>
     </v-card-text>
     <v-card-actions>

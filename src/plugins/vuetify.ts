@@ -7,6 +7,10 @@
 // Styles
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
+import '@fontsource/poppins'; // Import Poppins font
+import '@fontsource/cinzel'
+
+
 
 
 // Composables
@@ -20,15 +24,26 @@ export default createVuetify({
   theme: {
     defaultTheme: "dark",
     themes: {
-      myCustomTheme: {
+      CoreTheme: {
         dark: false,
         colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
-          background: '#6F5312',
-          surface: '#856722',
-          primary: '#856722',
-          'primary-darken-1': '#3700B3',
-          secondary: '#03DAC6',
-          'secondary-darken-1': '#018786',
+          background: '#172A2C',
+          surface: '#274B4E',
+          primary: '#274B4E',
+          secondary: '#3C7376',
+          error: '#B00020',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FB8C00',
+        },
+      },
+      ApocTheme: {
+        dark: false,
+        colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
+          background: '#421111',
+          surface: '#6B1C1C',
+          primary: '#6B1C1C',
+          secondary: '#3D3D3D',
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -36,6 +51,9 @@ export default createVuetify({
         },
       },
     },
+  },
+  typography: {
+    defaultFontFamily: 'Poppins', // Set Poppins as the default font
   },
   components: {
     ...components,

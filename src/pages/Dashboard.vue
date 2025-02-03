@@ -1,148 +1,329 @@
 <template>
   <!-- Profile Section -->
-   <v-main>
-    <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
+  <v-main>
+    <!-- PC -->
+    <v-row class="d-none d-md-flex justify-center align-center ml-16">
+
       <v-col cols="12" sm="10" md="8" class="px-6">
-      <v-card>
         <v-row no-gutters>
-          <v-col cols="3">
-            <v-avatar size="100">
-              <v-img src="@/assets/libraryy.png" alt="Profile" />
+          <v-col cols="4">
+            <v-avatar size="210" rounded="0" class="avatar-overlay">
+              <v-img :src="user.picture_hash
+                ? assets + '/Profile/' + user.picture_hash
+                : assets + '/Profile/user.png'
+                " alt="Profile" style="
+                  border: 0.5px solid black;
+                  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                  background-color: black;
+                  " />
             </v-avatar>
-          </v-col>
-          <v-col cols="9">
-            <v-card-title>MAGOVEIO92MAGI</v-card-title>
-            <v-card-subtitle>RANKING: 5123</v-card-subtitle>
-            <!-- Icons below the name -->
-            <v-row no-gutters>
-              <v-col cols="auto" class="mr-2 pl-3">
-                <v-icon>mdi-shield</v-icon>
-              </v-col>
-              <v-col cols="auto" class="mr-2">
-                <v-icon>mdi-sword</v-icon>
-              </v-col>
-              <v-col cols="auto" class="mr-2">
-                <v-icon>mdi-book</v-icon>
-              </v-col>
-              <v-col cols="auto">
-                <v-icon>mdi-map</v-icon>
-              </v-col>
-            </v-row>
+            <v-card-title class="user_name text-h3">{{ user.user_name }}</v-card-title>
           </v-col>
         </v-row>
-      </v-card>
-    </v-col>
-  </v-row>
-
-  <!-- Navigation Drawer -->
-  
-
-<!-- Navigation Boxes Section -->
-<v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
-  <v-col cols="12" sm="10" md="8" class="px-6">
-    <!-- Primeiro Carrossel para dispositivos móveis -->
-    <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
-      <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
-        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto">
-          <v-img :src="item.img" height="300" cover />
-          <v-card-actions>
-            <v-row class="d-flex justify-center">
-              <v-btn class="text-center">{{ item.label }}</v-btn>
-            </v-row>
-          </v-card-actions>
-        </v-card>
-      </v-carousel-item>
-    </v-carousel>
-
-    <v-row v-else align="center" justify="center">
-      <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
-        <v-card class="border">
-          <v-img :src="item.img" height="300" cover />
-          <v-card-actions>
-            <v-row class="d-flex justify-center">
-              <v-btn class="text-center">{{ item.label }}</v-btn>
-            </v-row>
-          </v-card-actions>
-        </v-card>
       </v-col>
     </v-row>
-  </v-col>
-</v-row>
 
-<!-- Carousel Section -->
-<v-row
-  v-if="isMobile"
-  class="mt-4 d-flex justify-center align-center ma-0 w-100"
->
-  <v-col cols="12" sm="10" md="9" class="px-8">
-    <!-- Segundo Carrossel -->
-    <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters>
-      <v-carousel-item v-for="i in 6" :key="`mobile-${i}`">
-        <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto">
-          <v-img src="@/assets/campaign.jpg" height="300" cover />
-          <v-card-title>Campaign 0%</v-card-title>
-          <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
-          <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
-        </v-card>
-      </v-carousel-item>
-    </v-carousel>
-  </v-col>
-</v-row>
-
-<v-row
-  v-else
-  class="mt-4 d-flex justify-center align-center w-100"
-  no-gutters
->
-  <v-col cols="12" sm="10" md="8" class="px-5 mb-0">
-    <v-carousel hide-delimiters>
-      <v-carousel-item v-for="i in 3" :key="`desktop-${i}`">
-        <v-row>
-          <v-col cols="6">
-            <v-card class="mx-auto">
-              <v-img src="@/assets/campaign.jpg" height="200" cover />
-              <v-card-title>Campaign 0%</v-card-title>
-              <v-card-subtitle>Chronicles of Drunagor: Age of Darkness</v-card-subtitle>
-              <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
-            </v-card>
-          </v-col>
-          <v-col cols="6">
-            <v-card class="mx-auto">
-              <v-img src="@/assets/campaign.jpg" height="200" cover />
-              <v-card-title>Campaign 0%</v-card-title>
-              <v-card-subtitle>Awakenings</v-card-subtitle>
-              <v-card-subtitle>Door X: in battle/exploring/finished</v-card-subtitle>
-            </v-card>
+    <!-- MOBILE -->
+    <v-row class="d-md-none justify-center align-center ml-0">
+      <v-card class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
+        flat>
+      </v-card>
+      <v-col cols="12" sm="12" md="12">
+        <v-row no-gutters>
+          <v-col cols="8" class="avatar-mobile">
+            <v-avatar size="140" rounded="0">
+              <v-img :src="user.picture_hash
+                ? assets + '/Profile/' + user.picture_hash
+                : assets + '/Profile/user.png'
+                " alt="Profile" style="
+                border: 3.5px solid black;
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                background-color: black;
+              " />
+            </v-avatar>
+            <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
           </v-col>
         </v-row>
-      </v-carousel-item>
-    </v-carousel>
-  </v-col>
-</v-row>
+      </v-col>
+    </v-row>
+
+
+    <!-- Navigation Drawer -->
+    <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
+      <v-col cols="12" sm="12" md="8" class="px-6">
+        <v-card class="move_topo pt-12">
+
+          <!-- Navigation Boxes Section -->
+          <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
+            <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
+              <!-- Primeiro Carrossel para dispositivos móveis -->
+              <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
+                <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
+                  <v-row no-gutters class="justify-center">
+                    <v-col cols="10">
+                      <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto"
+                        :disabled="index > 0 ? true : false" @click="router.push(item.route)">
+                        <v-img style="background-color: rgb(0, 0, 0)" :src="item.img" height="500" cover :gradient="index > 0
+                          ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
+                          : false
+                          " />
+                        <v-card-actions>
+                          <v-row class="d-flex justify-center">
+                            <v-btn class="text-center">{{ item.label }}</v-btn>
+                          </v-row>
+                        </v-card-actions>
+                        <div v-if="index > 0" style="
+                      height: 0px;
+                      width: 100%;
+                      position: relative;
+                      left: 0;
+                      bottom: 200px;
+                    " class="text-center">
+                          <coming-soon></coming-soon>
+                        </div>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-carousel-item>
+              </v-carousel>
+
+              <v-row v-else align="center" justify="center">
+                <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
+                  <v-hover v-slot="{ isHovering, props }">
+                    <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
+                      :disabled="index > 1 ? true : false" @click="router.push(item.route)">
+                      <v-img :src="item.img" height with cover :gradient="index > 1 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                        " />
+                      <v-card-actions>
+                        <v-row class="d-flex justify-center">
+                          <v-btn class="text-center">{{ item.label }}</v-btn>
+                        </v-row>
+                      </v-card-actions>
+                      <div v-if="index > 1" style="
+                    height: 0px;
+                    width: 100%;
+                    position: relative;
+                    left: 0;
+                    bottom: 200px;
+                  " class="text-center">
+                        <coming-soon></coming-soon>
+                      </div>
+                    </v-card>
+                  </v-hover>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+
+          <!-- Carousel Section -->
+
+          <v-row class="mt-4 d-flex justify-center align-center  py-6" no-gutters>
+            <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
+              <v-carousel hide-delimiters v-if="campaignList.length > 0" :height="isMobile ? '400px' : 'auto'">
+                <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
+                  <v-row no-gutters class="justify-center">
+                    <v-col cols="10" sm="10" md="12">
+                      <v-card  class="mx-auto" @click="
+                        router.push({
+                          name: 'Campaign',
+                          params: { id: item.campaignId },
+                        })
+                        ">
+                        <v-img :src="assets + '/Dashboard/img-campaigncore(1).png'" height with cover />
+                        <v-card-title>
+                          {{ item.campaign }}
+                        </v-card-title>
+                        <v-card-subtitle v-if="item.name">
+                          {{ item.name }}
+                        </v-card-subtitle>
+                        <v-card-text>
+                          <v-row no-gutters>
+                            <v-col cols="4" sm="2" md="2" lg="2" xl="1" class="d-flex"
+                              v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
+                              <v-avatar :image="hero.images.avatar" size="40" />
+                            </v-col>
+                          </v-row>
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-carousel-item>
+              </v-carousel>
+
+              <v-row v-else no-gutters class="justify-center py-6">
+                <v-col cols="12">
+                  <v-card class="mx-auto">
+                    <v-card-title>
+                      You don't have any campaign saved yet. Click on the folowing
+                      button to create one
+                    </v-card-title>
+                    <v-card-actions class="d-flex justify-center">
+                      <v-btn @click="router.push({ name: 'Campaign Overview' })">create campaign</v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
+          <v-card-title class="text-h4">
+            MY LIBRARY
+          </v-card-title>
+          <v-row dense>
+            <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="6" class="pa-2 ">
+              <!-- Card Content -->
+              <div class="library-item" :style="{
+                backgroundImage: `url(${item.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }"
+              @click="$router.push({ name: 'Library' })">
+                <h3 class="library-title">{{ item.name }}</h3>
+              </div>
+            </v-col>
+          </v-row>
+
+
+
+        </v-card>
 
 
 
 
-  <!-- Main Event Cards Section -->
-  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
+
+
+      </v-col>
+    </v-row>
+
+    <!-- Navigation Drawer -->
+    <v-row class="move_topo2 d-md-none justify-center align-center ">
+      <v-col cols="12" sm="12" md="12" class="px-0">
+
+        <!-- Navigation Boxes Section -->
+
+
+        <v-row class="d-sm justify-center align-center ma-0 w-100" justify="center">
+          <v-col cols="6" v-for="(item, index) in carouselItems" :key="index">
+            <v-hover v-slot="{ isHovering, props }">
+              <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
+                :disabled="index > 1 ? true : false" @click="router.push(item.route)">
+                <v-img :src="item.img" height with cover :gradient="index > 1 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                  " />
+                <v-card-actions>
+                  <v-row class="d-flex justify-center">
+                    <v-btn class="text-center">{{ item.label }}</v-btn>
+                  </v-row>
+                </v-card-actions>
+                <div v-if="index > 1" style="
+                    height: 0px;
+                    width: 100%;
+                    position: relative;
+                    left: 0;
+                    bottom: 200px;
+                  " class="text-center">
+                  <coming-soon></coming-soon>
+                </div>
+              </v-card>
+            </v-hover>
+          </v-col>
+        </v-row>
+
+        <!-- Carousel Section -->
+
+
+        <v-card-title class="text-h5"> MY CAMPAIGNS</v-card-title>
+
+        <v-row class="d-flex justify-center align-center w-100 " no-gutters>
+          <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
+            <v-carousel show-arrows="hover" hide-delimiters v-if="campaignList.length > 0" height="500">
+              <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
+                <v-row no-gutters class="justify-center">
+                  <v-col cols="12" sm="12" md="12">
+                    <v-card class="mx-4" @click="
+                      router.push({
+                        name: 'Campaign',
+                        params: { id: item.campaignId },
+                      })
+                      ">
+                      <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
+                      <v-card-title>
+                        {{ item.campaign }}
+                      </v-card-title>
+                      <v-card-subtitle v-if="item.name">
+                        {{ item.name }}
+                      </v-card-subtitle>
+                      <v-card-text>
+                        <v-row no-gutters>
+                          <v-col cols="1" sm="2" md="2" lg="2" xl="1" class="d-flex"
+                            v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
+                            <v-avatar :image="hero.images.avatar" size="40" />
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-carousel-item>
+            </v-carousel>
+
+            <v-row v-else no-gutters class="justify-center py-6">
+              <v-col cols="10">
+                <v-card class="mx-auto">
+                  <v-card-title>
+                    You don't have any campaign saved yet. Click on the folowing
+                    button to create one
+                  </v-card-title>
+                  <v-card-actions class="d-flex justify-center">
+                    <v-btn @click="router.push({ name: 'Campaign Overview' })">create campaign</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+        <v-card-title class="librarytext text-h5">
+          MY LIBRARY
+        </v-card-title>
+        <v-row dense>
+          <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="10" class="px-4 py-2">
+            <!-- Card Content -->
+            <div class="library-item2" :style="{
+              backgroundImage: `url(${item.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }">
+              <h3 class="library-title">{{ item.name }}</h3>
+            </div>
+          </v-col>
+        </v-row>
+
+
+
+
+
+      </v-col>
+    </v-row>
+
+    <!-- Main Event Cards Section -->
+    <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
     <v-col cols="12" sm="10" md="8" class="px-2 bg-black rounded">
       <v-card-text
         class="text-h4 white--text color-white bg-black "
         color="white"
       >
         EVENTS
-      </v-card-text>
+      </v-card-text> -->
 
-      <!-- Main Event Cards -->
-      <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
-        <!-- Next Section (visible on desktop, hidden on mobile) -->
-        <v-col cols="12" md="6">
+    <!-- Main Event Cards -->
+
+    <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" > -->
+    <!-- Next Section (visible on desktop, hidden on mobile) -->
+    <!-- <v-col cols="12" md="6">
           <v-card class="pa-4" color="grey-darken-4" dark>
             <v-card-title class="white--text hidden-sm-and-down"
               >Next</v-card-title
-            >
-            <!-- Container com rolagem -->
-            <div style="max-height: 300px; overflow-y: auto">
+            > -->
+    <!-- Container com rolagem -->
+    <!-- <div style="max-height: 300px; overflow-y: auto">
               <v-list>
                 <v-list-item
                   v-for="i in 10"
@@ -191,10 +372,10 @@
               </v-list>
             </div>
           </v-card>
-        </v-col>
+        </v-col> -->
 
-        <!-- Count Me In Section (visible on desktop, hidden on mobile) -->
-        <v-col cols="12" md="6">
+    <!-- Count Me In Section (visible on desktop, hidden on mobile) -->
+    <!-- <v-col cols="12" md="6">
           <v-card class="pa-4 hidden-sm-and-down" color="grey-darken-4" dark>
             <v-card-title class="white--text hidden-sm-and-down"
               >Count Me In</v-card-title
@@ -249,10 +430,10 @@
             </div>
           </v-card>
         </v-col>
-      </v-row>
+      </v-row> -->
 
-      <!-- Dialog for Event Details -->
-      <v-dialog v-model="dialog" max-width="600px">
+    <!-- Dialog for Event Details -->
+    <!-- <v-dialog v-model="dialog" max-width="600px">
         <v-card>
           <v-card-title
             class="headline d-flex justify-space-between align-center"
@@ -333,10 +514,10 @@
             </v-list-item>
           </v-card-text>
 
-          <v-divider></v-divider>
+          <v-divider></v-divider> -->
 
-          <!-- Updated Button Section -->
-          <v-card-actions>
+    <!-- Updated Button Section -->
+    <!-- <v-card-actions>
             <v-row class="d-flex justify-space-between">
               <v-col>
                 <v-btn
@@ -361,87 +542,72 @@
         </v-card>
       </v-dialog>
     </v-col>
-  </v-row>
+  </v-row> -->
 
-  <!-- My Library Section -->
+    <!-- My Library Section -->
 
-  <!-- Title for My Library -->
-  <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
-    <v-col cols="12" sm="10" md="8" class="px-6">
-    <v-card-title class="text-h5 font-weight-bold">MY LIBRARY</v-card-title>
-  </v-col>
-</v-row>
-
-<!-- Library Section -->
-<v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" >
-  <v-col cols="12" sm="10" md="8" class="px-6">
-    <!-- Buttons for Library Items -->
-    <v-row>
-      <!-- Ajuste para ocupar 12 colunas em telas menores, e 6 em telas maiores -->
-      <v-col :cols="12" md="6">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
-          AWAKENINGS
-        </v-btn>
-      </v-col>
-      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
-          COREBOX
-        </v-btn>
+    <!-- Title for My Library -->
+    <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
+      <v-col cols="12" sm="10" md="8" class="px-6">
+        <v-card-title class="text-h5 font-weight-bold">MY LIBRARY</v-card-title>
       </v-col>
     </v-row>
 
-    <v-row class="mt-2 mt-md-4">
-      <v-col :cols="12" md="6">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
-          APOCALYPSE
-        </v-btn>
+    <v-row class="mt-4 justify-center ma-0">
+      <v-col cols="12" sm="10" md="8">
+        <v-row justify="center" align="center">
+          <v-col cols="12" md="6" class="d-flex justify-center">
+            <v-btn
+              color="grey darken-2"
+              class="white--text w-100 mb-4"
+              height="60"
+            >
+              AWAKENINGS
+            </v-btn>
+          </v-col>
+          <v-col cols="12" md="6" class="d-flex justify-center">
+            <v-btn
+              color="grey darken-2"
+              class="white--text w-100 mb-4"
+              height="60"
+            >
+              COREBOX
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <v-row justify="center" align="center">
+          <v-col cols="12" md="6" class="d-flex justify-center">
+            <v-btn
+              color="grey darken-2"
+              class="white--text w-100 mb-4"
+              height="60"
+            >
+              APOCALYPSE
+            </v-btn>
+          </v-col>
+          <v-col cols="12" md="6" class="d-flex justify-center">
+            <v-btn
+              color="grey darken-2"
+              class="white--text w-100 mb-4"
+              height="60"
+            >
+              RISE OF THE UNDEAD DRAGON
+            </v-btn>
+          </v-col>
+        </v-row>
       </v-col>
-      <v-col :cols="12" md="6" class="mt-2 mt-md-0">
-        <v-btn block color="grey darken-2" class="white--text" height="60">
-          RISE OF THE UNDEAD DRAGON
-        </v-btn>
-      </v-col>
-    </v-row>
+    </v-row> -->
 
     <!-- Manage Library Button -->
-    <v-row class="mt-4">
+    <!-- <v-row class="mt-4">
       <v-col cols="12" class="text-right">
         <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
       </v-col>
-    </v-row>
-  </v-col>
-</v-row>
+    </v-row> -->
 
-
-  <!-- Fixed Bottom Navigation for Mobile -->
-  <v-bottom-navigation
-  app
-  v-model="bottomNavVisible"
-  class="hidden-md-and-up fixed bg-black text-white"
-  elevation="10"
->
-  <v-btn @click="action1" small>
-    <v-icon>mdi-home</v-icon>
-  </v-btn>
-  <v-btn @click="action2" small>
-    <v-icon>mdi-magnify</v-icon>
-  </v-btn>
-  <v-btn @click="action3" small>
-    <v-icon>mdi-plus-circle</v-icon>
-  </v-btn>
-  <v-btn @click="action4" small>
-    <v-icon>mdi-heart</v-icon>
-  </v-btn>
-  <v-btn @click="action5" small>
-    <v-icon>mdi-account</v-icon>
-  </v-btn>
-</v-bottom-navigation>
-
-
-
-
-  <!-- Notification Button -->
-  <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6">
+    <!-- Notification Button -->
+    <!-- <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6">
     <v-col cols="auto">
       <v-badge color="red" content="10" overlap>
         <v-btn fab dark color="black" @click="showPopup = !showPopup">
@@ -449,114 +615,129 @@
         </v-btn>
       </v-badge>
     </v-col>
-  </v-row>
+  </v-row> -->
 
-  <!-- Notification Dialog -->
-  <v-dialog v-model="showPopup" max-width="600px">
+    <!-- Notification Dialog -->
+    <!-- <v-dialog v-model="showPopup" max-width="600px">
     <v-card>
       <v-card-title>Notificações</v-card-title>
       <v-card-text>
-        <!-- Conteúdo do diálogo -->
+        Conteúdo do diálogo
       </v-card-text>
       <v-card-actions>
         <v-btn text @click="showPopup = false">Fechar</v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
-</v-main>
+  </v-dialog> -->
+  </v-main>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, computed, inject } from "vue";
+import { useDisplay } from "vuetify";
+import { useUserStore } from "@/store/UserStore";
+import { useRouter } from "vue-router";
+import { CampaignStore } from "@/store/CampaignStore";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { HeroStore } from "@/store/HeroStore";
 
-// Controle de visibilidade do menu de navegação inferior
-const bottomNavVisible = ref(true);
 
-// Função de controle de rolagem para mostrar/ocultar o menu de navegação inferior
-function handleScroll() {
-  bottomNavVisible.value = window.scrollY <= 100; // Ajuste conforme necessário
+
+const campaignStore = CampaignStore();
+
+const campaignList = computed(() => {
+  return campaignStore.findAll();
+});
+
+const heroStore = HeroStore();
+
+const router = useRouter();
+
+const user = useUserStore().user;
+
+const display = ref(useDisplay());
+
+const assets = inject<string>("assets");
+
+const campFig = (campName: string) => {
+
+  console.log(campName)
+  switch (campName) {
+    case 'apocalypse':
+      return assets + '/Dashboard/img-campaigncore.png';
+    case 'core':
+      return "400";
+    case 'core':
+      return "500";
+    case 'core':
+      return "500";
+    case 'core':
+      return "600";
+    case 'core':
+      return "700";
+  }
+
 }
-
 // Configurações de evento para rolagem
-onMounted(() => {
-  window.addEventListener("scroll", handleScroll);
-  isMobile.value = window.innerWidth <= 600;
-  window.addEventListener("resize", () => {
-    isMobile.value = window.innerWidth <= 600;
-  });
-});
-
-onUnmounted(() => {
-  window.removeEventListener("scroll", handleScroll);
-});
+onMounted(() => { });
 
 // Verificação de mobile
-const isMobile = ref(false);
+const isMobile = computed(() => {
+  console.log(display.value.mdAndUp);
+  return !display.value.mdAndUp;
+});
 
 // Dados do carrossel
 const carouselItems = ref([
   {
-    img: new URL("@/assets/Corebox.png", import.meta.url).href,
+    img: new URL(assets + "/Dashboard/btn-campaigns.png", import.meta.url).href,
+    label: "COMPANION",
+    route: { name: "CampaignTracker" },
+  },
+  {
+    img: new URL(assets + "/Dashboard/btn-library.png", import.meta.url).href,
     label: "LIBRARY",
+    route: { name: "Library" },
   },
   {
-    img: new URL("@/assets/perfil.webp", import.meta.url).href,
-    label: "CAMPAIGN",
+    img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
+    label: "MY PROFILE",
+    route: { name: "Profile" },
   },
+
   {
-    img: new URL("@/assets/events.jpg", import.meta.url).href,
+    img: new URL(assets + "/Dashboard/btn-events.png", import.meta.url).href,
     label: "EVENTS",
-  },
-  {
-    img: new URL("@/assets/leaderboard.jpg", import.meta.url).href,
-    label: "LEADERBOARD",
+    route: { name: "Library" },
   },
 ]);
+
+
+const libraryItems = ref([
+  {
+    name: "COREBOX",
+    image: new URL(assets + "/Dashboard/btn-corebox.png", import.meta.url).href,
+  },
+  {
+    name: "DESERT OF HELLSCAR",
+    image: new URL(assets + "/Dashboard/btn-hellscar.png", import.meta.url).href,
+  },
+  {
+    name: "APOCALYPSE",
+    image: new URL(assets + "/Dashboard/btn-apoc.png", import.meta.url).href,
+  },
+  {
+    name: "AWAKENINGS",
+    image: new URL(assets + "/Dashboard/btn-awakenings.png", import.meta.url).href,
+  },
+]);
+
+
+
 
 // Variáveis reativas
 const showPopup = ref(false);
 const dialog = ref(false);
-const drawer = ref(false); // Controle do drawer lateral
-
-// Itens do menu de navegação
-const menuItems = ref([
-  { title: "Dashboard", icon: "mdi-view-dashboard" },
-  { title: "Campaign", icon: "mdi-flag" },
-  { title: "Library", icon: "mdi-book" },
-  { title: "Profile", icon: "mdi-account" },
-  { title: "Events", icon: "mdi-calendar" },
-]);
-
-// Métodos de ação para os botões da navegação
-const action1 = () => {
-  console.log("Home button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action2 = () => {
-  console.log("Search button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action3 = () => {
-  console.log("Add button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action4 = () => {
-  console.log("Favorites button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-const action5 = () => {
-  console.log("Account button clicked");
-  // Adicione a lógica específica para essa ação
-};
-
-// Métodos para o diálogo e Google Maps
-const openDialog = (eventId: number) => {
-  dialog.value = true;
-};
 
 const closeDialog = () => {
   dialog.value = false;
@@ -568,6 +749,17 @@ const openGoogleMaps = (place: { name: string }) => {
   )}`;
   window.open(url, "_blank");
 };
+
+const heroDataRepository = new HeroDataRepository();
+
+function findHeroes(campaignId: string): HeroData[] {
+  const heroes: HeroData[] = [];
+  heroStore.findAllInCampaign(campaignId).forEach((hero) => {
+    heroes.push(heroDataRepository.find(hero.heroId) ?? ({} as HeroData));
+  });
+
+  return heroes;
+}
 </script>
 
 
@@ -576,11 +768,106 @@ const openGoogleMaps = (place: { name: string }) => {
 
 
 <style>
-
-
 .v-badge__badge {
   position: absolute;
   top: -5px;
   right: -5px;
+  color: rgb(266, green, blue);
+}
+
+.avatar-overlay {
+  position: relative;
+  transform: translateY(-18px);
+  z-index: 2;
+}
+
+.avatar-mobile {
+  position: relative;
+  transform: translateY(-130px);
+
+  z-index: 3
+}
+
+.card-overlay {
+  position: relative;
+  transform: translateY(-6px);
+  z-index: 2;
+}
+
+.user_name {
+  position: relative;
+  transform: translateY(-145px) translateX(204px);
+  z-index: 2;
+}
+
+.user_name2 {
+  position: relative;
+  transform: translateY(-85px) translateX(130px);
+  z-index: 2;
+}
+
+.move_topo {
+  position: relative;
+  transform: translateY(-150px);
+}
+
+.move_topo2 {
+  position: relative;
+  transform: translateY(-180px) translateX(12px);
+}
+
+.full-screen-card {
+  width: 100vw;
+  height: 24vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+body {
+  font-family: "Poppins", sans-serif !important;
+}
+
+.library-item {
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding-left: 16px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.library-item2 {
+  transform: translateY(-195px);
+  width: 100%;
+  height: 50px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  padding-left: 16px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.librarytext{
+  transform: translateY(-195px);
+}
+
+
+.library-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
 }
 </style>

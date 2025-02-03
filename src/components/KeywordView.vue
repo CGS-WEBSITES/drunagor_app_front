@@ -38,7 +38,8 @@ query.value = preselectedKeyword;
 
 <template>
   <div class="grid place-items-center w-full">
-    <v-card class="pa-6">
+    <v-container max-width="680">
+    <v-card class="pa-1">
       <v-card-title> {{ t("menu.keyword") }} </v-card-title>
       <v-card-actions>
         <BaseListSearch
@@ -50,6 +51,7 @@ query.value = preselectedKeyword;
       <v-card-text>
         <v-expansion-panels color="blue-darken-4" >
           <v-expansion-panel
+          color="#172A2C"
           class="my-2"
             v-for="keyword in filteredKeyword"
             :key="keyword.id"
@@ -60,6 +62,7 @@ query.value = preselectedKeyword;
         </v-expansion-panels>
       </v-card-text>
     </v-card>
+  </v-container>
   </div>
 </template>
 

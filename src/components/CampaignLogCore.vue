@@ -50,7 +50,8 @@ const { t } = useI18n();
    <v-row no-gutters>
     <v-col cols="12">
       <v-btn
-        variant="outlined"
+        variant="elevated"
+        rounded
         @click="
           $router.push({
             name: 'Hero',
