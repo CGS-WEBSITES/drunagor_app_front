@@ -1,6 +1,5 @@
 <template>
   <v-container class="pa-0">
-    <!-- Título -->
     <v-row justify="center">
       <v-col cols="12" class="text-center">
         <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
@@ -16,23 +15,20 @@
         <v-tab :value="3">Owned</v-tab>
       </v-tabs>
 
-      <!-- Conteúdo Condicional das Abas -->
       <div v-if="activeTab === 1">
-        <!-- Todos os Produtos -->
         <v-row dense>
           <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="3">
-            <!-- Product Card com Botões -->
             <div class="card-wrapper">
-              <!-- Componente do Product Card -->
               <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
 
               <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
-                @click="toggleWishlist(product.id)">
-                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
+                :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
+                {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
               </v-btn>
+
               <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small" class="movebotao2"
-                @click="toggleOwned(product.id)">
-                {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
+                :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
+                {{ product.owned ? "- Owned" : "+ Owned" }}
               </v-btn>
             </div>
           </v-col>
@@ -40,7 +36,6 @@
       </div>
 
       <div v-if="activeTab === 2">
-        <!-- Wishlist -->
         <v-row dense>
           <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
@@ -55,7 +50,6 @@
       </div>
 
       <div v-if="activeTab === 3">
-        <!-- Owned -->
         <v-row dense>
           <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
@@ -70,6 +64,15 @@
       </div>
     </v-card>
   </v-container>
+
+  <v-dialog v-model="confirmationDialog" max-width="800">
+    <v-card>
+      <v-card-title class="font-weight-bold text-h4">{{ confirmationMessage }}</v-card-title>
+      <v-card-actions>
+        <v-btn color="green" text="true" @click="confirmationDialog = false">OK</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
   <v-dialog v-model="dialog" max-width="440">
     <v-card class="custom-background">
@@ -139,6 +142,9 @@ const setDialog = (name: string, description: string, image: string) => {
   boximage.value = image;
 };
 
+const confirmationDialog = ref(false);
+const confirmationMessage = ref("");
+
 const dialog = ref(true);
 
 interface Product {
@@ -151,6 +157,7 @@ interface Product {
   cardbg: string;
   owned: "true" | "false" | null;
   wish: "true" | "false" | null;
+  libraries_pk: number | null;
 }
 
 const products = ref<Product[]>([]);
@@ -168,56 +175,71 @@ const wishlist = ref<number[]>([]);
 const owned = ref<number[]>([]);
 
 const token = localStorage.getItem("accessToken");
+const storedUser = localStorage.getItem("app_user");
+const appUser = storedUser ? JSON.parse(storedUser) : null;
 
 const toggleWishlist = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyWishlisted = wishlist.value.includes(productId);
-  const isCurrentlyOwned = owned.value.includes(productId);
+  const isCurrentlyWishlisted = product.wish === "true";
+  const isCurrentlyOwned = product.owned === "true";
+  const librariesPk = product.libraries_pk;
 
-  if (!product.wish && !isCurrentlyWishlisted) {
-    await axios
-      .post(url + "libraries/cadastro", 
-        {
-          users_fk: 1,
-          skus_fk: productId,
-          wish: "true",
-          owned: isCurrentlyOwned ? "true" : "false", 
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        wishlist.value.push(productId);
-        owned.value = owned.value.filter((id) => id !== productId); 
-      })
-      .catch((error: any) => {
-        console.error("Erro ao adicionar à wishlist:", error);
-      });
-  } else if (product.wish) {
-    await axios
-      .put(url + "libraries/alter", 
-        {
-          libraries_pk: product.libraries_pk,
-          users_fk: 1,
-          skus_fk: productId,
-          wish: "false",
-          owned: isCurrentlyOwned ? "true" : "false",
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        wishlist.value = wishlist.value.filter((id) => id !== productId);
-      })
-      .catch((error: any) => {
-        console.error("Erro ao remover da wishlist:", error);
-      });
+  if (!librariesPk) {
+    // Se não tem libraries_pk, faz um POST
+    await axios.post(
+      url + "libraries/cadastro",
+      {
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        wish: "true",
+        owned: "false", // Garante que "owned" seja false ao adicionar à wishlist
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then((response: any) => {
+      product.wish = "true";
+      product.owned = "false"; // Desativa "owned"
+      product.libraries_pk = response.data.libraries_pk; // Atualiza o libraries_pk com o valor retornado
+      wishlist.value.push(productId);
+      owned.value = owned.value.filter((id) => id !== productId); // Remove do owned, se estiver lá
+
+      confirmationMessage.value = `Product "${product.name}" added to Wishlist!`;
+      confirmationDialog.value = true;
+    })
+    .catch((error: any) => {
+      console.error("Erro ao adicionar à wishlist:", error);
+    });
+  } else {
+    // Se já tem libraries_pk, faz um PUT
+    await axios.put(
+      url + "libraries/alter",
+      {
+        libraries_pk: librariesPk,
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        wish: isCurrentlyWishlisted ? "false" : "true", // Inverte o estado atual
+        owned: isCurrentlyOwned ? "true" : "false",
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(() => {
+      product.wish = isCurrentlyWishlisted ? "false" : "true"; // Atualiza o estado local
+      product.owned = "false"; // Desativa "owned"
+      if (isCurrentlyWishlisted) {
+        wishlist.value = wishlist.value.filter((id) => id !== productId); // Remove da wishlist
+      } else {
+        wishlist.value.push(productId); // Adiciona à wishlist
+      }
+      owned.value = owned.value.filter((id) => id !== productId); // Remove do owned, se estiver lá
+
+      confirmationMessage.value = `Product "${product.name}" ${isCurrentlyWishlisted ? "removed from" : "added to"} Wishlist!`;
+      confirmationDialog.value = true;
+    })
+    .catch((error: any) => {
+      console.error("Erro ao atualizar a wishlist:", error);
+    });
   }
 };
 
@@ -225,51 +247,60 @@ const toggleOwned = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyOwned = owned.value.includes(productId);
-  const isCurrentlyWishlisted = wishlist.value.includes(productId);
+  const isCurrentlyOwned = product.owned === "true";
+  const isCurrentlyWishlisted = product.wish === "true";
+  const librariesPk = product.libraries_pk;
 
-  if (!product.owned && !isCurrentlyOwned) {
-    await axios
-      .post(url + "libraries/cadastro", 
-        {
-          users_fk: 1,
-          skus_fk: productId,
-          owned: "true",
-          wish: isCurrentlyWishlisted ? "true" : "false",
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        owned.value.push(productId);
-        wishlist.value = wishlist.value.filter((id) => id !== productId); // Remove da wishlist caso esteja
-      })
-      .catch((error: any) => {
-        console.error("Erro ao adicionar ao owned:", error);
-      });
-  } else if (product.owned) {
-    await axios
-      .put(url + "libraries/alter", 
-        {
-          libraries_pk: product.libraries_pk,
-          users_fk: 1,
-          skus_fk: productId,
-          owned: "false",
-          wish: isCurrentlyWishlisted ? "true" : "false",
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        owned.value = owned.value.filter((id) => id !== productId);
-      })
-      .catch((error: any) => {
-        console.error("Erro ao remover do owned:", error);
-      });
+  if (!librariesPk) {
+    // Se não tem libraries_pk, faz um POST
+    await axios.post(
+      url + "libraries/cadastro",
+      {
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        owned: "true",
+        wish: "false",
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then((response: any) => {
+      product.owned = "true";
+      product.libraries_pk = response.data.libraries_pk; // Atualiza o libraries_pk com o valor retornado
+      owned.value.push(productId);
+
+      confirmationMessage.value = `Product "${product.name}" added to Owned!`;
+      confirmationDialog.value = true;
+    })
+    .catch((error: any) => {
+      console.error("Erro ao adicionar ao owned:", error);
+    });
+  } else {
+    // Se já tem libraries_pk, faz um PUT
+    await axios.put(
+      url + "libraries/alter",
+      {
+        libraries_pk: librariesPk,
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        owned: isCurrentlyOwned ? "false" : "true", // Inverte o estado atual
+        wish: isCurrentlyWishlisted ? "true" : "false", // Mantém o estado de "wish"
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(() => {
+      product.owned = isCurrentlyOwned ? "false" : "true"; // Atualiza o estado local
+      if (isCurrentlyOwned) {
+        owned.value = owned.value.filter((id) => id !== productId); // Remove do owned
+      } else {
+        owned.value.push(productId); // Adiciona ao owned
+      }
+
+      confirmationMessage.value = `Product "${product.name}" ${isCurrentlyOwned ? "removed from" : "added to"} Owned!`;
+      confirmationDialog.value = true;
+    })
+    .catch((error: any) => {
+      console.error("Erro ao atualizar o owned:", error);
+    });
   }
 };
 
@@ -281,12 +312,18 @@ const isOwned = (productId: number) => {
   return owned.value.includes(productId);
 };
 
-const wishlistItems = computed(() =>
-  products.value.filter((product: { id: any; }) => wishlist.value.includes(product.id))
-);
-const ownedItems = computed(() =>
-  products.value.filter((product: { id: any; }) => owned.value.includes(product.id))
-);
+const wishlistItems = computed(() => {
+  const itemsWithWishTrue = products.value.filter((product) => product.wish === true);
+
+  console.log("wishlistItems:", itemsWithWishTrue);
+  return itemsWithWishTrue;
+});
+
+const ownedItems = computed(() => {
+  const itemsWithOwnedTrue = products.value.filter((product) => product.owned === true);
+
+  return itemsWithOwnedTrue;
+});
 
 const axios: any = inject("axios");
 const url: string = inject("apiUrl") || "";
@@ -304,7 +341,7 @@ onBeforeMount(async () => {
   await axios
     .get(url + "skus/search", {
       params: {
-        users_fk: 1,
+        users_fk: appUser.users_pk,
         limit: 30,
       },
       headers: {
@@ -312,28 +349,37 @@ onBeforeMount(async () => {
       },
     })
     .then((response: any) => {
-      console.log("API Response:", response.data.skus);
-      products.value = response.data.skus.map((el: any) => ({
-        id: el.skus_pk,
-        name: el.name,
-        image: el.picture_hash,
-        link: el.link,
-        description: "Descrição padrão",
-        // color: "#136D6D",
-        color: getRandomColor(),
-        cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
-      }));
-      console.log("API Response:", products.value);
+      const uniqueProducts = new Map(); // Usamos um Map para garantir que os IDs sejam únicos
 
-      // const targetProducts = products.value; 
-      // console.log("Produtos Diretos:", targetProducts);
+      response.data.skus.forEach((el: any) => {
+        if (!uniqueProducts.has(el.skus_pk)) { // Verifica se o ID já foi adicionado
+          const owned = response.data.skus.filter((p: any) => p.owned === el.owned && p.owned === true).length > 0 ? true : false;
+          const wish = response.data.skus.filter((p: any) => p.wish === el.wish && p.wish === true).length > 0 ? true : false;
+
+          uniqueProducts.set(el.skus_pk, {
+            id: el.skus_pk,
+            name: el.name,
+            image: el.picture_hash,
+            link: el.link,
+            skus_pk: el.skus_pk,
+            description: "Descrição padrão",
+            color: getRandomColor(),
+            cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
+            owned: owned,
+            wish: wish,
+            libraries_pk: el.libraries_pk,
+          });
+        }
+      });
+
+      products.value = Array.from(uniqueProducts.values()); // Converte o Map de volta para um array
+      console.log("Produtos:", products.value);
     })
     .catch((error: any) => {
       console.log("Erro na API:", error);
     });
 });
 </script>
-
 
 <style>
 .cinzel-text {
