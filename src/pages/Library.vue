@@ -331,14 +331,14 @@ const ownedItems = computed(() => {
 const axios: any = inject("axios");
 const url: string = inject("apiUrl") || "";
 
-const getRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
+// const getRandomColor = () => {
+//   const letters = '0123456789ABCDEF';
+//   let color = '#';
+//   for (let i = 0; i < 6; i++) {
+//     color += letters[Math.floor(Math.random() * 16)];
+//   }
+//   return color;
+// };
 
 const fetchProducts = async () => {
   try {
@@ -371,7 +371,7 @@ const fetchProducts = async () => {
           link: el.link,
           skus_pk: el.skus_pk,
           description: "Descrição padrão",
-          color: getRandomColor(),
+          color: el.color,
           cardbg:
             "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
           owned,
