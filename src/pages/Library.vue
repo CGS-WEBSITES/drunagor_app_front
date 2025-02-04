@@ -187,23 +187,22 @@ const toggleWishlist = async (productId: number) => {
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
-    // Se não tem libraries_pk, faz um POST
     await axios.post(
       url + "libraries/cadastro",
       {
         users_fk: appUser.users_pk,
         skus_fk: productId,
         wish: "true",
-        owned: "false", // Garante que "owned" seja false ao adicionar à wishlist
+        owned: "false",
       },
       { headers: { Authorization: `Bearer ${token}` } }
     )
     .then((response: any) => {
       product.wish = "true";
-      product.owned = "false"; // Desativa "owned"
-      product.libraries_pk = response.data.libraries_pk; // Atualiza o libraries_pk com o valor retornado
+      product.owned = "false";
+      product.libraries_pk = response.data.libraries_pk;
       wishlist.value.push(productId);
-      owned.value = owned.value.filter((id) => id !== productId); // Remove do owned, se estiver lá
+      owned.value = owned.value.filter((id) => id !== productId);
 
       confirmationMessage.value = `Product "${product.name}" added to Wishlist!`;
       confirmationDialog.value = true;
@@ -212,27 +211,26 @@ const toggleWishlist = async (productId: number) => {
       console.error("Erro ao adicionar à wishlist:", error);
     });
   } else {
-    // Se já tem libraries_pk, faz um PUT
     await axios.put(
       url + "libraries/alter",
       {
         libraries_pk: librariesPk,
         users_fk: appUser.users_pk,
         skus_fk: productId,
-        wish: isCurrentlyWishlisted ? "false" : "true", // Inverte o estado atual
+        wish: isCurrentlyWishlisted ? "false" : "true",
         owned: isCurrentlyOwned ? "true" : "false",
       },
       { headers: { Authorization: `Bearer ${token}` } }
     )
     .then(() => {
-      product.wish = isCurrentlyWishlisted ? "false" : "true"; // Atualiza o estado local
-      product.owned = "false"; // Desativa "owned"
+      product.wish = isCurrentlyWishlisted ? "false" : "true";
+      product.owned = "false";
       if (isCurrentlyWishlisted) {
-        wishlist.value = wishlist.value.filter((id) => id !== productId); // Remove da wishlist
+        wishlist.value = wishlist.value.filter((id) => id !== productId);
       } else {
-        wishlist.value.push(productId); // Adiciona à wishlist
+        wishlist.value.push(productId);
       }
-      owned.value = owned.value.filter((id) => id !== productId); // Remove do owned, se estiver lá
+      owned.value = owned.value.filter((id) => id !== productId);
 
       confirmationMessage.value = `Product "${product.name}" ${isCurrentlyWishlisted ? "removed from" : "added to"} Wishlist!`;
       confirmationDialog.value = true;
@@ -252,7 +250,6 @@ const toggleOwned = async (productId: number) => {
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
-    // Se não tem libraries_pk, faz um POST
     await axios.post(
       url + "libraries/cadastro",
       {
@@ -265,7 +262,7 @@ const toggleOwned = async (productId: number) => {
     )
     .then((response: any) => {
       product.owned = "true";
-      product.libraries_pk = response.data.libraries_pk; // Atualiza o libraries_pk com o valor retornado
+      product.libraries_pk = response.data.libraries_pk;
       owned.value.push(productId);
 
       confirmationMessage.value = `Product "${product.name}" added to Owned!`;
@@ -275,24 +272,23 @@ const toggleOwned = async (productId: number) => {
       console.error("Erro ao adicionar ao owned:", error);
     });
   } else {
-    // Se já tem libraries_pk, faz um PUT
     await axios.put(
       url + "libraries/alter",
       {
         libraries_pk: librariesPk,
         users_fk: appUser.users_pk,
         skus_fk: productId,
-        owned: isCurrentlyOwned ? "false" : "true", // Inverte o estado atual
-        wish: isCurrentlyWishlisted ? "true" : "false", // Mantém o estado de "wish"
+        owned: isCurrentlyOwned ? "false" : "true",
+        wish: isCurrentlyWishlisted ? "true" : "false",
       },
       { headers: { Authorization: `Bearer ${token}` } }
     )
     .then(() => {
-      product.owned = isCurrentlyOwned ? "false" : "true"; // Atualiza o estado local
+      product.owned = isCurrentlyOwned ? "false" : "true";
       if (isCurrentlyOwned) {
-        owned.value = owned.value.filter((id) => id !== productId); // Remove do owned
+        owned.value = owned.value.filter((id) => id !== productId);
       } else {
-        owned.value.push(productId); // Adiciona ao owned
+        owned.value.push(productId);
       }
 
       confirmationMessage.value = `Product "${product.name}" ${isCurrentlyOwned ? "removed from" : "added to"} Owned!`;
@@ -349,10 +345,10 @@ onBeforeMount(async () => {
       },
     })
     .then((response: any) => {
-      const uniqueProducts = new Map(); // Usamos um Map para garantir que os IDs sejam únicos
+      const uniqueProducts = new Map();
 
       response.data.skus.forEach((el: any) => {
-        if (!uniqueProducts.has(el.skus_pk)) { // Verifica se o ID já foi adicionado
+        if (!uniqueProducts.has(el.skus_pk)) {
           const owned = response.data.skus.filter((p: any) => p.owned === el.owned && p.owned === true).length > 0 ? true : false;
           const wish = response.data.skus.filter((p: any) => p.wish === el.wish && p.wish === true).length > 0 ? true : false;
 
@@ -372,7 +368,7 @@ onBeforeMount(async () => {
         }
       });
 
-      products.value = Array.from(uniqueProducts.values()); // Converte o Map de volta para um array
+      products.value = Array.from(uniqueProducts.values());
       console.log("Produtos:", products.value);
     })
     .catch((error: any) => {
