@@ -7,7 +7,7 @@
       <v-col cols="12" sm="10" md="8" class="px-6">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-avatar size="210" rounded="0" class="avatar-overlay">
+            <v-avatar size="200" rounded="0" class="avatar-overlay">
               <v-img :src="user.picture_hash
                 ? assets + '/Profile/' + user.picture_hash
                 : assets + '/Profile/user.png'
@@ -28,10 +28,10 @@
       <v-card class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
         flat>
       </v-card>
-      <v-col cols="12" sm="12" md="12">
+      <v-col cols="12">
         <v-row no-gutters>
           <v-col cols="8" class="avatar-mobile">
-            <v-avatar size="140" rounded="0">
+            <v-avatar size="50" rounded="0" style="top: -38px;">
               <v-img :src="user.picture_hash
                 ? assets + '/Profile/' + user.picture_hash
                 : assets + '/Profile/user.png'
@@ -60,7 +60,7 @@
               <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
                 <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
                   <v-row no-gutters class="justify-center">
-                    <v-col cols="10">
+                    <v-col cols="12">
                       <v-card :style="{ height: isMobile ? '400px' : 'auto' }" class="mx-auto"
                         :disabled="index > 0 ? true : false" @click="router.push(item.route)">
                         <v-img style="background-color: rgb(0, 0, 0)" :src="item.img" height="500" cover :gradient="index > 0
@@ -123,7 +123,7 @@
                 <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
                   <v-row no-gutters class="justify-center">
                     <v-col cols="10" sm="10" md="12">
-                      <v-card  class="mx-auto" @click="
+                      <v-card class="mx-auto" @click="
                         router.push({
                           name: 'Campaign',
                           params: { id: item.campaignId },
@@ -153,7 +153,7 @@
               <v-row v-else no-gutters class="justify-center py-6">
                 <v-col cols="12">
                   <v-card class="mx-auto">
-                    <v-card-title>
+                    <v-card-title class="mx-auto text-center">
                       You don't have any campaign saved yet. Click on the folowing
                       button to create one
                     </v-card-title>
@@ -169,14 +169,13 @@
             MY LIBRARY
           </v-card-title>
           <v-row dense>
-            <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="6" class="pa-2 ">
+            <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="6" class="px-2 py-4">
               <!-- Card Content -->
               <div class="library-item" :style="{
                 backgroundImage: `url(${item.image})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-              }"
-              @click="$router.push({ name: 'Library' })">
+              }" @click="$router.push({ name: 'Library' })">
                 <h3 class="library-title">{{ item.name }}</h3>
               </div>
             </v-col>
@@ -230,7 +229,7 @@
         <!-- Carousel Section -->
 
 
-        <v-card-title class="text-h5"> MY CAMPAIGNS</v-card-title>
+        <!-- <v-card-title class="text-h5"> MY CAMPAIGNS</v-card-title> -->
 
         <v-row class="d-flex justify-center align-center w-100 " no-gutters>
           <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
@@ -284,7 +283,7 @@
           MY LIBRARY
         </v-card-title>
         <v-row dense>
-          <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="10" class="px-4 py-2">
+          <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" class="px-4 py-2">
             <!-- Card Content -->
             <div class="library-item2" :style="{
               backgroundImage: `url(${item.image})`,
@@ -860,7 +859,7 @@ body {
   overflow: hidden;
 }
 
-.librarytext{
+.librarytext {
   transform: translateY(-195px);
 }
 

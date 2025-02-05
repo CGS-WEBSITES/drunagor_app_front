@@ -1,37 +1,38 @@
 import { defineStore } from "pinia";
-import { ref } from 'vue';
+import { ref, watch } from "vue";
 
-interface User {
+export interface User {
   email: string | null;
   google_id: string | null;
   name: string | null;
   picture_hash: string | null;
   roles_fk: number | null;
   user_name: string | null;
-  user_pk: number | null;
+  users_pk: number | null;
   verified: boolean | null;
   zip_code: number | null;
 }
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref<User>({
-    email: null,
-    google_id: null,
-    name: null,
-    picture_hash: null,
-    roles_fk: null,
-    user_name: null,
-    user_pk: null,
-    verified: null,
-    zip_code: null,
-  });
+  const user = ref<User | null>(null);
 
-  if (localStorage.getItem("app_user")) {
-    user.value = localStorage.getItem("app_user");
+  const storedUser = localStorage.getItem("app_user");
+  if (storedUser) {
+    user.value = JSON.parse(storedUser) as User;
   }
+
+  watch(user, (newUser) => {
+    if (newUser) {
+      localStorage.setItem("app_user", JSON.stringify(newUser));
+    } else {
+      localStorage.removeItem("app_user");
+    }
+  }, { deep: true });
 
   const setUser = (newUser: User) => {
-    user.value = newUser
-  }
+    user.value = newUser;
+    localStorage.setItem("app_user", JSON.stringify(newUser));
+  };
+
   return { user, setUser };
-})
+});
