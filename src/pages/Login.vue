@@ -184,6 +184,7 @@ import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
+import type { User } from "@/store/UserStore";
 
 const userStore = useUserStore();
 
@@ -261,21 +262,21 @@ const loginUser = async () => {
 
       const dbUser = response.data.data;
 
-      const appUser: Object = {
+      const appUser: User = {
         email: dbUser.email,
         google_id: dbUser.google_id,
         name: dbUser.name,
         picture_hash: dbUser.picture_hash,
         roles_fk: dbUser.roles_fk,
         user_name: dbUser.user_name,
-        user_pk: dbUser.users_pk,
+        users_pk: dbUser.users_pk,
         verified: dbUser.verified,
         zip_code: dbUser.zipcode,
       };
 
       userStore.setUser(appUser);
 
-      localStorage.setItem("app_user", appUser);
+      localStorage.setItem("app_user", JSON.stringify(appUser));
 
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");

@@ -1,6 +1,5 @@
 <template>
   <v-container class="pa-0">
-    <!-- Título -->
     <v-row justify="center">
       <v-col cols="12" class="text-center" >
         <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
@@ -16,23 +15,20 @@
         <v-tab :value="3">Owned</v-tab>
       </v-tabs>
 
-      <!-- Conteúdo Condicional das Abas -->
       <div v-if="activeTab === 1">
-        <!-- Todos os Produtos -->
         <v-row dense>
           <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="3">
-            <!-- Product Card com Botões -->
             <div class="card-wrapper">
-              <!-- Componente do Product Card -->
               <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
 
               <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
-                @click="toggleWishlist(product.id)">
-                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
+                :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
+                {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
               </v-btn>
+
               <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small" class="movebotao2"
-                @click="toggleOwned(product.id)">
-                {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
+                :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
+                {{ product.owned ? "- Owned" : "+ Owned" }}
               </v-btn>
             </div>
           </v-col>
@@ -40,36 +36,48 @@
       </div>
 
       <div v-if="activeTab === 2">
-        <!-- Wishlist -->
         <v-row dense>
           <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
               <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
-              <v-btn size="small" prepend-icon="mdi-list-box-outline" variant="outlined" class="movebotao3"
-                @click="toggleWishlist(product.id)">
+              <!-- <v-btn size="small" prepend-icon="mdi-list-box-outline" variant="outlined" class="movebotao3"
+                :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
                 {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
-              </v-btn>
+              </v-btn> -->
             </v-card>
           </v-col>
         </v-row>
       </div>
 
       <div v-if="activeTab === 3">
-        <!-- Owned -->
         <v-row dense>
           <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
               <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
-              <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
-                @click="toggleOwned(product.id)">
-                {{ isOwned(product.id) ? "- to Owned" : "+ to Owned" }}
-              </v-btn>
+              <!-- <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
+                :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
+                {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
+              </v-btn> -->
             </v-card>
           </v-col>
         </v-row>
       </div>
     </v-card>
   </v-container>
+
+  <v-dialog v-model="confirmationDialog" max-width="1000">
+    <v-card>
+      <v-card-title class="font-weight-bold text-h4">
+        {{ confirmationMessage }}
+      </v-card-title>
+      <v-card-actions>
+        <v-btn color="green" text="true" @click="confirmationDialog = false">
+          OK
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
 
   <v-dialog v-model="dialog" max-width="440">
     <v-card class="custom-background">
@@ -139,7 +147,6 @@ const setDialog = (name: string, description: string, image: string) => {
   boximage.value = image;
 };
 
-
 interface Product {
   id: number;
   name: string;
@@ -150,6 +157,7 @@ interface Product {
   cardbg: string;
   owned: "true" | "false" | null;
   wish: "true" | "false" | null;
+  libraries_pk: number | null;
 }
 
 const products = ref<Product[]>([]);
@@ -167,55 +175,67 @@ const wishlist = ref<number[]>([]);
 const owned = ref<number[]>([]);
 
 const token = localStorage.getItem("accessToken");
+const storedUser = localStorage.getItem("app_user");
+const appUser = storedUser ? JSON.parse(storedUser) : null;
 
 const toggleWishlist = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyWishlisted = wishlist.value.includes(productId);
-  const isCurrentlyOwned = owned.value.includes(productId);
+  const isCurrentlyWishlisted = product.wish === "true"; 
+  const isCurrentlyOwned = product.owned === "true";
+  const librariesPk = product.libraries_pk;
 
-  if (!product.wish && !isCurrentlyWishlisted) {
-    await axios
-      .post(url + "libraries/cadastro", 
-        {
-          users_fk: 1,
-          skus_fk: productId,
-          wish: "true",
-          owned: isCurrentlyOwned ? "true" : "false", 
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
+  if (!librariesPk) {
+    await axios.post(
+      url + "libraries/cadastro",
+      {
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        wish: "true",
+        owned: "false",
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+      .then((response: any) => {
+        product.wish = "true";
+        product.owned = "false";
+        product.libraries_pk = response.data.libraries_pk;
         wishlist.value.push(productId);
-        owned.value = owned.value.filter((id) => id !== productId); 
+
+        confirmationMessage.value = `Product "${product.name}" added to Wishlist!`;
+        confirmationDialog.value = true;
       })
       .catch((error: any) => {
         console.error("Erro ao adicionar à wishlist:", error);
       });
-  } else if (product.wish) {
-    await axios
-      .put(url + "libraries/alter", 
-        {
-          libraries_pk: product.libraries_pk,
-          users_fk: 1,
-          skus_fk: productId,
-          wish: "false",
-          owned: isCurrentlyOwned ? "true" : "false",
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+  } else {
+    await axios.put(
+      url + "libraries/alter",
+      {
+        libraries_pk: librariesPk,
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        wish: isCurrentlyWishlisted ? "false" : "true", 
+        owned: isCurrentlyOwned ? "true" : "false",
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
       .then(() => {
-        wishlist.value = wishlist.value.filter((id) => id !== productId);
+        product.wish = isCurrentlyWishlisted ? "false" : "true";
+        product.owned = isCurrentlyOwned ? "true" : "false";
+
+        if (isCurrentlyWishlisted) {
+          wishlist.value = wishlist.value.filter((id) => id !== productId);
+        } else {
+          wishlist.value.push(productId);
+        }
+
+        confirmationMessage.value = `Product "${product.name}" ${isCurrentlyWishlisted ? "removed from" : "added to"} Wishlist!`;
+        confirmationDialog.value = true;
       })
       .catch((error: any) => {
-        console.error("Erro ao remover da wishlist:", error);
+        console.error("Erro ao atualizar a wishlist:", error);
       });
   }
 };
@@ -224,115 +244,144 @@ const toggleOwned = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyOwned = owned.value.includes(productId);
-  const isCurrentlyWishlisted = wishlist.value.includes(productId);
+  const isCurrentlyOwned = product.owned === "true";
+  const isCurrentlyWishlisted = product.wish === "true"; 
+  const librariesPk = product.libraries_pk;
 
-  if (!product.owned && !isCurrentlyOwned) {
-    await axios
-      .post(url + "libraries/cadastro", 
-        {
-          users_fk: 1,
-          skus_fk: productId,
-          owned: "true",
-          wish: isCurrentlyWishlisted ? "true" : "false",
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
+  if (!librariesPk) {
+    console.log('isCurrentlyOwned:', isCurrentlyOwned)
+    await axios.post(
+      url + "libraries/cadastro",
+      {
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        owned: "true",
+        wish: "false",
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+      .then((response: any) => {
+        product.owned = "true";
+        product.libraries_pk = response.data.libraries_pk;
         owned.value.push(productId);
-        wishlist.value = wishlist.value.filter((id) => id !== productId); // Remove da wishlist caso esteja
+
+        confirmationMessage.value = `Product "${product.name}" added to Owned!`;
+        confirmationDialog.value = true;
       })
       .catch((error: any) => {
         console.error("Erro ao adicionar ao owned:", error);
       });
-  } else if (product.owned) {
-    await axios
-      .put(url + "libraries/alter", 
-        {
-          libraries_pk: product.libraries_pk,
-          users_fk: 1,
-          skus_fk: productId,
-          owned: "false",
-          wish: isCurrentlyWishlisted ? "true" : "false",
-        },
-        {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+  } else {
+    await axios.put(
+      url + "libraries/alter",
+      {
+        libraries_pk: librariesPk,
+        users_fk: appUser.users_pk,
+        skus_fk: productId,
+        owned: isCurrentlyOwned ? "false" : "true", 
+        wish: isCurrentlyWishlisted ? "true" : "false",
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
       .then(() => {
-        owned.value = owned.value.filter((id) => id !== productId);
+        product.owned = isCurrentlyOwned ? "false" : "true";
+        product.wish = "false";
+
+        if (isCurrentlyOwned) {
+          owned.value = owned.value.filter((id) => id !== productId);
+        } else {
+          owned.value.push(productId);
+        }
+
+        confirmationMessage.value = `Product "${product.name}" ${isCurrentlyOwned ? "removed from" : "added to"} Owned!`;
+        confirmationDialog.value = true;
       })
       .catch((error: any) => {
-        console.error("Erro ao remover do owned:", error);
+        console.error("Erro ao atualizar o owned:", error);
       });
   }
 };
 
-const isInWishlist = (productId: number) => {
-  return wishlist.value.includes(productId);
-};
+// const isInWishlist = (productId: number) => {
+//   return wishlistItems.value.some((product) => product.id === productId);
+// };
 
-const isOwned = (productId: number) => {
-  return owned.value.includes(productId);
-};
+// const isOwned = (productId: number) => {
+//   return ownedItems.value.some((product) => product.id === productId);
+// };
 
-const wishlistItems = computed(() =>
-  products.value.filter((product: { id: any; }) => wishlist.value.includes(product.id))
-);
-const ownedItems = computed(() =>
-  products.value.filter((product: { id: any; }) => owned.value.includes(product.id))
-);
+const wishlistItems = computed(() => {
+  const itemsWithWishTrue = products.value.filter((product) => product.wish === true);
+
+  console.log("wishlistItems:", itemsWithWishTrue);
+  return itemsWithWishTrue;
+});
+
+const ownedItems = computed(() => {
+  const itemsWithOwnedTrue = products.value.filter((product) => product.owned === true);
+
+  return itemsWithOwnedTrue;
+});
 
 const axios: any = inject("axios");
 const url: string = inject("apiUrl") || "";
 
-const getRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
-
-onBeforeMount(async () => {
-  await axios
-    .get(url + "skus/search", {
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get(url + "skus/search", {
       params: {
-        users_fk: 1,
+        users_fk: appUser.users_pk,
         limit: 30,
       },
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    })
-    .then((response: any) => {
-      console.log("API Response:", response.data.skus);
-      products.value = response.data.skus.map((el: any) => ({
-        id: el.skus_pk,
-        name: el.name,
-        image: el.picture_hash,
-        link: el.link,
-        description: "Descrição padrão",
-        // color: "#136D6D",
-        color: getRandomColor(),
-        cardbg: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
-      }));
-      console.log("API Response:", products.value);
-
-      // const targetProducts = products.value; 
-      // console.log("Produtos Diretos:", targetProducts);
-    })
-    .catch((error: any) => {
-      console.log("Erro na API:", error);
     });
+
+    const uniqueProducts = new Map();
+    response.data.skus.forEach((el: any) => {
+      if (!uniqueProducts.has(el.skus_pk)) {
+        const owned =
+          response.data.skus.filter(
+            (p: any) => p.owned === el.owned && p.owned === true
+          ).length > 0;
+        const wish =
+          response.data.skus.filter(
+            (p: any) => p.wish === el.wish && p.wish === true
+          ).length > 0;
+
+        uniqueProducts.set(el.skus_pk, {
+          id: el.skus_pk,
+          name: el.name,
+          image: el.picture_hash,
+          link: el.link,
+          skus_pk: el.skus_pk,
+          description: "Descrição padrão",
+          color: el.color,
+          cardbg:
+            "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Library/bg-corebox.png",
+          owned,
+          wish,
+          libraries_pk: el.libraries_pk,
+        });
+      }
+    });
+
+    products.value = Array.from(uniqueProducts.values());
+    console.log("Produtos:", products.value);
+  } catch (error) {
+    console.log("Erro na API:", error);
+  }
+};
+
+onBeforeMount(fetchProducts);
+
+watch(confirmationDialog, (newVal) => {
+  if (newVal) {
+    fetchProducts();
+  }
 });
 </script>
-
 
 <style>
 .cinzel-text {
