@@ -14,24 +14,20 @@ export interface User {
 }
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref<User | null>(null);
-
-  const storedUser = localStorage.getItem("app_user");
-  if (storedUser) {
-    user.value = JSON.parse(storedUser) as User;
-  }
-
-  watch(user, (newUser) => {
-    if (newUser) {
-      localStorage.setItem("app_user", JSON.stringify(newUser));
-    } else {
-      localStorage.removeItem("app_user");
-    }
-  }, { deep: true });
+  const user = ref<User>({
+    email: null,
+    google_id: null,
+    name: null,
+    picture_hash: null,
+    roles_fk: null,
+    user_name: null,
+    users_pk: null,
+    verified: null,
+    zip_code: null,
+  });
 
   const setUser = (newUser: User) => {
     user.value = newUser;
-    localStorage.setItem("app_user", JSON.stringify(newUser));
   };
 
   return { user, setUser };

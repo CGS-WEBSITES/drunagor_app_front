@@ -146,6 +146,7 @@ const setDialog = (name: string, description: string, image: string) => {
   Description.value = description;
   boximage.value = image;
 };
+const confirmationDialog = ref(false)
 
 interface Product {
   id: number;

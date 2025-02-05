@@ -70,7 +70,11 @@
         <!-- Botão de Navegação alinhado à direita -->
 
         <v-btn
-          v-if="route.name === 'Home' || route.name === 'Login' || route.name === 'Gama'"
+          v-if="
+            route.name === 'Home' ||
+            route.name === 'Login' ||
+            route.name === 'Gama'
+          "
           color="#B8860B"
           large
           @click="$router.push({ name: 'Login' })"
@@ -155,7 +159,7 @@
 
 
 <script setup lang="ts">
-import { ref, inject, computed } from "vue";
+import { ref, inject, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
@@ -234,6 +238,17 @@ const contentStyle = computed(() => {
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat-y",
       };
+});
+
+onMounted(() => {
+  const loggedUser = localStorage.getItem("app_user");
+  const userObject = loggedUser ? JSON.parse(loggedUser) : null;
+
+  console.log(userObject)
+
+  if (userObject) {
+    useUserStore().setUser(userObject);
+  }
 });
 </script>
 
