@@ -77,6 +77,7 @@ declare module 'vue' {
     RandomizerQuickSelect: typeof import('./components/RandomizerQuickSelect.vue')['default']
     RandomizerView: typeof import('./components/RandomizerView.vue')['default']
     RetailDash: typeof import('./components/RetailDash.vue')['default']
+    RetailEvents: typeof import('./components/RetailEvents.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SequentialAdventureButton: typeof import('./components/SequentialAdventureButton.vue')['default']
@@ -95,5 +96,7 @@ declare module 'vue' {
     SwappableImage: typeof import('./components/SwappableImage.vue')['default']
     TermsCard: typeof import('./components/TermsCard.vue')['default']
     UserDash: typeof import('./components/UserDash.vue')['default']
+    Userevents: typeof import('./components/UserEvents.vue')['default']
+    UserEvents: typeof import('./components/UserEvents.vue')['default']
   }
 }
