@@ -2,14 +2,14 @@
   <v-container class="pa-0">
     <!-- Título -->
     <v-row justify="center">
-      <v-col cols="12" class="text-center">
+      <v-col cols="12" class="text-center" >
         <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
           LIBRARY
         </h1>
       </v-col>
     </v-row>
 
-    <v-card class="pa-2">
+    <v-card min-height="260px" class="pa-2">
       <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
         <v-tab :value="1">All Products</v-tab>
         <v-tab :value="2">Wishlist</v-tab>
@@ -139,7 +139,6 @@ const setDialog = (name: string, description: string, image: string) => {
   boximage.value = image;
 };
 
-const dialog = ref(true);
 
 interface Product {
   id: number;
