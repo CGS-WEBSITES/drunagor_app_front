@@ -76,6 +76,7 @@ declare module 'vue' {
     ProfilePicDialog: typeof import('./components/ProfilePicDialog.vue')['default']
     RandomizerQuickSelect: typeof import('./components/RandomizerQuickSelect.vue')['default']
     RandomizerView: typeof import('./components/RandomizerView.vue')['default']
+    RetailDash: typeof import('./components/RetailDash.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SequentialAdventureButton: typeof import('./components/SequentialAdventureButton.vue')['default']
@@ -93,5 +94,6 @@ declare module 'vue' {
     StoryRecordUnfolding: typeof import('./components/StoryRecordUnfolding.vue')['default']
     SwappableImage: typeof import('./components/SwappableImage.vue')['default']
     TermsCard: typeof import('./components/TermsCard.vue')['default']
+    UserDash: typeof import('./components/UserDash.vue')['default']
   }
 }
