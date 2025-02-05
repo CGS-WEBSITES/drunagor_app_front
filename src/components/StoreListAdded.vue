@@ -43,10 +43,12 @@
                   </v-col>
 
                   <!-- Informações -->
-                  <v-col cols="7">
+                  <v-col cols="6">
                     <p class="font-weight-bold text-truncate">{{ item.name }}</p>
                     <p class="text-body-2 grey--text">{{ item.details }}</p>
                   </v-col>
+                  <v-btn v-if="item.friend === false" class="ma-2 mt-6" color="green"> ACCEPT </v-btn>
+                  <v-btn v-if="item.friend === false" class="ma-2 mt-6" color="red"> DECLINE </v-btn>
 
                   <!-- Pontuação -->
                   <!-- <v-col cols="1" class="d-flex align-self-end justify-center">
@@ -82,12 +84,14 @@ const friends = ref([
     name: 'Robiinho7flecha1killWOOD',
     details: '99845651pts',
     points: '946338°',
+    friend: true
   },
   {
     image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
     name: 'Lojinha de Bugigangas do inspetor Bugiganga',
     details: 'Rancho Santa Margarita, CA 92688-0001',
     points: '946338°',
+    friend: true,
   },
 ]);
 
@@ -97,12 +101,14 @@ const requests = ref([
     name: 'Request User 1',
     details: 'Pending Approval',
     points: '--',
+    friend: false,
   },
   {
     image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
     name: 'Request User 2',
     details: 'Pending Approval',
     points: '--',
+   friend: false,    
   },
 ]);
 
