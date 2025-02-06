@@ -15,7 +15,7 @@
   </v-container>
 
   <v-container max-width="800" style="min-width: 360px;" class="d-none d-md-flex">
-    <v-card rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center ">
+    <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center ">
       <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
         <!-- Grupo 1: Profile e Edit -->
         <template v-for="(button,) in buttons" :key="button.value">

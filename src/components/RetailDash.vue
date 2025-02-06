@@ -27,7 +27,7 @@
 
     <!-- MOBILE -->
     <v-row class="d-md-none justify-center align-center ml-0">
-      <v-card class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
+      <v-card color="primary" class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
         flat>
       </v-card>
       <v-col cols="12">
@@ -53,7 +53,7 @@
     <!-- Navigation Drawer -->
     <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="12" md="8" class="px-6">
-        <v-card class="move_topo pt-12">
+        <v-card color="hprimary" class="move_topo pt-12">
 
           <!-- Navigation Boxes Section -->
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
@@ -92,11 +92,11 @@
               <v-row v-else align="center" justify="center">
                 <v-col cols="12" md="4" lg="3" v-for="(item, index) in carouselItems" :key="index">
                   <v-hover v-slot="{ isHovering, props }">
-                    <v-card :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
+                    <v-card color="primary" :class="{ 'on-hover': isHovering }" :elevation="isHovering ? 12 : 2" v-bind="props"
                       :disabled="index > 3 ? true : false" @click="router.push(item.route)">
                       <v-img :src="item.img" height with cover :gradient="index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                         " />
-                      <v-card-actions>
+                      <v-card-actions colo>
                         <v-row class="d-flex justify-center">
                           <v-btn class="text-center">{{ item.label }}</v-btn>
                         </v-row>
