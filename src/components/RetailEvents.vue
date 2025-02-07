@@ -13,12 +13,14 @@
 
     <v-row no-gutters>
       <v-col cols="12">
-        <v-tabs class="EventsTabs" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
-          <v-tab class="text-h5" value="events">EVENTS</v-tab>
-          <v-tab class="text-h5" value="retailer">RETAILER</v-tab>
+        <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tab class="text-h5" :value="1">EVENTS</v-tab>
+          <v-tab class="text-h5" :value="2">RETAILER</v-tab>
         </v-tabs>
       </v-col>
     </v-row>
+
+    <div v-if="activeTab === 1">
 
     <v-row class="black-bar SortBy align-center bg-black text-white">
       <v-col cols="2">
@@ -51,21 +53,21 @@
       >
         <v-card color="white" class="pt-0 event-card" @click="openDialog(event)">
           <v-row no-gutters>
-            <v-col cols="2" lg="2">
+            <v-col cols="4" sm="2">
               <v-img :src="event.image" class="mt-3 event-img"></v-img>
             </v-col>
-            <v-col cols="8" class="pa-2">
-              <h3 class="text-subtitle-1 font-weight-bold">{{ event.name }}</h3>
-              <p class="text-caption text-truncate">{{ event.location }}</p>
+            <v-col cols="8" sm="10" class="pt-2">
+              <h3 class="">{{ event.name }}</h3>
+              <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.location }}</p>
               <p class="text-caption">
-                Rewards:
-                <v-icon v-for="n in 4" :key="n" size="18">mdi-star</v-icon>
+                Rewards: 
+                <v-row class="d-flex align-center rewards-container">
+  <v-col cols="auto" v-for="(reward, index) in selectedEvent?.rewards" :key="index">
+    <v-img :src="reward.image" height="30" width="30" contain class="reward-icon"></v-img>
+  </v-col>
+</v-row>
+              <p class=" text-right text-caption">{{ event.date }}</p>
               </p>
-            </v-col>
-            <v-col cols="2" class="text-right pa-0">
-              <v-icon color="red">mdi-map-marker</v-icon>
-              <p class="text-caption">{{ event.date }}</p>
-              <p class="text-caption">{{ event.hour }}</p>
             </v-col>
           </v-row>
         </v-card>
@@ -130,9 +132,10 @@
       </v-card>
     </v-dialog>
 
-
+</div>
 </v-card>
 </v-col>
+
 
 
 </template>
@@ -177,13 +180,25 @@ const events = ref([
         name: "Reward Name Cabe um nome bem grande",
         description:
           "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
+        image: "https://steamuserimages-a.akamaihd.net/ugc/1763694096136517940/126852B0FED44742F8367FC72257FB064962E0A6/",
       },
       {
         name: "Drunagor APP Badges",
         description:
           "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image: "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+        image: "https://steamuserimages-a.akamaihd.net/ugc/1763694096136680820/A3D78B1ECB99BA3E58767CFDA3A2D5F12B3428CA/",
+      },
+      {
+        name: "Reward Name Cabe um nome bem grande",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image: "https://steamuserimages-a.akamaihd.net/ugc/1763694096136517940/126852B0FED44742F8367FC72257FB064962E0A6/",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image: "https://steamuserimages-a.akamaihd.net/ugc/1763694096136680820/A3D78B1ECB99BA3E58767CFDA3A2D5F12B3428CA/",
       },
     ],
   },
@@ -318,13 +333,17 @@ const sortedEvents = computed(() => {
 
 .EventsTabs{
     background: #424242;
+    transform: translateY(-8px);
+    position: relative;
+    
+
 
 }
 
 .SortBy{
-    background: #424242;
+    background: 292929;
     position: relative;
-    transform: translateY(-12px) translateX(12px);
+    transform: translateY(-7px) translateX(12px);
 
 }
 .event-card {
@@ -336,6 +355,10 @@ const sortedEvents = computed(() => {
 }
 .event-dialog-img {
   border-radius: 8px;
+}
+
+.rewards-container {
+  gap: -40px;
 }
 
 
