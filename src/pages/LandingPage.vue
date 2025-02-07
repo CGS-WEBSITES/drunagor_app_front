@@ -16,7 +16,7 @@
         <v-img :width="logoWidth" src="@/assets/core.webp"></v-img>
       </div>
       <div class="mt-2">
-        <v-btn color="#B8860B" large @click="$router.push({ name: 'Login' })"
+        <v-btn color="primary" large @click="$router.push({ name: 'Login' })"
           >Sign up</v-btn
         >
       </div>
