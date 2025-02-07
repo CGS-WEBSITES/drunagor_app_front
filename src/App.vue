@@ -173,7 +173,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("dark");
+const theme = ref("ApocTheme");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
@@ -214,7 +214,7 @@ const menuItems = ref([
     title: "Events",
     icon: "mdi-calendar",
     to: { name: "Events" },
-    disabled: true,
+    disabled: false,
   },
 
   {
