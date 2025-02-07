@@ -22,7 +22,7 @@
 
     <div v-if="activeTab === 1">
 
-    <v-row class="black-bar SortBy align-center bg-black text-white">
+    <v-row class="black-bar SortBy align-center text-white">
       <v-col cols="2">
          Sort by:
       </v-col>
@@ -45,7 +45,7 @@
 
     <v-row>
       <v-col
-        class="py-3 px-0"
+        class="py-2 pl-1 pr-1"
         cols="12"
         md="6"
         v-for="(event, index) in sortedEvents"
@@ -75,17 +75,19 @@
     </v-row>
 
     <!-- v-dialog (Janela Modal) -->
-    <v-dialog v-model="dialog" max-width="500">
+    <v-dialog v-model="dialog" max-width="600">
       <v-card color="surface">
         <v-card-actions class="d-flex justify-left">
           <v-btn color="red" @click="dialog = false">X</v-btn>
         </v-card-actions>
-        <v-card-title class="tfont-weight-bold">
+        <v-card-title class="ml-2 font-weight-bold">
           {{ selectedEvent?.name }}
         </v-card-title>
 
         <v-card-text >
             <p><strong>Description:</strong> {{ selectedEvent?.eventdesc }}</p>
+            <br>
+            <p> Disponible Seats: {{ selectedEvent?.eventseats }} </p>
             <br>
             <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }}</p>
         </v-card-text>
@@ -126,13 +128,101 @@
 
 
 
-        <v-card-actions class="d-flex justify-space-between">
-          <v-btn color="green"  @click="joinEvent">Count me int</v-btn>
-        </v-card-actions>
+        <v-row class="mt-2 ml-0">
+  <v-col cols="6" class="pa-0">
+    <v-btn block color="#907041" class="rounded-0" @click="joinEvent">Maybe I’ll Go</v-btn>
+  </v-col>
+  <v-col cols="6" class="pa-0">
+    <v-btn block color="#539041" class="rounded-0" @click="joinEvent">Count me in</v-btn>
+  </v-col>
+</v-row> 
+
       </v-card>
     </v-dialog>
 
 </div>
+
+<div v-if="activeTab === 2">
+
+
+    <v-row class="CreateNew align-center bg-gray text-white">
+      <v-col cols="2">
+         
+      </v-col>
+      <v-col cols="3">
+        <v-btn variant="text" class="sort-btn"  @click="openCreateEventDialog">
+            <v-icon>mdi-plus-box-outline</v-icon>          
+            Create New
+        </v-btn>
+      </v-col>
+      <v-col cols="4">
+        <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'location' }" @click="">
+          PAST
+        </v-btn>
+      </v-col>
+      <v-col cols="3">
+        <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'store' }" @click="">
+          LIVE
+        </v-btn>
+      </v-col>
+    </v-row>
+
+
+    <v-dialog v-model="createEventDialog" max-width="500">
+      <v-card>
+        <v-card-title class="text-h5 font-weight-bold">Create New Event</v-card-title>
+
+        <v-card-text>
+          <v-text-field v-model="newEvent.name" label="Event Name" outlined></v-text-field>
+          <v-text-field v-model="newEvent.date" label="Event Date" type="date" outlined></v-text-field>
+          <v-text-field v-model="newEvent.location" label="Event Location" outlined></v-text-field>
+        </v-card-text>
+
+        <v-card-actions class="d-flex justify-space-between">
+          <v-btn color="red" @click="createEventDialog = false">Cancel</v-btn>
+          <v-btn color="green" @click="createEvent">Create</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+
+
+
+
+
+    <v-row  class="SortBy align-center  text-white">
+      <v-col cols="2">
+         Sort by:
+      </v-col>
+      <v-col cols="3">
+        <v-btn variant="text">
+            Sort by:
+        </v-btn>
+      </v-col>
+      <v-col cols="4">
+        <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'date' }" @click="sortBy = 'date'">
+          DATE
+        </v-btn>
+      </v-col>
+      <v-col cols="3">
+        <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'store' }" @click="sortBy = 'store'">
+          STORE
+        </v-btn>
+      </v-col>
+    </v-row>
+
+
+
+
+
+
+</div>
+
+
+
+
+
+
 </v-card>
 </v-col>
 
@@ -166,13 +256,14 @@ const sortBy = ref("date");
 // Sample Events Data
 const events = ref([
 {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP",
+    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP 1 ",
     location: "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
     date: "12/29/24",
     hour: "12:00",
     image:"https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
     eventdesc:"Evento maneiro pra mostrar o druna app p tropa,Evento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app para tropaEvento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app p trop.",
     shopdesc:"É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
+    eventseats:"4",
     shopname:"Brunão Boladão Store",
     shopimage:"https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
     rewards: [
@@ -203,16 +294,32 @@ const events = ref([
     ],
   },
   {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP",
+    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP 2 ",
     location: "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
     date: "12/29/24",
     hour: "12:00",
     image:"https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
+    eventdesc:"Evento maneiro pra mostrar o druna app p tropa,Evento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app para tropaEvento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app p trop.",
     shopdesc:"É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
-    shopname:"Brunão Boladão Store"
+    shopname:"Brunão Boladão Store",
+    shopimage:"https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+    rewards: [
+      {
+        name: "Reward Name Cabe um nome bem grande",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image: "https://steamuserimages-a.akamaihd.net/ugc/1763694096136517940/126852B0FED44742F8367FC72257FB064962E0A6/",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image: "https://steamuserimages-a.akamaihd.net/ugc/1763694096136680820/A3D78B1ECB99BA3E58767CFDA3A2D5F12B3428CA/",
+      },
+    ],
   },
   {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP",
+    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP 3 ",
     location: "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
     date: "12/29/24",
     hour: "12:00",
@@ -274,6 +381,35 @@ const sortedEvents = computed(() => {
   }
   return events.value;
 });
+
+
+// Estado para controlar a visibilidade do diálogo
+const createEventDialog = ref(false);
+
+// Modelo para armazenar os dados do novo evento
+const newEvent = ref({
+  name: "",
+  date: "",
+  location: "",
+});
+
+// Função para abrir o diálogo
+const openCreateEventDialog = () => {
+  createEventDialog.value = true;
+};
+
+// Função para criar um novo evento (simulação)
+const createEvent = () => {
+  console.log("New Event Created:", newEvent.value);
+  alert(`Event "${newEvent.value.name}" created successfully!`);
+  createEventDialog.value = false;
+};
+
+
+
+
+
+
 </script>
 
 <style scoped>
@@ -340,10 +476,17 @@ const sortedEvents = computed(() => {
 
 }
 
-.SortBy{
-    background: 292929;
+.CreateNew{
     position: relative;
-    transform: translateY(-7px) translateX(12px);
+    transform: translateY(-8px) translateX(12px);
+    background-color: #484848;
+
+}
+
+.SortBy{
+    position: relative;
+    transform: translateY(-8px) translateX(12px);
+    background-color: #292929;
 
 }
 .event-card {
