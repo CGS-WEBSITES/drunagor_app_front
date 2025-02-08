@@ -29,9 +29,6 @@
         <v-card-title :class="isMobile ? 'text-h6' : 'text-h5'" class="element3 font-weight-bold">
           {{ product.name || "No Product Selected" }}
         </v-card-title>
-
-
-
       </v-col>
     </v-row>
   </v-card>
