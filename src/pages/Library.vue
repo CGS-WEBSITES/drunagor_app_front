@@ -17,7 +17,7 @@
 
       <div v-if="activeTab === 1">
         <v-row dense>
-          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="3">
+          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4">
             <div class="card-wrapper">
               <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
 
@@ -409,13 +409,13 @@ watch(confirmationDialog, (newVal) => {
 
 .movebotao {
   position: absolute;
-  margin-left: 162px;
+  margin-left: 450px;
   margin-top: -38px;
 }
 
 .movebotao2 {
   position: absolute;
-  margin-left: 162px;
+  margin-left: 450px;
   margin-top: -72px;
 }
 
