@@ -19,7 +19,7 @@
         <v-row dense>
           <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4">
             <div class="card-wrapper">
-              <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
+              <ProductCard :product="product" @click="() => goToLink(product.link)" />
 
               <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
                 :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
@@ -39,7 +39,7 @@
         <v-row dense>
           <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
-              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
+              <ProductCard :product="product" @click="() => goToLink(product.link)" />
               <!-- <v-btn size="small" prepend-icon="mdi-list-box-outline" variant="outlined" class="movebotao3"
                 :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
                 {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
@@ -53,7 +53,7 @@
         <v-row dense>
           <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
-              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
+              <ProductCard :product="product" @click="() => goToLink(product.link)" />
               <!-- <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
                 :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
                 {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
@@ -169,7 +169,7 @@ const products = ref<Product[]>([]);
 
 const goToLink = (link: string) => {
   if (link) {
-    window.location.href = link;
+    window.open(link, "_blank");
   } else {
     console.warn("Nenhum link encontrado para redirecionar.");
   }
