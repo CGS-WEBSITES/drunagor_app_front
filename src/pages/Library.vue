@@ -22,12 +22,12 @@
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
 
               <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
-                :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
+                :style="{ backgroundColor: product.wish === true ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
                 {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
               </v-btn>
 
               <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small" class="movebotao2"
-                :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
+                :style="{ backgroundColor: product.owned === true ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
                 {{ product.owned ? "- Owned" : "+ Owned" }}
               </v-btn>
             </div>
@@ -311,7 +311,6 @@ const toggleFromWishlist = async (productId: number) => {
     const product = products.value.find((p) => p.id === productId);
     if (!product) return;
 
-    // Desmarca o produto da wishlist
     await axios.put(
         url + "libraries/alter",
         {
@@ -326,7 +325,7 @@ const toggleFromWishlist = async (productId: number) => {
     .then(() => {
         product.wish = "false";
         product.owned = "false";
-        wishlist.value = wishlist.value.filter(id => id !== productId); // Remove do wishlist
+        wishlist.value = wishlist.value.filter(id => id !== productId);
         confirmationMessage.value = `Product "${product.name}" removed from Wishlist!`;
         confirmationDialog.value = true;
     })
@@ -339,7 +338,6 @@ const toggleFromOwned = async (productId: number) => {
     const product = products.value.find((p) => p.id === productId);
     if (!product) return;
 
-    // Desmarca o produto da lista de possuídos
     await axios.put(
         url + "libraries/alter",
         {
@@ -353,8 +351,8 @@ const toggleFromOwned = async (productId: number) => {
     )
     .then(() => {
         product.owned = "false";
-        product.wish = "false"; // Também remove da wishlist
-        owned.value = owned.value.filter(id => id !== productId); // Remove do owned
+        product.wish = "false";
+        owned.value = owned.value.filter(id => id !== productId);
         confirmationMessage.value = `Product "${product.name}" removed from Owned!`;
         confirmationDialog.value = true;
     })
@@ -439,7 +437,7 @@ onBeforeMount(fetchProducts);
 watch(confirmationDialog, async (newVal) => {
   if (newVal) {
     await nextTick();
-    fetchProducts(); 
+    await fetchProducts();
   }
 });
 </script>
