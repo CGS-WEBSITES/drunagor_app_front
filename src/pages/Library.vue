@@ -54,7 +54,7 @@
           <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
-              <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
+              <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao4"
                 @click="toggleFromOwned(product.id)">
                 - Owned
               </v-btn>
@@ -374,7 +374,6 @@ const toggleFromOwned = async (productId: number) => {
 const wishlistItems = computed(() => {
   const itemsWithWishTrue = products.value.filter((product) => product.wish === true);
 
-  console.log("wishlistItems:", itemsWithWishTrue);
   return itemsWithWishTrue;
 });
 
@@ -466,19 +465,25 @@ watch(confirmationDialog, async (newVal) => {
 
 .movebotao {
   position: absolute;
-  margin-left: 450px;
+  margin-left: 255px;
   margin-top: -38px;
 }
 
 .movebotao2 {
   position: absolute;
-  margin-left: 450px;
+  margin-left: 265px;
   margin-top: -72px;
 }
 
 .movebotao3 {
   position: absolute;
-  margin-left: 450px;
+  margin-left: 255px;
+  margin-top: -38px;
+}
+
+.movebotao4 {
+  position: absolute;
+  margin-left: 265px;
   margin-top: -38px;
 }
 
