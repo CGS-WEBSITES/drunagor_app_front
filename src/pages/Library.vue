@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount, inject } from "vue";
+import { ref, computed, onBeforeMount, inject, nextTick } from "vue";
 import Filters from "@/components/Library/Filters.vue";
 import ProductCard from "@/components/ProductCard.vue";
 import { useUserStore } from "@/store/UserStore";
@@ -437,9 +437,10 @@ const fetchProducts = async () => {
 
 onBeforeMount(fetchProducts);
 
-watch(confirmationDialog, (newVal) => {
+watch(confirmationDialog, async (newVal) => {
   if (newVal) {
-    fetchProducts();
+    await nextTick();
+    fetchProducts(); 
   }
 });
 </script>
