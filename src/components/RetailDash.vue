@@ -117,71 +117,24 @@
             </v-col>
           </v-row>
 
-<!--
-          <v-row class="mt-4 d-flex justify-center align-center  py-6" no-gutters>
-            <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
-              <v-carousel hide-delimiters v-if="campaignList.length > 0" :height="isMobile ? '400px' : 'auto'">
-                <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
-                  <v-row no-gutters class="justify-center">
-                    <v-col cols="10" sm="10" md="12">
-                      <v-card class="mx-auto" @click="
-                        router.push({
-                          name: 'Campaign',
-                          params: { id: item.campaignId },
-                        })
-                        ">
-                        <v-img :src="assets + '/Dashboard/img-campaigncore(1).png'" height with cover />
-                        <v-card-title>
-                          {{ item.campaign }}
-                        </v-card-title>
-                        <v-card-subtitle v-if="item.name">
-                          {{ item.name }}
-                        </v-card-subtitle>
-                        <v-card-text>
-                          <v-row no-gutters>
-                            <v-col cols="4" sm="2" md="2" lg="2" xl="1" class="d-flex"
-                              v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
-                              <v-avatar :image="hero.images.avatar" size="40" />
-                            </v-col>
-                          </v-row>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </v-carousel-item>
-              </v-carousel>
+          <v-row  no-gutters class="justify-center py-6">
+                  <v-col cols="12">
+                    <v-card class="mx-auto">
+                      <v-card-title class="mx-auto text-center">
+                        You don't have any events created yet. Click on the following
+                        to create an event
+                      </v-card-title>
+                      <v-card-actions class="d-flex justify-center">
+                        <v-btn @click="router.push({ name: 'Events' })">create Event</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-col>
+                </v-row>
+             
+            
+  
 
-              <v-row v-else no-gutters class="justify-center py-6">
-                <v-col cols="12">
-                  <v-card class="mx-auto">
-                    <v-card-title class="mx-auto text-center">
-                      You don't have any campaign saved yet. Click on the folowing
-                      button to create one
-                    </v-card-title>
-                    <v-card-actions class="d-flex justify-center">
-                      <v-btn @click="router.push({ name: 'Campaign Overview' })">create campaign</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
 
-                    <v-card-title class="text-h4">
-            MY LIBRARY
-          </v-card-title>
-          <v-row dense>
-            <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" :sm="6" class="px-2 py-4">
-              <div class="library-item" :style="{
-                backgroundImage: `url(${item.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }" @click="$router.push({ name: 'Library' })">
-                <h3 class="library-title">{{ item.name }}</h3>
-              </div>
-            </v-col>
-          </v-row>
-    -->
 
 
 
@@ -228,404 +181,26 @@
           </v-col>
         </v-row>
 
-<!--
-        <v-row class="d-flex justify-center align-center w-100 " no-gutters>
-          <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
-            <v-carousel show-arrows="hover" hide-delimiters v-if="campaignList.length > 0" height="500">
-              <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
-                <v-row no-gutters class="justify-center">
-                  <v-col cols="12" sm="12" md="12">
-                    <v-card class="mx-4" @click="
-                      router.push({
-                        name: 'Campaign',
-                        params: { id: item.campaignId },
-                      })
-                      ">
-                      <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
-                      <v-card-title>
-                        {{ item.campaign }}
+        <v-row  no-gutters class="justify-center py-6">
+                  <v-col cols="12">
+                    <v-card class="mx-auto">
+                      <v-card-title class="mx-auto text-center">
+                        You don't have any events created yet. Click on the following
+                        to create an event
                       </v-card-title>
-                      <v-card-subtitle v-if="item.name">
-                        {{ item.name }}
-                      </v-card-subtitle>
-                      <v-card-text>
-                        <v-row no-gutters>
-                          <v-col cols="1" sm="2" md="2" lg="2" xl="1" class="d-flex"
-                            v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
-                            <v-avatar :image="hero.images.avatar" size="40" />
-                          </v-col>
-                        </v-row>
-                      </v-card-text>
+                      <v-card-actions class="d-flex justify-center">
+                        <v-btn @click="router.push({ name: 'Events' })">create Event</v-btn>
+                      </v-card-actions>
                     </v-card>
                   </v-col>
                 </v-row>
-              </v-carousel-item>
-            </v-carousel>
-
-            <v-row v-else no-gutters class="justify-center py-6">
-              <v-col cols="10">
-                <v-card class="mx-auto">
-                  <v-card-title>
-                    You don't have any campaign saved yet. Click on the folowing
-                    button to create one
-                  </v-card-title>
-                  <v-card-actions class="d-flex justify-center">
-                    <v-btn @click="router.push({ name: 'Campaign Overview' })">create campaign</v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-        <v-card-title class="librarytext text-h5">
-          MY LIBRARY
-        </v-card-title>
-        <v-row dense>
-          <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" class="px-4 py-2">
-            <div class="library-item2" :style="{
-              backgroundImage: `url(${item.image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }">
-              <h3 class="library-title">{{ item.name }}</h3>
-            </div>
-          </v-col>
-        </v-row>
-    -->
-
-
-
-
 
       </v-col>
     </v-row>
 
-    <!-- Main Event Cards Section -->
-    <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100 " >
-    <v-col cols="12" sm="10" md="8" class="px-2 bg-black rounded">
-      <v-card-text
-        class="text-h4 white--text color-white bg-black "
-        color="white"
-      >
-        EVENTS
-      </v-card-text> -->
+    
 
-    <!-- Main Event Cards -->
-
-    <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100" > -->
-    <!-- Next Section (visible on desktop, hidden on mobile) -->
-    <!-- <v-col cols="12" md="6">
-          <v-card class="pa-4" color="grey-darken-4" dark>
-            <v-card-title class="white--text hidden-sm-and-down"
-              >Next</v-card-title
-            > -->
-    <!-- Container com rolagem -->
-    <!-- <div style="max-height: 300px; overflow-y: auto">
-              <v-list>
-                <v-list-item
-                  v-for="i in 10"
-                  :key="i"
-                  class="mb-4"
-                  color="rgba(0,0,0,0.6)"
-                  elevation="6"
-                  shaped
-                  @click="openDialog(i)"
-                >
-                  <v-list-item-content>
-                    <v-row>
-                      <v-col cols="3">
-                        <v-avatar size="60">
-                          <v-img
-                            src="@/assets/perfil.webp"
-                            alt="Profile"
-                          ></v-img>
-                        </v-avatar>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-list-item-title class="text-h6 white--text">
-                          EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle
-                          class="text-subtitle-2 white--text"
-                        >
-                          JORGINHO ULTIMATE MEGA STORE PLUS
-                        </v-list-item-subtitle>
-                      </v-col>
-                      <v-col cols="3" class="text-right">
-                        <v-icon
-                          color="red"
-                          size="40"
-                          @click.stop="openGoogleMaps"
-                          >mdi-map-marker</v-icon
-                        >
-                        <v-list-item-subtitle
-                          class="text-subtitle-1 white--text"
-                          >12/29/24</v-list-item-subtitle
-                        >
-                      </v-col>
-                    </v-row>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </div>
-          </v-card>
-        </v-col> -->
-
-    <!-- Count Me In Section (visible on desktop, hidden on mobile) -->
-    <!-- <v-col cols="12" md="6">
-          <v-card class="pa-4 hidden-sm-and-down" color="grey-darken-4" dark>
-            <v-card-title class="white--text hidden-sm-and-down"
-              >Count Me In</v-card-title
-            >
-            <div style="max-height: 300px; overflow-y: auto">
-              <v-list>
-                <v-list-item
-                  v-for="i in 10"
-                  :key="i"
-                  class="mb-4"
-                  color="rgba(0,0,0,0.6)"
-                  elevation="6"
-                  shaped
-                  @click="openDialog(i)"
-                >
-                  <v-list-item-content>
-                    <v-row>
-                      <v-col cols="3">
-                        <v-avatar size="60">
-                          <v-img
-                            src="@/assets/perfil.webp"
-                            alt="Profile"
-                          ></v-img>
-                        </v-avatar>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-list-item-title class="text-h6 white--text">
-                          EVENTO DE LANÇAMENTO DRUNAGOR APP {{ i }}
-                        </v-list-item-title>
-                        <v-list-item-subtitle
-                          class="text-subtitle-2 white--text"
-                        >
-                          JORGINHO ULTIMATE MEGA STORE PLUS
-                        </v-list-item-subtitle>
-                      </v-col>
-                      <v-col cols="3" class="text-right">
-                        <v-icon
-                          color="red"
-                          size="40"
-                          @click.stop="openGoogleMaps"
-                          >mdi-map-marker</v-icon
-                        >
-                        <v-list-item-subtitle
-                          class="text-subtitle-1 white--text"
-                          >12/29/24</v-list-item-subtitle
-                        >
-                      </v-col>
-                    </v-row>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list>
-            </div>
-          </v-card>
-        </v-col>
-      </v-row> -->
-
-    <!-- Dialog for Event Details -->
-    <!-- <v-dialog v-model="dialog" max-width="600px">
-        <v-card>
-          <v-card-title
-            class="headline d-flex justify-space-between align-center"
-            style="padding-right: 16px"
-          >
-            <span>EVENTO DE LANÇAMENTO DRUNAGOR APPD</span>
-            <v-btn
-              icon
-              @click="closeDialog"
-              style="position: absolute; top: 8px; right: 8px"
-            >
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-          </v-card-title>
-
-          <v-card-subtitle>
-            *event description* Lorem Ipsum is simply dummy text of the printing
-            and typesetting industry.
-          </v-card-subtitle>
-
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" sm="4">
-                <v-avatar size="100">
-                  <v-img src="@/assets/perfil.webp" alt="Event"></v-img>
-                </v-avatar>
-              </v-col>
-              <v-col cols="12" sm="8">
-                <v-list-item-title
-                  >JORGINHO ULTIMATE MEGA STORE PLUS</v-list-item-title
-                >
-                <v-list-item-subtitle
-                  >Engenheiro José Carlos de Morais Sarmento,
-                  5747</v-list-item-subtitle
-                >
-                <v-row>
-                  <v-col cols="auto">
-                    <v-icon>mdi-shield</v-icon>
-                    <v-icon>mdi-sword</v-icon>
-                    <v-icon>mdi-book</v-icon>
-                    <v-icon>mdi-map</v-icon>
-                  </v-col>
-                  <v-col class="d-flex justify-end">
-                    <v-icon>mdi-facebook</v-icon>
-                    <v-icon>mdi-instagram</v-icon>
-                    <v-icon>mdi-twitter</v-icon>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-
-            <v-divider></v-divider>
-
-            <v-card-subtitle class="mt-4">REWARDS:</v-card-subtitle>
-            <v-list-item>
-              <v-avatar size="60">
-                <v-img src="@/assets/perfil.webp"></v-img>
-              </v-avatar>
-              <v-list-item-content>
-                <v-list-item-title>Reward Name</v-list-item-title>
-                <v-list-item-subtitle
-                  >Reward description goes here...</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item>
-              <v-avatar size="60">
-                <v-img src="@/assets/perfil.webp"></v-img>
-              </v-avatar>
-              <v-list-item-content>
-                <v-list-item-title>Drunagor APP Badges</v-list-item-title>
-                <v-list-item-subtitle
-                  >Check-in at the event to get an exclusive
-                  badge!</v-list-item-subtitle
-                >
-              </v-list-item-content>
-            </v-list-item>
-          </v-card-text>
-
-          <v-divider></v-divider> -->
-
-    <!-- Updated Button Section -->
-    <!-- <v-card-actions>
-            <v-row class="d-flex justify-space-between">
-              <v-col>
-                <v-btn
-                  block
-                  color="#a87945"
-                  class="text-uppercase white--text"
-                  @click="closeDialog"
-                  >MAYBE I'LL GO</v-btn
-                >
-              </v-col>
-              <v-col>
-                <v-btn
-                  block
-                  color="green darken-1"
-                  class="text-uppercase white--text"
-                  @click="closeDialog"
-                  >COUNT ME IN</v-btn
-                >
-              </v-col>
-            </v-row>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-col>
-  </v-row> -->
-
-    <!-- My Library Section -->
-
-    <!-- Title for My Library -->
-    <!-- <v-row class="mt-4 d-flex justify-center align-center ma-0 w-100">
-      <v-col cols="12" sm="10" md="8" class="px-6">
-        <v-card-title class="text-h5 font-weight-bold">MY LIBRARY</v-card-title>
-      </v-col>
-    </v-row>
-
-    <v-row class="mt-4 justify-center ma-0">
-      <v-col cols="12" sm="10" md="8">
-        <v-row justify="center" align="center">
-          <v-col cols="12" md="6" class="d-flex justify-center">
-            <v-btn
-              color="grey darken-2"
-              class="white--text w-100 mb-4"
-              height="60"
-            >
-              AWAKENINGS
-            </v-btn>
-          </v-col>
-          <v-col cols="12" md="6" class="d-flex justify-center">
-            <v-btn
-              color="grey darken-2"
-              class="white--text w-100 mb-4"
-              height="60"
-            >
-              COREBOX
-            </v-btn>
-          </v-col>
-        </v-row>
-
-        <v-row justify="center" align="center">
-          <v-col cols="12" md="6" class="d-flex justify-center">
-            <v-btn
-              color="grey darken-2"
-              class="white--text w-100 mb-4"
-              height="60"
-            >
-              APOCALYPSE
-            </v-btn>
-          </v-col>
-          <v-col cols="12" md="6" class="d-flex justify-center">
-            <v-btn
-              color="grey darken-2"
-              class="white--text w-100 mb-4"
-              height="60"
-            >
-              RISE OF THE UNDEAD DRAGON
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-col>
-    </v-row> -->
-
-    <!-- Manage Library Button -->
-    <!-- <v-row class="mt-4">
-      <v-col cols="12" class="text-right">
-        <v-btn small outlined color="black"> MANAGE LIBRARY </v-btn>
-      </v-col>
-    </v-row> -->
-
-    <!-- Notification Button -->
-    <!-- <v-row class="position-fixed bottom-0 right-0 mb-16 mr-6">
-    <v-col cols="auto">
-      <v-badge color="red" content="10" overlap>
-        <v-btn fab dark color="black" @click="showPopup = !showPopup">
-          <v-icon>mdi-bell</v-icon>
-        </v-btn>
-      </v-badge>
-    </v-col>
-  </v-row> -->
-
-    <!-- Notification Dialog -->
-    <!-- <v-dialog v-model="showPopup" max-width="600px">
-    <v-card>
-      <v-card-title>Notificações</v-card-title>
-      <v-card-text>
-        Conteúdo do diálogo
-      </v-card-text>
-      <v-card-actions>
-        <v-btn text @click="showPopup = false">Fechar</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog> -->
+    
   </v-main>
 </template>
 
