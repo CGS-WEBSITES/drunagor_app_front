@@ -282,21 +282,7 @@
               </v-row>
             </v-col>
           </v-row>
-          <v-card-title class="librarytext text-h5">
-            MY LIBRARY
-          </v-card-title>
-          <v-row dense>
-            <v-col v-for="(item, index) in libraryItems" :key="index" :cols="12" class="px-4 py-2">
-              <!-- Card Content -->
-              <div class="library-item2" :style="{
-                backgroundImage: `url(${item.image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }">
-                <h3 class="library-title">{{ item.name }}</h3>
-              </div>
-            </v-col>
-          </v-row>
+         
   
   
   
