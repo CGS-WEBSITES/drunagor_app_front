@@ -710,7 +710,7 @@
     {
       img: new URL(assets + "/Dashboard/btn-events.png", import.meta.url).href,
       label: "EVENTS",
-      route: { name: "Library" },
+      route: { name: "Events" },
     },
   ]);
   

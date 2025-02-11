@@ -96,7 +96,7 @@
                       :disabled="index > 3 ? true : false" @click="router.push(item.route)">
                       <v-img :src="item.img" height with cover :gradient="index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                         " />
-                      <v-card-actions colo>
+                      <v-card-actions >
                         <v-row class="d-flex justify-center">
                           <v-btn class="text-center">{{ item.label }}</v-btn>
                         </v-row>
