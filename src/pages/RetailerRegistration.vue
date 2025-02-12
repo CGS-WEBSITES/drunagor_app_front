@@ -5,7 +5,7 @@
                 <v-card class="elevation-12">
                     <!-- Tabs for Login and Sign Up -->
                     <v-tabs v-model="activeTab" fixed-tabs background-color="white">
-                        <v-tab :key="0">LOGIN</v-tab>
+                        <!-- <v-tab :key="0">LOGIN</v-tab> -->
                         <v-tab :key="1">SIGN UP</v-tab>
                     </v-tabs>
 
@@ -21,64 +21,12 @@
                                                 class="mx-auto" />
                                         </v-col>
                                         <v-col cols="12">
-                                            <h1 class="display-2 font-weight-bold">Welcome Back!</h1>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                                <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle"
-                                    :text="alertText" :type="alertType"></v-alert>
-                                <h4 class="text-center mt-4 py-3">
-                                    Ensure your email for registration
-                                </h4>
-                                <v-form>
-                                    <v-row>
-                                        <v-col cols="11">
-                                            <v-text-field label="Login" prepend-icon="mdi-email" type="text"
-                                                v-model="login" color="black" outlined dense />
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="11">
-                                            <v-text-field label="Password" prepend-icon="mdi-lock"
-                                                :type="showPass ? 'text' : 'password'" v-model="password" color="black"
-                                                outlined dense />
-                                        </v-col>
-                                        <v-col cols="1" class="d-flex justify-center align-center">
-                                            <v-icon v-if="showPass" class="olho" tag="i" @click="showPass = !showPass">
-                                                mdi-eye
-                                            </v-icon>
-                                            <v-icon v-else class="olho" tag="i" @click="showPass = !showPass">
-                                                mdi-eye-off
-                                            </v-icon>
-                                        </v-col>
-                                    </v-row>
-                                </v-form>
-                                <!-- <h3 @click="navigateTo('/forgotpassword')" class="text-center mt-4">
-                                    Forgot your password?
-                                </h3> -->
-                                <v-btn class="mt-4" color="black" dark block @click="loginUser">
-                                    SIGN IN
-                                </v-btn>
-                            </v-card-text>
-                        </v-tab-item>
-
-                        <!-- Sign Up Tab -->
-                        <v-tab-item :value="1">
-                            <v-card-text v-if="activeTab === 1">
-                                <v-container class="d-flex justify-center align-center">
-                                    <v-row justify="center">
-                                        <v-col cols="12" md="6" class="text-center">
-                                            <v-img src="@/assets/darkness.png" max-width="50" alt="Centered Icon"
-                                                class="mx-auto" />
-                                        </v-col>
-                                        <v-col cols="12">
                                             <h1 class="display-2 font-weight-bold pl-3">
                                                 Create an User Account
                                             </h1>
                                         </v-col>
                                     </v-row>
                                 </v-container>
-
                                 <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle"
                                     :text="alertText" :type="alertType"></v-alert>
 
@@ -97,13 +45,13 @@
                                     </v-row>
 
                                     <!-- Campo para o endereço da loja -->
-                                    <v-row>
+                                    <!-- <v-row>
                                         <v-col cols="12">
                                             <v-text-field label="Endereço da Loja" v-model="storeAddress"
                                                 prepend-icon="mdi-map-marker" :rules="[rules.required]" color="black"
                                                 outlined dense />
                                         </v-col>
-                                    </v-row>
+                                    </v-row> -->
 
                                     <v-row>
                                         <v-col cols="11" sm="5">
@@ -161,6 +109,20 @@
         <v-dialog v-model="privacyDialog" max-width="500">
             <privacy-card />
         </v-dialog>
+
+        <v-dialog v-model="successDialog" max-width="500">
+            <v-card>
+                <v-card-title class="headline">Registration Successful</v-card-title>
+                <v-card-text>
+                    You have successfully registered! Click "OK" to be redirected to the login page.
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn color="green" text @click="navigateToLogin">
+                        OK
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
@@ -180,6 +142,7 @@ const userStore = useUserStore();
 // Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
+const successDialog = ref(false);
 const activeTab = ref<number>(1); // Controla as abas (Login/Sign Up)
 const login = ref<string>(""); // Login do usuário
 const password = ref<string>(""); // Senha do usuário
@@ -221,70 +184,6 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
     alertText.value = text;
     showAlert.value = true;
     alertType.value = type;
-};
-
-// Função de login
-const loginUser = async () => {
-    if (!login.value?.trim() || !password.value?.trim()) {
-        setAllert(
-            "mdi-alert-circle",
-            "400",
-            "The email and password fields were not filled out correctly.",
-            "warning"
-        );
-        return;
-    }
-
-    login.value = login.value.trim();
-    password.value = password.value.trim();
-
-    await axios
-        .post("users/login", {
-            login: login.value,
-            password: md5(password.value),
-        })
-        .then((response: any) => {
-            console.log("API Response:", response);
-
-            const dbUser = response.data.data;
-
-            const appUser: User = {
-                email: dbUser.email,
-                google_id: dbUser.google_id,
-                name: dbUser.name,
-                picture_hash: dbUser.picture_hash,
-                roles_fk: 3,
-                user_name: dbUser.user_name,
-                users_pk: dbUser.users_pk,
-                verified: dbUser.verified,
-                zip_code: dbUser.zipcode,
-            };
-
-            userStore.setUser(appUser);
-
-            localStorage.setItem("app_user", JSON.stringify(appUser));
-
-            // Exibe alerta de sucesso
-            setAllert("mdi-check", response.status, response.data.message, "success");
-
-            setToken(response.data.access_token);
-
-            axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
-
-            // Redireciona para o Dashboard
-            router.push({ name: "Dashboard" });
-        })
-        .catch((error: any) => {
-            console.error("Error during login:", error);
-
-            // Trata erros com mensagens apropriadas
-            setAllert(
-                "mdi-alert-circle",
-                error.response?.status || 500,
-                error.response?.data?.message || "A network error occurred.",
-                "error"
-            );
-        });
 };
 
 function convertDecimalToDMS(coordinate: number, isLatitude: boolean): string {
@@ -347,6 +246,10 @@ const valReg = async () => {
     regValid.value = valid;
 };
 
+const navigateToLogin = () => {
+    router.push({ name: "Login" });
+};
+
 const submitForm = async () => {
     await valReg();
 
@@ -371,6 +274,8 @@ const submitForm = async () => {
 
                 setAllert("mdi-check", response.status, response.data.message, "success");
                 activeTab.value = 0;
+
+                successDialog.value = true;
             })
             .catch((response: any) => {
                 console.log(response);
