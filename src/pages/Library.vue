@@ -17,17 +17,17 @@
 
       <div v-if="activeTab === 1">
         <v-row dense>
-          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="3">
+          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="4">
             <div class="card-wrapper">
-              <ProductCard :product="product" @click="() => goToLink('https://aodarkness.com')" />
+              <ProductCard :product="product" @click="() => goToLink(product.link)" />
 
               <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined" class="movebotao"
-                :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
+                :style="{ backgroundColor: product.wish === true ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
                 {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
               </v-btn>
 
               <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small" class="movebotao2"
-                :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
+                :style="{ backgroundColor: product.owned === true ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
                 {{ product.owned ? "- Owned" : "+ Owned" }}
               </v-btn>
             </div>
@@ -39,11 +39,11 @@
         <v-row dense>
           <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
-              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
-              <!-- <v-btn size="small" prepend-icon="mdi-list-box-outline" variant="outlined" class="movebotao3"
-                :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
-                {{ isInWishlist(product.id) ? " - Wishlist" : "+ Wishlist" }}
-              </v-btn> -->
+              <ProductCard :product="product" @click="() => goToLink(product.link)" />
+              <v-btn prepend-icon="mdi-list-box-outline" variant="outlined" size="small" class="movebotao3"
+                @click="toggleFromWishlist(product.id)">
+                - Wishlist
+              </v-btn>
             </v-card>
           </v-col>
         </v-row>
@@ -53,11 +53,11 @@
         <v-row dense>
           <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
-              <ProductCard :product="product" class="w-100" @click="() => goToLink('https://aodarkness.com')" />
-              <!-- <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao3"
-                :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
-                {{ isOwned(product.id) ? "- Owned" : "+ Owned" }}
-              </v-btn> -->
+              <ProductCard :product="product" @click="() => goToLink(product.link)" />
+              <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao4"
+                @click="toggleFromOwned(product.id)">
+                - Owned
+              </v-btn>
             </v-card>
           </v-col>
         </v-row>
@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount, inject } from "vue";
+import { ref, computed, onBeforeMount, inject, nextTick } from "vue";
 import Filters from "@/components/Library/Filters.vue";
 import ProductCard from "@/components/ProductCard.vue";
 import { useUserStore } from "@/store/UserStore";
@@ -169,7 +169,7 @@ const products = ref<Product[]>([]);
 
 const goToLink = (link: string) => {
   if (link) {
-    window.location.href = link;
+    window.open(link, "_blank");
   } else {
     console.warn("Nenhum link encontrado para redirecionar.");
   }
@@ -187,7 +187,7 @@ const toggleWishlist = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyWishlisted = product.wish === "true"; 
+  const isCurrentlyWishlisted = product.wish === "true";
   const isCurrentlyOwned = product.owned === "true";
   const librariesPk = product.libraries_pk;
 
@@ -221,7 +221,7 @@ const toggleWishlist = async (productId: number) => {
         libraries_pk: librariesPk,
         users_fk: appUser.users_pk,
         skus_fk: productId,
-        wish: isCurrentlyWishlisted ? "false" : "true", 
+        wish: isCurrentlyWishlisted ? "false" : "true",
         owned: isCurrentlyOwned ? "true" : "false",
       },
       { headers: { Authorization: `Bearer ${token}` } }
@@ -250,7 +250,7 @@ const toggleOwned = async (productId: number) => {
   if (!product) return;
 
   const isCurrentlyOwned = product.owned === "true";
-  const isCurrentlyWishlisted = product.wish === "true"; 
+  const isCurrentlyWishlisted = product.wish === "true";
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
@@ -283,7 +283,7 @@ const toggleOwned = async (productId: number) => {
         libraries_pk: librariesPk,
         users_fk: appUser.users_pk,
         skus_fk: productId,
-        owned: isCurrentlyOwned ? "false" : "true", 
+        owned: isCurrentlyOwned ? "false" : "true",
         wish: isCurrentlyWishlisted ? "true" : "false",
       },
       { headers: { Authorization: `Bearer ${token}` } }
@@ -307,6 +307,60 @@ const toggleOwned = async (productId: number) => {
   }
 };
 
+const toggleFromWishlist = async (productId: number) => {
+    const product = products.value.find((p) => p.id === productId);
+    if (!product) return;
+
+    await axios.put(
+        url + "libraries/alter",
+        {
+            libraries_pk: product.libraries_pk,
+            users_fk: appUser.users_pk,
+            skus_fk: productId,
+            wish: "false", 
+            owned: "false", 
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(() => {
+        product.wish = "false";
+        product.owned = "false";
+        wishlist.value = wishlist.value.filter(id => id !== productId);
+        confirmationMessage.value = `Product "${product.name}" removed from Wishlist!`;
+        confirmationDialog.value = true;
+    })
+    .catch((error: any) => {
+        console.error("Erro ao remover da wishlist:", error);
+    });
+};
+
+const toggleFromOwned = async (productId: number) => {
+    const product = products.value.find((p) => p.id === productId);
+    if (!product) return;
+
+    await axios.put(
+        url + "libraries/alter",
+        {
+            libraries_pk: product.libraries_pk,
+            users_fk: appUser.users_pk,
+            skus_fk: productId,
+            owned: "false", 
+            wish: "false", 
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+    )
+    .then(() => {
+        product.owned = "false";
+        product.wish = "false";
+        owned.value = owned.value.filter(id => id !== productId);
+        confirmationMessage.value = `Product "${product.name}" removed from Owned!`;
+        confirmationDialog.value = true;
+    })
+    .catch((error: any) => {
+        console.error("Erro ao remover do owned:", error);
+    });
+};
+
 // const isInWishlist = (productId: number) => {
 //   return wishlistItems.value.some((product) => product.id === productId);
 // };
@@ -318,7 +372,6 @@ const toggleOwned = async (productId: number) => {
 const wishlistItems = computed(() => {
   const itemsWithWishTrue = products.value.filter((product) => product.wish === true);
 
-  console.log("wishlistItems:", itemsWithWishTrue);
   return itemsWithWishTrue;
 });
 
@@ -381,9 +434,10 @@ const fetchProducts = async () => {
 
 onBeforeMount(fetchProducts);
 
-watch(confirmationDialog, (newVal) => {
+watch(confirmationDialog, async (newVal) => {
   if (newVal) {
-    fetchProducts();
+    await nextTick();
+    await fetchProducts();
   }
 });
 </script>
@@ -409,19 +463,25 @@ watch(confirmationDialog, (newVal) => {
 
 .movebotao {
   position: absolute;
-  margin-left: 162px;
+  margin-left: 255px;
   margin-top: -38px;
 }
 
 .movebotao2 {
   position: absolute;
-  margin-left: 162px;
+  margin-left: 265px;
   margin-top: -72px;
 }
 
 .movebotao3 {
   position: absolute;
-  margin-left: 208px;
+  margin-left: 255px;
+  margin-top: -38px;
+}
+
+.movebotao4 {
+  position: absolute;
+  margin-left: 265px;
   margin-top: -38px;
 }
 
