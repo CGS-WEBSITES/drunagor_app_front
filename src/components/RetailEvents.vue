@@ -150,7 +150,7 @@
          
       </v-col>
       <v-col cols="3">
-        <v-btn color="primary" @click="openCreateEventDialog">
+        <v-btn  variant="text" class="sort-btn"  @click="openCreateEventDialog">
             <v-icon>mdi-plus-box-outline</v-icon>          
             Create New
         </v-btn>
@@ -307,15 +307,15 @@
         v-for="(event, index) in userCreatedEvents"
         :key="index"
       >
-        <v-card color="white" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
+        <v-card color="white" max-height="190" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
           <v-row no-gutters>
-            <v-col cols="auto" class="redbutton pt-11 pl-3">
+            <v-col cols="auto" class="redbutton pt-13 pl-3">
           <v-btn color="#AB2929" icon class="delete-btn" @click.stop="deleteEvent(event.id)">
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </v-col>
            
-            <v-col cols="4" sm="8" class="pl-3 pt-2">
+            <v-col cols="6" sm="8" class="pl-3 pt-2">
               <h3 class="">{{ event.name }}</h3>
               <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.location }}</p>
               <p class="text-caption">
@@ -327,15 +327,20 @@
 </v-row>
               <p class=" text-right text-caption">{{ event.date }}</p>
               </p>
+              
             </v-col>
+
           </v-row>
-          <v-col cols="auto" class="editbutton pt-11 pl-3">
+          
+          <v-col cols="auto" class="editbutton pt-13 pl-3">
           <v-btn color="white" icon class="delete-btn" @click="openEditDialog(event)">
             <v-icon>mdi mdi-pencil</v-icon>
           </v-btn>
         </v-col>
+          
         </v-card>
       </v-col>
+      
     </v-row>
     
 
@@ -433,6 +438,7 @@
 <script setup>
 import { ref, computed,} from "vue";
 import { useUserStore } from "@/store/UserStore";
+
 
 const user = computed(() => useUserStore().user);
 
@@ -861,14 +867,14 @@ const handleEditImageUpload = (event) => {
     background: #691D1D;
     transform: translateY(px) translateX(-0px);
     width: 80px;
-  height: 138px;  
+  height: 160px;  
 }
 
 .editbutton{
     background: gray;
     transform: translateX(10px);
     width: 80px;
-  height: 138px;  
+  height: 160px;  
 }
 
 
