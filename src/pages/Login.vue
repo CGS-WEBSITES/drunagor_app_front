@@ -41,7 +41,6 @@
                   :type="alertType"
                 ></v-alert>
                 <h4 class="text-center mt-4 py-3">
-                  Ensure your email for registration
                 </h4>
                 <v-form>
                   <v-row>
@@ -89,7 +88,8 @@
                 </v-form>
                 <h3
                   @click="navigateTo('/forgotpassword')"
-                  class="text-center mt-4"
+
+                  class="text-center mt-4 clickable-text"
                 >
                   Forgot your password?
                 </h3>
@@ -470,3 +470,15 @@ const submitForm = async () => {
   }
 };
 </script>
+
+
+<style>
+.clickable-text {
+  cursor: pointer; /* Transforma o cursor em uma mãozinha */
+  transition: transform 0.2s ease-in-out; /* Efeito suave ao passar o mouse */
+}
+
+.clickable-text:hover {
+  transform: scale(1.1); /* Aumenta o tamanho ao passar o mouse */
+}
+</style>

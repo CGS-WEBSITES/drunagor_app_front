@@ -151,27 +151,6 @@
                     </v-tabs-items>
                 </v-card>
             </v-col>
-
-            <v-col cols="12">
-                <v-card class="pa-4" color="white" elevation="2">
-                    <p>
-                        <strong>Welcome to the Drunagor App!</strong>
-                    </p>
-
-                    <p>
-                        Get ready to revolutionize your gaming experience! The Drunagor App is your ultimate
-                        companion for immersive adventures, campaign tracking, and epic events. Seamlessly manage
-                        your progress, connect with the community, and join exclusive
-                        <strong>Drunagor Nights</strong> for rewards and rankings. Be among the first to explore this
-                        exciting new platform and take your gameplay to the next level. Whether you're a seasoned
-                        adventurer or new to the world of Drunagor, this is your moment to shine.
-                    </p>
-
-                    <p>
-                        <strong>Sign up now and embark on your next adventure!</strong>
-                    </p>
-                </v-card>
-            </v-col>
         </v-row>
 
         <!-- Terms dialog -->
