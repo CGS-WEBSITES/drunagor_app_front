@@ -14,6 +14,7 @@ import ConfigurationVariant from "./ConfigurationVariant.vue";
       <v-expansion-panel-text>
         <ConfigurationVariant />
         <ConfigurationContentMonster />
+        <ConfigurationContentHero/>
       </v-expansion-panel-text>
     </v-expansion-panel>
   </v-expansion-panels>
