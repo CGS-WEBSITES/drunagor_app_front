@@ -7,7 +7,7 @@
       <v-col cols="12" sm="10" md="8" class="px-6">
         <v-row no-gutters>
           <v-col cols="4">
-            <v-avatar size="200" rounded="0" class="avatar-overlay">
+            <v-avatar size="236" rounded="0" class="avatar-overlay">
               <v-img :src="user.picture_hash
                 ? assets + '/Profile/' + user.picture_hash
                 : assets + '/Profile/user.png'
@@ -20,15 +20,13 @@
             
             <v-card-title class="user_name text-h3">{{ user.user_name }}</v-card-title>
           </v-col>
-          (Retailer)
         </v-row>
       </v-col>
     </v-row>
 
-    <!-- MOBILE -->
     <v-row class="d-md-none justify-center align-center ml-0">
-      <v-card color="primary" class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
-        flat>
+      <v-card color="background" class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'" flat>
+        <v-card color="primary" height="136" class="card-overlay1 full-screen-card" flat></v-card>
       </v-card>
       <v-col cols="12">
         <v-row no-gutters>
@@ -50,12 +48,10 @@
     </v-row>
 
 
-    <!-- Navigation Drawer -->
     <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="12" md="8" class="px-6">
-        <v-card color="hprimary" class="move_topo pt-12">
-
-          <!-- Navigation Boxes Section -->
+        <v-card color="primary" height="116px" class="move_topo pt-12"></v-card>
+        <v-card color="secundary" class="move_topo pt-12">
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
             <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
               <!-- Primeiro Carrossel para dispositivos móveis -->
@@ -125,7 +121,7 @@
                         to create an event
                       </v-card-title>
                       <v-card-actions class="d-flex justify-center">
-                        <v-btn @click="router.push({ name: 'Events' })">create Event</v-btn>
+                        <v-btn variant="elevated" color="primary" @click="router.push({ name: 'Events' })">create Event</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-col>
@@ -189,7 +185,7 @@
                         to create an event
                       </v-card-title>
                       <v-card-actions class="d-flex justify-center">
-                        <v-btn @click="router.push({ name: 'Events' })">create Event</v-btn>
+                        <v-btn color="primary" @click="router.push({ name: 'Events' })">create Event</v-btn>
                       </v-card-actions>
                     </v-card>
                   </v-col>
@@ -349,7 +345,7 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .avatar-overlay {
   position: relative;
-  transform: translateY(-18px);
+  transform: translateY(-22px);
   z-index: 2;
 }
 
@@ -363,12 +359,19 @@ function findHeroes(campaignId: string): HeroData[] {
 .card-overlay {
   position: relative;
   transform: translateY(-6px);
+  z-index: 3;
+}
+
+.card-overlay1 {
+  position: relative;
+  transform: translateY(96px);
   z-index: 2;
 }
 
+
 .user_name {
   position: relative;
-  transform: translateY(-145px) translateX(204px);
+  transform: translateY(-155px) translateX(234px);
   z-index: 2;
 }
 
@@ -380,7 +383,7 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .move_topo {
   position: relative;
-  transform: translateY(-150px);
+  transform: translateY(-280px);
 }
 
 .move_topo2 {
