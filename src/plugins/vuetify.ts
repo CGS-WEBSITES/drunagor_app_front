@@ -22,15 +22,28 @@ import * as labsComponents from 'vuetify/labs/components'
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   theme: {
-    defaultTheme: "dark",
+    defaultTheme: "DarkTheme",
     themes: {
+      DarkTheme: {
+        dark: true,
+        colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
+          background: '#141414',
+          surface: '#262626',
+          primary: '#363636',
+          secondary: '#3d3d3d',
+          error: '#B00020',
+          info: '#2196F3',
+          success: '#4CAF50',
+          warning: '#FB8C00',
+        },
+      },
       CoreTheme: {
         dark: false,
         colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
           background: '#172A2C',
           surface: '#274B4E',
-          primary: '#274B4E',
-          secondary: '#3C7376',
+          primary: '#3C7376',
+          secondary: '#4F9398',
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -40,9 +53,9 @@ export default createVuetify({
       ApocTheme: {
         dark: false,
         colors: { // We have omitted the standard color properties here to emphasize the custom one that we've added
-          background: '#421111',
-          surface: '#6B1C1C',
-          primary: '#6B1C1C',
+          background: '#141414',
+          surface: '#262626',
+          primary: '#802222',
           secondary: '#3D3D3D',
           error: '#B00020',
           info: '#2196F3',

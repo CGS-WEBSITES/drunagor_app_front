@@ -75,7 +75,7 @@
             route.name === 'Login' ||
             route.name === 'Gama'
           "
-          color="#B8860B"
+          color="WHITE"
           large
           @click="$router.push({ name: 'Login' })"
           >Sign up</v-btn
@@ -173,7 +173,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("dark");
+const theme = ref("Dark");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
@@ -214,7 +214,7 @@ const menuItems = ref([
     title: "Events",
     icon: "mdi-calendar",
     to: { name: "Events" },
-    disabled: true,
+    disabled: false,
   },
 
   {

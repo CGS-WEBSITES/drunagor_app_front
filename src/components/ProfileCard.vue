@@ -1,5 +1,6 @@
 <template>
    <v-card
+   color="primary"
     class="profile-card mx-auto py-0"
     rounded="0"
     elevation="3"
