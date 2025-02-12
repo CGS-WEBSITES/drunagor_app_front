@@ -92,7 +92,7 @@
                   class="text-center mt-4 clickable-text"
                 >
                   Forgot your password?
-                </h3>
+                </h3> -->
                 <v-btn class="mt-4" color="black" dark block @click="loginUser">
                   SIGN IN
                 </v-btn>
