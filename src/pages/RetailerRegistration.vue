@@ -53,9 +53,9 @@
                                         </v-col>
                                     </v-row>
                                 </v-form>
-                                <h3 @click="navigateTo('/forgotpassword')" class="text-center mt-4">
+                                <!-- <h3 @click="navigateTo('/forgotpassword')" class="text-center mt-4">
                                     Forgot your password?
-                                </h3>
+                                </h3> -->
                                 <v-btn class="mt-4" color="black" dark block @click="loginUser">
                                     SIGN IN
                                 </v-btn>
