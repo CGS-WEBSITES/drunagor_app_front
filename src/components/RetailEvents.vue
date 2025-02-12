@@ -472,116 +472,375 @@ const sortBy = ref("date");
 
 // Sample Events Data
 const events = ref([
-  {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP 1 ",
+{
+    name: "WORK IN PROGRESS - VISUAL PREVIEW",
     location:
-      "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
-    date: "12/29/24",
+      "Your Store location",
+    date: "02/20/25",
     hour: "12:00",
     image:
-      "https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
-      "Evento maneiro pra mostrar o druna app p tropa,Evento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app para tropaEvento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app p trop.",
-    shopdesc: "É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
     eventseats: "4",
-    shopname: "Brunão Boladão Store",
+    shopname: "YOUR STORE NAME",
     shopimage:
-      "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     rewards: [
       {
-        name: "Reward Name Cabe um nome bem grande",
+        name: "MEGA DUNGEON Badges",
         description:
           "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         image:
-          "https://steamuserimages-a.akamaihd.net/ugc/1763694096136517940/126852B0FED44742F8367FC72257FB064962E0A6/",
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
       },
       {
         name: "Drunagor APP Badges",
         description:
           "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
         image:
-          "https://steamuserimages-a.akamaihd.net/ugc/1763694096136680820/A3D78B1ECB99BA3E58767CFDA3A2D5F12B3428CA/",
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
       },
       {
-        name: "Reward Name Cabe um nome bem grande",
+        name: " Event Reward",
         description:
           "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         image:
-          "https://steamuserimages-a.akamaihd.net/ugc/1763694096136517940/126852B0FED44742F8367FC72257FB064962E0A6/",
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
       },
       {
         name: "Drunagor APP Badges",
         description:
           "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
         image:
-          "https://steamuserimages-a.akamaihd.net/ugc/1763694096136680820/A3D78B1ECB99BA3E58767CFDA3A2D5F12B3428CA/",
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
       },
     ],
   },
   {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP 2 ",
+    name: "EN PROCESO - VISTA PREVIA VISUAL",
     location:
-      "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
-    date: "12/29/24",
+      "Your Store location",
+    date: "02/20/25",
     hour: "12:00",
     image:
-      "https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
-      "Evento maneiro pra mostrar o druna app p tropa,Evento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app para tropaEvento maneiro pra mostrar o druna app p tropaEvento maneiro pra mostrar o druna app p trop.",
-    shopdesc: "É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
-    shopname: "Brunão Boladão Store",
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
     shopimage:
-      "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     rewards: [
       {
-        name: "Reward Name Cabe um nome bem grande",
+        name: "MEGA DUNGEON Badges",
         description:
           "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
         image:
-          "https://steamuserimages-a.akamaihd.net/ugc/1763694096136517940/126852B0FED44742F8367FC72257FB064962E0A6/",
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
       },
       {
         name: "Drunagor APP Badges",
         description:
           "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
         image:
-          "https://steamuserimages-a.akamaihd.net/ugc/1763694096136680820/A3D78B1ECB99BA3E58767CFDA3A2D5F12B3428CA/",
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
       },
     ],
   },
   {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP",
+    name: "IN ARBEIT - VISUELLE VORSCHAU",
     location:
-      "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
-    date: "12/29/24",
+      "Your Store location",
+    date: "02/20/25",
     hour: "12:00",
     image:
-      "https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
-    shopdesc: "É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
-    shopname: "Brunão Boladão Store",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    eventdesc:
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
+    shopimage:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    rewards: [
+      {
+        name: "MEGA DUNGEON Badges",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+      },
+    ],
   },
   {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP",
+    name: "EN COURS - APERÇU VISUEL",
     location:
-      "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
-    date: "12/29/24",
+      "Your Store location",
+    date: "02/20/25",
     hour: "12:00",
     image:
-      "https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
-    shopdesc: "É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
-    shopname: "Brunão Boladão Store",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    eventdesc:
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
+    shopimage:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    rewards: [
+      {
+        name: "MEGA DUNGEON Badges",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+      },
+    ],
   },
   {
-    name: "EVENTO DE LANÇAMENTO DRUNAGOR APP",
+    name: "IN LAVORAZIONE - ANTEPRIMA VISIVA",
     location:
-      "JORGINHO ULTIMATE MEGA STORE PLUS PLUS, Engenheiro José Carlos de Morais Sarmento, 5747",
-    date: "12/29/24",
+      "Your Store location",
+    date: "02/20/25",
     hour: "12:00",
     image:
-      "https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
-    shopdesc: "É UMA LOJA MT ENGRAÇADA N TINHA TETO N TINHA NADA",
-    shopname: "Brunão Boladão Store",
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    eventdesc:
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
+    shopimage:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    rewards: [
+      {
+        name: "MEGA DUNGEON Badges",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+      },
+    ],
   },
+  {
+    name: "قيد العمل - معاينة بصرية",
+    location:
+      "Your Store location",
+    date: "02/20/25",
+    hour: "12:00",
+    image:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    eventdesc:
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
+    shopimage:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    rewards: [
+      {
+        name: "MEGA DUNGEON Badges",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+      },
+    ],
+  },
+  {
+    name: "正在进行 - 视觉预览",
+    location:
+      "Your Store location",
+    date: "02/20/25",
+    hour: "12:00",
+    image:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    eventdesc:
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
+    shopimage:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    rewards: [
+      {
+        name: "MEGA DUNGEON Badges",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+      },
+    ],
+  },
+  {
+    name: "進行中 - ビジュアルプレビュー",
+    location:
+      "Your Store location",
+    date: "02/20/25",
+    hour: "12:00",
+    image:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    eventdesc:
+      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
+    shopdesc: "YOUR STORE DESCRIPTION",
+    eventseats: "4",
+    shopname: "YOUR STORE NAME",
+    shopimage:
+      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
+    rewards: [
+      {
+        name: "MEGA DUNGEON Badges",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
+      },
+      {
+        name: " Event Reward",
+        description:
+          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
+      },
+      {
+        name: "Drunagor APP Badges",
+        description:
+          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
+        image:
+          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
+      },
+    ],
+  },
+  
 ]);
 
 // Sorting Logic
