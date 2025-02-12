@@ -88,6 +88,7 @@
                 </v-form>
                 <h3
                   @click="navigateTo('/forgotpassword')"
+
                   class="text-center mt-4 clickable-text"
                 >
                   Forgot your password?
@@ -237,11 +238,26 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12">
-        <v-card class="pa-4" color="white" elevation="2">
+
+      <iframe
+            width="800"
+            height="584"
+            src="https://www.youtube.com/embed/HjnZ0e5FTS4?si=-2wNSjqXfuILHVks"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            class="pl-4"
+          ></iframe>
+
+
+      <v-col cols="12" >
+        <v-card class="pa-4 d-flex flex-column align-center justify-center" color="white" elevation="2">
           <p>
             <strong>Welcome to the Drunagor App!</strong>
           </p>
+
 
           <p>
             Get ready to revolutionize your gaming experience! The Drunagor App
