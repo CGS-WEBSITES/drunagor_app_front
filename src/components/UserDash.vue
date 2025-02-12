@@ -25,8 +25,8 @@
   
       <!-- MOBILE -->
       <v-row class="d-md-none justify-center align-center ml-0">
-        <v-card class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
-          flat>
+        <v-card  color="background" class="card-overlay full-screen-card" :image="assets + '/Profile/profile-bg-warriors-transparent.png'" flat> 
+          <v-card color="primary" height="136" class="card-overlay1 full-screen-card" flat></v-card>
         </v-card>
         <v-col cols="12">
           <v-row no-gutters>
@@ -51,8 +51,8 @@
       <!-- Navigation Drawer -->
       <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
         <v-col cols="12" sm="12" md="8" class="px-6">
-          <v-card class="move_topo pt-12">
-  
+          <v-card color="primary" height="116px" class="move_topo pt-12"></v-card>
+        <v-card color="secundary" class="move_topo pt-12">
             <!-- Navigation Boxes Section -->
             <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
               <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
@@ -777,10 +777,16 @@
   }
   
   .card-overlay {
-    position: relative;
-    transform: translateY(-6px);
-    z-index: 2;
-  }
+  position: relative;
+  transform: translateY(-6px);
+  z-index: 3;
+}
+
+.card-overlay1 {
+  position: relative;
+  transform: translateY(96px);
+  z-index: 2;
+}
   
   .user_name {
     position: relative;
