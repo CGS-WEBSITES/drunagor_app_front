@@ -191,6 +191,9 @@ const user = useUserStore().user;
 const cardName = ref("");
 const boximage = ref("");
 const Description = ref("");
+const confirmationDialog = ref(false);
+const confirmationMessage = ref("");
+const dialog = ref(false);
 
 const boxOptions = [
   "Companions and Furnitures",
@@ -219,10 +222,6 @@ const setDialog = (name: string, description: string, image: string) => {
   boximage.value = image;
 };
 
-const confirmationDialog = ref(false);
-const confirmationMessage = ref("");
-
-const dialog = ref(true);
 
 interface Product {
   id: number;
