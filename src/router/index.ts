@@ -15,6 +15,11 @@ const router = createRouter({
       component: () => import("@/pages/Login.vue"),
     },
     {
+      path: "/retailer-registration",
+      name: "RetailerRegistration",
+      component: () => import("@/pages/RetailerRegistration.vue"),
+    },
+    {
       path: "/forgotpassword",
       name: "ForgotPassword",
       component: () => import("@/components/ForgotPassword.vue"),
@@ -150,17 +155,17 @@ const router = createRouter({
         }
       },
       children: [
-         {
-           path: "/perfil/home",
-           name: "PerfilHome",
-           component: () => import("@/components/PerfilHome.vue"),
-           beforeEnter(to, from, next) {
+        {
+          path: "/perfil/home",
+          name: "PerfilHome",
+          component: () => import("@/components/PerfilHome.vue"),
+          beforeEnter(to, from, next) {
             if (isSignedIn()) {
               next()
-               return
-             }
-           },
-         },
+              return
+            }
+          },
+        },
         {
           path: "/perfil/friend-store",
           name: "search",
@@ -183,17 +188,17 @@ const router = createRouter({
             }
           },
         },
-         {
-           path: "/perfil/perfil-settings",
-           name: "settings",
-           component: () => import("@/components/PerfilSettings.vue"),
-           beforeEnter(to, from, next) {
-             if (isSignedIn()) {
-               next()
-               return
-             }
-           },
-         },
+        {
+          path: "/perfil/perfil-settings",
+          name: "settings",
+          component: () => import("@/components/PerfilSettings.vue"),
+          beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          },
+        },
         {
           path: "/perfil",
           name: "logout",
