@@ -1,7 +1,7 @@
 <template>
-  <v-container class="pa-0">
+  <v-container class="pa-0 mt-16">
     <v-row justify="center">
-      <v-col cols="12" class="text-center">
+      <v-col cols="12" class="text-center mb-4">
         <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
           LIBRARY
         </h1>
