@@ -21,7 +21,7 @@
                   <v-row justify="center">
                     <v-col cols="12" md="6" class="text-center">
                       <v-img
-                        src="@/assets/darkness.png"
+                        src="@/assets/darkness_white.svg"
                         max-width="50"
                         alt="Centered Icon"
                         class="mx-auto"
@@ -106,7 +106,7 @@
                   <v-row justify="center">
                     <v-col cols="12" md="6" class="text-center">
                       <v-img
-                        src="@/assets/darkness.png"
+                        src="@/assets/darkness_white.svg"
                         max-width="50"
                         alt="Centered Icon"
                         class="mx-auto"
