@@ -173,7 +173,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("Dark");
+const theme = ref("DarkTheme");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 

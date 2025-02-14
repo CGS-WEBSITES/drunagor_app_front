@@ -31,6 +31,7 @@ export default createVuetify({
           surface: '#262626',
           primary: '#363636',
           secondary: '#3d3d3d',
+          terciary: '#DDDDDD', //EAEAEA
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -44,6 +45,7 @@ export default createVuetify({
           surface: '#274B4E',
           primary: '#3C7376',
           secondary: '#4F9398',
+          terciary: '#DDDDDD', //EAEAEA
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -57,6 +59,7 @@ export default createVuetify({
           surface: '#262626',
           primary: '#802222',
           secondary: '#3D3D3D',
+          terciary: '#DDDDDD', //EAEAEA
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
