@@ -12,8 +12,8 @@
 <v-card class="pb-12" min-height="500px" color="#151515">
 
     <v-row no-gutters>
-      <v-col cols="12">
-        <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+      <v-col  cols="12">
+        <v-tabs  class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
           <v-tab class="text-h5" :value="1">EVENTS</v-tab>
           <v-tab class="text-h5" :value="2">RETAILER</v-tab>
         </v-tabs>
@@ -51,7 +51,7 @@
         v-for="(event, index) in sortedEvents"
         :key="index"
       >
-        <v-card color="white" class="pt-0 event-card" @click="openDialog(event)">
+        <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
           <v-row no-gutters>
             <v-col cols="4" sm="2">
               <v-img :src="event.image" class="mt-3 event-img"></v-img>
