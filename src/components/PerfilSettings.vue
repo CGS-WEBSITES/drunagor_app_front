@@ -12,29 +12,6 @@
 
   <AccountForm />
 
-  <v-container>
-  <v-col class="d-flex justify-center mb-4">
-    <v-btn
-      v-if="user?.roles_fk === 3"
-      color="secundary"
-      @click="addStoreForm"
-      class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase mb-0"
-      min-width="768px"
-      min-height="60px"
-      
-    >
-      ADD STORE
-    </v-btn>
-  </v-col>
-
-    <!-- Lista de Formulários de Loja -->
-    <v-row>
-      <v-col class="pl-9" cols="12" v-for="(store, index) in storeForms" :key="index">
-        <StoreForm v-model="storeForms[index]" @remove="removeStore(index)" />
-      </v-col>
-    </v-row>
-  </v-container>
-
 
   <privacy-settings />
 
