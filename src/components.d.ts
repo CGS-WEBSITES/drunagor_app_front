@@ -82,8 +82,10 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SequentialAdventureButton: typeof import('./components/SequentialAdventureButton.vue')['default']
     StatisticsCard: typeof import('./components/StatisticsCard.vue')['default']
+    StoreForm: typeof import('./components/StoreForm.vue')['default']
     StoreList: typeof import('./components/StoreList.vue')['default']
     StoreListAdded: typeof import('./components/StoreListAdded.vue')['default']
+    StoreSettings: typeof import('./components/StoreSettings.vue')['default']
     StoryRecord: typeof import('./components/StoryRecord.vue')['default']
     StoryRecordApocalypse: typeof import('./components/StoryRecordApocalypse.vue')['default']
     StoryRecordAwakenings: typeof import('./components/StoryRecordAwakenings.vue')['default']
@@ -96,7 +98,6 @@ declare module 'vue' {
     SwappableImage: typeof import('./components/SwappableImage.vue')['default']
     TermsCard: typeof import('./components/TermsCard.vue')['default']
     UserDash: typeof import('./components/UserDash.vue')['default']
-    Userevents: typeof import('./components/UserEvents.vue')['default']
     UserEvents: typeof import('./components/UserEvents.vue')['default']
   }
 }
