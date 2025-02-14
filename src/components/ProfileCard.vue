@@ -15,7 +15,7 @@
       <v-img
         src="@/assets/AGE_Arte271.png"
         alt="Background Image"
-        max-height="729px"
+        max-height="529px"
         max-width="100%"
         cover
       ></v-img>
