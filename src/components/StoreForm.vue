@@ -127,8 +127,7 @@
   <script lang="ts" setup>
   import { ref, onMounted } from "vue";
 
-// Estado das Lojas Salvas
-const stores = ref([]);
+
 
 // Estado do Formulário da Loja
 const form = ref({
@@ -195,11 +194,7 @@ const saveStore = () => {
   isExpanded.value = false;
 };
 
-// Remover loja
-const removeStore = (index) => {
-  stores.value.splice(index, 1);
-  saveStoresToLocalStorage(); // Atualiza LocalStorage
-};
+
 
 // Resetar Formulário
 const cancelForm = () => {
@@ -255,6 +250,42 @@ const handleEditImageUpload = (event) => {
     };
     reader.readAsDataURL(file);
   }
+};
+
+
+// Recupera as lojas do localStorage ao iniciar
+const stores = ref(JSON.parse(localStorage.getItem("stores") || "[]"));
+
+// Função para adicionar uma nova loja
+const addStore = () => {
+  if (form.value.storename) {
+    stores.value.push({ ...form.value });
+
+    // Salva no localStorage
+    localStorage.setItem("stores", JSON.stringify(stores.value));
+
+    // Limpa o formulário
+    form.value = {
+      storename: "",
+      description: "",
+      address1: "",
+      address2: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      country: "",
+      MerchantID: "",
+      storeImage: "",
+    };
+  }
+};
+
+// Função para remover loja
+const removeStore = (index) => {
+  stores.value.splice(index, 1);
+
+  // Atualiza o localStorage
+  localStorage.setItem("stores", JSON.stringify(stores.value));
 };
   
  
