@@ -4,6 +4,7 @@
 
     <!-- Barra de Navegação Superior -->
     <v-navigation-drawer
+      v-if="route.name !== 'Login' && route.name !== 'RetailerRegistration' && route.name !== 'Home'"
       v-model="drawer"
       app
       location="right"
@@ -77,12 +78,12 @@
           "
           color="WHITE"
           large
-          @click="$router.push({ name: 'Login' })"
+          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
           >Sign up</v-btn
         >
 
         <v-app-bar-nav-icon
-          v-else
+          v-if="route.name !== 'Login' && route.name !== 'RetailerRegistration' && route.name !== 'Home'"
           class="me-4"
           @click="drawer = !drawer"
         ></v-app-bar-nav-icon>
@@ -90,7 +91,7 @@
     </v-row>
 
     <v-bottom-navigation
-      v-else-if="route.name != 'Home' && route.name != 'Login'"
+      v-else-if="route.name !== 'Home' && route.name !== 'Login' && route.name !== 'RetailerRegistration'"
       app
       v-model="bottomNavVisible"
       class="hidden-md-and-up fixed bg-black text-white"
