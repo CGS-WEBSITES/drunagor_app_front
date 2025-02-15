@@ -197,7 +197,7 @@ const saveFig = async () => {
     .put(
       "users/alter",
       {
-        users_pk: user.user_pk,
+        users_pk: user.users_pk,
         picture_hash: selectedPicture.value.hash,
       },
       {
@@ -215,7 +215,7 @@ const saveFig = async () => {
         picture_hash: selectedPicture.value.hash,
         roles_fk: user.roles_fk,
         user_name: user.user_name,
-        user_pk: user.user_pk,
+        users_pk: user.users_pk,
         verified: user.verified,
         zip_code: user.zip_code,
       });
