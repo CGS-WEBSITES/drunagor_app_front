@@ -305,7 +305,7 @@
 
 <script setup lang="ts">
 import { ref, inject } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
 import type { VForm } from "vuetify/components";
 import TermsCard from "@/components/TermsCard.vue";
@@ -319,6 +319,7 @@ const userStore = useUserStore();
 // Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
+const route = useRoute();
 const activeTab = ref<number>(1); // Controla as abas (Login/Sign Up)
 const login = ref<string>(""); // Login do usuário
 const password = ref<string>(""); // Senha do usuário
@@ -360,6 +361,26 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   showAlert.value = true;
   alertType.value = type;
 };
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab === "signup") {
+      activeTab.value = 1;
+    } else {
+      activeTab.value = 0;
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  if (route.query.tab === "signup") {
+    activeTab.value = 1;
+  } else {
+    activeTab.value = 0;
+  }
+});
 
 // Função de login
 const loginUser = async () => {
