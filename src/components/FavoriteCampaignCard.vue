@@ -3,7 +3,7 @@
     <v-card class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3" >
       <!-- Imagem -->
       <v-img
-        :src="image"
+        src="https://cf.geekdo-images.com/r8obvBpTbSiNr5C0B6g8MA__opengraph/img/eZOHrAK-dYl02EEXlrCI5vZWbB4=/0x0:906x476/fit-in/1200x630/filters:strip_icc()/pic7619515.png"
         alt="Campaign Image"
         max-width="800"
         class="rounded-lg"
