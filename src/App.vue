@@ -3,90 +3,88 @@
     <Toast />
 
     <!-- Barra de Navegação Superior -->
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      location="right"
-      temporary
-      class="d-none d-md-flex m"
-    >
-      <v-list class="me-4">
-        <v-list-item class="py-5">
-          <v-row align="center" class="">
-            <v-col cols="8">
-              <v-list-item-title>{{ user.user_name }}</v-list-item-title>
-              <!-- <v-list-item-subtitle>Points: 1337</v-list-item-subtitle> -->
-            </v-col>
-
-            <!-- Coluna para o avatar à direita -->
-            <v-col cols="4" class="d-flex justify-end">
-              <v-avatar size="70">
-                <v-img
-                  :src="
-                    user.picture_hash
-                      ? assets + '/Profile/' + user.picture_hash
-                      : assets + '/Profile/user.png'
-                  "
-                />
-              </v-avatar>
-            </v-col>
-          </v-row>
-        </v-list-item>
-
-        <v-list-item
-          v-for="(item, index) in menuItems"
-          :key="index"
-          link
-          :disabled="item.disabled"
-          @click="item.to ? router.push(item.to) : item.do()"
-          :class="{ 'v-list-item--active': selectedItem === item }"
-        >
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
+   
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
-        <div class="d-flex align-center pl-6">
-          <!-- Ajuste o padding com pl-6 -->
-          <v-img
-            src="@/assets/darknessl.png"
-            height="30"
-            width="30"
-            alt="Drunagor Icon"
-            contain
-            class="mr-2"
-            @click="$router.push({ name: 'Dashboard' })"
-          ></v-img>
-          <span>App Drunagor</span>
-        </div>
-        <v-spacer></v-spacer>
-        <!-- Botão de Navegação alinhado à direita -->
+  <div class="d-flex align-center pl-6">
+    <!-- Ícone Drunagor -->
+    <v-img
+      src="@/assets/darknessl.png"
+      height="30"
+      width="30"
+      alt="Drunagor Icon"
+      contain
+      class="mr-2"
+      @click="$router.push({ name: 'Dashboard' })"
+    ></v-img>
+    <span>App Drunagor</span>
+  </div>
 
-        <v-btn
-          v-if="
-            route.name === 'Home' ||
-            route.name === 'Login' ||
-            route.name === 'Gama'
-          "
-          color="WHITE"
-          large
-          @click="$router.push({ name: 'Login' })"
-          >Sign up</v-btn
-        >
+  <v-spacer></v-spacer>
 
-        <v-app-bar-nav-icon
-          v-else
-          class="me-4"
-          @click="drawer = !drawer"
-        ></v-app-bar-nav-icon>
-      </v-app-bar>
+  <!-- Avatar + Nome do Usuário + Menu Suspenso -->
+  <v-menu open-on-hover offset-y>
+    
+    <v-list>
+      <v-list-item @click="logout">
+        <v-list-item-icon>
+          <v-icon>mdi-logout</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>Log Out</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-menu>
+
+  <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
+  <v-btn
+    v-if="['Home', 'Login', 'Gama'].includes(route.name)"
+    color="WHITE"
+    large
+    @click="$router.push({ name: 'Login' })"
+  >
+    Sign up
+  </v-btn>
+
+  <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
+  <div class="d-flex" v-else>
+    <v-btn
+      v-for="(item, index) in menuItems"
+      :key="index"
+      text
+      :disabled="item.disabled"
+      class="mx-2"
+      @click="item.to ? router.push(item.to) : item.do()"
+    >
+   
+      {{ item.title }}
+    </v-btn>
+    <v-menu open-on-hover offset-y>
+  <template v-slot:activator="{ props }">
+    <v-btn v-bind="props" text class="px-3">
+      <span class="pr-1">{{ user.user_name }}</span>
+      <v-avatar size="35" class="mr-2">
+        <v-img
+          :src="user.picture_hash ? assets + '/Profile/' + user.picture_hash : assets + '/Profile/user.png'"
+        />
+      </v-avatar>
+      <v-icon right>mdi-chevron-down</v-icon>
+    </v-btn>
+  </template>
+
+  <v-list>
+    <v-list-item @click="logOut">
+      <v-list-item-icon>
+        <v-icon>mdi-logout</v-icon>
+      </v-list-item-icon>
+      <v-list-item-title>Log Out</v-list-item-title>
+    </v-list-item>
+  </v-list>
+</v-menu>
+
+  </div>
+
+  
+</v-app-bar>
     </v-row>
 
     <v-bottom-navigation
@@ -185,45 +183,42 @@ const logOut = () => {
 };
 
 // Itens do menu de navegação
-const menuItems = ref([
-  {
-    title: "Dashboard",
-    icon: "mdi-view-dashboard",
-    to: { name: "Dashboard" },
-    disabled: false,
-  },
-  {
-    title: "Companion",
-    icon: "mdi-flag",
-    to: { name: "CampaignTracker", disabled: false },
-  },
-  {
-    title: "Library",
-    icon: "mdi-book",
-    to: { name: "Library" },
-    disabled: false,
-  },
-  {
-    title: "Profile",
-    icon: "mdi-account",
-    to: { name: "PerfilHome" },
-    disabled: false,
-  },
+const menuItems = computed(() => {
+  const role = user?.roles_fk; // Obtém a role do usuário
 
-  {
-    title: "Events",
-    icon: "mdi-calendar",
-    to: { name: "Events" },
-    disabled: false,
-  },
-
-  {
-    title: "Logout",
-    icon: "mdi-logout",
-    disabled: false,
-    do: logOut,
-  },
-]);
+  return [
+    {
+      title: role === 3 ? "Dashboard" : "Dashboard",
+      icon: "mdi-view-dashboard",
+      to: { name: "Dashboard" },
+      disabled: false,
+    },
+    {
+      title: role === 3 ? "CAMPAIGN MANAGER" : "Companion",
+      icon: "mdi-flag",
+      to: { name: "CampaignTracker" },
+      disabled: false,
+    },
+    {
+      title: role === 3 ? "SKUS MANAGER" : "Library",
+      icon: "mdi-book",
+      to: { name: "Library" },
+      disabled: false,
+    },
+    {
+      title: role === 3 ? "Profile" : "Profile",
+      icon: "mdi-account",
+      to: { name: "PerfilHome" },
+      disabled: false,
+    },
+    {
+      title: role === 3 ? "Events" : "Events",
+      icon: "mdi-calendar",
+      to: { name: "Events" },
+      disabled: false,
+    },
+  ];
+});
 
 const contentStyle = computed(() => {
   return display.value.mdAndUp
