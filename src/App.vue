@@ -3,6 +3,7 @@
     <Toast />
 
     <!-- Barra de Navegação Superior -->
+
    
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
@@ -19,6 +20,7 @@
     ></v-img>
     <span>App Drunagor</span>
   </div>
+
 
   <v-spacer></v-spacer>
 
@@ -44,6 +46,7 @@
   >
     Sign up
   </v-btn>
+
 
   <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
   <div class="d-flex" v-else>
@@ -85,10 +88,11 @@
 
   
 </v-app-bar>
+
     </v-row>
 
     <v-bottom-navigation
-      v-else-if="route.name != 'Home' && route.name != 'Login'"
+      v-else-if="route.name !== 'Home' && route.name !== 'Login' && route.name !== 'RetailerRegistration'"
       app
       v-model="bottomNavVisible"
       class="hidden-md-and-up fixed bg-black text-white"
@@ -162,7 +166,8 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
-const user = useUserStore().user;
+const userStore = useUserStore();
+const user = userStore.user;
 
 const display = ref(useDisplay());
 
@@ -171,7 +176,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("Dark");
+const theme = ref("DarkTheme");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
@@ -238,8 +243,6 @@ const contentStyle = computed(() => {
 onMounted(() => {
   const loggedUser = localStorage.getItem("app_user");
   const userObject = loggedUser ? JSON.parse(loggedUser) : null;
-
-  console.log(userObject)
 
   if (userObject) {
     useUserStore().setUser(userObject);

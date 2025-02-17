@@ -29,10 +29,6 @@
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Username</p>
               <v-text-field label="" variant="solo-filled" v-model="form.user_name" class="mb-0"></v-text-field>
 
-              <!-- CEP -->
-              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Zipcode</p>
-              <v-text-field label="" variant="solo-filled" v-model="form.zipcode" class="mb-0"></v-text-field>
-
               <!-- Email -->
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Email</p>
               <v-row no-gutters>
@@ -73,13 +69,44 @@
               </v-row>
 
               <!-- Switch para atualizações por email -->
-              <!-- <v-switch
+              <v-switch
                 v-model="form.email_updates"
                 label="Send email updates for friend requests, events next to you and app updates."
                 inset
                 class="mb-0"
                 color="green"
-              ></v-switch> -->
+              ></v-switch>
+
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
+                    Country
+                  </p>
+                  <v-autocomplete
+                    v-model="form.country"
+                    :items="countriesList"
+                    item-title="name"
+                    item-value="name"
+                    variant="solo-filled"
+                    label="Select or type a country"
+                    class="mb-0"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+
+              <!-- CEP -->
+              <p
+                v-if="form.country === 'US'"
+                class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
+                Zipcode
+              </p>
+              <v-text-field 
+                v-if="form.country === 'US'"
+                label="" 
+                variant="solo-filled" 
+                v-model="form.zip_code" 
+                class="mb-0"
+              ></v-text-field>
 
               <v-row no-gutters>
                 <v-col cols="12">
@@ -163,11 +190,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, inject } from "vue";
+import { ref, inject, onMounted } from "vue";
 
 import { useUserStore } from "@/store/UserStore";
 import type { VForm } from "vuetify/components";
 import { getToken } from "@/service/AccessToken";
+import { create } from "lodash-es";
 
 const userForm = ref<VForm>();
 const userStore = useUserStore();
@@ -184,10 +212,11 @@ const form = reactive({
   user_name: user.user_name,
   zip_code: user.zip_code,
   new_email: user.email,
-  confirm_email: null,
+  confirm_email: user.email,
   email_updates: user.email_updates,
-  new_password: null,
-  confirm_password: null,
+  new_password: "",
+  confirm_password: "",
+  country: user.countries_fk || null,
 });
 
 const rules = {
@@ -210,6 +239,14 @@ const axios: any = inject("axios");
 const validForm = ref<boolean>(false);
 const changeEmail = ref<boolean>(false);
 const changePassword = ref<boolean>(false);
+
+interface Country {
+  countries_pk: number;
+  name: string;
+  abbreviation: string;
+}
+
+const countriesList = ref<Country[]>([]);
 
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
@@ -234,55 +271,62 @@ const saveForm = async () => {
       .put(
         "users/alter",
         {
-          users_pk: user.user_pk,
+          users_pk: user.users_pk,
           name: form.name,
           user_name: form.user_name,
-          zip_code: form.zipcode,
-          email: form.confirm_email,
-          password: form.confirm_password,
+          zip_code: form.zip_code,
+          email: changeEmail.value ? form.confirm_email : user.email,
+          receive_email: form.email_updates,
+          password: changePassword.value ? form.confirm_password : undefined,
+          countries_fk: countriesList.value.find(country => country.name === form.country)?.countries_pk,
         },
         {
-          // Headers
           headers: getToken(),
         }
       )
-      .then(async (response: any) => {
+      .then((response: any) => {
         console.log("API Response:", response);
 
         const dbUser = response.data.data;
+        userStore.setUser({ ...user, ...dbUser });
 
-        userStore.setUser({
-          email: dbUser.email,
-          google_id: dbUser.google_id,
-          name: dbUser.name,
-          picture_hash: dbUser.picture_hash,
-          roles_fk: dbUser.roles_fk,
-          user_name: dbUser.user_name,
-          user_pk: dbUser.users_pk,
-          verified: dbUser.verified,
-          zip_code: dbUser.zip_code,
-        });
-
-        // Exibe alerta de sucesso
-        setAllert(
-          "mdi-check",
-          response.status,
-          response.data.message,
-          "success"
-        );
+        setAllert("mdi-check", response.status, response.data.message, "success");
       })
       .catch((error: any) => {
-        console.error("Error during login:", error);
-        // Trata erros com mensagens apropriadas
+        console.error("Erro ao salvar usuário:", error);
         setAllert(
           "mdi-alert-circle",
           error.response?.status || 500,
-          error.response?.data?.message || "A network error occurred.",
+          error.response?.data?.message || "Erro de rede.",
           "error"
         );
       });
   }
 };
+
+const fetchCountries = () => {
+  axios.get("countries/search")
+    .then((response: any) => {
+      countriesList.value = response.data.countries.map((country: any) => ({
+        countries_pk: country.countries_pk,
+        name: country.name,
+        abbreviation: country.abbreviation,
+      }));
+
+      const userCountry = countriesList.value.find(
+        (country) => country.countries_pk === form.country
+      );
+
+      form.country = userCountry ? userCountry.name : "";
+    })
+    .catch((error: any) => {
+      console.error("Erro ao buscar países:", error);
+    });
+};
+
+onMounted(() => {
+  fetchCountries();
+});
 
 const cancelForm = () => {
   console.log("Form Cancelled");

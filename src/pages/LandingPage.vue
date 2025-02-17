@@ -16,7 +16,18 @@
         <v-img :width="logoWidth" src="@/assets/core.webp"></v-img>
       </div>
       <div class="mt-2">
-        <v-btn color="primary" large @click="$router.push({ name: 'Login' })"
+        <v-btn 
+          color="primary" 
+          large 
+          @click="$router.push({ name: 'Login', query: { tab: 'login' } })"
+          >Login</v-btn
+        >
+      </div>
+      <div class="mt-2">
+        <v-btn 
+          color="primary" 
+          large 
+          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
           >Sign up</v-btn
         >
       </div>

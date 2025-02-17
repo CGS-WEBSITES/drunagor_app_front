@@ -150,7 +150,7 @@ const router = createRouter({
       ],
     },
     {
-      path: "/perfil",
+      path: "/profile",
       name: "Perfil",
       component: () => import("@/pages/Perfil.vue"),
       beforeEnter(to, from, next) {
@@ -161,7 +161,7 @@ const router = createRouter({
       },
       children: [
         {
-          path: "/perfil/home",
+          path: "/profile/home",
           name: "PerfilHome",
           component: () => import("@/components/PerfilHome.vue"),
           beforeEnter(to, from, next) {
@@ -172,7 +172,7 @@ const router = createRouter({
           },
         },
         {
-          path: "/perfil/friend-store",
+          path: "/profile/friend-store",
           name: "search",
           component: () => import("@/components/FriendStore.vue"),
           beforeEnter(to, from, next) {
@@ -183,7 +183,7 @@ const router = createRouter({
           },
         },
         {
-          path: "/perfil/friend-storelist",
+          path: "/profile/friend-storelist",
           name: "group",
           component: () => import("@/components/FriendStoreList.vue"),
           beforeEnter(to, from, next) {
@@ -194,7 +194,7 @@ const router = createRouter({
           },
         },
         {
-          path: "/perfil/perfil-settings",
+          path: "/profile/settings",
           name: "settings",
           component: () => import("@/components/PerfilSettings.vue"),
           beforeEnter(to, from, next) {
@@ -205,10 +205,10 @@ const router = createRouter({
           },
         },
         {
-          path: "/perfil",
+          path: "/perfil/store-settings",
           name: "logout",
           component: () =>
-            import("@/components/CampaignHeroSequentialAdventure.vue"),
+            import("@/components/StoreSettings.vue"),
           beforeEnter(to, from, next) {
             if (isSignedIn()) {
               next()
