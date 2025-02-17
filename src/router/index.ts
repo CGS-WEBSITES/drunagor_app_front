@@ -205,7 +205,7 @@ const router = createRouter({
           },
         },
         {
-          path: "/perfil/store-settings",
+          path: "/profile/store-settings",
           name: "logout",
           component: () =>
             import("@/components/StoreSettings.vue"),
