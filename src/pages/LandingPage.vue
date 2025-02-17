@@ -15,22 +15,25 @@
       <div>
         <v-img :width="logoWidth" src="@/assets/core.webp"></v-img>
       </div>
-      <div class="mt-2">
-        <v-btn 
-          color="primary" 
-          large 
-          @click="$router.push({ name: 'Login', query: { tab: 'login' } })"
-          >Login</v-btn
-        >
-      </div>
-      <div class="mt-2">
-        <v-btn 
-          color="primary" 
-          large 
-          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
-          >Sign up</v-btn
-        >
-      </div>
+
+      <v-row style="max-width: 200px;">
+        <v-col cols="6" class="d-flex justify-center">
+          <v-btn
+            color="primary"
+            large
+            @click="$router.push({ name: 'Login', query: { tab: 'login' } })"
+            >Login</v-btn
+          >
+        </v-col>
+        <v-col cols="6" class="d-flex justify-center">
+          <v-btn
+            color="primary"
+            large
+            @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
+            >Sign up</v-btn
+          >
+        </v-col>
+      </v-row>
     </div>
   </v-container>
 </template>
@@ -58,7 +61,6 @@ const logoWidth = computed(() => {
       return "700";
   }
 });
-
 </script>
 <style scoped>
 #myVideo {
@@ -70,7 +72,7 @@ const logoWidth = computed(() => {
   bottom: 50%;
   width: 100%;
 }
-.video-shader{
+.video-shader {
   width: 100%;
   height: 100%;
   background-color: black;
