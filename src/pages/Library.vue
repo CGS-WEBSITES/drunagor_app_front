@@ -8,7 +8,7 @@
       </v-col>
     </v-row>
 
-    <v-card class="pa-2">
+    <v-card min-height="220px" class="pa-2">
       <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
         <v-tab :value="1">All Products</v-tab>
         <v-tab :value="2">Wishlist</v-tab>
@@ -44,9 +44,9 @@
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
 
               <div class="wishlist-button-container">
-                <v-btn prepend-icon="mdi-list-box-outline" variant="outlined" size="small"
-                  @click="toggleFromWishlist(product.id)">
-                  - Wishlist
+                <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
+                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
+                  {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
                 </v-btn>
               </div>
             </v-card>
@@ -60,10 +60,12 @@
             <v-card>
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
 
+                
+
               <div class="owned-button-container">
-                <v-btn variant="outlined" prepend-icon="mdi-tag-check-outline" size="small" class="movebotao4"
-                  @click="toggleFromOwned(product.id)">
-                  - Owned
+                <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
+                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
+                  {{ product.owned ? "- Owned" : "+ Owned" }}
                 </v-btn>
               </div>
             </v-card>
@@ -73,18 +75,7 @@
     </v-card>
   </v-container>
 
-  <v-dialog v-model="confirmationDialog" max-width="1000">
-    <v-card>
-      <v-card-title class="font-weight-bold text-h4">
-        {{ confirmationMessage }}
-      </v-card-title>
-      <v-card-actions>
-        <v-btn color="green" text="true" @click="confirmationDialog = false">
-          OK
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+ 
 
   <v-dialog v-model="dialog" max-width="440">
     <v-card class="custom-background">
@@ -480,7 +471,7 @@ watch(confirmationDialog, async (newVal) => {
 
 .card-wrapper {
   position: relative;
-  padding: 16px;
+  padding: px;
   /* border: 1px solid #ddd; */
   border-radius: 8px;
   /* background-color: white; */
