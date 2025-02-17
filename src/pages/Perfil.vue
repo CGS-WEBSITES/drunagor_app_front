@@ -1,15 +1,12 @@
 <template>
   <v-row no-gutters>
-    <v-col cols="12">
-      <profile-card
-      />
-    </v-col>
-    <!-- <v-col cols="12">
+    <ProfileCard/>
+   <v-col cols="12">
       <navigation-bar
         :buttons="buttons"
         :separators="[true, false, true, true, false]"
       />
-    </v-col> -->
+    </v-col>
     <v-col cols="12">
       <router-view />
     </v-col>

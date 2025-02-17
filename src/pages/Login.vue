@@ -1,5 +1,8 @@
 <template>
-  <v-container class="fill-height d-flex align-center justify-center pa-4" fluid>
+  <v-container
+    class="fill-height d-flex align-center justify-center pa-4"
+    fluid
+  >
     <v-row align="center" justify="center">
       <v-col cols="12" md="8" lg="6" xl="4">
         <v-card class="elevation-12">
@@ -17,37 +20,77 @@
                 <v-container class="d-flex justify-center align-center">
                   <v-row justify="center">
                     <v-col cols="12" md="6" class="text-center">
-                      <v-img src="@/assets/darkness.png" max-width="50" alt="Centered Icon" class="mx-auto" />
+                      <v-img
+                        src="@/assets/darkness_white.svg"
+                        max-width="50"
+                        alt="Centered Icon"
+                        class="mx-auto"
+                      />
                     </v-col>
                     <v-col cols="12">
                       <h1 class="display-2 font-weight-bold">Welcome Back!</h1>
                     </v-col>
                   </v-row>
                 </v-container>
-                <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
-                  :type="alertType"></v-alert>
+                <v-alert
+                  closable
+                  v-model="showAlert"
+                  :icon="alertIcon"
+                  :title="alertTitle"
+                  :text="alertText"
+                  :type="alertType"
+                ></v-alert>
                 <h4 class="text-center mt-4 py-3">
-                  Ensure your email for registration
                 </h4>
                 <v-form>
                   <v-row>
                     <v-col cols="11">
-                      <v-text-field label="Email or User Name" prepend-icon="mdi-email" type="text" v-model="login"
-                        color="black" outlined dense />
+                      <v-text-field
+                        label="Email or User Name"
+                        prepend-icon="mdi-email"
+                        type="text"
+                        v-model="login"
+                        color="black"
+                        outlined
+                        dense
+                      />
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col cols="11">
-                      <v-text-field label="Password" prepend-icon="mdi-lock" :type="showPass ? 'text' : 'password'"
-                        v-model="password" color="black" outlined dense />
+                      <v-text-field
+                        label="Password"
+                        prepend-icon="mdi-lock"
+                        :type="showPass ? 'text' : 'password'"
+                        v-model="password"
+                        color="black"
+                        outlined
+                        dense
+                      />
                     </v-col>
                     <v-col cols="1" class="d-flex justify-center align-center">
-                      <v-icon v-if="showPass" class="olho" tag="i" @click="showPass = !showPass">mdi-eye</v-icon>
-                      <v-icon v-else class="olho" tag="i" @click="showPass = !showPass">mdi-eye-off</v-icon>
+                      <v-icon
+                        v-if="showPass"
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye</v-icon
+                      >
+                      <v-icon
+                        v-else
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye-off</v-icon
+                      >
                     </v-col>
                   </v-row>
                 </v-form>
-                <h3 @click="navigateTo('/forgotpassword')" class="text-center mt-4">
+                <h3
+                  @click="navigateTo('/forgotpassword')"
+
+                  class="text-center mt-4 clickable-text"
+                >
                   Forgot your password?
                 </h3>
                 <v-btn class="mt-4" color="black" dark block @click="loginUser">
@@ -62,7 +105,12 @@
                 <v-container class="d-flex justify-center align-center">
                   <v-row justify="center">
                     <v-col cols="12" md="6" class="text-center">
-                      <v-img src="@/assets/darkness.png" max-width="50" alt="Centered Icon" class="mx-auto" />
+                      <v-img
+                        src="@/assets/darkness_white.svg"
+                        max-width="50"
+                        alt="Centered Icon"
+                        class="mx-auto"
+                      />
                     </v-col>
                     <v-col cols="12">
                       <h1 class="display-2 font-weight-bold pl-3">
@@ -72,50 +120,115 @@
                   </v-row>
                 </v-container>
 
-                <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
-                  :type="alertType"></v-alert>
+                <v-alert
+                  closable
+                  v-model="showAlert"
+                  :icon="alertIcon"
+                  :title="alertTitle"
+                  :text="alertText"
+                  :type="alertType"
+                ></v-alert>
 
                 <v-form ref="regForm">
                   <v-row>
                     <v-col cols="12" sm="6">
-                      <v-text-field label="Username" v-model="signupUsername" prepend-icon="mdi-account"
-                        :rules="[rules.required]" color="black" outlined dense />
+                      <v-text-field
+                        label="Username"
+                        v-model="signupUsername"
+                        prepend-icon="mdi-account"
+                        :rules="[rules.required]"
+                        color="black"
+                        outlined
+                        dense
+                      />
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <v-text-field label="Email" v-model="signupEmail" prepend-icon="mdi-email" type="email"
-                        :rules="[rules.required, rules.email]" color="black" outlined dense />
+                      <v-text-field
+                        label="Email"
+                        v-model="signupEmail"
+                        prepend-icon="mdi-email"
+                        type="email"
+                        :rules="[rules.required, rules.email]"
+                        color="black"
+                        outlined
+                        dense
+                      />
                     </v-col>
                   </v-row>
                   <v-row>
                     <v-col cols="11" sm="5">
-                      <v-text-field label="Password" prepend-icon="mdi-lock" :type="showPass ? 'text' : 'password'"
-                        v-model="signupPassword" :rules="[rules.required, rules.min]" color="black" outlined dense />
+                      <v-text-field
+                        label="Password"
+                        prepend-icon="mdi-lock"
+                        :type="showPass ? 'text' : 'password'"
+                        v-model="signupPassword"
+                        :rules="[rules.required, rules.min]"
+                        color="black"
+                        outlined
+                        dense
+                      />
                     </v-col>
                     <v-col cols="1" class="d-flex justify-center align-center">
-                      <v-icon v-if="showPass" class="olho" tag="i" @click="showPass = !showPass">mdi-eye</v-icon>
-                      <v-icon v-else class="olho" tag="i" @click="showPass = !showPass">mdi-eye-off</v-icon>
+                      <v-icon
+                        v-if="showPass"
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye</v-icon
+                      >
+                      <v-icon
+                        v-else
+                        class="olho"
+                        tag="i"
+                        @click="showPass = !showPass"
+                        >mdi-eye-off</v-icon
+                      >
                     </v-col>
                     <v-col cols="12" sm="6">
-                      <v-text-field label="Confirm Password" v-model="signupConfirmPassword" prepend-icon="mdi-lock"
-                        type="password" :rules="[rules.required, rules.matchPasswords]" color="black" outlined dense />
+                      <v-text-field
+                        label="Confirm Password"
+                        v-model="signupConfirmPassword"
+                        prepend-icon="mdi-lock"
+                        type="password"
+                        :rules="[rules.required, rules.matchPasswords]"
+                        color="black"
+                        outlined
+                        dense
+                      />
                     </v-col>
 
                     <v-col cols="12" class="d-flex align-center">
-                      <v-checkbox v-model="agreeTerms" color="green" :rules="[rules.required]"></v-checkbox>
+                      <v-checkbox
+                        v-model="agreeTerms"
+                        color="green"
+                        :rules="[rules.required]"
+                      ></v-checkbox>
                       <span class="ml-4">
                         I agree with the
-                        <strong style="cursor: pointer" @click="termsDialog = true">
+                        <strong
+                          style="cursor: pointer"
+                          @click="termsDialog = true"
+                        >
                           Terms & Conditions
                         </strong>
                         and
-                        <strong style="cursor: pointer" @click="privacyDialog = true">
+                        <strong
+                          style="cursor: pointer"
+                          @click="privacyDialog = true"
+                        >
                           Privacy Policy
                         </strong>
                       </span>
                     </v-col>
                   </v-row>
 
-                  <v-btn class="mt-4" color="black" dark block @click="submitForm">
+                  <v-btn
+                    class="mt-4"
+                    color="black"
+                    dark
+                    block
+                    @click="submitForm"
+                  >
                     SIGN UP
                   </v-btn>
                 </v-form>
@@ -125,11 +238,26 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12">
-        <v-card class="pa-4" color="white" elevation="2">
+
+      <iframe
+            width="800"
+            height="584"
+            src="https://www.youtube.com/embed/HjnZ0e5FTS4?si=-2wNSjqXfuILHVks"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            class="pl-4"
+          ></iframe>
+
+
+      <v-col cols="12" >
+        <v-card class="pa-4 d-flex flex-column align-center justify-center" color="white" elevation="2">
           <p>
             <strong>Welcome to the Drunagor App!</strong>
           </p>
+
 
           <p>
             Get ready to revolutionize your gaming experience! The Drunagor App
@@ -177,19 +305,21 @@
 
 <script setup lang="ts">
 import { ref, inject } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
 import type { VForm } from "vuetify/components";
 import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
+import type { User } from "@/store/UserStore";
 
 const userStore = useUserStore();
 
 // Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
+const route = useRoute();
 const activeTab = ref<number>(1); // Controla as abas (Login/Sign Up)
 const login = ref<string>(""); // Login do usuário
 const password = ref<string>(""); // Senha do usuário
@@ -208,13 +338,9 @@ const showAlert = ref(false);
 const showPass = ref(false);
 const privacyDialog = ref(false);
 
-
 const navigateTo = (route: string) => {
   router.push(route);
 };
-
-
-
 
 // Regras de validação
 const rules = {
@@ -235,6 +361,26 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   showAlert.value = true;
   alertType.value = type;
 };
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab === "signup") {
+      activeTab.value = 1;
+    } else {
+      activeTab.value = 0;
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(() => {
+  if (route.query.tab === "signup") {
+    activeTab.value = 1;
+  } else {
+    activeTab.value = 0;
+  }
+});
 
 // Função de login
 const loginUser = async () => {
@@ -261,21 +407,22 @@ const loginUser = async () => {
 
       const dbUser = response.data.data;
 
-      const appUser: Object = {
+      const appUser: User = {
         email: dbUser.email,
         google_id: dbUser.google_id,
         name: dbUser.name,
         picture_hash: dbUser.picture_hash,
         roles_fk: dbUser.roles_fk,
         user_name: dbUser.user_name,
-        user_pk: dbUser.users_pk,
+        users_pk: dbUser.users_pk,
         verified: dbUser.verified,
         zip_code: dbUser.zipcode,
+        countries_fk: dbUser.countries_fk,
       };
 
       userStore.setUser(appUser);
 
-      localStorage.setItem("app_user", appUser);
+      localStorage.setItem("app_user", JSON.stringify(appUser));
 
       // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
@@ -345,3 +492,15 @@ const submitForm = async () => {
   }
 };
 </script>
+
+
+<style>
+.clickable-text {
+  cursor: pointer; /* Transforma o cursor em uma mãozinha */
+  transition: transform 0.2s ease-in-out; /* Efeito suave ao passar o mouse */
+}
+
+.clickable-text:hover {
+  transform: scale(1.1); /* Aumenta o tamanho ao passar o mouse */
+}
+</style>

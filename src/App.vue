@@ -4,6 +4,7 @@
 
     <!-- Barra de Navegação Superior -->
     <v-navigation-drawer
+      v-if="route.name !== 'Login' && route.name !== 'RetailerRegistration' && route.name !== 'Home'"
       v-model="drawer"
       app
       location="right"
@@ -70,15 +71,19 @@
         <!-- Botão de Navegação alinhado à direita -->
 
         <v-btn
-          v-if="route.name === 'Home' || route.name === 'Login' || route.name === 'Gama'"
-          color="#B8860B"
+          v-if="
+            route.name === 'Home' ||
+            route.name === 'Login' ||
+            route.name === 'Gama'
+          "
+          color="WHITE"
           large
-          @click="$router.push({ name: 'Login' })"
+          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
           >Sign up</v-btn
         >
 
         <v-app-bar-nav-icon
-          v-else
+          v-if="route.name !== 'Login' && route.name !== 'RetailerRegistration' && route.name !== 'Home'"
           class="me-4"
           @click="drawer = !drawer"
         ></v-app-bar-nav-icon>
@@ -86,7 +91,7 @@
     </v-row>
 
     <v-bottom-navigation
-      v-else-if="route.name != 'Home' && route.name != 'Login'"
+      v-else-if="route.name !== 'Home' && route.name !== 'Login' && route.name !== 'RetailerRegistration'"
       app
       v-model="bottomNavVisible"
       class="hidden-md-and-up fixed bg-black text-white"
@@ -155,12 +160,13 @@
 
 
 <script setup lang="ts">
-import { ref, inject, computed } from "vue";
+import { ref, inject, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
-const user = useUserStore().user;
+const userStore = useUserStore();
+const user = userStore.user;
 
 const display = ref(useDisplay());
 
@@ -169,7 +175,7 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("dark");
+const theme = ref("DarkTheme");
 // Controle de visibilidade do menu de navegação inferior
 const bottomNavVisible = ref(true);
 
@@ -210,7 +216,7 @@ const menuItems = ref([
     title: "Events",
     icon: "mdi-calendar",
     to: { name: "Events" },
-    disabled: true,
+    disabled: false,
   },
 
   {
@@ -234,6 +240,15 @@ const contentStyle = computed(() => {
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat-y",
       };
+});
+
+onMounted(() => {
+  const loggedUser = localStorage.getItem("app_user");
+  const userObject = loggedUser ? JSON.parse(loggedUser) : null;
+
+  if (userObject) {
+    useUserStore().setUser(userObject);
+  }
 });
 </script>
 
