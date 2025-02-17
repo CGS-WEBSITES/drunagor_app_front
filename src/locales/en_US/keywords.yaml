@@ -262,8 +262,8 @@ keyword:
   - id: cleanse-x
     keyword: CLEANSE X
     description:
-      "Target removes up to X CC and all POISON from its board. <br><br>
-      *Apocalypse updated CLEANSE as follows:* <br><br> The target removes up to X Curse
+      "Target removes up to X CC and all POISON from its board.
+      *Apocalypse updated CLEANSE as follows:*  The target removes up to X Curse
       Cubes or Condition Stacks from its board. A Stack is: all tokens of the same kind
       the Character has. For each CLEANSE point received, that Character may choose
       to remove a Curse Cube or a Condition Stack. They don’t have to spend all the
@@ -514,11 +514,11 @@ keyword:
       When you hit with a Spell Attack or Weapon Attack, you may discard
       1 FURY to add +1 DMG to your Attack. You may discard only 1 FURY token per turn
       or Reaction (If you have an ability that is also a Reaction, for example). FURY
-      is stackable resource.<br><br> *Apocalypse updated FURY as follows:* <br><br>
+      is stackable resource. *Apocalypse updated FURY as follows:* 
       When you hit with a Spell Attack or Weapon Attack, you may discard 1 FURY to add
       +1 DMG to your Attack (no action required). You may discard 1 FURY token for each
       individual Weapon Attack or Spell Attack you make, which can be more than once
-      per tur. FURY is a stackable resources.<br><br> **NOTE:** Whenever you discard
+      per tur. FURY is a stackable resources. **NOTE:** Whenever you discard
       1 Fury in order to boost an attack that targets more than one Character at once
       (CLEAVE and STRIKE, for instance) the bonus damage is dealt to each target. You
       don't need to discard 1 Fury token for each Character targeted this way.
@@ -582,14 +582,14 @@ keyword:
     keyword: INTERACT (STACK OF BARRELS)
     description:
       Dwarves and Halflings (only those) can get inside barrels and use them
-      as hiding places. To stop hiding, the Hero will need to use another Minor Action.<br><br>-
+      as hiding places. To stop hiding, the Hero will need to use another Minor Action.-
       When a Hero enters a barrel, remove their model from the board. While there, they
       won't be able to target, or be targeted, by other Characters with any attack or
-      effect. <br>- Monsters know that the Heroes are there. However, they must destroy
+      effect. - Monsters know that the Heroes are there. However, they must destroy
       the barrel before attacking them. Thus, when a Monster attacks a character inside
       the barrel, PREVENT all damage that this attack would cause and remove the barrel
       from the board. Reposition the Hero's model (the one that was hidden) in the square
-      where the barrel was. <br>- If a Large Monster steps on a barrel with a hidden
+      where the barrel was. - If a Large Monster steps on a barrel with a hidden
       Hero, break that barrel and Shove the Hero aside. That Hero suffers 2 non-preventable
       damage.
   - id: interact-(bookshelf)
@@ -602,9 +602,9 @@ keyword:
   - id: interact-(chest)
     keyword: INTERACT (CHEST)
     description:
-      "When a Hero interacts with a Chest: <br><br> - They draw a card from
+      "When a Hero interacts with a Chest: - They draw a card from
       the top of the Chest deck. That Hero can choose to consume that Item immediately
-      as a Free Action or store it in their bag (if there is room).<br> - Finally, when
+      as a Free Action or store it in their bag (if there is room). - Finally, when
       searching a Chest, the Hero must roll the Trap Die and suffer the effect."
   - id: interact-(pile-of-crates)
     keyword: INTERACT (PILE OF CRATES)
@@ -615,12 +615,12 @@ keyword:
     keyword: INTERACT (STONE FOUNTAIN)
     description:
       "When a Hero interacts with a fountain, they flip the Concoction token
-      up, apply its effects, then discard it. There are three possible effects:<br><br>
+      up, apply its effects, then discard it. There are three possible effects:
       **Fresh Water** (Blue): Nothing tastes better to calm rampant emotions! The drinking
-      Character Regains 2 Health and gains CLEANSE 2.<br><br> **Empowerment Potion**
+      Character Regains 2 Health and gains CLEANSE 2. **Empowerment Potion**
       (Orange): Search and you will find! The drinking Character gains INSPIRE and EMPOWER,
       and they may also take an additional Cube Action this turn. If they are a Large
-      Monster, they just gain a +4 DMG Boost during this turn instead. <br><br> **Toxic
+      Monster, they just gain a +4 DMG Boost during this turn instead.  **Toxic
       Inoculation** (Green): The taste is even worse than the effect... The drinking
       Character suffers POISON 4."
   - id: interact-(stone-pillar)
@@ -875,8 +875,8 @@ keyword:
       Behavior deck and the capybara model. You can then establish that the Polymorphed
       Character simply can’t take actions during their turn. Instead, at the beginning
       of each of their activations, they must roll the d20 to see what happens that
-      turn: <br> - If they roll 11+, they break free from the Polymorph, but do not
-      act this turn. <br>- Otherwise, if they roll 10-, they remain Polymorphed. <br><br>
+      turn:  - If they roll 11+, they break free from the Polymorph, but do not
+      act this turn. - Otherwise, if they roll 10-, they remain Polymorphed.
       Regardless of your choice to proceed either withStandard Polymorph or with Simple
       Polymorph, the other rules to end this Condition early or to become immune to
       it remain the same."
@@ -924,9 +924,9 @@ keyword:
       other rules purposes. If all four Draugrs are already on the board, a Necromancer
       can no longer Raise them, only Command them (note that unlike other Pets, an effect
       that allows you to Raise a Draugr does not allow you to Command a Draugr—these
-      are separate effects for the Necromancer). <br><br> **NOTE:** Draugrs that are
+      are separate effects for the Necromancer).  **NOTE:** Draugrs that are
       raised during the Draugrs turn (the one the Pets have after their masters turn)
-      do not act during that activation. <br><br> **NOTE:** A Necromancer can Raise
+      do not act during that activation.  **NOTE:** A Necromancer can Raise
       all four Draugrs, even though they can only sustain two of them during their turn.
   - id: range-x
     keyword: RANGE X
@@ -1014,17 +1014,17 @@ keyword:
       "“Resolved” is the term used to denote the end of some game situation.
       So, when it is mentioned with an effect, it means right after that effect is applied.
       For example, analyze the following statement about a basic rule regarding Collateral
-      damage: <br><br> *“Collateral effects are applied after the damage is resolved.”*
+      damage:  *“Collateral effects are applied after the damage is resolved.”*
       So, if a character Reacts with a Tumble Skill against a Shadow Knight’s attack,
       they will move before being Knocked Down, since the Tumble Skill (and its Jump
       2) must be fully resolved before any Collateral damage applies (if it is applied
-      at all). <br><br> This term can also be found referring to an Interaction or Resolution.
+      at all).  This term can also be found referring to an Interaction or Resolution.
       When this is the case, you should know which of these two elements it is connected
-      to. This is the key to understanding its meaning. <br><br> *“Until Interaction...
+      to. This is the key to understanding its meaning.  *“Until Interaction...
       is resolved”* means that the Interaction must be done in full; that is, until
       the Interaction token is removed from the board. This might be because it has
       run out of charges or an effect has stipulated that it should be removed before
-      that. <br><br> The sentence *“...this Resolution is resolved”* only applies to
+      that.  The sentence *“...this Resolution is resolved”* only applies to
       the Resolution you are reading at that moment. Even if a Resolution is abruptly
       resolved by its own command, it will still remove 1 charge from the Interaction
       token (unless it is a Recurring Interaction or the effect itself specifies otherwise,
@@ -1037,7 +1037,7 @@ keyword:
       When a Character is Restrained by an enemy, they receive a Restrain token and
       cannot leave the space they occupy as long as they hold it. A Character may discard
       their Restrain token when there are no more enemies with the ability to Restrain
-      them within Range 1. Restrain is a redundant Condition. <br><br>**NOTE:** Characters
+      them within Range 1. Restrain is a redundant Condition. **NOTE:** Characters
       who are Restrained are able to leave their space through a Swap effect. When this
       is the case, the Object swapping with the Restrained Character takes its Restrain
       token. If this target is not a Character, the Restrain effect ends.
@@ -1159,7 +1159,7 @@ keyword:
       any number of targets (within Range) they choose. To be considered a target, a
       Character must receive a share of at least 1 point. Any empowering bonus that
       character has is applied to the total amount, not to each target they choose.
-      <br><br>**Example:** *A Bonus of +1 HEAL applied to a SPLIT, HEAL 4 effect would
+      **Example:** *A Bonus of +1 HEAL applied to a SPLIT, HEAL 4 effect would
       result in a SPLIT, HEAL 5 instead of four individual effects of HEAL 2.*
   - id: spread
     keyword: SPREAD
@@ -1182,7 +1182,7 @@ keyword:
       of a same token on their boards/cards. A two-sided token that displays the faces
       1 and 2 must always be considered as if it was the number of individual tokens
       indicated. If a character would receive a fifth token of a Stackable effect, just
-      ignore it. <br><br>**Example:** *2 tokens of Focus 2 and 4 tokens of Focus 1 are
+      ignore it. **Example:** *2 tokens of Focus 2 and 4 tokens of Focus 1 are
       considered Focus 4 either way.*
   - id: stalker-(trait)
     keyword: STALKER (TRAIT)
@@ -1191,7 +1191,7 @@ keyword:
       as the Stalker Skill is not blocked, whenever the Slayer's Stealth fades away
       *(that is, it is removed on its own at the beginning of its Hero's turn)*, the
       Slayer remains Hidden until the end of the current Hero's turn or until they try
-      to surprise another Character. <br><br>**Example:** *Nyx received Stealth through
+      to surprise another Character. **Example:** *Nyx received Stealth through
       the **Sucker Punch** Skill in the previous round. At the beginning of her turn,
       in this new round, her Stealth faded away, but she will still remain hidden until
       she tries to surprise another Character (which could lead her to cause Double
@@ -1209,17 +1209,17 @@ keyword:
     keyword: STEALTH
     description:
       The Target receives a STEALTH Token and is considered hidden while
-      they are holding it. <br><br>- Characters without Immunity to STEALTH do not count
+      they are holding it. - Characters without Immunity to STEALTH do not count
       a hidden character either as their Target nor an enemy for engagement purposes
       (they still can't pass through them if they are enemies). - Hidden characters
-      still take damage from area Attacks such as STRIKE and from Darkness. <br>- At
+      still take damage from area Attacks such as STRIKE and from Darkness. - At
       the beginning of its next turn, the character is no longer hidden and must discard
-      its STEALTH token.<br><br>Alternatively, as many seasoned assassins do, a character
-      can end their STEALTH sooner by trying to Surprise a Target. <br><br>- Thus, if
+      its STEALTH token.Alternatively, as many seasoned assassins do, a character
+      can end their STEALTH sooner by trying to Surprise a Target. - Thus, if
       a character with a STEALTH token makes a Weapon Attack, whether it hits or not,
       it Immediately loses STEALTH. On the other hand, if the Attack hits, it gains
       DOUBLE DAMAGE if the attacking character was considered hidden from its Target.
-      This is called "Surprise." <br>- Characters immune to STEALTH cannot be Surprised.
+      This is called "Surprise." - Characters immune to STEALTH cannot be Surprised.
   - id: square
     keyword: SQUARE
     description: "Refers to a white square on map tile. "
@@ -1265,7 +1265,7 @@ keyword:
       Swarm Monsters are tiny creatures that, joined together, form a single
       being, and thus they have no vital points in their body. Such creatures suffer
       only half damage (rounded up, after Prevent reductions have been applied) of all
-      Weapon Attack that hit them.<br><br> **Example:** *If Lorelai has 2 Intimidate
+      Weapon Attack that hit them. **Example:** *If Lorelai has 2 Intimidate
       tokens when she attacks a Monster that has Swarm and 1 Shield token using a 6-damage
       attack, that Monster would suffer only 2 points of damage in the end (6 - 2 -
       1 = 3; 3 ÷ 2 = 1.5, which is then rounded up to 2).*
@@ -1292,10 +1292,10 @@ keyword:
     description:
       Threat is the term used to define the moment when a Hero can have their
       Health points reduced by some attack or effect, but is able to defend themselves
-      and try to prevent this from happening.<br><br>Thus, Threat essentially defines
+      and try to prevent this from happening.Thus, Threat essentially defines
       when a Hero can usea Reaction in-game. As a rule, Heroes can use such Skills or
       Abilities whenever a Hero (either themselves or an ally) is threatened, that is,
-      when they take preventable damage (non-preventable damage never generates a Threat).<br><br>Take
+      when they take preventable damage (non-preventable damage never generates a Threat).Take
       note that Threat is just a term, it doesn't change any rules. Therefore, Reactions
       with “SELF” can only be used if the casting Character is also being threatened
       and so on, as described on page 14 of the Corebox Rulebook.
@@ -1304,10 +1304,10 @@ keyword:
     description:
       When thrown at a Character, a barrel deals 2 DMG and inflicts KNOCK
       DOWN to its target if it is a Small Character. Large Monsters bodies are so powerful
-      that barrels don't even bother them. <br><br> - However, if a Hero was hidden
+      that barrels don't even bother them. - However, if a Hero was hidden
       inside the barrel, the throwing causes +2 DMG and it can even target Large Monsters
       and inflict KNOCK DOWN to them (overcoming their immunity thanks to the extra
-      weight). <br>- Reposition the Hero that was in the barrel in a square of their
+      weight). - Reposition the Hero that was in the barrel in a square of their
       choice that is adjacent to the target against which the barrel was thrown. *(Don't
       forget, thrown Furniture is broken and removed from the board).*
   - id: throw-(bookshelf)
@@ -1316,7 +1316,7 @@ keyword:
       "Bookshelves are too heavy to be thrown at a Character with a Minor
       Action. Instead, it is simply knocked over, affecting a Character that is adjacent
       to it (chosen by the Hero who used the Throw Furniture Minor Action). TELEKINESIS,
-      on the other hand, can throw a bookshelf normally. <br><br>- Regardless of the
+      on the other hand, can throw a bookshelf normally. - Regardless of the
       way it was thrown, a bookshelf deals 2 DMG and inflicts STUN to its target (Don’t
       forget: Thrown Furniture is always broken and removed from the board.)"
   - id: throw-(chest)
@@ -1329,7 +1329,7 @@ keyword:
     keyword: THROW (PILE OF CRATES)
     description:
       When thrown, the Pile of Crate inflicts BRITTLE to its target if it
-      is a Small Character. <br><br>- Large Monsters bodies are so powerful that the
+      is a Small Character. - Large Monsters bodies are so powerful that the
       crates don't even bother them. (Don't forget, thrown Furniture is broken and removed
       from the board.)
   - id: throw-(stone-fountains)
@@ -1343,7 +1343,7 @@ keyword:
     description:
       Stone Pillars are attached to the floor and ceiling and therefore cannot
       be thrown at other characters in any way. However, it is precisely because they
-      are so firm that the opposite becomes true:<br><br>- When a Character is thrown
+      are so firm that the opposite becomes true:- When a Character is thrown
       against a stone pillar (by effects like TELEKINESIS or PUSH), they suffer 4 non-preventable
       damage and are repositioned in a square adjacent to the pillar chosen by the Character
       who threw them. The pillar is not removed from the board.
@@ -1408,7 +1408,7 @@ keyword:
       its user. When you first receive this double-sided Equipment card, you can choose
       which face you want to use. From then on, as a Minor Action, you can flip the
       card over if there are no Action Cubes occupying any of its slots. You can even
-      flip a card that is in your bag. <br><br>**NOTE:** If you flip a Versatile Equipment
+      flip a card that is in your bag. **NOTE:** If you flip a Versatile Equipment
       to a face with an Equipment type that you are not proficient in, you must immediately
       Unequip that card.
   - id: vicious
