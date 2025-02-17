@@ -109,6 +109,7 @@ const retailmobilebuttons = ref([
   { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist', text: "friends" },
   { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings', text: "settings" },
   { icon: 'mdi-logout', value: 'logout', route: '/perfil/', text: "logout" },
+
 ]);
 
 </script>
