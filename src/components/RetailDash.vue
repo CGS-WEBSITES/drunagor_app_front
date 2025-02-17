@@ -269,7 +269,7 @@ const carouselItems = ref([
   },
   {
     img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
-    label: "MY STORE",
+    label: "MY PROFILE",
     route: { name: "PerfilHome" },
   },
 

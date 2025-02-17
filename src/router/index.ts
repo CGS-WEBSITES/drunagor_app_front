@@ -205,10 +205,10 @@ const router = createRouter({
           },
         },
         {
-          path: "/perfil",
+          path: "/perfil/store-settings",
           name: "logout",
           component: () =>
-            import("@/components/CampaignHeroSequentialAdventure.vue"),
+            import("@/components/StoreSettings.vue"),
           beforeEnter(to, from, next) {
             if (isSignedIn()) {
               next()

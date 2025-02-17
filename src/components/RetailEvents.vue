@@ -12,8 +12,8 @@
 <v-card class="pb-12" min-height="500px" color="#151515">
 
     <v-row no-gutters>
-      <v-col cols="12">
-        <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+      <v-col  cols="12">
+        <v-tabs  class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
           <v-tab class="text-h5" :value="1">EVENTS</v-tab>
           <v-tab class="text-h5" :value="2">RETAILER</v-tab>
         </v-tabs>
@@ -51,14 +51,14 @@
         v-for="(event, index) in sortedEvents"
         :key="index"
       >
-        <v-card color="white" class="pt-0 event-card" @click="openDialog(event)">
+        <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
           <v-row no-gutters>
             <v-col cols="4" sm="2">
               <v-img :src="event.image" class="mt-3 event-img"></v-img>
             </v-col>
             <v-col cols="8" sm="10" class="pt-2 pl-1">
               <h3 class="">{{ event.name }}</h3>
-              <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.location }}</p>
+              <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ selectedStore?.address1 }}, {{ selectedStore?.address2 }},{{ selectedStore?.city }}, {{ selectedStore?.state }}</p>
               <p class="text-caption">
                 Rewards: 
                 <v-row class="d-flex align-center rewards-container">
@@ -95,15 +95,15 @@
         <v-card color="primary" min-height="130px" class="mr-4 event-card">
           <v-row no-gutters>
             <v-col cols="3" lg="3">
-              <v-img :src="selectedEvent?.shopimage" class=" event-img"></v-img>
+              <v-img :src="selectedStoreImage" class="event-img"></v-img>
             </v-col>
             <v-col cols="9" class="pa-2">
-              <h3 class="text-subtitle-1 font-weight-bold">{{ selectedEvent?.shopname }}</h3>
-              
-              <p class="text-caption"> <v-icon color="red">mdi-map-marker</v-icon> {{ selectedEvent?.location }}</p>
-              <p class="text-caption">
-                <v-icon v-for="n in 4" :key="n" size="18">mdi-star</v-icon>
-              </p>
+              <h3 class="text-subtitle-1 font-weight-bold">{{ selectedStore?.storename || "Select a store" }}</h3>
+
+<p class="text-caption">
+  <v-icon color="red">mdi-map-marker</v-icon>
+  {{ selectedStore?.address1 }}, {{ selectedStore?.address2 }},{{ selectedStore?.city }}, {{ selectedStore?.state }}
+</p>
             </v-col>
             <v-col cols="2" class="text-right pa-0">
             </v-col>
@@ -187,11 +187,11 @@
           <!-- Loja -->
           <v-col cols="12" md="6">
             <v-select
-              v-model="newEvent.store"
-              :items="stores"
-              label="STORE"
-              variant="outlined"
-            ></v-select>
+  v-model="newEvent.store"
+  :items="stores.map(store => store.storename)" 
+  label="STORE"
+  variant="outlined"
+/>
           </v-col>
 
           <!-- Descrição -->
@@ -469,6 +469,15 @@ const joinEvent = () => {
 
 const activeTab = ref("events");
 const sortBy = ref("date");
+
+const selectedStoreImage = computed(() => {
+  const store = stores.value.find(s => s.storename === selectedEvent.value?.store);
+  return store ? store.storeImage : "https://via.placeholder.com/150"; // Imagem padrão caso não tenha uma loja definida
+});
+
+const selectedStore = computed(() => {
+  return stores.value.find(s => s.storename === selectedEvent.value?.store) || {};
+});
 
 // Sample Events Data
 const events = ref([
@@ -927,7 +936,12 @@ const newEvent = ref({
   rewards: [],
 });
 
-const stores = ["Shopping Drunagor"];
+const stores = ref([]);
+
+// Recupera as lojas salvas ao iniciar a página
+onMounted(() => {
+  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+});
 
 const createEvent = () => {
   console.log("Event Created:", newEvent.value);
