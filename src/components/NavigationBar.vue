@@ -49,10 +49,10 @@ const activeButton = ref<string | null>(null);
 
 // Grupos de botões (divididos em 3 grupos)
 const buttons = ref([
-  { icon: 'mdi-account', value: 'PerfilHome', route: '/perfil/home', text: "perfil" },
-  { icon: 'mdi-magnify', value: 'search', route: '/perfil/friend-store', text: "search users" },
-  { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist', text: "friends" },
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings', text: "user config" },
+  { icon: 'mdi-account', value: 'PerfilHome', route: '/profile/home', text: "perfil" },
+  { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
+  { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
+  { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "user config" },
   { icon: 'mdi-logout', value: 'logout', route: '/Perfil', text: "logout" },
 ]);
 
