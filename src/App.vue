@@ -4,95 +4,104 @@
 
     <!-- Barra de Navegação Superior -->
 
-   
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
-  <div class="d-flex align-center pl-6">
-    <!-- Ícone Drunagor -->
-    <v-img
-      src="@/assets/darknessl.png"
-      height="30"
-      width="30"
-      alt="Drunagor Icon"
-      contain
-      class="mr-2"
-      @click="$router.push({ name: 'Dashboard' })"
-    ></v-img>
-    <span>App Drunagor</span>
-  </div>
+        <div
+          @click="$router.push({ name: 'Dashboard' })"
+          style="cursor: pointer"
+          class="d-flex align-center pl-6"
+        >
+          <!-- Ícone Drunagor -->
+          <v-img
+            src="@/assets/darknessl.png"
+            height="30"
+            width="30"
+            alt="Drunagor Icon"
+            contain
+            class="mr-2"
+          ></v-img>
+          <span>App Drunagor</span>
+        </div>
 
+        <v-spacer></v-spacer>
 
-  <v-spacer></v-spacer>
+        <!-- Avatar + Nome do Usuário + Menu Suspenso -->
+        <v-menu open-on-hover offset-y>
+          <v-list>
+            <v-list-item @click="logout">
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Log Out</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
 
-  <!-- Avatar + Nome do Usuário + Menu Suspenso -->
-  <v-menu open-on-hover offset-y>
-    
-    <v-list>
-      <v-list-item @click="logout">
-        <v-list-item-icon>
-          <v-icon>mdi-logout</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>Log Out</v-list-item-title>
-      </v-list-item>
-    </v-list>
-  </v-menu>
+        <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
+        <v-btn
+          v-if="['Home', 'Login', 'Gama'].includes(route.name)"
+          color="WHITE"
+          large
+          @click="$router.push({ name: 'Login' })"
+        >
+          Sign up
+        </v-btn>
 
-  <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
-  <v-btn
-    v-if="['Home', 'Login', 'Gama'].includes(route.name)"
-    color="WHITE"
-    large
-    @click="$router.push({ name: 'Login' })"
-  >
-    Sign up
-  </v-btn>
+        <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
+        <div class="d-flex" v-else>
+          <v-hover  v-for="(item, index) in menuItems"
+          :key="index">
+            <template v-slot:default="{ isHovering, props }">
+              <v-btn
+                v-bind="props"
+                color="secundary"
+                :elevation="isHovering ? 10 : 0"
+               
+                :disabled="item.disabled"
+                class="mx-2"
+                @click="item.to ? router.push(item.to) : item.do()"
+              >
+                {{ item.title }}
+              </v-btn>
+            </template>
+          </v-hover>
 
+          <v-menu open-on-hover offset-y>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" text class="px-3">
+                <span class="pr-1">{{ user.user_name }}</span>
+                <v-avatar size="35" class="mr-2">
+                  <v-img
+                    :src="
+                      user.picture_hash
+                        ? assets + '/Profile/' + user.picture_hash
+                        : assets + '/Profile/user.png'
+                    "
+                  />
+                </v-avatar>
+                <v-icon right>mdi-chevron-down</v-icon>
+              </v-btn>
+            </template>
 
-  <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
-  <div class="d-flex" v-else>
-    <v-btn
-      v-for="(item, index) in menuItems"
-      :key="index"
-      text
-      :disabled="item.disabled"
-      class="mx-2"
-      @click="item.to ? router.push(item.to) : item.do()"
-    >
-   
-      {{ item.title }}
-    </v-btn>
-    <v-menu open-on-hover offset-y>
-  <template v-slot:activator="{ props }">
-    <v-btn v-bind="props" text class="px-3">
-      <span class="pr-1">{{ user.user_name }}</span>
-      <v-avatar size="35" class="mr-2">
-        <v-img
-          :src="user.picture_hash ? assets + '/Profile/' + user.picture_hash : assets + '/Profile/user.png'"
-        />
-      </v-avatar>
-      <v-icon right>mdi-chevron-down</v-icon>
-    </v-btn>
-  </template>
-
-  <v-list>
-    <v-list-item @click="logOut">
-      <v-list-item-icon>
-        <v-icon>mdi-logout</v-icon>
-      </v-list-item-icon>
-      <v-list-item-title>Log Out</v-list-item-title>
-    </v-list-item>
-  </v-list>
-</v-menu>
-
-  </div>
-
-  
-</v-app-bar>
-
+            <v-list>
+              <v-list-item @click="logOut">
+                <v-list-item-icon>
+                  <v-icon>mdi-logout</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Log Out</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
+      </v-app-bar>
     </v-row>
 
     <v-bottom-navigation
-      v-else-if="route.name !== 'Home' && route.name !== 'Login' && route.name !== 'RetailerRegistration'"
+      v-else-if="
+        route.name !== 'Home' &&
+        route.name !== 'Login' &&
+        route.name !== 'RetailerRegistration'
+      "
       app
       v-model="bottomNavVisible"
       class="hidden-md-and-up fixed bg-black text-white"

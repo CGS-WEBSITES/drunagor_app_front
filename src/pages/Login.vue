@@ -66,6 +66,7 @@
                         color="black"
                         outlined
                         dense
+                        @keyup.enter = "loginUser"
                       />
                     </v-col>
                     <v-col cols="1" class="d-flex justify-center align-center">
