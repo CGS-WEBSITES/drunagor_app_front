@@ -689,7 +689,7 @@
     },
     {
       img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
-      label: "MY PROFILE",
+      label: "PROFILE",
       route: { name: "PerfilHome" },
     },
   
