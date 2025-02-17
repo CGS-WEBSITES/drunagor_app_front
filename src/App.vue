@@ -165,7 +165,8 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
-const user = useUserStore().user;
+const userStore = useUserStore();
+const user = userStore.user;
 
 const display = ref(useDisplay());
 
@@ -244,8 +245,6 @@ const contentStyle = computed(() => {
 onMounted(() => {
   const loggedUser = localStorage.getItem("app_user");
   const userObject = loggedUser ? JSON.parse(loggedUser) : null;
-
-  console.log(userObject)
 
   if (userObject) {
     useUserStore().setUser(userObject);

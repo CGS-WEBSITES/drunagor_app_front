@@ -417,6 +417,7 @@ const loginUser = async () => {
         users_pk: dbUser.users_pk,
         verified: dbUser.verified,
         zip_code: dbUser.zipcode,
+        countries_fk: dbUser.countries_fk,
       };
 
       userStore.setUser(appUser);
