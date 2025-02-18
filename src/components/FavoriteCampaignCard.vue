@@ -3,7 +3,7 @@
     <v-card class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3" >
       <!-- Imagem -->
       <v-img
-        src="https://cf.geekdo-images.com/r8obvBpTbSiNr5C0B6g8MA__opengraph/img/eZOHrAK-dYl02EEXlrCI5vZWbB4=/0x0:906x476/fit-in/1200x630/filters:strip_icc()/pic7619515.png"
+        src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"
         alt="Campaign Image"
         max-width="800"
         class="rounded-lg"
@@ -40,12 +40,12 @@
     subtitle: {
       type: String,
       required: true,
-      default: 'Chronicles of Drunagor: Age of Darkness The Rise of the Undead Dragon',
+      default: 'Chronicles of Drunagor: Age of Darkness The Riasdasse of the Undead Dragon',
     },
     subtitle2: {
       type: String,
       required: true,
-      default: 'Chronicles of Drunagor: Age of Darkness The Rise of the Undead Dragon',
+      default: 'Chronicles of Drunagor: Age of Darkness Thsdasdae Rise of the Undead Dragon',
     },
     progress: {
       type: Number,
