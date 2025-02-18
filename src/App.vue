@@ -39,7 +39,16 @@
 
         <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
         <v-btn
-          v-if="['Home', 'Login', 'Gama'].includes(route.name)"
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
+          color="WHITE"
+          large
+          @click="$router.push({ name: 'Community' })"
+        >
+          Community
+        </v-btn>
+
+        <v-btn
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
           color="WHITE"
           large
           @click="$router.push({ name: 'Login' })"
@@ -51,12 +60,12 @@
         <div class="d-flex" v-else>
           <v-hover  v-for="(item, index) in menuItems"
                 :key="index">
+
             <template v-slot:default="{ isHovering, props }">
               <v-btn
                 v-bind="props"
                 color="secundary"
                 :elevation="isHovering ? 10 : 0"
-               
                 :disabled="item.disabled"
                 class="mx-2"
                 @click="item.to ? router.push(item.to) : item.do()"
@@ -101,7 +110,9 @@
       v-else-if="
         route.name !== 'Home' &&
         route.name !== 'Login' &&
-        route.name !== 'RetailerRegistration'
+        route.name !== 'RetailerRegistration' &&
+        route.name !== 'Gama' &&
+        route.name !== 'Community'
       "
       app
       v-model="bottomNavVisible"
