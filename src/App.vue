@@ -20,7 +20,7 @@
             contain
             class="mr-2"
           ></v-img>
-          <span>App Drunagor</span>
+          <span>Drunagor App</span>
         </div>
 
         <v-spacer></v-spacer>
@@ -48,28 +48,32 @@
         </v-btn>
 
         <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
-        <div class="d-flex" v-else>
-          <v-hover  v-for="(item, index) in menuItems"
-                :key="index">
-            <template v-slot:default="{ isHovering, props }">
-              <v-btn
-                v-bind="props"
-                color="secundary"
-                :elevation="isHovering ? 10 : 0"
-               
-                :disabled="item.disabled"
-                class="mx-2"
-                @click="item.to ? router.push(item.to) : item.do()"
-              >
-                {{ item.title }}
-              </v-btn>
-            </template>
-          </v-hover>
-  
+        <div class="d-flex w-100 align-center justify-space-between" v-else>
+          <div class="d-flex justify-center w-100">
+            <v-hover v-for="(item, index) in menuItems" :key="index">
+              <template v-slot:default="{ isHovering, props }">
+                <v-btn
+                  v-bind="props"
+                  color="secundary"
+                  :elevation="isHovering ? 10 : 0"
+                  :disabled="item.disabled"
+                  class="mx-2"
+                  @click="item.to ? router.push(item.to) : item.do()"
+                >
+                  {{ item.title }}
+                </v-btn>
+              </template>
+            </v-hover>
+          </div>
 
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" text class="px-3">
+              <v-btn
+                @click="$router.push({ name: 'PerfilHome' })"
+                v-bind="props"
+                text
+                class="px-3"
+              >
                 <span class="pr-1">{{ user.user_name }}</span>
                 <v-avatar size="35" class="mr-2">
                   <v-img
@@ -136,33 +140,43 @@
             src="@/assets/cgs.png"
             max-width="92"
             alt="logo"
+            style="cursor: pointer"
+             @click="openLink('https://wearecgs.com/')"
           />
         </v-col>
 
         <v-col
-          cols="12"
-          sm="4"
-          class="d-flex flex-column info-footer text-center align-center"
-        >
-          <h3 class="white--text">Join us on Discord</h3>
-          <v-img
-            class="mt-4"
-            width="30"
-            src="@/assets/discord-mark-white.svg"
-          ></v-img>
-        </v-col>
+  cols="12"
+  sm="4"
+  class="d-flex flex-column info-footer text-center align-center"
+>
+  <h3 class="white--text">Join us on Discord</h3>
+  
+  <v-btn
+    class="mt-4"
+    fab
+    icon
+    color="black"
+    dark
+    @click="openLink('https://discord.com/invite/nDaHpk2KDQ')"
+  >
+    <v-img width="30" src="@/assets/discord-mark-white.svg"></v-img>
+  </v-btn>
+</v-col>
 
         <v-col cols="12" sm="4" class="text-center">
           <h3 class="white--text">Social medias</h3>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-instagram</v-icon>
-          </v-btn>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-facebook</v-icon>
-          </v-btn>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-youtube</v-icon>
-          </v-btn>
+          <v-btn fab icon color="black" dark @click="openLink('https://www.instagram.com/wearecreativegames/')">
+  <v-icon color="white">mdi-instagram</v-icon>
+</v-btn>
+
+<v-btn fab icon color="black" dark @click="openLink('https://www.facebook.com/wearecgs')">
+  <v-icon color="white">mdi-facebook</v-icon>
+</v-btn>
+
+<v-btn fab icon color="black" dark @click="openLink('https://www.youtube.com/@wearecgs')">
+  <v-icon color="white">mdi-youtube</v-icon>
+</v-btn>
         </v-col>
       </v-row>
     </v-footer>
@@ -176,7 +190,9 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
-
+const openLink = (url) => {
+  window.open(url, "_blank");
+};
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -245,10 +261,33 @@ watch(
   { immediate: true }
 );
 
-
-
-
 const contentStyle = computed(() => {
+  if (route.name === "Login") {
+    return display.value.mdAndUp
+      ? {
+          "background-image":
+            "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/login-background.png')",
+          "background-size": "cover",
+          "background-position": "top center", // Alinha ao topo
+          "background-repeat": "no-repeat",
+          "min-height": "100vh",
+          width: "100%",
+          "margin-top": "65px", // Remove margem superior
+          display: "flex",
+          "align-items": "center", // Centraliza o conteúdo verticalmente
+          "justify-content": "center", // Centraliza o conteúdo horizontalmente
+        }
+      : {
+          "background-image":
+            "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/mblogin-background.png')",
+          "background-size": "cover",
+          "background-position": "center",
+          "background-repeat": "no-repeat",
+          "min-height": "100vh",
+          width: "100%",
+        };
+  }
+
   return display.value.mdAndUp
     ? {
         "background-image":
