@@ -30,6 +30,11 @@ const router = createRouter({
       component: () => import("@/pages/Gama.vue"),
     },
     {
+      path: "/community",
+      name: "Community",
+      component: () => import("@/pages/Community.vue"),
+    },
+    {
       path: "/events",
       name: "Events",
       component: () => import("@/pages/Events.vue"),
