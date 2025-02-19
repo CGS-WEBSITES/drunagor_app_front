@@ -39,7 +39,16 @@
 
         <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
         <v-btn
-          v-if="['Home', 'Login', 'Gama'].includes(route.name)"
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
+          color="WHITE"
+          large
+          @click="$router.push({ name: 'Community' })"
+        >
+          Community
+        </v-btn>
+
+        <v-btn
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
           color="WHITE"
           large
           @click="$router.push({ name: 'Login' })"
@@ -48,6 +57,7 @@
         </v-btn>
 
         <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
+
         <div class="d-flex w-100 align-center justify-space-between" v-else>
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
@@ -105,7 +115,9 @@
       v-else-if="
         route.name !== 'Home' &&
         route.name !== 'Login' &&
-        route.name !== 'RetailerRegistration'
+        route.name !== 'RetailerRegistration' &&
+        route.name !== 'Gama' &&
+        route.name !== 'Community'
       "
       app
       v-model="bottomNavVisible"
