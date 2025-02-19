@@ -23,15 +23,16 @@
 
               <div class="buttons-container">
                 <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
-                  :style="{ backgroundColor: product.wish === 'true' ? '#136D6D' : '' }"
+                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }"
                   @click="toggleWishlist(product.id)">
-                  {{ product.wish === 'true' ? "- Wishlist" : "+ Wishlist" }}
+                  {{ product.wish ? "- Wishlist" : "+ Wishlist" }}
                 </v-btn>
 
+                <!-- Botão Owned -->
                 <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
-                  :style="{ backgroundColor: product.owned === 'true' ? '#136D6D' : '' }"
+                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }"
                   @click="toggleOwned(product.id)">
-                  {{ product.owned === 'true' ? "- Owned" : "+ Owned" }}
+                  {{ product.owned ? "- Owned" : "+ Owned" }}
                 </v-btn>
               </div>
             </div>
@@ -47,8 +48,8 @@
 
               <div class="wishlist-button-container">
                 <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
-                  :style="{ backgroundColor: product.wish === 'true' ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
-                  {{ product.wish === 'true' ? " - Wishlist" : "+ Wishlist" }}
+                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
+                  {{ product.wish? " - Wishlist" : "+ Wishlist" }}
                 </v-btn>
               </div>
             </v-card>
@@ -64,8 +65,8 @@
 
               <div class="owned-button-container">
                 <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
-                  :style="{ backgroundColor: product.owned === 'true' ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
-                  {{ product.owned === 'true' ? "- Owned" : "+ Owned" }}
+                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
+                  {{ product.owned ? "- Owned" : "+ Owned" }}
                 </v-btn>
               </div>
             </v-card>
@@ -155,8 +156,8 @@ interface Product {
   description: string;
   color: string;
   cardbg: string;
-  owned: "true" | "false" | null;
-  wish: "true" | "false" | null;
+  owned: boolean | null;
+  wish: boolean | null;
   libraries_pk: number | null;
 }
 
@@ -182,7 +183,7 @@ const toggleWishlist = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyWishlisted = product.wish === 'true';
+  const isCurrentlyWishlisted = product.wish === true;
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
@@ -198,8 +199,8 @@ const toggleWishlist = async (productId: number) => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((response: any) => {
-        product.wish = "true";
-        product.owned = "false";
+        product.wish = true;
+        product.owned = false;
         product.libraries_pk = response.data.libraries_pk;
         wishlist.value.push(productId);
       })
@@ -220,8 +221,8 @@ const toggleWishlist = async (productId: number) => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then(() => {
-        product.wish = isCurrentlyWishlisted ? "false" : "true";
-        product.owned = "false";
+        product.wish = isCurrentlyWishlisted ? false : true;
+        product.owned = false;
 
         if (isCurrentlyWishlisted) {
           wishlist.value = wishlist.value.filter((id) => id !== productId);
@@ -239,7 +240,7 @@ const toggleOwned = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyOwned = product.owned === "true";
+  const isCurrentlyOwned = product.owned === true;
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
@@ -256,8 +257,8 @@ const toggleOwned = async (productId: number) => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((response: any) => {
-        product.owned = "true";
-        product.wish = "false";
+        product.owned = true;
+        product.wish = false;
         product.libraries_pk = response.data.libraries_pk;
         owned.value.push(productId);
       })
@@ -278,8 +279,8 @@ const toggleOwned = async (productId: number) => {
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then(() => {
-        product.owned = isCurrentlyOwned ? "false" : "true";
-        product.wish = "false";
+        product.owned = isCurrentlyOwned ? false : true;
+        product.wish = false;
 
         if (isCurrentlyOwned) {
           owned.value = owned.value.filter((id) => id !== productId);
@@ -310,8 +311,8 @@ const toggleFromWishlist = async (productId: number) => {
       { headers: { Authorization: `Bearer ${token}` } }
     )
     .then(() => {
-      product.wish = "false";
-      product.owned = "false";
+      product.wish = false;
+      product.owned = false;
       wishlist.value = wishlist.value.filter((id) => id !== productId);
       confirmationMessage.value = `Product "${product.name}" removed from Wishlist!`;
       confirmationDialog.value = true;
@@ -338,8 +339,8 @@ const toggleFromOwned = async (productId: number) => {
       { headers: { Authorization: `Bearer ${token}` } }
     )
     .then(() => {
-      product.owned = "false";
-      product.wish = "false";
+      product.owned = false;
+      product.wish = false;
       owned.value = owned.value.filter((id) => id !== productId);
       confirmationMessage.value = `Product "${product.name}" removed from Owned!`;
       confirmationDialog.value = true;
@@ -359,7 +360,7 @@ const toggleFromOwned = async (productId: number) => {
 
 const wishlistItems = computed(() => {
   const itemsWithWishTrue = products.value.filter(
-    (product) => product.wish === 'true'
+    (product) => product.wish === true
   );
 
   return itemsWithWishTrue;
@@ -367,7 +368,7 @@ const wishlistItems = computed(() => {
 
 const ownedItems = computed(() => {
   const itemsWithOwnedTrue = products.value.filter(
-    (product) => product.owned === 'true'
+    (product) => product.owned === true
   );
 
   return itemsWithOwnedTrue;
