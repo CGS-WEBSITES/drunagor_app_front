@@ -23,13 +23,15 @@
 
               <div class="buttons-container">
                 <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
-                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleWishlist(product.id)">
-                  {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
+                  :style="{ backgroundColor: product.wish === 'true' ? '#136D6D' : '' }"
+                  @click="toggleWishlist(product.id)">
+                  {{ product.wish === 'true' ? "- Wishlist" : "+ Wishlist" }}
                 </v-btn>
 
                 <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
-                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleOwned(product.id)">
-                  {{ product.owned ? "- Owned" : "+ Owned" }}
+                  :style="{ backgroundColor: product.owned === 'true' ? '#136D6D' : '' }"
+                  @click="toggleOwned(product.id)">
+                  {{ product.owned === 'true' ? "- Owned" : "+ Owned" }}
                 </v-btn>
               </div>
             </div>
@@ -45,8 +47,8 @@
 
               <div class="wishlist-button-container">
                 <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
-                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
-                  {{ product.wish ? " - Wishlist" : "+ Wishlist" }}
+                  :style="{ backgroundColor: product.wish === 'true' ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
+                  {{ product.wish === 'true' ? " - Wishlist" : "+ Wishlist" }}
                 </v-btn>
               </div>
             </v-card>
@@ -60,12 +62,10 @@
             <v-card>
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
 
-                
-
               <div class="owned-button-container">
                 <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
-                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
-                  {{ product.owned ? "- Owned" : "+ Owned" }}
+                  :style="{ backgroundColor: product.owned === 'true' ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
+                  {{ product.owned === 'true' ? "- Owned" : "+ Owned" }}
                 </v-btn>
               </div>
             </v-card>
@@ -74,8 +74,6 @@
       </div>
     </v-card>
   </v-container>
-
- 
 
   <v-dialog v-model="dialog" max-width="440">
     <v-card class="custom-background">
@@ -184,8 +182,7 @@ const toggleWishlist = async (productId: number) => {
   const product = products.value.find((p) => p.id === productId);
   if (!product) return;
 
-  const isCurrentlyWishlisted = product.wish === "true";
-  const isCurrentlyOwned = product.owned === "true";
+  const isCurrentlyWishlisted = product.wish === 'true';
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
@@ -205,9 +202,6 @@ const toggleWishlist = async (productId: number) => {
         product.owned = "false";
         product.libraries_pk = response.data.libraries_pk;
         wishlist.value.push(productId);
-
-        confirmationMessage.value = `Product "${product.name}" added to Wishlist!`;
-        confirmationDialog.value = true;
       })
       .catch((error: any) => {
         console.error("Erro ao adicionar à wishlist:", error);
@@ -221,23 +215,19 @@ const toggleWishlist = async (productId: number) => {
           users_fk: appUser.users_pk,
           skus_fk: productId,
           wish: isCurrentlyWishlisted ? "false" : "true",
-          owned: isCurrentlyOwned ? "true" : "false",
+          owned: "false",
         },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then(() => {
         product.wish = isCurrentlyWishlisted ? "false" : "true";
-        product.owned = isCurrentlyOwned ? "true" : "false";
+        product.owned = "false";
 
         if (isCurrentlyWishlisted) {
           wishlist.value = wishlist.value.filter((id) => id !== productId);
         } else {
           wishlist.value.push(productId);
         }
-
-        confirmationMessage.value = `Product "${product.name}" ${isCurrentlyWishlisted ? "removed from" : "added to"
-          } Wishlist!`;
-        confirmationDialog.value = true;
       })
       .catch((error: any) => {
         console.error("Erro ao atualizar a wishlist:", error);
@@ -250,7 +240,6 @@ const toggleOwned = async (productId: number) => {
   if (!product) return;
 
   const isCurrentlyOwned = product.owned === "true";
-  const isCurrentlyWishlisted = product.wish === "true";
   const librariesPk = product.libraries_pk;
 
   if (!librariesPk) {
@@ -268,11 +257,9 @@ const toggleOwned = async (productId: number) => {
       )
       .then((response: any) => {
         product.owned = "true";
+        product.wish = "false";
         product.libraries_pk = response.data.libraries_pk;
         owned.value.push(productId);
-
-        confirmationMessage.value = `Product "${product.name}" added to Owned!`;
-        confirmationDialog.value = true;
       })
       .catch((error: any) => {
         console.error("Erro ao adicionar ao owned:", error);
@@ -286,7 +273,7 @@ const toggleOwned = async (productId: number) => {
           users_fk: appUser.users_pk,
           skus_fk: productId,
           owned: isCurrentlyOwned ? "false" : "true",
-          wish: isCurrentlyWishlisted ? "true" : "false",
+          wish: "false",
         },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -299,10 +286,6 @@ const toggleOwned = async (productId: number) => {
         } else {
           owned.value.push(productId);
         }
-
-        confirmationMessage.value = `Product "${product.name}" ${isCurrentlyOwned ? "removed from" : "added to"
-          } Owned!`;
-        confirmationDialog.value = true;
       })
       .catch((error: any) => {
         console.error("Erro ao atualizar o owned:", error);
@@ -376,7 +359,7 @@ const toggleFromOwned = async (productId: number) => {
 
 const wishlistItems = computed(() => {
   const itemsWithWishTrue = products.value.filter(
-    (product) => product.wish === true
+    (product) => product.wish === 'true'
   );
 
   return itemsWithWishTrue;
@@ -384,7 +367,7 @@ const wishlistItems = computed(() => {
 
 const ownedItems = computed(() => {
   const itemsWithOwnedTrue = products.value.filter(
-    (product) => product.owned === true
+    (product) => product.owned === 'true'
   );
 
   return itemsWithOwnedTrue;
@@ -408,15 +391,6 @@ const fetchProducts = async () => {
     const uniqueProducts = new Map();
     response.data.skus.forEach((el: any) => {
       if (!uniqueProducts.has(el.skus_pk)) {
-        const owned =
-          response.data.skus.filter(
-            (p: any) => p.owned === el.owned && p.owned === true
-          ).length > 0;
-        const wish =
-          response.data.skus.filter(
-            (p: any) => p.wish === el.wish && p.wish === true
-          ).length > 0;
-
         uniqueProducts.set(el.skus_pk, {
           id: el.skus_pk,
           name: el.name,
@@ -426,8 +400,8 @@ const fetchProducts = async () => {
           description: "Descrição padrão",
           color: el.color,
           cardbg: el.background,
-          owned,
-          wish,
+          owned: el.owned,
+          wish: el.wish,
           libraries_pk: el.libraries_pk,
         });
       }
