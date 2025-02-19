@@ -38,14 +38,14 @@
         </v-menu>
 
         <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
-        <v-btn
+        <!-- <v-btn
           v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
           color="WHITE"
           large
           @click="$router.push({ name: 'Community' })"
         >
           Community
-        </v-btn>
+        </v-btn> -->
 
         <v-btn
           v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
