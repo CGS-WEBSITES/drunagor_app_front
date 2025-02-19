@@ -62,21 +62,21 @@ import { ref, computed } from 'vue';
 // Dados simulados
 const stores = ref([
   {
-    image: 'https://pbs.twimg.com/media/F_QzMK5XwAABRKT.png',
-    name: 'Robiinho7flecha1killWOOD',
-    address: '0001 pts',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-andreas-cleric.png',
+    name: 'Andreas',
+    address: 'Generic Information',
     points: '9418°',
   },
   {
-    image: 'https://pbs.twimg.com/media/F_QtllTXEAApE0n.png',
-    name: 'Lojinha de Bugigangas do inspetor Bugiganga',
-    address: 'Rancho Santa Margarita, CA 92688-0001',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-azriel-swordmage.png',
+    name: 'Azriel Store',
+    address: 'Generic Location, USA 00000-0000',
     points: '946338°',
   },
   {
-    image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
-    name: 'Lojinha de Bugigangas do NUBANK FODA DEMAIS',
-    address: 'Rancho Santa Margarita, CA 92688-0001',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-nyx-assasin.png',
+    name: 'Nyx ',
+    address: 'Generic Information',
     points: '946338°',
   },
 ]);

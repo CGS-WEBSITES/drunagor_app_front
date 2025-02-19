@@ -79,35 +79,35 @@ const activeButton = ref<string | null>(null);
 
 // Grupos de botões (divididos em 3 grupos)
 const userbuttons = ref([
-  { icon: 'mdi-account', value: 'PerfilHome', route: '/perfil/home', text: "profile" },
-  { icon: 'mdi-magnify', value: 'search', route: '/perfil/friend-store', text: "search users" },
-  { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist', text: "friends" },
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings', text: "settings" },
+  { icon: 'mdi-account', value: 'PerfilHome', route: '/profile/home', text: "profile" },
+  { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
+  { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
+  { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },
 ]);
 
 const retailbuttons = ref([
-  { icon: 'mdi-account', value: 'PerfilHome', route: '/perfil/home', text: "profile" },
-  { icon: 'mdi-store', value: 'logout', route: '/perfil/store-settings', text: "stores" },
-  { icon: 'mdi-magnify', value: 'search', route: '/perfil/friend-store', text: "search users" },
-  { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist', text: "friends" },
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings', text: "settings" },
+  { icon: 'mdi-account', value: 'PerfilHome', route: '/profile/home', text: "profile" },
+  { icon: 'mdi-store', value: 'logout', route: '/profile/store-settings', text: "stores" },
+  { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
+  { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
+  { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },
 ]);
 
 
 const usermobilebuttons = ref([
-  { icon: 'mdi-account', value: 'PerfilHome', route: '/perfil/home', text: "profile" },
-  { icon: 'mdi-magnify', value: 'search', route: '/perfil/friend-store', text: "search users" },
-  { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist', text: "friends" },
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings', text: "settings" },
+  { icon: 'mdi-account', value: 'PerfilHome', route: '/profile/home', text: "profile" },
+  { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
+  { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
+  { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },
   { icon: 'mdi-logout', value: 'logout', route: '/perfil/', text: "logout" },
 ]);
 
 const retailmobilebuttons = ref([
-  { icon: 'mdi-account', value: 'PerfilHome', route: '/perfil/home', text: "profile" },
-  { icon: 'mdi-store', value: 'logout', route: '/perfil/store-settings', text: "stores" },
-  { icon: 'mdi-magnify', value: 'search', route: '/perfil/friend-store', text: "search users" },
-  { icon: 'mdi-account-group', value: 'group', route: '/perfil/friend-storelist', text: "friends" },
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/perfil/perfil-settings', text: "settings" },
+  { icon: 'mdi-account', value: 'PerfilHome', route: '/profile/home', text: "profile" },
+  { icon: 'mdi-store', value: 'logout', route: '/profile/store-settings', text: "stores" },
+  { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
+  { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
+  { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },
   { icon: 'mdi-logout', value: 'logout', route: '/perfil/', text: "logout" },
 
 ]);

@@ -3,59 +3,15 @@
     <Toast />
 
     <!-- Barra de Navegação Superior -->
-    <v-navigation-drawer
-      v-if="route.name !== 'Login' && route.name !== 'RetailerRegistration' && route.name !== 'Home'"
-      v-model="drawer"
-      app
-      location="right"
-      temporary
-      class="d-none d-md-flex m"
-    >
-      <v-list class="me-4">
-        <v-list-item class="py-5">
-          <v-row align="center" class="">
-            <v-col cols="8">
-              <v-list-item-title>{{ user.user_name }}</v-list-item-title>
-              <!-- <v-list-item-subtitle>Points: 1337</v-list-item-subtitle> -->
-            </v-col>
-
-            <!-- Coluna para o avatar à direita -->
-            <v-col cols="4" class="d-flex justify-end">
-              <v-avatar size="70">
-                <v-img
-                  :src="
-                    user.picture_hash
-                      ? assets + '/Profile/' + user.picture_hash
-                      : assets + '/Profile/user.png'
-                  "
-                />
-              </v-avatar>
-            </v-col>
-          </v-row>
-        </v-list-item>
-
-        <v-list-item
-          v-for="(item, index) in menuItems"
-          :key="index"
-          link
-          :disabled="item.disabled"
-          @click="item.to ? router.push(item.to) : item.do()"
-          :class="{ 'v-list-item--active': selectedItem === item }"
-        >
-          <v-list-item-icon>
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
 
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
-        <div class="d-flex align-center pl-6">
-          <!-- Ajuste o padding com pl-6 -->
+        <div
+          @click="$router.push({ name: 'Dashboard' })"
+          style="cursor: pointer"
+          class="d-flex align-center pl-6"
+        >
+          <!-- Ícone Drunagor -->
           <v-img
             src="@/assets/darknessl.png"
             height="30"
@@ -63,35 +19,107 @@
             alt="Drunagor Icon"
             contain
             class="mr-2"
-            @click="$router.push({ name: 'Dashboard' })"
           ></v-img>
-          <span>App Drunagor</span>
+          <span>Drunagor App</span>
         </div>
-        <v-spacer></v-spacer>
-        <!-- Botão de Navegação alinhado à direita -->
 
+        <v-spacer></v-spacer>
+
+        <!-- Avatar + Nome do Usuário + Menu Suspenso -->
+        <v-menu open-on-hover offset-y>
+          <v-list>
+            <v-list-item @click="logout">
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Log Out</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+        <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
         <v-btn
-          v-if="
-            route.name === 'Home' ||
-            route.name === 'Login' ||
-            route.name === 'Gama'
-          "
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
           color="WHITE"
           large
-          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
-          >Sign up</v-btn
+          @click="$router.push({ name: 'Community' })"
         >
+          Community
+        </v-btn>
 
-        <v-app-bar-nav-icon
-          v-if="route.name !== 'Login' && route.name !== 'RetailerRegistration' && route.name !== 'Home'"
-          class="me-4"
-          @click="drawer = !drawer"
-        ></v-app-bar-nav-icon>
+        <v-btn
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
+          color="WHITE"
+          large
+          @click="$router.push({ name: 'Login' })"
+        >
+          Sign up
+        </v-btn>
+
+        <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
+
+        <div class="d-flex w-100 align-center justify-space-between" v-else>
+          <div class="d-flex justify-center w-100">
+            <v-hover v-for="(item, index) in menuItems" :key="index">
+              <template v-slot:default="{ isHovering, props }">
+                <v-btn
+                  v-bind="props"
+                  color="secundary"
+                  :elevation="isHovering ? 10 : 0"
+                  :disabled="item.disabled"
+                  class="mx-2"
+                  @click="item.to ? router.push(item.to) : item.do()"
+                >
+                  {{ item.title }}
+                </v-btn>
+              </template>
+            </v-hover>
+          </div>
+
+
+          <v-menu open-on-hover offset-y>
+            <template v-slot:activator="{ props }">
+              <v-btn
+                @click="$router.push({ name: 'PerfilHome' })"
+                v-bind="props"
+                text
+                class="px-3"
+              >
+                <span class="pr-1">{{ user.user_name }}</span>
+                <v-avatar size="35" class="mr-2">
+                  <v-img
+                    :src="
+                      user.picture_hash
+                        ? assets + '/Profile/' + user.picture_hash
+                        : assets + '/Profile/user.png'
+                    "
+                  />
+                </v-avatar>
+                <v-icon right>mdi-chevron-down</v-icon>
+              </v-btn>
+            </template>
+
+            <v-list>
+              <v-list-item @click="logOut">
+                <v-list-item-icon>
+                  <v-icon>mdi-logout</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Log Out</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
       </v-app-bar>
     </v-row>
 
     <v-bottom-navigation
-      v-else-if="route.name !== 'Home' && route.name !== 'Login' && route.name !== 'RetailerRegistration'"
+      v-else-if="
+        route.name !== 'Home' &&
+        route.name !== 'Login' &&
+        route.name !== 'RetailerRegistration' &&
+        route.name !== 'Gama' &&
+        route.name !== 'Community'
+      "
       app
       v-model="bottomNavVisible"
       class="hidden-md-and-up fixed bg-black text-white"
@@ -125,33 +153,43 @@
             src="@/assets/cgs.png"
             max-width="92"
             alt="logo"
+            style="cursor: pointer"
+             @click="openLink('https://wearecgs.com/')"
           />
         </v-col>
 
         <v-col
-          cols="12"
-          sm="4"
-          class="d-flex flex-column info-footer text-center align-center"
-        >
-          <h3 class="white--text">Join us on Discord</h3>
-          <v-img
-            class="mt-4"
-            width="30"
-            src="@/assets/discord-mark-white.svg"
-          ></v-img>
-        </v-col>
+  cols="12"
+  sm="4"
+  class="d-flex flex-column info-footer text-center align-center"
+>
+  <h3 class="white--text">Join us on Discord</h3>
+  
+  <v-btn
+    class="mt-4"
+    fab
+    icon
+    color="black"
+    dark
+    @click="openLink('https://discord.com/invite/nDaHpk2KDQ')"
+  >
+    <v-img width="30" src="@/assets/discord-mark-white.svg"></v-img>
+  </v-btn>
+</v-col>
 
         <v-col cols="12" sm="4" class="text-center">
           <h3 class="white--text">Social medias</h3>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-instagram</v-icon>
-          </v-btn>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-facebook</v-icon>
-          </v-btn>
-          <v-btn fab icon color="black" dark>
-            <v-icon color="white">mdi-youtube</v-icon>
-          </v-btn>
+          <v-btn fab icon color="black" dark @click="openLink('https://www.instagram.com/wearecreativegames/')">
+  <v-icon color="white">mdi-instagram</v-icon>
+</v-btn>
+
+<v-btn fab icon color="black" dark @click="openLink('https://www.facebook.com/wearecgs')">
+  <v-icon color="white">mdi-facebook</v-icon>
+</v-btn>
+
+<v-btn fab icon color="black" dark @click="openLink('https://www.youtube.com/@wearecgs')">
+  <v-icon color="white">mdi-youtube</v-icon>
+</v-btn>
         </v-col>
       </v-row>
     </v-footer>
@@ -165,8 +203,13 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
+const openLink = (url) => {
+  window.open(url, "_blank");
+};
+
+
 const userStore = useUserStore();
-const user = userStore.user;
+const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
 
@@ -186,48 +229,80 @@ const logOut = () => {
   router.push({ name: "Login" });
 };
 
-// Itens do menu de navegação
-const menuItems = ref([
-  {
-    title: "Dashboard",
-    icon: "mdi-view-dashboard",
-    to: { name: "Dashboard" },
-    disabled: false,
-  },
-  {
-    title: "Companion",
-    icon: "mdi-flag",
-    to: { name: "CampaignTracker", disabled: false },
-  },
-  {
-    title: "Library",
-    icon: "mdi-book",
-    to: { name: "Library" },
-    disabled: false,
-  },
-  {
-    title: "Profile",
-    icon: "mdi-account",
-    to: { name: "PerfilHome" },
-    disabled: false,
-  },
+const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor padrão para evitar erros
 
-  {
-    title: "Events",
-    icon: "mdi-calendar",
-    to: { name: "Events" },
-    disabled: false,
-  },
+const menuItems = computed(() => {
+  return [
+    {
+      title: role.value === 3 ? "Dashboard" : "Dashboard",
+      icon: "mdi-view-dashboard",
+      to: { name: "Dashboard" },
+      disabled: false,
+    },
+    {
+      title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
+      icon: "mdi-flag",
+      to: { name: "CampaignTracker" },
+      disabled: false,
+    },
+    {
+      title: role.value === 3 ? "SKUS MANAGER" : "Library",
+      icon: "mdi-book",
+      to: { name: "Library" },
+      disabled: false,
+    },
+    {
+      title: role.value === 3 ? "Profile" : "Profile",
+      icon: "mdi-account",
+      to: { name: "PerfilHome" },
+      disabled: false,
+    },
+    {
+      title: role.value === 3 ? "Events" : "Events",
+      icon: "mdi-calendar",
+      to: { name: "Events" },
+      disabled: false,
+    },
+  ];
+});
 
-  {
-    title: "Logout",
-    icon: "mdi-logout",
-    disabled: false,
-    do: logOut,
+// 🔥 Força atualização ao detectar mudança na role
+watch(
+  () => userStore.user?.roles_fk,
+  (newRole) => {
+    console.log("Role atualizada:", newRole);
   },
-]);
+  { immediate: true }
+);
+
 
 const contentStyle = computed(() => {
+  if (route.name === "Login") {
+    return display.value.mdAndUp
+      ? {
+          "background-image":
+            "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/login-background.png')",
+          "background-size": "cover",
+          "background-position": "top center", // Alinha ao topo
+          "background-repeat": "no-repeat",
+          "min-height": "100vh",
+          width: "100%",
+          "margin-top": "65px", // Remove margem superior
+          display: "flex",
+          "align-items": "center", // Centraliza o conteúdo verticalmente
+          "justify-content": "center", // Centraliza o conteúdo horizontalmente
+        }
+      : {
+          "background-image":
+            "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/mblogin-background.png')",
+          "background-size": "cover",
+          "background-position": "center",
+          "background-repeat": "no-repeat",
+          "min-height": "100vh",
+          width: "100%",
+        };
+  }
+
   return display.value.mdAndUp
     ? {
         "background-image":

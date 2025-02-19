@@ -678,23 +678,23 @@
   // Dados do carrossel
   const carouselItems = ref([
     {
-      img: new URL(assets + "/Dashboard/btn-campaigns.png", import.meta.url).href,
+      img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-campaigns2.png",
       label: "COMPANION",
       route: { name: "CampaignTracker" },
     },
     {
-      img: new URL(assets + "/Dashboard/btn-library.png", import.meta.url).href,
+      img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library2.png",
       label: "LIBRARY",
       route: { name: "Library" },
     },
     {
-      img: new URL(assets + "/Dashboard/btn-profile.png", import.meta.url).href,
-      label: "MY PROFILE",
+      img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile2.png",
+      label: "PROFILE",
       route: { name: "PerfilHome" },
     },
   
     {
-      img: new URL(assets + "/Dashboard/btn-events.png", import.meta.url).href,
+      img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events2.png",
       label: "EVENTS",
       route: { name: "Events" },
     },

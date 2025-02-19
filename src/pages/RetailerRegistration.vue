@@ -109,20 +109,6 @@
         <v-dialog v-model="privacyDialog" max-width="500">
             <privacy-card />
         </v-dialog>
-
-        <v-dialog v-model="successDialog" max-width="500">
-            <v-card>
-                <v-card-title class="headline">Registration Successful</v-card-title>
-                <v-card-text>
-                    You have successfully registered! Click "OK" to be redirected to the login page.
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="green" text @click="navigateToLogin">
-                        OK
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
     </v-container>
 </template>
 

@@ -1,11 +1,21 @@
 <template>
   <v-container
-    class="fill-height d-flex align-center justify-center pa-4"
+    class=" login-page fill-height d-flex align-center justify-center pa-4"
     fluid
   >
-    <v-row align="center" justify="center">
-      <v-col cols="12" md="8" lg="6" xl="4">
-        <v-card class="elevation-12">
+
+  <v-row justify="center">
+      <v-col cols="12" class="text-center mb-4">
+        <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2">
+          DRUNAGOR APP
+        </h1>
+      </v-col>
+    </v-row>
+
+
+    <v-row  justify="center">
+      <v-col cols="12" md="7" lg="7" xl="7">
+        <v-card color="secundary" class="elevation-12">
           <!-- Tabs for Login and Sign Up -->
           <v-tabs v-model="activeTab" fixed-tabs background-color="white">
             <v-tab :key="0">LOGIN</v-tab>
@@ -66,6 +76,7 @@
                         color="black"
                         outlined
                         dense
+                        @keyup.enter = "loginUser"
                       />
                     </v-col>
                     <v-col cols="1" class="d-flex justify-center align-center">
@@ -239,20 +250,10 @@
       </v-col>
 
 
-      <iframe
-            width="800"
-            height="584"
-            src="https://www.youtube.com/embed/HjnZ0e5FTS4?si=-2wNSjqXfuILHVks"
-            title="YouTube video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-            class="pl-4"
-          ></iframe>
+     
 
-
-      <v-col cols="12" >
+<v-row justify="center">
+      <v-col cols="11" md="7" lg="7" xl="7" >
         <v-card class="pa-4 d-flex flex-column align-center justify-center" color="white" elevation="2">
           <p>
             <strong>Welcome to the Drunagor App!</strong>
@@ -276,6 +277,20 @@
         </v-card>
       </v-col>
     </v-row>
+    </v-row>
+
+    <iframe
+            width="1130"
+            height="584"
+            src="https://www.youtube.com/embed/HjnZ0e5FTS4?si=-2wNSjqXfuILHVks"
+            title="YouTube video player"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+            class="pl- pt-7"
+
+          ></iframe>
 
     <!-- Seção de Vídeo -->
     <!-- <v-container class="bg-white">
@@ -502,5 +517,13 @@ const submitForm = async () => {
 
 .clickable-text:hover {
   transform: scale(1.1); /* Aumenta o tamanho ao passar o mouse */
+}
+
+.login-page {
+  background-image: url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/login-background.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh; /* Faz o fundo ocupar toda a altura da tela */
 }
 </style>

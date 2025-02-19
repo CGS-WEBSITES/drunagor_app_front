@@ -63,7 +63,7 @@
 
       <!-- Lista de Lojas Salvas -->
       <v-row v-if="stores.length > 0" no-gutters class="d-flex flex-column">
-    <v-col v-for="(store, index) in stores" :key="index" cols="12">
+    <v-col v-for="(store, index) in stores" :key="index" class="pr-4" cols="12">
       <v-card color="primary" min-height="130px" class="mb-4 event-card">
         <v-row no-gutters>
           <!-- Imagem da Loja -->
