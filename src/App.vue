@@ -33,7 +33,7 @@
         </v-btn>
 
         <v-btn v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)" color="WHITE" large
-          @click="$router.push({ name: 'Login' })">
+        @click="$router.push({ name: 'Login', query: { tab: 'signup' } })">
           Sign up
         </v-btn>
 
