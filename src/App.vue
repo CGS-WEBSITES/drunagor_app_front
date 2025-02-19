@@ -76,6 +76,7 @@
             </v-hover>
           </div>
 
+
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
               <v-btn
@@ -206,6 +207,7 @@ const openLink = (url) => {
   window.open(url, "_blank");
 };
 
+
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 
@@ -272,6 +274,7 @@ watch(
   },
   { immediate: true }
 );
+
 
 const contentStyle = computed(() => {
   if (route.name === "Login") {
