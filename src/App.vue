@@ -27,35 +27,42 @@
         </v-menu>
 
         <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
-        <v-btn v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)" color="WHITE" large
-          @click="$router.push({ name: 'Community' })">
+        <!-- <v-btn
+          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
+          color="WHITE"
+          large
+          @click="$router.push({ name: 'Community' })"
+        >
           Community
-        </v-btn>
+        </v-btn> -->
 
         <v-btn v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)" color="WHITE" large
-          @click="$router.push({ name: 'Login' })">
+          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })">
           Sign up
         </v-btn>
 
         <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
-        <div class="d-flex" v-else>
-          <v-hover v-for="(item, index) in menuItems" :key="index">
-            <template v-slot:default="{ isHovering, props }">
-              <v-btn v-bind="props" color="secundary" :elevation="isHovering ? 10 : 0" :disabled="item.disabled"
-                class="mx-2" @click="item.to ? router.push(item.to) : item.do()">
-                {{ item.title }}
-              </v-btn>
-            </template>
-          </v-hover>
+
+        <div class="d-flex w-100 align-center justify-space-between" v-else>
+          <div class="d-flex justify-center w-100">
+            <v-hover v-for="(item, index) in menuItems" :key="index">
+              <template v-slot:default="{ isHovering, props }">
+                <v-btn v-bind="props" color="secundary" :elevation="isHovering ? 10 : 0" :disabled="item.disabled"
+                  class="mx-2" @click="item.to ? router.push(item.to) : item.do()">
+                  {{ item.title }}
+                </v-btn>
+              </template>
+            </v-hover>
+          </div>
 
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" text class="px-3">
+              <v-btn @click="$router.push({ name: 'PerfilHome' })" v-bind="props" text class="px-3">
                 <span class="pr-1">{{ user.user_name }}</span>
                 <v-avatar size="35" class="mr-2">
                   <v-img :src="user.picture_hash
-                      ? assets + '/Profile/' + user.picture_hash
-                      : assets + '/Profile/user.png'
+                    ? assets + '/Profile/' + user.picture_hash
+                    : assets + '/Profile/user.png'
                     " />
                 </v-avatar>
                 <v-icon right>mdi-chevron-down</v-icon>
@@ -119,6 +126,9 @@
           <v-btn fab icon color="black" dark @click="openPopup('https://www.youtube.com/@wearecgs')">
             <v-icon color="white">mdi-youtube</v-icon>
           </v-btn>
+          <v-btn fab icon color="black" dark @click="openPopup('https://x.com/CGSboardgames')">
+            <v-icon color="white">mdi-twitter</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
     </v-footer>
@@ -132,8 +142,13 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
+const openLink = (url) => {
+  window.open(url, "_blank");
+};
+
+
 const userStore = useUserStore();
-const user = userStore.user;
+const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
 
@@ -153,37 +168,36 @@ const logOut = () => {
   router.push({ name: "Login" });
 };
 
-// Itens do menu de navegação
-const menuItems = computed(() => {
-  const role = user?.roles_fk; // Obtém a role do usuário
+const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor padrão para evitar erros
 
+const menuItems = computed(() => {
   return [
     {
-      title: role === 3 ? "Dashboard" : "Dashboard",
+      title: role.value === 3 ? "Dashboard" : "Dashboard",
       icon: "mdi-view-dashboard",
       to: { name: "Dashboard" },
       disabled: false,
     },
     {
-      title: role === 3 ? "CAMPAIGN MANAGER" : "Companion",
+      title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
       icon: "mdi-flag",
       to: { name: "CampaignTracker" },
       disabled: false,
     },
     {
-      title: role === 3 ? "SKUS MANAGER" : "Library",
+      title: role.value === 3 ? "SKUS MANAGER" : "Library",
       icon: "mdi-book",
       to: { name: "Library" },
       disabled: false,
     },
     {
-      title: role === 3 ? "Profile" : "Profile",
+      title: role.value === 3 ? "Profile" : "Profile",
       icon: "mdi-account",
       to: { name: "PerfilHome" },
       disabled: false,
     },
     {
-      title: role === 3 ? "Events" : "Events",
+      title: role.value === 3 ? "Events" : "Events",
       icon: "mdi-calendar",
       to: { name: "Events" },
       disabled: false,
@@ -191,7 +205,43 @@ const menuItems = computed(() => {
   ];
 });
 
+// 🔥 Força atualização ao detectar mudança na role
+watch(
+  () => userStore.user?.roles_fk,
+  (newRole) => {
+    console.log("Role atualizada:", newRole);
+  },
+  { immediate: true }
+);
+
+
 const contentStyle = computed(() => {
+  if (route.name === "Login") {
+    return display.value.mdAndUp
+      ? {
+        "background-image":
+          "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/login-background.png')",
+        "background-size": "cover",
+        "background-position": "top center", // Alinha ao topo
+        "background-repeat": "no-repeat",
+        "min-height": "100vh",
+        width: "100%",
+        "margin-top": "65px", // Remove margem superior
+        display: "flex",
+        "align-items": "center", // Centraliza o conteúdo verticalmente
+        "justify-content": "center", // Centraliza o conteúdo horizontalmente
+      }
+      : {
+        "background-image":
+          "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/mblogin-background.png')",
+        "background-size": "cover",
+        "background-position": "center",
+        "background-repeat": "no-repeat",
+        "min-height": "100vh",
+        width: "100%",
+      };
+  }
+
   return display.value.mdAndUp
     ? {
       "background-image":
