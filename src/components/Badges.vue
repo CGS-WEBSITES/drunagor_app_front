@@ -1,6 +1,6 @@
 <template>
     <v-container max-width="800" style="min-width: 360px;" class="pa-4">
-      <v-card rounded="lg" elevation="3" class="pl-1 pt-1 pr-1 pb-0">
+      <v-card rounded="lg" elevation="3" color="primary" class="pl-1 pt-1 pr-1 pb-0">
         <!-- Cabeçalho -->
         <v-card-title class="d-flex justify-space-between pb-0 ">
           <span class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0">{{ title }}</span>
@@ -13,12 +13,12 @@
             <v-card
               rounded="lg"
               elevation="3"
-              class="pa-0 mb-1 d-flex align-center"
-              style="background-color: darkslategray;"
+              class="py-2  px-0 mb-1 d-flex align-center"
+              color="secundary"
             >
               <v-row class="align-center">
                 <!-- Ícone -->
-                <v-col cols="4" lg="2" class="d-flex align-center justify-center">
+                <v-col cols="2" lg="2" class="d-flex align-center justify-center">
                   <v-img
                     :src="item.image"
                     alt="Achievement Icon"
@@ -28,10 +28,10 @@
                 </v-col>
   
                 <!-- Detalhes -->
-                <v-col cols="8" class="pl-0 d-flex flex-column justify-center">
+                <v-col cols="10" class="pl-0 d-flex flex-column justify-center">
                   <p class="font-weight-bold white--text ma-0">{{ item.title }}</p>
                   <p class="text-body-2 grey--text ma-0">{{ item.description }}</p>
-                  <p class="text-caption grey--text ma-0">Achieved {{ item.date }}</p>
+                  <p class="text-caption grey--text ma-0"> {{ item.date }}</p>
                 </v-col>
   
                 <!-- Status -->
@@ -55,22 +55,22 @@
     title: {
       type: String,
       required: true,
-      default: 'ACHIEVEMENTS',
+      default: 'BADGES',
     },
     total: {
       type: String,
       required: true,
-      default: '[TOTAL]',
+      default: '[BETA]',
     },
     badges: {
       type: Array,
       required: true,
       default: () => [
         {
-          image: 'https://cdn.mos.cms.futurecdn.net/P9nEHqSzs3dUrSdmBDrPxn.jpg',
-          title: 'Great Achievement Name',
-          description: 'Achievement short description here cabe duas linha aqui ó',
-          date: '11/11/2024',
+          image: 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
+          title: 'Early Adopter',
+          description: 'Joined DrunagorAPP in its testing phase.',
+          date: '',
           icon: 'mdi-trophy',
           progress: '15/43',
         },

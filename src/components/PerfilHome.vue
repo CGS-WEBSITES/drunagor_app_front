@@ -1,12 +1,14 @@
 <template>
 
+<Badges/>
+
     <v-row no-gutters>
         <v-col cols="12">
             <FavoriteCampaignCard
-                image="https://i.ibb.co/bJzLDg8/21312312313123.png"
+                image=""
                 title="FAVORITE CAMPAIGN"
                 subtitle="CoD: Age of Darkness"
-                subtitle2="The Rise of the Undead Dragon" 
+                subtitle2="" 
                 details="Door 01 - The entrance to the citadel - Chapter 2" />
             
             <!--  
