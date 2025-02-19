@@ -79,7 +79,7 @@ const activeButton = ref<string | null>(null);
 
 // Grupos de botões (divididos em 3 grupos)
 const userbuttons = ref([
-  { icon: 'mdi-account', value: 'PerfilHome', route: '/pprofile/home', text: "profile" },
+  { icon: 'mdi-account', value: 'PerfilHome', route: '/profile/home', text: "profile" },
   { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
   { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
   { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },

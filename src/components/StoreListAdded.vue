@@ -80,16 +80,16 @@ import { ref, computed } from 'vue';
 // Dados simulados
 const friends = ref([
   {
-    image: 'https://pbs.twimg.com/media/FOMtN45XIAEjvgo.png',
-    name: 'Robiinho7flecha1killWOOD',
-    details: '99845651pts',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-lorien-mage.png',
+    name: 'Lorien',
+    details: 'Generic Information',
     points: '946338°',
     friend: true
   },
   {
-    image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
-    name: 'Lojinha de Bugigangas do inspetor Bugiganga',
-    details: 'Rancho Santa Margarita, CA 92688-0001',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-vorn-warrior.png',
+    name: 'Vorn Store',
+    details: 'Generic Location, USA 00000-0000',
     points: '946338°',
     friend: true,
   },
@@ -97,15 +97,15 @@ const friends = ref([
 
 const requests = ref([
   {
-    image: 'https://pbs.twimg.com/media/FOMtN45XIAEjvgo.png',
-    name: 'Request User 1',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-flavian-bard.png',
+    name: 'Flavian Store',
     details: 'Pending Approval',
     points: '--',
     friend: false,
   },
   {
-    image: 'https://pbs.twimg.com/media/F_QvN7mWkAAqXBE.png',
-    name: 'Request User 2',
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-katarina-barbarian.png',
+    name: 'Katarina',
     details: 'Pending Approval',
     points: '--',
    friend: false,    
