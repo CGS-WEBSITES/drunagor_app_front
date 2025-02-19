@@ -58,7 +58,9 @@
 
         <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
         <div class="d-flex" v-else>
-          <v-hover v-for="(item, index) in menuItems" :key="index">
+          <v-hover  v-for="(item, index) in menuItems"
+                :key="index">
+
             <template v-slot:default="{ isHovering, props }">
               <v-btn
                 v-bind="props"
@@ -72,6 +74,7 @@
               </v-btn>
             </template>
           </v-hover>
+  
 
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
@@ -184,8 +187,10 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 
+
+
 const userStore = useUserStore();
-const user = userStore.user;
+const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
 
@@ -205,43 +210,54 @@ const logOut = () => {
   router.push({ name: "Login" });
 };
 
-// Itens do menu de navegação
-const menuItems = computed(() => {
-  const role = user?.roles_fk; // Obtém a role do usuário
+const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor padrão para evitar erros
 
+const menuItems = computed(() => {
   return [
     {
-      title: role === 3 ? "Dashboard" : "Dashboard",
+      title: role.value === 3 ? "Dashboard" : "Dashboard",
       icon: "mdi-view-dashboard",
       to: { name: "Dashboard" },
       disabled: false,
     },
     {
-      title: role === 3 ? "CAMPAIGN MANAGER" : "Companion",
+      title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
       icon: "mdi-flag",
       to: { name: "CampaignTracker" },
       disabled: false,
     },
     {
-      title: role === 3 ? "SKUS MANAGER" : "Library",
+      title: role.value === 3 ? "SKUS MANAGER" : "Library",
       icon: "mdi-book",
       to: { name: "Library" },
       disabled: false,
     },
     {
-      title: role === 3 ? "Profile" : "Profile",
+      title: role.value === 3 ? "Profile" : "Profile",
       icon: "mdi-account",
       to: { name: "PerfilHome" },
       disabled: false,
     },
     {
-      title: role === 3 ? "Events" : "Events",
+      title: role.value === 3 ? "Events" : "Events",
       icon: "mdi-calendar",
       to: { name: "Events" },
       disabled: false,
     },
   ];
 });
+
+// 🔥 Força atualização ao detectar mudança na role
+watch(
+  () => userStore.user?.roles_fk,
+  (newRole) => {
+    console.log("Role atualizada:", newRole);
+  },
+  { immediate: true }
+);
+
+
+
 
 const contentStyle = computed(() => {
   return display.value.mdAndUp
