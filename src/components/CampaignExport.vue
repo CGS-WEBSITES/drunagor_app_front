@@ -34,10 +34,9 @@ function openModal() {
     }),
   };
   token.value = btoa(JSON.stringify(data));
-
+  console.log('token', token.value)
   visible.value = true;
 }
-
 function copyToClipboard() {
   navigator.clipboard.writeText(token.value);
   toast.add({

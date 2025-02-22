@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import axios from "axios";
 import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
 import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
@@ -13,26 +14,65 @@ const campaignStore = CampaignStore();
 const router = useRouter();
 const { t } = useI18n();
 
-// Defina os IDs fixos para cada campanha
 const campaignIds: Record<"core" | "apocalypse" | "awakenings", string> = {
   core: "001",
   apocalypse: "002",
   awakenings: "003"
 };
 
-const appUserString = localStorage.getItem('app_user')
+const campaignNames: Record<"core" | "apocalypse" | "awakenings", string> = {
+  core: "Corebox",
+  apocalypse: "Apocalypse",
+  awakenings: "Awakenings"
+};
+
+let usersPk: number | null = null;
+
+const appUserString = localStorage.getItem('app_user');
 if (appUserString) {
   const appUser = JSON.parse(appUserString);
-  const usersPk = appUser.users_pk;
-  console.log('usersPk', usersPk)
+  usersPk = appUser.users_pk;
 }
 
 function newCampaign(campaign: "core" | "apocalypse" | "awakenings") {
-  let campaignId = campaignIds[campaign];
-  campaignStore.add(new Campaign(campaignId, campaign));
-  visible.value = false;
-  console.log('usersPk', appUserString)
-  router.push("/campaign-tracker/campaign/" + campaignId);
+  if (!usersPk) {
+    console.error("User PK not found");
+    return;
+  }
+
+  axios.get('/skus/search', { params: { users_fk: usersPk } })
+    .then(response => {
+      const data = response.data;
+
+      let skuList: any[] = [];
+      if (data && data.skus && Array.isArray(data.skus)) {
+        skuList = data.skus;
+      } else if (Array.isArray(data)) {
+        skuList = data;
+      } else {
+        skuList = Object.values(data);
+      }
+
+      const expectedName = campaignNames[campaign];
+      const selectedSku = skuList.find((sku: any) => {
+        return sku.name && sku.name.toLowerCase() === expectedName.toLowerCase();
+      });
+
+      if (!selectedSku) {
+        console.error(`SKU not found for campaign ${campaign}`);
+        return;
+      }
+
+      const fixedCampaignId = campaignIds[campaign];
+      campaignStore.add(new Campaign(fixedCampaignId, campaign));
+
+      visible.value = false;
+
+      router.push(`/campaign-tracker/campaign/${fixedCampaignId}?sku=${selectedSku.skus_pk}`);
+    })
+    .catch(error => {
+      console.error(error);
+    });
 }
 </script>
 
