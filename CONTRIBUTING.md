@@ -15,7 +15,7 @@ Thank you for your interest in contributing to the Drunagor Companion App! We we
 
 ## Reporting Issues
 
-Before opening a new issue, please search the [existing issues](https://github.com/yourusername/drunagor-app/issues) to see if the problem has already been reported or if a feature request already exists. When reporting a bug or suggesting a feature, include as much detail as possible:
+Before opening a new issue, please search the [existing issues](https://github.com/CGS-WEBSITES/drunagor_app_front/issues) to see if the problem has already been reported or if a feature request already exists. When reporting a bug or suggesting a feature, include as much detail as possible:
 
 - **Title:** A clear, concise summary of the issue.
 - **Description:** A detailed description of the issue or feature request.
@@ -51,7 +51,7 @@ Below is a sample CONTRIBUTING.md file for the Drunagor Companion App repository
    * Update documentation where necessary.
 5. **Commit Your Changes:**
 
-   Use clear, descriptive commit messages (see [Commit Messages](https://chatgpt.com/g/g-p-67ab5cf691a081919341b038324d2d7c-drunagor/c/67bb74d8-ecbc-800a-a1f9-b458fcc9bd2c#commit-messages) below).
+   Use clear, descriptive commit messages (see Commit Messages below).
 6. **Push Your Branch:**
 
    ```bash
@@ -96,16 +96,17 @@ Closes #42.
 ## Style Guidelines
 
 * **Code Structure:** Follow the existing project structure and naming conventions.
+* **.md**
 * **Testing:** Include tests for any new functionality or bug fixes.
 * **Documentation:** Update relevant documentation and inline comments as needed.
 
 ## License
 
-By contributing to this repository, you agree that your contributions will be licensed under the MIT License. Please review the [LICENSE](https://chatgpt.com/g/g-p-67ab5cf691a081919341b038324d2d7c-drunagor/c/LICENSE) file for details.
+By contributing to this repository, you agree that your contributions will be licensed under the MIT License. Please review the [LICENSE](./LICENSE.md) file for details.
 
 ## Code of Conduct
 
-Please adhere to our [Code of Conduct](https://chatgpt.com/g/g-p-67ab5cf691a081919341b038324d2d7c-drunagor/c/CODE_OF_CONDUCT.md) to ensure a welcoming and respectful community.
+Please adhere to our [Code of Conduct](./Code_of_conduct.md) to ensure a welcoming and respectful community.
 
 ## Getting Help
 
