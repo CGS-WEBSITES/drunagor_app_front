@@ -121,7 +121,7 @@ We welcome contributions to the Drunagor Companion App! Please follow these guid
 
    * Your PR will be reviewed by the maintainers, and feedback may be provided. Adjust your PR as needed.
 
-For more detailed guidelines, please refer to our [CONTRIBUTING](./CONTRIBUTING) (if available).
+For more detailed guidelines, please refer to our [CONTRIBUTING](./CONTRIBUTING.md) (if available).
 
 ## Issues & Support
 
@@ -133,6 +133,6 @@ This project is licensed under the MIT License. See the [LICENSE](./LICENSE) fil
 
 ## Acknowledgements
 
-Our journey would not be possible without the valiant efforts of the community heroes who laid the foundation for our project. Their creativity, dedication, and collaborative spirit inspire us every day. For a detailed, epic tribute to these noble contributors, please read [The Scroll of Gratitude](./The_Scroll_of_Gratitude).
+Our journey would not be possible without the valiant efforts of the community heroes who laid the foundation for our project. Their creativity, dedication, and collaborative spirit inspire us every day. For a detailed, epic tribute to these noble contributors, please read [The Scroll of Gratitude](./The_Scroll_of_Gratitude.md).
 
 We extend our deepest gratitude to all who have shared in this adventure.
