@@ -129,7 +129,7 @@ If you encounter any issues or have questions, please open an issue in this repo
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE.md) file for details.
 
 ## Acknowledgements
 
