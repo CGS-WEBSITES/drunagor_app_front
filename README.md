@@ -1,5 +1,3 @@
-Below is the updated README with the "Issues & Support" section modified to direct users to use GitHub Issues for support.
-
 # Drunagor Companion App
 
 Welcome to the official repository for the Drunagor Companion App – your gateway to a richer Drunagor experience. This open-source project is built to bring game updates, community features, and much more right to your fingertips.
