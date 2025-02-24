@@ -14,11 +14,14 @@ const campaignStore = CampaignStore();
 const router = useRouter();
 const { t } = useI18n();
 
-const campaignIds: Record<"core" | "apocalypse" | "awakenings", string> = {
-  core: "001",
-  apocalypse: "002",
-  awakenings: "003"
-};
+// const campaignIds: Record<"core" | "apocalypse" | "awakenings", string> = {
+  //   core: "001",
+  //   apocalypse: "002",
+  //   awakenings: "003"
+  // };
+  
+// Fixed ID for all new campaigns
+const NEW_CAMPAIGN_ID = "001";
 
 const campaignNames: Record<"core" | "apocalypse" | "awakenings", string> = {
   core: "Corebox",
@@ -63,12 +66,11 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings") {
         return;
       }
 
-      const fixedCampaignId = campaignIds[campaign];
-      campaignStore.add(new Campaign(fixedCampaignId, campaign));
+      campaignStore.add(new Campaign(NEW_CAMPAIGN_ID, campaign));
 
       visible.value = false;
 
-      router.push(`/campaign-tracker/campaign/${fixedCampaignId}?sku=${selectedSku.skus_pk}`);
+      router.push(`/campaign-tracker/campaign/${NEW_CAMPAIGN_ID}?sku=${selectedSku.skus_pk}`);
     })
     .catch(error => {
       console.error(error);
