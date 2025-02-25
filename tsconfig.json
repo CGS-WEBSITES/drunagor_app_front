@@ -28,8 +28,9 @@
   "include": [
     "src/**/*",
     "src/**/*.vue",
-    "src/typed-router.d.ts"
-, "e2e"  ],
+    "src/typed-router.d.ts",
+    "e2e"
+  ],
   "exclude": ["dist", "node_modules", "cypress"],
   "references": [{ "path": "./tsconfig.node.json" }],
 }
