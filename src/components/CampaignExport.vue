@@ -22,7 +22,7 @@ const token = ref("");
 const { t } = useI18n();
 
 const boxSku = computed(() => route.query.sku || "");
-
+console.log('boxSku', boxSku)
 function openModal() {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(props.campaignId)),
@@ -60,7 +60,7 @@ function saveCampaign() {
       conclusion_percentage: 0,
       box: boxSku.value,
     })
-    .then(() => {
+    .then((response) => {
       toast.add({
         severity: "success",
         summary: t("label.success"),
@@ -68,6 +68,42 @@ function saveCampaign() {
         life: 3000,
       });
       successDialogVisible.value = true;
+
+      const campaignData = response.data.campaign;
+      const campaigns_pk = campaignData.campaigns_pk;
+      const box = campaignData.box;
+      const boxNumber = parseInt(box, 10);
+
+      const appUser = localStorage.getItem("app_user");
+      if (appUser) {
+        const user = JSON.parse(appUser);
+        const users_pk = user.users_pk;
+
+        // Realiza o post para criar a relação rl_campaigns_users/cadastro
+        axios
+          .post("rl_campaigns_users/cadastro", {
+            users_fk: users_pk,
+            campaigns_fk: campaigns_pk,
+            party_roles_fk: 1,
+            skus_fk: boxNumber,
+          })
+          .then((response) => {
+            // Opcional: exibir um toast de sucesso ou outra ação
+            console.log("Relação criada com sucesso.", response.data);
+          })
+          .catch((error) => {
+            console.error("Erro ao criar relação:", error);
+            toast.add({
+              severity: "error",
+              summary: t("label.error"),
+              detail: "Erro ao criar a relação campanha-usuário.",
+              life: 3000,
+            });
+          });
+      } else {
+        console.error("Usuário não encontrado no localStorage");
+      }
+      
       closeModal();
     })
     .catch((error) => {
