@@ -25,8 +25,6 @@ These illustrious heroes have kindled a beacon of hope and ingenuity in the chro
 
 Let this scroll stand as a tribute to their valor and creativity. May the echoes of their legacy inspire countless adventurers to embark on quests of their own, forging new legends in the ever-expanding universe of Drunagor.
 
-*— The Keepers of the Drunagor Companion App*
-
 ## Eternal Gratitude
 
 To each hero who has lent their skill and wisdom to this grand endeavor: your contributions shine like stars in the night sky, guiding us on our own epic journey. Your selfless acts have transformed lines of code into a legacy of innovation and camaraderie.
