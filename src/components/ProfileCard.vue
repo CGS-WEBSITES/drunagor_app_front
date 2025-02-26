@@ -13,12 +13,28 @@
   >
     <div class="position-relative">
       <v-img
-        src="@/assets/AGE_Arte271.png"
-        alt="Background Image"
+      :key="reloadKey"
+      :src="
+        user.background_hash
+          ? assets + '/Profile/' + user.background_hash
+          : assets + '/Profile/profile-bg-warriors-transparent.png.png'
+      "
+      :alt="user.picture_hash"
         max-height="529px"
         max-width="100%"
         cover
-      ></v-img>
+      >
+      <v-btn
+        icon
+        class="position-absolute bottom-0 right-0 ma-1"
+        color="rgba(0, 0, 0, 0.6)"
+        elevation="3"
+        rounded="xl"
+        size="x-small"
+      >
+        <v-icon>mdi-pencil</v-icon>
+        <profile-background-dialog/>
+      </v-btn></v-img>
 
       <!-- <v-btn icon="mdi-pencil" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)" elevation="3"
         :to="'/perfil/perfil-image'"></v-btn> -->
