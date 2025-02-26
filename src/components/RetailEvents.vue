@@ -89,7 +89,7 @@
             <br>
             <p> Disponible Seats: {{ selectedEvent?.eventseats }} </p>
             <br>
-            <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }}</p>
+            <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }} </p>
         </v-card-text>
 
         <v-card color="primary" min-height="130px" class="mr-4 event-card">
@@ -205,7 +205,7 @@
           </v-col>
 
           <!-- Assentos + Data/Hora -->
-          <v-col cols="6" md="6">
+          <v-col cols="12" md="6">
             <v-select
               v-model="newEvent.seats"
               :items="[1,2,3,4]"
@@ -214,15 +214,25 @@
             ></v-select>
           </v-col>
 
-          <v-col cols="6" md="2">
-            <v-text-field
-              v-model="newEvent.hour"
-              label="HOUR"
-              type="time"
-              variant="outlined"
-              class="hour-input"
-            ></v-text-field>
-          </v-col>
+        
+  <v-col cols="6" md="3">
+    <v-text-field
+      v-model="newEvent.hour"
+      label="HOUR"
+      variant="outlined"
+      placeholder="HH:MM"
+      maxlength="5"
+    ></v-text-field>
+  </v-col>
+
+  <v-col cols="6" md="2">
+    <v-select
+      v-model="newEvent.ampm"
+      :items="['AM', 'PM']"
+      label="AM/PM"
+      variant="outlined"
+    ></v-select>
+  </v-col>
 
 
           <v-col cols="12" md="2" class="d-flex align-center">
@@ -932,6 +942,7 @@ const newEvent = ref({
   eventseats: 4,
   date: "",
   hour: "",
+  ampm: "AM",
   image: "",
   rewards: [],
 });
