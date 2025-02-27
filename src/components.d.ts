@@ -73,6 +73,7 @@ declare module 'vue' {
     ProductCard: typeof import('./components/ProductCard.vue')['default']
     ProductDialog: typeof import('./components/ProductDialog.vue')['default']
     ProductGallery: typeof import('./components/ProductGallery.vue')['default']
+    ProfileBackgroundDialog: typeof import('./components/ProfileBackgroundDialog.vue')['default']
     ProfileCard: typeof import('./components/ProfileCard.vue')['default']
     ProfilePicDialog: typeof import('./components/ProfilePicDialog.vue')['default']
     RandomizerQuickSelect: typeof import('./components/RandomizerQuickSelect.vue')['default']
