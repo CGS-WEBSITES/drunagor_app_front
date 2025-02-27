@@ -31,9 +31,9 @@
             </v-row>
             <v-row>
               <v-col
-                cols="6"
-                sm="4"
-                md="3"
+                cols="12"
+                sm="12"
+                md="6"
                 class="pa-2"
                 v-for="(item, index) in availbleBackground"
                 :key="index"
@@ -61,7 +61,7 @@
                     <v-img
                       :src="assets + '/Profile/' + item.hash"
                       :alt="item.hash"
-                      :max-width="118"
+                      :max-width="518"
                       style="
                         border: 0.5px solid gold;
                         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);

@@ -17,7 +17,7 @@
       :src="
         user.background_hash
           ? assets + '/Profile/' + user.background_hash
-          : assets + '/Profile/profile-bg-warriors-transparent.png.png'
+          : assets + '/Profile/profile-bg-warriors-transparent.png'
       "
       :alt="user.picture_hash"
         max-height="529px"
