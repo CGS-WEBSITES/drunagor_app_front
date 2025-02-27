@@ -12,7 +12,7 @@
 
       <!-- Usuário encontrado -->
       <v-card 
-       @click="item.user_pk ? goToProfile(item.user_pk) : console.warn('Usuário sem user_pk')"
+      @click="navigateToUser(user.users_pk)"
   v-if="user" 
   class="pa-1 mt-3 position-relative" 
   rounded="lg" 
@@ -68,11 +68,17 @@
 
 <script setup>
 import { ref, inject,computed } from "vue";
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
+
 const router = useRouter();
 
-const goToProfile = (user_pk) => {
-  router.push({ name: 'UserProfile', params: { user_pk } });
+const navigateToUser = (userId) => {
+  if (!userId) {
+    console.warn("⚠ Nenhum userId fornecido!");
+    return;
+  }
+  console.log("🔗 Redirecionando para o perfil do usuário:", userId);
+  router.push({ name: "User", params: { id: userId } });
 };
 
 // Obtém a instância do axios e a URL base da API
@@ -83,33 +89,40 @@ const apiUrl = inject("apiUrl") || "http://ec2-18-189-52-115.us-east-2.compute.a
 const user = ref(null);
 const searchQuery = ref("");
 
-// Função para buscar usuário pela user_pk
 const fetchUser = async () => {
   if (!searchQuery.value) return;
 
   try {
-    console.log("🔍 Buscando usuário com ID:", searchQuery.value);
+    console.log("🔍 ID enviado para API:", searchQuery.value);
     const response = await axios.get(`${apiUrl}/users/${searchQuery.value}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
-    // Atualiza o usuário encontrado
+    console.log("📡 Resposta da API:", response.data); // Veja a resposta da API no console
+
+    if (!response.data || Object.keys(response.data).length === 0) {
+      console.warn("⚠ Nenhum usuário encontrado!");
+      return;
+    }
+
+    // Atualiza os dados do usuário corretamente
     user.value = {
-      user_pk: user.users_pk || user.user_pk, // Se um dos dois existir, pega o correto
-      name: response.data.name,
-      join_date: response.data.join_date,
-      user_name: response.data.user_name,
+      users_pk: response.data.users_pk, // Agora incluindo o ID
+      name: response.data.name || "Nome não disponível",
+      join_date: response.data.join_date || "Data não disponível",
+      user_name: response.data.user_name || "Usuário não encontrado",
       picture_hash: response.data.picture_hash
         ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${response.data.picture_hash}`
         : "https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png",
-        background_hash: response.data.background_hash,
+      background_hash: response.data.background_hash,
     };
 
+    console.log("✅ Usuário carregado:", user.value);
   } catch (error) {
-    console.error("❌ Erro ao buscar usuário:", error);
-    user.value = null;
+    console.error("❌ Erro na requisição:", error);
+    console.warn("⚠ Erro ao buscar usuário! Verifique o ID.");
   }
 };
 </script>
