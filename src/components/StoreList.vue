@@ -74,10 +74,8 @@ const router = useRouter();
 
 const navigateToUser = (userId) => {
   if (!userId) {
-    console.warn("⚠ Nenhum userId fornecido!");
     return;
   }
-  console.log("🔗 Redirecionando para o perfil do usuário:", userId);
   router.push({ name: "User", params: { id: userId } });
 };
 
@@ -93,17 +91,14 @@ const fetchUser = async () => {
   if (!searchQuery.value) return;
 
   try {
-    console.log("🔍 ID enviado para API:", searchQuery.value);
     const response = await axios.get(`${apiUrl}/users/${searchQuery.value}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
-    console.log("📡 Resposta da API:", response.data); // Veja a resposta da API no console
 
     if (!response.data || Object.keys(response.data).length === 0) {
-      console.warn("⚠ Nenhum usuário encontrado!");
       return;
     }
 
@@ -119,10 +114,9 @@ const fetchUser = async () => {
       background_hash: response.data.background_hash,
     };
 
-    console.log("✅ Usuário carregado:", user.value);
+
   } catch (error) {
-    console.error("❌ Erro na requisição:", error);
-    console.warn("⚠ Erro ao buscar usuário! Verifique o ID.");
+   
   }
 };
 </script>

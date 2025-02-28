@@ -84,16 +84,13 @@ const user = ref({});
 const fetchUserProfile = async () => {
   try {
     const userId = route.params.id;
-    console.log("🔍 Buscando perfil do usuário ID:", userId);
 
     const response = await axios.get(`https://api.drunagor.app/test/system/users/${userId}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
-    console.log("✅ Usuário encontrado:", response.data);
     user.value = response.data;
   } catch (error) {
-    console.error("❌ Erro ao buscar usuário:", error);
   }
 };
 
