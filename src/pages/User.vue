@@ -1,13 +1,17 @@
 <template>
-  <v-card
-    color="primary"
+ <v-card
+   color="primary"
     class="profile-card mx-auto py-0"
     rounded="0"
     elevation="3"
-    style="overflow: visible; position: relative; text-align: center; width: 100%"
+    style="
+      overflow: visible;
+      position: relative;
+      text-align: center;
+      width: 100%;
+    "
   >
-    <!-- Background Dinâmico -->
-    <div class="position-relative">
+  <div class="position-relative">
       <v-img
         :src="
           user.background_hash
@@ -21,7 +25,6 @@
       ></v-img>
     </div>
 
-    <!-- Imagem do Usuário -->
     <v-img
       :key="reloadKey"
       :src="
@@ -30,30 +33,42 @@
           : assets + '/Profile/user.png'
       "
       :alt="user.picture_hash"
-      min-height="118"
+      max-width="118"
       style="
-        position: absolute;
-        top: 240px;
+        top: -30px;
         left: 50%;
         transform: translate(-50%, -50%);
-        border: 2px solid white;
+        border: 0.5px solid white;
         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
         background-color: black;
-        border-radius: 50%;
       "
-    ></v-img>
+    >
+    </v-img>
 
     <v-card-text>
-      <div class="user-info" style="margin-top: 50px">
+      <div class="user-info" style="margin-top: -80px">
         <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
           {{ user.user_name }}
         </p>
         <p class="user-join-date" style="font-size: 1.1rem; color: #ddd">
           Joined: {{ formattedJoinDate }}
         </p>
-      </div>
-    </v-card-text>
-  </v-card>
+        <!-- <p class="user-points" style="font-size: 1.1rem;">
+          {{ points }} pts
+        </p>
+        <p class="user-ranking" style="font-size: 1.1rem;">
+          {{ ranking }}°
+        </p> -->
+        </div>
+      </v-card-text>
+    </v-card>
+
+<Badges/>
+
+<favorite-campaign-card/>
+
+
+
 </template>
 
 <script lang="ts" setup>
@@ -109,4 +124,13 @@ fetchUserProfile();
   font-size: 1rem;
   color: #ddd;
 }
+
+.product-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+
 </style>
