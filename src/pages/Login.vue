@@ -434,6 +434,7 @@ const loginUser = async () => {
         google_id: dbUser.google_id,
         name: dbUser.name,
         picture_hash: dbUser.picture_hash,
+        background_hash: dbUser.background_hash,
         roles_fk: dbUser.roles_fk,
         user_name: dbUser.user_name,
         users_pk: dbUser.users_pk,
