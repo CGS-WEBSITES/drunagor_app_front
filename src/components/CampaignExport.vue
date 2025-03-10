@@ -88,7 +88,6 @@ function saveCampaign() {
             skus_fk: boxNumber,
           })
           .then((response) => {
-            // Opcional: exibir um toast de sucesso ou outra ação
             console.log("Relação criada com sucesso.", response.data);
           })
           .catch((error) => {
