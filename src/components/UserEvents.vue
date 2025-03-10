@@ -84,7 +84,7 @@
             <br>
             <p> Disponible Seats: {{ selectedEvent?.eventseats }} </p>
             <br>
-            <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }}</p>
+            <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }}</p>
         </v-card-text>
 
         <v-card color="primary" min-height="130px" class="mr-4 event-card">
@@ -189,7 +189,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -235,7 +236,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -281,7 +283,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -327,7 +330,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -373,7 +377,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -419,7 +424,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -465,7 +471,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:
@@ -511,7 +518,8 @@ const events = ref([
     location:
       "Your Store location",
     date: "02/20/25",
-    hour: "12:00",
+    hour: "02:00",
+    ampm: "AM",
     image:
       "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
     eventdesc:

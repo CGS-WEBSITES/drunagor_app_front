@@ -49,7 +49,7 @@ export async function registerPlugins(app: App, env: string) {
         apiUrl = 'https://api.drunagor.app/test/system/';
       }
       else{
-        console.log("ddeu ruim")
+        console.log("deu ruim")
       }
     }
   }
