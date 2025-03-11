@@ -96,7 +96,7 @@ const fetchUsers = async () => {
   if (!searchQuery.value) return;
 
   try {
-    console.log("🔍 Buscando usuários com nome:", searchQuery.value);
+    
 
     const response = await axios.get(`${apiUrl}/users/search`, {
       params: { user_name: searchQuery.value }, // Busca pelo nome de usuário
@@ -106,12 +106,11 @@ const fetchUsers = async () => {
     });
 
     if (!response.data.users || response.data.users.length === 0) {
-      console.log("⚠ Nenhum usuário encontrado.");
       users.value = [];
       return;
     }
 
-    console.log("✅ Usuários encontrados:", response.data.users);
+
 
     users.value = response.data.users.map((user) => ({
       users_pk: user.users_pk, // ID do usuário
@@ -124,7 +123,7 @@ const fetchUsers = async () => {
       background_hash: user.background_hash,
     }));
   } catch (error) {
-    console.error("❌ Erro ao buscar usuários:", error);
+
     users.value = [];
   }
 };
