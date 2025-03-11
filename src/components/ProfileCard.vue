@@ -60,6 +60,9 @@
         <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
           {{ user.user_name }}
         </p>
+        <p class="user-join-date" style="font-size: 1.1rem; color: #ddd">
+          Joined: {{ formattedJoinDate }}
+        </p>
         <!-- <p class="user-points" style="font-size: 1.1rem;">
           {{ points }} pts
         </p>
@@ -78,6 +81,17 @@ import { useUserStore } from "@/store/UserStore";
 const reloadKey = ref(0);
 const user = computed(() => useUserStore().user); // Inicializa a store
 const assets = inject<string>("assets");
+
+const formattedJoinDate = computed(() => {
+  if (!user.value.join_date) return "Unknown";
+  return new Date(user.value.join_date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+});
+
+
 </script>
 
 <style scoped>
