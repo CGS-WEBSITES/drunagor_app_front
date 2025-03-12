@@ -11,7 +11,9 @@ export interface User {
   users_pk: number | null;
   verified: boolean | null;
   zip_code: number | null;
-  countries_fk: number | null;
+  countries_fk: number | null; 
+  join_date: string | null; 
+
 }
 
 export const useUserStore = defineStore('user', () => {
@@ -26,6 +28,7 @@ export const useUserStore = defineStore('user', () => {
     verified: null,
     zip_code: null,
     countries_fk: null,
+    join_date: null,
   });
 
   const setUser = (newUser: User) => {

@@ -21,7 +21,7 @@
       >
       <p 
     class="user-join-date" 
-    style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
+    style="position: absolute; bottom: 4px; left: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
   >
     Joined: {{ formattedJoinDate }}
   </p></v-img>
@@ -83,7 +83,7 @@ import { inject, computed } from "vue";
 import { useUserStore } from "@/store/UserStore";
 
 const reloadKey = ref(0);
-const user = computed(() => useUserStore().user); // Inicializa a store
+const user = computed(() => useUserStore().user);
 const assets = inject<string>("assets");
 
 const formattedJoinDate = computed(() => {
