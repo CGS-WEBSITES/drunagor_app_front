@@ -10,7 +10,7 @@
 
     <v-container max-width="800" style="min-width: 360px;" class="d-flex flex-column">
     <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center">
-      <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
+      <v-row class="py-2" style="max-width: 800px;">
         <v-btn
           v-for="(tab, index) in tabs"
           :key="index"
@@ -438,7 +438,7 @@ watch(confirmationDialog, async (newVal) => {
 
 // Tabs disponíveis na library
 const tabs = ref([
-  { icon: "mdi-view-list", value: 1, text: "All Products" },
+  { icon: "mdi-view-list", value: 1, text: "All" },
   { icon: "mdi-heart", value: 2, text: "Wishlist" },
   { icon: "mdi-check", value: 3, text: "Owned" },
 ]);
