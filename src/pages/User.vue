@@ -167,17 +167,17 @@ const assets = inject<string>("assets");
 const route = useRoute();
 const user = ref({});
 
-// Buscar usuário da API
 const fetchUserProfile = async () => {
   try {
-    const userId = route.params.id;
-
+    const encodedId = route.params.id;
+    const userId = atob(encodedId);
     const response = await axios.get(`https://api.drunagor.app/test/system/users/${userId}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
     user.value = response.data;
   } catch (error) {
+    console.error("Erro ao buscar o perfil:", error);
   }
 };
 
