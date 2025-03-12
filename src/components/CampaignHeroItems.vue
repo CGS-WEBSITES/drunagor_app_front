@@ -35,7 +35,7 @@ if (typeof campaignHero.equipment === "undefined") {
       <v-label>
         <v-switch
           v-model="filterProficiencies"
-          color="primary"
+          color="success"
           hide-details
           inset
           class="mr-3"
