@@ -54,7 +54,6 @@
           <!-- Informações -->
           <v-col cols="7">
             <p class="font-weight-bold text-truncate">{{ user.user_name }}</p>
-            <p class="text-body-2 grey--text">{{ user.name }}</p>
             <p class="text-caption grey--text">User since: {{ user.join_date }}</p>
           </v-col>
         </v-row>
