@@ -18,7 +18,13 @@
         max-height="529px"
         max-width="100%"
         cover
-      ></v-img>
+      >
+      <p 
+    class="user-join-date" 
+    style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
+  >
+    Joined: {{ formattedJoinDate }}
+  </p></v-img>
 
       <!-- <v-btn icon="mdi-pencil" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)" elevation="3"
         :to="'/perfil/perfil-image'"></v-btn> -->
@@ -60,9 +66,7 @@
         <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
           {{ user.user_name }}
         </p>
-        <p class="user-join-date" style="font-size: 1.1rem; color: #ddd">
-          Joined: {{ formattedJoinDate }}
-        </p>
+      
         <!-- <p class="user-points" style="font-size: 1.1rem;">
           {{ points }} pts
         </p>
@@ -86,7 +90,7 @@ const formattedJoinDate = computed(() => {
   if (!user.value.join_date) return "Unknown";
   return new Date(user.value.join_date).toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long",
+    month: "numeric",
     day: "numeric",
   });
 });

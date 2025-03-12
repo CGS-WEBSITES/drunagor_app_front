@@ -12,17 +12,71 @@
     "
   >
   <div class="position-relative">
-      <v-img
-        :src="
-          user.background_hash
-            ? assets + '/Profile/' + user.background_hash
-            : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
-        "
-        alt="Background Image"
-        max-height="529px"
-        max-width="100%"
-        cover
-      ></v-img>
+    <v-img
+  :src="
+    user.background_hash
+      ? assets + '/Profile/' + user.background_hash
+      : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
+  "
+  alt="Background Image"
+  max-height="529px"
+  max-width="100%"
+  cover
+  style="position: relative;"
+>
+
+<v-btn
+    icon="mdi-arrow-left"
+    class="position-absolute top-0 left-0 ma-2"
+    color="rgba(0, 0, 0, 0.6)"
+    elevation="3"
+    @click="$router.go(-1)"
+  ></v-btn>
+
+
+  <v-menu v-if="user.isFriend" open-on-hover >
+    <template v-slot:activator="{ props }">
+      <v-btn
+        v-bind="props"
+        icon="mdi-account-check"
+        class="position-absolute top-0 right-0 ma-2"
+        color="rgba(0, 0, 0, 0.6)"
+        elevation="3"
+      ></v-btn>
+    </template>
+    <v-list>
+      <v-list-item @click="reportUser">
+        <v-list-item-icon>
+          <v-icon color="rgba(0, 0, 0, 0.6)">mdi-account-alert</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>Report</v-list-item-title>
+      </v-list-item>
+      <v-list-item @click="removeFriend">
+        <v-list-item-icon>
+          <v-icon color="rgba(0, 0, 0, 0.6)">mdi-account-remove</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>Remove Friend</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-menu>
+
+  <v-btn
+    v-else
+    icon="mdi-account-plus"
+    class="position-absolute top-0 right-0 ma-2"
+    color="rgba(0, 0, 0, 0.6)"
+    elevation="3"
+    @click="addFriend"
+  ></v-btn>
+
+
+  <p 
+    class="user-join-date" 
+    style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
+  >
+    Joined: {{ formattedJoinDate }}
+  </p>
+</v-img>
     </div>
 
     <v-img
@@ -44,23 +98,56 @@
       "
     >
     </v-img>
+    
 
+
+    
     <v-card-text>
-      <div class="user-info" style="margin-top: -80px">
+      <div class="user-info" style="margin-top: -80px ">
         <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
           {{ user.user_name }}
-        </p>
-        <p class="user-join-date" style="font-size: 1.1rem; color: #ddd">
-          Joined: {{ formattedJoinDate }}
-        </p>
-        <!-- <p class="user-points" style="font-size: 1.1rem;">
-          {{ points }} pts
-        </p>
-        <p class="user-ranking" style="font-size: 1.1rem;">
-          {{ ranking }}°
-        </p> -->
+          <div class="d-none d-md-inline justify-center align-center">
+        <v-menu v-if="user.isFriend" open-on-hover>
+    <template v-slot:activator="{ props }">
+      <v-btn
+        v-bind="props"
+        icon="mdi-account-check"
+        color="rgba(0, 0, 0, 0.6)"
+        elevation="3"
+        size="small"
+      ></v-btn>
+    </template>
+    <v-list>
+      <v-list-item @click="reportUser">
+        <v-list-item-icon>
+          <v-icon color="rgba(0, 0, 0, 0.6)">mdi-account-alert</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>Report</v-list-item-title>
+      </v-list-item>
+      <v-list-item @click="removeFriend">
+        <v-list-item-icon>
+          <v-icon color="rgba(0, 0, 0, 0.6)">mdi-account-remove</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>Remove Friend</v-list-item-title>
+      </v-list-item>
+    </v-list>
+  </v-menu>
+
+  <v-btn
+    v-else
+    icon="mdi-account-plus"
+    color="rgba(0, 0, 0, 0.6)"
+    elevation="3"
+    size="small"
+    @click="addFriend"
+  ></v-btn>
+  </div>
+          
+          
+        </p>  
         </div>
       </v-card-text>
+      
     </v-card>
 
 <Badges/>
@@ -99,7 +186,7 @@ const formattedJoinDate = computed(() => {
   if (!user.value.join_date) return "Unknown";
   return new Date(user.value.join_date).toLocaleDateString("en-US", {
     year: "numeric",
-    month: "long",
+    month: "numeric",
     day: "numeric",
   });
 });
