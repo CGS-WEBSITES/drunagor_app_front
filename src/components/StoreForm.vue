@@ -101,7 +101,7 @@
         <v-row v-if="stores.length > 0" no-gutters class="d-flex flex-column">
           <v-col
             v-for="(store, index) in stores"
-            :key="index"
+            :key="store.stores_pk"
             class="pr-4"
             cols="12"
           >
@@ -119,14 +119,14 @@
                 <!-- Informações da Loja -->
                 <v-col cols="7" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ store.storename }}
+                    {{ store.name }}
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ store.address1 }}, {{ store.city }}
+                    {{ store.site }}, {{ store.site }}
                   </p>
                   <p class="text-caption">
-                    🏛️ Merchant ID: {{ store.MerchantID }}
+                    🏛️ Merchant ID: {{ store.google_id }}
                   </p>
                 </v-col>
 
@@ -219,6 +219,7 @@
 </template>
 
 <script lang="ts" setup>
+import { get } from "node_modules/axios/index.cjs";
 import { ref, onMounted, computed } from "vue";
 
 interface StoreForm {
@@ -269,16 +270,31 @@ const fetchCountries = () => {
         name: country.name,
         abbreviation: country.abbreviation,
       }));
-      console.log("Países carregados:", countriesList.value);
+      // console.log("Países carregados:", countriesList.value);
     })
     .catch((error: any) => {
       console.error("Erro ao buscar países:", error);
     });
 };
 
+const fetchStores = () => {
+  axios.get('stores/list', { params: { users_fk: appUser } })
+    .then((response: any) => {
+      stores.value = response.data.stores;
+      console.log("Lojas carregadas:", stores.value);
+    })
+    .catch((error: any) => {
+      console.error("Erro ao buscar lojas:", error);
+    });
+};
+
 onMounted(() => {
   fetchCountries();
-});
+})
+
+onMounted(() => {
+  fetchStores();
+})
 
 onMounted(() => {
   const savedStores = localStorage.getItem("stores");
@@ -312,7 +328,7 @@ const saveStore = () => {
     site: form.value.storename,
     name: form.value.storename,
     google_id: form.value.MerchantID,
-    zip_code: 1,
+    zip_code: form.value.zipcode || 1,
     countries_fk: form.value.country,
     users_fk: appUser,
   };
@@ -338,6 +354,7 @@ const saveStore = () => {
         storeImage: "",
       };
       isExpanded.value = false;
+      fetchStores();
     })
     .catch((error: any) => {
       console.error("Erro ao cadastrar loja:", error);
@@ -428,10 +445,17 @@ const addStore = () => {
   }
 };
 
-const removeStore = (index: any) => {
-  stores.value.splice(index, 1);
+const removeStore = async (index: number) => {
+  const store = stores.value[index];
+  const stores_pk = store.stores_pk;
 
-  localStorage.setItem("stores", JSON.stringify(stores.value));
+  try {
+    await axios.delete(`stores/${stores_pk}/delete/`);
+    stores.value.splice(index, 1);
+  } catch (error) {
+    console.error("Erro ao remover loja:", error);
+    alert("Erro ao remover loja. Tente novamente.");
+  }
 };
 
 const isUnitedStates = computed(() => {
