@@ -1,4 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/PietroAvatar.webp";
+import TrackerImageUrl from "@/assets/hero/trackerimage/PietroAvatar.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -22,5 +23,6 @@ export class Pietro implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
+    trackerimage: TrackerImageUrl
   };
 }
