@@ -76,7 +76,7 @@
               class="mb-0"
             ></v-autocomplete>
             <v-text-field
-              v-if="form.country === 'United States of America (the)'"
+              v-if="isUnitedStates"
               label="Zip Code"
               variant="outlined"
               v-model="form.zipcode"
@@ -219,9 +219,8 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 
-// Estado do Formulário da Loja
 interface StoreForm {
   storename: string;
   description: string;
@@ -230,7 +229,7 @@ interface StoreForm {
   city: string;
   state: string;
   zipcode: string;
-  country: Country | null;
+  country: string | null;
   MerchantID: string;
   storeImage: string;
 }
@@ -270,11 +269,7 @@ const fetchCountries = () => {
         name: country.name,
         abbreviation: country.abbreviation,
       }));
-
-      const userCountry = countriesList.value.find(
-        (country) => country.countries_pk === form.country
-      );
-      form.country = userCountry ? userCountry.name : "";
+      console.log("Países carregados:", countriesList.value);
     })
     .catch((error: any) => {
       console.error("Erro ao buscar países:", error);
@@ -285,7 +280,6 @@ onMounted(() => {
   fetchCountries();
 });
 
-// Carregar lojas do LocalStorage ao iniciar
 onMounted(() => {
   const savedStores = localStorage.getItem("stores");
   if (savedStores) {
@@ -293,24 +287,21 @@ onMounted(() => {
   }
 });
 
-// Salvar lojas no LocalStorage
 const saveStoresToLocalStorage = () => {
   localStorage.setItem("stores", JSON.stringify(stores.value));
 };
 
-// Função para fazer upload de imagem
 const handleImageUpload = (event: any) => {
   const file = event.target.files[0];
   if (file) {
     const reader = new FileReader();
     reader.onload = () => {
-      form.value.storeImage = reader.result as string; // Salva a URL da imagem
+      form.value.storeImage = reader.result as string; 
     };
     reader.readAsDataURL(file);
   }
 };
 
-// Adicionar nova loja
 const saveStore = () => {
   if (!form.value.storename.trim()) {
     alert("Preencha todos os campos!");
@@ -323,7 +314,7 @@ const saveStore = () => {
     google_id: form.value.MerchantID,
     zip_code: 1,
     countries_fk: form.value.country,
-    users_fk: appUser, // Acessa o users_pk do appUser
+    users_fk: appUser,
   };
 
   axios
@@ -354,7 +345,6 @@ const saveStore = () => {
     });
 };
 
-// Resetar Formulário
 const cancelForm = () => {
   form.value = {
     storename: "",
@@ -371,7 +361,6 @@ const cancelForm = () => {
   isExpanded.value = false;
 };
 
-// Alternar exibição do formulário
 const isExpanded = ref(false);
 const toggleForm = () => {
   isExpanded.value = !isExpanded.value;
@@ -416,18 +405,14 @@ const handleEditImageUpload = (event: any) => {
   }
 };
 
-// Recupera as lojas do localStorage ao iniciar
 const stores = ref(JSON.parse(localStorage.getItem("stores") || "[]"));
 
-// Função para adicionar uma nova loja
 const addStore = () => {
   if (form.value.storename) {
     stores.value.push({ ...form.value });
 
-    // Salva no localStorage
     localStorage.setItem("stores", JSON.stringify(stores.value));
 
-    // Limpa o formulário
     form.value = {
       storename: "",
       description: "",
@@ -443,13 +428,17 @@ const addStore = () => {
   }
 };
 
-// Função para remover loja
 const removeStore = (index: any) => {
   stores.value.splice(index, 1);
 
-  // Atualiza o localStorage
   localStorage.setItem("stores", JSON.stringify(stores.value));
 };
+
+const isUnitedStates = computed(() => {
+  const selectedCountry = form.value.country;
+
+  return Number(selectedCountry) === 250;
+});
 </script>
 
 <style scoped>
