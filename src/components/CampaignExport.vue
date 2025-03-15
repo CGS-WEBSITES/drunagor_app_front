@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 const toast = useToast();
+const route = useRoute();
 
 const props = defineProps<{
   campaignId: string;
@@ -13,10 +16,13 @@ const props = defineProps<{
 
 const visible = ref(false);
 const campaignStore = CampaignStore();
+const successDialogVisible = ref(false);
 const heroStore = HeroStore();
 const token = ref("");
 const { t } = useI18n();
 
+const boxSku = computed(() => route.query.sku || "");
+console.log('boxSku', boxSku)
 function openModal() {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(props.campaignId)),
@@ -34,10 +40,8 @@ function openModal() {
     }),
   };
   token.value = btoa(JSON.stringify(data));
-
   visible.value = true;
 }
-
 function copyToClipboard() {
   navigator.clipboard.writeText(token.value);
   toast.add({
@@ -47,6 +51,69 @@ function copyToClipboard() {
     life: 3000,
   });
   closeModal();
+}
+
+function saveCampaign() {
+  axios
+    .post("/campaigns/cadastro", {
+      tracker_hash: token.value,
+      conclusion_percentage: 0,
+      box: boxSku.value,
+    })
+    .then((response) => {
+      toast.add({
+        severity: "success",
+        summary: t("label.success"),
+        detail: "Campaign saved successfully.",
+        life: 3000,
+      });
+      successDialogVisible.value = true;
+
+      const campaignData = response.data.campaign;
+      const campaigns_pk = campaignData.campaigns_pk;
+      const box = campaignData.box;
+      const boxNumber = parseInt(box, 10);
+
+      const appUser = localStorage.getItem("app_user");
+      if (appUser) {
+        const user = JSON.parse(appUser);
+        const users_pk = user.users_pk;
+
+        // Realiza o post para criar a relação rl_campaigns_users/cadastro
+        axios
+          .post("rl_campaigns_users/cadastro", {
+            users_fk: users_pk,
+            campaigns_fk: campaigns_pk,
+            party_roles_fk: 1,
+            skus_fk: boxNumber,
+          })
+          .then((response) => {
+            console.log("Relação criada com sucesso.", response.data);
+          })
+          .catch((error) => {
+            console.error("Erro ao criar relação:", error);
+            toast.add({
+              severity: "error",
+              summary: t("label.error"),
+              detail: "Erro ao criar a relação campanha-usuário.",
+              life: 3000,
+            });
+          });
+      } else {
+        console.error("Usuário não encontrado no localStorage");
+      }
+      
+      closeModal();
+    })
+    .catch((error) => {
+      console.error("Error saving campaign:", error);
+      toast.add({
+        severity: "error",
+        summary: t("label.error"),
+        detail: "Failed to save campaign.",
+        life: 3000,
+      });
+    });
 }
 
 function closeModal() {
@@ -67,12 +134,27 @@ function closeModal() {
       </v-card-text>
     </v-card>
     <v-card>
+      <v-btn variant="elevated" @click="saveCampaign">{{
+        t("label.save")
+      }}</v-btn>
       <v-btn variant="elevated" @click="copyToClipboard">{{
         t("label.copy-to-clipboard")
       }}</v-btn>
       <v-btn variant="elevated" @click="closeModal">{{
         t("label.cancel")
       }}</v-btn>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="successDialogVisible">
+    <v-card>
+      <v-card-title>{{ t("label.success") }}</v-card-title>
+      <v-card-text>
+        {{ t("Campaign created successfully") }}
+      </v-card-text>
+      <v-btn variant="elevated" @click="successDialogVisible = false">
+        {{ t("label.close") }}
+      </v-btn>
     </v-card>
   </v-dialog>
 </template>
