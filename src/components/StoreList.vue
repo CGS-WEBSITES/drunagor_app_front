@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="776" class="pa-4">
+  <v-container max-width="776" class="pa-0">
     <!-- Caixa por trás -->
     <v-card rounded="lg" elevation="7" class="pa-2">
       <!-- Barra de Busca -->
