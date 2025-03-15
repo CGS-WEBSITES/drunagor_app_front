@@ -14,6 +14,9 @@
                         <!-- Login Tab -->
                         <v-tab-item :value="0">
                             <v-card-text v-if="activeTab === 0">
+                                <v-btn color="primary" @click="navigateTo('/login')">
+              <v-icon> mdi-keyboard-backspace </v-icon>
+            </v-btn>
                                 <v-container class="d-flex justify-center align-center">
                                     <v-row justify="center">
                                         <v-col cols="12" md="6" class="text-center">

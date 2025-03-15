@@ -1,5 +1,5 @@
 <template>
-   <v-card
+ <v-card
    color="primary"
     class="profile-card mx-auto py-0"
     rounded="0"
@@ -11,17 +11,18 @@
       width: 100%;
     "
   >
-    <div class="position-relative">
+  <div class="position-relative">
       <v-img
-        src="@/assets/AGE_Arte271.png"
+        :src="
+          user.background_hash
+            ? assets + '/Profile/' + user.background_hash
+            : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
+        "
         alt="Background Image"
         max-height="529px"
         max-width="100%"
         cover
       ></v-img>
-
-      <!-- <v-btn icon="mdi-pencil" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)" elevation="3"
-        :to="'/perfil/perfil-image'"></v-btn> -->
     </div>
 
     <v-img
@@ -42,17 +43,6 @@
         background-color: black;
       "
     >
-      <v-btn
-        icon
-        class="position-absolute bottom-0 right-0 ma-1"
-        color="rgba(0, 0, 0, 0.6)"
-        elevation="3"
-        rounded="xl"
-        size="x-small"
-      >
-        <v-icon>mdi-pencil</v-icon>
-        <profile-pic-dialog></profile-pic-dialog>
-      </v-btn>
     </v-img>
 
     <v-card-text>
@@ -72,16 +62,39 @@
         </div>
       </v-card-text>
     </v-card>
+
+<Badges/>
+
+<favorite-campaign-card/>
+
+
+
 </template>
 
 <script lang="ts" setup>
 import { inject, computed } from "vue";
-import { useUserStore } from "@/store/UserStore";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
-const reloadKey = ref(0);
-const user = computed(() => useUserStore().user); // Inicializa a store
 const assets = inject<string>("assets");
+const route = useRoute();
+const user = ref({});
 
+// Buscar usuário da API
+const fetchUserProfile = async () => {
+  try {
+    const userId = route.params.id;
+
+    const response = await axios.get(`https://api.drunagor.app/test/system/users/${userId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+
+    user.value = response.data;
+  } catch (error) {
+  }
+};
+
+// Formatar a data de entrada do usuário
 const formattedJoinDate = computed(() => {
   if (!user.value.join_date) return "Unknown";
   return new Date(user.value.join_date).toLocaleDateString("en-US", {
@@ -91,15 +104,30 @@ const formattedJoinDate = computed(() => {
   });
 });
 
-
+fetchUserProfile();
 </script>
 
 <style scoped>
-/* Estilos para o card (ajuste conforme necessário) */
+.user-info {
+  margin-top: 50px;
+}
+
+.user-name {
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.user-join-date {
+  font-size: 1rem;
+  color: #ddd;
+}
+
 .product-card {
   border: 1px solid #ccc;
   padding: 16px;
   border-radius: 8px;
   cursor: pointer;
 }
+
+
 </style>
