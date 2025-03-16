@@ -405,6 +405,7 @@ const saveEditedStore = () => {
         }
         saveStoresToLocalStorage();
         editDialog.value = false;
+        fetchStores();
       })
       .catch((error: any) => {
         console.error("Erro ao atualizar loja:", error);
