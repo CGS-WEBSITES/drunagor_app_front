@@ -260,12 +260,18 @@ function getRandomCommander() {
   </v-btn>
     </v-card>
   </v-card>
+  
       
     </v-container>
+
+  
+
+    
 
 
 
     <v-col cols="12" class="">
+      <ConfigurationVariant/>
       <RandomizerQuickSelect />
     </v-col>
 
