@@ -66,7 +66,7 @@
 
                   <!-- Botões de Aceitar/Recusar Amizade -->
                   <v-col v-if="!item.accepted" cols="4" class="d-flex justify-end align-center">
-                    <v-btn class="ma-2" color="green" @click.stop="acceptFriend(item.friend_pk)">ACCEPT</v-btn>
+                    <v-btn class="ma-2" color="green" @click.stop="acceptFriend(item.friends_pk)">ACCEPT</v-btn>
                     <v-btn class="ma-2" color="red" @click.stop="declineFriend(item.friend_pk)">DECLINE</v-btn>
                   </v-col>
                 </v-row>
@@ -106,7 +106,7 @@ const navigateToUser = (userId) => {
 // **Busca amigos da API**
 const fetchFriends = async () => {
   try {
-    const response = await axios.get(`${apiUrl}/friends/list`, {
+    const response = await axios.get(`${apiUrl}/friends/list_friends`, {
       params: { invite_users_fk: userId, accepted: true   },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -134,60 +134,69 @@ const fetchFriends = async () => {
 
 const fetchRequests = async () => {
   try {
-    const response = await axios.get(`${apiUrl}/friends/list`, {
-      params: { invite_users_fk: userId, accepted: false   },
+
+    // Passo 1: Busca os pedidos de amizade recebidos
+    const response = await axios.get(`${apiUrl}/friends/list_requests`, {
+      params: { recipient_users_fk: userId, accepted: false, active: true },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
-    const friendData = response.data.friends;
+    const friendRequests = response.data.friends || [];
 
-    requests.value = friendData
-      .filter((friend) => friend.accepted === false)
-      .map((friend) => ({
-        friends_pk: friend.friends_pk,
-        user_name: friend.user_name,
-        image: friend.picture_hash
-  ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
-  : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
-        accepted: false,
-      }));
+    // Passo 2: Busca os detalhes do usuário que enviou cada pedido
+    const requestDetails = await Promise.all(
+      friendRequests.map(async (friend) => {
+        try {
+          const userResponse = await axios.get(`${apiUrl}/users/${friend.invite_users_fk}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+          });
+
+          const sender = userResponse.data;
+
+          return {
+            friends_pk: friend.friends_pk,
+            user_name: sender.user_name,
+            image: sender.picture_hash
+              ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${sender.picture_hash}`
+              : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+            accepted: false,
+          };
+        } catch (userError) {
+          console.error("❌ Erro ao buscar dados do usuário que enviou o convite:", userError);
+          return null;
+        }
+      })
+    );
+
+    // Filtra pedidos válidos (descarta possíveis erros na busca do usuário)
+    requests.value = requestDetails.filter((req) => req !== null);
+
   } catch (error) {
-    console.error("Erro ao buscar amigos:", error);
+    console.error("❌ Erro ao buscar pedidos de amizade:", error.response?.data || error.message);
   }
 };
 
-const acceptFriend = async (recipientId) => {
+
+const acceptFriend = async (friends_pk) => {
+  if (!friends_pk) {
+    console.error("❌ Erro: O ID do pedido de amizade (friends_pk) não foi fornecido.");
+    return;
+  }
+
   try {
-    console.log("🔍 Buscando friends_pk para recipient:", recipientId);
 
-    // 1️⃣ Busca o `friends_pk` com base no recipient_users_fk
-    const response = await axios.get(`${apiUrl}/friends/list`, {
-      params: { invite_users_fk: userId, accepted: false   },
-      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-    });
 
-    const request = response.data.friends.find((friend) => friend.invite_users_fk === recipientId);
-
-    if (!request) {
-      console.error("❌ Nenhuma solicitação de amizade encontrada para este usuário.");
-      return;
-    }
-
-    const friends_pk = request.friends_pk; // Obtém o ID do pedido
-
-    console.log("✅ Aceitando amizade para friends_pk:", friends_pk);
-
-    // 2️⃣ Aceita a amizade passando o `friends_pk`
+    // Fazendo o PUT na API para aceitar a amizade
     await axios.put(
       `${apiUrl}/friends/accept/${friends_pk}`, 
       {},
       { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } }
     );
 
-    console.log("✅ Amizade aceita com sucesso!");
-    
+
+
     // 🔄 Atualiza a lista após aceitar
     await fetchFriends();
     await fetchRequests();
@@ -199,7 +208,7 @@ const acceptFriend = async (recipientId) => {
 // **Recusar amizade após buscar friends_pk**
 const declineFriend = async (recipientId) => {
   try {
-    console.log("🔍 Buscando friends_pk para recipient:", recipientId);
+;
 
     // 1️⃣ Busca o `friends_pk` com base no recipient_users_fk
     const response = await axios.get(`${apiUrl}/friends/list`, {
@@ -216,14 +225,14 @@ const declineFriend = async (recipientId) => {
 
     const friends_pk = request.friends_pk; // Obtém o ID do pedido
 
-    console.log("🚫 Recusando amizade para friends_pk:", friends_pk);
+
 
     // 2️⃣ Recusa a amizade passando o `friends_pk`
     await axios.delete(`${apiUrl}/friends/${friends_pk}/delete`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
-    console.log("🚫 Pedido de amizade recusado!");
+
     
     // 🔄 Atualiza a lista após recusar
     await fetchRequests();

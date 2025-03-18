@@ -191,11 +191,7 @@ const addFriend = async () => {
     const invite_users_fk = userStore.user?.users_pk; 
     const recipient_users_fk = user?.value?.users_pk; 
 
-    console.log("🔍 Enviando pedido de amizade...");
-    console.log("📌 Quem envia:", invite_users_fk);
-    console.log("📌 Quem recebe:", recipient_users_fk);
-    console.log("🌐 Endpoint:", `${apiUrl}friends/register`);
-    console.log("🔑 Token:", localStorage.getItem("accessToken"));
+
 
     if (!invite_users_fk || !recipient_users_fk) {
       console.error("❌ Erro: IDs dos usuários estão indefinidos.");
@@ -210,7 +206,7 @@ const addFriend = async () => {
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
-    console.log("✅ Pedido de amizade enviado com sucesso:", response.data);
+  
   } catch (error) {
     console.error("❌ Erro ao enviar o pedido de amizade:", error.response?.data || error.message);
   }
@@ -223,9 +219,7 @@ const checkFriendStatus = async () => {
     const encodedId = route.params.id;
     const userId = parseInt(atob(encodedId)); // Converte de Base64 para número
 
-    console.log("🔍 Verificando status de amizade...");
-    console.log("👤 Usuário autenticado:", userStore.user?.users_pk);
-    console.log("👥 Usuário visitado:", userId);
+  
 
     const response = await axios.get(`${apiUrl}/friends/list`, {
       params: { invite_users_fk: userStore.user?.users_pk },
@@ -243,7 +237,7 @@ const checkFriendStatus = async () => {
 
     isFriend.value = friend?.accepted === true;
 
-    console.log("✅ Amizade encontrada?", isFriend.value ? "Sim" : "Não");
+  
   } catch (error) {
     console.error("❌ Erro ao verificar status de amizade:", error);
   }
