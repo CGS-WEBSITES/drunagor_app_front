@@ -50,10 +50,11 @@
                   <v-btn v-if="item.friend === false" class="ma-2 mt-6" color="green"> ACCEPT </v-btn>
                   <v-btn v-if="item.friend === false" class="ma-2 mt-6" color="red"> DECLINE </v-btn>
 
-                  <!-- Pontuação -->
-                  <!-- <v-col cols="1" class="d-flex align-self-end justify-center">
-                    <p class="text-body-2 text-bold">{{ item.points }}</p>
-                  </v-col> -->
+                  <!-- Botões de Aceitar/Recusar Amizade -->
+                  <v-col v-if="!item.accepted" cols="2" md="4" class="d-flex justify-end align-center">
+                    <v-btn class="ma-2" color="green" @click.stop="acceptFriend(item.friends_pk)">ACCEPT</v-btn>
+                    <v-btn class="ma-2" color="red" @click.stop="declineFriend(item.friend_pk)">DECLINE</v-btn>
+                  </v-col>
                 </v-row>
               </v-card>
             </template>
@@ -118,7 +119,117 @@ const activeTab = ref('friends');
 // Campo de busca
 const searchQuery = ref('');
 
-// Lista filtrada com base na aba ativa
+    const friendData = response.data.friends;
+
+    // Filtra amigos aceitos e pedidos pendentes
+    friends.value = friendData
+      .filter((friend) => friend.accepted === true)
+      .map((friend) => ({
+        friends_pk: friend.friends_pk,
+        user_name: friend.user_name,
+        image: friend.picture_hash
+  ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
+  : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`, 
+        accepted: true,
+      }));
+
+  } catch (error) {
+    console.error("Erro ao buscar amigos:", error);
+  }
+};
+
+const fetchRequests = async () => {
+  try {
+
+    const response = await axios.get(`${apiUrl}/friends/list_requests`, {
+      params: { recipient_users_fk: userId, accepted: false, active: true },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const friendRequests = response.data.friends || [];
+
+
+    requests.value = friendRequests.map((friend) => ({
+      friends_pk: friend.friends_pk,
+      user_name: friend.user_name, 
+      image: friend.picture_hash
+        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
+        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+      accepted: false,
+    }));
+
+  } catch (error) {
+  }
+};
+
+
+
+
+const acceptFriend = async (friends_pk) => {
+  if (!friends_pk) {
+    console.error("❌ Erro: O ID do pedido de amizade (friends_pk) não foi fornecido.");
+    return;
+  }
+
+  try {
+
+
+    // Fazendo o PUT na API para aceitar a amizade
+    await axios.put(
+      `${apiUrl}/friends/accept/${friends_pk}`, 
+      {},
+      { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } }
+    );
+
+
+
+    // 🔄 Atualiza a lista após aceitar
+    await fetchFriends();
+    await fetchRequests();
+  } catch (error) {
+    console.error("❌ Erro ao aceitar amizade:", error.response?.data || error.message);
+  }
+};
+
+// **Recusar amizade após buscar friends_pk**
+const declineFriend = async (recipientId) => {
+  try {
+;
+
+    // 1️⃣ Busca o `friends_pk` com base no recipient_users_fk
+    const response = await axios.get(`${apiUrl}/friends/list`, {
+      params: { invite_users_fk: userId, accepted: false   },
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+
+    const request = response.data.friends.find((friend) => friend.invite_users_fk === recipientId);
+
+    if (!request) {
+      console.error("❌ Nenhuma solicitação de amizade encontrada para este usuário.");
+      return;
+    }
+
+    const friends_pk = request.friends_pk; // Obtém o ID do pedido
+
+
+
+    // 2️⃣ Recusa a amizade passando o `friends_pk`
+    await axios.delete(`${apiUrl}/friends/${friends_pk}/delete`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+
+
+    
+    // 🔄 Atualiza a lista após recusar
+    await fetchRequests();
+  } catch (error) {
+    console.error("❌ Erro ao recusar amizade:", error.response?.data || error.message);
+  }
+};
+
+// **Lista filtrada**
 const filteredList = computed(() => {
   const list = activeTab.value === 'friends' ? friends.value : requests.value;
   if (!searchQuery.value) return list;
@@ -127,8 +238,16 @@ const filteredList = computed(() => {
   );
 });
 
-// Estado para o item selecionado
-const selectedItem = ref(null);
+watch(activeTab, (newTab) => {
+  if (newTab === "friends") {
+    fetchFriends();
+  } else if (newTab === "requests") {
+    fetchRequests();
+  }
+});
+
+onMounted(fetchRequests);
+onMounted(fetchFriends);
 
 // Define o item selecionado
 const setSelectedItem = (item) => {
