@@ -129,36 +129,22 @@
                             params: { id: item.campaignId },
                           })
                           ">
-                          <v-img
-    v-if="item.campaign === 'core'"
-    src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
-    cover
-  ></v-img>
-
-  <v-img
-    v-else-if="item.campaign === 'apocalypse'"
-    src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
-    cover
-  ></v-img>
-
-  <v-img
-    v-else-if="item.campaign === 'awakenings'"
-    src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
-    cover
-  ></v-img>
-                          <v-card-title class="text-uppercase" v-if="item.name">
-                            {{ item.name }}
+                          <v-img :src="assets + '/Dashboard/img-campaigncore(1).png'" height with cover />
+                          <v-card-title>
+                            {{ item.campaign }}
                           </v-card-title>
+                          <v-card-subtitle v-if="item.name">
+                            {{ item.name }}
+                          </v-card-subtitle>
                           <v-card-text>
                             <v-row no-gutters>
-                              <v-col class="d-flex" 
+                              <v-col cols="4" sm="2" md="2" lg="2" xl="1" class="d-flex"
                                 v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
-                                <v-avatar rounded="0" :image="hero.images.avatar" size="120" />
+                                <v-avatar :image="hero.images.avatar" size="40" />
                               </v-col>
                             </v-row>
                           </v-card-text>
                         </v-card>
-                        
                       </v-col>
                     </v-row>
                   </v-carousel-item>
@@ -260,34 +246,18 @@
                           params: { id: item.campaignId },
                         })
                         ">
-                        <v-img
-    v-if="item.campaign === 'core'"
-    src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
-    max-height="200"
-    cover
-  ></v-img>
-
-  <v-img
-    v-else-if="item.campaign === 'apocalypse'"
-    src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
-    max-height="200"
-    cover
-  ></v-img>
-
-  <v-img
-    v-else-if="item.campaign === 'awakenings'"
-    src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
-    max-height="200"
-    cover
-  ></v-img>
-                        <v-card-subtitle class="text-uppercase mt-3" v-if="item.name">
+                        <v-img :src="assets + '/Dashboard/img-campaigncore.png'" height with cover />
+                        <v-card-title>
+                          {{ item.campaign }}
+                        </v-card-title>
+                        <v-card-subtitle v-if="item.name">
                           {{ item.name }}
                         </v-card-subtitle>
                         <v-card-text>
                           <v-row no-gutters>
-                            <v-col  class="d-flex"
+                            <v-col cols="1" sm="2" md="2" lg="2" xl="1" class="d-flex"
                               v-for="hero in findHeroes(item.campaignId)" :key="hero.heroId">
-                              <v-avatar rounded="0" :image="hero.images.avatar" size="66" />
+                              <v-avatar :image="hero.images.avatar" size="40" />
                             </v-col>
                           </v-row>
                         </v-card-text>

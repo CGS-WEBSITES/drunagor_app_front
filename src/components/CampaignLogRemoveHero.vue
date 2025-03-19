@@ -60,11 +60,10 @@ function removeHeroFromCampaign(heroId: string) {
           <v-list-item
             v-for="hero in filteredHeroes"
             :key="hero.id"
+            :title="hero.name"
+            :prepend-avatar="hero.images.avatar"
             @click="removeHeroFromCampaign(hero.id)"
-          >
-          <v-img
-    :src="hero.images.trackerimage" 
-  /></v-list-item>
+          ></v-list-item>
         </v-list>
       </v-card-text>
     </v-card>

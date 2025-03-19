@@ -81,17 +81,14 @@ function addRandomHeroToCampaign() {
             @click="addRandomHeroToCampaign"
             title="Random hero"
             :prepend-avatar="RandomImage.toString()"
-            height="60px"
           ></v-list-item>
           <v-list-item
-  v-for="hero in filteredHeroes"
-  :key="hero.id"
-  @click="addHeroToCampaign(hero.id)"
->
-  <v-img
-    :src="hero.images.trackerimage" 
-  />
-</v-list-item>
+            v-for="hero in filteredHeroes"
+            :key="hero.id"
+            :title="hero.name"
+            :prepend-avatar="hero.images.avatar"
+            @click="addHeroToCampaign(hero.id)"
+          ></v-list-item>
         </v-list>
       </v-card-text>
     </v-card>

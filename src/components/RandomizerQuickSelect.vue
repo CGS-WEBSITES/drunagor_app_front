@@ -12,6 +12,7 @@ import ConfigurationVariant from "./ConfigurationVariant.vue";
       class="px-4"
     >
       <v-expansion-panel-text>
+        <ConfigurationVariant />
         <ConfigurationContentMonster />
         <ConfigurationContentHero/>
       </v-expansion-panel-text>

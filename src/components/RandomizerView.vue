@@ -103,175 +103,34 @@ function getRandomCommander() {
 
     <v-container max-width="680" class="d-none d-md-flex">
     <v-col cols="12" >
-      <v-card rounded="" class="d-flex justify-center pa-3 elevation-0"> 
-  <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomMonster('white')"
-    style="display: flex; align-items: center; gap: 8px; background-color: #FFFFFF; color: #000000;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/WHITE+MONSTERS.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.white') }}
-  </v-btn>
-
-  <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomMonster('gray')"
-    style="display: flex; align-items: center; gap: 8px; background-color: #898582; color: #FFFFFF;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/GRAY+MONSTERS.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.gray') }}
-  </v-btn>
-
-  <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomMonster('black')"
-    style="display: flex; align-items: center; gap: 8px; background-color: #11100B; color: #FFFFFF;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/BLACK+MONSTERS.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.black') }}
-  </v-btn>
-
-  <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomCommander()"
-    style="display: flex; align-items: center; gap: 8px; background-color: #947031; color: #FFFFFF;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/COMMANDER.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.commander') }}
-  </v-btn>
-</v-card>
+      <v-card rounded="" class="d-flex justify-center pa-3 elevation-0">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
+      </v-card>
     </v-col>
   </v-container>
-
-  
     
 
 
     <v-container class="d-md-none pa-4">
       <v-card>
       <v-card class="d-flex justify-center pa-3 elevation-0">
-        <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomMonster('white')"
-    style="display: flex; align-items: center; gap: 8px; background-color: #FFFFFF; color: #000000;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/WHITE+MONSTERS.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.white') }}
-  </v-btn>
-
-  <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomMonster('gray')"
-    style="display: flex; align-items: center; gap: 8px; background-color: #898582; color: #FFFFFF;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/GRAY+MONSTERS.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.gray') }}
-  </v-btn>
-
-  <v-btn
-    class="mx-1"
-    variant="elevated"
-    @click="getRandomMonster('black')"
-    style="display: flex; align-items: center; gap: 8px; background-color: #11100B; color: #FFFFFF;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/BLACK+MONSTERS.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.black') }}
-  </v-btn>
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('white')">{{ $t('randomizer.white') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('gray')">{{ $t('randomizer.gray') }}</v-btn class="mx-2">
+        <v-btn rounded class="mx-1" variant="elevated" @click="getRandomMonster('black')">{{ $t('randomizer.black') }}</v-btn class="mx-2">
       </v-card>
-      <v-card class="d-flex justify-center pb-3 elevation-0">
-        <v-btn
-    class="mx-"
-    variant="elevated"
-    @click="getRandomCommander()"
-    style="display: flex; align-items: center; gap: 8px; background-color: #947031; color: #FFFFFF;"
-  >
-    <div
-      style="
-        width: 24px;
-        height: 24px;
-        background-image: url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/COMMANDER.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-      "
-    ></div>
-    {{ $t('randomizer.commander') }}
-  </v-btn>
+      <v-card class="d-flex justify-center pa-3 elevation-0">
+      <v-btn  rounded variant="elevated" @click="getRandomCommander()">{{ $t('randomizer.commander') }}</v-btn>
     </v-card>
   </v-card>
-  
       
     </v-container>
-
-  
-
-    
 
 
 
     <v-col cols="12" class="">
-      <ConfigurationVariant/>
       <RandomizerQuickSelect />
     </v-col>
 
