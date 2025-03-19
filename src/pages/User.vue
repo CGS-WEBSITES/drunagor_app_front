@@ -44,13 +44,13 @@
         elevation="3"
       ></v-btn>
     </template>
-    <v-list class="ma-2">
+    <!-- <v-list class="ma-2">
       <v-list-item @click="removeFriend">
         <v-list-item-icon>
           <v-icon>mdi-account-remove</v-icon>
         </v-list-item-icon>
       </v-list-item>
-    </v-list>
+    </v-list> -->
   </v-menu>
 
   <v-btn
@@ -111,14 +111,14 @@
         size="small"
       ></v-btn>
     </template>
-    <v-list>
+    <!-- <v-list>
       <v-list-item @click="removeFriend">
         <v-list-item-icon>
           <v-icon >mdi-account-remove</v-icon>
         </v-list-item-icon>
         <v-list-item-title>Remove Friend</v-list-item-title>
       </v-list-item>
-    </v-list>
+    </v-list> -->
   </v-menu>
 
   <v-btn
@@ -130,6 +130,15 @@
     @click="addFriend"
   ></v-btn>
   </div>
+
+  <v-alert
+    v-if="showAlert"
+    type="success"
+    class="top-0 right-0 ma-4"
+    text
+  >
+    Friend request sent!
+  </v-alert>
           
           
         </p>  
@@ -185,6 +194,7 @@ import { useUserStore } from "@/store/UserStore";
 
 const userStore = useUserStore();
 const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
+const showAlert = ref(false);
 
 const addFriend = async () => {
   try {
@@ -206,13 +216,21 @@ const addFriend = async () => {
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
+    // Exibir alerta de sucesso
+    showAlert.value = true;
+
+    // Esconder alerta após 3 segundos
+    setTimeout(() => {
+      showAlert.value = false;
+    }, 3000);
+
   
   } catch (error) {
     console.error("❌ Erro ao enviar o pedido de amizade:", error.response?.data || error.message);
   }
 };
 
-const isFriend = ref(false); // Define se o usuário já é amigo ou não
+const isFriend = ref(); // Define se o usuário já é amigo ou não
 
 const checkFriendStatus = async () => {
   try {
@@ -221,7 +239,7 @@ const checkFriendStatus = async () => {
 
   
 
-    const response = await axios.get(`${apiUrl}/friends/list`, {
+    const response = await axios.get(`${apiUrl}/friends/list_friends`, {
       params: { invite_users_fk: userStore.user?.users_pk },
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
