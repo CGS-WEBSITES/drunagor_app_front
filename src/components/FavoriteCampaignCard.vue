@@ -14,7 +14,6 @@
       <v-card-text class="pl-2 pt-0 pb-0">
         <p class="ext-uppercase font-weight-black text-bold text-h5 pb-0 pt-1">{{ title }}</p>
         <p class="font-weight-bold grey--text pt-0">{{ subtitle }}</p>
-        <p class="font-weight-bold grey--text pt-0">{{ subtitle2}}</p>
 
         
       </v-card-text>
@@ -40,12 +39,12 @@
     subtitle: {
       type: String,
       required: true,
-      default: 'Chronicles of Drunagor: Age of Darkness The Riasdasse of the Undead Dragon',
+      default: 'Chronicles of Drunagor: Age of Darkness',
     },
     subtitle2: {
       type: String,
       required: true,
-      default: 'Chronicles of Drunagor: Age of Darkness Thsdasdae Rise of the Undead Dragon',
+      default: 'Chronicles of Drunagor: Age of Darkness',
     },
     progress: {
       type: Number,
