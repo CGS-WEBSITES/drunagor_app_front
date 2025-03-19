@@ -6,6 +6,7 @@ export interface User {
   google_id: string | null;
   name: string | null;
   picture_hash: string | null;
+  background_hash: string | null;
   roles_fk: number | null;
   user_name: string | null;
   users_pk: number | null;
@@ -22,6 +23,7 @@ export const useUserStore = defineStore('user', () => {
     google_id: null,
     name: null,
     picture_hash: null,
+    background_hash: null,
     roles_fk: null,
     user_name: null,
     users_pk: null,
