@@ -2,25 +2,38 @@
   <v-container class="pa-0 mt-16">
     <v-row justify="center">
       <v-col cols="12" class="text-center mb-4">
-        <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+        <h1 class="cinzel-text font-weight-black pt-15 pb-4 text-center text-h2">
           LIBRARY
         </h1>
       </v-col>
     </v-row>
 
-    <v-card min-height="220px" class="pa-2 mb-8">
-      <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
-        <v-tab :value="1">All Products</v-tab>
-        <v-tab :value="2">Wishlist</v-tab>
-        <v-tab :value="3">Owned</v-tab>
-      </v-tabs>
+    <v-container max-width="800" style="min-width: 360px;" class="d-flex flex-column">
+    <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center">
+      <v-row class="py-2" style="max-width: 800px;">
+        <v-btn
+          v-for="(tab, index) in tabs"
+          :key="index"
+          :style="{ backgroundColor: activeTab === tab.value ? '#136D6D' : '' }"
+          class="mx-1"
+          rounded
+          @click="activeTab = tab.value"
+        >
+          <v-icon style="font-size: 24px;">{{ tab.icon }}</v-icon>
+          <span> {{ tab.text }} </span>
+        </v-btn>
+      </v-row>
+    </v-card>
+  </v-container>
 
+
+    <!-- Conteúdo das Tabs -->
+    <v-card min-height="172px" class="pa-2 mt-4 mb-12">
       <div v-if="activeTab === 1">
         <v-row dense>
           <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="6" lg="4">
             <div class="card-wrapper">
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
-
               <div class="buttons-container">
                 <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
                   :style="{ backgroundColor: product.wish ? '#136D6D' : '' }"
@@ -28,7 +41,6 @@
                   {{ product.wish ? "- Wishlist" : "+ Wishlist" }}
                 </v-btn>
 
-                <!-- Botão Owned -->
                 <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
                   :style="{ backgroundColor: product.owned ? '#136D6D' : '' }"
                   @click="toggleOwned(product.id)">
@@ -45,11 +57,10 @@
           <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
-
               <div class="wishlist-button-container">
                 <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
                   :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
-                  {{ product.wish? " - Wishlist" : "+ Wishlist" }}
+                  {{ product.wish ? "- Wishlist" : "+ Wishlist" }}
                 </v-btn>
               </div>
             </v-card>
@@ -62,7 +73,6 @@
           <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
             <v-card>
               <ProductCard :product="product" @click="() => goToLink(product.link)" />
-
               <div class="owned-button-container">
                 <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
                   :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
@@ -423,6 +433,16 @@ watch(confirmationDialog, async (newVal) => {
     await fetchProducts();
   }
 });
+
+
+
+// Tabs disponíveis na library
+const tabs = ref([
+  { icon: "mdi-view-list", value: 1, text: "All" },
+  { icon: "mdi-heart", value: 2, text: "Wishlist" },
+  { icon: "mdi-check", value: 3, text: "Owned" },
+]);
+
 </script>
 
 <style>

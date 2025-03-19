@@ -17,6 +17,7 @@ label:
   new-campaign: New campaign
   export-campaign: Export campaign
   copy-to-clipboard: Copy to clipboard
+  save: Save
   import-campaign: " Import campaign"
   sequential-adventure: Sequential Adventure
   camp-phase: Camp Phase
