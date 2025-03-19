@@ -1,130 +1,107 @@
 <template>
   <v-container max-width="776" class="pa-0">
+    <!-- Caixa por trás -->
     <v-card rounded="lg" elevation="7" class="pa-2">
       <!-- Barra de Busca -->
       <v-text-field
         v-model="searchQuery"
-        label="Search User"
+        label="Search"
         variant="solo-filled"
         class="pb-0"
-        @input="fetchUsers"
       ></v-text-field>
 
-      <!-- Lista de Usuários Encontrados -->
-      <v-card
-        v-for="user in filteredUsers"
-        :key="user.users_pk"
-        @click="navigateToUser(user.users_pk)"
-        class="pa-1 mt-3 position-relative"
-        rounded="lg"
-        elevation="10"
-      >
-        <!-- Background Overlay -->
-        <div 
-          class="background-overlay"
-          :style="{
-            backgroundImage: user.background_hash 
-              ? `url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${user.background_hash})` 
-              : 'url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            borderRadius: '8px',
-            zIndex: 0,
-          }"
-        ></div>
+      <!-- Lista de Lojas -->
+      <v-virtual-scroll :items="filteredStores" :item-height="100">
+        <template #default="{ item }">
+          <v-menu offset-y>
+            <template #activator="{ props }">
+              <v-card
+                class="pa-1 mb-3"
+                rounded="lg"
+                elevation="10"
+                v-bind="props"
+                @click="setSelectedStore(item)"
+              >
+                <v-row>
+                  <!-- Imagem -->
+                  <v-col cols="4" lg="2" class="d-flex align-center justify-center pl-6">
+                    <v-img
+                      :src="item.image"
+                      alt="Store Image"
+                      max-width="90"
+                      max-height="90"
+                      class="rounded-lg"
+                    ></v-img>
+                  </v-col>
 
-        <v-row class="position-relative" style="z-index: 1;">
-          <!-- Imagem -->
-          <v-col cols="4" lg="2" class="d-flex align-center justify-center pl-6">
-            <v-img
-              :src="user.picture_hash"
-              alt="User Profile Image"
-              max-width="90"
-              max-height="90"
-              class="rounded-lg bg-background"
-            ></v-img>
-          </v-col>
+                  <!-- Informações -->
+                  <v-col cols="7">
+                    <p class="font-weight-bold text-truncate">{{ item.name }}</p>
+                    <p class="text-body-2 grey--text">{{ item.address }}</p>
+                  </v-col>
 
-          <!-- Informações -->
-          <v-col cols="7">
-            <p class="font-weight-bold text-truncate">{{ user.user_name }}</p>
-            <p class="text-body-2 grey--text">{{ user.name }}</p>
-            <p class="text-caption grey--text">User since: {{ user.join_date }}</p>
-          </v-col>
-        </v-row>
-      </v-card>
+                  <!-- Pontuação -->
+                  <!-- <v-col cols="" class="d-flex align-self-end justify-center">
+                    <p class="text-body-2 text-bold">{{ item.points }}</p>
+                  </v-col> -->
+                </v-row>
+              </v-card>
+            </template>
+
+            
+          </v-menu>
+        </template>
+      </v-virtual-scroll>
     </v-card>
   </v-container>
 </template>
 
-<script setup>
-import { ref, inject, computed } from "vue";
-import { useRouter } from "vue-router";
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 
-const router = useRouter();
+// Dados simulados
+const stores = ref([
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-andreas-cleric.png',
+    name: 'Andreas',
+    address: 'Generic Information',
+    points: '9418°',
+  },
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-azriel-swordmage.png',
+    name: 'Azriel Store',
+    address: 'Generic Location, USA 00000-0000',
+    points: '946338°',
+  },
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-nyx-assasin.png',
+    name: 'Nyx ',
+    address: 'Generic Information',
+    points: '946338°',
+  },
+]);
 
-// Navega para o perfil do usuário
-const navigateToUser = (userId) => {
-  if (!userId) return;
-  router.push({ name: "User", params: { id: userId } });
-};
+// Campo de busca
+const searchQuery = ref('');
 
-// Obtém a instância do axios e a URL base da API
-const axios = inject("axios");
-const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
-
-// Variáveis
-const users = ref([]);
-const searchQuery = ref("");
-
-// Computed para garantir que apenas os usuários cujo `user_name` começa com o termo sejam exibidos
-const filteredUsers = computed(() => {
-  if (!searchQuery.value) return users.value;
-  return users.value.filter((user) =>
-    user.user_name.toLowerCase().startsWith(searchQuery.value.toLowerCase())
+// Lista filtrada
+const filteredStores = computed(() => {
+  if (!searchQuery.value) return stores.value;
+  return stores.value.filter((store) =>
+    store.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 
-// Busca usuários pelo nome digitado
-const fetchUsers = async () => {
-  if (!searchQuery.value) return;
+// Estado para o card selecionado
+const selectedStore = ref(null);
 
-  try {
-    
+// Define o card selecionado
+const setSelectedStore = (store) => {
+  selectedStore.value = store;
+};
 
-    const response = await axios.get(`${apiUrl}/users/search`, {
-      params: { user_name: searchQuery.value }, // Busca pelo nome de usuário
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    if (!response.data.users || response.data.users.length === 0) {
-      users.value = [];
-      return;
-    }
-
-
-
-    users.value = response.data.users.map((user) => ({
-      users_pk: user.users_pk, // ID do usuário
-      name: user.nome || "Name not available",
-      user_name: user.user_name || "User not found",
-      join_date: user.join_date || "Date not available",
-      picture_hash: user.picture_hash
-        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${user.picture_hash}`
-        : "https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png",
-      background_hash: user.background_hash,
-    }));
-  } catch (error) {
-
-    users.value = [];
-  }
+// Fecha o menu (limpa a seleção)
+const closeMenu = () => {
+  selectedStore.value = null;
 };
 </script>

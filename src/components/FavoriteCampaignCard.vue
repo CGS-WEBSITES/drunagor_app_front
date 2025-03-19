@@ -40,12 +40,12 @@
     subtitle: {
       type: String,
       required: true,
-      default: 'Chronicles of Drunagor: Age of Darkness',
+      default: 'Chronicles of Drunagor: Age of Darkness The Riasdasse of the Undead Dragon',
     },
     subtitle2: {
       type: String,
       required: true,
-      default: '',
+      default: 'Chronicles of Drunagor: Age of Darkness Thsdasdae Rise of the Undead Dragon',
     },
     progress: {
       type: Number,

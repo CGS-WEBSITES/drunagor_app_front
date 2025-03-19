@@ -40,11 +40,6 @@ const router = createRouter({
       component: () => import("@/pages/Events.vue"),
     },
     {
-      path: "/user/:id",
-      name: "User",
-      component: () => import("@/pages/User.vue"),
-    },
-    {
       path: "/library",
       name: "Library",
       component: () => import("@/pages/Library.vue"),

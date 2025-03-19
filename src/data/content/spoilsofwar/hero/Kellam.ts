@@ -1,4 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/KellamAvatar.webp";
+import TrackerImageUrl from "@/assets/hero/trackerimage/KellamAvatar.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -22,5 +23,6 @@ export class Kellam implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
+    trackerimage: TrackerImageUrl
   };
 }
