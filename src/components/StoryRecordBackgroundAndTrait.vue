@@ -30,7 +30,7 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
         <v-switch
           v-model="backgroundAndTraitIds"
           value="folk-hero"
-          color="success"
+          color="primary"
           hide-details
           inset
         ></v-switch>
@@ -41,7 +41,7 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
         <v-switch
           v-model="backgroundAndTraitIds"
           value="knight-of-amir"
-          color="success"
+          color="primary"
           hide-details
           inset
         ></v-switch>
@@ -52,7 +52,7 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
         <v-switch
           v-model="backgroundAndTraitIds"
           value="redeemer"
-          color="success"
+          color="primary"
           hide-details
           inset
         ></v-switch>
@@ -63,7 +63,7 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
         <v-switch
           v-model="backgroundAndTraitIds"
           value="passionate"
-          color="success"
+          color="primary"
           hide-details
           inset
         ></v-switch>
