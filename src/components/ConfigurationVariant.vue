@@ -45,7 +45,7 @@ const toggleVariant = (variantId) => {
 </script>
 
 <template>
-  <v-container max-width="680">
+  <v-container max-width="660">
     <v-card class="my-4 pa-3 custom-card">
       <v-card-title class="text-uppercase font-weight-bold">Variants</v-card-title>
       <v-card-text>
