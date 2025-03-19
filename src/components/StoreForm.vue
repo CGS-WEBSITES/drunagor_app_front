@@ -47,6 +47,26 @@
               variant="outlined"
               v-model="form.storename"
             ></v-text-field>
+            <v-text-field
+              label="Street Name"
+              variant="outlined"
+              v-model="form.address"
+            ></v-text-field>
+            <v-text-field
+              label="Street Number"
+              variant="outlined"
+              v-model="form.streetNumber"
+            ></v-text-field>
+            <v-text-field
+              label="City"
+              variant="outlined"
+              v-model="form.city"
+            ></v-text-field>
+            <v-text-field
+              label="State"
+              variant="outlined"
+              v-model="form.state"
+            ></v-text-field>
             <v-autocomplete
               v-model="form.country"
               :items="countriesList"
@@ -104,7 +124,7 @@
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ store.site }}
+                    {{ store.address }}, {{ store.streetNumber }} - {{ store.city }}, {{ store.state }}
                   </p>
                   <p class="text-caption">
                     🏛️ Merchant ID: {{ store.google_id }}
@@ -147,6 +167,26 @@
                 label="Store Name"
                 outlined
                 v-model="editableStore.storename"
+              ></v-text-field>
+              <v-text-field
+                label="Street Name"
+                outlined
+                v-model="editableStore.address"
+              ></v-text-field>
+              <v-text-field
+                label="Street Number"
+                outlined
+                v-model="editableStore.streetNumber"
+              ></v-text-field>
+              <v-text-field
+                label="City"
+                outlined
+                v-model="editableStore.city"
+              ></v-text-field>
+              <v-text-field
+                label="State"
+                outlined
+                v-model="editableStore.state"
               ></v-text-field>
               <v-autocomplete
                 v-model="editableStore.country"
@@ -204,6 +244,10 @@ interface StoreForm {
   zipcode: string;
   MerchantID: string;
   storeImage: string;
+  address: string;
+  streetNumber: string;
+  city: string;
+  state: string;
 }
 
 const form = ref<StoreForm>({
@@ -213,6 +257,10 @@ const form = ref<StoreForm>({
   zipcode: "",
   MerchantID: "",
   storeImage: "",
+  address: "",
+  streetNumber: "",
+  city: "",
+  state: "",
 });
 
 // Obtendo o axios injetado
@@ -298,6 +346,10 @@ const saveStore = () => {
     countries_fk: form.value.country,
     users_fk: appUser,
     storeImage: form.value.storeImage,
+    address: form.value.address,
+    streetNumber: form.value.streetNumber,
+    city: form.value.city,
+    state: form.value.state,
   };
 
   axios
@@ -312,6 +364,10 @@ const saveStore = () => {
         zipcode: "",
         MerchantID: "",
         storeImage: "",
+        address: "",
+        streetNumber: "",
+        city: "",
+        state: "",
       };
       isExpanded.value = false;
       fetchStores();
@@ -330,6 +386,10 @@ const cancelForm = () => {
     zipcode: "",
     MerchantID: "",
     storeImage: "",
+    address: "",
+    streetNumber: "",
+    city: "",
+    state: "",
   };
   isExpanded.value = false;
 };
@@ -340,6 +400,7 @@ const toggleForm = () => {
 };
 
 const editDialog = ref(false);
+
 interface EditableStore {
   stores_pk?: number;
   site: string;
@@ -348,7 +409,12 @@ interface EditableStore {
   zipcode: string;
   MerchantID: string;
   storeImage: string;
+  address: string;
+  streetNumber: string;
+  city: string;
+  state: string;
 }
+
 const editableStore = ref<EditableStore>({
   site: "",
   storename: "",
@@ -356,6 +422,10 @@ const editableStore = ref<EditableStore>({
   zipcode: "",
   MerchantID: "",
   storeImage: "",
+  address: "",
+  streetNumber: "",
+  city: "",
+  state: "",
 });
 const selectedStoreIndex = ref<number | null>(null);
 
@@ -367,7 +437,11 @@ const openEditDialog = (store: any, index: number) => {
     country: store.countries_fk,
     zipcode: store.zip_code,
     MerchantID: store.google_id,
-    storeImage: store.storeImage || ""
+    storeImage: store.storeImage || "",
+    address: store.address,
+    streetNumber: store.streetNumber,
+    city: store.city,
+    state: store.state,
   };
   selectedStoreIndex.value = index;
   editDialog.value = true;
@@ -430,6 +504,33 @@ const isUnitedStates = computed(() => {
   const selectedCountry = form.value.country;
 
   return Number(selectedCountry) === 250;
+});
+
+const accountData = ref(null)
+
+const getMerchantAccount = () => {
+  const merchantId = '136699508';
+  const token = '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';
+
+  axios.get(
+    `https://shoppingcontent.googleapis.com/content/v2.1/${merchantId}/accounts`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+  .then((response: any) => {
+    console.log('Dados da conta:', response.data);
+    accountData.value = response.data;
+  })
+  .catch((error: any) => {
+    console.error('Erro ao buscar dados da conta:', error)
+  })
+}
+
+onMounted(() => {
+  getMerchantAccount();
 });
 </script>
 
