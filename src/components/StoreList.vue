@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="776" class="pa-0 pb-8">
+  <v-container max-width="776" class="pa-0">
     <v-card rounded="lg" elevation="7" class="pa-2">
       <!-- Barra de Busca -->
       <v-text-field
@@ -54,6 +54,7 @@
           <!-- Informações -->
           <v-col cols="7">
             <p class="font-weight-bold text-truncate">{{ user.user_name }}</p>
+            <p class="text-body-2 grey--text">{{ user.name }}</p>
             <p class="text-caption grey--text">User since: {{ user.join_date }}</p>
           </v-col>
         </v-row>
@@ -68,10 +69,10 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
+// Navega para o perfil do usuário
 const navigateToUser = (userId) => {
   if (!userId) return;
-  const encodedId = btoa(userId.toString());
-  router.push({ name: "User", params: { id: encodedId } });
+  router.push({ name: "User", params: { id: userId } });
 };
 
 // Obtém a instância do axios e a URL base da API
