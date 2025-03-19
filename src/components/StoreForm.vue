@@ -469,6 +469,10 @@ const saveEditedStore = () => {
       countries_fk: editableStore.value.country,
       users_fk: appUser,
       storeImage: editableStore.value.storeImage,
+      address: editableStore.value.address,
+      streetNumber: editableStore.value.streetNumber,
+      city: editableStore.value.city,
+      state: editableStore.value.state,
     };
 
     axios
