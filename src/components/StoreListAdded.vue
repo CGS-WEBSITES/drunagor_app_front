@@ -65,7 +65,7 @@
                   </v-col>
 
                   <!-- Botões de Aceitar/Recusar Amizade -->
-                  <v-col v-if="!item.accepted" cols="4" class="d-flex justify-end align-center">
+                  <v-col v-if="!item.accepted" cols="2" md="4" class="d-flex justify-end align-center">
                     <v-btn class="ma-2" color="green" @click.stop="acceptFriend(item.friends_pk)">ACCEPT</v-btn>
                     <v-btn class="ma-2" color="red" @click.stop="declineFriend(item.friend_pk)">DECLINE</v-btn>
                   </v-col>
@@ -135,7 +135,6 @@ const fetchFriends = async () => {
 const fetchRequests = async () => {
   try {
 
-    // Passo 1: Busca os pedidos de amizade recebidos
     const response = await axios.get(`${apiUrl}/friends/list_requests`, {
       params: { recipient_users_fk: userId, accepted: false, active: true },
       headers: {
@@ -145,38 +144,22 @@ const fetchRequests = async () => {
 
     const friendRequests = response.data.friends || [];
 
-    // Passo 2: Busca os detalhes do usuário que enviou cada pedido
-    const requestDetails = await Promise.all(
-      friendRequests.map(async (friend) => {
-        try {
-          const userResponse = await axios.get(`${apiUrl}/users/${friend.invite_users_fk}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-          });
+    console.log(friendRequests)
 
-          const sender = userResponse.data;
-
-          return {
-            friends_pk: friend.friends_pk,
-            user_name: sender.user_name,
-            image: sender.picture_hash
-              ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${sender.picture_hash}`
-              : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
-            accepted: false,
-          };
-        } catch (userError) {
-          console.error("❌ Erro ao buscar dados do usuário que enviou o convite:", userError);
-          return null;
-        }
-      })
-    );
-
-    // Filtra pedidos válidos (descarta possíveis erros na busca do usuário)
-    requests.value = requestDetails.filter((req) => req !== null);
+    requests.value = friendRequests.map((friend) => ({
+      friends_pk: friend.friends_pk,
+      user_name: friend.user_name, 
+      image: friend.picture_hash
+        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
+        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+      accepted: false,
+    }));
 
   } catch (error) {
-    console.error("❌ Erro ao buscar pedidos de amizade:", error.response?.data || error.message);
   }
 };
+
+
 
 
 const acceptFriend = async (friends_pk) => {
@@ -248,6 +231,14 @@ const filteredList = computed(() => {
   return list.filter((item) =>
     item.user_name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
+});
+
+watch(activeTab, (newTab) => {
+  if (newTab === "friends") {
+    fetchFriends();
+  } else if (newTab === "requests") {
+    fetchRequests();
+  }
 });
 
 onMounted(fetchRequests);
