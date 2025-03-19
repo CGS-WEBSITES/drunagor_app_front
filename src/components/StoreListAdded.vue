@@ -144,7 +144,6 @@ const fetchRequests = async () => {
 
     const friendRequests = response.data.friends || [];
 
-    console.log(friendRequests)
 
     requests.value = friendRequests.map((friend) => ({
       friends_pk: friend.friends_pk,
