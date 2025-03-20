@@ -145,7 +145,9 @@ const fetchFriends = async () => {
         image: friend.picture_hash
           ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
           : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+        background_hash: friend.background_hash,
         accepted: true,
+
       }));
   } catch (error) {
     console.error("Erro ao buscar amigos:", error);
@@ -169,6 +171,7 @@ const fetchRequests = async () => {
       image: friend.picture_hash
         ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
         : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+      background_hash: friend.background_hash,
       accepted: false,
     }));
   } catch (error) {}
