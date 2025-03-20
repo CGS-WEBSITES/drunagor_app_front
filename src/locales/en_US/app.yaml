@@ -2,7 +2,7 @@
 randomizer:
   random-monster: Random monster
   exclude-current-monster: Exclude current drawn character
-  enabled-content: Enabled variant / content
+  enabled-content: Enabled content
   white: White
   gray: Gray
   black: Black
