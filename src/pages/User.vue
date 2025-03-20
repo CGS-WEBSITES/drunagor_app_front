@@ -106,8 +106,8 @@
        <v-btn
          v-bind="props"
          icon="mdi-account-check"
-         color="rgba(0, 0, 0, 0.6)"
-         elevation="3"
+         color="rgba(0, 0, 0, 0.0)"
+         elevation="0"
          size="small"
        ></v-btn>
      </template>
