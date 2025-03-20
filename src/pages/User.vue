@@ -140,7 +140,6 @@
      Friend request sent!
    </v-alert>
 
-   <!-- Alerta de erro -->
    <v-alert
       v-if="showErrorAlert"
       type="error"
@@ -308,9 +307,11 @@ checkFriendStatus();
 }
 
 .custom-alert {
-  position: fixed;
-  width: 300px;
-  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 10%); /* Centraliza na tela */
+  width: 300px; /* Defina um tamanho adequado */
+  height: 44px;
   z-index: 9999;
   padding: 10px;
   transition: opacity 0.5s ease-in-out;
