@@ -24,6 +24,14 @@
         max-width="100%"
         cover
       >
+
+      <p 
+    class="user-join-date" 
+    style="position: absolute; bottom: 4px; left: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
+  >
+  Joined: {{ formattedJoinDate }}
+  </p>
+
       <v-btn
         icon
         class="position-absolute bottom-0 right-0 ma-1"
@@ -94,6 +102,16 @@ import { useUserStore } from "@/store/UserStore";
 const reloadKey = ref(0);
 const user = computed(() => useUserStore().user); // Inicializa a store
 const assets = inject<string>("assets");
+
+const formattedJoinDate = computed(() => {
+  if (!user.value.join_date) return "Unknown";
+  return new Date(user.value.join_date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
+});
+
 </script>
 
 <style scoped>

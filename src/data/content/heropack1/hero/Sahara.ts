@@ -1,4 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/SaharaAvatar.webp";
+import TrackerImageUrl from "@/assets/hero/trackerimage/SaharaAvatar.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -22,5 +23,6 @@ export class Sahara implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
+    trackerimage: TrackerImageUrl
   };
 }

@@ -42,6 +42,12 @@ function findHeroes(campaignId: string): HeroData[] {
 
   return heroes;
 }
+
+
+
+
+
+
 </script>
 
 <template>
@@ -73,35 +79,61 @@ function findHeroes(campaignId: string): HeroData[] {
         v-for="campaign in campaignStore.findAll()"
         :key="campaign.campaignId"
       >
-        <v-card
-          elevation="16"
-          width="100%"
-          @click="
-            $router.push({
-              name: 'Campaign',
-              params: { id: campaign.campaignId },
-            })
-          "
-        >
-          <v-card-title>
-            {{ campaign.campaign }}
-          </v-card-title>
-          <v-card-subtitle v-if="campaign.name">
-            {{ campaign.name }}
-          </v-card-subtitle>
-          <v-card-text>
-            <v-row no-gutters class="justify-center">
-              <v-col
-                cols="1"
-                class="d-flex justify-center"
-                v-for="hero in findHeroes(campaign.campaignId)"
-                :key="hero.heroId"
-              >
-                <v-avatar :image="hero.images.avatar" size="40" />
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
+      <v-card
+  elevation="16"
+  width="100%"
+  @click="
+    $router.push({
+      name: 'Campaign',
+      params: { id: campaign.campaignId },
+    })
+  "
+>
+  <!-- Definição direta da imagem com v-if e v-else-if -->
+  <v-img
+    v-if="campaign.campaign === 'core'"
+    src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
+    max-height="200"
+    cover
+  ></v-img>
+
+  <v-img
+    v-else-if="campaign.campaign === 'apocalypse'"
+    src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
+    max-height="200"
+    cover
+  ></v-img>
+
+  <v-img
+    v-else-if="campaign.campaign === 'awakenings'"
+    src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
+    max-height="200"
+    cover
+  ></v-img>
+
+  <v-card-title class="text-uppercase" v-if="campaign.name">
+    {{ campaign.name }}
+  </v-card-title>
+  <v-card-text>
+    <v-row no-gutters>
+      <v-col
+  class="d-flex"
+  v-for="hero in findHeroes(campaign.campaignId)"
+  :key="hero.heroId"
+  :cols="$vuetify.display.mdAndUp 
+    ? (findHeroes(campaign.campaignId).length <= 4 ? 3 : undefined) 
+    : undefined"
+>
+  <v-avatar 
+    class="my-1" 
+    rounded="0" 
+    :image="hero.images.avatar" 
+    :size="$vuetify.display.mdAndUp ? 120 : 70"
+  />
+</v-col>
+    </v-row>
+  </v-card-text>
+</v-card>
       </v-col>
     </v-row>
   </div>
