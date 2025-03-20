@@ -16,6 +16,7 @@ const variantSettings = ref([] as VariantId[]);
 configurationStore.enabledVariants.forEach((enabledVariant) => {
   variantSettings.value.push(enabledVariant);
 });
+
 watch(variantSettings, async (newSettings) => {
   if (newSettings.length > 0) {
     configurationStore.$patch({ enabledVariants: newSettings });
@@ -29,19 +30,13 @@ watch(variantSettings, async (newSettings) => {
   }
 });
 
-import { ref } from "vue";
-
-
-
-// Alterna o estado da variante ao clicar
-const toggleVariant = (variantId) => {
+const toggleVariant = (variantId: VariantId) => {
   if (variantSettings.value.includes(variantId)) {
     variantSettings.value = variantSettings.value.filter((id) => id !== variantId);
   } else {
-    variantSettings.value = [variantId]; // Permite apenas um selecionado por vez
+    variantSettings.value.push(variantId);
   }
 };
-
 </script>
 
 <template>
@@ -56,7 +51,6 @@ const toggleVariant = (variantId) => {
             cols="12"
             md="4"
             class="d-flex justify-center"
-            :class="{ 'sm-single': variantStore.getAll().length % 2 !== 0 && index === variantStore.getAll().length - 2 }"
           >
             <v-btn
               class="variant-button"
@@ -79,7 +73,6 @@ const toggleVariant = (variantId) => {
   padding: 12px;
 }
 
-/* Ajuste de botão */
 .variant-button {
   flex: 1;
   background-color: #666;
@@ -97,6 +90,4 @@ const toggleVariant = (variantId) => {
   background-color: #008C8C;
   color: white;
 }
-
 </style>
-
