@@ -53,7 +53,7 @@
         <v-card color="primary" height="116px" class="move_topo pt-12"></v-card>
         <v-card color="secundary" class="move_topo pt-12">
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
-            <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
+            <v-col cols="12" sm="12" md="12" class="ml-5 pt-12">
               <!-- Primeiro Carrossel para dispositivos móveis -->
               <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
                 <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
@@ -92,20 +92,7 @@
                       :disabled="index > 3 ? true : false" @click="router.push(item.route)">
                       <v-img :src="item.img" height with cover :gradient="index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                         " />
-                      <v-card-actions >
-                        <v-row class="d-flex justify-center">
-                          <v-btn class="text-center">{{ item.label }}</v-btn>
-                        </v-row>
-                      </v-card-actions>
-                      <div v-if="index > 3" style="
-                    height: 0px;
-                    width: 100%;
-                    position: relative;
-                    left: 0;
-                    bottom: 200px;
-                  " class="text-center">
-                        <coming-soon></coming-soon>
-                      </div>
+                      
                     </v-card>
                   </v-hover>
                 </v-col>
@@ -158,20 +145,6 @@
                 :disabled="index > 3 ? true : false" @click="router.push(item.route)">
                 <v-img :src="item.img" height with cover :gradient="index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                   " />
-                <v-card-actions>
-                  <v-row class="d-flex justify-center">
-                    <v-btn class="text-center">{{ item.label }}</v-btn>
-                  </v-row>
-                </v-card-actions>
-                <div v-if="index > 3" style="
-                    height: 0px;
-                    width: 100%;
-                    position: relative;
-                    left: 0;
-                    bottom: 200px;
-                  " class="text-center">
-                  <coming-soon></coming-soon>
-                </div>
               </v-card>
             </v-hover>
           </v-col>
@@ -258,25 +231,24 @@ const isMobile = computed(() => {
 // Dados do carrossel
 const carouselItems = ref([
 {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-campaigns2.png",
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-campaignmanager.png",
     label: "CAMPAIGN MANAGER",
     route: { name: "CampaignTracker" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library2.png",
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-skusmannager.png",
     label: "SKUS MANAGER",
     route: { name: "Library" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile2.png",
-    label: "PROFILE",
-    route: { name: "PerfilHome" },
-  },
-
-  {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events2.png",
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-events3.png",
     label: "EVENTS",
     route: { name: "Events" },
+  },
+  {
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-profile3.png",
+    label: "PROFILE",
+    route: { name: "PerfilHome" },
   },
 ]);
 

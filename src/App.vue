@@ -181,12 +181,6 @@ const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor p
 const menuItems = computed(() => {
   return [
     {
-      title: role.value === 3 ? "Dashboard" : "Dashboard",
-      icon: "mdi-view-dashboard",
-      to: { name: "Dashboard" },
-      disabled: false,
-    },
-    {
       title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
       icon: "mdi-flag",
       to: { name: "CampaignTracker" },
@@ -199,9 +193,9 @@ const menuItems = computed(() => {
       disabled: false,
     },
     {
-      title: role.value === 3 ? "Profile" : "Profile",
-      icon: "mdi-account",
-      to: { name: "PerfilHome" },
+      title: role.value === 3 ? "Dashboard" : "Dashboard",
+      icon: "mdi-view-dashboard",
+      to: { name: "Dashboard" },
       disabled: false,
     },
     {
@@ -210,6 +204,13 @@ const menuItems = computed(() => {
       to: { name: "Events" },
       disabled: false,
     },
+    {
+      title: role.value === 3 ? "My Profile" : "My Profile",
+      icon: "mdi-account",
+      to: { name: "PerfilHome" },
+      disabled: false,
+    },
+  
   ];
 });
 
