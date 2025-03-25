@@ -42,28 +42,43 @@
         </v-row>
 
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-3 px-4 pb-4 event-card" @click="openDialog(event)">
-              <h3 class="text-h6 font-weight-bold mb-2">{{ event.name }}</h3>
+          <v-col cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
+            <v-card class="event-card pa-3 d-flex align-center" color="white" @click="openDialog(event)">
+              <v-img
+                :src="event.image || 'https://via.placeholder.com/100'"
+                height="120"
+                width="100"
+                class="mr-4"
+                contain
+              ></v-img>
 
-              <p class="text-caption mb-1" v-if="event.latitude && event.longitude">
-                <v-icon color="red" small class="mr-1">mdi-map-marker</v-icon>
-                <a
-                  :href="`https://www.google.com/maps?q=${event.latitude},${event.longitude}`"
-                  target="_blank"
-                  class="text-decoration-underline"
-                >
-                  View on map
-                </a>
-              </p>
+              <div class="flex-grow-1">
+                <h3 class="text-subtitle-1 font-weight-bold mb-1">
+                  {{ event.name }}
+                </h3>
 
-              <p class="text-caption mb-1" v-if="event.address">
-                Address: {{ event.address }}
-              </p>
+                <p class="text-caption mb-1 d-flex align-center">
+                  <v-icon color="red" small class="mr-1">mdi-map-marker</v-icon>
+                  {{ event.address || 'Your Store location' }}
+                </p>
 
-              <p class="text-caption">
-                Scheduled for: {{ event.date }}
-              </p>
+                <p class="text-caption font-weight-medium mb-1">Rewards:</p>
+                <v-row class="rewards-container" no-gutters>
+                  <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
+                    <v-img
+                      :src="reward.image"
+                      height="40"
+                      width="40"
+                      class="mr-2"
+                      contain
+                    ></v-img>
+                  </v-col>
+                </v-row>
+              </div>
+
+              <div class="text-caption text-right ml-auto pr-2">
+                {{ event.date }}
+              </div>
             </v-card>
           </v-col>
         </v-row>
@@ -74,6 +89,7 @@
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
+
             <v-card-title class="ml-2 font-weight-bold">
               {{ selectedEvent?.name }}
             </v-card-title>
@@ -81,27 +97,36 @@
             <v-card-text>
               <p><strong>Description:</strong> {{ selectedEvent?.eventdesc }}</p>
               <br>
-              <p> Disponible Seats: {{ selectedEvent?.eventseats }} </p>
+              <p>Disponible Seats: {{ selectedEvent?.eventseats }}</p>
               <br>
-              <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{
-                selectedEvent?.ampm }} </p>
+              <p class="text-end scheduled-box">
+                Scheduled for: {{ selectedEvent?.date }}
+              </p>
             </v-card-text>
 
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
+            <!-- Store Card -->
+            <v-card
+              color="primary"
+              min-height="130px"
+              class="mr-4 event-card"
+              @click="openMapLocation"
+              style="cursor: pointer;"
+            >
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img :src="selectedStoreImage" class="event-img"></v-img>
                 </v-col>
                 <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">{{ selectedStore?.storename || "Select a store" }}</h3>
+                  <h3 class="text-subtitle-1 font-weight-bold">
+                    {{ selectedEvent?.name || "Select a store" }}
+                  </h3>
 
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address1 }}, {{ selectedStore?.address2 }},{{ selectedStore?.city }}, {{
-                    selectedStore?.state }}
+                  <p class="text-caption d-flex align-center">
+                    <v-icon color="red" class="mr-1">mdi-map-marker</v-icon>
+                    <span class="text-decoration-underline">
+                      {{ selectedEvent?.latitude && selectedEvent?.longitude ? 'View on map' : 'No location provided' }}
+                    </span>
                   </p>
-                </v-col>
-                <v-col cols="2" class="text-right pa-0">
                 </v-col>
               </v-row>
             </v-card>
@@ -246,9 +271,32 @@
 
         <v-row>
           <v-col cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
-            <v-card color="white" class="event-card pa-3">
-              <h3 class="text-h6 font-weight-bold mb-2">{{ event.name }}</h3>
-              <p class="text-caption">Scheduled for: {{ event.date }}</p>
+            <v-card class="event-card pa-3 d-flex align-center" color="white" rounded elevation="1">
+              <v-img
+                :src="event.image || 'https://via.placeholder.com/100'"
+                height="120"
+                width="100"
+                class="mr-4"
+                contain
+              ></v-img>
+
+              <div class="flex-grow-1">
+                <h3 class="text-subtitle-1 font-weight-bold mb-1">
+                  {{ event.name }}
+                </h3>
+
+                <p class="text-caption">
+                  <strong>Scheduled for:</strong> {{ event.date }}
+                </p>
+              </div>
+              <div class="d-flex flex-column ml-auto">
+                <v-btn icon @click.stop="openEditDialog(event)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn icon color="red" @click.stop="deleteEvent(event.id)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </div>
             </v-card>
           </v-col>
         </v-row>
@@ -266,7 +314,12 @@
 
                 <!-- Loja -->
                 <v-col cols="12" md="12">
-                  <v-select v-model="editableEvent.store" :items="stores" label="STORE" variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.store"
+                    :items="stores.map(s => s.name)"
+                    label="STORE"
+                    variant="outlined"
+                  />
                 </v-col>
 
                 <!-- Descrição -->
@@ -277,18 +330,40 @@
 
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="6" md="6">
-                  <v-select v-model="editableEvent.eventseats" :items="[1, 2, 3, 4]" label="SEATS"
-                    variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.eventseats"
+                    :items="[1, 2, 3, 4]"
+                    label="SEATS"
+                    variant="outlined"
+                  />
                 </v-col>
 
                 <v-col cols="6" md="2">
-                  <v-text-field v-model="editableEvent.hour" label="HOUR" type="time" variant="outlined"
-                    class="hour-input"></v-text-field>
+                  <v-text-field
+                    v-model="editableEvent.hour"
+                    label="HOUR"
+                    placeholder="HH:MM"
+                    variant="outlined"
+                  />
                 </v-col>
 
                 <v-col cols="12" md="2" class="d-flex align-center">
-                  <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input"></v-text-field>
+                  <v-select
+                    v-model="editableEvent.ampm"
+                    :items="['AM', 'PM']"
+                    label="AM/PM"
+                    variant="outlined"
+                  />
+                </v-col>
+
+                <v-col cols="12" class="d-flex align-center">
+                  <v-text-field
+                    v-model="editableEvent.date"
+                    label="DATE"
+                    type="date"
+                    variant="outlined"
+                    class="date-input"
+                  />
                 </v-col>
 
                 <!-- Recompensas -->
@@ -344,9 +419,24 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
+const openMapLocation = () => {
+  if (selectedEvent.value?.latitude && selectedEvent.value?.longitude) {
+    const url = `https://www.google.com/maps?q=${selectedEvent.value.latitude},${selectedEvent.value.longitude}`;
+    window.open(url, '_blank');
+  } else {
+    alert('Location not available.');
+  }
+};
+
 // Função para abrir o diálogo e definir o evento selecionado
 const openDialog = (event) => {
-  selectedEvent.value = event;
+  selectedEvent.value = {
+    ...event,
+    name: event.name || event.store_name, // fallback
+    eventdesc: event.eventdesc || 'No description provided.',
+    eventseats: event.eventseats || event.seats_number,
+    date: event.date || event.event_date,
+  };
   dialog.value = true;
 };
 
@@ -905,17 +995,59 @@ const editEventDialog = ref(false);
 const editableEvent = ref({});
 
 const openEditDialog = (event) => {
-  editableEvent.value = { ...event };
+  const [datePart, timePart] = (event.date || "").split(";").map(p => p.trim());
+  const [hour, ampm] = timePart ? timePart.split(" ") : ["", ""];
+
+  editableEvent.value = {
+    id: event.id || event.events_pk,
+    store: event.store || event.name || event.store_name,
+    eventdesc: event.eventdesc || 'No description provided',
+    eventseats: event.eventseats || event.seats_number,
+    date: datePart || "",
+    hour: hour || "",
+    ampm: ampm || "",
+    rewards: [...(event.rewards || [])],
+    image: event.image || null,
+  };
+
   editEventDialog.value = true;
 };
 
 // Função para salvar as edições no evento
 const saveEditedEvent = () => {
-  const index = events.value.findIndex(e => e.id === editableEvent.value.id);
-  if (index !== -1) {
-    events.value[index] = { ...editableEvent.value };
-  }
-  editEventDialog.value = false;
+  const selectedStore = stores.value.find(s => s.name === editableEvent.value.store);
+
+  const formattedDate = `${editableEvent.value.date}; ${editableEvent.value.hour} ${editableEvent.value.ampm}`;
+
+  const payload = {
+    events_pk: editableEvent.value.id, // ou editableEvent.value.events_pk
+    seats_number: editableEvent.value.eventseats,
+    date: formattedDate,
+    stores_fk: selectedStore?.stores_pk,
+    users_fk: appUser,
+    season_hash: 1,
+    chapter_hash: 1,
+    active: true
+  };
+
+  axios.put("events/alter", payload)
+    .then((response) => {
+      console.log("Evento atualizado com sucesso:", response.data);
+
+      // Atualiza o evento na lista local
+      const index = events.value.findIndex(e => e.id === editableEvent.value.id);
+      if (index !== -1) {
+        events.value[index] = {
+          ...editableEvent.value,
+          date: formattedDate
+        };
+      }
+
+      editEventDialog.value = false;
+    })
+    .catch((error) => {
+      console.error("Erro ao atualizar evento:", error);
+    });
 };
 
 // Alternar seleção de recompensas no modo edição
@@ -1040,6 +1172,11 @@ const handleEditImageUpload = (event) => {
 .dark-background {
   background-color: #121212;
   color: white;
+}
+
+.event-card {
+  border-radius: 10px;
+  background-color: #e0e0e0; /* similar ao da imagem */
 }
 
 .date-input {
