@@ -2,7 +2,7 @@
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="804" class="py-4">
       <!-- Card com funcionalidade de colapsar -->
-      <v-card elevation="2" rounded="lg">
+      <v-card color="primary" elevation="2" rounded="lg">
         <!-- Cabeçalho com título e seta -->
         <v-card-title
           class="d-flex justify-space-between align-center"

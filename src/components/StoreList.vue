@@ -1,6 +1,6 @@
 <template>
   <v-container max-width="776" class="pa-0 pb-8">
-    <v-card rounded="lg" elevation="7" class="pa-2">
+    <v-card color="primary" rounded="lg" elevation="7" class="pa-2">
       <!-- Barra de Busca -->
       <v-text-field
         v-model="searchQuery"

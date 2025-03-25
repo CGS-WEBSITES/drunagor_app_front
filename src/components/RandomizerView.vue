@@ -103,7 +103,7 @@ function getRandomCommander() {
 
     <v-container max-width="680" class="d-none d-md-flex">
     <v-col cols="12" >
-      <v-card rounded="" class="d-flex justify-center pa-3 elevation-0"> 
+      <v-card color="primary" rounded="" class="d-flex justify-center pa-3 elevation-0"> 
   <v-btn
     class="mx-1"
     variant="elevated"
