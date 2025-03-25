@@ -54,7 +54,7 @@
 
               <div class="flex-grow-1">
                 <h3 class="text-subtitle-1 font-weight-bold mb-1">
-                  {{ event.name }}
+                  {{ event.store }}
                 </h3>
 
                 <p class="text-caption mb-1 d-flex align-center">
@@ -91,7 +91,7 @@
             </v-card-actions>
 
             <v-card-title class="ml-2 font-weight-bold">
-              {{ selectedEvent?.name }}
+              {{ selectedEvent?.store }}
             </v-card-title>
 
             <v-card-text>
@@ -282,7 +282,7 @@
 
               <div class="flex-grow-1">
                 <h3 class="text-subtitle-1 font-weight-bold mb-1">
-                  {{ event.name }}
+                  {{ event.store }}
                 </h3>
 
                 <p class="text-caption">
@@ -293,7 +293,7 @@
                 <v-btn icon @click.stop="openEditDialog(event)">
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn icon color="red" @click.stop="deleteEvent(event.id)">
+                <v-btn icon class="mt-2" color="red" @click.stop="deleteEvent(event.id)">
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
               </div>
@@ -881,8 +881,16 @@ const addEvent = () => {
 
 // **Função para deletar um evento**
 const deleteEvent = (eventId) => {
-  // Remove o evento da lista geral
-  events.value = events.value.filter((event) => event.id !== eventId);
+  if (confirm("Are you sure you want to delete this event?")) {
+    axios.delete(`events/${eventId}/delete/`)
+      .then(() => {
+        events.value = events.value.filter((event) => event.id !== eventId);
+        console.log(`Evento ${eventId} deletado.`);
+      })
+      .catch((error) => {
+        console.error("Erro ao deletar evento:", error);
+      });
+  }
 };
 
 // **Propriedade Computada**: Retorna apenas os eventos criados pelo usuário
