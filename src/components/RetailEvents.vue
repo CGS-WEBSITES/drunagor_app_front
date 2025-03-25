@@ -245,35 +245,28 @@
         </v-row>
 
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
-            <v-card color="white" max-height="190" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
-              <v-row no-gutters>
-                <v-col cols="auto" class="redbutton pt-13 pl-3">
-                  <v-btn color="#AB2929" icon class="delete-btn" @click.stop="deleteEvent(event.id)">
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </v-col>
+          <v-col cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
+            <v-card color="white" class="event-card pa-3">
+              <h3 class="text-h6 font-weight-bold mb-2">{{ event.name }}</h3>
 
-                <v-col cols="6" sm="8" class="pl-3 pt-2">
-                  <h3 class="">{{ event.name }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.location
-                    }}</p>
-                  <p class="text-caption">
-                    Rewards:
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="30" width="30" contain class="reward-icon"></v-img>
-                      </v-col>
-                    </v-row>
-                  <p class=" text-right text-caption">{{ event.date }}</p>
-                  </p>
-                </v-col>
-              </v-row>
-              <v-col cols="auto" class="editbutton pt-13 pl-3">
-                <v-btn color="white" icon class="delete-btn" @click="openEditDialog(event)">
-                  <v-icon>mdi mdi-pencil</v-icon>
-                </v-btn>
-              </v-col>
+              <p class="text-caption mb-1">
+                <v-icon color="red" small class="mr-1">mdi-map-marker</v-icon>
+                <a
+                  :href="`https://www.google.com/maps?q=${event.latitude},${event.longitude}`"
+                  target="_blank"
+                  class="text-decoration-underline"
+                >
+                  View on map
+                </a>
+              </p>
+
+              <p class="text-caption mb-1">
+                Address: {{ event.address }}
+              </p>
+
+              <p class="text-caption">
+                Scheduled for: {{ event.date }}
+              </p>
             </v-card>
           </v-col>
         </v-row>
@@ -885,10 +878,15 @@ const fetchUserEvents = () => {
     .then((response) => {
       const fetchedEvents = response.data.events || [];
       console.log('fetchedEvents:', fetchedEvents)
-      // Marca eventos como criados pelo usuário para aparecerem na aba correta
       events.value = fetchedEvents.map((event) => ({
-        ...event,
+        id: event.events_pk,
+        name: event.store_name,
+        date: new Date(event.event_date).toLocaleString(),
+        latitude: event.latitude,
+        longitude: event.longitude,
+        address: event.address || "No address provided",
         createdByUser: true,
+        rewards: [],
       }));
 
       console.log("User events loaded:", events.value);
