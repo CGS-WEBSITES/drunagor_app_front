@@ -8,9 +8,7 @@
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto">
-
     <v-card class="pb-12" min-height="500px" color="#151515">
-
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
@@ -21,7 +19,6 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-
         <v-row class="black-bar SortBy align-center text-white">
           <v-col cols="2">
             Sort by:
@@ -123,10 +120,6 @@
                 </v-col>
               </v-row>
             </v-card-text>
-
-
-
-
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
                 <v-btn block color="#907041" class="rounded-0" @click="joinEvent">Maybe I’ll Go</v-btn>
@@ -135,18 +128,13 @@
                 <v-btn block color="#539041" class="rounded-0" @click="joinEvent">Count me in</v-btn>
               </v-col>
             </v-row>
-
           </v-card>
         </v-dialog>
-
       </div>
 
       <div v-if="activeTab === 2">
-
-
         <v-row class="CreateNew align-center bg-gray text-white">
           <v-col cols="2">
-
           </v-col>
           <v-col cols="3">
             <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
@@ -166,7 +154,6 @@
           </v-col>
         </v-row>
 
-
         <v-dialog v-model="createEventDialog" max-width="1280">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -174,14 +161,14 @@
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
-                <v-col cols="12" md="6">
+                <!-- <v-col cols="12" md="6">
                   <v-text-field v-model="newEvent.name" label="EVENT NAME" counter="34"
                     variant="outlined"></v-text-field>
-                </v-col>
+                </v-col> -->
 
                 <!-- Loja -->
-                <v-col cols="12" md="6">
-                  <v-select v-model="newEvent.store" :items="stores.map(store => store.storename)" label="STORE"
+                <v-col cols="12" md="12">
+                  <v-select v-model="newEvent.store" :items="stores.map(store => store.name)" label="STORE NAME"
                     variant="outlined" />
                 </v-col>
 
@@ -223,10 +210,10 @@
                     </v-col>
                   </v-row>
 
-                  <v-file-input label="Upload Image(recomended square images)" accept="image/*"
+                  <!-- <v-file-input label="Upload Image(recomended square images)" accept="image/*"
                     @change="handleImageUpload" variant="outlined" class="pt-5"></v-file-input>
-                  <!-- Preview da Imagem -->
-                  <v-img v-if="newEvent.image" :src="newEvent.image" height="100" class="mt-2 rounded"></v-img>
+
+                    <v-img v-if="newEvent.image" :src="newEvent.image" height="100" class="mt-2 rounded"></v-img> -->
                 </v-col>
 
                 <v-col cols="12">
@@ -237,10 +224,8 @@
           </v-card>
         </v-dialog>
 
-
         <v-row class="SortBy align-center  text-white">
           <v-col cols="2">
-
           </v-col>
           <v-col cols="3">
             <v-btn variant="text">
@@ -299,13 +284,13 @@
             <v-card-text>
               <v-row>
                 <!-- Nome do Evento -->
-                <v-col cols="12" md="6">
+                <!-- <v-col cols="12" md="6">
                   <v-text-field v-model="editableEvent.name" label="EVENT NAME" counter="34"
                     variant="outlined"></v-text-field>
-                </v-col>
+                </v-col> -->
 
                 <!-- Loja -->
-                <v-col cols="12" md="6">
+                <v-col cols="12" md="12">
                   <v-select v-model="editableEvent.store" :items="stores" label="STORE" variant="outlined"></v-select>
                 </v-col>
 
@@ -344,12 +329,11 @@
                     </v-col>
                   </v-row>
 
-                  <v-file-input label="Upload Image (recommended square images)" accept="image/*"
+                  <!-- <v-file-input label="Upload Image (recommended square images)" accept="image/*"
                     @change="handleEditImageUpload" variant="outlined" class="pt-5"></v-file-input>
 
-                  <!-- Preview da Imagem -->
                   <v-img v-if="editableEvent.image" :src="editableEvent.image" height="100"
-                    class="mt-2 rounded"></v-img>
+                    class="mt-2 rounded"></v-img> -->
                 </v-col>
 
                 <!-- Botões -->
@@ -361,32 +345,14 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-
-
-
-
-
-
-
-
       </div>
-
-
-
-
-
-
     </v-card>
   </v-col>
-
-
-
 </template>
 
 <script setup>
-import { ref, computed, } from "vue";
+import { ref, computed, inject, onMounted} from "vue";
 import { useUserStore } from "@/store/UserStore";
-
 
 const user = computed(() => useUserStore().user);
 
@@ -419,12 +385,14 @@ const activeTab = ref("events");
 const sortBy = ref("date");
 
 const selectedStoreImage = computed(() => {
-  const store = stores.value.find(s => s.storename === selectedEvent.value?.store);
-  return store ? store.storeImage : "https://via.placeholder.com/150"; // Imagem padrão caso não tenha uma loja definida
+  const store = stores.value.find(s => s.name === selectedEvent.value?.store);
+  return store && store.storeImage
+    ? store.storeImage
+    : "https://via.placeholder.com/150";
 });
 
 const selectedStore = computed(() => {
-  return stores.value.find(s => s.storename === selectedEvent.value?.store) || {};
+  return stores.value.find(s => s.name === selectedEvent.value?.store) || {};
 });
 
 // Sample Events Data
@@ -808,31 +776,42 @@ const sortedEvents = computed(() => {
   return events.value;
 });
 
+const selectedStoreForNewEvent = computed(() => {
+  return stores.value.find(s => s.name === newEvent.value.store) || {};
+});
+
 // Função para adicionar um evento na lista
 const addEvent = () => {
-  if (newEvent.value.name && newEvent.value.date && newEvent.value.location) {
-    // Clona o evento e adiciona à lista de eventos
-    events.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value], // Apenas os rewards selecionados são adicionados
-      id: Date.now(), // Gera um ID único
-      createdByUser: true, // Marca que este evento foi criado pelo usuário
+  const formattedDate = `${newEvent.value.date}; ${newEvent.value.hour} ${newEvent.value.ampm}`;
+
+  const payload = {
+    seats_number: newEvent.value.seats,
+    date: formattedDate,
+    stores_fk: selectedStoreForNewEvent.value.stores_pk,
+    users_fk: appUser, 
+    season_hash: 1,
+    chapter_hash: 1,
+    active: true,
+  };
+
+  axios.post("events/cadastro", payload)
+    .then((response) => {
+      console.log("Evento criado com sucesso:", response.data);
+
+      events.value.push({
+        ...newEvent.value,
+        date: formattedDate, 
+        rewards: [...selectedRewards.value],
+        id: Date.now(),
+        createdByUser: true,
+      });
+      
+      selectedRewards.value = [];
+      createEventDialog.value = false;
+    })
+    .catch((error) => {
+      console.error("Erro ao cadastrar evento:", error);
     });
-
-    // Resetando os campos do formulário
-    newEvent.value = {
-      name: "",
-      location: "Shopping Drunagor",
-      eventdesc: "",
-      eventseats: 4,
-      date: "",
-      hour: "",
-      image: "",
-      rewards: [],
-    };
-
-    selectedRewards.value = []; // Limpa a seleção de rewards
-  }
 };
 
 // **Função para deletar um evento**
@@ -873,23 +852,29 @@ const availableRewards = ref([
 
 // Estado para controlar a visibilidade do diálogo
 const createEventDialog = ref(false);
-const newEvent = ref({
-  name: "",
-  location: "Shopping Drunagor",
-  eventdesc: "",
-  eventseats: 4,
-  date: "",
-  hour: "",
-  ampm: "AM",
-  image: "",
-  rewards: [],
-});
+const newEvent = ref({});
 
-const stores = ref([]);
+const stores = ref(JSON.parse(localStorage.getItem("stores") || "[]"));
+const axios = inject("axios");
+
+const storedUser = localStorage.getItem("app_user");
+const appUser = storedUser ? JSON.parse(storedUser).users_pk : null;
+
+const fetchStores = () => {
+  axios
+    .get("stores/list", { params: { users_fk: appUser } })
+    .then((response) => {
+      stores.value = response.data.stores;
+      console.log('Stores:', stores.value)
+    })
+    .catch((error) => {
+      console.error("Erro ao buscar lojas:", error);
+    });
+};
 
 // Recupera as lojas salvas ao iniciar a página
 onMounted(() => {
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+  fetchStores();
 });
 
 const createEvent = () => {
@@ -909,10 +894,8 @@ const handleImageUpload = (event) => {
   }
 };
 
-
 const editEventDialog = ref(false);
 const editableEvent = ref({});
-
 
 const openEditDialog = (event) => {
   editableEvent.value = { ...event };
@@ -949,9 +932,6 @@ const handleEditImageUpload = (event) => {
     reader.readAsDataURL(file);
   }
 };
-
-
-
 </script>
 
 <style scoped>
