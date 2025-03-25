@@ -43,27 +43,27 @@
 
         <v-row>
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
-              <v-row no-gutters>
-                <v-col cols="4" sm="2">
-                  <v-img :src="event.image" class="mt-3 event-img"></v-img>
-                </v-col>
-                <v-col cols="8" sm="10" class="pt-2 pl-1">
-                  <h3 class="">{{ event.name }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{
-                    selectedStore?.address1 }}, {{ selectedStore?.address2 }},{{ selectedStore?.city }}, {{
-                    selectedStore?.state }}</p>
-                  <p class="text-caption">
-                    Rewards:
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="30" width="30" contain class="reward-icon"></v-img>
-                      </v-col>
-                    </v-row>
-                  <p class=" text-right text-caption">{{ event.date }}</p>
-                  </p>
-                </v-col>
-              </v-row>
+            <v-card color="terciary" class="pt-3 px-4 pb-4 event-card" @click="openDialog(event)">
+              <h3 class="text-h6 font-weight-bold mb-2">{{ event.name }}</h3>
+
+              <p class="text-caption mb-1" v-if="event.latitude && event.longitude">
+                <v-icon color="red" small class="mr-1">mdi-map-marker</v-icon>
+                <a
+                  :href="`https://www.google.com/maps?q=${event.latitude},${event.longitude}`"
+                  target="_blank"
+                  class="text-decoration-underline"
+                >
+                  View on map
+                </a>
+              </p>
+
+              <p class="text-caption mb-1" v-if="event.address">
+                Address: {{ event.address }}
+              </p>
+
+              <p class="text-caption">
+                Scheduled for: {{ event.date }}
+              </p>
             </v-card>
           </v-col>
         </v-row>
@@ -248,25 +248,7 @@
           <v-col cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
             <v-card color="white" class="event-card pa-3">
               <h3 class="text-h6 font-weight-bold mb-2">{{ event.name }}</h3>
-
-              <p class="text-caption mb-1">
-                <v-icon color="red" small class="mr-1">mdi-map-marker</v-icon>
-                <a
-                  :href="`https://www.google.com/maps?q=${event.latitude},${event.longitude}`"
-                  target="_blank"
-                  class="text-decoration-underline"
-                >
-                  View on map
-                </a>
-              </p>
-
-              <p class="text-caption mb-1">
-                Address: {{ event.address }}
-              </p>
-
-              <p class="text-caption">
-                Scheduled for: {{ event.date }}
-              </p>
+              <p class="text-caption">Scheduled for: {{ event.date }}</p>
             </v-card>
           </v-col>
         </v-row>
