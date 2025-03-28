@@ -538,23 +538,23 @@ const userCreatedEvents = computed(() => {
 // Lista de rewards disponíveis para seleção
 const availableRewards = ref([
   {
-    name: "Andreas Armor",
+    name: "Vorn Armor",
     image:
-      "src/assets/hero/avatar/AndreasAvatar.webp",
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
     description:
       "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   },
   {
-    name: "Flavian Song",
+    name: "Jaheen Shield",
     image:
-      "src/assets/hero/avatar/FlavianAvatar.webp",
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
     description:
       "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   },
   {
-    name: "Nyx Kiss",
+    name: "Lorelai Kiss",
     image:
-      "src/assets/hero/avatar/NyxAvatar.webp",
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
     description:
       "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
   },
