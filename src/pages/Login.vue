@@ -104,13 +104,6 @@
                 >
                   Forgot your password?
                 </h3>
-                <h3
-                  @click="navigateTo('/retailer-registration')"
-
-                  class="text-center mt-4 clickable-text"
-                >
-                  Are you a retailer?
-                </h3>
                 <v-btn class="mt-4" color="black" dark block @click="loginUser">
                   SIGN IN
                 </v-btn>
@@ -134,6 +127,8 @@
                       <h1 class="display-2 font-weight-bold pl-3">
                         Create an User Account
                       </h1>
+ 
+
                     </v-col>
                   </v-row>
                 </v-container>
@@ -221,7 +216,7 @@
                         color="green"
                         :rules="[rules.required]"
                       ></v-checkbox>
-                      <span class="ml-4">
+                      <span class="mb-4">
                         I agree with the
                         <strong
                           style="cursor: pointer"
@@ -239,6 +234,14 @@
                       </span>
                     </v-col>
                   </v-row>
+
+                  <h3
+                  @click="navigateTo('/retailer-registration')"
+
+                  class="text-center pb-6 clickable-text"
+                >
+                  Are you a retailer?
+                </h3>
 
                   <v-btn
                     class="mt-4"

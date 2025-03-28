@@ -14,13 +14,15 @@
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
-            <v-tab class="text-h5" :value="1">EVENTS</v-tab>
-            <v-tab class="text-h5" :value="2">RETAILER</v-tab>
+            <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
+            <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
         </v-col>
       </v-row>
 
       <div v-if="activeTab === 1">
+
+        <!--
 
         <v-row class="black-bar SortBy align-center text-white">
           <v-col cols="2">
@@ -44,26 +46,45 @@
           </v-col>
         </v-row>
 
+        -->
+
         <v-row>
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
             <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <v-img :src="event.image" class="mt-3 event-img"></v-img>
+                  <div class="text-center ml-3" style="width: 70px; color: black;">
+  <p class="pt-3 text-caption font-weight-bold">
+    {{
+      new Date(event.date).toLocaleDateString('en-US', {
+        month: 'short'
+      }).toUpperCase()
+    }}
+  </p>
+  <p color="primary" class="cinzel-text text-h3  font-weight-bold">
+    {{
+      String(event.date).split('-')[2]
+    }}
+  </p>
+  <p class="text-caption font-weight-bold">
+    {{ event.hour }}{{ event.ampm }}
+  </p>
+</div>
                 </v-col>
-                <v-col cols="8" sm="10" class="pt-2 pl-1">
-                  <h3 class="">{{ event.name }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{
-                    selectedStore?.address1 }}, {{ selectedStore?.address2 }},{{ selectedStore?.city }}, {{
-                    selectedStore?.state }}</p>
-                  <p class="text-caption">
-                    Rewards:
+                <v-col cols="8" sm="10" class="pt-2">
+                  <h3 class="pb-1" > <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store }}</h3>
+                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }} </p>
+                     <p class="text-caption">
+                      <v-icon color="red">mdi-sword-cross</v-icon> Scenario: {{ event.scenario }}
+                  </p>
+                    
+                    
+                  <p class="text-caption ml-3">
                     <v-row class="d-flex align-center rewards-container">
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="30" width="30" contain class="reward-icon"></v-img>
+                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>  Rewards:          <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
+                         <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
                       </v-col>
                     </v-row>
-                  <p class=" text-right text-caption">{{ event.date }}</p>
                   </p>
                 </v-col>
               </v-row>
@@ -78,7 +99,7 @@
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
             <v-card-title class="ml-2 font-weight-bold">
-              {{ selectedEvent?.name }}
+              {{ selectedStore?.storename }}
             </v-card-title>
 
             <v-card-text>
@@ -93,14 +114,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedStoreImage" class="event-img"></v-img>
+                  <v-img :src="selectedStore?.storeImage" class="event-img"></v-img>
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">{{ selectedStore?.storename || "Select a store" }}</h3>
 
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address1 }}, {{ selectedStore?.address2 }},{{ selectedStore?.city }}, {{
+                    {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, {{ selectedStore?.city }}, {{
                     selectedStore?.state }}
                   </p>
                 </v-col>
@@ -174,14 +195,8 @@
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
-                <v-col cols="12" md="6">
-                  <v-text-field v-model="newEvent.name" label="EVENT NAME" counter="34"
-                    variant="outlined"></v-text-field>
-                </v-col>
-
-                <!-- Loja -->
-                <v-col cols="12" md="6">
-                  <v-select v-model="newEvent.store" :items="stores.map(store => store.storename)" label="STORE"
+                <v-col cols="12" md="12">
+                  <v-select v-model="newEvent.store" :items="stores.map(store => store.storename,)" label="STORE"
                     variant="outlined" />
                 </v-col>
 
@@ -196,10 +211,20 @@
                   <v-select v-model="newEvent.seats" :items="[1, 2, 3, 4]" label="SEATS" variant="outlined"></v-select>
                 </v-col>
 
-                <v-col cols="6" md="3">
-                  <v-text-field v-model="newEvent.hour" label="HOUR" variant="outlined" placeholder="HH:MM"
-                    maxlength="5"></v-text-field>
+                <v-col cols="6" md="6">
+                  <v-select v-model="newEvent.scenario" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO" variant="outlined"></v-select>
                 </v-col>
+
+                <v-col cols="6" md="3">
+  <v-text-field
+    v-model="newEvent.hour"
+    label="TIME"
+    variant="outlined"
+    placeholder="HH:MM"
+    maxlength="5"
+    @input="handleTimeInput"
+  ></v-text-field>
+</v-col>
 
                 <v-col cols="6" md="2">
                   <v-select v-model="newEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
@@ -214,29 +239,27 @@
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
-                    <v-col cols="auto" v-for="(reward, index) in availableRewards" :key="index">
-                      <v-avatar size="50"
-                        :class="{ 'selected-reward': selectedRewards.includes(reward), 'unselected-reward': !selectedRewards.includes(reward) }"
-                        @click="toggleReward(reward)">
+                    <v-row :class="{ 'selected-reward': selectedRewards.includes(reward), 'unselected-reward': !selectedRewards.includes(reward) }"
+                    @click="toggleReward(reward)" cols="auto" v-for="(reward, index) in availableRewards" :key="index">
+                      <v-avatar class="ml-4 mt-4" size="70">
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
-                    </v-col>
+                      <p class="text-body-1 pt-10 pl-2">{{ reward.name }}</p>
+                      <p class="text-body-1 pt-10 pl-2">{{ reward.description }}</p>
+                    </v-row>
                   </v-row>
-
-                  <v-file-input label="Upload Image(recomended square images)" accept="image/*"
-                    @change="handleImageUpload" variant="outlined" class="pt-5"></v-file-input>
-                  <!-- Preview da Imagem -->
-                  <v-img v-if="newEvent.image" :src="newEvent.image" height="100" class="mt-2 rounded"></v-img>
                 </v-col>
 
                 <v-col cols="12">
-                  <v-btn block color="secundary" class="launch-btn" @click="addEvent">LAUNCH EVENT</v-btn>
+                  <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
         </v-dialog>
 
+
+        <!--
 
         <v-row class="SortBy align-center  text-white">
           <v-col cols="2">
@@ -259,6 +282,8 @@
           </v-col>
         </v-row>
 
+      -->
+
         <v-row>
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
             <v-card color="white" max-height="190" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
@@ -270,8 +295,8 @@
                 </v-col>
 
                 <v-col cols="6" sm="8" class="pl-3 pt-2">
-                  <h3 class="">{{ event.name }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.location
+                  <h3 class="">{{ event.store }}</h3>
+                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.store
                     }}</p>
                   <p class="text-caption">
                     Rewards:
@@ -299,15 +324,7 @@
             <v-card-text>
               <v-row>
                 <!-- Nome do Evento -->
-                <v-col cols="12" md="6">
-                  <v-text-field v-model="editableEvent.name" label="EVENT NAME" counter="34"
-                    variant="outlined"></v-text-field>
-                </v-col>
 
-                <!-- Loja -->
-                <v-col cols="12" md="6">
-                  <v-select v-model="editableEvent.store" :items="stores" label="STORE" variant="outlined"></v-select>
-                </v-col>
 
                 <!-- Descrição -->
                 <v-col cols="12">
@@ -321,9 +338,17 @@
                     variant="outlined"></v-select>
                 </v-col>
 
+                <v-col cols="6" md="6">
+                  <v-select v-model="editableEvent.cenary" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY" variant="outlined"></v-select>
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-text-field v-model="editableEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
+                    maxlength="5"></v-text-field>
+                </v-col>
+
                 <v-col cols="6" md="2">
-                  <v-text-field v-model="editableEvent.hour" label="HOUR" type="time" variant="outlined"
-                    class="hour-input"></v-text-field>
+                  <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
                 </v-col>
 
                 <v-col cols="12" md="2" class="d-flex align-center">
@@ -343,13 +368,6 @@
                       </v-avatar>
                     </v-col>
                   </v-row>
-
-                  <v-file-input label="Upload Image (recommended square images)" accept="image/*"
-                    @change="handleEditImageUpload" variant="outlined" class="pt-5"></v-file-input>
-
-                  <!-- Preview da Imagem -->
-                  <v-img v-if="editableEvent.image" :src="editableEvent.image" height="100"
-                    class="mt-2 rounded"></v-img>
                 </v-col>
 
                 <!-- Botões -->
@@ -384,9 +402,44 @@
 </template>
 
 <script setup>
-import { ref, computed, } from "vue";
+import { ref, computed, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 
+
+
+
+
+const handleTimeInput = (event) => {
+  let raw = event.target.value.replace(/\D/g, ""); // remove tudo que não for número
+
+  // Força 4 dígitos no máximo
+  raw = raw.slice(0, 4);
+
+  let hh = raw.slice(0, 2);
+  let mm = raw.slice(2, 4);
+
+  // Limita hora (01 a 12)
+  if (hh.length === 2) {
+    let h = parseInt(hh);
+    if (h < 1) hh = "01";
+    else if (h > 12) hh = "12";
+    else hh = h.toString().padStart(2, "0");
+  }
+
+  // Limita minutos (00 a 59)
+  if (mm.length === 2) {
+    let m = parseInt(mm);
+    if (m > 59) mm = "59";
+    else mm = m.toString().padStart(2, "0");
+  }
+
+  // Atualiza model formatado
+  if (mm) {
+    newEvent.value.hour = `${hh}:${mm}`;
+  } else {
+    newEvent.value.hour = hh;
+  }
+};
 
 const user = computed(() => useUserStore().user);
 
@@ -420,7 +473,7 @@ const sortBy = ref("date");
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(s => s.storename === selectedEvent.value?.store);
-  return store ? store.storeImage : "https://via.placeholder.com/150"; // Imagem padrão caso não tenha uma loja definida
+  return store ? store.storeImage : "https://via.placeholder.com/150"; 
 });
 
 const selectedStore = computed(() => {
@@ -428,376 +481,8 @@ const selectedStore = computed(() => {
 });
 
 // Sample Events Data
-const events = ref([
-  {
-    name: "WORK IN PROGRESS - VISUAL PREVIEW",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "EN PROCESO - VISTA PREVIA VISUAL",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "IN ARBEIT - VISUELLE VORSCHAU",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "EN COURS - APERÇU VISUEL",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "IN LAVORAZIONE - ANTEPRIMA VISIVA",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "قيد العمل - معاينة بصرية",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "正在进行 - 视觉预览",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-  {
-    name: "進行中 - ビジュアルプレビュー",
-    location:
-      "Your Store location",
-    date: "02/20/25",
-    hour: "12:00",
-    image:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    eventdesc:
-      "This is a work in progress. Only the visual elements have been added. The functional elements will still be implemented. ",
-    shopdesc: "YOUR STORE DESCRIPTION",
-    eventseats: "4",
-    shopname: "YOUR STORE NAME",
-    shopimage:
-      "https://www.turolgames.com/129805-thickbox_default/chronicles-of-drunagor-age-of-darkness-spanish.jpg",
-    rewards: [
-      {
-        name: "MEGA DUNGEON Badges",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-luccanor.png",
-      },
-      {
-        name: " Event Reward",
-        description:
-          "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png",
-      },
-      {
-        name: "Drunagor APP Badges",
-        description:
-          "Check-in in event and get an exclusive event badge to show in your profile. (Only official events drop exclusive event badges)",
-        image:
-          "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-apoc.png",
-      },
-    ],
-  },
-
+const events = ref([  
+  
 ]);
 
 // Sorting Logic
@@ -810,7 +495,7 @@ const sortedEvents = computed(() => {
 
 // Função para adicionar um evento na lista
 const addEvent = () => {
-  if (newEvent.value.name && newEvent.value.date && newEvent.value.location) {
+  if (newEvent.value.location && newEvent.value.date && newEvent.value.location) {
     // Clona o evento e adiciona à lista de eventos
     events.value.push({
       ...newEvent.value,
@@ -821,19 +506,23 @@ const addEvent = () => {
 
     // Resetando os campos do formulário
     newEvent.value = {
-      name: "",
       location: "Shopping Drunagor",
       eventdesc: "",
       eventseats: 4,
       date: "",
       hour: "",
-      image: "",
       rewards: [],
     };
 
     selectedRewards.value = []; // Limpa a seleção de rewards
+
+    createEventDialog.value = false;
   }
 };
+
+
+
+
 
 // **Função para deletar um evento**
 const deleteEvent = (eventId) => {
@@ -849,43 +538,57 @@ const userCreatedEvents = computed(() => {
 // Lista de rewards disponíveis para seleção
 const availableRewards = ref([
   {
-    name: "Reward 1",
+    name: "Andreas Armor",
     image:
-      "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-shadowworld.png",
+      "src/assets/hero/avatar/AndreasAvatar.webp",
     description:
       "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   },
   {
-    name: "Reward 2",
+    name: "Flavian Song",
     image:
-      "https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-spoils.png",
+      "src/assets/hero/avatar/FlavianAvatar.webp",
     description:
       "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   },
   {
-    name: "Reward 3",
+    name: "Nyx Kiss",
     image:
-      "https://cf.geekdo-images.com/XVHxivhSyvJtJvyeTpeIOQ__itemrep/img/4irpWCwivBZi28pSvQ4vTc69QEQ=/fit-in/246x300/filters:strip_icc()/pic7883362.png",
+      "src/assets/hero/avatar/NyxAvatar.webp",
     description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
   },
 ]);
 
 // Estado para controlar a visibilidade do diálogo
 const createEventDialog = ref(false);
 const newEvent = ref({
-  name: "",
   location: "Shopping Drunagor",
   eventdesc: "",
   eventseats: 4,
   date: "",
   hour: "",
   ampm: "AM",
-  image: "",
   rewards: [],
 });
 
 const stores = ref([]);
+
+watch(
+  () => newEvent.value.store,
+  (selectedStoreName) => {
+    const selectedStore = stores.value.find(
+      (store) => store.storename === selectedStoreName
+    );
+
+    if (selectedStore) {
+      const { address, streetNumber, complement, city, state } = selectedStore;
+      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
+    } else {
+      newEvent.value.address = "";
+    }
+  }
+);
 
 // Recupera as lojas salvas ao iniciar a página
 onMounted(() => {
@@ -1071,7 +774,7 @@ const handleEditImageUpload = (event) => {
 }
 
 .selected-reward {
-  border: 2px solid green;
+
   opacity: 1;
   transition: all 0.2s ease-in-out;
 }
