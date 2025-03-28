@@ -1,6 +1,6 @@
 export class Campaign {
   public campaignId: string;
-  public campaign: "core" | "apocalypse" | "awakenings";
+  public campaign: "core" | "apocalypse" | "awakenings" | "MegaDungeon";
   public name: string = "";
   public statusIds: string[] = [];
   public outcomeIds: string[] = [];
@@ -23,7 +23,7 @@ export class Campaign {
 
   constructor(
     campaignId: string,
-    campaign: "core" | "apocalypse" | "awakenings",
+    campaign: "core" | "apocalypse" | "awakenings" | "MegaDungeon",
   ) {
     this.campaignId = campaignId;
     this.campaign = campaign;

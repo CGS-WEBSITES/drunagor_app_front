@@ -111,6 +111,13 @@ function findHeroes(campaignId: string): HeroData[] {
     cover
   ></v-img>
 
+  <v-img
+    v-else-if="campaign.campaign === 'MegaDungeon'"
+    src="@/assets/megadungeon.png"
+    max-height="200"
+    cover
+  ></v-img>
+
   <v-card-title class="text-uppercase" v-if="campaign.name">
     {{ campaign.name }}
   </v-card-title>

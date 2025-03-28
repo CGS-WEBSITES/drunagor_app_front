@@ -165,6 +165,7 @@ function onSequentialAdventure() {
       </v-col>
     </v-sheet>
   </v-row>
+  
 </template>
 
 <style scoped></style>
