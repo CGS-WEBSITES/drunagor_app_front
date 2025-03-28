@@ -79,13 +79,25 @@
                   </p>
                     
                     
-                  <p class="text-caption ml-3">
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>  Rewards:          <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                         <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
-                      </v-col>
-                    </v-row>
-                  </p>
+                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+  <v-row class="d-flex align-center rewards-container">
+    <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+    Rewards:
+    <v-col
+      cols="auto"
+      v-for="(reward, index) in event.rewards"
+      :key="index"
+    >
+      <v-img
+        :src="reward.image"
+        height="20"
+        width="20"
+        contain
+        class="reward-icon"
+      ></v-img>
+    </v-col>
+  </v-row>
+</p>
                 </v-col>
               </v-row>
             </v-card>
