@@ -1,6 +1,6 @@
 <template>
   <v-container max-width="776" class="pa-4">
-    <v-card rounded="lg" elevation="6" class="pa-4">
+    <v-card color="primary" rounded="lg" elevation="6" class="pa-4">
       <!-- Seleção de Abas -->
       <v-col cols="12" class="d-flex justify-center pa-0">
         <v-tabs v-model="activeTab" class="mb-4">

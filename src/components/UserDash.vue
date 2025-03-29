@@ -109,7 +109,7 @@
                   <v-carousel-item v-for="(item, index) in campaignStore.findAll()" :key="index">
                     <v-row no-gutters class="justify-center">
                       <v-col cols="10" sm="10" md="12">
-                        <v-card class="mx-auto" @click="
+                        <v-card color="primary" class="mx-auto" @click="
                           router.push({
                             name: 'Campaign',
                             params: { id: item.campaignId },

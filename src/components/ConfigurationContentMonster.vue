@@ -33,7 +33,7 @@ watch(monsterContentSettings, async (newSettings) => {
 
 <template>
   <v-container max-width="680">
-    <v-card class="my-4">
+    <v-card color="primary" class="my-4">
       <v-card-title>
         {{ $t("configuration.monster-content") }}
       </v-card-title>

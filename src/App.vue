@@ -41,9 +41,12 @@
           Sign up
         </v-btn>
 
-        <!-- Menu de Navegação Centralizado (Somente se NÃO for Home, Login e Gama) -->
+
+        
 
         <div class="d-flex w-100 align-center justify-space-between" v-else>
+          <v-btn @click="switchTheme" icon="mdi-theme-light-dark">
+          </v-btn>
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">
@@ -60,6 +63,7 @@
               </template>
             </v-hover>
           </div>
+
           
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
@@ -81,6 +85,7 @@
             </template>
 
             <v-list>
+              
               <v-list-item @click="logOut">
                 <v-list-item-icon>
                   <v-icon>mdi-logout</v-icon>
@@ -166,7 +171,16 @@ const route = useRoute();
 const assets = inject<string>("assets");
 
 const theme = ref("DarkTheme");
-// Controle de visibilidade do menu de navegação inferior
+const themes = ['DarkTheme', 'CoreTheme', 'ApocTheme']
+
+const switchTheme = () => {
+  const currentIndex = themes.indexOf(theme.value)
+  theme.value = themes[(currentIndex + 1) % themes.length]
+}
+
+
+
+
 const bottomNavVisible = ref(true);
 
 const drawer = ref(false); // Controle do drawer lateral
