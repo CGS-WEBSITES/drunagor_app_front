@@ -1,6 +1,6 @@
 <template>
     <v-container max-width="800" style="min-width: 360px;" class="pa-4">
-    <v-card class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3" >
+    <v-card  color="primary" class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3" >
       <!-- Imagem -->
       <v-img
         src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"

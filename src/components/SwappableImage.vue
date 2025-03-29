@@ -32,7 +32,7 @@ function swapImage() {
 
 <template>
   <v-container max-width="666">
-  <v-card class="d-flex flex-column justify-center align-center">
+  <v-card color="primary" class="d-flex flex-column justify-center align-center">
     <v-card-item>
       <v-card-title>
         {{ props.title }}

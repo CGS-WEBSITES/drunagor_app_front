@@ -52,7 +52,7 @@ function findHeroes(campaignId: string): HeroData[] {
 
 <template>
   <v-container max-width="680">
-  <v-card class="d-none d-md-flex justify-center pa-3 elevation-0">
+  <v-card color="primary" class="d-none d-md-flex justify-center pa-3 elevation-0">
     <v-card-actions>
       <CampaignNew />
       <CampaignImport />
@@ -80,6 +80,7 @@ function findHeroes(campaignId: string): HeroData[] {
         :key="campaign.campaignId"
       >
       <v-card
+      color="primary"
   elevation="16"
   width="100%"
   @click="
