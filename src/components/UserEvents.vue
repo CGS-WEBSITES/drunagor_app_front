@@ -9,7 +9,7 @@
  
 <v-col cols="12" md="10" class="mx-auto">
     
-<v-card class="pb-12" color="#151515">
+<v-card  class="pb-12" color="primary">
 
     <v-row no-gutters>
       <v-col cols="12"> 

@@ -8,7 +8,7 @@
       </v-col>
     </v-row>
 
-    <v-card min-height="220px" class="pa-2">
+    <v-card color="primary" min-height="220px" class="pa-2">
       <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
         <v-tab :value="1">All Products</v-tab>
         <v-tab :value="2">Wishlist</v-tab>
