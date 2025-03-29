@@ -106,8 +106,8 @@
        <v-btn
          v-bind="props"
          icon="mdi-account-check"
-         color="rgba(0, 0, 0, 0.6)"
-         elevation="3"
+         color="rgba(0, 0, 0, 0.0)"
+         elevation="0"
          size="small"
        ></v-btn>
      </template>
@@ -134,11 +134,19 @@
    <v-alert
      v-if="showAlert"
      type="success"
-     class="top-0 right-0 ma-4"
+     class="custom-alert"
      text
    >
      Friend request sent!
    </v-alert>
+
+   <v-alert
+      v-if="showErrorAlert"
+      type="error"
+      class="custom-alert"
+    >
+      {{ errorMessage }}
+    </v-alert>
            
            
          </p>  
@@ -200,6 +208,8 @@ import { useUserStore } from "@/store/UserStore";
 const userStore = useUserStore();
 const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
 const showAlert = ref(false);
+const showErrorAlert = ref(false);
+const errorMessage = ref("");
 
 const addFriend = async () => {
   try {
@@ -233,10 +243,9 @@ const addFriend = async () => {
       showAlert.value = false;
     }, 3000);
   } catch (error) {
-    console.error(
-      "❌ Erro ao enviar o pedido de amizade:",
-      error.response?.data || error.message
-    );
+    showErrorAlert.value = true;
+    errorMessage.value = error.response?.data?.message || "Erro ao enviar o pedido de amizade.";
+    setTimeout(() => (showErrorAlert.value = false), 3000);
   }
 };
 
@@ -295,6 +304,17 @@ checkFriendStatus();
   padding: 16px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.custom-alert {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 10%); /* Centraliza na tela */
+  width: 300px; /* Defina um tamanho adequado */
+  height: 44px;
+  z-index: 9999;
+  padding: 10px;
+  transition: opacity 0.5s ease-in-out;
 }
 </style>
  

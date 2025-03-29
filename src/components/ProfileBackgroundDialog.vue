@@ -137,101 +137,90 @@
   </template>
     
     <script lang="ts" setup>
-  import { ref, inject, watch } from "vue";
-  import { useUserStore } from "@/store/UserStore";
-  import { getToken } from "@/service/AccessToken";
-  
-  const UserStore = useUserStore(); // Inicializa a store
-  const reloadKey = ref<number>(0);
-  const assets = inject<string>("assets");
-  interface Background {
-    hash: string | null;
+ import { ref, inject, watch, nextTick } from "vue";
+import { useUserStore } from "@/store/UserStore";
+import { getToken } from "@/service/AccessToken";
+
+const UserStore = useUserStore(); // Store do usuário
+const reloadKey = ref<number>(0);
+const assets = inject<string>("assets");
+
+interface Background {
+  hash: string | null;
+}
+
+const selectedBackground = ref<Background>({ hash: null });
+
+const availbleBackground = ref<Background[]>([
+  { hash: "profile-bg-corelich-transparent.png" },
+  { hash: "profile-bg-corewar-transparent.png" },
+  { hash: "profile-bg-warriors-transparent.png" },
+]);
+
+const axios: any = inject("axios");
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref("");
+const showAlert = ref(false);
+
+// **WATCH** para atualizar a interface quando o background mudar
+watch(() => UserStore.user.background_hash, () => {
+  selectedBackground.value.hash = UserStore.user.background_hash;
+  reloadKey.value += 1; // Força atualização do Vue
+});
+
+const setAllert = (icon: string, title: string, text: string, type: string) => {
+  alertIcon.value = icon;
+  alertTitle.value = title;
+  alertText.value = text;
+  showAlert.value = true;
+  alertType.value = type;
+};
+
+const saveBG = async () => {
+  const user = UserStore.user;
+
+  try {
+    const response = await axios.put(
+      "users/alter",
+      {
+        users_pk: user.users_pk,
+        background_hash: selectedBackground.value.hash,
+      },
+      {
+        headers: getToken(),
+      }
+    );
+
+    console.log("✅ API Response:", response);
+
+    // Atualiza o usuário no store sem precisar recarregar a página
+    UserStore.setUser({
+      ...user,
+      background_hash: selectedBackground.value.hash,
+    });
+
+    // Aguarda atualização reativa do Vue antes de continuar
+    await nextTick();
+
+    reloadKey.value += 1; // Força um re-render no componente
+    setAllert("mdi-check", "Success", "Background updated!", "success");
+  } catch (error) {
+    console.error("❌ Error updating background:", error);
+    setAllert(
+      "mdi-alert-circle",
+      "Error",
+      error.response?.data?.message || "A network error occurred.",
+      "error"
+    );
   }
-  const selectedBackground = ref<Background>({
-    hash: null,
-  });
-  const availbleBackground = ref<Background[]>([
-    {
-      hash: "profile-bg-corelich-transparent.png",
-    },
-    {
-      hash: "profile-bg-corewar-transparent.png",
-    },
-    {
-      hash: "profile-bg-warriors-transparent.png",
-    },
-   
-  ]);
-  const axios: any = inject("axios");
-  const alertIcon = ref("");
-  const alertText = ref("");
-  const alertTitle = ref("");
-  const alertType = ref("");
-  const showAlert = ref(false);
-  
-  watch(selectedBackground, () => {
-    reloadKey.value += 1;
-  });
-  
-  // Função para exibir alertas
-  const setAllert = (icon: string, title: string, text: string, type: string) => {
-    alertIcon.value = icon;
-    alertTitle.value = title;
-    alertText.value = text;
-    showAlert.value = true;
-    alertType.value = type;
-  };
-  
-  const saveBG = async () => {
-    const user = UserStore.user;
-  
-    await axios
-      .put(
-        "users/alter",
-        {
-          users_pk: user.users_pk,
-          background_hash: selectedBackground.value.hash,
-        },
-        {
-          // Headers
-          headers: getToken(),
-        }
-      )
-      .then(async (response: any) => {
-        console.log("API Response:", response);
-  
-        await UserStore.setUser({
-          email: user.email,
-          google_id: user.google_id,
-          name: user.name,
-          background_hash: selectedBackground.value.hash,
-          roles_fk: user.roles_fk,
-          user_name: user.user_name,
-          users_pk: user.users_pk,
-          verified: user.verified,
-          zip_code: user.zip_code,
-        });
-  
-        // Exibe alerta de sucesso
-        setAllert("mdi-check", response.status, response.data.message, "success");
-      })
-      .catch((error: any) => {
-        console.error("Error during login:", error);
-        // Trata erros com mensagens apropriadas
-        setAllert(
-          "mdi-alert-circle",
-          error.response?.status || 500,
-          error.response?.data?.message || "A network error occurred.",
-          "error"
-        );
-      });
-  };
-  
-  const clearBack = () => {
-    selectedBackground.value = {
-      hash: null,
-    };
-    console.log(selectedBackground.value);
-  };
+};
+
+const clearBack = () => {
+  selectedBackground.value.hash = null;
+  console.log("🗑️ Background reset:", selectedBackground.value);
+};
+
   </script>
     

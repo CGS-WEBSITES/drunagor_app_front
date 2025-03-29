@@ -27,7 +27,7 @@
                 rounded="lg"
                 elevation="10"
                 v-bind="props"
-                @click="navigateToUser(item.friend_pk)"
+                @click="navigateToUser(item.friends_id)"
               >
                 <div
                   class="background-overlay"
@@ -86,7 +86,7 @@
                     <v-btn
                       class="ma-2"
                       color="red"
-                      @click.stop="declineFriend(item.friend_pk)"
+                      @click.stop="declineFriend(item.friends_pk)"
                       >DECLINE</v-btn
                     >
                   </v-col>
@@ -105,6 +105,8 @@ import { ref, computed, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 
+
+
 const axios = inject("axios");
 const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
 const userStore = useUserStore();
@@ -117,16 +119,29 @@ const searchQuery = ref("");
 const friends = ref([]);
 const requests = ref([]);
 
-// **Navegar para o perfil do usuário**
 const navigateToUser = (userId) => {
-  if (!userId) return;
-  const encodedId = btoa(userId.toString()); // Codifica o ID em Base64
-  router.push({ name: "User", params: { id: encodedId } });
+  try {
+    if (!userId) throw new Error("ID do usuário não encontrado!");
+    
+    const encodedId = btoa(userId.toString());
+    console.log("Navegando para ID codificado:", encodedId);
+
+    router.push({ name: "User", params: { id: encodedId } });
+  } catch (error) {
+    console.error("Erro ao navegar:", error.message);
+  }
 };
 
-// **Busca amigos da API**
 const fetchFriends = async () => {
   try {
+    const userStore = useUserStore();
+    const userId = userStore.user?.users_pk; // Obtém o ID do usuário logado
+
+    if (!userId) {
+      console.error("❌ Erro: Usuário não identificado.");
+      return;
+    }
+
     const response = await axios.get(`${apiUrl}/friends/list_friends`, {
       params: { invite_users_fk: userId, accepted: true },
       headers: {
@@ -136,19 +151,24 @@ const fetchFriends = async () => {
 
     const friendData = response.data.friends;
 
-    // Filtra amigos aceitos e pedidos pendentes
-    friends.value = friendData
-      .filter((friend) => friend.accepted === true)
-      .map((friend) => ({
-        friends_pk: friend.friends_pk,
-        user_name: friend.user_name,
-        image: friend.picture_hash
-          ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
-          : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
-        accepted: true,
-      }));
+    console.log("🔍 Dados dos amigos recebidos:", friendData);
+
+    // Processa os amigos e define `friends_id` corretamente
+    friends.value = friendData.map((friend) => ({
+      friends_pk: friend.friends_pk,
+      user_name: friend.user_name,
+      friends_id:
+        friend.invite_users_fk === userId
+          ? friend.recipient_users_fk // Se o usuário logado foi quem enviou o pedido, pega o recebedor
+          : friend.invite_users_fk, // Caso contrário, pega quem enviou
+      image: friend.picture_hash
+        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
+        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+      background_hash: friend.background_hash,
+      accepted: true,
+    }));
   } catch (error) {
-    console.error("Erro ao buscar amigos:", error);
+    console.error("❌ Erro ao buscar amigos:", error.response?.data || error.message);
   }
 };
 
@@ -166,9 +186,11 @@ const fetchRequests = async () => {
     requests.value = friendRequests.map((friend) => ({
       friends_pk: friend.friends_pk,
       user_name: friend.user_name,
+      friends_id: friend.invite_users_fk,
       image: friend.picture_hash
         ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
         : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+      background_hash: friend.background_hash,
       accepted: false,
     }));
   } catch (error) {}
