@@ -2,6 +2,7 @@
 keyword:
   - id: x-hp
     keyword: "+X HP"
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/%2B30health.png"
     description:
       The Hero's Maximum Health increases by +X points. As explained on page
       7 of the Age of Darkness Rulebook, a Hero's Maximum Health, however, can never
@@ -10,6 +11,7 @@ keyword:
       board. All Maximum Health that exceeds 16 is considered wasted.
   - id: x-hp-(simple)
     keyword: "+X HP (SIMPLE)"
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/%2B30health.png"
     description:
       If you prefer not to deal with the granularity of the +X HP rule, you
       can choose the simple version and disregard the second and third NOTEs. So, if
@@ -18,6 +20,7 @@ keyword:
       of the +X HP effects you have exceeds 16 Health.
   - id: x-dmg
     keyword: "+X or -X DMG"
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/%2B1dmg.png"
     description:
       X value is added to or subtracted from the Damage your Attack inflicts.
       Critical Hits and DOUBLE DMG also double this.
@@ -36,6 +39,7 @@ keyword:
       Accuracy 20 and a natural 14."
   - id: x-movement
     keyword: "+X MOVEMENT"
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/%2B1mov.png"
     description: You received X additional movement points for every Move effect gained.
   - id: action-cubes-(ac)
     keyword: ACTION CUBES (AC)
@@ -117,6 +121,7 @@ keyword:
   - id: bear-trap
     keyword: BEAR TRAP
     description: All enemies in AREA take 2 non-preventable Damage, BLEED 2, DISCARD.
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/beartrap.png"
   - id: beginning-of-turn-(bot)
     keyword: BEGINNING OF TURN (BOT)
     description:
@@ -126,12 +131,13 @@ keyword:
       of their turn.
   - id: bleed-x
     keyword: BLEED X
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/bleed.png"
     description:
       The Target takes X BLEED tokens. At the beginning of that character's
-      next turn, it takes 1 non-preventable damage for each BLEED token it has and then
-      removes all of them from its board. BLEED is a stackable Condition.
+      next turn, it takes 1 non-preventable damage for each BLEED token it has and then removes all of them from its board. BLEED is a stackable Condition.
   - id: blindness
     keyword: BLINDNESS
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/blind.png"
     description:
       This is a special ability that a few Monsters possess and that turns
       them into very dangerous enemies. When a Character suffers BLINDNESS, they must
@@ -155,6 +161,7 @@ keyword:
       Loot, a Hero draws a Chest card, but does not roll the Trap Die).
   - id: brittle
     keyword: BRITTLE
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/brittle.png"
     description:
       Some attacks are capable of leaving their opponents vulnerable. When
       a Character suffers Brittle, they must take a Brittle token and keep it on their
@@ -166,6 +173,7 @@ keyword:
       or is triggered as described. It is a Redundant Condition.
   - id: burn-x
     keyword: BURN X
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/burn.png"
     description:
       The Target takes X BURN tokens. At the beginning of that character's
       next turn, it takes 1 non-preventable damage for each BURN token it has and then
@@ -391,6 +399,7 @@ keyword:
       in range."
   - id: difficult-terrain
     keyword: DIFFICULT TERRAIN
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/dificultterrain.png"
     description:
       A character that is affected by Difficult Terrain (like Water) loses
       1 movement point from its current move effect. As with any harmful terrain, a
@@ -449,6 +458,7 @@ keyword:
       first attack.
   - id: entropy
     keyword: ENTROPY
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/entropy.png"
     description:
       "Specialists in spellcasting can bring about miraculous transformations
       in their spells by releasing large amounts of energy. Whenever they do, the energy
@@ -487,6 +497,7 @@ keyword:
   - id: fire-trap
     keyword: FIRE TRAP
     description: All enemies in AREA take 2 non-preventable Damage, BURN 4, DISCARD.
+    icon: 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/firetrap1.png'
   - id: flyby
     keyword: FLYBY
     description:
@@ -494,6 +505,7 @@ keyword:
       master after attacking. Only affected by terrain/Darkness once landed.
   - id: focus-x
     keyword: FOCUS X
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/focus.png"
     description:
       The Target gains X FOCUS tokens, which they can later spend to use
       Focus Abilities. FOCUS is a stackable resource.
@@ -502,6 +514,7 @@ keyword:
     description: Hero takes a RECALL ACTION without taking a CC penalty.
   - id: fruit-of-life
     keyword: FRUIT OF LIFE
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/fruit_of_life.png"
     description:
       "With a Use Consumable Item Minor Action, a Character holding a FRUIT
       OF LIFE may discard it to: SELF, REGAIN 2 HEALTH. Additionally, these fruits are
@@ -510,6 +523,7 @@ keyword:
       resource."
   - id: fury
     keyword: FURY
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/Fury.png"
     description:
       When you hit with a Spell Attack or Weapon Attack, you may discard
       1 FURY to add +1 DMG to your Attack. You may discard only 1 FURY token per turn
@@ -566,6 +580,7 @@ keyword:
       naturally, such Condition does not affect it when it is Inflicted on it.
   - id: inspire
     keyword: INSPIRE
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/inspiration.png"
     description:
       Representing a morale boost, when a Hero becomes Inspired, they receive
       an Inspiration token. By discarding one of these tokens (no action required) a
@@ -642,6 +657,7 @@ keyword:
       many Characters were targeted by it.
   - id: intimidate-x
     keyword: INTIMIDATE X
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/intimidate.png"
     description:
       Character has -X DMG for each INTIMIDATE token they are holding. Unlike
       other Conditions, INTIMIDATE does not take effect at the beginning of their next
@@ -656,6 +672,7 @@ keyword:
       2 movement.
   - id: ki
     keyword: KI
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/ki.png"
     description:
       You may discard a KI to make a Weapon Attack with +0 HIT. Regardless
       if you have spent a KI to make a Weapon Attack or to use any other ability you
@@ -686,6 +703,7 @@ keyword:
       deemed it appropriate to turn this benefit into a Keyword to avoid this problem."
   - id: knock-down
     keyword: KNOCK DOWN
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/knock_down.png"
     description:
       The Target receives a KNOCK DOWN token. Unlike other Conditions, KNOCK
       DOWN does not take effect at the beginning of the character's next turn, it lingers
@@ -703,6 +721,7 @@ keyword:
       way.
   - id: large-monster
     keyword: LARGE MONSTER
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/large_monster.png"
     description:
       This Monster is considered Large (even if its base is small-sized).
       A Large Monster is immune to KNOCK DOWN, PUSH, STUN, and TELEKINESIS.
@@ -735,6 +754,7 @@ keyword:
       in their bag."
   - id: loot
     keyword: LOOT
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/loot.png"
     description:
       If this companion deals the killing blow to an enemy, replace the Target
       with a Chest. It is safe (no Trap die on opening) and is only an OBJECT (not SOLID).
@@ -806,6 +826,7 @@ keyword:
       be responded to with Reactions.
   - id: npc
     keyword: NPC
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/npc.png"
     description:
       NPC (Non-Player Characters) are the bystanders of a Campaign. Some
       NPC Tokens are used to represent your Companions on the board, while others just
@@ -846,6 +867,7 @@ keyword:
       and a card with its attributes.
   - id: poison
     keyword: POISON
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/poison.png"
     description:
       The Target takes X POISON tokens. At the beginning of that character's
       next turn, it takes 1 non-preventable damage for each POISON token it has. Unlike
@@ -855,8 +877,10 @@ keyword:
   - id: poison-trap
     keyword: POISON TRAP
     description: All enemies in AREA take 2 non-preventable Damage, POISON 2, DISCARD.
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/poisontrap.png"
   - id: polymorph
     keyword: POLYMORPH
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/polymorph.png" 
     description:
       "There is nothing more satisfying than ridiculing a threat, turning
       a once-powerful enemy into a defenseless capybara! In order to emulate this effect
@@ -869,6 +893,7 @@ keyword:
       (unless it's specified to do so). The rulebook explains the conecpt fully."
   - id: polymorph-(simple)
     keyword: POLYMORPH (SIMPLE)
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/polymorph.png"
     description:
       "If you have tried the mechanics of Polymorph and still consider them
       to be too complicated, you can, as a house rule, ignore the use of the Errant
@@ -935,6 +960,7 @@ keyword:
       Expended AC."
   - id: rangers-mark
     keyword: RANGER'S MARK
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/ranger_mark.png"
     description:
       When a character is Marked, it receives a RANGER'S MARK token. All
       Weapon Attacks and Spell Attacks made by the Ranger against a character they marked
@@ -1071,6 +1097,7 @@ keyword:
     description: A small Darkness tile is placed under Target.
   - id: shield-x
     keyword: SHIELD X
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/shield.png"
     description:
       The target gains X SHIELD tokens. Each SHIELD token can be used to
       absorb 1 point of incoming damage against the character. You must use all of your
@@ -1114,6 +1141,7 @@ keyword:
       or in reach, these Monsters switch their Primary Target to the Strongest Hero.
   - id: slow
     keyword: SLOW
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/slow.png"
     description:
       The Target receives a SLOW token. Unlike other Conditions, SLOW does
       not take effect at the beginning of that character's next turn, it lingers until
@@ -1127,6 +1155,7 @@ keyword:
       specified as such during a setup.
   - id: soul-shard
     keyword: SOUL SHARD
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/soul_chard.png"
     description:
       By confining a fragment of life energy from a creature's spirit within
       them, these crystals can be used to strengthen the Heroes. As a Minor Action,
@@ -1236,6 +1265,7 @@ keyword:
       one among then will be the one who occupies the fastest Initiative Slot.
   - id: stun
     keyword: STUN
+    icon: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/CampaignTracker/Keywords/stun.png"
     description:
       STUN works differently between Heroes and Monsters. When the STUN effect
       is resolved at the beginning of a Monster's turn, that Monster loses its Attack
