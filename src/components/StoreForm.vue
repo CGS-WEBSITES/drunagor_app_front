@@ -48,17 +48,17 @@
               v-model="form.storename"
             ></v-text-field>
             <v-text-field
+              label="Street Number"
+              variant="outlined"
+              v-model="form.streetNumber"
+            ></v-text-field>
+            <v-text-field
               label="Street Name"
               variant="outlined"
               v-model="form.address"
             ></v-text-field>
             <v-text-field
-              label="Number"
-              variant="outlined"
-              v-model="form.streetNumber"
-            ></v-text-field>
-            <v-text-field
-              label="Complement"
+              label="Apt, suite, etc."
               variant="outlined"
               v-model="form.complement"
             ></v-text-field>
@@ -178,14 +178,19 @@
                 v-model="editableStore.storename"
               ></v-text-field>
               <v-text-field
+                label="Street Number"
+                outlined
+                v-model="editableStore.streetNumber"
+              ></v-text-field>
+              <v-text-field
                 label="Street Name"
                 outlined
                 v-model="editableStore.address"
               ></v-text-field>
               <v-text-field
-                label="Street Number"
+                label="Apt, suite, etc."
                 outlined
-                v-model="editableStore.streetNumber"
+                v-model="editableStore.complement"
               ></v-text-field>
               <v-text-field
                 label="City"
@@ -587,6 +592,7 @@ const saveStore = () => {
     address2: "",
     city: "",
     state: "",
+    complement: "",
     zipcode: "",
     country: "",
     MerchantID: "",
@@ -607,6 +613,7 @@ const cancelForm = () => {
     zipcode: "",
     MerchantID: "",
     storeImage: "",
+    complement: "",
     address: "",
     streetNumber: "",
     city: "",
@@ -632,6 +639,7 @@ interface EditableStore {
   storeImage: string;
   address: string;
   streetNumber: string;
+  complement: string;
   city: string;
   state: string | null;
 }
@@ -645,6 +653,7 @@ const editableStore = ref<EditableStore>({
   storeImage: "",
   address: "",
   streetNumber: "",
+  complement: "",
   city: "",
   state: "",
 });
@@ -661,6 +670,7 @@ const openEditDialog = (store: any, index: number) => {
     storeImage: store.storeImage || "",
     address: store.address,
     streetNumber: store.streetNumber,
+    complement: store.complement,
     city: store.city,
     state: store.state,
   };
