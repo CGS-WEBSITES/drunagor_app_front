@@ -1,7 +1,28 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-export interface Event {
+// Interface for events used in display (listing, details, etc.)
+export interface EventDisplay {
+  name?: string;
+  location?: string;
+  eventdesc?: string;
+  eventseats?: string;
+  date?: string;
+  hour?: string;
+  ampm?: string;
+  image?: string;
+  shopdesc?: string;
+  shopname?: string;
+  shopimage?: string;
+  rewards?: Array<{
+    name: string;
+    description: string;
+    image: string;
+  }>;
+}
+
+// Interface for event creation fields
+export interface EventCreation {
   seats_number: number | null;
   season_hash: string | null;
   chapter_hash: string | null;
@@ -12,7 +33,9 @@ export interface Event {
 }
 
 export const useEventStore = defineStore("event", () => {
-  const events = ref<Event>({
+  const events = ref<EventDisplay[]>([]);
+
+  const newEvent = ref<EventCreation>({
     seats_number: null,
     season_hash: null,
     chapter_hash: null,
@@ -22,9 +45,17 @@ export const useEventStore = defineStore("event", () => {
     active: null,
   });
 
-  const setEvent = (newEvent: Event) => {
-    events.value = newEvent;
+  const setEvents = (newEvents: EventDisplay[]) => {
+    events.value = newEvents;
   };
 
-  return { events, setEvent };
+  const addEvent = (event: EventDisplay) => {
+    events.value.push(event);
+  };
+
+  const setNewEvent = (eventData: EventCreation) => {
+    newEvent.value = eventData;
+  };
+
+  return { events, newEvent, setEvents, addEvent, setNewEvent };
 });
