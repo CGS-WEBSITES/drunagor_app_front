@@ -231,7 +231,7 @@
                 </v-col>
               </v-row>
               <v-col cols="auto" class="editbutton pt-13 pl-3">
-                <v-btn color="white" icon class="delete-btn" @click="openEditDialog(event)">
+                <v-btn color="white" icon class="delete-btn" @click.stop="openEditDialog(event, true)">
                   <v-icon>mdi mdi-pencil</v-icon>
                 </v-btn>
               </v-col>
@@ -247,29 +247,29 @@
                 <!-- Descrição -->
                 <v-col cols="12">
                   <v-textarea v-model="editableEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
-                    variant="outlined"></v-textarea>
+                    variant="outlined" :disabled="!isEditable"></v-textarea>
                 </v-col>
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="6" md="6">
                   <v-select v-model="editableEvent.eventseats" :items="[1, 2, 3, 4]" label="SEATS"
-                    variant="outlined"></v-select>
+                    variant="outlined" :disabled="!isEditable"></v-select>
                 </v-col>
                 <v-col cols="6" md="6">
                   <v-select v-model="editableEvent.cenary"
                     :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY"
-                    variant="outlined"></v-select>
+                    variant="outlined" :disabled="!isEditable"></v-select>
                 </v-col>
                 <v-col cols="6" md="3">
                   <v-text-field v-model="editableEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
-                    maxlength="5"></v-text-field>
+                    maxlength="5" :disabled="!isEditable"></v-text-field>
                 </v-col>
                 <v-col cols="6" md="2">
                   <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM"
-                    variant="outlined"></v-select>
+                    variant="outlined" :disabled="!isEditable"></v-select>
                 </v-col>
                 <v-col cols="12" md="2" class="d-flex align-center">
                   <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input"></v-text-field>
+                    class="date-input" :disabled="!isEditable"></v-text-field>
                 </v-col>
                 <!-- Recompensas -->
                 <v-col cols="12">
@@ -278,7 +278,7 @@
                     <v-col cols="auto" v-for="(reward, index) in availableRewards" :key="index">
                       <v-avatar size="50"
                         :class="{ 'selected-reward': editableEvent.rewards.includes(reward), 'unselected-reward': !editableEvent.rewards.includes(reward) }"
-                        @click="toggleEditReward(reward)">
+                        @click="isEditable && toggleEditReward(reward)">
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
                     </v-col>
@@ -287,7 +287,7 @@
                 <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
                   <v-btn color="red" @click="editEventDialog = false">Cancel</v-btn>
-                  <v-btn color="green" @click="saveEditedEvent">Save Changes</v-btn>
+                  <v-btn v-if="isEditable" color="green" @click="saveEditedEvent">Save Changes</v-btn>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -299,11 +299,19 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 
 const eventStore = useEventStore();
+
+const isEditable = ref(false); 
+
+const openEditDialog = (event, editable = false) => {
+  editableEvent.value = { ...event };
+  isEditable.value = editable;
+  editEventDialog.value = true;
+};
 
 const handleTimeInput = (event) => {
   let raw = event.target.value.replace(/\D/g, ""); // remove tudo que não for número
@@ -505,11 +513,6 @@ const handleImageUpload = (event) => {
 const editEventDialog = ref(false);
 const editableEvent = ref({});
 
-const openEditDialog = (event) => {
-  editableEvent.value = { ...event };
-  editEventDialog.value = true;
-};
-
 // Função para salvar as edições no evento
 const saveEditedEvent = () => {
   const index = events.value.findIndex(e => e.id === editableEvent.value.id);
@@ -539,6 +542,20 @@ const handleEditImageUpload = (event) => {
     };
     reader.readAsDataURL(file);
   }
+};
+
+const getPlayersForEvent = async (event_fk) => {
+  await axios.get('/rl_events_users/list_players', {
+    params: {
+      events_fk: event_fk
+    }
+  })
+  .then((response) => {
+    console.log("Players:", response.data);
+  })
+  .catch((error) => {
+    console.error("Erro ao buscar jogadores:", error);
+  })
 };
 </script>
 
