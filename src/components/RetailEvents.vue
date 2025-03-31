@@ -8,9 +8,7 @@
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto">
-
     <v-card class="pb-12" min-height="500px" color="#151515">
-
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
@@ -21,33 +19,6 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-
-        <!--
-
-        <v-row class="black-bar SortBy align-center text-white">
-          <v-col cols="2">
-            Sort by:
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'date' }" @click="sortBy = 'date'">
-              DATE
-            </v-btn>
-          </v-col>
-          <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'location' }"
-              @click="sortBy = 'location'">
-              LOCATION
-            </v-btn>
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'store' }" @click="sortBy = 'store'">
-              STORE
-            </v-btn>
-          </v-col>
-        </v-row>
-
-        -->
-
         <v-row>
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
             <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
@@ -103,7 +74,6 @@
             <v-card-title class="ml-2 font-weight-bold">
               {{ selectedStore?.storename }}
             </v-card-title>
-
             <v-card-text>
               <p><strong>Description:</strong> {{ selectedEvent?.eventdesc }}</p>
               <br>
@@ -112,7 +82,6 @@
               <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{
                 selectedEvent?.ampm }} </p>
             </v-card-text>
-
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
@@ -120,7 +89,6 @@
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">{{ selectedStore?.storename || "Select a store" }}</h3>
-
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
                     {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, {{
@@ -132,7 +100,6 @@
                 </v-col>
               </v-row>
             </v-card>
-
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
               <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
@@ -147,10 +114,6 @@
                 </v-col>
               </v-row>
             </v-card-text>
-
-
-
-
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
                 <v-btn block color="#907041" class="rounded-0" @click="joinEvent">Maybe I’ll Go</v-btn>
@@ -159,18 +122,13 @@
                 <v-btn block color="#539041" class="rounded-0" @click="joinEvent">Count me in</v-btn>
               </v-col>
             </v-row>
-
           </v-card>
         </v-dialog>
-
       </div>
 
       <div v-if="activeTab === 2">
-
-
         <v-row class="CreateNew align-center bg-gray text-white">
           <v-col cols="2">
-
           </v-col>
           <v-col cols="3">
             <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
@@ -189,8 +147,6 @@
             </v-btn>
           </v-col>
         </v-row>
-
-
         <v-dialog v-model="createEventDialog" max-width="1280">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -202,38 +158,31 @@
                   <v-select v-model="newEvent.store" :items="stores.map(store => store.storename,)" label="STORE"
                     variant="outlined" />
                 </v-col>
-
                 <!-- Descrição -->
                 <v-col cols="12">
                   <v-textarea v-model="newEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
                     variant="outlined"></v-textarea>
                 </v-col>
-
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="12" md="6">
                   <v-select v-model="newEvent.seats" :items="[1, 2, 3, 4]" label="SEATS" variant="outlined"></v-select>
                 </v-col>
-
                 <v-col cols="6" md="6">
                   <v-select v-model="newEvent.scenario"
                     :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO"
                     variant="outlined"></v-select>
                 </v-col>
-
                 <v-col cols="6" md="3">
                   <v-text-field v-model="newEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
                     maxlength="5" @input="handleTimeInput"></v-text-field>
                 </v-col>
-
                 <v-col cols="6" md="2">
                   <v-select v-model="newEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
                 </v-col>
-
                 <v-col cols="12" md="2" class="d-flex align-center">
                   <v-text-field v-model="newEvent.date" label="DATE" type="date" variant="outlined"
                     class="date-input"></v-text-field>
                 </v-col>
-
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
@@ -250,7 +199,6 @@
                     </v-row>
                   </v-row>
                 </v-col>
-
                 <v-col cols="12">
                   <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
                 </v-col>
@@ -258,33 +206,6 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-
-
-        <!--
-
-        <v-row class="SortBy align-center  text-white">
-          <v-col cols="2">
-
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text">
-              Sort by:
-            </v-btn>
-          </v-col>
-          <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'date' }" @click="sortBy = 'date'">
-              DATE
-            </v-btn>
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'store' }" @click="sortBy = 'store'">
-              STORE
-            </v-btn>
-          </v-col>
-        </v-row>
-
-      -->
-
         <v-row>
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
             <v-card color="white" max-height="190" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
@@ -294,7 +215,6 @@
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </v-col>
-
                 <v-col cols="6" sm="8" class="pl-3 pt-2">
                   <h3 class="">{{ event.store }}</h3>
                   <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.store
@@ -318,48 +238,39 @@
             </v-card>
           </v-col>
         </v-row>
-
         <!-- v-dialog (Janela Modal) -->
         <v-dialog v-model="editEventDialog" max-width="1024">
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
                 <!-- Nome do Evento -->
-
-
                 <!-- Descrição -->
                 <v-col cols="12">
                   <v-textarea v-model="editableEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
                     variant="outlined"></v-textarea>
                 </v-col>
-
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="6" md="6">
                   <v-select v-model="editableEvent.eventseats" :items="[1, 2, 3, 4]" label="SEATS"
                     variant="outlined"></v-select>
                 </v-col>
-
                 <v-col cols="6" md="6">
                   <v-select v-model="editableEvent.cenary"
                     :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY"
                     variant="outlined"></v-select>
                 </v-col>
-
                 <v-col cols="6" md="3">
                   <v-text-field v-model="editableEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
                     maxlength="5"></v-text-field>
                 </v-col>
-
                 <v-col cols="6" md="2">
                   <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM"
                     variant="outlined"></v-select>
                 </v-col>
-
                 <v-col cols="12" md="2" class="d-flex align-center">
                   <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
                     class="date-input"></v-text-field>
                 </v-col>
-
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
@@ -373,7 +284,6 @@
                     </v-col>
                   </v-row>
                 </v-col>
-
                 <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
                   <v-btn color="red" @click="editEventDialog = false">Cancel</v-btn>
@@ -383,35 +293,17 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-
-
-
-
-
-
-
-
       </div>
-
-
-
-
-
-
     </v-card>
   </v-col>
-
-
-
 </template>
 
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
+import { useEventStore } from "@/store/EventStore";
 
-
-
-
+const eventStore = useEventStore();
 
 const handleTimeInput = (event) => {
   let raw = event.target.value.replace(/\D/g, ""); // remove tudo que não for número
@@ -485,9 +377,7 @@ const selectedStore = computed(() => {
 });
 
 // Sample Events Data
-const events = ref([
-
-]);
+const events = ref([]);
 
 // Sorting Logic
 const sortedEvents = computed(() => {
@@ -523,10 +413,6 @@ const addEvent = () => {
     createEventDialog.value = false;
   }
 };
-
-
-
-
 
 // **Função para deletar um evento**
 const deleteEvent = (eventId) => {
@@ -616,10 +502,8 @@ const handleImageUpload = (event) => {
   }
 };
 
-
 const editEventDialog = ref(false);
 const editableEvent = ref({});
-
 
 const openEditDialog = (event) => {
   editableEvent.value = { ...event };
@@ -656,9 +540,6 @@ const handleEditImageUpload = (event) => {
     reader.readAsDataURL(file);
   }
 };
-
-
-
 </script>
 
 <style scoped>
