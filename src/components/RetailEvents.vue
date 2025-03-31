@@ -244,7 +244,7 @@
 
                 <v-col cols="12" md="2" class="d-flex align-center">
                   <v-text-field v-model="newEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input"></v-text-field>
+                    class="date-input" :min="today" :max="oneYearFromTodayISO" :rules="dateRules" ></v-text-field>
                 </v-col>
 
                 <!-- Recompensas -->
@@ -298,7 +298,7 @@
 
         <v-row>
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
-            <v-card color="white" max-height="190" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
+            <v-card color="white" max-height="130" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
               <v-row no-gutters>
                 <v-col cols="auto" class="redbutton pt-13 pl-3">
                   <v-btn color="#AB2929" icon class="delete-btn" @click.stop="deleteEvent(event.id)">
@@ -306,20 +306,66 @@
                   </v-btn>
                 </v-col>
 
-                <v-col cols="6" sm="8" class="pl-3 pt-2">
-                  <h3 class="">{{ event.store }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.store
-                    }}</p>
-                  <p class="text-caption">
-                    Rewards:
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="30" width="30" contain class="reward-icon"></v-img>
-                      </v-col>
-                    </v-row>
-                  <p class=" text-right text-caption">{{ event.date }}</p>
-                  </p>
-                </v-col>
+                <v-col cols="8" sm="" class="pt-6 pr-3">
+    <v-row no-gutters>
+      <v-col cols="4" sm="2">
+        <div class="text-center ml-2 pr-3" style="width: 70px; color: black;">
+          <p class="pt-3 text-caption font-weight-bold">
+            {{
+              new Date(event.date).toLocaleDateString('en-US', {
+                month: 'short'
+              }).toUpperCase()
+            }}
+          </p>
+          <p color="primary" class="cinzel-text text-h3 font-weight-bold">
+            {{
+              String(event.date).split('-')[2]
+            }}
+          </p>
+          <p class="text-caption font-weight-bold">
+            {{ event.hour }}{{ event.ampm }}
+          </p>
+        </div>
+      </v-col>
+
+      <v-col cols="8" sm="10" class="pt-2 pl-2">
+        <h3 class="pb-1">
+          <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+          {{ event.store }}
+        </h3>
+
+        <p class="text-caption text-truncate">
+          <v-icon color="red">mdi-map-marker</v-icon>
+          {{ event.address }}
+        </p>
+
+        <p class="text-caption" v-if="event.scenario">
+          <v-icon color="red">mdi-sword-cross</v-icon>
+          Scenario: {{ event.scenario }}
+        </p>
+
+        <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+          <v-row class="d-flex align-center rewards-container">
+            <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+            Rewards:
+            <v-col
+              cols="auto"
+              v-for="(reward, index) in event.rewards"
+              :key="index"
+            >
+              <v-img
+                :src="reward.image"
+                height="20"
+                width="20"
+                contain
+                class="reward-icon"
+              ></v-img>
+            </v-col>
+          </v-row>
+        </p>
+      </v-col>
+    </v-row>
+</v-col>
               </v-row>
               <v-col cols="auto" class="editbutton pt-13 pl-3">
                 <v-btn color="white" icon class="delete-btn" @click="openEditDialog(event)">
@@ -351,7 +397,7 @@
                 </v-col>
 
                 <v-col cols="6" md="6">
-                  <v-select v-model="editableEvent.cenary" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY" variant="outlined"></v-select>
+                  <v-select v-model="editableEvent.scenario" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO" variant="outlined"></v-select>
                 </v-col>
 
                 <v-col cols="6" md="3">
@@ -365,7 +411,7 @@
 
                 <v-col cols="12" md="2" class="d-flex align-center">
                   <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input"></v-text-field>
+                    class="date-input" :min="today" :max="oneYearFromTodayISO" :rules="dateRules"></v-text-field>
                 </v-col>
 
                 <!-- Recompensas -->
@@ -417,20 +463,35 @@
 import { ref, computed, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 
+const dateRules = [
+  (value) => {
+    if (!value) return 'Date is required.'
 
+    const inputDate = new Date(value)
+    if (inputDate < today) return 'Date cannot be in the past.'
 
+    if (inputDate > oneYearFromToday)
+      return 'Date cannot be more than 1 year from today.'
 
+    return true
+  }
+]
+
+const today = new Date()
+const todayISO = today.toISOString().split('T')[0]
+
+const oneYearFromToday = new Date()
+oneYearFromToday.setFullYear(today.getFullYear() + 1)
+const oneYearFromTodayISO = oneYearFromToday.toISOString().split('T')[0]
 
 const handleTimeInput = (event) => {
-  let raw = event.target.value.replace(/\D/g, ""); // remove tudo que não for número
+  let raw = event.target.value.replace(/\D/g, ""); 
 
-  // Força 4 dígitos no máximo
   raw = raw.slice(0, 4);
 
   let hh = raw.slice(0, 2);
   let mm = raw.slice(2, 4);
 
-  // Limita hora (01 a 12)
   if (hh.length === 2) {
     let h = parseInt(hh);
     if (h < 1) hh = "01";
@@ -438,14 +499,12 @@ const handleTimeInput = (event) => {
     else hh = h.toString().padStart(2, "0");
   }
 
-  // Limita minutos (00 a 59)
   if (mm.length === 2) {
     let m = parseInt(mm);
     if (m > 59) mm = "59";
     else mm = m.toString().padStart(2, "0");
   }
 
-  // Atualiza model formatado
   if (mm) {
     newEvent.value.hour = `${hh}:${mm}`;
   } else {
@@ -468,13 +527,11 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
-// Função para abrir o diálogo e definir o evento selecionado
 const openDialog = (event) => {
   selectedEvent.value = event;
   dialog.value = true;
 };
 
-// Simula a função de "Entrar no Evento"
 const joinEvent = () => {
   alert(`You have joined the event: ${selectedEvent.value.name}`);
   dialog.value = false;
@@ -492,12 +549,10 @@ const selectedStore = computed(() => {
   return stores.value.find(s => s.storename === selectedEvent.value?.store) || {};
 });
 
-// Sample Events Data
 const events = ref([  
   
 ]);
 
-// Sorting Logic
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -505,18 +560,17 @@ const sortedEvents = computed(() => {
   return events.value;
 });
 
-// Função para adicionar um evento na lista
 const addEvent = () => {
   if (newEvent.value.location && newEvent.value.date && newEvent.value.location) {
-    // Clona o evento e adiciona à lista de eventos
     events.value.push({
       ...newEvent.value,
-      rewards: [...selectedRewards.value], // Apenas os rewards selecionados são adicionados
-      id: Date.now(), // Gera um ID único
-      createdByUser: true, // Marca que este evento foi criado pelo usuário
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
     });
 
-    // Resetando os campos do formulário
+    localStorage.setItem("userEvents", JSON.stringify(events.value));
+
     newEvent.value = {
       location: "Shopping Drunagor",
       eventdesc: "",
@@ -526,28 +580,31 @@ const addEvent = () => {
       rewards: [],
     };
 
-    selectedRewards.value = []; // Limpa a seleção de rewards
+    selectedRewards.value = [];
 
     createEventDialog.value = false;
   }
 };
 
 
+onMounted(() => {
+  const savedEvents = localStorage.getItem("userEvents");
+  if (savedEvents) {
+    events.value = JSON.parse(savedEvents);
+  }
+});
 
 
 
-// **Função para deletar um evento**
 const deleteEvent = (eventId) => {
-  // Remove o evento da lista geral
   events.value = events.value.filter((event) => event.id !== eventId);
+  localStorage.setItem("userEvents", JSON.stringify(events.value));
 };
 
-// **Propriedade Computada**: Retorna apenas os eventos criados pelo usuário
 const userCreatedEvents = computed(() => {
   return events.value.filter((event) => event.createdByUser);
 });
 
-// Lista de rewards disponíveis para seleção
 const availableRewards = ref([
   {
     name: "Vorn Armor",
@@ -572,7 +629,6 @@ const availableRewards = ref([
   },
 ]);
 
-// Estado para controlar a visibilidade do diálogo
 const createEventDialog = ref(false);
 const newEvent = ref({
   location: "Shopping Drunagor",
@@ -602,7 +658,6 @@ watch(
   }
 );
 
-// Recupera as lojas salvas ao iniciar a página
 onMounted(() => {
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 });
@@ -616,11 +671,10 @@ const openCreateEventDialog = () => {
   createEventDialog.value = true;
 };
 
-// Função para lidar com o upload da imagem
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
-    newEvent.value.image = URL.createObjectURL(file); // Converte para URL temporária
+    newEvent.value.image = URL.createObjectURL(file);
   }
 };
 
@@ -634,7 +688,6 @@ const openEditDialog = (event) => {
   editEventDialog.value = true;
 };
 
-// Função para salvar as edições no evento
 const saveEditedEvent = () => {
   const index = events.value.findIndex(e => e.id === editableEvent.value.id);
   if (index !== -1) {
@@ -643,7 +696,6 @@ const saveEditedEvent = () => {
   editEventDialog.value = false;
 };
 
-// Alternar seleção de recompensas no modo edição
 const toggleEditReward = (reward) => {
   const index = editableEvent.value.rewards.findIndex(r => r === reward);
   if (index === -1) {
@@ -653,24 +705,12 @@ const toggleEditReward = (reward) => {
   }
 };
 
-// Upload de imagem no modo edição
-const handleEditImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editableEvent.value.image = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
 
 
 
 </script>
 
 <style scoped>
-/* Event Card */
 .event-card {
   display: flex;
   align-items: center;
