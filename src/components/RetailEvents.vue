@@ -54,50 +54,40 @@
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
                   <div class="text-center ml-3" style="width: 70px; color: black;">
-  <p class="pt-3 text-caption font-weight-bold">
-    {{
-      new Date(event.date).toLocaleDateString('en-US', {
-        month: 'short'
-      }).toUpperCase()
-    }}
-  </p>
-  <p color="primary" class="cinzel-text text-h3  font-weight-bold">
-    {{
-      String(event.date).split('-')[2]
-    }}
-  </p>
-  <p class="text-caption font-weight-bold">
-    {{ event.hour }}{{ event.ampm }}
-  </p>
-</div>
+                    <p class="pt-3 text-caption font-weight-bold">
+                      {{
+                        new Date(event.date).toLocaleDateString('en-US', {
+                          month: 'short'
+                      }).toUpperCase()
+                      }}
+                    </p>
+                    <p color="primary" class="cinzel-text text-h3  font-weight-bold">
+                      {{
+                        String(event.date).split('-')[2]
+                      }}
+                    </p>
+                    <p class="text-caption font-weight-bold">
+                      {{ event.hour }}{{ event.ampm }}
+                    </p>
+                  </div>
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1" > <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }} </p>
-                     <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon> Scenario: {{ event.scenario }}
+                  <h3 class="pb-1"> <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{
+                    event.store }}</h3>
+                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }}
                   </p>
-                    
-                    
+                  <p class="text-caption">
+                    <v-icon color="red">mdi-sword-cross</v-icon> Scenario: {{ event.scenario }}
+                  </p>
                   <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
-  <v-row class="d-flex align-center rewards-container">
-    <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-    Rewards:
-    <v-col
-      cols="auto"
-      v-for="(reward, index) in event.rewards"
-      :key="index"
-    >
-      <v-img
-        :src="reward.image"
-        height="20"
-        width="20"
-        contain
-        class="reward-icon"
-      ></v-img>
-    </v-col>
-  </v-row>
-</p>
+                    <v-row class="d-flex align-center rewards-container">
+                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                      Rewards:
+                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
+                        <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
+                      </v-col>
+                    </v-row>
+                  </p>
                 </v-col>
               </v-row>
             </v-card>
@@ -133,8 +123,9 @@
 
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, {{ selectedStore?.city }}, {{
-                    selectedStore?.state }}
+                    {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, {{
+                    selectedStore?.city }}, {{
+                      selectedStore?.state }}
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0">
@@ -224,19 +215,15 @@
                 </v-col>
 
                 <v-col cols="6" md="6">
-                  <v-select v-model="newEvent.scenario" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO" variant="outlined"></v-select>
+                  <v-select v-model="newEvent.scenario"
+                    :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO"
+                    variant="outlined"></v-select>
                 </v-col>
 
                 <v-col cols="6" md="3">
-  <v-text-field
-    v-model="newEvent.hour"
-    label="TIME"
-    variant="outlined"
-    placeholder="HH:MM"
-    maxlength="5"
-    @input="handleTimeInput"
-  ></v-text-field>
-</v-col>
+                  <v-text-field v-model="newEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
+                    maxlength="5" @input="handleTimeInput"></v-text-field>
+                </v-col>
 
                 <v-col cols="6" md="2">
                   <v-select v-model="newEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
@@ -251,8 +238,10 @@
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
-                    <v-row :class="{ 'selected-reward': selectedRewards.includes(reward), 'unselected-reward': !selectedRewards.includes(reward) }"
-                    @click="toggleReward(reward)" cols="auto" v-for="(reward, index) in availableRewards" :key="index">
+                    <v-row
+                      :class="{ 'selected-reward': selectedRewards.includes(reward), 'unselected-reward': !selectedRewards.includes(reward) }"
+                      @click="toggleReward(reward)" cols="auto" v-for="(reward, index) in availableRewards"
+                      :key="index">
                       <v-avatar class="ml-4 mt-4" size="70">
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
@@ -309,7 +298,7 @@
                 <v-col cols="6" sm="8" class="pl-3 pt-2">
                   <h3 class="">{{ event.store }}</h3>
                   <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.store
-                    }}</p>
+                  }}</p>
                   <p class="text-caption">
                     Rewards:
                     <v-row class="d-flex align-center rewards-container">
@@ -351,7 +340,9 @@
                 </v-col>
 
                 <v-col cols="6" md="6">
-                  <v-select v-model="editableEvent.cenary" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY" variant="outlined"></v-select>
+                  <v-select v-model="editableEvent.cenary"
+                    :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY"
+                    variant="outlined"></v-select>
                 </v-col>
 
                 <v-col cols="6" md="3">
@@ -360,7 +351,8 @@
                 </v-col>
 
                 <v-col cols="6" md="2">
-                  <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
+                  <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM"
+                    variant="outlined"></v-select>
                 </v-col>
 
                 <v-col cols="12" md="2" class="d-flex align-center">
@@ -485,7 +477,7 @@ const sortBy = ref("date");
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(s => s.storename === selectedEvent.value?.store);
-  return store ? store.storeImage : "https://via.placeholder.com/150"; 
+  return store ? store.storeImage : "https://via.placeholder.com/150";
 });
 
 const selectedStore = computed(() => {
@@ -493,8 +485,8 @@ const selectedStore = computed(() => {
 });
 
 // Sample Events Data
-const events = ref([  
-  
+const events = ref([
+
 ]);
 
 // Sorting Logic
