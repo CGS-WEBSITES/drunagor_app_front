@@ -29,10 +29,10 @@
                       {{
                         new Date(event.date).toLocaleDateString('en-US', {
                           month: 'short'
-                      }).toUpperCase()
+                        }).toUpperCase()
                       }}
                     </p>
-                    <p color="primary" class="cinzel-text text-h3  font-weight-bold">
+                    <p color="primary" class="cinzel-text text-h3 font-weight-bold">
                       {{
                         String(event.date).split('-')[2]
                       }}
@@ -43,9 +43,12 @@
                   </div>
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1"> <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{
-                    event.store }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }}
+                  <h3 class="pb-1">
+                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                    {{ event.store }}
+                  </h3>
+                  <p class="text-caption text-truncate">
+                    <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }}
                   </p>
                   <p class="text-caption">
                     <v-icon color="red">mdi-sword-cross</v-icon> Scenario: {{ event.scenario }}
@@ -65,7 +68,7 @@
           </v-col>
         </v-row>
 
-        <!-- v-dialog (Janela Modal) -->
+        <!-- Diálogo para visualização do evento -->
         <v-dialog v-model="dialog" max-width="600">
           <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
@@ -79,8 +82,9 @@
               <br>
               <p> Disponible Seats: {{ selectedEvent?.eventseats }} </p>
               <br>
-              <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{
-                selectedEvent?.ampm }} </p>
+              <p class="text-end scheduled-box">
+                Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }}
+              </p>
             </v-card-text>
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
@@ -88,16 +92,16 @@
                   <v-img :src="selectedStore?.storeImage" class="event-img"></v-img>
                 </v-col>
                 <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">{{ selectedStore?.storename || "Select a store" }}</h3>
+                  <h3 class="text-subtitle-1 font-weight-bold">
+                    {{ selectedStore?.storename || "Select a store" }}
+                  </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, {{
-                    selectedStore?.city }}, {{
-                      selectedStore?.state }}
+                    {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, 
+                    {{ selectedStore?.city }}, {{ selectedStore?.state }}
                   </p>
                 </v-col>
-                <v-col cols="2" class="text-right pa-0">
-                </v-col>
+                <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
             <v-card-text>
@@ -128,8 +132,7 @@
 
       <div v-if="activeTab === 2">
         <v-row class="CreateNew align-center bg-gray text-white">
-          <v-col cols="2">
-          </v-col>
+          <v-col cols="2"></v-col>
           <v-col cols="3">
             <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
               <v-icon>mdi-plus-box-outline</v-icon>
@@ -137,14 +140,10 @@
             </v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" @click="">
-              PAST
-            </v-btn>
+            <v-btn variant="text" class="sort-btn" @click="">PAST</v-btn>
           </v-col>
           <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" @click="">
-              LIVE
-            </v-btn>
+            <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
           </v-col>
         </v-row>
         <v-dialog v-model="createEventDialog" max-width="1280">
@@ -155,7 +154,7 @@
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="12">
-                  <v-select v-model="newEvent.store" :items="stores.map(store => store.storename,)" label="STORE"
+                  <v-select v-model="newEvent.store" :items="stores.map(store => store.storename)" label="STORE"
                     variant="outlined" />
                 </v-col>
                 <!-- Descrição -->
@@ -217,8 +216,9 @@
                 </v-col>
                 <v-col cols="6" sm="8" class="pl-3 pt-2">
                   <h3 class="">{{ event.store }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.store
-                  }}</p>
+                  <p class="text-caption text-truncate">
+                    <v-icon color="red">mdi-map-marker</v-icon> {{ event.store }}
+                  </p>
                   <p class="text-caption">
                     Rewards:
                     <v-row class="d-flex align-center rewards-container">
@@ -226,7 +226,7 @@
                         <v-img :src="reward.image" height="30" width="30" contain class="reward-icon"></v-img>
                       </v-col>
                     </v-row>
-                  <p class=" text-right text-caption">{{ event.date }}</p>
+                    <p class="text-right text-caption">{{ event.date }}</p>
                   </p>
                 </v-col>
               </v-row>
@@ -238,7 +238,7 @@
             </v-card>
           </v-col>
         </v-row>
-        <!-- v-dialog (Janela Modal) -->
+        <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
         <v-dialog v-model="editEventDialog" max-width="1024">
           <v-card class="pa-6 dark-background">
             <v-card-text>
@@ -280,6 +280,7 @@
                     </v-col>
                   </v-row>
                 </v-col>
+                <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
                 <v-col cols="12" v-if="!isEditable">
                   <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
                   <v-row>
@@ -289,10 +290,10 @@
                           <p>{{ player.name }} - Status: {{ player.status }}</p>
                         </v-col>
                         <v-col cols="3">
-                          <v-btn color="green" @click="updatePlayerStatus(player, 'Aceito')">Aceito</v-btn>
+                          <v-btn color="green" @click="updatePlayerStatus(player, grantedStatus)">Granted Passage</v-btn>
                         </v-col>
                         <v-col cols="3">
-                          <v-btn color="red" @click="updatePlayerStatus(player, 'Recusado')">Recusado</v-btn>
+                          <v-btn color="red" @click="updatePlayerStatus(player, turnedAwayStatus)">Turned Away</v-btn>
                         </v-col>
                       </v-row>
                     </v-col>
@@ -341,52 +342,73 @@ const openEditDialog = (event, editable = false) => {
 
 // Lista de players de exemplo para simular a resposta da API
 const samplePlayers = ref([
-  { id: 1, name: "Player One", status: "Pendente" },
-  { id: 2, name: "Player Two", status: "Pendente" },
-  { id: 3, name: "Player Three", status: "Pendente" },
-  { id: 4, name: "Player Four", status: "Pendente" },
-  { id: 5, name: "Player Five", status: "Pendente" },
-  { id: 6, name: "Player Six", status: "Pendente" },
+  { id: 1, name: "Player One", status: "Seeks Entry" },
+  { id: 2, name: "Player Two", status: "Seeks Entry" },
+  { id: 3, name: "Player Three", status: "Seeks Entry" },
 ]);
 
-// Para fins de exemplo, usamos os players de exemplo
 const players = ref([...samplePlayers.value]);
-
 const currentPage = ref(1);
 const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
-
 const paginatedPlayers = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   return players.value.slice(start, start + pageSize);
 });
 
-const fetchPlayers = () => {
-  // axios.get('/rl_events_users/list_players', { params: { events_fk: selectedEvent.value.id } })
-  //   .then(response => {
-  //     players.value = response.data;
-  //   })
-  //   .catch(error => {
-  //     console.error("Erro ao buscar jogadores:", error);
-  //   });
-  players.value = [...samplePlayers.value];
-};
-
 const statuses = ref([]);
+
+// O status predefinido é "Seeks Entry", e os botões usam os seguintes status:
+// "Granted Passage" e "Turned Away"
+const grantedStatus = ref(null);
+const turnedAwayStatus = ref(null);
+
 const fetchStatuses = () => {
   axios.get('/event_status/search')
     .then(response => {
-      statuses.value = response.data;
+      statuses.value = response.data.event_status;
+      // Filtra os status desejados
+      grantedStatus.value = statuses.value.find(s => s.name === "Granted Passage")?.event_status_pk;
+      turnedAwayStatus.value = statuses.value.find(s => s.name === "Turned Away")?.event_status_pk;
+      console.log('Status:', statuses.value);
     })
     .catch(error => {
       console.error("Erro ao buscar status:", error);
     });
 };
 
+const fetchPlayers = () => {
+  axios.get('/rl_events_users/list_players', { 
+    params: { events_fk: 41 } 
+  })
+  .then(response => {
+    players.value = response.data;
+    console.log('Players:', players.value);
+  })
+  .catch(error => {
+    console.error("Erro ao buscar jogadores:", error);
+  });
+  // players.value = [...samplePlayers.value];
+};
+
+onMounted(() => {
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+  console.log('appUser:', appUser);
+  
+  // Busca status e players ao montar
+  fetchStatuses();
+  fetchPlayers();
+
+  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+});
+
 const updatePlayerStatus = (player, newStatus) => {
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
   axios.post('/rl_events_users/cadastro', {
-    playerId: player.id,
-    eventId: selectedEvent.value.id,
+    users_fk: appUser,
+    events_fk: selectedEvent.value.id,
     status: newStatus
   })
   .then(response => {
@@ -399,30 +421,21 @@ const updatePlayerStatus = (player, newStatus) => {
 };
 
 const handleTimeInput = (event) => {
-  let raw = event.target.value.replace(/\D/g, ""); // remove tudo que não for número
-
-  // Força 4 dígitos no máximo
+  let raw = event.target.value.replace(/\D/g, "");
   raw = raw.slice(0, 4);
-
   let hh = raw.slice(0, 2);
   let mm = raw.slice(2, 4);
-
-  // Limita hora (01 a 12)
   if (hh.length === 2) {
     let h = parseInt(hh);
     if (h < 1) hh = "01";
     else if (h > 12) hh = "12";
     else hh = h.toString().padStart(2, "0");
   }
-
-  // Limita minutos (00 a 59)
   if (mm.length === 2) {
     let m = parseInt(mm);
     if (m > 59) mm = "59";
     else mm = m.toString().padStart(2, "0");
   }
-
-  // Atualiza model formatado
   if (mm) {
     newEvent.value.hour = `${hh}:${mm}`;
   } else {
@@ -445,13 +458,11 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
-// Função para abrir o diálogo e definir o evento selecionado
 const openDialog = (event) => {
   selectedEvent.value = event;
   dialog.value = true;
 };
 
-// Simula a função de "Entrar no Evento"
 const joinEvent = () => {
   alert(`You have joined the event: ${selectedEvent.value.name}`);
   dialog.value = false;
@@ -472,7 +483,6 @@ const selectedStore = computed(() => {
 // Sample Events Data
 const events = ref([]);
 
-// Sorting Logic
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -480,18 +490,14 @@ const sortedEvents = computed(() => {
   return events.value;
 });
 
-// Função para adicionar um evento na lista
 const addEvent = () => {
   if (newEvent.value.location && newEvent.value.date && newEvent.value.location) {
-    // Clona o evento e adiciona à lista de eventos
     events.value.push({
       ...newEvent.value,
-      rewards: [...selectedRewards.value], // Apenas os rewards selecionados são adicionados
-      id: Date.now(), // Gera um ID único
-      createdByUser: true, // Marca que este evento foi criado pelo usuário
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
     });
-
-    // Resetando os campos do formulário
     newEvent.value = {
       location: "Shopping Drunagor",
       eventdesc: "",
@@ -500,50 +506,37 @@ const addEvent = () => {
       hour: "",
       rewards: [],
     };
-
-    selectedRewards.value = []; // Limpa a seleção de rewards
-
+    selectedRewards.value = [];
     createEventDialog.value = false;
   }
 };
 
-// **Função para deletar um evento**
 const deleteEvent = (eventId) => {
-  // Remove o evento da lista geral
   events.value = events.value.filter((event) => event.id !== eventId);
 };
 
-// **Propriedade Computada**: Retorna apenas os eventos criados pelo usuário
 const userCreatedEvents = computed(() => {
   return events.value.filter((event) => event.createdByUser);
 });
 
-// Lista de rewards disponíveis para seleção
 const availableRewards = ref([
   {
     name: "Vorn Armor",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    image: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
+    description: "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   },
   {
     name: "Jaheen Shield",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    image: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
+    description: "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
   },
   {
     name: "Lorelai Kiss",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
+    image: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
+    description: "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
   },
 ]);
 
-// Estado para controlar a visibilidade do diálogo
 const createEventDialog = ref(false);
 const newEvent = ref({
   location: "Shopping Drunagor",
@@ -563,7 +556,6 @@ watch(
     const selectedStore = stores.value.find(
       (store) => store.storename === selectedStoreName
     );
-
     if (selectedStore) {
       const { address, streetNumber, complement, city, state } = selectedStore;
       newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
@@ -573,9 +565,11 @@ watch(
   }
 );
 
-// Recupera as lojas salvas ao iniciar a página
 onMounted(() => {
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+  console.log('appUser:', appUser);
 });
 
 const createEvent = () => {
@@ -587,18 +581,16 @@ const openCreateEventDialog = () => {
   createEventDialog.value = true;
 };
 
-// Função para lidar com o upload da imagem
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
-    newEvent.value.image = URL.createObjectURL(file); // Converte para URL temporária
+    newEvent.value.image = URL.createObjectURL(file);
   }
 };
 
 const editEventDialog = ref(false);
 const editableEvent = ref({});
 
-// Função para salvar as edições no evento
 const saveEditedEvent = () => {
   const index = events.value.findIndex(e => e.id === editableEvent.value.id);
   if (index !== -1) {
@@ -607,7 +599,6 @@ const saveEditedEvent = () => {
   editEventDialog.value = false;
 };
 
-// Alternar seleção de recompensas no modo edição
 const toggleEditReward = (reward) => {
   const index = editableEvent.value.rewards.findIndex(r => r === reward);
   if (index === -1) {
@@ -617,7 +608,6 @@ const toggleEditReward = (reward) => {
   }
 };
 
-// Upload de imagem no modo edição
 const handleEditImageUpload = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -640,7 +630,7 @@ const getPlayersForEvent = async (event_fk) => {
   })
   .catch((error) => {
     console.error("Erro ao buscar jogadores:", error);
-  })
+  });
 };
 </script>
 
