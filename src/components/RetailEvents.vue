@@ -345,6 +345,12 @@ const samplePlayers = ref([
   { id: 1, name: "Player One", status: "Seeks Entry" },
   { id: 2, name: "Player Two", status: "Seeks Entry" },
   { id: 3, name: "Player Three", status: "Seeks Entry" },
+  { id: 4, name: "Player Four", status: "Seeks Entry" },
+  { id: 5, name: "Player Five", status: "Seeks Entry" },
+  { id: 6, name: "Player Six", status: "Seeks Entry" },
+  { id: 7, name: "Player Seven", status: "Seeks Entry" },
+  { id: 8, name: "Player Eight", status: "Seeks Entry" },
+  { id: 9, name: "Player Nine", status: "Seeks Entry" }
 ]);
 
 const players = ref([...samplePlayers.value]);
