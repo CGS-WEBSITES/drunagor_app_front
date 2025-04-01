@@ -243,13 +243,10 @@
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
-                <!-- Nome do Evento -->
-                <!-- Descrição -->
                 <v-col cols="12">
                   <v-textarea v-model="editableEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
                     variant="outlined" :disabled="!isEditable"></v-textarea>
                 </v-col>
-                <!-- Assentos + Data/Hora -->
                 <v-col cols="6" md="6">
                   <v-select v-model="editableEvent.eventseats" :items="[1, 2, 3, 4]" label="SEATS"
                     variant="outlined" :disabled="!isEditable"></v-select>
@@ -271,7 +268,6 @@
                   <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
                     class="date-input" :disabled="!isEditable"></v-text-field>
                 </v-col>
-                <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
@@ -281,6 +277,27 @@
                         @click="isEditable && toggleEditReward(reward)">
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col cols="12" v-if="!isEditable">
+                  <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
+                  <v-row>
+                    <v-col cols="12" v-for="(player, index) in paginatedPlayers" :key="player.id">
+                      <v-row align="center">
+                        <v-col cols="6">
+                          <p>{{ player.name }} - Status: {{ player.status }}</p>
+                        </v-col>
+                        <v-col cols="3">
+                          <v-btn color="green" @click="updatePlayerStatus(player, 'Aceito')">Aceito</v-btn>
+                        </v-col>
+                        <v-col cols="3">
+                          <v-btn color="red" @click="updatePlayerStatus(player, 'Recusado')">Recusado</v-btn>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                    <v-col cols="12" class="d-flex justify-center">
+                      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
                     </v-col>
                   </v-row>
                 </v-col>
@@ -299,9 +316,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
+
+const axios = inject("axios");
+if (!axios) {
+  throw new Error("Axios não foi injetado na aplicação.");
+}
 
 const eventStore = useEventStore();
 
@@ -311,6 +333,69 @@ const openEditDialog = (event, editable = false) => {
   editableEvent.value = { ...event };
   isEditable.value = editable;
   editEventDialog.value = true;
+  if (!editable) {
+    fetchPlayers();
+    fetchStatuses();
+  }
+};
+
+// Lista de players de exemplo para simular a resposta da API
+const samplePlayers = ref([
+  { id: 1, name: "Player One", status: "Pendente" },
+  { id: 2, name: "Player Two", status: "Pendente" },
+  { id: 3, name: "Player Three", status: "Pendente" },
+  { id: 4, name: "Player Four", status: "Pendente" },
+  { id: 5, name: "Player Five", status: "Pendente" },
+  { id: 6, name: "Player Six", status: "Pendente" },
+]);
+
+// Para fins de exemplo, usamos os players de exemplo
+const players = ref([...samplePlayers.value]);
+
+const currentPage = ref(1);
+const pageSize = 5;
+const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
+
+const paginatedPlayers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return players.value.slice(start, start + pageSize);
+});
+
+const fetchPlayers = () => {
+  // axios.get('/rl_events_users/list_players', { params: { events_fk: selectedEvent.value.id } })
+  //   .then(response => {
+  //     players.value = response.data;
+  //   })
+  //   .catch(error => {
+  //     console.error("Erro ao buscar jogadores:", error);
+  //   });
+  players.value = [...samplePlayers.value];
+};
+
+const statuses = ref([]);
+const fetchStatuses = () => {
+  axios.get('/event_status/search')
+    .then(response => {
+      statuses.value = response.data;
+    })
+    .catch(error => {
+      console.error("Erro ao buscar status:", error);
+    });
+};
+
+const updatePlayerStatus = (player, newStatus) => {
+  axios.post('/rl_events_users/cadastro', {
+    playerId: player.id,
+    eventId: selectedEvent.value.id,
+    status: newStatus
+  })
+  .then(response => {
+    player.status = newStatus;
+    console.log("Status atualizado:", response.data);
+  })
+  .catch(error => {
+    console.error("Erro ao atualizar status:", error);
+  });
 };
 
 const handleTimeInput = (event) => {
