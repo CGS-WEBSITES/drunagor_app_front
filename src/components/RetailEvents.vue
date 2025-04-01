@@ -367,7 +367,7 @@ const fetchStatuses = () => {
   axios.get('/event_status/search')
     .then(response => {
       statuses.value = response.data.event_status;
-      // Filtra os status desejados
+
       grantedStatus.value = statuses.value.find(s => s.name === "Granted Passage")?.event_status_pk;
       turnedAwayStatus.value = statuses.value.find(s => s.name === "Turned Away")?.event_status_pk;
       console.log('Status:', statuses.value);
@@ -388,15 +388,12 @@ const fetchPlayers = () => {
   .catch(error => {
     console.error("Erro ao buscar jogadores:", error);
   });
-  // players.value = [...samplePlayers.value];
 };
 
 onMounted(() => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-  console.log('appUser:', appUser);
   
-  // Busca status e players ao montar
   fetchStatuses();
   fetchPlayers();
 
@@ -406,6 +403,7 @@ onMounted(() => {
 const updatePlayerStatus = (player, newStatus) => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+
   axios.post('/rl_events_users/cadastro', {
     users_fk: appUser,
     events_fk: selectedEvent.value.id,
@@ -564,13 +562,6 @@ watch(
     }
   }
 );
-
-onMounted(() => {
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
-  const usersPk = localStorage.getItem("app_user");
-  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-  console.log('appUser:', appUser);
-});
 
 const createEvent = () => {
   console.log("Event Created:", newEvent.value);
