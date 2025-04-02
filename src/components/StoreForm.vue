@@ -76,12 +76,6 @@
               label="Select or type a country"
               class="mb-0"
             ></v-autocomplete>
-            <v-text-field
-              v-if="isUnitedStates"
-              label="Zip Code"
-              variant="outlined"
-              v-model="form.zipcode"
-            ></v-text-field>
             <v-autocomplete
   v-if="isUnitedStates"
   v-model="form.state"
@@ -91,6 +85,12 @@
   label="Select State"
   class="mb-0"
 />
+<v-text-field
+              v-if="isUnitedStates"
+              label="Zip Code"
+              variant="outlined"
+              v-model="form.zipcode"
+            ></v-text-field>
             <v-text-field
               label="Google Merchant ID"
               variant="outlined"
