@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import Marshal, { RegisterConfig } from '@boardmeister/marshal';
 import { Herald } from '@boardmeister/herald';
-import Minstrel from '@boardmeister/minstrel';
 import {
   InitEvent,
   Event as CoreEvent,
@@ -18,9 +16,6 @@ import Illustrator from '@boardmeister/antetype-illustrator/dist/module';
 import Workspace from '@boardmeister/antetype-workspace/dist/module';
 import Transform from '@boardmeister/antetype-transform/dist/module';
 import Cursor from '@boardmeister/antetype-cursor/dist/module';
-import { Treasurer } from '@boardmeister/treasurer';
-import Diemut from '@boardmeister/diemut';
-import Guard from '@boardmeister/guard';
 import { IInputComponent, ITemplateDesignerModules } from '@/type/templateDesigner';
 import ActiveLayersHandler, { Event as ActiveLayerEvent, LayerActivationEvent }
   from "@/service/TemplateDesigner/ActiveLayersHandler";
@@ -38,19 +33,6 @@ interface IInputModal {
 }
 
 let canvas = ref<HTMLCanvasElement|null>(null);
-const version = '1.0.0';
-const namespace = 'boardmeister';
-const generateModuleConfig = (source: object, name: string, args: unknown[] = []): RegisterConfig => ({
-  entry: {
-    source,
-    namespace,
-    name,
-    version,
-    arguments: args,
-  },
-  type: 'module',
-  tags: ['subscriber'],
-})
 const inputModal = ref<IInputModal>({
   width: null,
   height: null,
@@ -65,26 +47,9 @@ const ratioHeight = ref(1);
 const inputs = ref<IInputComponent[]>([]);
 let activeLayersHandler: ActiveLayersHandler;
 let antetypeModules: ITemplateDesignerModules;
-const modules: RegisterConfig[] = [
-  generateModuleConfig(Herald, 'herald'),
-  generateModuleConfig(Minstrel, 'minstrel'),
-  generateModuleConfig(Guard, 'guard'),
-  generateModuleConfig(Diemut, 'diemut', [
-    {
-      baseURL: import.meta.env.VITE_BM_BASE_URL,
-      headers: { 'X-HOST-REFERRER': import.meta.env.VITE_BM_HOST_REFERRER }
-    }
-  ]),
-  generateModuleConfig(Treasurer, 'treasurer', ['_/']),
-];
-const marshal = new Marshal();
-for (const module of modules) {
-  marshal.register(module);
-}
-const getHerald = (): Herald => marshal.get('boardmeister/herald')!;
-const getTreasurer = (): Treasurer => marshal.get('boardmeister/treasurer')!;
+const herald = new Herald();
+const getHerald = (): Herald => herald;
 const manuallyRegisterModules = (): void => {
-  // @TODO unregister this on onmounted
   const herald = getHerald();
 
   const unregister = herald.batch([
@@ -106,7 +71,7 @@ const manuallyRegisterModules = (): void => {
         unregister();
       }
     }
-  ])
+  ]);
 }
 const loadModules = async (): Promise<ITemplateDesignerModules> => {
   const event = new CustomEvent<ModulesEvent>(CoreEvent.MODULES, { detail: { modules: {}, canvas: canvas.value }});
@@ -309,27 +274,16 @@ onMounted(async (): Promise<void> => {
   try {
     document.body.addEventListener('click', hideInputsOnClickOutsideCanvas, false);
     (canvas.value! as HTMLCanvasElement).addEventListener('contextmenu', e => { e.preventDefault(); });
-    await marshal.load()
     manuallyRegisterModules();
     antetypeModules = await loadModules();
 
-    const payload = await getTreasurer().get<{
-      _id: string;
-      data: string;
-      settings: string;
-    }>({
-      document: 'template',
-      namespace: 'boardmeister',
-      name: 'antetype',
-      id: import.meta.env.VITE_BM_HERO_ID,
-      dataset: [
-        'data',
-        'settings',
-      ]
-    });
+    const payload = await (await fetch(import.meta.env.VITE_HERO_CREATOR_FILE_URL)).json() as {
+      layout: Layout;
+      settings: ISettings;
+    };
     handleLayerActivationSubscriptions();
-    const layout = JSON.parse(payload.data);
-    const settings = JSON.parse(payload.settings);
+    const layout = payload.layout;
+    const settings = payload.settings;
     const { workspace: { height, width } } = settings;
 
     ratioWidth.value = width;
@@ -339,7 +293,7 @@ onMounted(async (): Promise<void> => {
     await initAntetype(layout, settings);
     activeLayersHandler = new ActiveLayersHandler(getHerald(), antetypeModules, canvas.value!);
   } catch (e) {
-    console.info('Handle errors', e)
+    console.error('Handle errors', e)
     throw e;
   }
 })
