@@ -46,16 +46,19 @@
               label="Store Name"
               variant="outlined"
               v-model="form.storename"
+              :rules="[v => !!v || 'Store name is required']"
             ></v-text-field>
             <v-text-field
               label="Street Number"
               variant="outlined"
               v-model="form.streetNumber"
+              :rules="[v => !!v || 'Street Number is required']"
             ></v-text-field>
             <v-text-field
               label="Street Name"
               variant="outlined"
               v-model="form.address"
+              :rules="[v => !!v || 'Street name is required']"
             ></v-text-field>
             <v-text-field
               label="Apt, suite, etc."
@@ -66,6 +69,7 @@
               label="City"
               variant="outlined"
               v-model="form.city"
+              :rules="[v => !!v || 'City name is required']"
             ></v-text-field>
             <v-autocomplete
               v-model="form.country"
@@ -74,6 +78,7 @@
               item-value="countries_pk"
               variant="solo-filled"
               label="Select or type a country"
+              :rules="[v => !!v || 'country is required']"
               class="mb-0"
             ></v-autocomplete>
             <v-autocomplete
@@ -83,6 +88,7 @@
   item-title="name"
   variant="outlined"
   label="Select State"
+  :rules="[v => !!v || 'State is required']"
   class="mb-0"
 />
 <v-text-field
@@ -90,6 +96,7 @@
               label="Zip Code"
               variant="outlined"
               v-model="form.zipcode"
+              :rules="[v => !!v || 'Zipcode is required']"
             ></v-text-field>
             <v-text-field
               label="Google Merchant ID"
@@ -129,7 +136,7 @@
                 <!-- Informações da Loja -->
                 <v-col cols="7" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ store.storename }}
+                    {{ store.name }}
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
@@ -306,7 +313,7 @@ const StateList = ref([
 
 
 // Exemplo de controle de país
-const selectedCountry = ref("United States")
+const selectedCountry = ref(250)
 
 // Interface para o formulário de Store
 interface StoreForm {
@@ -351,218 +358,62 @@ interface Country {
   abbreviation: string;
 }
 
+const countriesList = ref<Country[]>([]);
 
-const countriesList = ref([
-{ name: "Afghanistan" },
-  { name: "Albania" },
-  { name: "Algeria" },
-  { name: "Andorra" },
-  { name: "Angola" },
-  { name: "Antigua and Barbuda" },
-  { name: "Argentina" },
-  { name: "Armenia" },
-  { name: "Australia" },
-  { name: "Austria" },
-  { name: "Azerbaijan" },
-  { name: "Bahamas" },
-  { name: "Bahrain" },
-  { name: "Bangladesh" },
-  { name: "Barbados" },
-  { name: "Belarus" },
-  { name: "Belgium" },
-  { name: "Belize" },
-  { name: "Benin" },
-  { name: "Bhutan" },
-  { name: "Bolivia" },
-  { name: "Bosnia and Herzegovina" },
-  { name: "Botswana" },
-  { name: "Brazil" },
-  { name: "Brunei" },
-  { name: "Bulgaria" },
-  { name: "Burkina Faso" },
-  { name: "Burundi" },
-  { name: "Cabo Verde" },
-  { name: "Cambodia" },
-  { name: "Cameroon" },
-  { name: "Canada" },
-  { name: "Central African Republic" },
-  { name: "Chad" },
-  { name: "Chile" },
-  { name: "China" },
-  { name: "Colombia" },
-  { name: "Comoros" },
-  { name: "Congo (Congo-Brazzaville)" },
-  { name: "Costa Rica" },
-  { name: "Croatia" },
-  { name: "Cuba" },
-  { name: "Cyprus" },
-  { name: "Czech Republic" },
-  { name: "Democratic Republic of the Congo" },
-  { name: "Denmark" },
-  { name: "Djibouti" },
-  { name: "Dominica" },
-  { name: "Dominican Republic" },
-  { name: "Ecuador" },
-  { name: "Egypt" },
-  { name: "El Salvador" },
-  { name: "Equatorial Guinea" },
-  { name: "Eritrea" },
-  { name: "Estonia" },
-  { name: "Eswatini" },
-  { name: "Ethiopia" },
-  { name: "Fiji" },
-  { name: "Finland" },
-  { name: "France" },
-  { name: "Gabon" },
-  { name: "Gambia" },
-  { name: "Georgia" },
-  { name: "Germany" },
-  { name: "Ghana" },
-  { name: "Greece" },
-  { name: "Grenada" },
-  { name: "Guatemala" },
-  { name: "Guinea" },
-  { name: "Guinea-Bissau" },
-  { name: "Guyana" },
-  { name: "Haiti" },
-  { name: "Honduras" },
-  { name: "Hungary" },
-  { name: "Iceland" },
-  { name: "India" },
-  { name: "Indonesia" },
-  { name: "Iran" },
-  { name: "Iraq" },
-  { name: "Ireland" },
-  { name: "Israel" },
-  { name: "Italy" },
-  { name: "Ivory Coast" },
-  { name: "Jamaica" },
-  { name: "Japan" },
-  { name: "Jordan" },
-  { name: "Kazakhstan" },
-  { name: "Kenya" },
-  { name: "Kiribati" },
-  { name: "Kuwait" },
-  { name: "Kyrgyzstan" },
-  { name: "Laos" },
-  { name: "Latvia" },
-  { name: "Lebanon" },
-  { name: "Lesotho" },
-  { name: "Liberia" },
-  { name: "Libya" },
-  { name: "Liechtenstein" },
-  { name: "Lithuania" },
-  { name: "Luxembourg" },
-  { name: "Madagascar" },
-  { name: "Malawi" },
-  { name: "Malaysia" },
-  { name: "Maldives" },
-  { name: "Mali" },
-  { name: "Malta" },
-  { name: "Marshall Islands" },
-  { name: "Mauritania" },
-  { name: "Mauritius" },
-  { name: "Mexico" },
-  { name: "Micronesia" },
-  { name: "Moldova" },
-  { name: "Monaco" },
-  { name: "Mongolia" },
-  { name: "Montenegro" },
-  { name: "Morocco" },
-  { name: "Mozambique" },
-  { name: "Myanmar (Burma)" },
-  { name: "Namibia" },
-  { name: "Nauru" },
-  { name: "Nepal" },
-  { name: "Netherlands" },
-  { name: "New Zealand" },
-  { name: "Nicaragua" },
-  { name: "Niger" },
-  { name: "Nigeria" },
-  { name: "North Korea" },
-  { name: "North Macedonia" },
-  { name: "Norway" },
-  { name: "Oman" },
-  { name: "Pakistan" },
-  { name: "Palau" },
-  { name: "Palestine State" },
-  { name: "Panama" },
-  { name: "Papua New Guinea" },
-  { name: "Paraguay" },
-  { name: "Peru" },
-  { name: "Philippines" },
-  { name: "Poland" },
-  { name: "Portugal" },
-  { name: "Qatar" },
-  { name: "Romania" },
-  { name: "Russia" },
-  { name: "Rwanda" },
-  { name: "Saint Kitts and Nevis" },
-  { name: "Saint Lucia" },
-  { name: "Saint Vincent and the Grenadines" },
-  { name: "Samoa" },
-  { name: "San Marino" },
-  { name: "Sao Tome and Principe" },
-  { name: "Saudi Arabia" },
-  { name: "Senegal" },
-  { name: "Serbia" },
-  { name: "Seychelles" },
-  { name: "Sierra Leone" },
-  { name: "Singapore" },
-  { name: "Slovakia" },
-  { name: "Slovenia" },
-  { name: "Solomon Islands" },
-  { name: "Somalia" },
-  { name: "South Africa" },
-  { name: "South Korea" },
-  { name: "South Sudan" },
-  { name: "Spain" },
-  { name: "Sri Lanka" },
-  { name: "Sudan" },
-  { name: "Suriname" },
-  { name: "Sweden" },
-  { name: "Switzerland" },
-  { name: "Syria" },
-  { name: "Taiwan" },
-  { name: "Tajikistan" },
-  { name: "Tanzania" },
-  { name: "Thailand" },
-  { name: "Timor-Leste" },
-  { name: "Togo" },
-  { name: "Tonga" },
-  { name: "Trinidad and Tobago" },
-  { name: "Tunisia" },
-  { name: "Turkey" },
-  { name: "Turkmenistan" },
-  { name: "Tuvalu" },
-  { name: "Uganda" },
-  { name: "Ukraine" },
-  { name: "United Arab Emirates" },
-  { name: "United Kingdom" },
-  { name: "United States" },
-  { name: "Uruguay" },
-  { name: "Uzbekistan" },
-  { name: "Vanuatu" },
-  { name: "Vatican City" },
-  { name: "Venezuela" },
-  { name: "Vietnam" },
-  { name: "Yemen" },
-  { name: "Zambia" },
-  { name: "Zimbabwe" }
-
-])
-
-
-
-
-const stores = ref<any[]>(JSON.parse(localStorage.getItem("stores") || "[]"));
-
-
-
-
-const saveStoresToLocalStorage = () => {
-  localStorage.setItem("stores", JSON.stringify(stores.value));
+const fetchCountries = () => {
+  axios
+    .get("countries/search")
+    .then((response: any) => {
+      countriesList.value = response.data.countries.map((country: any) => ({
+        countries_pk: country.countries_pk,
+        name: country.name,
+        abbreviation: country.abbreviation,
+      }));
+    })
+    .catch((error: any) => {
+      console.error("Erro ao buscar países:", error);
+    });
 };
+
+onMounted(() => {
+  fetchCountries();
+});
+
+
+
+
+const stores = ref<any[]>([]);
+
+const fetchStores = async () => {
+  try {
+    const userId = userStore.user?.users_pk;
+
+    if (!userId) {
+      console.error("❌ users_pk não encontrado.");
+      return;
+    }
+
+    const response = await axios.get("/stores/list", {
+      params: { users_fk: userId },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      }
+    });
+
+    stores.value = response.data.stores || [];
+    console.log("✅ Lojas carregadas:", stores.value);
+
+  } catch (error) {
+    console.error("❌ Erro ao buscar lojas:", error.response?.data || error.message);
+  }
+};
+
+onMounted(() => {
+  fetchStores();
+});
+
+
+
 
 const handleImageUpload = (event: any) => {
   const file = event.target.files[0];
@@ -575,34 +426,65 @@ const handleImageUpload = (event: any) => {
   }
 };
 
-const saveStore = () => {
-  if (!form.value.storename.trim()) {
-    alert("Preencha todos os campos!");
+import { useUserStore } from "@/store/UserStore";
+
+const storeForm = ref(null);
+
+const userStore = useUserStore();
+const saveStore = async () => {
+  const { valid } = await storeForm.value.validate();
+
+  if (!valid) {
+    console.warn("❌ Formulário inválido. Corrija os erros.");
     return;
   }
 
-  stores.value.push({ ...form.value }); // Adiciona à lista
-  saveStoresToLocalStorage(); // Salva no LocalStorage
+  const store = form.value;
 
-  // Resetar Formulário
-  form.value = {
-    storename: "",
-    description: "",
-    address1: "",
-    address2: "",
-    city: "",
-    state: "",
-    complement: "",
-    zipcode: "",
-    country: "",
-    MerchantID: "",
-    storeImage: "",
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${store.country}`;
+
+  const payload = {
+    site: store.site,
+    name: store.storename,
+    zip_code: store.zipcode,
+    countries_fk: store.country,
+    users_fk: userStore.user?.users_pk,
+    address: fullAddress
   };
 
-  isExpanded.value = false;
+  try {
+    const response = await axios.post("/stores/cadastro", payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      }
+    });
+
+    console.log("✅ Loja cadastrada com sucesso:", response.data);
+
+    form.value = {
+      storename: "",
+      description: "",
+      address: "",
+      streetNumber: "",
+      complement: "",
+      city: "",
+      state: "",
+      zipcode: "",
+      country: "",
+      MerchantID: "",
+      storeImage: "",
+      site: ""
+    };
+
+    isExpanded.value = false;
+
+    await fetchStores(); // 🔄 Atualiza a lista após salvar
+
+
+  } catch (error) {
+    console.error("❌ Erro ao cadastrar a loja:", error.response?.data || error.message);
+  }
 };
-
-
 
 
 const cancelForm = () => {
@@ -703,7 +585,7 @@ const removeStore = (index: any) => {
 
 const isUnitedStates = computed(() => {
   const selectedCountry = form.value.country;
-  return selectedCountry === "United States";
+  return selectedCountry === 250 ;
 });
 
 const accountData = ref(null)
