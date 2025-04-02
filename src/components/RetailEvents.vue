@@ -256,7 +256,7 @@
                     :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="CENARY"
                     variant="outlined" :disabled="!isEditable"></v-select>
                 </v-col>
-                <v-col cols="6" md="3">
+                <v-col cols="6" md="3">a
                   <v-text-field v-model="editableEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
                     maxlength="5" :disabled="!isEditable"></v-text-field>
                 </v-col>
