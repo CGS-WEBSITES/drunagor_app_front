@@ -1,19 +1,25 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+      <h1
+        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+      >
         EVENTS
       </h1>
     </v-col>
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto">
-
     <v-card class="pb-12" min-height="500px" color="#151515">
-
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -21,7 +27,6 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-
         <!--
 
         <v-row class="black-bar SortBy align-center text-white">
@@ -49,55 +54,81 @@
         -->
 
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(event, index) in sortedEvents"
+            :key="index"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openDialog(event)"
+            >
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black;">
-  <p class="pt-3 text-caption font-weight-bold">
-    {{
-      new Date(event.date).toLocaleDateString('en-US', {
-        month: 'short'
-      }).toUpperCase()
-    }}
-  </p>
-  <p color="primary" class="cinzel-text text-h3  font-weight-bold">
-    {{
-      String(event.date).split('-')[2]
-    }}
-  </p>
-  <p class="text-caption font-weight-bold">
-    {{ event.hour }}{{ event.ampm }}
-  </p>
-</div>
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
+                    <p class="pt-3 text-caption font-weight-bold">
+                      {{
+                        new Date(event.date)
+                          .toLocaleDateString("en-US", {
+                            month: "short",
+                          })
+                          .toUpperCase()
+                      }}
+                    </p>
+                    <p
+                      color="primary"
+                      class="cinzel-text text-h3 font-weight-bold"
+                    >
+                      {{ String(event.date).split("-")[2] }}
+                    </p>
+                    <p class="text-caption font-weight-bold">
+                      {{ event.hour }}{{ event.ampm }}
+                    </p>
+                  </div>
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1" > <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }} </p>
-                     <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon> Scenario: {{ event.scenario }}
+                  <h3 class="pb-1">
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >{{ event.store }}
+                  </h3>
+                  <p class="text-caption text-truncate">
+                    <v-icon color="red">mdi-map-marker</v-icon>
+                    {{ event.address }}
                   </p>
-                    
-                    
-                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
-  <v-row class="d-flex align-center rewards-container">
-    <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-    Rewards:
-    <v-col
-      cols="auto"
-      v-for="(reward, index) in event.rewards"
-      :key="index"
-    >
-      <v-img
-        :src="reward.image"
-        height="20"
-        width="20"
-        contain
-        class="reward-icon"
-      ></v-img>
-    </v-col>
-  </v-row>
-</p>
+                  <p class="text-caption">
+                    <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
+                    {{ event.scenario }}
+                  </p>
+
+                  <p
+                    class="text-caption ml-3"
+                    v-if="event.rewards && event.rewards.length"
+                  >
+                    <v-row class="d-flex align-center rewards-container">
+                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                      Rewards:
+                      <v-col
+                        cols="auto"
+                        v-for="(reward, index) in event.rewards"
+                        :key="index"
+                      >
+                        <v-img
+                          :src="reward.image"
+                          height="20"
+                          width="20"
+                          contain
+                          class="reward-icon"
+                        ></v-img>
+                      </v-col>
+                    </v-row>
+                  </p>
                 </v-col>
               </v-row>
             </v-card>
@@ -115,90 +146,108 @@
             </v-card-title>
 
             <v-card-text>
-              <p><strong>Description:</strong> {{ selectedEvent?.eventdesc }}</p>
-              <br>
-              <p> Disponible Seats: {{ selectedEvent?.eventseats }} </p>
-              <br>
-              <p class="text-end scheduled-box"> Sheduled for: {{ selectedEvent?.date }} {{ selectedEvent?.hour }} {{
-                selectedEvent?.ampm }} </p>
+              <p>
+                <strong>Description:</strong> {{ selectedEvent?.eventdesc }}
+              </p>
+              <br />
+              <p>Disponible Seats: {{ selectedEvent?.eventseats }}</p>
+              <br />
+              <p class="text-end scheduled-box">
+                Sheduled for: {{ selectedEvent?.date }}
+                {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }}
+              </p>
             </v-card-text>
 
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedStore?.storeImage" class="event-img"></v-img>
+                  <v-img
+                    :src="selectedStore?.storeImage"
+                    class="event-img"
+                  ></v-img>
                 </v-col>
                 <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">{{ selectedStore?.storename || "Select a store" }}</h3>
+                  <h3 class="text-subtitle-1 font-weight-bold">
+                    {{ selectedStore?.storename || "Select a store" }}
+                  </h3>
 
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address }}, {{ selectedStore?.streetNumber }}, {{ selectedStore?.complement }}, {{ selectedStore?.city }}, {{
-                    selectedStore?.state }}
+                    {{ selectedStore?.address }},
+                    {{ selectedStore?.streetNumber }},
+                    {{ selectedStore?.complement }}, {{ selectedStore?.city }},
+                    {{ selectedStore?.state }}
                   </p>
                 </v-col>
-                <v-col cols="2" class="text-right pa-0">
-                </v-col>
+                <v-col cols="2" class="text-right pa-0"> </v-col>
               </v-row>
             </v-card>
 
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
+              <v-row
+                v-for="(reward, index) in selectedEvent?.rewards"
+                :key="index"
+                class="align-center my-2"
+              >
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
                     <v-img :src="reward.image"></v-img>
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+                  <h4 class="text-subtitle-1 font-weight-bold">
+                    {{ reward.name }}
+                  </h4>
                   <p class="text-body-2">{{ reward.description }}</p>
                 </v-col>
               </v-row>
             </v-card-text>
 
-
-
-
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
-                <v-btn block color="#907041" class="rounded-0" @click="joinEvent">Maybe I’ll Go</v-btn>
+                <v-btn
+                  block
+                  color="#907041"
+                  class="rounded-0"
+                  @click="joinEvent"
+                  >Maybe I’ll Go</v-btn
+                >
               </v-col>
               <v-col cols="6" class="pa-0">
-                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">Count me in</v-btn>
+                <v-btn
+                  block
+                  color="#539041"
+                  class="rounded-0"
+                  @click="joinEvent"
+                  >Count me in</v-btn
+                >
               </v-col>
             </v-row>
-
           </v-card>
         </v-dialog>
-
       </div>
 
       <div v-if="activeTab === 2">
-
-
         <v-row class="CreateNew align-center bg-gray text-white">
-          <v-col cols="2">
-
-          </v-col>
+          <v-col cols="2"> </v-col>
           <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
+            <v-btn
+              variant="text"
+              class="sort-btn"
+              @click="openCreateEventDialog"
+            >
               <v-icon>mdi-plus-box-outline</v-icon>
               Create New
             </v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" @click="">
-              PAST
-            </v-btn>
+            <v-btn variant="text" class="sort-btn" @click=""> PAST </v-btn>
           </v-col>
           <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" @click="">
-              LIVE
-            </v-btn>
+            <v-btn variant="text" class="sort-btn" @click=""> LIVE </v-btn>
           </v-col>
         </v-row>
-
 
         <v-dialog v-model="createEventDialog" max-width="1280">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
@@ -208,68 +257,118 @@
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="12">
-                  <v-select v-model="newEvent.store" :items="stores.map(store => store.storename,)" label="STORE"
-                    variant="outlined" />
+                  <v-select
+                    v-model="newEvent.store"
+                    :items="stores.map((store) => store.storename)"
+                    label="STORE"
+                    variant="outlined"
+                  />
                 </v-col>
 
                 <!-- Descrição -->
                 <v-col cols="12">
-                  <v-textarea v-model="newEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
-                    variant="outlined"></v-textarea>
+                  <v-textarea
+                    v-model="newEvent.eventdesc"
+                    label="EVENT DESCRIPTION"
+                    counter="355"
+                    variant="outlined"
+                  ></v-textarea>
                 </v-col>
 
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="12" md="6">
-                  <v-select v-model="newEvent.seats" :items="[1, 2, 3, 4]" label="SEATS" variant="outlined"></v-select>
+                  <v-select
+                    v-model="newEvent.seats"
+                    :items="[1, 2, 3, 4]"
+                    label="SEATS"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
 
                 <v-col cols="6" md="6">
-                  <v-select v-model="newEvent.scenario" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO" variant="outlined"></v-select>
+                  <v-select
+                    v-model="newEvent.scenario"
+                    :items="[
+                      'Wing 01 Tutorial',
+                      'Wing 01 Advanced',
+                      'Wing 02 Advanced',
+                    ]"
+                    label="SCENARIO"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
 
                 <v-col cols="6" md="3">
-  <v-text-field
-    v-model="newEvent.hour"
-    label="TIME"
-    variant="outlined"
-    placeholder="HH:MM"
-    maxlength="5"
-    @input="handleTimeInput"
-  ></v-text-field>
-</v-col>
+                  <v-text-field
+                    v-model="newEvent.hour"
+                    label="TIME"
+                    variant="outlined"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                    @input="handleTimeInput"
+                  ></v-text-field>
+                </v-col>
 
                 <v-col cols="6" md="2">
-                  <v-select v-model="newEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
+                  <v-select
+                    v-model="newEvent.ampm"
+                    :items="['AM', 'PM']"
+                    label="AM/PM"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
 
                 <v-col cols="12" md="2" class="d-flex align-center">
-                  <v-text-field v-model="newEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input" :min="today" :max="oneYearFromTodayISO" :rules="dateRules" ></v-text-field>
+                  <v-text-field
+                    v-model="newEvent.date"
+                    label="DATE"
+                    type="date"
+                    variant="outlined"
+                    class="date-input"
+                    :min="today"
+                    :max="oneYearFromTodayISO"
+                    :rules="dateRules"
+                  ></v-text-field>
                 </v-col>
 
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
-                    <v-row :class="{ 'selected-reward': selectedRewards.includes(reward), 'unselected-reward': !selectedRewards.includes(reward) }"
-                    @click="toggleReward(reward)" cols="auto" v-for="(reward, index) in availableRewards" :key="index">
+                    <v-row
+                      :class="{
+                        'selected-reward': selectedRewards.includes(reward),
+                        'unselected-reward': !selectedRewards.includes(reward),
+                      }"
+                      @click="toggleReward(reward)"
+                      cols="auto"
+                      v-for="(reward, index) in availableRewards"
+                      :key="index"
+                    >
                       <v-avatar class="ml-4 mt-4" size="70">
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
                       <p class="text-body-1 pt-10 pl-2">{{ reward.name }}</p>
-                      <p class="text-body-1 pt-10 pl-2">{{ reward.description }}</p>
+                      <p class="text-body-1 pt-10 pl-2">
+                        {{ reward.description }}
+                      </p>
                     </v-row>
                   </v-row>
                 </v-col>
 
                 <v-col cols="12">
-                  <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
+                  <v-btn
+                    block
+                    color="secundary"
+                    class="launch-btn mt-12"
+                    @click="addEvent"
+                    >LAUNCH EVENT</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
         </v-dialog>
-
 
         <!--
 
@@ -297,78 +396,112 @@
       -->
 
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
-            <v-card color="white" max-height="130" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(event, index) in userCreatedEvents"
+            :key="index"
+          >
+            <v-card
+              color="white"
+              max-height="130"
+              class="pt-0 pl-0 pb-0 event-card"
+              @click="openEditDialog(event)"
+            >
               <v-row no-gutters>
                 <v-col cols="auto" class="redbutton pt-13 pl-3">
-                  <v-btn color="#AB2929" icon class="delete-btn" @click.stop="deleteEvent(event.id)">
+                  <v-btn
+                    color="#AB2929"
+                    icon
+                    class="delete-btn"
+                    @click.stop="deleteEvent(event.id)"
+                  >
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </v-col>
 
                 <v-col cols="8" sm="" class="pt-6 pr-3">
-    <v-row no-gutters>
-      <v-col cols="4" sm="2">
-        <div class="text-center ml-2 pr-3" style="width: 70px; color: black;">
-          <p class="pt-3 text-caption font-weight-bold">
-            {{
-              new Date(event.date).toLocaleDateString('en-US', {
-                month: 'short'
-              }).toUpperCase()
-            }}
-          </p>
-          <p color="primary" class="cinzel-text text-h3 font-weight-bold">
-            {{
-              String(event.date).split('-')[2]
-            }}
-          </p>
-          <p class="text-caption font-weight-bold">
-            {{ event.hour }}{{ event.ampm }}
-          </p>
-        </div>
-      </v-col>
+                  <v-row no-gutters>
+                    <v-col cols="4" sm="2">
+                      <div
+                        class="text-center ml-2 pr-3"
+                        style="width: 70px; color: black"
+                      >
+                        <p class="pt-3 text-caption font-weight-bold">
+                          {{
+                            new Date(event.date)
+                              .toLocaleDateString("en-US", {
+                                month: "short",
+                              })
+                              .toUpperCase()
+                          }}
+                        </p>
+                        <p
+                          color="primary"
+                          class="cinzel-text text-h3 font-weight-bold"
+                        >
+                          {{ String(event.date).split("-")[2] }}
+                        </p>
+                        <p class="text-caption font-weight-bold">
+                          {{ event.hour }}{{ event.ampm }}
+                        </p>
+                      </div>
+                    </v-col>
 
-      <v-col cols="8" sm="10" class="pt-2 pl-2">
-        <h3 class="pb-1">
-          <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
-          {{ event.store }}
-        </h3>
+                    <v-col cols="8" sm="10" class="pt-2 pl-2">
+                      <h3 class="pb-1">
+                        <v-icon class="pr-1" size="small" color="black"
+                          >mdi-chess-rook</v-icon
+                        >
+                        {{ event.store }}
+                      </h3>
 
-        <p class="text-caption text-truncate">
-          <v-icon color="red">mdi-map-marker</v-icon>
-          {{ event.address }}
-        </p>
+                      <p class="text-caption text-truncate">
+                        <v-icon color="red">mdi-map-marker</v-icon>
+                        {{ event.address }}
+                      </p>
 
-        <p class="text-caption" v-if="event.scenario">
-          <v-icon color="red">mdi-sword-cross</v-icon>
-          Scenario: {{ event.scenario }}
-        </p>
+                      <p class="text-caption" v-if="event.scenario">
+                        <v-icon color="red">mdi-sword-cross</v-icon>
+                        Scenario: {{ event.scenario }}
+                      </p>
 
-        <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
-          <v-row class="d-flex align-center rewards-container">
-            <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-            Rewards:
-            <v-col
-              cols="auto"
-              v-for="(reward, index) in event.rewards"
-              :key="index"
-            >
-              <v-img
-                :src="reward.image"
-                height="20"
-                width="20"
-                contain
-                class="reward-icon"
-              ></v-img>
-            </v-col>
-          </v-row>
-        </p>
-      </v-col>
-    </v-row>
-</v-col>
+                      <p
+                        class="text-caption ml-3"
+                        v-if="event.rewards && event.rewards.length"
+                      >
+                        <v-row class="d-flex align-center rewards-container">
+                          <v-icon class="mr-1" color="red"
+                            >mdi-star-circle</v-icon
+                          >
+                          Rewards:
+                          <v-col
+                            cols="auto"
+                            v-for="(reward, index) in event.rewards"
+                            :key="index"
+                          >
+                            <v-img
+                              :src="reward.image"
+                              height="20"
+                              width="20"
+                              contain
+                              class="reward-icon"
+                            ></v-img>
+                          </v-col>
+                        </v-row>
+                      </p>
+                    </v-col>
+                  </v-row>
+                </v-col>
               </v-row>
               <v-col cols="auto" class="editbutton pt-13 pl-3">
-                <v-btn color="white" icon class="delete-btn" @click="openEditDialog(event)">
+                <v-btn
+                  color="white"
+                  icon
+                  class="delete-btn"
+                  @click="openEditDialog(event)"
+                >
                   <v-icon>mdi mdi-pencil</v-icon>
                 </v-btn>
               </v-col>
@@ -383,45 +516,90 @@
               <v-row>
                 <!-- Nome do Evento -->
 
-
                 <!-- Descrição -->
                 <v-col cols="12">
-                  <v-textarea v-model="editableEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
-                    variant="outlined"></v-textarea>
+                  <v-textarea
+                    v-model="editableEvent.eventdesc"
+                    label="EVENT DESCRIPTION"
+                    counter="355"
+                    variant="outlined"
+                  ></v-textarea>
                 </v-col>
 
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="6" md="6">
-                  <v-select v-model="editableEvent.eventseats" :items="[1, 2, 3, 4]" label="SEATS"
-                    variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.eventseats"
+                    :items="[1, 2, 3, 4]"
+                    label="SEATS"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
 
                 <v-col cols="6" md="6">
-                  <v-select v-model="editableEvent.scenario" :items="['Wing 01 Tutorial', 'Wing 01 Advanced', 'Wing 02 Advanced']" label="SCENARIO" variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.scenario"
+                    :items="[
+                      'Wing 01 Tutorial',
+                      'Wing 01 Advanced',
+                      'Wing 02 Advanced',
+                    ]"
+                    label="SCENARIO"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
 
                 <v-col cols="6" md="3">
-                  <v-text-field v-model="editableEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
-                    maxlength="5"></v-text-field>
+                  <v-text-field
+                    v-model="editableEvent.hour"
+                    label="TIME"
+                    variant="outlined"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                  ></v-text-field>
                 </v-col>
 
                 <v-col cols="6" md="2">
-                  <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.ampm"
+                    :items="['AM', 'PM']"
+                    label="AM/PM"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
 
                 <v-col cols="12" md="2" class="d-flex align-center">
-                  <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input" :min="today" :max="oneYearFromTodayISO" :rules="dateRules"></v-text-field>
+                  <v-text-field
+                    v-model="editableEvent.date"
+                    label="DATE"
+                    type="date"
+                    variant="outlined"
+                    class="date-input"
+                    :min="today"
+                    :max="oneYearFromTodayISO"
+                    :rules="dateRules"
+                  ></v-text-field>
                 </v-col>
 
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
-                    <v-col cols="auto" v-for="(reward, index) in availableRewards" :key="index">
-                      <v-avatar size="50"
-                        :class="{ 'selected-reward': editableEvent.rewards.includes(reward), 'unselected-reward': !editableEvent.rewards.includes(reward) }"
-                        @click="toggleEditReward(reward)">
+                    <v-col
+                      cols="auto"
+                      v-for="(reward, index) in availableRewards"
+                      :key="index"
+                    >
+                      <v-avatar
+                        size="50"
+                        :class="{
+                          'selected-reward':
+                            editableEvent.rewards.includes(reward),
+                          'unselected-reward':
+                            !editableEvent.rewards.includes(reward),
+                        }"
+                        @click="toggleEditReward(reward)"
+                      >
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
                     </v-col>
@@ -430,33 +608,20 @@
 
                 <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
-                  <v-btn color="red" @click="editEventDialog = false">Cancel</v-btn>
-                  <v-btn color="green" @click="saveEditedEvent">Save Changes</v-btn>
+                  <v-btn color="red" @click="editEventDialog = false"
+                    >Cancel</v-btn
+                  >
+                  <v-btn color="green" @click="saveEditedEvent"
+                    >Save Changes</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-card-text>
           </v-card>
         </v-dialog>
-
-
-
-
-
-
-
-
       </div>
-
-
-
-
-
-
     </v-card>
   </v-col>
-
-
-
 </template>
 
 <script setup>
@@ -465,27 +630,27 @@ import { useUserStore } from "@/store/UserStore";
 
 const dateRules = [
   (value) => {
-    if (!value) return 'Date is required.'
+    if (!value) return "Date is required.";
 
-    const inputDate = new Date(value)
-    if (inputDate < today) return 'Date cannot be in the past.'
+    const inputDate = new Date(value);
+    if (inputDate < today) return "Date cannot be in the past.";
 
     if (inputDate > oneYearFromToday)
-      return 'Date cannot be more than 1 year from today.'
+      return "Date cannot be more than 1 year from today.";
 
-    return true
-  }
-]
+    return true;
+  },
+];
 
-const today = new Date()
-const todayISO = today.toISOString().split('T')[0]
+const today = new Date();
+const todayISO = today.toISOString().split("T")[0];
 
-const oneYearFromToday = new Date()
-oneYearFromToday.setFullYear(today.getFullYear() + 1)
-const oneYearFromTodayISO = oneYearFromToday.toISOString().split('T')[0]
+const oneYearFromToday = new Date();
+oneYearFromToday.setFullYear(today.getFullYear() + 1);
+const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
 
 const handleTimeInput = (event) => {
-  let raw = event.target.value.replace(/\D/g, ""); 
+  let raw = event.target.value.replace(/\D/g, "");
 
   raw = raw.slice(0, 4);
 
@@ -541,17 +706,19 @@ const activeTab = ref("events");
 const sortBy = ref("date");
 
 const selectedStoreImage = computed(() => {
-  const store = stores.value.find(s => s.storename === selectedEvent.value?.store);
-  return store ? store.storeImage : "https://via.placeholder.com/150"; 
+  const store = stores.value.find(
+    (s) => s.storename === selectedEvent.value?.store,
+  );
+  return store ? store.storeImage : "https://via.placeholder.com/150";
 });
 
 const selectedStore = computed(() => {
-  return stores.value.find(s => s.storename === selectedEvent.value?.store) || {};
+  return (
+    stores.value.find((s) => s.storename === selectedEvent.value?.store) || {}
+  );
 });
 
-const events = ref([  
-  
-]);
+const events = ref([]);
 
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
@@ -561,7 +728,11 @@ const sortedEvents = computed(() => {
 });
 
 const addEvent = () => {
-  if (newEvent.value.location && newEvent.value.date && newEvent.value.location) {
+  if (
+    newEvent.value.location &&
+    newEvent.value.date &&
+    newEvent.value.location
+  ) {
     events.value.push({
       ...newEvent.value,
       rewards: [...selectedRewards.value],
@@ -586,15 +757,12 @@ const addEvent = () => {
   }
 };
 
-
 onMounted(() => {
   const savedEvents = localStorage.getItem("userEvents");
   if (savedEvents) {
     events.value = JSON.parse(savedEvents);
   }
 });
-
-
 
 const deleteEvent = (eventId) => {
   events.value = events.value.filter((event) => event.id !== eventId);
@@ -646,7 +814,7 @@ watch(
   () => newEvent.value.store,
   (selectedStoreName) => {
     const selectedStore = stores.value.find(
-      (store) => store.storename === selectedStoreName
+      (store) => store.storename === selectedStoreName,
     );
 
     if (selectedStore) {
@@ -655,7 +823,7 @@ watch(
     } else {
       newEvent.value.address = "";
     }
-  }
+  },
 );
 
 onMounted(() => {
@@ -678,10 +846,8 @@ const handleImageUpload = (event) => {
   }
 };
 
-
 const editEventDialog = ref(false);
 const editableEvent = ref({});
-
 
 const openEditDialog = (event) => {
   editableEvent.value = { ...event };
@@ -689,7 +855,7 @@ const openEditDialog = (event) => {
 };
 
 const saveEditedEvent = () => {
-  const index = events.value.findIndex(e => e.id === editableEvent.value.id);
+  const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
   if (index !== -1) {
     events.value[index] = { ...editableEvent.value };
   }
@@ -697,17 +863,13 @@ const saveEditedEvent = () => {
 };
 
 const toggleEditReward = (reward) => {
-  const index = editableEvent.value.rewards.findIndex(r => r === reward);
+  const index = editableEvent.value.rewards.findIndex((r) => r === reward);
   if (index === -1) {
     editableEvent.value.rewards.push(reward);
   } else {
     editableEvent.value.rewards.splice(index, 1);
   }
 };
-
-
-
-
 </script>
 
 <style scoped>
@@ -762,8 +924,6 @@ const toggleEditReward = (reward) => {
   /* Deixa "SCHEDULED FOR:" em negrito */
 }
 </style>
-
-
 
 <style>
 .cinzel-text {
@@ -826,7 +986,6 @@ const toggleEditReward = (reward) => {
 }
 
 .selected-reward {
-
   opacity: 1;
   transition: all 0.2s ease-in-out;
 }
@@ -854,7 +1013,7 @@ const toggleEditReward = (reward) => {
 }
 
 .redbutton {
-  background: #691D1D;
+  background: #691d1d;
   transform: translateY(px) translateX(-0px);
   width: 80px;
   height: 160px;
