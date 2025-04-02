@@ -287,7 +287,7 @@
                     <v-col cols="12" v-for="(player, index) in paginatedPlayers" :key="player.id">
                       <v-row align="center">
                         <v-col cols="6">
-                          <p>{{ player.name }} - Status: {{ player.status }}</p>
+                          <p>{{ player.user_name }} - Status: {{ player.event_status }}</p>
                         </v-col>
                         <v-col cols="3">
                           <v-btn color="green" @click="updatePlayerStatus(player, grantedStatus)">Granted Passage</v-btn>
@@ -341,19 +341,19 @@ const openEditDialog = (event, editable = false) => {
 };
 
 // Lista de players de exemplo para simular a resposta da API
-const samplePlayers = ref([
-  { id: 1, name: "Player One", status: "Seeks Entry" },
-  { id: 2, name: "Player Two", status: "Seeks Entry" },
-  { id: 3, name: "Player Three", status: "Seeks Entry" },
-  { id: 4, name: "Player Four", status: "Seeks Entry" },
-  { id: 5, name: "Player Five", status: "Seeks Entry" },
-  { id: 6, name: "Player Six", status: "Seeks Entry" },
-  { id: 7, name: "Player Seven", status: "Seeks Entry" },
-  { id: 8, name: "Player Eight", status: "Seeks Entry" },
-  { id: 9, name: "Player Nine", status: "Seeks Entry" }
-]);
+// const samplePlayers = ref([
+//   { id: 1, name: "Player One", status: "Seeks Entry" },
+//   { id: 2, name: "Player Two", status: "Seeks Entry" },
+//   { id: 3, name: "Player Three", status: "Seeks Entry" },
+//   { id: 4, name: "Player Four", status: "Seeks Entry" },
+//   { id: 5, name: "Player Five", status: "Seeks Entry" },
+//   { id: 6, name: "Player Six", status: "Seeks Entry" },
+//   { id: 7, name: "Player Seven", status: "Seeks Entry" },
+//   { id: 8, name: "Player Eight", status: "Seeks Entry" },
+//   { id: 9, name: "Player Nine", status: "Seeks Entry" }
+// ]);
 
-const players = ref([...samplePlayers.value]);
+const players = ref([]);
 const currentPage = ref(1);
 const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
@@ -385,10 +385,10 @@ const fetchStatuses = () => {
 
 const fetchPlayers = () => {
   axios.get('/rl_events_users/list_players', { 
-    params: { events_fk: 41 } 
+    params: { events_fk: 31 } 
   })
   .then(response => {
-    players.value = response.data;
+    players.value = response.data.players
     console.log('Players:', players.value);
   })
   .catch(error => {
@@ -411,8 +411,8 @@ const updatePlayerStatus = (player, newStatus) => {
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
   axios.post('/rl_events_users/cadastro', {
-    users_fk: appUser,
-    events_fk: selectedEvent.value.id,
+    users_fk: 425,
+    events_fk: 31,
     status: newStatus
   })
   .then(response => {
