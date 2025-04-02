@@ -11,6 +11,17 @@
       ADD STORE
     </v-btn>
   </v-col>
+  <v-alert
+  v-if="showVerificationMessage"
+  type="info"
+  color="warning"
+  class="my-4"
+  icon="mdi-alert-octagram-outline"
+  text
+>
+  Your store is under review and cannot create events yet. The verification process may take up to 3 business days.
+</v-alert>
+
 
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="800" style="min-width: 360px" class="pa-4">
@@ -127,16 +138,36 @@
                 <!-- Imagem da Loja -->
                 <v-col cols="3" lg="2">
                   <v-img
-                    v-if="store.storeImage"
-                    :src="store.storeImage"
-                    class="event-img"
-                  ></v-img>
+  :src="store.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png'"
+  class="event-img"
+/>
                 </v-col>
 
                 <!-- Informações da Loja -->
                 <v-col cols="7" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
                     {{ store.name }}
+                    <v-tooltip location="top">
+  <template #activator="{ props }">
+    <v-icon
+      v-bind="props"
+      :color="store.verified ? 'green' : 'yellow'"
+      size="20"
+      class="ml-2"
+    >
+      {{ store.verified ? 'mdi-check-decagram-outline' : 'mdi-alert-octagram-outline' }}
+    </v-icon>
+  </template>
+  <span>
+    {{
+      store.verified
+        ? 'Your store has been verified and is eligible to create events.'
+        : 'Your store is under review and cannot create events yet. The verification process may take up to 3 business days.'
+    }}
+  </span>
+</v-tooltip>
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
@@ -158,7 +189,7 @@
                   >
                     <v-icon>mdi-pencil</v-icon>
                   </v-btn>
-                  <v-btn color="red" icon @click="removeStore(index)">
+                  <v-btn color="red" icon @click="removeStore(store.stores_pk)">
                     <v-icon>mdi-delete</v-icon>
                   </v-btn>
                 </v-col>
@@ -252,6 +283,10 @@
       </v-card>
     </v-container>
   </v-col>
+
+
+
+  
 </template>
 
 <script lang="ts" setup>
@@ -394,7 +429,7 @@ const fetchStores = async () => {
     }
 
     const response = await axios.get("/stores/list", {
-      params: { users_fk: userId },
+      params: { users_fk: userId  },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`
       }
@@ -431,6 +466,8 @@ import { useUserStore } from "@/store/UserStore";
 const storeForm = ref(null);
 
 const userStore = useUserStore();
+const showVerificationMessage = ref(false); // Adicione isso no seu <script setup>
+
 const saveStore = async () => {
   const { valid } = await storeForm.value.validate();
 
@@ -444,7 +481,7 @@ const saveStore = async () => {
   const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${store.country}`;
 
   const payload = {
-    site: store.site,
+    web_site: store.site,
     name: store.storename,
     zip_code: store.zipcode,
     countries_fk: store.country,
@@ -478,13 +515,19 @@ const saveStore = async () => {
 
     isExpanded.value = false;
 
-    await fetchStores(); // 🔄 Atualiza a lista após salvar
+    showVerificationMessage.value = true; // 👈 Exibe mensagem ao salvar
 
+    await fetchStores();
+
+    setTimeout(() => {
+      showVerificationMessage.value = false; // Esconde após 5s
+    }, 5000);
 
   } catch (error) {
     console.error("❌ Erro ao cadastrar a loja:", error.response?.data || error.message);
   }
 };
+
 
 
 const cancelForm = () => {
@@ -542,20 +585,21 @@ const editableStore = ref<EditableStore>({
 const selectedStoreIndex = ref<number | null>(null);
 
 const openEditDialog = (store: any, index: number) => {
+  const [streetNumber, address, complement, city, state, country] = store.address?.split(",").map(s => s.trim()) || [];
+
   editableStore.value = {
     stores_pk: store.stores_pk,
-    site: store.site,
-    storename: store.storename,
-    country: store.country,
-    zipcode: store.zipcode,
-    MerchantID: store.MerchantID,
-    storeImage: store.storeImage || "",
-    address: store.address,
-    streetNumber: store.streetNumber,
-    complement: store.complement,
-    city: store.city,
-    state: store.state,
+    storename: store.name || store.storename,
+    site: store.web_site || store.site || "",
+    zipcode: store.zip_code || store.zipcode || "",
+    country: country || "",
+    state: state || "",
+    city: city || "",
+    complement: complement || "",
+    address: address || "",
+    streetNumber: streetNumber || "",
   };
+
   selectedStoreIndex.value = index;
   editDialog.value = true;
 };
@@ -571,17 +615,57 @@ const handleEditImageUpload = (event: any) => {
   }
 };
 
-const saveEditedStore = () => {
-  if (selectedStoreIndex.value !== null) {
-    stores.value[selectedStoreIndex.value] = { ...editableStore.value };
+const saveEditedStore = async () => {
+  const store = editableStore.value;
+
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${store.country}`;
+
+  const payload = {
+    stores_pk: store.stores_pk,
+    name: store.storename,
+    web_site: store.site,
+    zip_code: store.zipcode,
+    countries_fk: store.country,
+    users_fk: userStore.user?.users_pk,
+    address: fullAddress,
+  };
+
+  try {
+    await axios.put(`/stores/alter`, payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    console.log("✅ Loja atualizada com sucesso.");
+
+    // Atualiza localmente a lista, se necessário
+    await fetchStores();
+
+    editDialog.value = false;
+  } catch (error) {
+    console.error("❌ Erro ao atualizar a loja:", error.response?.data || error.message);
   }
-  editDialog.value = false;
 };
 
-const removeStore = (index: any) => {
-  stores.value.splice(index, 1);
-  localStorage.setItem("stores", JSON.stringify(stores.value));
+
+const removeStore = async (stores_pk) => {
+  try {
+    await axios.delete(`/stores/${stores_pk}/delete`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    stores.value = stores.value.filter(store => store.stores_pk !== stores_pk);
+
+    console.log("✅ Loja excluída com sucesso.");
+  } catch (error) {
+    console.error("❌ Erro ao excluir a loja:", error.response?.data || error.message);
+  }
 };
+
+
 
 const isUnitedStates = computed(() => {
   const selectedCountry = form.value.country;
