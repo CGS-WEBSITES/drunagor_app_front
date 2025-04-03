@@ -185,7 +185,7 @@
                     {{ store.city }}, {{ store.state }}
                   </p>
                   <p class="text-caption">
-                    🏛️ Merchant ID: {{ store.MerchantID }}
+                    🏛️ Merchant ID: {{ store.merchant_id }}
                   </p>
                 </v-col>
 
@@ -478,7 +478,7 @@ const saveStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
-    merchant_id: form.value.MerchantID
+    merchant_id: store.MerchantID
   };
 
   try {
@@ -591,6 +591,7 @@ const openEditDialog = (store: any, index: number) => {
     complement: complement || "",
     address: address || "",
     streetNumber: streetNumber || "",
+    MerchantID: store.MerchantID || store.merchant_id ,
   };
 
   selectedStoreIndex.value = index;
@@ -635,7 +636,7 @@ const saveEditedStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
-    mmerchant_id: form.value.MerchantID
+    merchant_id: store.MerchantID
   };
 
   try {
