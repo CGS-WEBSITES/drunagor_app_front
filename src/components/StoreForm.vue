@@ -144,8 +144,8 @@
                   <v-img
                     :src="
                       store.picture_hash
-                        ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
-                        : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png'
+                        ? `https://druna-user-pic.s3.us-east-2.amazonaws.com/${store.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -185,7 +185,7 @@
                     {{ store.city }}, {{ store.state }}
                   </p>
                   <p class="text-caption">
-                    🏛️ Merchant ID: {{ store.MerchantID }}
+                    🏛️ Merchant ID: {{ store.merchant_id }}
                   </p>
                 </v-col>
 
@@ -438,7 +438,6 @@ const fetchStores = async () => {
     });
 
     stores.value = response.data.stores || [];
-    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
@@ -478,6 +477,7 @@ const saveStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
+    merchant_id: store.MerchantID
   };
 
   try {
@@ -487,7 +487,6 @@ const saveStore = async () => {
       },
     });
 
-    console.log("✅ Loja cadastrada com sucesso:", response.data);
 
     form.value = {
       storename: "",
@@ -590,6 +589,7 @@ const openEditDialog = (store: any, index: number) => {
     complement: complement || "",
     address: address || "",
     streetNumber: streetNumber || "",
+    MerchantID: store.MerchantID || store.merchant_id ,
   };
 
   selectedStoreIndex.value = index;
@@ -613,7 +613,6 @@ const handleImageUpload = async (event: Event) => {
     })
     .then((response) => {
       form.value.storeImage = response.data.image_key;
-      console.log("✅ Image uploaded:", response.data.image_key);
     })
     .catch((error) => {
       console.error("❌ Error uploading image:", error.response?.data || error);
@@ -634,6 +633,7 @@ const saveEditedStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
+    merchant_id: store.MerchantID
   };
 
   try {
@@ -643,7 +643,6 @@ const saveEditedStore = async () => {
       },
     });
 
-    console.log("✅ Loja atualizada com sucesso.");
 
     // Atualiza localmente a lista, se necessário
     await fetchStores();
@@ -659,17 +658,22 @@ const saveEditedStore = async () => {
 
 const removeStore = async (stores_pk) => {
   try {
-    await axios.delete(`/stores/${stores_pk}/delete`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    const token = localStorage.getItem("accessToken");
 
-    stores.value = stores.value.filter(
-      (store) => store.stores_pk !== stores_pk
+    await axios.delete(
+      `/stores/${stores_pk}/delete/`,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
-    console.log("✅ Loja excluída com sucesso.");
+
+
+    // Atualiza a lista após excluir
+    await fetchStores();
   } catch (error) {
     console.error(
       "❌ Erro ao excluir a loja:",
