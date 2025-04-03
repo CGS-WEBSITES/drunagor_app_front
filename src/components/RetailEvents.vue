@@ -864,6 +864,7 @@ const addEvent = async () => {
     return;
   }
 
+  let selectedStore = null;
   let storesFk = null;
 
   try {
