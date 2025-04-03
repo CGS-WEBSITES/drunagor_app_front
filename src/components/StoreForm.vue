@@ -140,11 +140,11 @@
             <v-card color="primary" min-height="130px" class="mb-4 event-card">
               <v-row no-gutters>
                 <!-- Imagem da Loja -->
-                <v-col cols="3" lg="2">
+                <v-col cols="2" lg="2">
                   <v-img
                     :src="
                       store.picture_hash
-                        ? `https://druna-user-pic.s3.us-east-2.amazonaws.com/${store.picture_hash}`
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${store.picture_hash}`
                         : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
@@ -152,7 +152,7 @@
                 </v-col>
 
                 <!-- Informações da Loja -->
-                <v-col cols="7" class="pa-2">
+                <v-col cols="8" lg="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
                     {{ store.name }}
                     <v-tooltip location="top">
@@ -188,22 +188,24 @@
                     🏛️ Merchant ID: {{ store.merchant_id }}
                   </p>
                 </v-col>
-
                 <v-col
-                  cols="2"
-                  class="d-flex flex-row align-center justify-center pr-2 gap-2"
-                >
-                  <v-btn
-                    color="terciary"
-                    icon
-                    @click="openEditDialog(store, index)"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn color="red" icon @click="removeStore(store.stores_pk)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </v-col>
+  cols="2"
+  lg="1"
+  class="d-flex flex-column align-center justify-center gap-2"
+>
+  <v-btn
+    color="terciary"
+    icon
+    class="mb-4"
+    size="small"
+    @click="openEditDialog(store, index)"
+  >
+    <v-icon>mdi-pencil</v-icon>
+  </v-btn>
+  <v-btn color="red" size="small" icon @click="removeStore(store.stores_pk)">
+    <v-icon>mdi-delete</v-icon>
+  </v-btn>
+</v-col>
               </v-row>
             </v-card>
           </v-col>
@@ -590,6 +592,7 @@ const openEditDialog = (store: any, index: number) => {
     address: address || "",
     streetNumber: streetNumber || "",
     MerchantID: store.MerchantID || store.merchant_id ,
+    storeImage: store.picture_hash || store.storeImage,
   };
 
   selectedStoreIndex.value = index;
