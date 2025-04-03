@@ -45,7 +45,7 @@
               :src="
                 form.storeImage.startsWith('http')
                   ? form.storeImage
-                  : `https://druna-user-pic.s3.us-east-2.amazonaws.com/${form.storeImage}`
+                  : `http://druna-user-pic.s3.us-east-2.amazonaws.com/${form.storeImage}`
               "
               height="100"
               class="rounded-lg mb-3"
