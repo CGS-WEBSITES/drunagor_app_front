@@ -144,7 +144,7 @@
                   <v-img
                     :src="
                       store.picture_hash
-                        ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${store.picture_hash}`
                         : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
