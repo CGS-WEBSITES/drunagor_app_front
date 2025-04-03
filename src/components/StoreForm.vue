@@ -144,8 +144,8 @@
                   <v-img
                     :src="
                       store.picture_hash
-                        ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
-                        : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png'
+                        ? `https://druna-user-pic.s3.us-east-2.amazonaws.com/${store.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -478,6 +478,7 @@ const saveStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
+    merchant_id: form.value.MerchantID
   };
 
   try {
@@ -634,6 +635,7 @@ const saveEditedStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
+    mmerchant_id: form.value.MerchantID
   };
 
   try {
