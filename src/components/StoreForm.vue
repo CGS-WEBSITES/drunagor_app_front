@@ -12,16 +12,16 @@
     </v-btn>
   </v-col>
   <v-alert
-  v-if="showVerificationMessage"
-  type="info"
-  color="warning"
-  class="my-4"
-  icon="mdi-alert-octagram-outline"
-  text
->
-  Your store is under review and cannot create events yet. The verification process may take up to 3 business days.
-</v-alert>
-
+    v-if="showVerificationMessage"
+    type="info"
+    color="warning"
+    class="my-4"
+    icon="mdi-alert-octagram-outline"
+    text
+  >
+    Your store is under review and cannot create events yet. The verification
+    process may take up to 3 business days.
+  </v-alert>
 
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="800" style="min-width: 360px" class="pa-4">
@@ -42,10 +42,14 @@
             <!-- Preview da Imagem -->
             <v-img
               v-if="form.storeImage"
-              :src="form.storeImage"
+              :src="
+                form.storeImage.startsWith('http')
+                  ? form.storeImage
+                  : `https://druna-user-pic.s3.us-east-2.amazonaws.com/${form.storeImage}`
+              "
               height="100"
               class="rounded-lg mb-3"
-            ></v-img>
+            />
 
             <!-- Campos do Formulário -->
             <v-text-field
@@ -57,19 +61,19 @@
               label="Store Name"
               variant="outlined"
               v-model="form.storename"
-              :rules="[v => !!v || 'Store name is required']"
+              :rules="[(v) => !!v || 'Store name is required']"
             ></v-text-field>
             <v-text-field
               label="Street Number"
               variant="outlined"
               v-model="form.streetNumber"
-              :rules="[v => !!v || 'Street Number is required']"
+              :rules="[(v) => !!v || 'Street Number is required']"
             ></v-text-field>
             <v-text-field
               label="Street Name"
               variant="outlined"
               v-model="form.address"
-              :rules="[v => !!v || 'Street name is required']"
+              :rules="[(v) => !!v || 'Street name is required']"
             ></v-text-field>
             <v-text-field
               label="Apt, suite, etc."
@@ -80,7 +84,7 @@
               label="City"
               variant="outlined"
               v-model="form.city"
-              :rules="[v => !!v || 'City name is required']"
+              :rules="[(v) => !!v || 'City name is required']"
             ></v-text-field>
             <v-autocomplete
               v-model="form.country"
@@ -89,25 +93,25 @@
               item-value="countries_pk"
               variant="solo-filled"
               label="Select or type a country"
-              :rules="[v => !!v || 'country is required']"
+              :rules="[(v) => !!v || 'country is required']"
               class="mb-0"
             ></v-autocomplete>
             <v-autocomplete
-  v-if="isUnitedStates"
-  v-model="form.state"
-  :items="StateList"
-  item-title="name"
-  variant="outlined"
-  label="Select State"
-  :rules="[v => !!v || 'State is required']"
-  class="mb-0"
-/>
-<v-text-field
+              v-if="isUnitedStates"
+              v-model="form.state"
+              :items="StateList"
+              item-title="name"
+              variant="outlined"
+              label="Select State"
+              :rules="[(v) => !!v || 'State is required']"
+              class="mb-0"
+            />
+            <v-text-field
               v-if="isUnitedStates"
               label="Zip Code"
               variant="outlined"
               v-model="form.zipcode"
-              :rules="[v => !!v || 'Zipcode is required']"
+              :rules="[(v) => !!v || 'Zipcode is required']"
             ></v-text-field>
             <v-text-field
               label="Google Merchant ID"
@@ -138,11 +142,13 @@
                 <!-- Imagem da Loja -->
                 <v-col cols="3" lg="2">
                   <v-img
-  :src="store.picture_hash
-    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
-    : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png'"
-  class="event-img"
-/>
+                    :src="
+                      store.picture_hash
+                        ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+                        : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
 
                 <!-- Informações da Loja -->
@@ -150,28 +156,33 @@
                   <h3 class="text-subtitle-1 font-weight-bold">
                     {{ store.name }}
                     <v-tooltip location="top">
-  <template #activator="{ props }">
-    <v-icon
-      v-bind="props"
-      :color="store.verified ? 'green' : 'yellow'"
-      size="20"
-      class="ml-2"
-    >
-      {{ store.verified ? 'mdi-check-decagram-outline' : 'mdi-alert-octagram-outline' }}
-    </v-icon>
-  </template>
-  <span>
-    {{
-      store.verified
-        ? 'Your store has been verified and is eligible to create events.'
-        : 'Your store is under review and cannot create events yet. The verification process may take up to 3 business days.'
-    }}
-  </span>
-</v-tooltip>
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :color="store.verified ? 'green' : 'yellow'"
+                          size="20"
+                          class="ml-2"
+                        >
+                          {{
+                            store.verified
+                              ? "mdi-check-decagram-outline"
+                              : "mdi-alert-octagram-outline"
+                          }}
+                        </v-icon>
+                      </template>
+                      <span>
+                        {{
+                          store.verified
+                            ? "Your store has been verified and is eligible to create events."
+                            : "Your store is under review and cannot create events yet. The verification process may take up to 3 business days."
+                        }}
+                      </span>
+                    </v-tooltip>
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ store.address }}, {{ store.streetNumber }} - {{ store.city }}, {{ store.state }}
+                    {{ store.address }}, {{ store.streetNumber }} -
+                    {{ store.city }}, {{ store.state }}
                   </p>
                   <p class="text-caption">
                     🏛️ Merchant ID: {{ store.MerchantID }}
@@ -283,10 +294,6 @@
       </v-card>
     </v-container>
   </v-col>
-
-
-
-  
 </template>
 
 <script lang="ts" setup>
@@ -342,13 +349,11 @@ const StateList = ref([
   { name: "Washington" },
   { name: "West Virginia" },
   { name: "Wisconsin" },
-  { name: "Wyoming" }
-])
-
-
+  { name: "Wyoming" },
+]);
 
 // Exemplo de controle de país
-const selectedCountry = ref(250)
+const selectedCountry = ref(250);
 
 // Interface para o formulário de Store
 interface StoreForm {
@@ -414,9 +419,6 @@ onMounted(() => {
   fetchCountries();
 });
 
-
-
-
 const stores = ref<any[]>([]);
 
 const fetchStores = async () => {
@@ -429,37 +431,25 @@ const fetchStores = async () => {
     }
 
     const response = await axios.get("/stores/list", {
-      params: { users_fk: userId  },
+      params: { users_fk: userId },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-      }
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
 
     stores.value = response.data.stores || [];
     console.log("✅ Lojas carregadas:", stores.value);
-
   } catch (error) {
-    console.error("❌ Erro ao buscar lojas:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao buscar lojas:",
+      error.response?.data || error.message
+    );
   }
 };
 
 onMounted(() => {
   fetchStores();
 });
-
-
-
-
-const handleImageUpload = (event: any) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      form.value.storeImage = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
-};
 
 import { useUserStore } from "@/store/UserStore";
 
@@ -486,14 +476,15 @@ const saveStore = async () => {
     zip_code: store.zipcode,
     countries_fk: store.country,
     users_fk: userStore.user?.users_pk,
-    address: fullAddress
+    address: fullAddress,
+    picture_hash: form.value.storeImage,
   };
 
   try {
     const response = await axios.post("/stores/cadastro", payload, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-      }
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
 
     console.log("✅ Loja cadastrada com sucesso:", response.data);
@@ -510,7 +501,7 @@ const saveStore = async () => {
       country: "",
       MerchantID: "",
       storeImage: "",
-      site: ""
+      site: "",
     };
 
     isExpanded.value = false;
@@ -522,13 +513,13 @@ const saveStore = async () => {
     setTimeout(() => {
       showVerificationMessage.value = false; // Esconde após 5s
     }, 5000);
-
   } catch (error) {
-    console.error("❌ Erro ao cadastrar a loja:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao cadastrar a loja:",
+      error.response?.data || error.message
+    );
   }
 };
-
-
 
 const cancelForm = () => {
   form.value = {
@@ -585,7 +576,8 @@ const editableStore = ref<EditableStore>({
 const selectedStoreIndex = ref<number | null>(null);
 
 const openEditDialog = (store: any, index: number) => {
-  const [streetNumber, address, complement, city, state, country] = store.address?.split(",").map(s => s.trim()) || [];
+  const [streetNumber, address, complement, city, state, country] =
+    store.address?.split(",").map((s) => s.trim()) || [];
 
   editableStore.value = {
     stores_pk: store.stores_pk,
@@ -604,15 +596,28 @@ const openEditDialog = (store: any, index: number) => {
   editDialog.value = true;
 };
 
-const handleEditImageUpload = (event: any) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editableStore.value.storeImage = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
+const handleImageUpload = async (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  await axios
+    .post("/images/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then((response) => {
+      form.value.storeImage = response.data.image_key;
+      console.log("✅ Image uploaded:", response.data.image_key);
+    })
+    .catch((error) => {
+      console.error("❌ Error uploading image:", error.response?.data || error);
+    });
 };
 
 const saveEditedStore = async () => {
@@ -628,6 +633,7 @@ const saveEditedStore = async () => {
     countries_fk: store.country,
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
+    picture_hash: form.value.storeImage,
   };
 
   try {
@@ -644,10 +650,12 @@ const saveEditedStore = async () => {
 
     editDialog.value = false;
   } catch (error) {
-    console.error("❌ Erro ao atualizar a loja:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao atualizar a loja:",
+      error.response?.data || error.message
+    );
   }
 };
-
 
 const removeStore = async (stores_pk) => {
   try {
@@ -657,43 +665,47 @@ const removeStore = async (stores_pk) => {
       },
     });
 
-    stores.value = stores.value.filter(store => store.stores_pk !== stores_pk);
+    stores.value = stores.value.filter(
+      (store) => store.stores_pk !== stores_pk
+    );
 
     console.log("✅ Loja excluída com sucesso.");
   } catch (error) {
-    console.error("❌ Erro ao excluir a loja:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao excluir a loja:",
+      error.response?.data || error.message
+    );
   }
 };
 
-
-
 const isUnitedStates = computed(() => {
   const selectedCountry = form.value.country;
-  return selectedCountry === 250 ;
+  return selectedCountry === 250;
 });
 
-const accountData = ref(null)
+const accountData = ref(null);
 
 const getMerchantAccount = () => {
-  const merchantId = '136699508';
-  const token = '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';
+  const merchantId = "136699508";
+  const token = "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";
 
-  axios.get(
-    `https://shoppingcontent.googleapis.com/content/v2.1/${merchantId}/accounts`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  )
-  .then((response: any) => {
-    console.log('Dados da conta:', response.data);
-    accountData.value = response.data;
-  })
-  .catch((error: any) => {
-    console.error('Erro ao buscar dados da conta:', error)
-  })
-}
+  axios
+    .get(
+      `https://shoppingcontent.googleapis.com/content/v2.1/${merchantId}/accounts`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    .then((response: any) => {
+      console.log("Dados da conta:", response.data);
+      accountData.value = response.data;
+    })
+    .catch((error: any) => {
+      console.error("Erro ao buscar dados da conta:", error);
+    });
+};
 
 onMounted(() => {
   getMerchantAccount();
