@@ -438,7 +438,6 @@ const fetchStores = async () => {
     });
 
     stores.value = response.data.stores || [];
-    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
@@ -488,7 +487,6 @@ const saveStore = async () => {
       },
     });
 
-    console.log("✅ Loja cadastrada com sucesso:", response.data);
 
     form.value = {
       storename: "",
@@ -615,7 +613,6 @@ const handleImageUpload = async (event: Event) => {
     })
     .then((response) => {
       form.value.storeImage = response.data.image_key;
-      console.log("✅ Image uploaded:", response.data.image_key);
     })
     .catch((error) => {
       console.error("❌ Error uploading image:", error.response?.data || error);
@@ -646,7 +643,6 @@ const saveEditedStore = async () => {
       },
     });
 
-    console.log("✅ Loja atualizada com sucesso.");
 
     // Atualiza localmente a lista, se necessário
     await fetchStores();
@@ -662,17 +658,22 @@ const saveEditedStore = async () => {
 
 const removeStore = async (stores_pk) => {
   try {
-    await axios.delete(`/stores/${stores_pk}/delete`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    const token = localStorage.getItem("accessToken");
 
-    stores.value = stores.value.filter(
-      (store) => store.stores_pk !== stores_pk
+    await axios.delete(
+      `/stores/${stores_pk}/delete/`,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
-    console.log("✅ Loja excluída com sucesso.");
+
+
+    // Atualiza a lista após excluir
+    await fetchStores();
   } catch (error) {
     console.error(
       "❌ Erro ao excluir a loja:",
