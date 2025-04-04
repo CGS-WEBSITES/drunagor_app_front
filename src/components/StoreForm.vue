@@ -64,11 +64,13 @@
               :rules="[(v) => !!v || 'Store name is required']"
             ></v-text-field>
             <v-text-field
-              label="Street Number"
-              variant="outlined"
-              v-model="form.streetNumber"
-              :rules="[(v) => !!v || 'Street Number is required']"
-            ></v-text-field>
+  label="Street Number"
+  variant="outlined"
+  v-model="form.streetNumber"
+  :rules="[(v) => !!v || 'Street Number is required']"
+  type="text"
+  @keypress="onlyAllowNumbers"
+/>
             <v-text-field
               label="Street Name"
               variant="outlined"
@@ -232,6 +234,7 @@
                 label="Street Number"
                 outlined
                 v-model="editableStore.streetNumber"
+                @keypress="onlyAllowNumbers"
               ></v-text-field>
               <v-text-field
                 label="Street Name"
@@ -445,6 +448,13 @@ onMounted(() => {
 import { useUserStore } from "@/store/UserStore";
 
 const storeForm = ref(null);
+
+const onlyAllowNumbers = (event: KeyboardEvent) => {
+  const char = String.fromCharCode(event.keyCode);
+  if (!/^[0-9]$/.test(char)) {
+    event.preventDefault();
+  }
+};
 
 const userStore = useUserStore();
 const showVerificationMessage = ref(false); // Adicione isso no seu <script setup>
