@@ -425,26 +425,16 @@ const stores = ref<any[]>([]);
 
 const fetchStores = async () => {
   try {
-    const userId = userStore.user?.users_pk;
-
-    if (!userId) {
-      console.error("❌ users_pk não encontrado.");
-      return;
-    }
-
     const response = await axios.get("/stores/list", {
-      params: { users_fk: userId },
+      params: { users_fk: userStore.user?.users_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
-    stores.value = response.data.stores || [];
+    stores.value = [...response.data.stores];
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      error.response?.data || error.message
-    );
+    console.error("❌ Erro ao buscar lojas:", error.response?.data || error.message);
+    stores.value = [];
   }
 };
 
