@@ -64,11 +64,13 @@
               :rules="[(v) => !!v || 'Store name is required']"
             ></v-text-field>
             <v-text-field
-              label="Street Number"
-              variant="outlined"
-              v-model="form.streetNumber"
-              :rules="[(v) => !!v || 'Street Number is required']"
-            ></v-text-field>
+  label="Street Number"
+  variant="outlined"
+  v-model="form.streetNumber"
+  :rules="[(v) => !!v || 'Street Number is required']"
+  type="text"
+  @keypress="onlyAllowNumbers"
+/>
             <v-text-field
               label="Street Name"
               variant="outlined"
@@ -232,6 +234,7 @@
                 label="Street Number"
                 outlined
                 v-model="editableStore.streetNumber"
+                @keypress="onlyAllowNumbers"
               ></v-text-field>
               <v-text-field
                 label="Street Name"
@@ -425,26 +428,16 @@ const stores = ref<any[]>([]);
 
 const fetchStores = async () => {
   try {
-    const userId = userStore.user?.users_pk;
-
-    if (!userId) {
-      console.error("❌ users_pk não encontrado.");
-      return;
-    }
-
     const response = await axios.get("/stores/list", {
-      params: { users_fk: userId },
+      params: { users_fk: userStore.user?.users_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
-    stores.value = response.data.stores || [];
+    stores.value = [...response.data.stores];
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      error.response?.data || error.message
-    );
+    console.error("❌ Erro ao buscar lojas:", error.response?.data || error.message);
+    stores.value = [];
   }
 };
 
@@ -455,6 +448,13 @@ onMounted(() => {
 import { useUserStore } from "@/store/UserStore";
 
 const storeForm = ref(null);
+
+const onlyAllowNumbers = (event: KeyboardEvent) => {
+  const char = String.fromCharCode(event.keyCode);
+  if (!/^[0-9]$/.test(char)) {
+    event.preventDefault();
+  }
+};
 
 const userStore = useUserStore();
 const showVerificationMessage = ref(false); // Adicione isso no seu <script setup>
