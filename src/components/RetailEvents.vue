@@ -94,10 +94,9 @@
             </v-card-title>
             <v-card-text>
               <p>
-                <strong>Description:</strong> {{ selectedEvent?.eventdesc }}
               </p>
               <br />
-              <p>Disponible Seats: {{ selectedEvent?.eventseats }}</p>
+              <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <br />
               <p class="text-end scheduled-box">
                 Sheduled for: {{ selectedEvent?.event_date }}
@@ -114,14 +113,11 @@
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedStore?.storename || "Select a store" }}
+                    {{ selectedEvent?.store_name }}
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address }},
-                    {{ selectedStore?.streetNumber }},
-                    {{ selectedStore?.complement }}, {{ selectedStore?.city }},
-                    {{ selectedStore?.state }}
+                    {{ selectedEvent?.address }}
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0"></v-col>
