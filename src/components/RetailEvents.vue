@@ -107,9 +107,11 @@
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
-                    :src="selectedStore?.storeImage"
-                    class="event-img"
-                  ></v-img>
+  :src="selectedEvent?.picture_hash 
+          ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}` 
+          : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
+  class="event-img"
+/>
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
