@@ -28,80 +28,54 @@
 
       <div v-if="activeTab === 1">
         <v-row>
-          <v-col
-            class="py-2 pl-1 pr-1"
-            cols="12"
-            md="6"
-            v-for="(event, index) in sortedEvents"
-            :key="index"
-          >
-            <v-card
-              color="terciary"
-              class="pt-0 event-card"
-              @click="openDialog(event)"
-            >
+          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
+            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div
-                    class="text-center ml-3"
-                    style="width: 70px; color: black"
-                  >
-                    <p class="pt-3 text-caption font-weight-bold">
-                      {{
-                        new Date(event.date)
-                          .toLocaleDateString("en-US", {
-                            month: "short",
-                          })
-                          .toUpperCase()
-                      }}
-                    </p>
-                    <p
-                      color="primary"
-                      class="cinzel-text text-h3 font-weight-bold"
-                    >
-                      {{ String(event.event_date).split("-")[2] }}
-                    </p>
-                    <p class="text-caption font-weight-bold">
-                      {{ event.event_date }}{{ event.ampm }}
-                    </p>
-                  </div>
+                  <div class="text-center ml-3" style="width: 70px; color: black;">
+  <p class="pt-3 text-caption font-weight-bold">
+    {{
+      new Date(event.event_date).toLocaleDateString('en-US', {
+        month: 'short'
+      }).toUpperCase()
+    }}
+  </p>
+  <p color="primary" class="cinzel-text text-h3  font-weight-bold">
+    {{
+      String(event.event_date).split('T')[0].split('-')[2]
+    }}
+  </p>
+  <p class="text-caption font-weight-bold">
+    {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
+  </p>
+</div>
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black"
-                      >mdi-chess-rook</v-icon
-                    >
-                    {{ event.store_name }}
-                  </h3>
-                  <p class="text-caption text-truncate">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ event.address }}
+                  <h3 class="pb-1" > <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}</h3>
+                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }} </p>
+                     <p class="text-caption">
+                      <v-icon color="red">mdi-sword-cross</v-icon> {{ event.scenario }}
                   </p>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
-                    {{ event.scenario?.name }}
-                  </p>
-                  <p
-                    class="text-caption ml-3"
-                    v-if="event.rewards && event.rewards.length"
-                  >
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-                      Rewards:
-                      <v-col
-                        cols="auto"
-                        v-for="(reward, index) in event.rewards"
-                        :key="index"
-                      >
-                        <v-img
-                          :src="reward.image"
-                          height="20"
-                          width="20"
-                          contain
-                          class="reward-icon"
-                        ></v-img>
-                      </v-col>
-                    </v-row>
+                    
+                    
+                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+  <v-row class="d-flex align-center rewards-container">
+    <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+    Rewards:
+    <v-col
+      cols="auto"
+      v-for="(reward, index) in event.rewards"
+      :key="index"
+    >
+      <v-img
+        :src="reward.image"
+        height="20"
+        width="20"
+        contain
+        class="reward-icon"
+      ></v-img>
+    </v-col>
+  </v-row>
                   </p>
                 </v-col>
               </v-row>
@@ -333,7 +307,7 @@
           >
             <v-card
               color="white"
-              max-height="190"
+              max-height="130"
               class="pt-0 pl-0 pb-0 event-card"
               @click="openEditDialog(event)"
             >
@@ -373,7 +347,7 @@
                           }}
                         </p>
                         <p class="text-caption font-weight-bold">
-                          {{ event.event_date.split("T")[1].slice(0, 5) }}
+                          {{ String(event.event_date).split('T')[0].split('-')[2] }}
                           <!-- {{ event.ampm }} -->
                         </p>
                       </div>
@@ -778,7 +752,9 @@ const selectedStoreImage = computed(() => {
   const store = stores.value.find(
     (s) => s.storename === selectedEvent.value?.store,
   );
-  return store ? store.storeImage : "https://via.placeholder.com/150";
+  return store?.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : "https://via.placeholder.com/150";
 });
 
 const selectedStore = computed(() => {
