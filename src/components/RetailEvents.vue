@@ -605,15 +605,12 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  // Atribui o evento clicado e inicializa rewards se não existir
   editableEvent.value = { ...event, rewards: event.rewards || [] };
   isEditable.value = editable;
   editEventDialog.value = true; // Abre o diálogo imediatamente
-
   if (!editable) {
-    // Busca a lista de players para o evento atual (mesmo que retorne array vazio)
-    fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
-    fetchStatuses().catch((err) => console.error(err));
+    fetchPlayersForEvent(event.events_pk);
+    fetchStatuses();
   }
 };
 
@@ -671,16 +668,21 @@ const fetchPlayersForEvent = async (eventFk) => {
     const response = await axios.get("/rl_events_users/list_players", {
       params: { events_fk: eventFk },
     });
-    playersByEvent.value[eventFk] = response.data.players && response.data.players.length > 0
-      ? response.data.players
-      : [];
+    // Se a API retornar players como null, usamos um array vazio
+    playersByEvent.value[eventFk] = response.data.players ?? [];
     console.log(`Players for event ${eventFk}:`, playersByEvent.value[eventFk]);
   } catch (error) {
-    console.error(
-      "Erro ao buscar jogadores para o evento:",
-      error.response?.data || error.message
-    );
-    playersByEvent.value[eventFk] = [];
+    if (error.response && error.response.status === 404) {
+      // Se a API retorna 404, definimos como array vazio (nenhum player encontrado)
+      playersByEvent.value[eventFk] = [];
+      console.warn(`No players found for event ${eventFk}`);
+    } else {
+      console.error(
+        "Erro ao buscar jogadores para o evento:",
+        error.response?.data || error.message
+      );
+      playersByEvent.value[eventFk] = [];
+    }
   }
 };
 
