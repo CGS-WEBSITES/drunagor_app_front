@@ -534,14 +534,13 @@
                   <v-row>
                     <v-col
                       cols="12"
-                      v-for="(player, index) in playersByEvent[selectedEvent.events_pk] || []"
+                      v-for="(player, index) in paginatedPlayers"
                       :key="player.id"
                     >
                       <v-row align="center">
                         <v-col cols="6">
                           <p>
-                            {{ player.user_name }} - Status:
-                            {{ player.event_status }}
+                            {{ player.user_name }} - Status: {{ player.event_status }}
                           </p>
                         </v-col>
                         <v-col cols="3">
@@ -607,11 +606,17 @@ const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
   editableEvent.value = { ...event };
+  // Garante que editableEvent.rewards seja um array
+  if (!editableEvent.value.rewards) {
+    editableEvent.value.rewards = [];
+  }
   isEditable.value = editable;
-  editEventDialog.value = true;
+  editEventDialog.value = true; // Abre o diálogo imediatamente
+
   if (!editable) {
-    fetchPlayersForEvent(event.events_pk);
-    fetchStatuses();
+    // Se não for o modo edição (ou seja, apenas visualização), busca os players e os status
+    fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
+    fetchStatuses().catch((err) => console.error(err));
   }
 };
 
@@ -628,9 +633,19 @@ const players = ref([]);
 const currentPage = ref(1);
 const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
+
 const paginatedPlayers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  return players.value.slice(start, start + pageSize);
+  try {
+    const eventFk = selectedEvent.value?.events_pk;
+    const allPlayers = eventFk && playersByEvent.value[eventFk]
+      ? playersByEvent.value[eventFk]
+      : [];
+    const start = (currentPage.value - 1) * pageSize;
+    return allPlayers.slice(start, start + pageSize);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 });
 
 const statuses = ref([]);
@@ -666,7 +681,9 @@ const fetchPlayersForEvent = async (eventFk) => {
     const response = await axios.get("/rl_events_users/list_players", {
       params: { events_fk: eventFk },
     });
-    playersByEvent.value[eventFk] = response.data.players || [];
+    playersByEvent.value[eventFk] = response.data.players && response.data.players.length > 0
+      ? response.data.players
+      : [];
     console.log(`Players for event ${eventFk}:`, playersByEvent.value[eventFk]);
   } catch (error) {
     console.error(
