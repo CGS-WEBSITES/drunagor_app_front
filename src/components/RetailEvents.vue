@@ -48,7 +48,7 @@
                   >
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
-                        new Date(event.date)
+                        new Date(event.event_date)
                           .toLocaleDateString("en-US", {
                             month: "short",
                           })
@@ -59,10 +59,10 @@
                       color="primary"
                       class="cinzel-text text-h3 font-weight-bold"
                     >
-                      {{ String(event.event_date).split("-")[2] }}
+                      {{ String(event.event_date).split('T')[0].split('-')[2] }}
                     </p>
                     <p class="text-caption font-weight-bold">
-                      {{ event.event_date }}{{ event.ampm }}
+                      {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
                     </p>
                   </div>
                 </v-col>
@@ -79,7 +79,7 @@
                   </p>
                   <p class="text-caption">
                     <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
-                    {{ event.scenario?.name }}
+                    {{ event.scenario }}
                   </p>
                   <p
                     class="text-caption ml-3"
@@ -119,35 +119,42 @@
               {{ selectedStore?.store_name }}
             </v-card-title>
             <v-card-text>
-              <p>
+              <!-- <p>
                 <strong>Description:</strong> {{ selectedEvent?.eventdesc }}
-              </p>
+              </p> -->
               <br />
-              <p>Disponible Seats: {{ selectedEvent?.eventseats }}</p>
+              <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <br />
               <p class="text-end scheduled-box">
-                Sheduled for: {{ selectedEvent?.event_date }}
-                {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }}
+                Sheduled for: {{
+                  new Date(selectedEvent?.event_date).toLocaleString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
+                }}
               </p>
             </v-card-text>
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
-                    :src="selectedStore?.storeImage"
+                    :src="selectedEvent?.picture_hash 
+                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}` 
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
                     class="event-img"
-                  ></v-img>
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedStore?.storename || "Select a store" }}
+                    {{ selectedEvent?.store_name }}
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address }},
-                    {{ selectedStore?.streetNumber }},
-                    {{ selectedStore?.complement }}, {{ selectedStore?.city }},
-                    {{ selectedStore?.state }}
+                    {{ selectedEvent?.address }},
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0"></v-col>
@@ -343,7 +350,7 @@
                     color="#AB2929"
                     icon
                     class="delete-btn"
-                    @click.stop="deleteEvent(event.id)"
+                    @click.stop="deleteEvent(event.events_pk)"
                   >
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
@@ -358,10 +365,6 @@
                         <p class="pt-3 text-caption font-weight-bold">
                           {{
                             new Date(event.event_date)
-                              .toLocaleDateString("en-US", {
-                                month: "short",
-                              })
-                              .toUpperCase()
                           }}
                         </p>
                         <p
@@ -373,7 +376,7 @@
                           }}
                         </p>
                         <p class="text-caption font-weight-bold">
-                          {{ event.event_date.split("T")[1].slice(0, 5) }}
+                          {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
                           <!-- {{ event.ampm }} -->
                         </p>
                       </div>
@@ -439,7 +442,7 @@
           </v-col>
         </v-row>
         <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
-        <v-dialog v-model="editEventDialog" max-width="1024">
+        <v-dialog v-model="editEventDialog" max-width="1024" scroll-target="#app">
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
@@ -515,10 +518,8 @@
                       <v-avatar
                         size="50"
                         :class="{
-                          'selected-reward':
-                            editableEvent.rewards.includes(reward),
-                          'unselected-reward':
-                            !editableEvent.rewards.includes(reward),
+                          'selected-reward': editableEvent.rewards?.includes(reward) ?? false,
+                          'unselected-reward': !(editableEvent.rewards?.includes(reward) ?? false)
                         }"
                         @click="isEditable && toggleEditReward(reward)"
                       >
@@ -615,17 +616,13 @@ const openEditDialog = (event, editable = false) => {
 };
 
 // Lista de players de exemplo para simular a resposta da API
-// const samplePlayers = ref([
-//   { id: 1, name: "Player One", status: "Seeks Entry" },
-//   { id: 2, name: "Player Two", status: "Seeks Entry" },
-//   { id: 3, name: "Player Three", status: "Seeks Entry" },
-//   { id: 4, name: "Player Four", status: "Seeks Entry" },
-//   { id: 5, name: "Player Five", status: "Seeks Entry" },
-//   { id: 6, name: "Player Six", status: "Seeks Entry" },
-//   { id: 7, name: "Player Seven", status: "Seeks Entry" },
-//   { id: 8, name: "Player Eight", status: "Seeks Entry" },
-//   { id: 9, name: "Player Nine", status: "Seeks Entry" }
-// ]);
+const fakeInterestedPlayers = ref([
+  { id: 101, user_name: "FakeUser1", event_status: "Seeks Entry" },
+  { id: 102, user_name: "FakeUser2", event_status: "Seeks Entry" },
+  { id: 103, user_name: "FakeUser3", event_status: "Seeks Entry" },
+  { id: 104, user_name: "FakeUser4", event_status: "Seeks Entry" },
+  { id: 105, user_name: "FakeUser5", event_status: "Seeks Entry" },
+]);
 
 const players = ref([]);
 const currentPage = ref(1);
@@ -668,11 +665,18 @@ const fetchPlayers = () => {
       params: { events_fk: 31 },
     })
     .then((response) => {
-      players.value = response.data.players;
+      // Se a API retornar players, usa-os; caso contrário, usa o fake
+      if (response.data.players && response.data.players.length > 0) {
+        players.value = response.data.players;
+      } else {
+        players.value = fakeInterestedPlayers.value;
+      }
       console.log("Players:", players.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar jogadores:", error);
+      // Em caso de erro, fallback para os players fake
+      players.value = fakeInterestedPlayers.value;
     });
 };
 
@@ -692,8 +696,8 @@ const updatePlayerStatus = (player, newStatus) => {
 
   axios
     .post("/rl_events_users/cadastro", {
-      users_fk: 425,
-      events_fk: 31,
+      users_fk: appUser,
+      events_fk: 61,
       status: newStatus,
     })
     .then((response) => {
@@ -778,7 +782,9 @@ const selectedStoreImage = computed(() => {
   const store = stores.value.find(
     (s) => s.storename === selectedEvent.value?.store,
   );
-  return store ? store.storeImage : "https://via.placeholder.com/150";
+  return store?.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : "https://via.placeholder.com/150";
 });
 
 const selectedStore = computed(() => {
@@ -932,6 +938,14 @@ const addEvent = async () => {
     // Reseta o formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
+    await fetchUserCreatedEvents();
+
+    userCreatedEvents.value.push({
+      ...newEvent.value,
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
+    });
 
     // Opcional: Atualizar lista local de eventos
     events.value.push({
@@ -948,9 +962,20 @@ const addEvent = async () => {
   }
 };
 
-const deleteEvent = (eventId) => {
-  events.value = events.value.filter((event) => event.id !== eventId);
-  localStorage.setItem("userEvents", JSON.stringify(events.value));
+const deleteEvent = async (events_pk) => {
+  try {
+    await axios.delete(`/events/${events_pk}/delete/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+
+    await fetchUserCreatedEvents();
+    await fetchPlayerEvents();
+  } catch (error) {
+    console.error("❌ Erro ao excluir o evento:", error.response?.data || error.message);
+  }
 };
 
 const userStore = useUserStore();
@@ -974,6 +999,7 @@ const fetchUserCreatedEvents = async () => {
     });
 
     userCreatedEvents.value = response.data.events || [];
+    console.log("Eventos criados pelo usuário:", userCreatedEvents.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos criados pelo usuário:",
