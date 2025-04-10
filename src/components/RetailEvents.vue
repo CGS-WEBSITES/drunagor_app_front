@@ -861,30 +861,29 @@ const addEvent = async () => {
     });
 
     const allStores = response.data.stores || [];
-    const selectedStore = stores.value.find(
+    selectedStore = allStores.find(
       (store) =>
         store.name?.toLowerCase().trim() ===
-        newEvent.value.store?.toLowerCase().trim(),
+        newEvent.value.store?.toLowerCase().trim()
     );
+
     if (!selectedStore) {
       console.error("❌ Store não encontrada na API.");
       return;
     }
 
     storesFk = selectedStore.stores_pk;
-    console.log("storesFk:", storesFk);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar stores na API:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
     return;
   }
 
   try {
-    // Combinar data e hora no formato "%Y-%m-%d; %I:%M %p"
     const formattedDate = new Date(
-      `${newEvent.value.date}T${newEvent.value.hour}`,
+      `${newEvent.value.date}T${newEvent.value.hour}`
     );
     const dateString = formattedDate.toLocaleDateString("en-CA"); // YYYY-MM-DD
     const timeString = formattedDate.toLocaleTimeString("en-US", {
@@ -912,21 +911,17 @@ const addEvent = async () => {
 
     console.log("✅ Evento criado:", response.data);
 
-    // Reseta o formulário e fecha o diálogo
+    // ✅ Atualiza as listas
+    await fetchUserCreatedEvents();
+    await fetchPlayerEvents();
+
+    // ✅ Limpa formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
-
-    // Opcional: Atualizar lista local de eventos
-    events.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar evento:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
   }
 };
