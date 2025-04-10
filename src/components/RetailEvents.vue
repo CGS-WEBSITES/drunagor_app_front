@@ -610,7 +610,7 @@ const openEditDialog = (event, editable = false) => {
   isEditable.value = editable;
   editEventDialog.value = true;
   if (!editable) {
-    fetchPlayers();
+    fetchPlayersForEvent(event.events_pk);
     fetchStatuses();
   }
 };
@@ -659,26 +659,22 @@ const fetchStatuses = () => {
     });
 };
 
-const fetchPlayers = () => {
-  axios
-    .get("/rl_events_users/list_players", {
-      params: { events_fk: 31 },
-    })
-    .then((response) => {
-      // Se a API retornar players, usa-os; caso contrário, usa o fake
-      if (response.data.players && response.data.players.length > 0) {
-        players.value = response.data.players;
-      } 
-      // else {
-      //   players.value = fakeInterestedPlayers.value;
-      // }
-      console.log("Players:", players.value);
-    })
-    .catch((error) => {
-      console.error("Erro ao buscar jogadores:", error);
-      // Em caso de erro, fallback para os players fake
-      // players.value = fakeInterestedPlayers.value;
+const playersByEvent = ref({});
+
+const fetchPlayersForEvent = async (eventFk) => {
+  try {
+    const response = await axios.get("/rl_events_users/list_players", {
+      params: { events_fk: eventFk },
     });
+    playersByEvent.value[eventFk] = response.data.players || [];
+    console.log(`Players for event ${eventFk}:`, playersByEvent.value[eventFk]);
+  } catch (error) {
+    console.error(
+      "Erro ao buscar jogadores para o evento:",
+      error.response?.data || error.message
+    );
+    playersByEvent.value[eventFk] = [];
+  }
 };
 
 onMounted(() => {
@@ -686,8 +682,6 @@ onMounted(() => {
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
   fetchStatuses();
-  fetchPlayers();
-
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 });
 
@@ -1120,25 +1114,6 @@ const handleEditImageUpload = (event) => {
     };
     reader.readAsDataURL(file);
   }
-};
-
-const playersByEvent = ref({});
-
-const getPlayersForEvent = async (event_fk) => {
-  await axios
-    .get("/rl_events_users/list_players", {
-      params: {
-        events_fk: event_fk,
-      },
-    })
-    .then((response) => {
-      playersByEvent.value[event_fk] = response.data.players || [];
-      console.log(`Players for event ${event_fk}:`, playersByEvent.value[event_fk]);
-    })
-    .catch((error) => {
-      console.error("Erro ao buscar jogadores:", error);
-      playersByEvent.value[event_fk] = [];
-    });
 };
 </script>
 
