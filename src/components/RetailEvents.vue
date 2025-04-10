@@ -324,7 +324,7 @@
                     color="#AB2929"
                     icon
                     class="delete-btn"
-                    @click.stop="deleteEvent(event.id)"
+                    @click.stop="deleteEvent(event.events_pk)"
                   >
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
@@ -821,7 +821,7 @@ const fetchSceneries = async () => {
     },
   }).then((response) => {
     sceneries.value = response.data.sceneries || [];
-    console.log("✅ Cenários carregados:", sceneries.value);
+
   }).catch((error) => {
     console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
   })
@@ -885,7 +885,7 @@ const addEvent = async () => {
     const formattedDate = new Date(
       `${newEvent.value.date}T${newEvent.value.hour}`
     );
-    const dateString = formattedDate.toLocaleDateString("en-CA"); // YYYY-MM-DD
+    const dateString = formattedDate.toLocaleDateString("en-CA"); 
     const timeString = formattedDate.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
@@ -909,13 +909,12 @@ const addEvent = async () => {
       },
     });
 
-    console.log("✅ Evento criado:", response.data);
 
-    // ✅ Atualiza as listas
+
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
 
-    // ✅ Limpa formulário e fecha o diálogo
+
     selectedRewards.value = [];
     createEventDialog.value = false;
   } catch (error) {
@@ -926,9 +925,20 @@ const addEvent = async () => {
   }
 };
 
-const deleteEvent = (eventId) => {
-  events.value = events.value.filter((event) => event.id !== eventId);
-  localStorage.setItem("userEvents", JSON.stringify(events.value));
+const deleteEvent = async (events_pk) => {
+  try {
+    await axios.delete(`/events/${events_pk}/delete/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+
+    await fetchUserCreatedEvents();
+    await fetchPlayerEvents();
+  } catch (error) {
+    console.error("❌ Erro ao excluir o evento:", error.response?.data || error.message);
+  }
 };
 
 const userStore = useUserStore();
@@ -1017,7 +1027,6 @@ onMounted(async () => {
 
     stores.value = response.data.stores || [];
 
-    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
