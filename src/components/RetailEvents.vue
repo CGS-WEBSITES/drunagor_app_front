@@ -534,7 +534,7 @@
                   <v-row>
                     <v-col
                       cols="12"
-                      v-for="(player, index) in paginatedPlayers"
+                      v-for="(player, index) in playersByEvent[selectedEvent.events_pk] || []"
                       :key="player.id"
                     >
                       <v-row align="center">
@@ -616,13 +616,13 @@ const openEditDialog = (event, editable = false) => {
 };
 
 // Lista de players de exemplo para simular a resposta da API
-const fakeInterestedPlayers = ref([
-  { id: 101, user_name: "FakeUser1", event_status: "Seeks Entry" },
-  { id: 102, user_name: "FakeUser2", event_status: "Seeks Entry" },
-  { id: 103, user_name: "FakeUser3", event_status: "Seeks Entry" },
-  { id: 104, user_name: "FakeUser4", event_status: "Seeks Entry" },
-  { id: 105, user_name: "FakeUser5", event_status: "Seeks Entry" },
-]);
+// const fakeInterestedPlayers = ref([
+//   { id: 101, user_name: "FakeUser1", event_status: "Seeks Entry" },
+//   { id: 102, user_name: "FakeUser2", event_status: "Seeks Entry" },
+//   { id: 103, user_name: "FakeUser3", event_status: "Seeks Entry" },
+//   { id: 104, user_name: "FakeUser4", event_status: "Seeks Entry" },
+//   { id: 105, user_name: "FakeUser5", event_status: "Seeks Entry" },
+// ]);
 
 const players = ref([]);
 const currentPage = ref(1);
@@ -668,15 +668,16 @@ const fetchPlayers = () => {
       // Se a API retornar players, usa-os; caso contrário, usa o fake
       if (response.data.players && response.data.players.length > 0) {
         players.value = response.data.players;
-      } else {
-        players.value = fakeInterestedPlayers.value;
-      }
+      } 
+      // else {
+      //   players.value = fakeInterestedPlayers.value;
+      // }
       console.log("Players:", players.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar jogadores:", error);
       // Em caso de erro, fallback para os players fake
-      players.value = fakeInterestedPlayers.value;
+      // players.value = fakeInterestedPlayers.value;
     });
 };
 
@@ -1121,6 +1122,8 @@ const handleEditImageUpload = (event) => {
   }
 };
 
+const playersByEvent = ref({});
+
 const getPlayersForEvent = async (event_fk) => {
   await axios
     .get("/rl_events_users/list_players", {
@@ -1129,10 +1132,12 @@ const getPlayersForEvent = async (event_fk) => {
       },
     })
     .then((response) => {
-      console.log("Players:", response.data);
+      playersByEvent.value[event_fk] = response.data.players || [];
+      console.log(`Players for event ${event_fk}:`, playersByEvent.value[event_fk]);
     })
     .catch((error) => {
       console.error("Erro ao buscar jogadores:", error);
+      playersByEvent.value[event_fk] = [];
     });
 };
 </script>
