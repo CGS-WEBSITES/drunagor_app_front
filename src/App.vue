@@ -239,11 +239,15 @@ watch(
 
 
 const contentStyle = computed(() => {
-  if (route.name === "Login") {
+  if (
+  route.name === "Login" ||
+  route.name === "RetailerRegistration" ||
+  route.name === "ForgotPassword"
+) {
     return display.value.mdAndUp
       ? {
           "background-image":
-            "url('https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/login-background.png')",
+            "url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp')",
           "background-size": "cover",
           "background-position": "top center", // Alinha ao topo
           "background-repeat": "no-repeat",

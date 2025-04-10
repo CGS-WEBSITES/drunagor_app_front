@@ -28,54 +28,80 @@
 
       <div v-if="activeTab === 1">
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(event, index) in sortedEvents"
+            :key="index"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openDialog(event)"
+            >
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black;">
-  <p class="pt-3 text-caption font-weight-bold">
-    {{
-      new Date(event.event_date).toLocaleDateString('en-US', {
-        month: 'short'
-      }).toUpperCase()
-    }}
-  </p>
-  <p color="primary" class="cinzel-text text-h3  font-weight-bold">
-    {{
-      String(event.event_date).split('T')[0].split('-')[2]
-    }}
-  </p>
-  <p class="text-caption font-weight-bold">
-    {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
-  </p>
-</div>
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
+                    <p class="pt-3 text-caption font-weight-bold">
+                      {{
+                        new Date(event.event_date)
+                          .toLocaleDateString("en-US", {
+                            month: "short",
+                          })
+                          .toUpperCase()
+                      }}
+                    </p>
+                    <p
+                      color="primary"
+                      class="cinzel-text text-h3 font-weight-bold"
+                    >
+                      {{ String(event.event_date).split('T')[0].split('-')[2] }}
+                    </p>
+                    <p class="text-caption font-weight-bold">
+                      {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
+                    </p>
+                  </div>
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1" > <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }} </p>
-                     <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon> {{ event.scenario }}
+                  <h3 class="pb-1">
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >
+                    {{ event.store_name }}
+                  </h3>
+                  <p class="text-caption text-truncate">
+                    <v-icon color="red">mdi-map-marker</v-icon>
+                    {{ event.address }}
                   </p>
-                    
-                    
-                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
-  <v-row class="d-flex align-center rewards-container">
-    <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-    Rewards:
-    <v-col
-      cols="auto"
-      v-for="(reward, index) in event.rewards"
-      :key="index"
-    >
-      <v-img
-        :src="reward.image"
-        height="20"
-        width="20"
-        contain
-        class="reward-icon"
-      ></v-img>
-    </v-col>
-  </v-row>
+                  <p class="text-caption">
+                    <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
+                    {{ event.scenario }}
+                  </p>
+                  <p
+                    class="text-caption ml-3"
+                    v-if="event.rewards && event.rewards.length"
+                  >
+                    <v-row class="d-flex align-center rewards-container">
+                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                      Rewards:
+                      <v-col
+                        cols="auto"
+                        v-for="(reward, index) in event.rewards"
+                        :key="index"
+                      >
+                        <v-img
+                          :src="reward.image"
+                          height="20"
+                          width="20"
+                          contain
+                          class="reward-icon"
+                        ></v-img>
+                      </v-col>
+                    </v-row>
                   </p>
                 </v-col>
               </v-row>
@@ -93,34 +119,34 @@
               {{ selectedStore?.store_name }}
             </v-card-title>
             <v-card-text>
-              <p>
-              </p>
+              <!-- <p>
+                <strong>Description:</strong> {{ selectedEvent?.eventdesc }}
+              </p> -->
               <br />
               <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <br />
               <p class="text-end scheduled-box">
-                Scheduled for:
-  {{
-    new Date(selectedEvent?.event_date).toLocaleString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  }}
+                Sheduled for: {{
+                  new Date(selectedEvent?.event_date).toLocaleString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
+                }}
               </p>
             </v-card-text>
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
-  :src="selectedEvent?.picture_hash 
-          ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}` 
-          : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
-  class="event-img"
-/>
+                    :src="selectedEvent?.picture_hash 
+                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}` 
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -128,7 +154,7 @@
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedEvent?.address }}
+                    {{ selectedEvent?.address }},
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0"></v-col>
@@ -314,7 +340,7 @@
           >
             <v-card
               color="white"
-              max-height="130"
+              max-height="190"
               class="pt-0 pl-0 pb-0 event-card"
               @click="openEditDialog(event)"
             >
@@ -339,10 +365,6 @@
                         <p class="pt-3 text-caption font-weight-bold">
                           {{
                             new Date(event.event_date)
-                              .toLocaleDateString("en-US", {
-                                month: "short",
-                              })
-                              .toUpperCase()
                           }}
                         </p>
                         <p
@@ -420,7 +442,7 @@
           </v-col>
         </v-row>
         <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
-        <v-dialog v-model="editEventDialog" max-width="1024">
+        <v-dialog v-model="editEventDialog" max-width="1024" scroll-target="#app">
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
@@ -496,10 +518,8 @@
                       <v-avatar
                         size="50"
                         :class="{
-                          'selected-reward':
-                            editableEvent.rewards.includes(reward),
-                          'unselected-reward':
-                            !editableEvent.rewards.includes(reward),
+                          'selected-reward': editableEvent.rewards?.includes(reward) ?? false,
+                          'unselected-reward': !(editableEvent.rewards?.includes(reward) ?? false)
                         }"
                         @click="isEditable && toggleEditReward(reward)"
                       >
@@ -596,17 +616,13 @@ const openEditDialog = (event, editable = false) => {
 };
 
 // Lista de players de exemplo para simular a resposta da API
-// const samplePlayers = ref([
-//   { id: 1, name: "Player One", status: "Seeks Entry" },
-//   { id: 2, name: "Player Two", status: "Seeks Entry" },
-//   { id: 3, name: "Player Three", status: "Seeks Entry" },
-//   { id: 4, name: "Player Four", status: "Seeks Entry" },
-//   { id: 5, name: "Player Five", status: "Seeks Entry" },
-//   { id: 6, name: "Player Six", status: "Seeks Entry" },
-//   { id: 7, name: "Player Seven", status: "Seeks Entry" },
-//   { id: 8, name: "Player Eight", status: "Seeks Entry" },
-//   { id: 9, name: "Player Nine", status: "Seeks Entry" }
-// ]);
+const fakeInterestedPlayers = ref([
+  { id: 101, user_name: "FakeUser1", event_status: "Seeks Entry" },
+  { id: 102, user_name: "FakeUser2", event_status: "Seeks Entry" },
+  { id: 103, user_name: "FakeUser3", event_status: "Seeks Entry" },
+  { id: 104, user_name: "FakeUser4", event_status: "Seeks Entry" },
+  { id: 105, user_name: "FakeUser5", event_status: "Seeks Entry" },
+]);
 
 const players = ref([]);
 const currentPage = ref(1);
@@ -649,11 +665,18 @@ const fetchPlayers = () => {
       params: { events_fk: 31 },
     })
     .then((response) => {
-      players.value = response.data.players;
+      // Se a API retornar players, usa-os; caso contrário, usa o fake
+      if (response.data.players && response.data.players.length > 0) {
+        players.value = response.data.players;
+      } else {
+        players.value = fakeInterestedPlayers.value;
+      }
       console.log("Players:", players.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar jogadores:", error);
+      // Em caso de erro, fallback para os players fake
+      players.value = fakeInterestedPlayers.value;
     });
 };
 
@@ -673,8 +696,8 @@ const updatePlayerStatus = (player, newStatus) => {
 
   axios
     .post("/rl_events_users/cadastro", {
-      users_fk: 425,
-      events_fk: 31,
+      users_fk: appUser,
+      events_fk: 61,
       status: newStatus,
     })
     .then((response) => {
@@ -821,7 +844,7 @@ const fetchSceneries = async () => {
     },
   }).then((response) => {
     sceneries.value = response.data.sceneries || [];
-
+    console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
     console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
   })
@@ -861,31 +884,32 @@ const addEvent = async () => {
     });
 
     const allStores = response.data.stores || [];
-    selectedStore = allStores.find(
+    const selectedStore = stores.value.find(
       (store) =>
         store.name?.toLowerCase().trim() ===
-        newEvent.value.store?.toLowerCase().trim()
+        newEvent.value.store?.toLowerCase().trim(),
     );
-
     if (!selectedStore) {
       console.error("❌ Store não encontrada na API.");
       return;
     }
 
     storesFk = selectedStore.stores_pk;
+    console.log("storesFk:", storesFk);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar stores na API:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
     return;
   }
 
   try {
+    // Combinar data e hora no formato "%Y-%m-%d; %I:%M %p"
     const formattedDate = new Date(
-      `${newEvent.value.date}T${newEvent.value.hour}`
+      `${newEvent.value.date}T${newEvent.value.hour}`,
     );
-    const dateString = formattedDate.toLocaleDateString("en-CA"); 
+    const dateString = formattedDate.toLocaleDateString("en-CA"); // YYYY-MM-DD
     const timeString = formattedDate.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
@@ -909,18 +933,31 @@ const addEvent = async () => {
       },
     });
 
+    console.log("✅ Evento criado:", response.data);
 
-
-    await fetchUserCreatedEvents();
-    await fetchPlayerEvents();
-
-
+    // Reseta o formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
+    await fetchUserCreatedEvents();
+
+    userCreatedEvents.value.push({
+      ...newEvent.value,
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
+    });
+
+    // Opcional: Atualizar lista local de eventos
+    events.value.push({
+      ...newEvent.value,
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
+    });
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar evento:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -962,6 +999,7 @@ const fetchUserCreatedEvents = async () => {
     });
 
     userCreatedEvents.value = response.data.events || [];
+    console.log("Eventos criados pelo usuário:", userCreatedEvents.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos criados pelo usuário:",
@@ -1027,6 +1065,7 @@ onMounted(async () => {
 
     stores.value = response.data.stores || [];
 
+    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
@@ -1071,7 +1110,16 @@ const toggleEditReward = (reward) => {
   }
 };
 
-
+const handleEditImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      editableEvent.value.image = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
 const getPlayersForEvent = async (event_fk) => {
   await axios
