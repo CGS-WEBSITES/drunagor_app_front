@@ -625,8 +625,8 @@ const paginatedPlayers = computed(() => {
   const allPlayers = eventFk && playersByEvent.value[eventFk]
     ? playersByEvent.value[eventFk]
     : [];
-  console.log("Paginated Players:", allPlayers);
   const start = (currentPage.value - 1) * pageSize;
+  
   return allPlayers.slice(start, start + pageSize);
 });
 
@@ -691,10 +691,12 @@ const updatePlayerStatus = (player, newStatus) => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
+  const eventFk = selectedEvent.value?.events_pk;
+
   axios
     .post("/rl_events_users/cadastro", {
       users_fk: appUser,
-      events_fk: 61,
+      events_fk: eventFk,
       status: newStatus,
     })
     .then((response) => {
@@ -892,7 +894,6 @@ const addEvent = async () => {
     }
 
     storesFk = selectedStore.stores_pk;
-    console.log("storesFk:", storesFk);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar stores na API:",
@@ -902,7 +903,6 @@ const addEvent = async () => {
   }
 
   try {
-    // Combinar data e hora no formato "%Y-%m-%d; %I:%M %p"
     const formattedDate = new Date(
       `${newEvent.value.date}T${newEvent.value.hour}`,
     );
