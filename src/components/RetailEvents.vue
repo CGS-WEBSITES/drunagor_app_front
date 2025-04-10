@@ -687,25 +687,34 @@ onMounted(() => {
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 });
 
-const updatePlayerStatus = (player, newStatus) => {
-  const usersPk = localStorage.getItem("app_user");
-  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+const updatePlayerStatus = async (player, statusPk) => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("app_user"));
+    const eventFk = selectedEvent.value?.events_pk;
 
-  const eventFk = selectedEvent.value?.events_pk;
+    if (!userData?.users_pk || !eventFk) {
+      console.error("Missing required user or event data");
+      return;
+    }
 
-  axios
-    .post("/rl_events_users/cadastro", {
-      users_fk: appUser,
+    const response = await axios.put("/rl_events_users/alter", {
+      events_pk: eventFk,
+      users_fk: userData.users_pk,
       events_fk: eventFk,
-      status: newStatus,
-    })
-    .then((response) => {
-      player.status = newStatus;
-      console.log("Status atualizado:", response.data);
-    })
-    .catch((error) => {
-      console.error("Erro ao atualizar status:", error);
+      status: statusPk 
     });
+
+    console.log("Status updated successfully:", response.data);
+    player.event_status = statusPk;
+    fetchPlayersForEvent(eventFk); 
+
+  } catch (error) {
+    console.error("Error updating player status:", {
+      request: error.config?.data,
+      response: error.response?.data,
+      message: error.message
+    });
+  }
 };
 
 const dateRules = [
