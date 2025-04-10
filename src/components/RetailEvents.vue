@@ -302,7 +302,7 @@
                         'selected-reward': selectedRewards.includes(reward),
                         'unselected-reward': !selectedRewards.includes(reward),
                       }"
-                      @click="toggleReward(reward)"
+                      @click="isEditable && toggleEditReward(reward)"
                       cols="auto"
                       v-for="(reward, index) in availableRewards"
                       :key="index"
@@ -605,16 +605,13 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  editableEvent.value = { ...event };
-  // Garante que editableEvent.rewards seja um array
-  if (!editableEvent.value.rewards) {
-    editableEvent.value.rewards = [];
-  }
+  // Atribui o evento clicado e inicializa rewards se não existir
+  editableEvent.value = { ...event, rewards: event.rewards || [] };
   isEditable.value = editable;
   editEventDialog.value = true; // Abre o diálogo imediatamente
 
   if (!editable) {
-    // Se não for o modo edição (ou seja, apenas visualização), busca os players e os status
+    // Busca a lista de players para o evento atual (mesmo que retorne array vazio)
     fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
     fetchStatuses().catch((err) => console.error(err));
   }
@@ -635,23 +632,16 @@ const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
 
 const paginatedPlayers = computed(() => {
-  try {
-    const eventFk = selectedEvent.value?.events_pk;
-    const allPlayers = eventFk && playersByEvent.value[eventFk]
-      ? playersByEvent.value[eventFk]
-      : [];
-    const start = (currentPage.value - 1) * pageSize;
-    return allPlayers.slice(start, start + pageSize);
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+  const eventFk = selectedEvent.value?.events_pk;
+  const allPlayers = eventFk && playersByEvent.value[eventFk]
+    ? playersByEvent.value[eventFk]
+    : [];
+  const start = (currentPage.value - 1) * pageSize;
+  return allPlayers.slice(start, start + pageSize);
 });
 
 const statuses = ref([]);
 
-// O status predefinido é "Seeks Entry", e os botões usam os seguintes status:
-// "Granted Passage" e "Turned Away"
 const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 
@@ -1103,7 +1093,7 @@ const handleImageUpload = (event) => {
 };
 
 const editEventDialog = ref(false);
-const editableEvent = ref({});
+const editableEvent = ref({ rewards: [] });
 
 const saveEditedEvent = () => {
   const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
