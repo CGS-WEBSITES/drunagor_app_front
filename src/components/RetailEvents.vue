@@ -99,8 +99,17 @@
               <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <br />
               <p class="text-end scheduled-box">
-                Sheduled for: {{ selectedEvent?.event_date }}
-                {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }}
+                Scheduled for:
+  {{
+    new Date(selectedEvent?.event_date).toLocaleString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    })
+  }}
               </p>
             </v-card-text>
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
@@ -345,7 +354,7 @@
                           }}
                         </p>
                         <p class="text-caption font-weight-bold">
-                          {{ String(event.event_date).split('T')[0].split('-')[2] }}
+                          {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
                           <!-- {{ event.ampm }} -->
                         </p>
                       </div>
@@ -1058,16 +1067,7 @@ const toggleEditReward = (reward) => {
   }
 };
 
-const handleEditImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editableEvent.value.image = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
+
 
 const getPlayersForEvent = async (event_fk) => {
   await axios
