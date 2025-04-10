@@ -535,7 +535,7 @@
                     <v-col
                       cols="12"
                       v-for="(player, index) in paginatedPlayers"
-                      :key="player.id"
+                      :key="player.users_pk"
                     >
                       <v-row align="center">
                         <v-col cols="6">
@@ -606,22 +606,14 @@ const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
   editableEvent.value = { ...event, rewards: event.rewards || [] };
+  selectedEvent.value = event;
   isEditable.value = editable;
-  editEventDialog.value = true; // Abre o diálogo imediatamente
+  editEventDialog.value = true;
   if (!editable) {
     fetchPlayersForEvent(event.events_pk);
     fetchStatuses();
   }
 };
-
-// Lista de players de exemplo para simular a resposta da API
-// const fakeInterestedPlayers = ref([
-//   { id: 101, user_name: "FakeUser1", event_status: "Seeks Entry" },
-//   { id: 102, user_name: "FakeUser2", event_status: "Seeks Entry" },
-//   { id: 103, user_name: "FakeUser3", event_status: "Seeks Entry" },
-//   { id: 104, user_name: "FakeUser4", event_status: "Seeks Entry" },
-//   { id: 105, user_name: "FakeUser5", event_status: "Seeks Entry" },
-// ]);
 
 const players = ref([]);
 const currentPage = ref(1);
@@ -629,10 +621,11 @@ const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
 
 const paginatedPlayers = computed(() => {
-  const eventFk = selectedEvent.value?.events_pk;
+  const eventFk = selectedEvent.value?.events_pk ? Number(selectedEvent.value.events_pk) : null;
   const allPlayers = eventFk && playersByEvent.value[eventFk]
     ? playersByEvent.value[eventFk]
     : [];
+  console.log("Paginated Players:", allPlayers);
   const start = (currentPage.value - 1) * pageSize;
   return allPlayers.slice(start, start + pageSize);
 });
@@ -668,20 +661,20 @@ const fetchPlayersForEvent = async (eventFk) => {
     const response = await axios.get("/rl_events_users/list_players", {
       params: { events_fk: eventFk },
     });
-    // Se a API retornar players como null, usamos um array vazio
-    playersByEvent.value[eventFk] = response.data.players ?? [];
-    console.log(`Players for event ${eventFk}:`, playersByEvent.value[eventFk]);
+    // Converte eventFk para número para manter consistência:
+    const key = Number(eventFk);
+    playersByEvent.value[key] = response.data.players ?? [];
+    console.log(`Players for event ${key}:`, playersByEvent.value[key]);
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      // Se a API retorna 404, definimos como array vazio (nenhum player encontrado)
-      playersByEvent.value[eventFk] = [];
+      playersByEvent.value[Number(eventFk)] = [];
       console.warn(`No players found for event ${eventFk}`);
     } else {
       console.error(
-        "Erro ao buscar jogadores para o evento:",
+        `Erro ao buscar jogadores para o evento ${eventFk}:`,
         error.response?.data || error.message
       );
-      playersByEvent.value[eventFk] = [];
+      playersByEvent.value[Number(eventFk)] = [];
     }
   }
 };
