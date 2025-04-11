@@ -459,10 +459,11 @@
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="6" v-if="isEditable">
+                  
                   <v-select
                     v-model="editableEvent.sceneries_fk"
                     :items="sceneries"
-                    item-text="name"
+                    item-title="name"
                     item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
