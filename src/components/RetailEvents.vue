@@ -641,31 +641,47 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  // Conversão do event_date para extração dos valores necessários
-  const eventDate = new Date(event.event_date);
-  // Obtém a parte de hora no formato de 24h para facilitar a combinação
-  const hours24 = eventDate.getHours();
-  const minutes = String(eventDate.getMinutes()).padStart(2, '0');
-  // Para exibição usamos 12h e AM/PM
-  const hours12 = hours24 % 12 || 12;
-  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+  // Supondo que o evento possui:
+  // - event.events_pk
+  // - event.date   ==> "2025-04-30; 12:32 PM" (como string)
+  // - event.seats_number
+  // - event.sceneries_fk
+  // - event.store_name
+  // - event.address
+  // - event.rewards (pode ser array)
+  const eventDateString = event.date; // use o campo 'date' retornado pela API
+  // Se quiser converter a parte da data e hora para mostrar em inputs,
+  // você pode quebrar a string:
+  let datePart = "";
+  let timePart = "";
+  if (eventDateString) {
+    // Supondo que a API formata como "YYYY-MM-DD; HH:MM AM/PM"
+    const parts = eventDateString.split(";");
+    datePart = parts[0].trim();
+    timePart = parts[1] ? parts[1].trim() : "";
+  }
+  // Se desejar separar a hora e o AM/PM:
+  let hour = "";
+  let ampm = "";
+  if (timePart) {
+    const timeParts = timePart.split(" ");
+    hour = timeParts[0] || "";
+    ampm = timeParts[1] || "";
+  }
 
-  // Cria um objeto com as mesmas propriedades utilizadas no template
   editableEvent.value = {
-    events_pk: event.events_pk, // Preserva a chave do evento
-    date: event.event_date.split('T')[0],
-    // Formata a hora de acordo com o que o input espera (por exemplo, "HH:MM")
-    hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
-    ampm,
-    eventseats: event.seats_number,     // usando "eventseats" conforme o template
-    sceneries: event.event_scenario,      // supondo que event.event_scenario já seja o sceneries_pk
+    events_pk: event.events_pk,
+    date: datePart, // data no formato YYYY-MM-DD
+    hour,         // hora no formato HH:MM
+    ampm,         // "AM" ou "PM"
+    seats_number: event.seats_number,
+    sceneries_fk: event.sceneries_fk,
     rewards: event.rewards || [],
     store_name: event.store_name,
     address: event.address,
-    // Adicione outros campos se necessário
   };
 
-  // Define também o selectedEvent para que o computed paginatedPlayers use o events_pk correto
+  // Também guarde o evento selecionado para computed (se necessário)
   selectedEvent.value = event;
 
   isEditable.value = editable;
@@ -1178,20 +1194,25 @@ const saveEditedEvent = async () => {
       return;
     }
 
-    // Cria o payload usando as propriedades atualizadas
+    // Combine a data e a hora editadas em um formato que a API espera
+    // Aqui assumo que a API deseja o campo 'date' no formato "YYYY-MM-DD; HH:MM AM/PM"
+    const eventDateFormatted = `${editableEvent.value.date}; ${editableEvent.value.hour} ${editableEvent.value.ampm}`;
+
     const payload = {
-      seats_number: editableEvent.value.eventseats,
-      sceneries_fk: editableEvent.value.sceneries,
-      // Combina data e hora para formar o novo event_date
-      event_date: `${editableEvent.value.date}T${editableEvent.value.hour}`,
-      // Outros campos, se houver
+      seats_number: editableEvent.value.seats_number,
+      // Pode incluir outros campos que precisar (ex: seasons_fk, etc.)
+      sceneries_fk: editableEvent.value.sceneries_fk,
+      date: eventDateFormatted,
+      // Caso seja necessário atualizar outras propriedades, adicione-as aqui
     };
 
     const response = await axios.put(
       "/events/alter",
       payload,
       {
-        params: { events_pk: eventPk },
+        params: {
+          events_pk: eventPk,
+        },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -1199,6 +1220,7 @@ const saveEditedEvent = async () => {
     );
     console.log("Evento alterado com sucesso:", response.data);
 
+    // Atualize a lista local de eventos, se necessário:
     const index = events.value.findIndex((e) => e.events_pk === eventPk);
     if (index !== -1) {
       events.value[index] = { ...editableEvent.value };
