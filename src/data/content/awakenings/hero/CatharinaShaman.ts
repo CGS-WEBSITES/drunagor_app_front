@@ -1,4 +1,4 @@
-import AvatarImageUrl from "@/assets/hero/avatar/CatharinaAvatar.webp";
+import AvatarImageUrl from "@/assets/hero/avatar/CatharinaShamanAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/CatharinaShamanAvatar.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
