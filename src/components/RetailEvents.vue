@@ -452,7 +452,7 @@
               <v-row>
                 <v-col cols="6" md="6" v-if="isEditable">
   <v-select
-    v-model="editableEvent.eventseats"
+    v-model="editableEvent.seats_number"
     :items="[1, 2, 3, 4]"
     label="SEATS"
     variant="outlined"
@@ -472,7 +472,7 @@
 
 <v-col cols="6" md="3" v-if="isEditable">
   <v-text-field
-    v-model="editableEvent.hour"
+    v-model="editableEvent.time"
     label="TIME"
     variant="outlined"
     placeholder="HH:MM"
@@ -648,10 +648,27 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  editableEvent.value = { ...event, rewards: event.rewards || [] };
+  const eventDate = new Date(event.event_date);
+ 
+  const hours24 = eventDate.getHours();
+  const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+
+  const hours12 = hours24 % 12 || 12; 
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+
+  editableEvent.value = {
+    date: event.event_date.split('T')[0], 
+    time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
+    ampm,
+    seats_number: event.seats_number,
+    sceneries: event.event_scenario,
+    rewards: event.rewards || [], 
+  };
+
   selectedEvent.value = event;
   isEditable.value = editable;
   editEventDialog.value = true;
+
   if (!editable) {
     fetchPlayersForEvent(event.events_pk);
     fetchStatuses();
@@ -1140,7 +1157,7 @@ const handleImageUpload = (event) => {
 };
 
 const editEventDialog = ref(false);
-const editableEvent = ref({ rewards: [] });
+const editableEvent = ref();
 
 const saveEditedEvent = () => {
   const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
@@ -1159,16 +1176,7 @@ const toggleEditReward = (reward) => {
   }
 };
 
-const handleEditImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editableEvent.value.image = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
+
 </script>
 
 <style scoped>
