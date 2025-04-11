@@ -460,12 +460,13 @@
                 </v-col>
                 <v-col cols="6" md="6" v-if="isEditable">
                   <v-select
-                    v-model="editableEvent.sceneries"
+                    v-model="editableEvent.sceneries_fk"
                     :items="sceneries"
                     item-text="name"
                     item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
+                    :key="sceneries.length"
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
@@ -660,12 +661,13 @@ const openEditDialog = (event, editable = false) => {
   }
 
   editableEvent.value = {
+    ...event,
     events_pk: event.events_pk,
     date: datePart, 
     hour,        
     ampm,         
     seats_number: event.seats_number,
-    sceneries_fk: event.sceneries_fk,
+    sceneries_fk: event.scenario?.sceneries_pk,
     rewards: event.rewards || [],
     store_name: event.store_name,
     address: event.address,
@@ -927,7 +929,7 @@ const fetchSceneries = async () => {
       Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
     },
   }).then((response) => {
-    sceneries.value = response.data.sceneries || [];
+    sceneries.value = [...response.data.sceneries]; 
     console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
     console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
