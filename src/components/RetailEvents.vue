@@ -641,28 +641,18 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  // Supondo que o evento possui:
-  // - event.events_pk
-  // - event.date   ==> "2025-04-30; 12:32 PM" (como string)
-  // - event.seats_number
-  // - event.sceneries_fk
-  // - event.store_name
-  // - event.address
-  // - event.rewards (pode ser array)
-  const eventDateString = event.date; // use o campo 'date' retornado pela API
-  // Se quiser converter a parte da data e hora para mostrar em inputs,
-  // você pode quebrar a string:
+  const eventDateString = event.date; 
   let datePart = "";
   let timePart = "";
+
   if (eventDateString) {
-    // Supondo que a API formata como "YYYY-MM-DD; HH:MM AM/PM"
     const parts = eventDateString.split(";");
     datePart = parts[0].trim();
     timePart = parts[1] ? parts[1].trim() : "";
   }
-  // Se desejar separar a hora e o AM/PM:
   let hour = "";
   let ampm = "";
+
   if (timePart) {
     const timeParts = timePart.split(" ");
     hour = timeParts[0] || "";
@@ -671,9 +661,9 @@ const openEditDialog = (event, editable = false) => {
 
   editableEvent.value = {
     events_pk: event.events_pk,
-    date: datePart, // data no formato YYYY-MM-DD
-    hour,         // hora no formato HH:MM
-    ampm,         // "AM" ou "PM"
+    date: datePart, 
+    hour,        
+    ampm,         
     seats_number: event.seats_number,
     sceneries_fk: event.sceneries_fk,
     rewards: event.rewards || [],
@@ -681,11 +671,10 @@ const openEditDialog = (event, editable = false) => {
     address: event.address,
   };
 
-  // Também guarde o evento selecionado para computed (se necessário)
   selectedEvent.value = event;
 
   isEditable.value = editable;
-  editEventDialog.value = true; // Abre o diálogo imediatamente
+  editEventDialog.value = true;
 
   if (!editable) {
     fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
@@ -1194,16 +1183,19 @@ const saveEditedEvent = async () => {
       return;
     }
 
-    // Combine a data e a hora editadas em um formato que a API espera
-    // Aqui assumo que a API deseja o campo 'date' no formato "YYYY-MM-DD; HH:MM AM/PM"
-    const eventDateFormatted = `${editableEvent.value.date}; ${editableEvent.value.hour} ${editableEvent.value.ampm}`;
+    const hourValue = editableEvent.value.hour && editableEvent.value.hour.trim() !== ""
+      ? editableEvent.value.hour
+      : "12:00";
+    const ampmValue = editableEvent.value.ampm && editableEvent.value.ampm.trim() !== ""
+      ? editableEvent.value.ampm
+      : "PM";
+
+    const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
 
     const payload = {
       seats_number: editableEvent.value.seats_number,
-      // Pode incluir outros campos que precisar (ex: seasons_fk, etc.)
       sceneries_fk: editableEvent.value.sceneries_fk,
       date: eventDateFormatted,
-      // Caso seja necessário atualizar outras propriedades, adicione-as aqui
     };
 
     const response = await axios.put(
@@ -1220,7 +1212,6 @@ const saveEditedEvent = async () => {
     );
     console.log("Evento alterado com sucesso:", response.data);
 
-    // Atualize a lista local de eventos, se necessário:
     const index = events.value.findIndex((e) => e.events_pk === eventPk);
     if (index !== -1) {
       events.value[index] = { ...editableEvent.value };
