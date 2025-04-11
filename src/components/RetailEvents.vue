@@ -814,7 +814,7 @@ const handleTimeInput = (event) => {
     if (m > 59) mm = "59";
     else mm = m.toString().padStart(2, "0");
   }
-  
+
   if (mm) {
     newEvent.value.hour = `${hh}:${mm}`;
   } else {
@@ -1160,12 +1160,44 @@ const handleImageUpload = (event) => {
 const editEventDialog = ref(false);
 const editableEvent = ref({ rewards: [] });
 
-const saveEditedEvent = () => {
-  const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
-  if (index !== -1) {
-    events.value[index] = { ...editableEvent.value };
+const saveEditedEvent = async () => {
+  try {
+    const payload = {
+      seats_number: editableEvent.value.seats_number,
+      sceneries_fk: editableEvent.value.sceneries, 
+      event_date: `${editableEvent.value.date}T${editableEvent.value.time}`,
+    };
+
+    const eventPk = editableEvent.value.events_pk;
+    console.log("Event PK:", eventPk);
+    if (!eventPk) {
+      console.error("Evento sem events_pk definido");
+      return;
+    }
+
+    const response = await axios.put(
+      "/events/alter",
+      payload,
+      {
+        params: {
+          events_pk: eventPk
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+    console.log("Evento alterado com sucesso:", response.data);
+
+    // Atualiza o evento na lista local, se necessário
+    const index = events.value.findIndex((e) => e.events_pk === eventPk);
+    if (index !== -1) {
+      events.value[index] = { ...editableEvent.value };
+    }
+    editEventDialog.value = false;
+  } catch (error) {
+    console.error("Erro ao alterar o evento:", error.response?.data || error.message);
   }
-  editEventDialog.value = false;
 };
 
 const toggleEditReward = (reward) => {
