@@ -583,7 +583,7 @@
         <v-btn
           color="green"
           size="x-small"
-          class="mt-2"
+          class="mb-1 mt-1"
           block
           @click="updatePlayerStatus(player, grantedStatus)"
         >
@@ -593,7 +593,7 @@
           color="red"
           size="x-small"
           block
-          class="mt-2"
+          class="mt-2 mb-1"
           @click="updatePlayerStatus(player, turnedAwayStatus)"
         >
           Turned Away
