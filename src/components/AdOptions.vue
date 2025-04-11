@@ -16,7 +16,7 @@
           <v-card-text v-if="isExpanded">
             <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
               :type="alertType" class="mb-6"></v-alert>
-            <v-btn block color="#A02C2C" class="text-white text-body-1 font-weight-bold mb-3" @click="deleteUser()">
+            <v-btn block color="#A02C2C" class="text-white text-body-1 font-weight-bold mb-3" @click="deleteUser(user_pk)">
               DELETE
             </v-btn>
 
@@ -93,29 +93,34 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertType.value = type;
 };
 
-const deleteUser = async () => {
-  await axios
-    .delete(`users/${user.user_pk}/delete/`, {
-      // Headers
-      headers: getToken(),
-    })
-    .then(async (response: any) => {
-      console.log("API Response:", response);
-      // Exibe alerta de sucesso
-      setAllert("mdi-check", response.status, response.data.message, "success");
-      logOut()
-    })
-    .catch((error: any) => {
-      console.error("Error during login:", error);
-      // Trata erros com mensagens apropriadas
-      setAllert(
-        "mdi-alert-circle",
-        error.response?.status || 500,
-        error.response?.data?.message || "A network error occurred.",
-        "error"
-      );
+const userStore = useUserStore();
 
-    });
+const deleteUser = async () => {
+  try {
+    const user_pk = userStore.user?.users_pk;
+    if (!user_pk) {
+      console.error("❌ Usuário não encontrado.");
+      return;
+    }
+
+    const response = await axios.delete(
+      `/users/${user_pk}/delete/`,
+      {
+        headers: getToken(),
+      }
+    );
+
+    setAllert("mdi-check", response.status, response.data.message, "success");
+    logOut();
+  } catch (error) {
+    console.error("❌ Erro ao deletar usuário:", error);
+    setAllert(
+      "mdi-alert-circle",
+      error.response?.status || 500,
+      error.response?.data?.message || "A network error occurred.",
+      "error"
+    );
+  }
 };
 
 const logOut = () => {
