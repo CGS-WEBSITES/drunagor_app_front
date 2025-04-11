@@ -697,11 +697,14 @@ const updatePlayerStatus = async (player, statusPk) => {
       return;
     }
 
-    const response = await axios.put("/rl_events_users/alter", {
-      events_pk: eventFk,
-      users_fk: userData.users_pk,
-      events_fk: eventFk,
-      status: statusPk 
+    const response = await axios.put("/rl_events_users/alter", {}, {
+      params: {
+        events_pk: eventFk,
+        users_fk: userData.users_pk,
+        events_fk: eventFk,
+        status: statusPk,
+        active: true,
+      }
     });
 
     console.log("Status updated successfully:", response.data);
