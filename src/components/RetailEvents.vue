@@ -340,7 +340,7 @@
           >
             <v-card
               color="white"
-              max-height="190"
+              max-height="120"
               class="pt-0 pl-0 pb-0 event-card"
               @click="openEditDialog(event)"
             >
@@ -355,7 +355,7 @@
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </v-col>
-                <v-col cols="8" sm="" class="pt-6 pr-3">
+                <v-col cols="8" class="pt-6 pr-3">
                   <v-row no-gutters>
                     <v-col cols="4" sm="2">
                       <div
@@ -365,6 +365,10 @@
                         <p class="pt-3 text-caption font-weight-bold">
                           {{
                             new Date(event.event_date)
+                            .toLocaleDateString("en-US", {
+                              month: "short",
+                            })
+                            .toUpperCase()
                           }}
                         </p>
                         <p
@@ -442,29 +446,19 @@
           </v-col>
         </v-row>
         <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
-        <v-dialog v-model="editEventDialog" max-width="1024" scroll-target="#app">
+        <v-dialog v-model="editEventDialog" scroll-target="#app">
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="editableEvent.eventdesc"
-                    label="EVENT DESCRIPTION"
-                    counter="355"
-                    variant="outlined"
-                    :disabled="!isEditable"
-                  ></v-textarea>
-                </v-col>
-                <v-col cols="6" md="6">
+                <v-col cols="6" md="6" v-if="isEditable">
                   <v-select
-                    v-model="editableEvent.eventseats"
+                    v-model="editableEvent.seats_number"
                     :items="[1, 2, 3, 4]"
                     label="SEATS"
                     variant="outlined"
-                    :disabled="!isEditable"
                   ></v-select>
                 </v-col>
-                <v-col cols="6" md="6">
+                <v-col cols="6" md="6" v-if="isEditable">
                   <v-select
                     v-model="editableEvent.sceneries"
                     :items="sceneries"
@@ -472,29 +466,26 @@
                     item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
-                    :disabled="!isEditable"
                   ></v-select>
                 </v-col>
-                <v-col cols="6" md="3">
+                <v-col cols="6" md="3" v-if="isEditable">
                   <v-text-field
-                    v-model="editableEvent.hour"
+                    v-model="editableEvent.time"
                     label="TIME"
                     variant="outlined"
                     placeholder="HH:MM"
                     maxlength="5"
-                    :disabled="!isEditable"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="6" md="2">
+                <v-col cols="6" md="2" v-if="isEditable">
                   <v-select
                     v-model="editableEvent.ampm"
                     :items="['AM', 'PM']"
                     label="AM/PM"
                     variant="outlined"
-                    :disabled="!isEditable"
                   ></v-select>
                 </v-col>
-                <v-col cols="12" md="2" class="d-flex align-center">
+                <v-col cols="12" md="2" class="d-flex align-center" v-if="isEditable">
                   <v-text-field
                     v-model="editableEvent.date"
                     label="DATE"
@@ -504,10 +495,9 @@
                     :min="today"
                     :max="oneYearFromTodayISO"
                     :rules="dateRules"
-                    :disabled="!isEditable"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
                     <v-col
@@ -521,7 +511,7 @@
                           'selected-reward': editableEvent.rewards?.includes(reward) ?? false,
                           'unselected-reward': !(editableEvent.rewards?.includes(reward) ?? false)
                         }"
-                        @click="isEditable && toggleEditReward(reward)"
+                        @click="toggleEditReward(reward)"
                       >
                         <v-img :src="reward.image"></v-img>
                       </v-avatar>
@@ -536,30 +526,76 @@
                       cols="12"
                       v-for="(player, index) in paginatedPlayers"
                       :key="player.users_pk"
+                      class="pa-"
                     >
-                      <v-row align="center">
-                        <v-col cols="6">
-                          <p>
-                            {{ player.user_name }} - Status: {{ player.event_status }}
-                          </p>
-                        </v-col>
-                        <v-col cols="3">
-                          <v-btn
-                            color="green"
-                            @click="updatePlayerStatus(player, grantedStatus)"
-                            >Granted Passage</v-btn
+                      <v-card
+                        class="pa-1 mb-3"
+                        rounded="lg"
+                        elevation="10" >
+                      
+                        <v-row no-gutters> <!-- remove espaço interno entre colunas -->
+                          <!-- Imagem do jogador -->
+                        <v-col
+                            cols="4"
+                            lg="1"
+                            class="d-flex"
                           >
-                        </v-col>
-                        <v-col cols="3">
-                          <v-btn
-                            color="red"
-                            @click="
-                              updatePlayerStatus(player, turnedAwayStatus)
-                            "
-                            >Turned Away</v-btn
+                            <v-img
+                              :src="player.picture_hash
+                                ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
+                                : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'"
+                              alt="Player Image"
+                              max-width="90"
+                              max-height="90"
+                              class="rounded-lg"
+                            ></v-img>
+                          </v-col>
+
+                          <!-- Informações -->
+                          <v-col cols="8" class=" pl-3 d-flex flex-column justify-center">
+                            <p class="font-weight-bold text-truncate">
+                              {{ player.user_name }}
+                            </p>
+                            <p class="text-caption">
+                              Status: {{ player.event_status }}
+                            </p>
+                            <p v-if="player.status_date" class="text-caption grey--text">
+                              Received: {{ new Date(player.status_date).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }) }}
+                            </p>
+                          </v-col>
+
+                          <!-- Botões -->
+                          <v-col
+                            cols="12" md="3"
+                            class="d-flex align-center justify-end flex-column"
                           >
-                        </v-col>
-                      </v-row>
+                            <v-btn
+                              color="green"
+                              size="x-small"
+                              class="mt-2"
+                              block
+                              @click="updatePlayerStatus(player, grantedStatus)"
+                            >
+                              Granted Passage
+                            </v-btn>
+                            <v-btn
+                              color="red"
+                              size="x-small"
+                              block
+                              class="mt-2"
+                              @click="updatePlayerStatus(player, turnedAwayStatus)"
+                            >
+                              Turned Away
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+                      </v-card>
                     </v-col>
                     <v-col cols="12" class="d-flex justify-center">
                       <v-pagination
@@ -605,10 +641,26 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  editableEvent.value = { ...event, rewards: event.rewards || [] };
+  const eventDate = new Date(event.event_date);
+  const hours24 = eventDate.getHours();
+  const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+
+  const hours12 = hours24 % 12 || 12; 
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+
+  editableEvent.value = {
+    date: event.event_date.split('T')[0], 
+    time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
+    ampm,
+    seats_number: event.seats_number,
+    sceneries: event.event_scenario,
+    rewards: event.rewards || [], 
+  };
+
   selectedEvent.value = event;
   isEditable.value = editable;
   editEventDialog.value = true;
+
   if (!editable) {
     fetchPlayersForEvent(event.events_pk);
     fetchStatuses();
@@ -704,7 +756,10 @@ const updatePlayerStatus = async (player, statusPk) => {
         events_fk: eventFk,
         status: statusPk,
         active: true,
-      }
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
 
     console.log("Status updated successfully:", response.data);
@@ -746,17 +801,20 @@ const handleTimeInput = (event) => {
   raw = raw.slice(0, 4);
   let hh = raw.slice(0, 2);
   let mm = raw.slice(2, 4);
+  
   if (hh.length === 2) {
     let h = parseInt(hh);
     if (h < 1) hh = "01";
     else if (h > 12) hh = "12";
     else hh = h.toString().padStart(2, "0");
   }
+
   if (mm.length === 2) {
     let m = parseInt(mm);
     if (m > 59) mm = "59";
     else mm = m.toString().padStart(2, "0");
   }
+  
   if (mm) {
     newEvent.value.hour = `${hh}:${mm}`;
   } else {
