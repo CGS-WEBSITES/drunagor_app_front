@@ -649,6 +649,7 @@ const openEditDialog = (event, editable = false) => {
   const ampm = hours24 >= 12 ? 'PM' : 'AM';
 
   editableEvent.value = {
+    ...event,
     date: event.event_date.split('T')[0], 
     time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
     ampm,
@@ -1169,7 +1170,7 @@ const saveEditedEvent = async () => {
     };
 
     const eventPk = editableEvent.value.events_pk;
-    console.log("Event PK:", eventPk);
+
     if (!eventPk) {
       console.error("Evento sem events_pk definido");
       return;
