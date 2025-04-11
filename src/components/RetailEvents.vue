@@ -1217,6 +1217,7 @@ const saveEditedEvent = async () => {
       events.value[index] = { ...editableEvent.value };
     }
     editEventDialog.value = false;
+    await fetchUserCreatedEvents();
   } catch (error) {
     console.error("Erro ao alterar o evento:", error.response?.data || error.message);
   }
