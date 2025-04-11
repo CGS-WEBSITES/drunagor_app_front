@@ -459,13 +459,15 @@
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="6" v-if="isEditable">
+                  
                   <v-select
-                    v-model="editableEvent.sceneries"
+                    v-model="editableEvent.sceneries_fk"
                     :items="sceneries"
-                    item-text="name"
+                    item-title="name"
                     item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
+                    :key="sceneries.length"
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
@@ -641,29 +643,45 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  const eventDate = new Date(event.event_date);
-  const hours24 = eventDate.getHours();
-  const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+  const eventDateString = event.date; 
+  let datePart = "";
+  let timePart = "";
 
-  const hours12 = hours24 % 12 || 12; 
-  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+  if (eventDateString) {
+    const parts = eventDateString.split(";");
+    datePart = parts[0].trim();
+    timePart = parts[1] ? parts[1].trim() : "";
+  }
+  let hour = "";
+  let ampm = "";
+
+  if (timePart) {
+    const timeParts = timePart.split(" ");
+    hour = timeParts[0] || "";
+    ampm = timeParts[1] || "";
+  }
 
   editableEvent.value = {
-    date: event.event_date.split('T')[0], 
-    time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
-    ampm,
+    ...event,
+    events_pk: event.events_pk,
+    date: datePart, 
+    hour,        
+    ampm,         
     seats_number: event.seats_number,
-    sceneries: event.event_scenario,
-    rewards: event.rewards || [], 
+    sceneries_fk: event.scenario?.sceneries_pk,
+    rewards: event.rewards || [],
+    store_name: event.store_name,
+    address: event.address,
   };
 
   selectedEvent.value = event;
+
   isEditable.value = editable;
   editEventDialog.value = true;
 
   if (!editable) {
-    fetchPlayersForEvent(event.events_pk);
-    fetchStatuses();
+    fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
+    fetchStatuses().catch((err) => console.error(err));
   }
 };
 
@@ -814,7 +832,7 @@ const handleTimeInput = (event) => {
     if (m > 59) mm = "59";
     else mm = m.toString().padStart(2, "0");
   }
-  
+
   if (mm) {
     newEvent.value.hour = `${hh}:${mm}`;
   } else {
@@ -912,7 +930,7 @@ const fetchSceneries = async () => {
       Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
     },
   }).then((response) => {
-    sceneries.value = response.data.sceneries || [];
+    sceneries.value = [...response.data.sceneries]; 
     console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
     console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
@@ -1160,12 +1178,52 @@ const handleImageUpload = (event) => {
 const editEventDialog = ref(false);
 const editableEvent = ref({ rewards: [] });
 
-const saveEditedEvent = () => {
-  const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
-  if (index !== -1) {
-    events.value[index] = { ...editableEvent.value };
+const saveEditedEvent = async () => {
+  try {
+    const eventPk = editableEvent.value.events_pk;
+    if (!eventPk) {
+      console.error("Evento sem events_pk definido");
+      return;
+    }
+
+    const hourValue = editableEvent.value.hour && editableEvent.value.hour.trim() !== ""
+      ? editableEvent.value.hour
+      : "12:00";
+    const ampmValue = editableEvent.value.ampm && editableEvent.value.ampm.trim() !== ""
+      ? editableEvent.value.ampm
+      : "PM";
+
+    const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
+
+    const payload = {
+      seats_number: editableEvent.value.seats_number,
+      sceneries_fk: editableEvent.value.sceneries_fk,
+      date: eventDateFormatted,
+    };
+
+    const response = await axios.put(
+      "/events/alter",
+      payload,
+      {
+        params: {
+          events_pk: eventPk,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+    console.log("Evento alterado com sucesso:", response.data);
+
+    const index = events.value.findIndex((e) => e.events_pk === eventPk);
+    if (index !== -1) {
+      events.value[index] = { ...editableEvent.value };
+    }
+    editEventDialog.value = false;
+    await fetchUserCreatedEvents();
+  } catch (error) {
+    console.error("Erro ao alterar o evento:", error.response?.data || error.message);
   }
-  editEventDialog.value = false;
 };
 
 const toggleEditReward = (reward) => {
