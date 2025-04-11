@@ -641,30 +641,39 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
+  // Conversão do event_date para extração dos valores necessários
   const eventDate = new Date(event.event_date);
+  // Obtém a parte de hora no formato de 24h para facilitar a combinação
   const hours24 = eventDate.getHours();
   const minutes = String(eventDate.getMinutes()).padStart(2, '0');
-
-  const hours12 = hours24 % 12 || 12; 
+  // Para exibição usamos 12h e AM/PM
+  const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? 'PM' : 'AM';
 
+  // Cria um objeto com as mesmas propriedades utilizadas no template
   editableEvent.value = {
-    ...event,
-    date: event.event_date.split('T')[0], 
-    time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
+    events_pk: event.events_pk, // Preserva a chave do evento
+    date: event.event_date.split('T')[0],
+    // Formata a hora de acordo com o que o input espera (por exemplo, "HH:MM")
+    hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
     ampm,
-    seats_number: event.seats_number,
-    sceneries: event.event_scenario,
-    rewards: event.rewards || [], 
+    eventseats: event.seats_number,     // usando "eventseats" conforme o template
+    sceneries: event.event_scenario,      // supondo que event.event_scenario já seja o sceneries_pk
+    rewards: event.rewards || [],
+    store_name: event.store_name,
+    address: event.address,
+    // Adicione outros campos se necessário
   };
 
+  // Define também o selectedEvent para que o computed paginatedPlayers use o events_pk correto
   selectedEvent.value = event;
+
   isEditable.value = editable;
-  editEventDialog.value = true;
+  editEventDialog.value = true; // Abre o diálogo imediatamente
 
   if (!editable) {
-    fetchPlayersForEvent(event.events_pk);
-    fetchStatuses();
+    fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
+    fetchStatuses().catch((err) => console.error(err));
   }
 };
 
@@ -1163,26 +1172,26 @@ const editableEvent = ref({ rewards: [] });
 
 const saveEditedEvent = async () => {
   try {
-    const payload = {
-      seats_number: editableEvent.value.seats_number,
-      sceneries_fk: editableEvent.value.sceneries, 
-      event_date: `${editableEvent.value.date}T${editableEvent.value.time}`,
-    };
-
     const eventPk = editableEvent.value.events_pk;
-
     if (!eventPk) {
       console.error("Evento sem events_pk definido");
       return;
     }
 
+    // Cria o payload usando as propriedades atualizadas
+    const payload = {
+      seats_number: editableEvent.value.eventseats,
+      sceneries_fk: editableEvent.value.sceneries,
+      // Combina data e hora para formar o novo event_date
+      event_date: `${editableEvent.value.date}T${editableEvent.value.hour}`,
+      // Outros campos, se houver
+    };
+
     const response = await axios.put(
       "/events/alter",
       payload,
       {
-        params: {
-          events_pk: eventPk
-        },
+        params: { events_pk: eventPk },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -1190,7 +1199,6 @@ const saveEditedEvent = async () => {
     );
     console.log("Evento alterado com sucesso:", response.data);
 
-    // Atualiza o evento na lista local, se necessário
     const index = events.value.findIndex((e) => e.events_pk === eventPk);
     if (index !== -1) {
       events.value[index] = { ...editableEvent.value };
