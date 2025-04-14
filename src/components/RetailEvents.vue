@@ -975,16 +975,16 @@ const addEvent = async () => {
   }
 
   try {
-    const formattedDate = new Date(
-      `${newEvent.value.date}T${newEvent.value.hour}`,
-    );
-    const dateString = formattedDate.toLocaleDateString("en-CA"); // YYYY-MM-DD
-    const timeString = formattedDate.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    const eventDateFormatted = `${dateString}; ${timeString}`;
+  // Separa as horas e minutos do campo hour
+let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
+let ampm = newEvent.value.ampm || "AM";
+
+// Garante que a hora esteja no formato 2 dígitos (para %I)
+const hour12 = String(hours).padStart(2, "0");
+const minute = String(minutes).padStart(2, "0");
+
+// Cria o formato final
+const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
 
     const payload = {
       seats_number: newEvent.value.seats,
@@ -1004,7 +1004,6 @@ const addEvent = async () => {
 
     console.log("✅ Evento criado:", response.data);
 
-    // Reseta o formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
@@ -1016,13 +1015,6 @@ const addEvent = async () => {
       createdByUser: true,
     });
 
-    // Opcional: Atualizar lista local de eventos
-    events.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar evento:",
