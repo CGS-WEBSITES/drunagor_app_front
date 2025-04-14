@@ -386,7 +386,7 @@
                       </div>
                     </v-col>
 
-                    <v-col cols="8" sm="10" class="pt-2 pl-2">
+                    <v-col cols="8" sm="10" class="pt-2 pl-4">
                       <h3 class="pb-1">
                         <v-icon class="pr-1" size="small" color="black"
                           >mdi-chess-rook</v-icon
