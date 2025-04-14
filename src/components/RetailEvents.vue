@@ -651,6 +651,7 @@ const openEditDialog = (event, editable = false) => {
   const ampm = hours24 >= 12 ? 'PM' : 'AM';
 
   editableEvent.value = {
+    events_pk: event.events_pk,
     date: event.event_date.split('T')[0], 
     time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
     ampm,
@@ -915,9 +916,7 @@ const fetchSceneries = async () => {
     },
   }).then((response) => {
     sceneries.value = [...response.data.sceneries]; 
-    console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
-    console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
   })
 };
 
@@ -975,15 +974,10 @@ const addEvent = async () => {
   }
 
   try {
-  // Separa as horas e minutos do campo hour
 let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
 let ampm = newEvent.value.ampm || "AM";
-
-// Garante que a hora esteja no formato 2 dígitos (para %I)
 const hour12 = String(hours).padStart(2, "0");
 const minute = String(minutes).padStart(2, "0");
-
-// Cria o formato final
 const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
 
     const payload = {
@@ -1002,18 +996,12 @@ const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`
       },
     });
 
-    console.log("✅ Evento criado:", response.data);
+
 
     selectedRewards.value = [];
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
 
-    userCreatedEvents.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
 
   } catch (error) {
     console.error(
@@ -1060,11 +1048,8 @@ const fetchUserCreatedEvents = async () => {
     });
 
     userCreatedEvents.value = response.data.events || [];
-    console.log("Eventos criados pelo usuário:", userCreatedEvents.value);
   } catch (error) {
     console.error(
-      "❌ Erro ao buscar eventos criados pelo usuário:",
-      error.response?.data || error.message,
     );
   }
 };
@@ -1125,18 +1110,11 @@ onMounted(async () => {
     });
 
     stores.value = response.data.stores || [];
-
-    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      error.response?.data || error.message,
-    );
   }
 });
 
 const createEvent = () => {
-  console.log("Event Created:", newEvent.value);
   createEventDialog.value = false;
 };
 
@@ -1177,6 +1155,8 @@ const saveEditedEvent = async () => {
       date: eventDateFormatted,
     };
 
+
+
     const response = await axios.put(
       "/events/alter",
       payload,
@@ -1211,16 +1191,6 @@ const toggleEditReward = (reward) => {
   }
 };
 
-const handleEditImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      editableEvent.value.image = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
 </script>
 
 <style scoped>
