@@ -643,45 +643,29 @@ const eventStore = useEventStore();
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
-  const eventDateString = event.date; 
-  let datePart = "";
-  let timePart = "";
+  const eventDate = new Date(event.event_date);
+  const hours24 = eventDate.getHours();
+  const minutes = String(eventDate.getMinutes()).padStart(2, '0');
 
-  if (eventDateString) {
-    const parts = eventDateString.split(";");
-    datePart = parts[0].trim();
-    timePart = parts[1] ? parts[1].trim() : "";
-  }
-  let hour = "";
-  let ampm = "";
-
-  if (timePart) {
-    const timeParts = timePart.split(" ");
-    hour = timeParts[0] || "";
-    ampm = timeParts[1] || "";
-  }
+  const hours12 = hours24 % 12 || 12; 
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
 
   editableEvent.value = {
-    ...event,
-    events_pk: event.events_pk,
-    date: datePart, 
-    hour,        
-    ampm,         
+    date: event.event_date.split('T')[0], 
+    time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
+    ampm,
     seats_number: event.seats_number,
-    sceneries_fk: event.scenario?.sceneries_pk,
-    rewards: event.rewards || [],
-    store_name: event.store_name,
-    address: event.address,
+    sceneries: event.event_scenario,
+    rewards: event.rewards || [], 
   };
 
   selectedEvent.value = event;
-
   isEditable.value = editable;
   editEventDialog.value = true;
 
   if (!editable) {
-    fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
-    fetchStatuses().catch((err) => console.error(err));
+    fetchPlayersForEvent(event.events_pk);
+    fetchStatuses();
   }
 };
 
