@@ -240,7 +240,7 @@
 
                   class="text-center pb-6 clickable-text"
                 >
-                  Are you a retailer?
+                Register as a retailer
                 </h3>
 
                   <v-btn

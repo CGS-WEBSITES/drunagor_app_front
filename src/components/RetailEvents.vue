@@ -386,7 +386,7 @@
                       </div>
                     </v-col>
 
-                    <v-col cols="8" sm="10" class="pt-2 pl-4">
+                    <v-col cols="8" sm="10" class="pt-2 pl-2">
                       <h3 class="pb-1">
                         <v-icon class="pr-1" size="small" color="black"
                           >mdi-chess-rook</v-icon
@@ -916,7 +916,9 @@ const fetchSceneries = async () => {
     },
   }).then((response) => {
     sceneries.value = [...response.data.sceneries]; 
+    console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
+    console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
   })
 };
 
@@ -974,11 +976,11 @@ const addEvent = async () => {
   }
 
   try {
-let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
-let ampm = newEvent.value.ampm || "AM";
-const hour12 = String(hours).padStart(2, "0");
-const minute = String(minutes).padStart(2, "0");
-const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
+    let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
+    let ampm = newEvent.value.ampm || "AM";
+    const hour12 = String(hours).padStart(2, "0");
+    const minute = String(minutes).padStart(2, "0");
+    const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
 
     const payload = {
       seats_number: newEvent.value.seats,
@@ -996,13 +998,27 @@ const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`
       },
     });
 
+    console.log("✅ Evento criado:", response.data);
 
-
+    // Reseta o formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
 
+    userCreatedEvents.value.push({
+      ...newEvent.value,
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
+    });
 
+    // Opcional: Atualizar lista local de eventos
+    events.value.push({
+      ...newEvent.value,
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
+    });
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar evento:",
@@ -1048,8 +1064,11 @@ const fetchUserCreatedEvents = async () => {
     });
 
     userCreatedEvents.value = response.data.events || [];
+    console.log("Eventos criados pelo usuário:", userCreatedEvents.value);
   } catch (error) {
     console.error(
+      "❌ Erro ao buscar eventos criados pelo usuário:",
+      error.response?.data || error.message,
     );
   }
 };
@@ -1110,11 +1129,18 @@ onMounted(async () => {
     });
 
     stores.value = response.data.stores || [];
+
+    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
+    console.error(
+      "❌ Erro ao buscar lojas:",
+      error.response?.data || error.message,
+    );
   }
 });
 
 const createEvent = () => {
+  console.log("Event Created:", newEvent.value);
   createEventDialog.value = false;
 };
 
@@ -1155,8 +1181,6 @@ const saveEditedEvent = async () => {
       date: eventDateFormatted,
     };
 
-
-
     const response = await axios.put(
       "/events/alter",
       payload,
@@ -1191,6 +1215,16 @@ const toggleEditReward = (reward) => {
   }
 };
 
+const handleEditImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      editableEvent.value.image = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
 </script>
 
 <style scoped>
