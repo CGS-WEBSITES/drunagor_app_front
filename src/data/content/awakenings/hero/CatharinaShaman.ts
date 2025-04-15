@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/CatharinaShamanAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/CatharinaShamanAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/CatharinaShamanINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,5 +25,6 @@ export class CatharinaShaman implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }
