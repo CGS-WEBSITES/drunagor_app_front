@@ -472,12 +472,13 @@
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
                   <v-text-field
-                    v-model="editableEvent.time"
-                    label="TIME"
-                    variant="outlined"
-                    placeholder="HH:MM"
-                    maxlength="5"
-                  ></v-text-field>
+  v-model="editableEvent.hour"
+  label="TIME"
+  variant="outlined"
+  placeholder="HH:MM"
+  maxlength="5"
+  @blur="validateTime"
+/>
                 </v-col>
                 <v-col cols="6" md="2" v-if="isEditable">
                   <v-select
@@ -638,26 +639,62 @@ if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
+
 const eventStore = useEventStore();
+
 
 const isEditable = ref(false);
 
-const openEditDialog = (event, editable = false) => {
-  const eventDate = new Date(event.event_date);
-  const hours24 = eventDate.getHours();
-  const minutes = String(eventDate.getMinutes()).padStart(2, '0');
+const validateTime = () => {
+  const value = editableEvent.value.hour;
 
-  const hours12 = hours24 % 12 || 12; 
+  if (!value || value.length !== 5 || !value.includes(":")) return;
+
+  let [hh, mm] = value.split(":");
+
+  hh = parseInt(hh);
+  mm = parseInt(mm);
+
+  if (isNaN(hh) || hh < 1) hh = 1;
+  if (hh > 12) hh = 12;
+
+  if (isNaN(mm)) mm = 0;
+  if (mm > 59) mm = 59;
+
+  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
+    .toString()
+    .padStart(2, "0")}`;
+};
+
+
+
+
+
+const openEditDialog = (event, editable = false) => {
+  const [datePart, timePart] = event.event_date.split('T');
+  const [hoursStr, minutesStr] = timePart.split(':');
+
+  const hours24 = parseInt(hoursStr, 10);
+  const minutes = minutesStr;
+
+  const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? 'PM' : 'AM';
+
+  const hourValue = editableEvent.value.hour?.trim() || "12:00";
+const ampmValue = editableEvent.value.ampm?.trim() || "PM";
+const dateValue = editableEvent.value.date;
+
+const eventDateFormatted = `${dateValue}; ${hourValue} ${ampmValue}`;
+
 
   editableEvent.value = {
     events_pk: event.events_pk,
-    date: event.event_date.split('T')[0], 
-    time: `${String(hours12).padStart(2, '0')}:${minutes}`, 
+    date: datePart,
+    hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
     sceneries: event.event_scenario,
-    rewards: event.rewards || [], 
+    rewards: event.rewards || [],
   };
 
   selectedEvent.value = event;
