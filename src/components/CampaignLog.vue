@@ -24,7 +24,7 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
 <template>
   <v-card elevation="16" rounded style="background-color: #1f2937" width="100%">
-  <v-card-text class="px-2">
+  <v-card-text class="px-0 pt-0">
       <v-row no-gutters>
         <v-col cols="12">
   <v-img

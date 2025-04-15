@@ -125,12 +125,12 @@ function findHeroes(campaignId: string): HeroData[] {
     ? (findHeroes(campaign.campaignId).length <= 4 ? 3 : undefined) 
     : undefined"
 >
-  <v-avatar 
-    class="my-1" 
-    rounded="0" 
-    :image="hero.images.avatar" 
-    :size="$vuetify.display.mdAndUp ? 120 : 70"
-  />
+  <v-img
+  class="my-1 ma-1"
+  :src="hero.images.avatar"
+  cover
+  rounded="0"
+/>
 </v-col>
     </v-row>
   </v-card-text>

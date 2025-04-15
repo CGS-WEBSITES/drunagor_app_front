@@ -61,7 +61,7 @@ function onStash() {
         rounded
         style="background-color: #1f2937"
         width="800px"
-        class="hero-list-item"
+        class="hero-list-item rounded-t-xl"
       >
 
 
