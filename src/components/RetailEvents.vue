@@ -472,11 +472,12 @@
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
                   <v-text-field
-                    v-model="editableEvent.time"
+                    v-model="editableEvent.hour"
                     label="TIME"
                     variant="outlined"
                     placeholder="HH:MM"
                     maxlength="5"
+                    @blur="validateTime"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="6" md="2" v-if="isEditable">
@@ -642,46 +643,50 @@ const eventStore = useEventStore();
 
 const isEditable = ref(false);
 
+const validateTime = () => {
+  const value = editableEvent.value.hour;
+  if (!value || value.length !== 5 || !value.includes(":")) return;
+  let [hh, mm] = value.split(":");
+  hh = parseInt(hh);
+  mm = parseInt(mm);
+  if (isNaN(hh) || hh < 1) hh = 1;
+  if (hh > 12) hh = 12;
+  if (isNaN(mm)) mm = 0;
+  if (mm > 59) mm = 59;
+  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
+    .toString()
+    .padStart(2, "0")}`;
+};
+
 const openEditDialog = (event, editable = false) => {
-  const eventDateString = event.date; 
-  let datePart = "";
-  let timePart = "";
-
-  if (eventDateString) {
-    const parts = eventDateString.split(";");
-    datePart = parts[0].trim();
-    timePart = parts[1] ? parts[1].trim() : "";
-  }
-  let hour = "";
-  let ampm = "";
-
-  if (timePart) {
-    const timeParts = timePart.split(" ");
-    hour = timeParts[0] || "";
-    ampm = timeParts[1] || "";
-  }
+  const [datePart, timePart] = event.event_date.split('T');
+  const [hoursStr, minutesStr] = timePart.split(':');
+  const hours24 = parseInt(hoursStr, 10);
+  const minutes = minutesStr;
+  const hours12 = hours24 % 12 || 12;
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+  const hourValue = editableEvent.value.hour?.trim() || "12:00";
+  const ampmValue = editableEvent.value.ampm?.trim() || "PM";
+  const dateValue = editableEvent.value.date;
+  const eventDateFormatted = `${dateValue}; ${hourValue} ${ampmValue}`;
 
   editableEvent.value = {
-    ...event,
     events_pk: event.events_pk,
-    date: datePart, 
-    hour,        
-    ampm,         
+    date: datePart,
+    hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
+    ampm,
     seats_number: event.seats_number,
-    sceneries_fk: event.scenario?.sceneries_pk,
+    sceneries: event.event_scenario,
     rewards: event.rewards || [],
-    store_name: event.store_name,
-    address: event.address,
   };
 
   selectedEvent.value = event;
-
   isEditable.value = editable;
   editEventDialog.value = true;
 
   if (!editable) {
-    fetchPlayersForEvent(event.events_pk).catch((err) => console.error(err));
-    fetchStatuses().catch((err) => console.error(err));
+    fetchPlayersForEvent(event.events_pk);
+    fetchStatuses();
   }
 };
 
@@ -991,16 +996,11 @@ const addEvent = async () => {
   }
 
   try {
-    const formattedDate = new Date(
-      `${newEvent.value.date}T${newEvent.value.hour}`,
-    );
-    const dateString = formattedDate.toLocaleDateString("en-CA"); // YYYY-MM-DD
-    const timeString = formattedDate.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    const eventDateFormatted = `${dateString}; ${timeString}`;
+    let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
+    let ampm = newEvent.value.ampm || "AM";
+    const hour12 = String(hours).padStart(2, "0");
+    const minute = String(minutes).padStart(2, "0");
+    const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
 
     const payload = {
       seats_number: newEvent.value.seats,
