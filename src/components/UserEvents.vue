@@ -114,7 +114,6 @@
             </v-card>
           </v-col>
         </v-row>
-
         <!-- Diálogo para visualização do evento -->
         <v-dialog v-model="dialog" max-width="600" min-height="431">
           <v-card color="surface">
@@ -215,9 +214,13 @@
             cols="12"
             md="6"
             v-for="(evt, idx) in myEvents"
-            :key="idx"
+            :key="evt.events_pk"
           >
-            <v-card color="terciary" class="pt-0 event-card">
+            <v-card 
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openMyEventsDialog(evt)"
+            >
               <v-row no-gutters>
                 <!-- Date -->
                 <v-col cols="4" sm="2">
@@ -256,6 +259,24 @@
             </v-card>
           </v-col>
         </v-row>
+        <v-dialog v-model="myDialog" max-width="600" min-height="431">
+          <v-card color="surface">
+            <v-card-actions class="d-flex justify-left">
+              <v-btn color="red" @click="myDialog = false">X</v-btn>
+            </v-card-actions>
+            <v-card-title class="d-flex justify-left">
+              {{ selectedMyEvent?.store_name }}
+            </v-card-title>
+            <v-card-text class="d-flex justify-left">
+              <p>Status: {{ selectedMyEvent?.status }}</p>
+            </v-card-text>
+            <v-card-actions class="justify-end">
+              <v-btn color="green" @click="joinEvent(selectedMyEvent)">
+                Join Campaign
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </div>
     </v-card>
   </v-col>
@@ -786,6 +807,14 @@ const getPlayersForEvent = async (event_fk) => {
     .catch((error) => {
       console.error("Erro ao buscar jogadores:", error);
     });
+};
+
+const myDialog = ref(false)
+const selectedMyEvent = ref(null)
+
+const openMyEventsDialog = (event) => {
+  selectedMyEvent.value = event;
+  myDialog.value = true;
 };
 </script>
 
