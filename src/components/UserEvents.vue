@@ -381,7 +381,7 @@ const fetchPlayerEvents = async () => {
       return;
     }
 
-    const response = await axios.get("/events/my_events/player", {
+    const response = await axios.get("/events/list_events/", {
       params: { player_fk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
