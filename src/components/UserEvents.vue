@@ -10,62 +10,104 @@
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto">
-    <v-card class="pb-6 pt-6" min-height="500px" color="primary">
+    <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
+            <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
+            <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
+          </v-tabs>
         </v-col>
       </v-row>
 
-      <div>
+      <div v-if="activeTab === 1">
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(event, index) in sortedEvents"
+            :key="index"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openDialog(event)"
+            >
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black;">
-  <p class="pt-3 text-caption font-weight-bold">
-    {{
-      new Date(event.event_date).toLocaleDateString('en-US', {
-        month: 'short'
-      }).toUpperCase()
-    }}
-  </p>
-  <p color="primary" class="cinzel-text text-h3  font-weight-bold">
-    {{
-      String(event.event_date).split('T')[0].split('-')[2]
-    }}
-  </p>
-  <p class="text-caption font-weight-bold">
-    {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
-  </p>
-</div>
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
+                    <p class="pt-3 text-caption font-weight-bold">
+                      {{
+                        new Date(event.event_date)
+                          .toLocaleDateString("en-US", {
+                            month: "short",
+                          })
+                          .toUpperCase()
+                      }}
+                    </p>
+                    <p
+                      color="primary"
+                      class="cinzel-text text-h3 font-weight-bold"
+                    >
+                      {{ String(event.event_date).split("T")[0].split("-")[2] }}
+                    </p>
+                    <p class="text-caption font-weight-bold">
+                      {{
+                        new Date(event.event_date).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      }}
+                    </p>
+                  </div>
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1" > <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}</h3>
-                  <p class="text-caption text-truncate"> <v-icon color="red">mdi-map-marker</v-icon> {{ event.address }} </p>
-                     <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon> {{ event.scenario }}
+                  <h3 class="pb-1">
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >{{ event.store_name }}
+                  </h3>
+                  <p class="text-caption text-truncate">
+                    <v-icon color="red">mdi-map-marker</v-icon>
+                    {{ event.address }}
                   </p>
-                    
-                    
-                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
-  <v-row class="d-flex align-center rewards-container">
-    <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-    Rewards:
-    <v-col
-      cols="auto"
-      v-for="(reward, index) in event.rewards"
-      :key="index"
-    >
-      <v-img
-        :src="reward.image"
-        height="20"
-        width="20"
-        contain
-        class="reward-icon"
-      ></v-img>
-    </v-col>
-  </v-row>
+                  <p class="text-caption">
+                    <v-icon color="red">mdi-sword-cross</v-icon>
+                    {{ event.scenario }}
+                  </p>
+
+                  <p
+                    class="text-caption ml-3"
+                    v-if="event.rewards && event.rewards.length"
+                  >
+                    <v-row class="d-flex align-center rewards-container">
+                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                      Rewards:
+                      <v-col
+                        cols="auto"
+                        v-for="(reward, index) in event.rewards"
+                        :key="index"
+                      >
+                        <v-img
+                          :src="reward.image"
+                          height="20"
+                          width="20"
+                          contain
+                          class="reward-icon"
+                        ></v-img>
+                      </v-col>
+                    </v-row>
                   </p>
                 </v-col>
               </v-row>
@@ -80,34 +122,35 @@
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
             <v-card-text>
-              <p>
-              </p>
+              <p></p>
               <br />
               <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <br />
               <p class="text-end scheduled-box">
                 Scheduled for:
-  {{
-    new Date(selectedEvent?.event_date).toLocaleString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    })
-  }}
+                {{
+                  new Date(selectedEvent?.event_date).toLocaleString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })
+                }}
               </p>
             </v-card-text>
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
-  :src="selectedEvent?.picture_hash 
-          ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}` 
-          : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
-  class="event-img"
-/>
+                    :src="
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -164,6 +207,56 @@
           </v-card>
         </v-dialog>
       </div>
+
+      <div v-else-if="activeTab === 2">
+        <v-row>
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(evt, idx) in myEvents"
+            :key="idx"
+          >
+            <v-card color="terciary" class="pt-0 event-card">
+              <v-row no-gutters>
+                <!-- Date -->
+                <v-col cols="4" sm="2">
+                  <div class="text-center ml-3" style="width:70px;color:black">
+                    <p class="pt-3 text-caption font-weight-bold">
+                      {{ new Date(evt.event_date).toLocaleDateString('en-US',{month:'short'}).toUpperCase() }}
+                    </p>
+                    <p class="cinzel-text text-h3 font-weight-bold">
+                      {{ String(evt.event_date).split('T')[0].split('-')[2] }}
+                    </p>
+                    <p class="text-caption font-weight-bold">
+                      {{ new Date(evt.event_date).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}) }}
+                    </p>
+                  </div>
+                </v-col>
+
+                <!-- Details -->
+                <v-col cols="8" sm="10" class="pt-2">
+                  <h3 class="pb-1">
+                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                    {{ evt.store_name }}
+                  </h3>
+                  <p class="text-caption text-truncate">
+                    <v-icon color="red">mdi-map-marker</v-icon>
+                    {{ evt.address }}
+                  </p>
+                  <p class="text-caption">
+                    <v-icon color="red">mdi-sword-cross</v-icon>
+                    {{ evt.scenario }}
+                  </p>
+                  <p class="text-caption">
+                    Seats: {{ evt.seats_number }} | Season: {{ evt.seasons_fk }}
+                  </p>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-col>
+        </v-row>
+      </div>
     </v-card>
   </v-col>
 </template>
@@ -177,6 +270,16 @@ const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
+
+const activeTab = ref(1);
+const events = ref([])
+;
+const sortedEvents = computed(() => {
+  if (sortBy.value === "date") {
+    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
+  return events.value;
+});
 
 const eventStore = useEventStore();
 
@@ -368,9 +471,7 @@ const selectedStore = computed(() => {
 });
 
 // Sample Events Data
-const activeTab = ref("events");
 const sortBy = ref("date");
-const events = ref([]);
 
 const fetchPlayerEvents = async () => {
   try {
@@ -397,31 +498,37 @@ const fetchPlayerEvents = async () => {
   }
 };
 
-const sortedEvents = computed(() => {
-  if (sortBy.value === "date") {
-    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
-  return events.value;
-});
+const myEvents = ref([]);
 
-onMounted(() => {
-  fetchPlayerEvents();
-});
+const fetchMyEvents = async () => {
+  const userData = JSON.parse(localStorage.getItem('app_user'));
+  if (!userData?.users_pk) return;
+  const res = await axios.get('/events/my_events/player', { params: { player_fk: userData.users_pk } });
+  myEvents.value = res.data.events || [];
+};
 
+onMounted(async () => {
+  await Promise.all([fetchPlayerEvents(), fetchMyEvents()]);
+});
 const sceneries = ref([]);
 
 const fetchSceneries = async () => {
-  await axios.get('/sceneries/search', {
-    params: { active: true },
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-    },
-  }).then((response) => {
-    sceneries.value = response.data.sceneries || [];
-
-  }).catch((error) => {
-    console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
-  })
+  await axios
+    .get("/sceneries/search", {
+      params: { active: true },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then((response) => {
+      sceneries.value = response.data.sceneries || [];
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Erro ao buscar cenários:",
+        error.response?.data || error.message,
+      );
+    });
 };
 
 onMounted(async () => {
@@ -461,7 +568,7 @@ const addEvent = async () => {
     selectedStore = allStores.find(
       (store) =>
         store.name?.toLowerCase().trim() ===
-        newEvent.value.store?.toLowerCase().trim()
+        newEvent.value.store?.toLowerCase().trim(),
     );
 
     if (!selectedStore) {
@@ -473,16 +580,16 @@ const addEvent = async () => {
   } catch (error) {
     console.error(
       "❌ Erro ao buscar stores na API:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
     return;
   }
 
   try {
     const formattedDate = new Date(
-      `${newEvent.value.date}T${newEvent.value.hour}`
+      `${newEvent.value.date}T${newEvent.value.hour}`,
     );
-    const dateString = formattedDate.toLocaleDateString("en-CA"); 
+    const dateString = formattedDate.toLocaleDateString("en-CA");
     const timeString = formattedDate.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
@@ -506,18 +613,15 @@ const addEvent = async () => {
       },
     });
 
-
-
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
-
 
     selectedRewards.value = [];
     createEventDialog.value = false;
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar evento:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -530,11 +634,13 @@ const deleteEvent = async (events_pk) => {
       },
     });
 
-
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
-    console.error("❌ Erro ao excluir o evento:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao excluir o evento:",
+      error.response?.data || error.message,
+    );
   }
 };
 
@@ -623,7 +729,6 @@ onMounted(async () => {
     });
 
     stores.value = response.data.stores || [];
-
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
@@ -667,8 +772,6 @@ const toggleEditReward = (reward) => {
     editableEvent.value.rewards.splice(index, 1);
   }
 };
-
-
 
 const getPlayersForEvent = async (event_fk) => {
   await axios
