@@ -574,15 +574,36 @@
                           </v-col>
 
                           <!-- Botões -->
-                          <v-col cols="12" md="3" class="d-flex align-center justify-end flex-column">
-                            <!-- Se já for Granted Passage, mostra só o ícone de check -->
+                          <v-col cols="12" md="3" class="d-flex flex-column">
+                            <!-- Ícone de Granted Passage, centralizado -->
                             <template v-if="player.event_status === 'Granted Passage'">
-                              <v-btn icon disabled>
-                                <v-icon color="green" size="24">mdi-check-circle</v-icon>
-                              </v-btn>
+                              <v-row
+                                no-gutters
+                                class="fill-height"
+                                align="center"
+                                justify="center"
+                              >
+                                <v-btn icon disabled class="ma-0 pa-0">
+                                  <v-icon color="green" size="24">mdi-check-circle</v-icon>
+                                </v-btn>
+                              </v-row>
                             </template>
 
-                            <!-- Senão, mostra os botões normais -->
+                            <!-- Ícone de Turned Away, centralizado -->
+                            <template v-else-if="player.event_status === 'Turned Away'">
+                              <v-row
+                                no-gutters
+                                class="fill-height"
+                                align="center"
+                                justify="center"
+                              >
+                                <v-btn icon disabled class="ma-0 pa-0">
+                                  <v-icon color="red" size="24">mdi-close-circle</v-icon>
+                                </v-btn>
+                              </v-row>
+                            </template>
+
+                            <!-- Botões de ação originais, alinhados um abaixo do outro -->
                             <template v-else>
                               <v-btn
                                 color="green"
