@@ -19,6 +19,7 @@
             </v-avatar>
             
             <v-card-title class="user_name text-h3">{{ user.user_name }}</v-card-title>
+            <v-card-title class="retail_name">(Retailer)</v-card-title>
           </v-col>
         </v-row>
       </v-col>
@@ -41,7 +42,8 @@
                 background-color: black;
               " />
             </v-avatar>
-            <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
+            <v-card-title class="user_name2 text-h5">{{ user.user_name }} (retailer)</v-card-title>
+
           </v-col>
         </v-row>
       </v-col>
@@ -343,9 +345,16 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .user_name {
   position: relative;
-  transform: translateY(-155px) translateX(234px);
+  transform: translateY(-185px) translateX(234px);
   z-index: 2;
 }
+
+.retail_name {
+  position: relative;
+  transform: translateY(-200px) translateX(234px);
+  z-index: 2;
+}
+
 
 .user_name2 {
   position: relative;
@@ -355,7 +364,7 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .move_topo {
   position: relative;
-  transform: translateY(-280px);
+  transform: translateY(-330px);
 }
 
 .move_topo2 {

@@ -7,7 +7,7 @@
         <v-col cols="12" sm="10" md="8" class="px-6">
           <v-row no-gutters>
             <v-col cols="4">
-              <v-avatar size="200" rounded="0" class="avatar-overlay">
+              <v-avatar size="236" rounded="0" class="avatar-overlayuser">
                 <v-img :src="user.picture_hash
                   ? assets + '/Profile/' + user.picture_hash
                   : assets + '/Profile/user.png'
@@ -17,7 +17,7 @@
                     background-color: black;
                     " />
               </v-avatar>
-              <v-card-title class="user_name text-h3">{{ user.user_name }}</v-card-title>
+              <v-card-title class="user_nameuser text-h3">{{ user.user_name }}</v-card-title>
             </v-col>
           </v-row>
         </v-col>
@@ -51,8 +51,8 @@
       <!-- Navigation Drawer -->
       <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
         <v-col cols="12" sm="12" md="8" class="px-6">
-          <v-card color="primary" height="116px" class="move_topo pt-12"></v-card>
-        <v-card color="secundary" class="move_topo pt-12">
+          <v-card color="primary" height="116px" class="move_topouser pt-12"></v-card>
+        <v-card color="secundary" class="move_topouser pt-12">
             <!-- Navigation Boxes Section -->
             <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
               <v-col cols="12" sm="12" md="12" class="ml-5 pt-12">
@@ -764,9 +764,9 @@
     color: rgb(266, green, blue);
   }
   
-  .avatar-overlay {
+  .avatar-overlayuser {
     position: relative;
-    transform: translateY(-18px);
+    transform: translateY(-28px);
     z-index: 2;
   }
   
@@ -777,7 +777,7 @@
     z-index: 3
   }
   
-  .card-overlay {
+  .card-overlayuser {
   position: relative;
   transform: translateY(-6px);
   z-index: 3;
@@ -789,9 +789,9 @@
   z-index: 2;
 }
   
-  .user_name {
+  .user_nameuser {
     position: relative;
-    transform: translateY(-145px) translateX(204px);
+    transform: translateY(-165px) translateX(234px);
     z-index: 2;
   }
   
@@ -801,9 +801,9 @@
     z-index: 2;
   }
   
-  .move_topo {
+  .move_topouser {
     position: relative;
-    transform: translateY(-150px);
+    transform: translateY(-283px);
   }
   
   .move_topo2 {
