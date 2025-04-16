@@ -574,28 +574,35 @@
                           </v-col>
 
                           <!-- Botões -->
-                          <v-col
-                            cols="12" md="3"
-                            class="d-flex align-center justify-end flex-column"
-                          >
-                            <v-btn
-                              color="green"
-                              size="x-small"
-                              class="mt-2"
-                              block
-                              @click="updatePlayerStatus(player, grantedStatus)"
-                            >
-                              Granted Passage
-                            </v-btn>
-                            <v-btn
-                              color="red"
-                              size="x-small"
-                              block
-                              class="mt-2"
-                              @click="updatePlayerStatus(player, turnedAwayStatus)"
-                            >
-                              Turned Away
-                            </v-btn>
+                          <v-col cols="12" md="3" class="d-flex align-center justify-end flex-column">
+                            <!-- Se já for Granted Passage, mostra só o ícone de check -->
+                            <template v-if="player.event_status === 'Granted Passage'">
+                              <v-btn icon disabled>
+                                <v-icon color="green" size="24">mdi-check-circle</v-icon>
+                              </v-btn>
+                            </template>
+
+                            <!-- Senão, mostra os botões normais -->
+                            <template v-else>
+                              <v-btn
+                                color="green"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="updatePlayerStatus(player, grantedStatus)"
+                              >
+                                Granted Passage
+                              </v-btn>
+                              <v-btn
+                                color="red"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="updatePlayerStatus(player, turnedAwayStatus)"
+                              >
+                                Turned Away
+                              </v-btn>
+                            </template>
                           </v-col>
                         </v-row>
                       </v-card>
