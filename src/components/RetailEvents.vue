@@ -750,7 +750,6 @@ const fetchStatuses = () => {
       turnedAwayStatus.value = statuses.value.find(
         (s) => s.name === "Turned Away",
       )?.event_status_pk;
-      console.log("Status:", statuses.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar status:", error);
@@ -764,14 +763,11 @@ const fetchPlayersForEvent = async (eventFk) => {
     const response = await axios.get("/rl_events_users/list_players", {
       params: { events_fk: eventFk },
     });
-    // Converte eventFk para número para manter consistência:
     const key = Number(eventFk);
     playersByEvent.value[key] = response.data.players ?? [];
-    console.log(`Players for event ${key}:`, playersByEvent.value[key]);
   } catch (error) {
     if (error.response && error.response.status === 404) {
       playersByEvent.value[Number(eventFk)] = [];
-      console.warn(`No players found for event ${eventFk}`);
     } else {
       console.error(
         `Erro ao buscar jogadores para o evento ${eventFk}:`,
@@ -800,23 +796,25 @@ const updatePlayerStatus = async (player, statusPk) => {
       return;
     }
 
-    const response = await axios.put("/rl_events_users/alter", {}, {
-      params: {
-        events_pk: eventFk,
-        users_fk: userData.users_pk,
-        events_fk: eventFk,
-        status: statusPk,
-        active: true,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    const payload = {
+      users_fk: userData.users_pk,
+      events_fk: eventFk,
+      status: statusPk,
+      active: true,
+    }
 
-    console.log("Status updated successfully:", response.data);
-    player.event_status = statusPk;
+    const response = await axios.post(
+      "/rl_events_users/cadastro",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+    
+    player.event_status = response.data.event_status || player.event_status;
     fetchPlayersForEvent(eventFk); 
-
   } catch (error) {
     console.error("Error updating player status:", {
       request: error.config?.data,
@@ -964,7 +962,6 @@ const fetchSceneries = async () => {
     },
   }).then((response) => {
     sceneries.value = [...response.data.sceneries]; 
-    console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
     console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
   })
@@ -1046,9 +1043,6 @@ const addEvent = async () => {
       },
     });
 
-    console.log("✅ Evento criado:", response.data);
-
-    // Reseta o formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
@@ -1060,7 +1054,6 @@ const addEvent = async () => {
       createdByUser: true,
     });
 
-    // Opcional: Atualizar lista local de eventos
     events.value.push({
       ...newEvent.value,
       rewards: [...selectedRewards.value],
@@ -1112,7 +1105,6 @@ const fetchUserCreatedEvents = async () => {
     });
 
     userCreatedEvents.value = response.data.events || [];
-    console.log("Eventos criados pelo usuário:", userCreatedEvents.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos criados pelo usuário:",
@@ -1177,8 +1169,6 @@ onMounted(async () => {
     });
 
     stores.value = response.data.stores || [];
-
-    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
@@ -1241,12 +1231,13 @@ const saveEditedEvent = async () => {
         },
       }
     );
-    console.log("Evento alterado com sucesso:", response.data);
 
     const index = events.value.findIndex((e) => e.events_pk === eventPk);
+
     if (index !== -1) {
       events.value[index] = { ...editableEvent.value };
     }
+    
     editEventDialog.value = false;
     await fetchUserCreatedEvents();
   } catch (error) {
