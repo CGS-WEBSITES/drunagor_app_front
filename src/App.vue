@@ -98,22 +98,46 @@
       </v-app-bar>
     </v-row>
 
-    <v-bottom-navigation v-else-if="
-      route.name !== 'Home' &&
-      route.name !== 'Login' &&
-      route.name !== 'RetailerRegistration' &&
-      route.name !== 'Gama' &&
-      route.name !== 'Community'
-    " app v-model="bottomNavVisible" class="hidden-md-and-up fixed bg-black text-white" elevation="10" dense>
-      <v-row align="center" justify="space-between" no-gutters>
-        <v-col v-for="(item, index) in menuItems" :key="index" link
-          :class="{ 'v-list-item--active': selectedItem === item }" cols="2">
-          <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-bottom-navigation>
+    <v-bottom-navigation
+  v-else-if="
+    route.name !== 'Home' &&
+    route.name !== 'Login' &&
+    route.name !== 'RetailerRegistration' &&
+    route.name !== 'Gama' &&
+    route.name !== 'Community'
+  "
+  app
+  v-model="bottomNavVisible"
+  class="hidden-md-and-up fixed bg-black text-white"
+  elevation="10"
+  dense
+>
+  <v-row align="center" justify="space-between" no-gutters>
+    <v-col
+      v-for="(item, index) in menuItems"
+      :key="index"
+      link
+      :class="{ 'v-list-item--active': selectedItem === item }"
+      cols="2"
+    >
+      <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
+        <v-img
+          v-if="item.iconImage"
+          :src="item.iconImage"
+          width="24"
+          height="24"
+          contain
+        ></v-img>
+        <v-icon
+          v-else
+          style="font-size: 24px"
+        >
+          {{ item.icon }}
+        </v-icon>
+      </v-btn>
+    </v-col>
+  </v-row>
+</v-bottom-navigation>
 
     <!-- Exibe o conteúdo da rota -->
     <router-view :style="contentStyle" />
@@ -192,11 +216,13 @@ const logOut = () => {
 
 const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor padrão para evitar erros
 
+import VectorIcon from '@/assets/Vector.png';
+
 const menuItems = computed(() => {
   return [
     {
       title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
-      icon: "mdi-flag",
+      iconImage: VectorIcon,
       to: { name: "CampaignTracker" },
       disabled: false,
     },
