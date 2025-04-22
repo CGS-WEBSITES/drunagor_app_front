@@ -139,12 +139,12 @@ const router = createRouter({
           path: "/campaign-tracker/campaign",
           name: "Campaign Overview",
           component: () => import("@/components/CampaignOverviewView.vue"),
-          // beforeEnter(to, from, next) {
-          //  if (isSignedIn()) {
-          //    next()
-          //    return
-          //  }
-          // },
+          /* beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          }, */
         },
         {
           path: "/campaign-tracker/keyword",
