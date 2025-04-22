@@ -271,7 +271,7 @@
               <p>Status: {{ selectedMyEvent?.status }}</p>
             </v-card-text>
             <v-card-actions class="justify-end">
-              <v-btn color="green" @click="joinEvent(selectedMyEvent)">
+              <v-btn color="green" @click=" createdCompanion()">
                 Join Campaign
               </v-btn>
             </v-card-actions>
@@ -286,6 +286,7 @@
 import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
+import router from "@/router";
 
 const axios = inject("axios");
 if (!axios) {
@@ -474,6 +475,22 @@ const openDialog = (event) => {
 const joinEvent = () => {
   alert(`You have joined the event: ${selectedEvent.value.name}`);
   dialog.value = false;
+};
+
+const createdCompanion = async () => {
+  const companion = await axios.post("/campaigns/cadastro", {
+    tracker_hash: "3",
+    conclusion_percentage: 0,
+    party_name: null,
+    box: "3",
+    active: true,
+  });
+  console.log("Companion created:", companion.data);
+  alert("Companion created successfully!");
+
+  myDialog.value = false;
+
+  router.push({ path: "/campaign-tracker/campaign" });
 };
 
 const selectedStoreImage = computed(() => {
