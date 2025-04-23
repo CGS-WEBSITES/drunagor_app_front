@@ -27,32 +27,6 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-        <!--
-
-        <v-row class="black-bar SortBy align-center text-white">
-          <v-col cols="2">
-            Sort by:
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'date' }" @click="sortBy = 'date'">
-              DATE
-            </v-btn>
-          </v-col>
-          <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'location' }"
-              @click="sortBy = 'location'">
-              LOCATION
-            </v-btn>
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'store' }" @click="sortBy = 'store'">
-              STORE
-            </v-btn>
-          </v-col>
-        </v-row>
-
-        -->
-
         <v-row>
           <v-col
             class="py-2 pl-1 pr-1"
@@ -74,7 +48,7 @@
                   >
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
-                        new Date(event.date)
+                        new Date(event.event_date)
                           .toLocaleDateString("en-US", {
                             month: "short",
                           })
@@ -85,10 +59,10 @@
                       color="primary"
                       class="cinzel-text text-h3 font-weight-bold"
                     >
-                      {{ String(event.date).split("-")[2] }}
+                      {{ String(event.event_date).split('T')[0].split('-')[2] }}
                     </p>
                     <p class="text-caption font-weight-bold">
-                      {{ event.hour }}{{ event.ampm }}
+                      {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
                     </p>
                   </div>
                 </v-col>
@@ -96,7 +70,8 @@
                   <h3 class="pb-1">
                     <v-icon class="pr-1" size="small" color="black"
                       >mdi-chess-rook</v-icon
-                    >{{ event.store }}
+                    >
+                    {{ event.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
                     <v-icon color="red">mdi-map-marker</v-icon>
@@ -106,7 +81,6 @@
                     <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
                     {{ event.scenario }}
                   </p>
-
                   <p
                     class="text-caption ml-3"
                     v-if="event.rewards && event.rewards.length"
@@ -135,54 +109,57 @@
           </v-col>
         </v-row>
 
-        <!-- v-dialog (Janela Modal) -->
+        <!-- Diálogo para visualização do evento -->
         <v-dialog v-model="dialog" max-width="600">
           <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
             <v-card-title class="ml-2 font-weight-bold">
-              {{ selectedStore?.storename }}
+              {{ selectedStore?.store_name }}
             </v-card-title>
-
             <v-card-text>
-              <p>
+              <!-- <p>
                 <strong>Description:</strong> {{ selectedEvent?.eventdesc }}
-              </p>
+              </p> -->
               <br />
-              <p>Disponible Seats: {{ selectedEvent?.eventseats }}</p>
+              <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <br />
               <p class="text-end scheduled-box">
-                Sheduled for: {{ selectedEvent?.date }}
-                {{ selectedEvent?.hour }} {{ selectedEvent?.ampm }}
+                Sheduled for: {{
+                  new Date(selectedEvent?.event_date).toLocaleString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  })
+                }}
               </p>
             </v-card-text>
-
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
-                    :src="selectedStore?.storeImage"
+                    :src="selectedEvent?.picture_hash 
+                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}` 
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
                     class="event-img"
-                  ></v-img>
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedStore?.storename || "Select a store" }}
+                    {{ selectedEvent?.store_name }}
                   </h3>
-
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedStore?.address }},
-                    {{ selectedStore?.streetNumber }},
-                    {{ selectedStore?.complement }}, {{ selectedStore?.city }},
-                    {{ selectedStore?.state }}
+                    {{ selectedEvent?.address }},
                   </p>
                 </v-col>
-                <v-col cols="2" class="text-right pa-0"> </v-col>
+                <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
-
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
               <v-row
@@ -203,7 +180,6 @@
                 </v-col>
               </v-row>
             </v-card-text>
-
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
                 <v-btn
@@ -230,7 +206,7 @@
 
       <div v-if="activeTab === 2">
         <v-row class="CreateNew align-center bg-gray text-white">
-          <v-col cols="2"> </v-col>
+          <v-col cols="2"></v-col>
           <v-col cols="3">
             <v-btn
               variant="text"
@@ -242,13 +218,12 @@
             </v-btn>
           </v-col>
           <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" @click=""> PAST </v-btn>
+            <v-btn variant="text" class="sort-btn" @click="">PAST</v-btn>
           </v-col>
           <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" @click=""> LIVE </v-btn>
+            <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
           </v-col>
         </v-row>
-
         <v-dialog v-model="createEventDialog" max-width="1280">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -259,22 +234,16 @@
                 <v-col cols="12" md="12">
                   <v-select
                     v-model="newEvent.store"
-                    :items="stores.map((store) => store.storename)"
+                    :items="stores.map(store => store.name)"
                     label="STORE"
                     variant="outlined"
                   />
                 </v-col>
-
                 <!-- Descrição -->
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="newEvent.eventdesc"
-                    label="EVENT DESCRIPTION"
-                    counter="355"
-                    variant="outlined"
-                  ></v-textarea>
-                </v-col>
-
+                <!-- <v-col cols="12">
+                  <v-textarea v-model="newEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
+                    variant="outlined"></v-textarea>
+                </v-col> -->
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="12" md="6">
                   <v-select
@@ -284,20 +253,16 @@
                     variant="outlined"
                   ></v-select>
                 </v-col>
-
                 <v-col cols="6" md="6">
                   <v-select
                     v-model="newEvent.scenario"
-                    :items="[
-                      'Wing 01 Tutorial',
-                      'Wing 01 Advanced',
-                      'Wing 02 Advanced',
-                    ]"
+                    :items="sceneries"
+                    item-title="name"
+                    item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
                   ></v-select>
                 </v-col>
-
                 <v-col cols="6" md="3">
                   <v-text-field
                     v-model="newEvent.hour"
@@ -308,7 +273,6 @@
                     @input="handleTimeInput"
                   ></v-text-field>
                 </v-col>
-
                 <v-col cols="6" md="2">
                   <v-select
                     v-model="newEvent.ampm"
@@ -317,7 +281,6 @@
                     variant="outlined"
                   ></v-select>
                 </v-col>
-
                 <v-col cols="12" md="2" class="d-flex align-center">
                   <v-text-field
                     v-model="newEvent.date"
@@ -330,7 +293,6 @@
                     :rules="dateRules"
                   ></v-text-field>
                 </v-col>
-
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
@@ -340,7 +302,7 @@
                         'selected-reward': selectedRewards.includes(reward),
                         'unselected-reward': !selectedRewards.includes(reward),
                       }"
-                      @click="toggleReward(reward)"
+                      @click="isEditable && toggleEditReward(reward)"
                       cols="auto"
                       v-for="(reward, index) in availableRewards"
                       :key="index"
@@ -355,7 +317,6 @@
                     </v-row>
                   </v-row>
                 </v-col>
-
                 <v-col cols="12">
                   <v-btn
                     block
@@ -369,32 +330,6 @@
             </v-card-text>
           </v-card>
         </v-dialog>
-
-        <!--
-
-        <v-row class="SortBy align-center  text-white">
-          <v-col cols="2">
-
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text">
-              Sort by:
-            </v-btn>
-          </v-col>
-          <v-col cols="4">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'date' }" @click="sortBy = 'date'">
-              DATE
-            </v-btn>
-          </v-col>
-          <v-col cols="3">
-            <v-btn variant="text" class="sort-btn" :class="{ 'active': sortBy === 'store' }" @click="sortBy = 'store'">
-              STORE
-            </v-btn>
-          </v-col>
-        </v-row>
-
-      -->
-
         <v-row>
           <v-col
             class="py-2 pl-1 pr-1"
@@ -405,7 +340,7 @@
           >
             <v-card
               color="white"
-              max-height="130"
+              max-height="120"
               class="pt-0 pl-0 pb-0 event-card"
               @click="openEditDialog(event)"
             >
@@ -415,36 +350,38 @@
                     color="#AB2929"
                     icon
                     class="delete-btn"
-                    @click.stop="deleteEvent(event.id)"
+                    @click.stop="deleteEvent(event.events_pk)"
                   >
                     <v-icon>mdi-close</v-icon>
                   </v-btn>
                 </v-col>
-
-                <v-col cols="8" sm="" class="pt-6 pr-3">
+                <v-col cols="8" class="pt-6 pr-3">
                   <v-row no-gutters>
                     <v-col cols="4" sm="2">
                       <div
                         class="text-center ml-2 pr-3"
-                        style="width: 70px; color: black"
+                        style="width: 74px; color: black"
                       >
                         <p class="pt-3 text-caption font-weight-bold">
                           {{
-                            new Date(event.date)
-                              .toLocaleDateString("en-US", {
-                                month: "short",
-                              })
-                              .toUpperCase()
+                            new Date(event.event_date)
+                            .toLocaleDateString("en-US", {
+                              month: "short",
+                            })
+                            .toUpperCase()
                           }}
                         </p>
                         <p
                           color="primary"
                           class="cinzel-text text-h3 font-weight-bold"
                         >
-                          {{ String(event.date).split("-")[2] }}
+                          {{
+                            String(event.event_date).split("T")[0].split("-")[2]
+                          }}
                         </p>
                         <p class="text-caption font-weight-bold">
-                          {{ event.hour }}{{ event.ampm }}
+                          {{ new Date(event.event_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) }}
+                          <!-- {{ event.ampm }} -->
                         </p>
                       </div>
                     </v-col>
@@ -454,7 +391,7 @@
                         <v-icon class="pr-1" size="small" color="black"
                           >mdi-chess-rook</v-icon
                         >
-                        {{ event.store }}
+                        {{ event.store_name }}
                       </h3>
 
                       <p class="text-caption text-truncate">
@@ -464,7 +401,7 @@
 
                       <p class="text-caption" v-if="event.scenario">
                         <v-icon color="red">mdi-sword-cross</v-icon>
-                        Scenario: {{ event.scenario }}
+                        Scenario: {{ event.scenario?.name }}
                       </p>
 
                       <p
@@ -500,7 +437,7 @@
                   color="white"
                   icon
                   class="delete-btn"
-                  @click="openEditDialog(event)"
+                  @click.stop="openEditDialog(event, true)"
                 >
                   <v-icon>mdi mdi-pencil</v-icon>
                 </v-btn>
@@ -508,58 +445,42 @@
             </v-card>
           </v-col>
         </v-row>
-
-        <!-- v-dialog (Janela Modal) -->
-        <v-dialog v-model="editEventDialog" max-width="1024">
+        <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
+        <v-dialog v-model="editEventDialog" scroll-target="#app">
           <v-card class="pa-6 dark-background">
             <v-card-text>
               <v-row>
-                <!-- Nome do Evento -->
-
-                <!-- Descrição -->
-                <v-col cols="12">
-                  <v-textarea
-                    v-model="editableEvent.eventdesc"
-                    label="EVENT DESCRIPTION"
-                    counter="355"
-                    variant="outlined"
-                  ></v-textarea>
-                </v-col>
-
-                <!-- Assentos + Data/Hora -->
-                <v-col cols="6" md="6">
+                <v-col cols="6" md="6" v-if="isEditable">
                   <v-select
-                    v-model="editableEvent.eventseats"
+                    v-model="editableEvent.seats_number"
                     :items="[1, 2, 3, 4]"
                     label="SEATS"
                     variant="outlined"
                   ></v-select>
                 </v-col>
-
-                <v-col cols="6" md="6">
+                <v-col cols="6" md="6" v-if="isEditable">
+                  
                   <v-select
-                    v-model="editableEvent.scenario"
-                    :items="[
-                      'Wing 01 Tutorial',
-                      'Wing 01 Advanced',
-                      'Wing 02 Advanced',
-                    ]"
+                    v-model="editableEvent.sceneries_fk"
+                    :items="sceneries"
+                    item-title="name"
+                    item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
+                    :key="sceneries.length"
                   ></v-select>
                 </v-col>
-
-                <v-col cols="6" md="3">
+                <v-col cols="6" md="3" v-if="isEditable">
                   <v-text-field
                     v-model="editableEvent.hour"
                     label="TIME"
                     variant="outlined"
                     placeholder="HH:MM"
                     maxlength="5"
+                    @blur="validateTime"
                   ></v-text-field>
                 </v-col>
-
-                <v-col cols="6" md="2">
+                <v-col cols="6" md="2" v-if="isEditable">
                   <v-select
                     v-model="editableEvent.ampm"
                     :items="['AM', 'PM']"
@@ -567,8 +488,7 @@
                     variant="outlined"
                   ></v-select>
                 </v-col>
-
-                <v-col cols="12" md="2" class="d-flex align-center">
+                <v-col cols="12" md="2" class="d-flex align-center" v-if="isEditable">
                   <v-text-field
                     v-model="editableEvent.date"
                     label="DATE"
@@ -580,9 +500,7 @@
                     :rules="dateRules"
                   ></v-text-field>
                 </v-col>
-
-                <!-- Recompensas -->
-                <v-col cols="12">
+                <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-row>
                     <v-col
@@ -593,10 +511,8 @@
                       <v-avatar
                         size="50"
                         :class="{
-                          'selected-reward':
-                            editableEvent.rewards.includes(reward),
-                          'unselected-reward':
-                            !editableEvent.rewards.includes(reward),
+                          'selected-reward': editableEvent.rewards?.includes(reward) ?? false,
+                          'unselected-reward': !(editableEvent.rewards?.includes(reward) ?? false)
                         }"
                         @click="toggleEditReward(reward)"
                       >
@@ -605,13 +521,130 @@
                     </v-col>
                   </v-row>
                 </v-col>
+                <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
+                <v-col cols="12" v-if="!isEditable">
+                  <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
+                  <v-row>
+                    <v-col
+                      cols="12"
+                      v-for="(player, index) in paginatedPlayers"
+                      :key="player.users_pk"
+                      class="pa-"
+                    >
+                      <v-card
+                        class="pa-1 mb-3"
+                        rounded="lg"
+                        elevation="10" >
+                      
+                        <v-row no-gutters> <!-- remove espaço interno entre colunas -->
+                          <!-- Imagem do jogador -->
+                        <v-col
+                            cols="4"
+                            lg="1"
+                            class="d-flex"
+                          >
+                            <v-img
+                              :src="player.picture_hash
+                                ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
+                                : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'"
+                              alt="Player Image"
+                              max-width="90"
+                              max-height="90"
+                              class="rounded-lg"
+                            ></v-img>
+                          </v-col>
 
+                          <!-- Informações -->
+                          <v-col cols="8" class=" pl-3 d-flex flex-column justify-center">
+                            <p class="font-weight-bold text-truncate">
+                              {{ player.user_name }}
+                            </p>
+                            <p class="text-caption">
+                              Status: {{ player.event_status }}
+                            </p>
+                            <p v-if="player.status_date" class="text-caption grey--text">
+                              Received: {{ new Date(player.status_date).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }) }}
+                            </p>
+                          </v-col>
+
+                          <!-- Botões -->
+                          <v-col cols="12" md="3" class="d-flex flex-column">
+                            <!-- Ícone de Granted Passage, centralizado -->
+                            <template v-if="player.event_status === 'Granted Passage'">
+                              <v-row
+                                no-gutters
+                                class="fill-height"
+                                align="center"
+                                justify="center"
+                              >
+                                <v-btn icon disabled class="ma-0 pa-0">
+                                  <v-icon color="green" size="24">mdi-check-circle</v-icon>
+                                </v-btn>
+                              </v-row>
+                            </template>
+
+                            <!-- Ícone de Turned Away, centralizado -->
+                            <template v-else-if="player.event_status === 'Turned Away'">
+                              <v-row
+                                no-gutters
+                                class="fill-height"
+                                align="center"
+                                justify="center"
+                              >
+                                <v-btn icon disabled class="ma-0 pa-0">
+                                  <v-icon color="red" size="24">mdi-close-circle</v-icon>
+                                </v-btn>
+                              </v-row>
+                            </template>
+
+                            <!-- Botões de ação originais, alinhados um abaixo do outro -->
+                            <template v-else>
+                              <v-btn
+                                color="green"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="updatePlayerStatus(player, grantedStatus)"
+                              >
+                                Granted Passage
+                              </v-btn>
+                              <v-btn
+                                color="red"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="updatePlayerStatus(player, turnedAwayStatus)"
+                              >
+                                Turned Away
+                              </v-btn>
+                            </template>
+                          </v-col>
+                        </v-row>
+                      </v-card>
+                    </v-col>
+                    <v-col cols="12" class="d-flex justify-center">
+                      <v-pagination
+                        v-model="currentPage"
+                        :length="totalPages"
+                      ></v-pagination>
+                    </v-col>
+                  </v-row>
+                </v-col>
                 <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
                   <v-btn color="red" @click="editEventDialog = false"
                     >Cancel</v-btn
                   >
-                  <v-btn color="green" @click="saveEditedEvent"
+                  <v-btn
+                    v-if="isEditable"
+                    color="green"
+                    @click="saveEditedEvent"
                     >Save Changes</v-btn
                   >
                 </v-col>
@@ -625,8 +658,171 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
+import { useEventStore } from "@/store/EventStore";
+
+const axios = inject("axios");
+if (!axios) {
+  throw new Error("Axios não foi injetado na aplicação.");
+}
+
+const eventStore = useEventStore();
+
+const isEditable = ref(false);
+
+const validateTime = () => {
+  const value = editableEvent.value.hour;
+  if (!value || value.length !== 5 || !value.includes(":")) return;
+  let [hh, mm] = value.split(":");
+  hh = parseInt(hh);
+  mm = parseInt(mm);
+  if (isNaN(hh) || hh < 1) hh = 1;
+  if (hh > 12) hh = 12;
+  if (isNaN(mm)) mm = 0;
+  if (mm > 59) mm = 59;
+  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
+    .toString()
+    .padStart(2, "0")}`;
+};
+
+const openEditDialog = (event, editable = false) => {
+  const [datePart, timePart] = event.event_date.split('T');
+  const [hoursStr, minutesStr] = timePart.split(':');
+  const hours24 = parseInt(hoursStr, 10);
+  const minutes = minutesStr;
+  const hours12 = hours24 % 12 || 12;
+  const ampm = hours24 >= 12 ? 'PM' : 'AM';
+  const hourValue = editableEvent.value.hour?.trim() || "12:00";
+  const ampmValue = editableEvent.value.ampm?.trim() || "PM";
+  const dateValue = editableEvent.value.date;
+  const eventDateFormatted = `${dateValue}; ${hourValue} ${ampmValue}`;
+
+  editableEvent.value = {
+    events_pk: event.events_pk,
+    date: datePart,
+    hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
+    ampm,
+    seats_number: event.seats_number,
+    sceneries: event.event_scenario,
+    rewards: event.rewards || [],
+  };
+
+  selectedEvent.value = event;
+  isEditable.value = editable;
+  editEventDialog.value = true;
+
+  if (!editable) {
+    fetchPlayersForEvent(event.events_pk);
+    fetchStatuses();
+  }
+};
+
+const players = ref([]);
+const currentPage = ref(1);
+const pageSize = 5;
+const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
+
+const paginatedPlayers = computed(() => {
+  const eventFk = selectedEvent.value?.events_pk ? Number(selectedEvent.value.events_pk) : null;
+  const allPlayers = eventFk && playersByEvent.value[eventFk]
+    ? playersByEvent.value[eventFk]
+    : [];
+  const start = (currentPage.value - 1) * pageSize;
+  
+  return allPlayers.slice(start, start + pageSize);
+});
+
+const statuses = ref([]);
+
+const grantedStatus = ref(null);
+const turnedAwayStatus = ref(null);
+
+const fetchStatuses = () => {
+  axios
+    .get("/event_status/search")
+    .then((response) => {
+      statuses.value = response.data.event_status;
+
+      grantedStatus.value = statuses.value.find(
+        (s) => s.name === "Granted Passage",
+      )?.event_status_pk;
+      turnedAwayStatus.value = statuses.value.find(
+        (s) => s.name === "Turned Away",
+      )?.event_status_pk;
+    })
+    .catch((error) => {
+      console.error("Erro ao buscar status:", error);
+    });
+};
+
+const playersByEvent = ref({});
+
+const fetchPlayersForEvent = async (eventFk) => {
+  try {
+    const response = await axios.get("/rl_events_users/list_players", {
+      params: { events_fk: eventFk },
+    });
+    const key = Number(eventFk);
+    playersByEvent.value[key] = response.data.players ?? [];
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      playersByEvent.value[Number(eventFk)] = [];
+    } else {
+      console.error(
+        `Erro ao buscar jogadores para o evento ${eventFk}:`,
+        error.response?.data || error.message
+      );
+      playersByEvent.value[Number(eventFk)] = [];
+    }
+  }
+};
+
+onMounted(() => {
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+
+  fetchStatuses();
+  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+});
+
+const updatePlayerStatus = async (player, statusPk) => {
+  try {
+    const userData = JSON.parse(localStorage.getItem("app_user"));
+    const eventFk = selectedEvent.value?.events_pk;
+
+    if (!userData?.users_pk || !eventFk) {
+      console.error("Missing required user or event data");
+      return;
+    }
+
+    const payload = {
+      users_fk: userData.users_pk,
+      events_fk: eventFk,
+      status: statusPk,
+      active: true,
+    }
+
+    const response = await axios.post(
+      "/rl_events_users/cadastro",
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+    
+    player.event_status = response.data.event_status || player.event_status;
+    fetchPlayersForEvent(eventFk); 
+  } catch (error) {
+    console.error("Error updating player status:", {
+      request: error.config?.data,
+      response: error.response?.data,
+      message: error.message
+    });
+  }
+};
 
 const dateRules = [
   (value) => {
@@ -651,12 +847,10 @@ const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
 
 const handleTimeInput = (event) => {
   let raw = event.target.value.replace(/\D/g, "");
-
   raw = raw.slice(0, 4);
-
   let hh = raw.slice(0, 2);
   let mm = raw.slice(2, 4);
-
+  
   if (hh.length === 2) {
     let h = parseInt(hh);
     if (h < 1) hh = "01";
@@ -702,23 +896,50 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const activeTab = ref("events");
-const sortBy = ref("date");
-
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
     (s) => s.storename === selectedEvent.value?.store,
   );
-  return store ? store.storeImage : "https://via.placeholder.com/150";
+  return store?.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : "https://via.placeholder.com/150";
 });
 
 const selectedStore = computed(() => {
   return (
-    stores.value.find((s) => s.storename === selectedEvent.value?.store) || {}
+    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
   );
 });
 
+// Sample Events Data
+const activeTab = ref("events");
+const sortBy = ref("date");
 const events = ref([]);
+
+const fetchPlayerEvents = async () => {
+  try {
+    const player_fk = userStore.user?.users_pk;
+
+    if (!player_fk) {
+      console.error("❌ Erro: player_fk (users_pk) não definido.");
+      return;
+    }
+
+    const response = await axios.get("/events/my_events/player", {
+      params: { player_fk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    events.value = response.data.events || [];
+  } catch (error) {
+    console.error(
+      "❌ Erro ao buscar eventos do jogador:",
+      error.response?.data || error.message,
+    );
+  }
+};
 
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
@@ -727,51 +948,172 @@ const sortedEvents = computed(() => {
   return events.value;
 });
 
-const addEvent = () => {
+onMounted(() => {
+  fetchPlayerEvents();
+});
+
+const sceneries = ref([]);
+
+const fetchSceneries = async () => {
+  await axios.get('/sceneries/search', {
+    params: { active: true },
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    },
+  }).then((response) => {
+    sceneries.value = [...response.data.sceneries]; 
+  }).catch((error) => {
+    console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
+  })
+};
+
+onMounted(async () => {
+  await fetchSceneries();
+});
+
+const addEvent = async () => {
+  const userStore = useUserStore();
+  const userId = userStore.user?.users_pk;
+
   if (
-    newEvent.value.location &&
-    newEvent.value.date &&
-    newEvent.value.location
+    !newEvent.value.date ||
+    !newEvent.value.hour ||
+    !newEvent.value.store ||
+    !newEvent.value.seats ||
+    !newEvent.value.scenario ||
+    !userId
   ) {
-    events.value.push({
+    console.error("❌ Dados insuficientes para criar o evento.");
+    return;
+  }
+
+  let selectedStore = null;
+  let storesFk = null;
+
+  try {
+    const response = await axios.get("/stores/list", {
+      params: {
+        users_fk: userId,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const allStores = response.data.stores || [];
+    const selectedStore = stores.value.find(
+      (store) =>
+        store.name?.toLowerCase().trim() ===
+        newEvent.value.store?.toLowerCase().trim(),
+    );
+    if (!selectedStore) {
+      console.error("❌ Store não encontrada na API.");
+      return;
+    }
+
+    storesFk = selectedStore.stores_pk;
+  } catch (error) {
+    console.error(
+      "❌ Erro ao buscar stores na API:",
+      error.response?.data || error.message,
+    );
+    return;
+  }
+
+  try {
+    let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
+    let ampm = newEvent.value.ampm || "AM";
+    const hour12 = String(hours).padStart(2, "0");
+    const minute = String(minutes).padStart(2, "0");
+    const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
+
+    const payload = {
+      seats_number: newEvent.value.seats,
+      seasons_fk: 2,
+      sceneries_fk: newEvent.value.scenario,
+      date: eventDateFormatted,
+      stores_fk: storesFk,
+      users_fk: userId,
+      active: true,
+    };
+
+    const response = await axios.post("/events/cadastro", payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    selectedRewards.value = [];
+    createEventDialog.value = false;
+    await fetchUserCreatedEvents();
+
+    userCreatedEvents.value.push({
       ...newEvent.value,
       rewards: [...selectedRewards.value],
       id: Date.now(),
       createdByUser: true,
     });
 
-    localStorage.setItem("userEvents", JSON.stringify(events.value));
-
-    newEvent.value = {
-      location: "Shopping Drunagor",
-      eventdesc: "",
-      eventseats: 4,
-      date: "",
-      hour: "",
-      rewards: [],
-    };
-
-    selectedRewards.value = [];
-
-    createEventDialog.value = false;
+    events.value.push({
+      ...newEvent.value,
+      rewards: [...selectedRewards.value],
+      id: Date.now(),
+      createdByUser: true,
+    });
+  } catch (error) {
+    console.error(
+      "❌ Erro ao cadastrar evento:",
+      error.response?.data || error.message,
+    );
   }
 };
 
-onMounted(() => {
-  const savedEvents = localStorage.getItem("userEvents");
-  if (savedEvents) {
-    events.value = JSON.parse(savedEvents);
-  }
-});
+const deleteEvent = async (events_pk) => {
+  try {
+    await axios.delete(`/events/${events_pk}/delete/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
 
-const deleteEvent = (eventId) => {
-  events.value = events.value.filter((event) => event.id !== eventId);
-  localStorage.setItem("userEvents", JSON.stringify(events.value));
+
+    await fetchUserCreatedEvents();
+    await fetchPlayerEvents();
+  } catch (error) {
+    console.error("❌ Erro ao excluir o evento:", error.response?.data || error.message);
+  }
 };
 
-const userCreatedEvents = computed(() => {
-  return events.value.filter((event) => event.createdByUser);
-});
+const userStore = useUserStore();
+
+const userCreatedEvents = ref([]);
+
+const fetchUserCreatedEvents = async () => {
+  try {
+    const retailer_fk = userStore.user?.users_pk;
+
+    if (!retailer_fk) {
+      console.error("❌ Erro: retailer_fk (users_pk) não definido.");
+      return;
+    }
+
+    const response = await axios.get("/events/my_events/retailer", {
+      params: { retailer_fk, active: true },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    userCreatedEvents.value = response.data.events || [];
+  } catch (error) {
+    console.error(
+      "❌ Erro ao buscar eventos criados pelo usuário:",
+      error.response?.data || error.message,
+    );
+  }
+};
+
+onMounted(fetchUserCreatedEvents);
 
 const availableRewards = ref([
   {
@@ -798,15 +1140,7 @@ const availableRewards = ref([
 ]);
 
 const createEventDialog = ref(false);
-const newEvent = ref({
-  location: "Shopping Drunagor",
-  eventdesc: "",
-  eventseats: 4,
-  date: "",
-  hour: "",
-  ampm: "AM",
-  rewards: [],
-});
+const newEvent = ref({});
 
 const stores = ref([]);
 
@@ -816,7 +1150,6 @@ watch(
     const selectedStore = stores.value.find(
       (store) => store.storename === selectedStoreName,
     );
-
     if (selectedStore) {
       const { address, streetNumber, complement, city, state } = selectedStore;
       newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
@@ -826,8 +1159,22 @@ watch(
   },
 );
 
-onMounted(() => {
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+onMounted(async () => {
+  try {
+    const response = await axios.get("/stores/list", {
+      params: { users_fk: userStore.user?.users_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    stores.value = response.data.stores || [];
+  } catch (error) {
+    console.error(
+      "❌ Erro ao buscar lojas:",
+      error.response?.data || error.message,
+    );
+  }
 });
 
 const createEvent = () => {
@@ -847,19 +1194,55 @@ const handleImageUpload = (event) => {
 };
 
 const editEventDialog = ref(false);
-const editableEvent = ref({});
+const editableEvent = ref({ rewards: [] });
 
-const openEditDialog = (event) => {
-  editableEvent.value = { ...event };
-  editEventDialog.value = true;
-};
+const saveEditedEvent = async () => {
+  try {
+    const eventPk = editableEvent.value.events_pk;
+    if (!eventPk) {
+      console.error("Evento sem events_pk definido");
+      return;
+    }
 
-const saveEditedEvent = () => {
-  const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
-  if (index !== -1) {
-    events.value[index] = { ...editableEvent.value };
+    const hourValue = editableEvent.value.hour && editableEvent.value.hour.trim() !== ""
+      ? editableEvent.value.hour
+      : "12:00";
+    const ampmValue = editableEvent.value.ampm && editableEvent.value.ampm.trim() !== ""
+      ? editableEvent.value.ampm
+      : "PM";
+
+    const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
+
+    const payload = {
+      seats_number: editableEvent.value.seats_number,
+      sceneries_fk: editableEvent.value.sceneries_fk,
+      date: eventDateFormatted,
+    };
+
+    const response = await axios.put(
+      "/events/alter",
+      payload,
+      {
+        params: {
+          events_pk: eventPk,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
+
+    const index = events.value.findIndex((e) => e.events_pk === eventPk);
+
+    if (index !== -1) {
+      events.value[index] = { ...editableEvent.value };
+    }
+    
+    editEventDialog.value = false;
+    await fetchUserCreatedEvents();
+  } catch (error) {
+    console.error("Erro ao alterar o evento:", error.response?.data || error.message);
   }
-  editEventDialog.value = false;
 };
 
 const toggleEditReward = (reward) => {
@@ -870,9 +1253,21 @@ const toggleEditReward = (reward) => {
     editableEvent.value.rewards.splice(index, 1);
   }
 };
+
+const handleEditImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      editableEvent.value.image = reader.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
 </script>
 
 <style scoped>
+/* Event Card */
 .event-card {
   display: flex;
   align-items: center;

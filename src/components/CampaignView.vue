@@ -150,7 +150,7 @@ function onSequentialAdventure() {
   </v-row>
 
   <v-row no-gutters class="d-flex justify-center">
-    <v-sheet rounded border="md" class="text-white" width="100%">
+    <v-sheet rounded border="md" class="text-white" width="800px">
       <v-col
         cols="12"
         id="heroes"
