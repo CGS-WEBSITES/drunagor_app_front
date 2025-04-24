@@ -461,7 +461,7 @@
                 <v-col cols="6" md="6" v-if="isEditable">
                   
                   <v-select
-                    v-model="editableEvent.sceneries_fk"
+                    v-model="editableEvent.sceneries"
                     :items="sceneries"
                     item-title="name"
                     item-value="sceneries_pk"
@@ -704,7 +704,7 @@ const openEditDialog = (event, editable = false) => {
     hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries: event.event_scenario,
+    sceneries: event.scenario,
     rewards: event.rewards || [],
   };
 
