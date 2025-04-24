@@ -459,6 +459,11 @@ const onlyAllowNumbers = (event: KeyboardEvent) => {
 const userStore = useUserStore();
 const showVerificationMessage = ref(false); // Adicione isso no seu <script setup>
 
+const getCountryNameFromId = (id: string | null): string => {
+  const match = countriesList.value.find((c) => c.countries_pk === id);
+  return match?.name || '';
+};
+
 const saveStore = async () => {
   const { valid } = await storeForm.value.validate();
 
@@ -468,8 +473,10 @@ const saveStore = async () => {
   }
 
   const store = form.value;
+  
 
-  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${store.country}`;
+  const countryName = getCountryNameFromId(store.country);
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
 
   const payload = {
     web_site: store.site,

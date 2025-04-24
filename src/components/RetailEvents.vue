@@ -461,7 +461,7 @@
                 <v-col cols="6" md="6" v-if="isEditable">
                   
                   <v-select
-                    v-model="editableEvent.sceneries_fk"
+                    v-model="editableEvent.sceneries"
                     :items="sceneries"
                     item-title="name"
                     item-value="sceneries_pk"
@@ -478,7 +478,7 @@
   placeholder="HH:MM"
   maxlength="5"
   @blur="validateTime"
-/>
+/>   
                 </v-col>
                 <v-col cols="6" md="2" v-if="isEditable">
                   <v-select
@@ -641,12 +641,11 @@ if (!axios) {
 
 
 const eventStore = useEventStore();
-
-
 const isEditable = ref(false);
 
 const validateTime = () => {
   const value = editableEvent.value.hour;
+
 
   if (!value || value.length !== 5 || !value.includes(":")) return;
 
@@ -660,14 +659,10 @@ const validateTime = () => {
 
   if (isNaN(mm)) mm = 0;
   if (mm > 59) mm = 59;
-
   editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
     .toString()
     .padStart(2, "0")}`;
 };
-
-
-
 
 
 const openEditDialog = (event, editable = false) => {
@@ -686,14 +681,13 @@ const dateValue = editableEvent.value.date;
 
 const eventDateFormatted = `${dateValue}; ${hourValue} ${ampmValue}`;
 
-
   editableEvent.value = {
     events_pk: event.events_pk,
     date: datePart,
     hour: `${String(hours12).padStart(2, '0')}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries: event.event_scenario,
+    sceneries: event.scenario,
     rewards: event.rewards || [],
   };
 
@@ -739,7 +733,6 @@ const fetchStatuses = () => {
       turnedAwayStatus.value = statuses.value.find(
         (s) => s.name === "Turned Away",
       )?.event_status_pk;
-      console.log("Status:", statuses.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar status:", error);
@@ -805,7 +798,6 @@ const updatePlayerStatus = async (player, statusPk) => {
     console.log("Status updated successfully:", response.data);
     player.event_status = statusPk;
     fetchPlayersForEvent(eventFk); 
-
   } catch (error) {
     console.error("Error updating player status:", {
       request: error.config?.data,
@@ -953,7 +945,6 @@ const fetchSceneries = async () => {
     },
   }).then((response) => {
     sceneries.value = [...response.data.sceneries]; 
-    console.log("✅ Cenários carregados:", sceneries.value);
   }).catch((error) => {
     console.error("❌ Erro ao buscar cenários:", error.response?.data || error.message);
   })
@@ -1034,10 +1025,6 @@ const addEvent = async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
-    console.log("✅ Evento criado:", response.data);
-
-    // Reseta o formulário e fecha o diálogo
     selectedRewards.value = [];
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
@@ -1048,8 +1035,7 @@ const addEvent = async () => {
       id: Date.now(),
       createdByUser: true,
     });
-
-    // Opcional: Atualizar lista local de eventos
+    
     events.value.push({
       ...newEvent.value,
       rewards: [...selectedRewards.value],
@@ -1166,8 +1152,6 @@ onMounted(async () => {
     });
 
     stores.value = response.data.stores || [];
-
-    console.log("✅ Lojas carregadas:", stores.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
