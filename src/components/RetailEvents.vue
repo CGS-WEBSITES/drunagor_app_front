@@ -386,8 +386,8 @@
                       </div>
                     </v-col>
 
-                    <v-col cols="8" sm="10" class="pt-2 pl-2">
-                      <h3 class="pb-1">
+                    <v-col cols="8" sm="10" class="pt-2 pl-5">
+                      <h3 class="pb-1 text-truncate">
                         <v-icon class="pr-1" size="small" color="black"
                           >mdi-chess-rook</v-icon
                         >
@@ -401,7 +401,7 @@
 
                       <p class="text-caption" v-if="event.scenario">
                         <v-icon color="red">mdi-sword-cross</v-icon>
-                        Scenario: {{ event.scenario?.name }}
+                        Scenario: {{ event.scenario }}
                       </p>
 
                       <p
