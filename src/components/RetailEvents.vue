@@ -302,7 +302,7 @@
         </v-row>
         <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
         <v-dialog v-model="editEventDialog" scroll-target="#app">
-          <v-card class="pa-2 dark-background">
+          <v-card class="pr-0 pl-10 dark-background">
             <v-card-text>
               <v-row>
                 <v-col cols="6" md="6" v-if="isEditable">
@@ -438,7 +438,7 @@
                 </v-col>
                 <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
-                  <v-btn color="red" @click="editEventDialog = false">Cancel</v-btn>
+                  <v-btn color="red" @click="editEventDialog = false">Close</v-btn>
                   <v-btn v-if="isEditable" color="green" @click="saveEditedEvent">Save Changes</v-btn>
                 </v-col>
               </v-row>
