@@ -74,21 +74,14 @@
         </v-row>
 
         <!-- Diálogo para visualização do evento -->
-        <v-dialog v-model="dialog" max-width="600">
-          <v-card color="surface">
+        <v-dialog v-model="dialog" max-width="600" min-height="410">
+        <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
-            <v-card-title class="ml-2 font-weight-bold">
-              {{ selectedStore?.store_name }}
-            </v-card-title>
             <v-card-text>
-              <!-- <p>
-                <strong>Description:</strong> {{ selectedEvent?.eventdesc }}
-              </p> -->
-              <br />
-              <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
-              <br />
+              <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
+              <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
               <p class="text-end scheduled-box">
                 Sheduled for: {{
                   new Date(selectedEvent?.event_date).toLocaleString('en-US', {
@@ -115,7 +108,7 @@
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedEvent?.address }},
+                    {{ selectedEvent?.address }}
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0"></v-col>
