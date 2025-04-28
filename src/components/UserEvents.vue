@@ -216,7 +216,7 @@
             v-for="(evt, idx) in myEvents"
             :key="evt.events_pk"
           >
-            <v-card 
+            <v-card
               color="terciary"
               class="pt-0 event-card"
               @click="openMyEventsDialog(evt)"
@@ -224,15 +224,28 @@
               <v-row no-gutters>
                 <!-- Date -->
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width:70px;color:black">
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
                     <p class="pt-3 text-caption font-weight-bold">
-                      {{ new Date(evt.event_date).toLocaleDateString('en-US',{month:'short'}).toUpperCase() }}
+                      {{
+                        new Date(evt.event_date)
+                          .toLocaleDateString("en-US", { month: "short" })
+                          .toUpperCase()
+                      }}
                     </p>
                     <p class="cinzel-text text-h3 font-weight-bold">
-                      {{ String(evt.event_date).split('T')[0].split('-')[2] }}
+                      {{ String(evt.event_date).split("T")[0].split("-")[2] }}
                     </p>
                     <p class="text-caption font-weight-bold">
-                      {{ new Date(evt.event_date).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}) }}
+                      {{
+                        new Date(evt.event_date).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })
+                      }}
                     </p>
                   </div>
                 </v-col>
@@ -240,7 +253,9 @@
                 <!-- Details -->
                 <v-col cols="8" sm="10" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >
                     {{ evt.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
@@ -271,7 +286,7 @@
               <p>Status: {{ selectedMyEvent?.status }}</p>
             </v-card-text>
             <v-card-actions class="justify-end">
-              <v-btn color="green" @click=" createdCompanion()">
+              <v-btn color="green" @click="createdCompanion()">
                 Join Campaign
               </v-btn>
             </v-card-actions>
@@ -286,7 +301,12 @@
 import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
-import router from "@/router";
+// import router from "@/router";
+import { CampaignStore } from "@/store/CampaignStore";
+import { HeroStore } from "@/store/HeroStore";
+import { useRouter, useRoute } from "vue-router";
+import { useToast } from "primevue/usetoast";
+import { useI18n } from "vue-i18n";
 
 const axios = inject("axios");
 if (!axios) {
@@ -294,8 +314,7 @@ if (!axios) {
 }
 
 const activeTab = ref(1);
-const events = ref([])
-;
+const events = ref([]);
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -477,21 +496,85 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const createdCompanion = async () => {
-  const companion = await axios.post("/campaigns/cadastro", {
-    tracker_hash: "3",
-    conclusion_percentage: 0,
-    party_name: null,
-    box: "3",
-    active: true,
-  });
-  console.log("Companion created:", companion.data);
-  alert("Companion created successfully!");
+const toast = useToast();
+const { t } = useI18n();
+const router = useRouter();
+const route = useRoute();
+const boxSku = computed(() => route.query.sku || "");
+const campaignStore = CampaignStore();
+const heroStore = HeroStore();
 
-  myDialog.value = false;
+// async function saveCampaign() {
+//   const response = await axios.post("/campaigns/cadastro", {
+//     tracker_hash: token.value,
+//     conclusion_percentage: 0,
+//     box: boxSku.value,
+//   });
+//   // notificação de sucesso
+//   toast.add({
+//     severity: "success",
+//     summary: t("label.success"),
+//     detail: "Campaign saved successfully.",
+//     life: 3000,
+//   });
+//   // cria relação usuário↔campanha
+//   const { campaigns_pk, box } = response.data.campaign;
+//   const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
+//   await axios.post("rl_campaigns_users/cadastro", {
+//     users_fk: users_pk,
+//     campaigns_fk: campaigns_pk,
+//     party_roles_fk: 1,
+//     skus_fk: parseInt(box, 10),
+//   });
+// }
 
-  router.push({ path: "/campaign-tracker/campaign" });
-};
+async function createdCompanion() {
+  const token = 
+    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJZHMiOltdLCJvdXRjb21lSWRzIjpbXSwiZm9sbG93ZXJJZHMiOltdLCJ1bmZvbGRpbmdJZHMiOltdLCJiYWNrZ3JvdW5kQW5kVHJhaXRJZHMiOltdLCJsZWdhY3lUcmFpbCI6eyJwZXJzZXZlcmFuY2UiOjAsInRyYWdlZHkiOjAsImRvb20iOjAsImhlcm9pc20iOjB9LCJpc1NlcXVlbnRpYWxBZHZlbnR1cmUiOmZhbHNlLCJzZXF1ZW50aWFsQWR2ZW50dXJlUnVuZXMiOjB9LCJoZXJvZXMiOltdfQ==";
+  try {
+    const { data: resp } = await axios.post("/campaigns/cadastro", {
+      tracker_hash: token,
+      conclusion_percentage: 0,
+      box: 22,
+    });
+
+    toast.add({
+      severity: "success",
+      summary: t("label.success"),
+      detail: "Campaign saved successfully.",
+      life: 3000,
+    });
+
+    // 3) Cria relacionamento usuário↔campanha
+    const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
+    await axios.post("rl_campaigns_users/cadastro", {
+      users_fk: users_pk,
+      campaigns_fk: resp.campaign.campaigns_pk,
+      party_roles_fk: 1,
+      skus_fk: parseInt(resp.campaign.box, 10),
+    }).then((response) => {
+      console.log("Relação usuário↔campanha criada com sucesso.", response.data);
+    }).catch((error) => {
+      console.error("Erro ao criar relação usuário↔campanha:", error);
+      toast.add({
+        severity: "error",
+        summary: t("label.error"),
+        detail: "Error creating campaign-user relationship.",
+        life: 3000,
+      });
+    });
+    // 4) Redireciona
+    router.push({ path: "/campaign-tracker/campaign" });
+  } catch (err) {
+    console.error("Erro no fluxo de salvar campanha:", err);
+    toast.add({
+      severity: "error",
+      summary: t("label.error"),
+      detail: "Failed to save campaign.",
+      life: 3000,
+    });
+  }
+}
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
@@ -539,9 +622,11 @@ const fetchPlayerEvents = async () => {
 const myEvents = ref([]);
 
 const fetchMyEvents = async () => {
-  const userData = JSON.parse(localStorage.getItem('app_user'));
+  const userData = JSON.parse(localStorage.getItem("app_user"));
   if (!userData?.users_pk) return;
-  const res = await axios.get('/events/my_events/player', { params: { player_fk: userData.users_pk } });
+  const res = await axios.get("/events/my_events/player", {
+    params: { player_fk: userData.users_pk },
+  });
   myEvents.value = res.data.events || [];
 };
 
@@ -826,8 +911,8 @@ const getPlayersForEvent = async (event_fk) => {
     });
 };
 
-const myDialog = ref(false)
-const selectedMyEvent = ref(null)
+const myDialog = ref(false);
+const selectedMyEvent = ref(null);
 
 const openMyEventsDialog = (event) => {
   selectedMyEvent.value = event;
