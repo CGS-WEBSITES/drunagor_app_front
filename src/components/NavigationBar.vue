@@ -99,7 +99,7 @@ const usermobilebuttons = ref([
   { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
   { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
   { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },
-  { icon: 'mdi-logout', value: 'logout', route: '/perfil/', text: "logout" },
+  { icon: 'mdi-logout', value: 'logout', route: '/login', text: "logout" },
 ]);
 
 const retailmobilebuttons = ref([
@@ -108,7 +108,7 @@ const retailmobilebuttons = ref([
   { icon: 'mdi-magnify', value: 'search', route: '/profile/friend-store', text: "search users" },
   { icon: 'mdi-account-group', value: 'group', route: '/profile/friend-storelist', text: "friends" },
   { icon: 'mdi-cog-outline', value: 'settings', route: '/profile/settings', text: "settings" },
-  { icon: 'mdi-logout', value: 'logout', route: '/perfil/', text: "logout" },
+  { icon: 'mdi-logout', value: 'logout', route: '/login', text: "logout" },
 
 ]);
 
