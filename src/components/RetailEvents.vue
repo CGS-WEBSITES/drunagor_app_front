@@ -334,65 +334,69 @@
                 </v-col>
                 <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
                 <v-col cols="12" class="d-flex align-end flex-column" v-if="!isEditable">
-                    <v-col class="d-flex align-center flex-column" >
-                  <v-card color="surface">
-                    <v-card-text>
-                      <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
-                      <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
-                      <p class="text-end scheduled-box">
-                        Sheduled for: {{
-                          new Date(selectedEvent?.event_date).toLocaleString('en-US', {
-                            month: '2-digit',
-                            day: '2-digit',
-                            year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true
-                          })
-                        }}
-                      </p>
-                    </v-card-text>
-                    <v-card color="primary" min-height="130px" class="mr-4 event-card">
-                      <v-row no-gutters>
-                        <v-col cols="3" lg="3">
-                          <v-img :src="selectedEvent?.picture_hash
-                            ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                            : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
-                            class="event-img" />
-                        </v-col>
-                        <v-col cols="9" class="pa-2">
-                          <h3 class="text-subtitle-1 font-weight-bold">
-                            {{ selectedEvent?.store_name }}
-                          </h3>
-                          <p class="text-caption">
-                            <v-icon color="red">mdi-map-marker</v-icon>
-                            {{ selectedEvent?.address }}
-                          </p>
-                        </v-col>
-                        <v-col cols="2" class="text-right pa-0"></v-col>
-                      </v-row>
+                  <v-col class="d-flex align-center flex-column">
+                    <v-card color="surface">
+                      <v-card-text>
+                        <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
+                        <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
+                        <p class="text-end scheduled-box">
+                          Sheduled for: {{
+                            new Date(selectedEvent?.event_date).toLocaleString('en-US', {
+                              month: '2-digit',
+                              day: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              hour12: true
+                            })
+                          }}
+                        </p>
+                      </v-card-text>
+                      <v-card color="primary" min-height="130px" class="mr-4 event-card">
+                        <v-row no-gutters>
+                          <v-col cols="3" lg="3">
+                            <v-img :src="selectedEvent?.picture_hash
+                              ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                              : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'"
+                              class="event-img" />
+                          </v-col>
+                          <v-col cols="9" class="pa-2">
+                            <h3 class="text-subtitle-1 font-weight-bold">
+                              {{ selectedEvent?.store_name }}
+                            </h3>
+                            <p class="text-caption">
+                              <v-icon color="red">mdi-map-marker</v-icon>
+                              {{ selectedEvent?.address }}
+                            </p>
+                          </v-col>
+                          <v-col cols="2" class="text-right pa-0"></v-col>
+                        </v-row>
+                      </v-card>
+                      <v-card-text>
+                        <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
+                        <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
+                          <v-col cols="3" md="2">
+                            <v-avatar size="60">
+                              <v-img :src="reward.image"></v-img>
+                            </v-avatar>
+                          </v-col>
+                          <v-col cols="9" md="10">
+                            <h4 class="text-subtitle-1 font-weight-bold">
+                              {{ reward.name }}
+                            </h4>
+                            <p class="text-body-2">{{ reward.description }}</p>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                      <v-btn block color="blue" size="small" variant="flat" class="mt-">
+                        <v-icon start>mdi-share-variant</v-icon>
+                        Share Event
+                      </v-btn>
                     </v-card>
-                    <v-card-text>
-                      <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-                      <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
-                        <v-col cols="3" md="2">
-                          <v-avatar size="60">
-                            <v-img :src="reward.image"></v-img>
-                          </v-avatar>
-                        </v-col>
-                        <v-col cols="9" md="10">
-                          <h4 class="text-subtitle-1 font-weight-bold">
-                            {{ reward.name }}
-                          </h4>
-                          <p class="text-body-2">{{ reward.description }}</p>
-                        </v-col>
-                      </v-row>
-                    </v-card-text>
-                  </v-card>
-                </v-col>
-                <v-col>
-                  <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
-                </v-col>
+                  </v-col>
+                  <v-col>
+                    <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
+                  </v-col>
                   <v-row>
                     <v-col cols="12" v-for="(player, index) in paginatedPlayers" :key="player.users_pk" class="pa-1">
                       <v-card class="pa-1 mb-3" rounded="lg" elevation="10">
