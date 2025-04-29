@@ -381,7 +381,6 @@ const fetchStatuses = () => {
       turnedAwayStatus.value = statuses.value.find(
         (s) => s.name === "Turned Away",
       )?.event_status_pk;
-      console.log("Status:", statuses.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar status:", error);
@@ -395,7 +394,6 @@ const fetchPlayers = () => {
     })
     .then((response) => {
       players.value = response.data.players;
-      console.log("Players:", players.value);
     })
     .catch((error) => {
       console.error("Erro ao buscar jogadores:", error);
@@ -424,7 +422,6 @@ const updatePlayerStatus = (player, newStatus) => {
     })
     .then((response) => {
       player.status = newStatus;
-      console.log("Status atualizado:", response.data);
     })
     .catch((error) => {
       console.error("Erro ao atualizar status:", error);
@@ -632,7 +629,6 @@ const fetchMyEvents = async () => {
     params: { player_fk: userData.users_pk },
   });
   myEvents.value = res.data.events || [];
-  console.log("My Events:", myEvents.value); 
 };
 
 onMounted(async () => {
@@ -866,7 +862,6 @@ onMounted(async () => {
 });
 
 const createEvent = () => {
-  console.log("Event Created:", newEvent.value);
   createEventDialog.value = false;
 };
 
