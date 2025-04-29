@@ -22,8 +22,8 @@
                                     year: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit',
-                                    hour12: true
-                                })
+                            hour12: true
+                            })
                             }}
                         </p>
                     </v-card-text>
@@ -57,9 +57,7 @@
                                 </v-avatar>
                             </v-col>
                             <v-col cols="9">
-                                <h4 class="text-subtitle-1 font-weight-bold">
-                                    {{ reward.name }}
-                                </h4>
+                                <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
                                 <p class="text-body-2">{{ reward.description }}</p>
                             </v-col>
                         </v-row>
@@ -78,24 +76,25 @@
                         </v-col>
                     </v-row>
 
-                    <!-- Popup (Dialog) para login/signup -->
+                    <!-- Dialog de login -->
                     <v-dialog v-model="showLoginDialog" width="460">
                         <v-card color="#1e1e1e" class="pa-4">
                             <v-card-title class="text-h6 text-center text-white">
-                                Authentication Required
+                                Join an Event
                             </v-card-title>
 
                             <v-card-text class="text-center text-white">
-                                To continue your journey through Drunagor events, you must be logged in.
+                                To join a Drunagor event, you must be logged in.<br /><br />
+                                After logging in, you can find this event by visiting the
+                                <strong>Events</strong> tab.
                             </v-card-text>
 
                             <v-card-actions class="justify-center mt-2">
-                                <v-btn color="primary" variant="elevated" class="mx-2" size="small" @click="goToLogin">
+                                <v-btn variant="outlined" color="white" class="mx-2" size="small" @click="goToLogin">
                                     LOG IN
                                 </v-btn>
 
-                                <v-btn color="primary" variant="elevated" class="mx-2" size="small"
-                                    @click="goToSignup">
+                                <v-btn variant="outlined" color="white" class="mx-2" size="small" @click="goToSignup">
                                     SIGN UP
                                 </v-btn>
                             </v-card-actions>
@@ -109,39 +108,13 @@
 
 <script setup>
 import { ref, onMounted, inject } from "vue";
-import { useRoute } from "vue-router";
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
-
-const route = useRoute(); // <=== MOVA ISSO PRA CIMA
+const route = useRoute();
 const axios = inject("axios");
 
 const selectedEvent = ref(null);
-
-if (!axios) {
-    throw new Error("Axios não foi injetado na aplicação.");
-}
-
-const fetchEvent = async () => {
-    try {
-        const eventIdEncoded = route.params.id; // usa aqui dentro
-        if (!eventIdEncoded) {
-            throw new Error("ID do evento não encontrado na URL.");
-        }
-
-        const decodedId = atob(eventIdEncoded);
-        console.log("ID Decodificado:", decodedId);
-
-        const response = await axios.get(`/events/${decodedId}`);
-        selectedEvent.value = response.data;
-
-        console.log("Evento carregado:", selectedEvent.value);
-    } catch (error) {
-        console.error("Erro ao buscar o evento:", error);
-    }
-};
-
 const showLoginDialog = ref(false);
 
 const openLoginDialog = () => {
@@ -149,19 +122,29 @@ const openLoginDialog = () => {
 };
 
 const goToLogin = () => {
-    router.push({ path: '/login', query: { tab: 'login' } });
+    router.push({ path: "/login", query: { tab: "login" } });
 };
 
 const goToSignup = () => {
-    router.push({ path: '/login', query: { tab: 'signup' } });
+    router.push({ path: "/login", query: { tab: "signup" } });
 };
 
-onMounted(() => {
-    fetchEvent();
-});
+const fetchEvent = async () => {
+    try {
+        const eventIdEncoded = route.params.id;
+        if (!eventIdEncoded) throw new Error("Missing ID");
 
+        const decodedId = atob(eventIdEncoded);
+        const response = await axios.get(`/events/${decodedId}`);
+        selectedEvent.value = response.data;
+    } catch (err) {
+        console.error("Event fetch failed:", err);
+    }
+};
 
+onMounted(fetchEvent);
 </script>
+
 
 <style scoped>
 /* Event Card */
