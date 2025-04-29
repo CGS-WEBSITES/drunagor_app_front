@@ -286,7 +286,11 @@
               <p>Status: {{ selectedMyEvent?.status }}</p>
             </v-card-text>
             <v-card-actions class="justify-end">
-              <v-btn color="green" @click="createdCompanion()">
+              <v-btn 
+                color="green"
+                @click="createdCompanion()"
+                :disabled="selectedMyEvent?.status !== 'Joined the Quest'"  
+              >
                 Join Campaign
               </v-btn>
             </v-card-actions>
@@ -628,6 +632,7 @@ const fetchMyEvents = async () => {
     params: { player_fk: userData.users_pk },
   });
   myEvents.value = res.data.events || [];
+  console.log("My Events:", myEvents.value); 
 };
 
 onMounted(async () => {
