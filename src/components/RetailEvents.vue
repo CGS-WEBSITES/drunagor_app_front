@@ -388,10 +388,37 @@
                           </v-col>
                         </v-row>
                       </v-card-text>
-                      <v-btn block color="blue" size="small" variant="flat" class="mt-">
+                      <v-btn block color="blue" size="small" variant="flat" class="mt-2"
+                        @click="shareEvent(selectedEvent?.events_pk)">
                         <v-icon start>mdi-share-variant</v-icon>
                         Share Event
                       </v-btn>
+
+                      <!-- Diálogo (Popup) para mostrar o link -->
+                      <v-dialog v-model="showDialog" width="400">
+                        <v-card>
+                          <v-card-title class="text-h6">Share Event</v-card-title>
+                          <v-card-text>
+                            <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
+                              hide-details></v-text-field>
+                          </v-card-text>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="success" size="small" @click="copyLink(sharedLink)">
+                              Copy Link
+                            </v-btn>
+                            <v-btn color="grey" size="small" @click="showDialog = false">
+                              Close
+                            </v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
+
+                      <!-- Alerta elegante para sucesso -->
+                      <v-alert v-if="showAlert" type="success" class="mt-4" border="start" variant="tonal" closable
+                        @click:close="showAlert = false">
+                        Link copied successfully!
+                      </v-alert>
                     </v-card>
                   </v-col>
                   <v-col>
@@ -514,6 +541,44 @@ const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
+
+
+const handleShareEvent = (eventId) => {
+  const shareLink = generateShareEventLink(eventId);
+  if (shareLink) {
+    sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
+    showCard.value = true;         // e que showCard controle exibir o card
+  }
+};
+
+const sharedLink = ref('');
+const showDialog = ref(false);
+const showAlert = ref(false);
+
+const shareEvent = (eventId) => {
+  try {
+    if (!eventId) throw new Error("ID do evento não encontrado!");
+
+    const encodedId = btoa(eventId.toString());
+    console.log("ID codificado:", encodedId);
+
+    sharedLink.value = `${window.location.origin}/event/${encodedId}`;
+    showDialog.value = true; // Abre o popup
+  } catch (error) {
+    console.error("Erro ao gerar link:", error);
+  }
+};
+
+const copyLink = async (link) => {
+  try {
+    await navigator.clipboard.writeText(link);
+    showDialog.value = false; // Fecha o popup
+    showAlert.value = true;   // Mostra o alerta
+  } catch (error) {
+    console.error("Erro ao copiar o link:", error);
+  }
+};
+
 
 const eventStore = useEventStore();
 
