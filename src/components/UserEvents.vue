@@ -182,20 +182,31 @@
                   <p class="text-body-2">{{ reward.description }}</p>
                 </v-col>
               </v-row>
+                    <v-alert
+        v-if="joinedEventPk === selectedEvent?.events_pk"
+        type="success"
+        class="mt-4"
+        border="start"
+        variant="tonal"
+        closable
+        @click:close="joinedEventPk = null"
+      >
+        You’ve successfully joined this event! 🎉
+      </v-alert>
+
+
+
             </v-card-text>
-            <v-row class="mt-2 ml-0">
-              <v-col cols="12" class="pa-0">
-                <v-btn
-                  block
-                  color="#539041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                  >Count me in</v-btn
-                >
-              </v-col>
-            </v-row>
+                    <v-row class="mt-2 ml-0">
+          <v-col cols="12" class="pa-0">
+            <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
+              Count me in
+            </v-btn>
+          </v-col>
+        </v-row>
           </v-card>
         </v-dialog>
+        
       </div>
 
       <div v-else-if="activeTab === 2">
@@ -483,9 +494,38 @@ const openDialog = (event) => {
   dialog.value = true;
 };
 
-const joinEvent = () => {
-  alert(`You have joined the event: ${selectedEvent.value.name}`);
-  dialog.value = false;
+const joinEvent = async () => {
+  const userId = userStore.user?.users_pk;
+
+  if (!userId || !selectedEvent.value) {
+    console.warn("Usuário ou evento não disponível");
+    return;
+  }
+
+  try {
+    await axios.post('/rl_events_users/cadastro', {
+  users_fk: userStore.user?.users_pk,
+  events_fk: selectedEvent.value.events_pk,
+  status: 1,
+}, {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+  },
+});
+
+joinedEventPk.value = selectedEvent.value.events_pk;
+
+// Atualiza lista de eventos
+await fetchMyEvents();
+
+
+    showSuccessAlert.value = true;
+  } catch (err) {
+    console.error(
+      "Erro ao registrar participação:",
+      err.response?.data || err.message
+    );
+  }
 };
 
 const toast = useToast();
@@ -909,6 +949,18 @@ const openMyEventsDialog = (event) => {
   selectedMyEvent.value = event;
   myDialog.value = true;
 };
+
+const showSuccessAlert = ref(false);
+
+showSuccessAlert.value = true;
+
+const joinedEventPk = ref(null); // armazena o ID do evento confirmado
+
+
+
+
+
+
 </script>
 
 <style scoped>
