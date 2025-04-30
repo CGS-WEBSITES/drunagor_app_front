@@ -64,12 +64,8 @@
                     </v-card-text>
 
                     <v-row class="mt-2 pb-3 ml-0">
-                        <v-col cols="6" class="pa-0">
-                            <v-btn block color="#907041" class="rounded-0" @click="openLoginDialog">
-                                Maybe I’ll Go
-                            </v-btn>
-                        </v-col>
-                        <v-col cols="6" class="pa-0">
+
+                        <v-col cols="12" class="pa-0">
                             <v-btn block color="#539041" class="rounded-0" @click="openLoginDialog">
                                 Count me in
                             </v-btn>
