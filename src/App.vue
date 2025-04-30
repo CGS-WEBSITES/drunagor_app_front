@@ -48,7 +48,7 @@
           Community
         </v-btn> -->
 
-        <v-btn v-if="['Home', 'Login', 'Gama', 'Community', 'RetailerRegistration', 'ForgotPassword'].includes(route.name)" color="WHITE" large
+        <v-btn v-if="['Home', 'Login', 'Gama', 'Community', 'RetailerRegistration', 'ForgotPassword', 'ShareEvent'].includes(route.name)" color="WHITE" large
         @click="$router.push({ name: 'Login', query: { tab: 'signup' } })">
           Sign up
         </v-btn>

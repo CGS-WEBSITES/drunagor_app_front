@@ -45,6 +45,11 @@ const router = createRouter({
       component: () => import("@/pages/User.vue"),
     },
     {
+      path: "/event/:id",
+      name: "ShareEvent",
+      component: () => import("@/pages/ShareEvent.vue"),
+    },
+    {
       path: "/library",
       name: "Library",
       component: () => import("@/pages/Library.vue"),
