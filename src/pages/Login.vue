@@ -355,6 +355,7 @@ import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 import type { User } from "@/store/UserStore";
+import { onBeforeMount } from 'vue';
 
 const userStore = useUserStore();
 
@@ -535,6 +536,22 @@ const submitForm = async () => {
       });
   }
 };
+
+onBeforeMount(() => {
+  const token = localStorage.getItem('accessToken');
+
+  if (token) {
+    setToken(token);
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+
+    router.push({ name: 'Dashboard' });
+  }
+});
+
+
+
 </script>
 
 
