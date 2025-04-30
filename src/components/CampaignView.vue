@@ -16,7 +16,7 @@ import SequentialAdventureButton from "@/components/SequentialAdventureButton.vu
 
 const route = useRoute();
 
-const campaignId = route.params.id.toString();
+const campaignId = (route.params as { id: string }).id.toString();
 const campaignStore = CampaignStore();
 const campaign = campaignStore.find(campaignId);
 
