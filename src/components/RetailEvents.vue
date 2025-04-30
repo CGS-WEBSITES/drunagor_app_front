@@ -196,21 +196,8 @@
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
-                  <v-row>
-                    <v-row :class="{
-                      'selected-reward': selectedRewards.includes(reward),
-                      'unselected-reward': !selectedRewards.includes(reward),
-                    }" @click="isEditable && toggleEditReward(reward)" cols="auto"
-                      v-for="(reward, index) in availableRewards" :key="index">
-                      <v-avatar class="ml-4 mt-4" size="70">
-                        <v-img :src="reward.image"></v-img>
-                      </v-avatar>
-                      <p class="text-body-1 pt-10 pl-2">{{ reward.name }}</p>
-                      <p class="text-body-1 pt-10 pl-2">
-                        {{ reward.description }}
-                      </p>
-                    </v-row>
-                  </v-row>
+                  <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
+                    item-value="rewards_pk" label="Select Rewards" multiple chips return-object />
                 </v-col>
                 <v-col cols="12">
                   <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
@@ -1103,6 +1090,38 @@ const handleEditImageUpload = (event) => {
     reader.readAsDataURL(file);
   }
 };
+
+
+const allRewards = ref([]);
+
+
+const fetchAllRewards = async () => {
+  try {
+    const response = await axios.get('/rewards/search', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
+
+    console.log("Resposta da API:", response.data);
+
+    allRewards.value = Array.isArray(response.data.rewards)
+      ? response.data.rewards
+      : [];
+  } catch (err) {
+    console.error("Erro ao buscar rewards:", err);
+    allRewards.value = [];
+  }
+};
+
+onMounted(() => {
+  fetchAllRewards();
+});
+
+
+
+
+
 </script>
 
 <style scoped>
