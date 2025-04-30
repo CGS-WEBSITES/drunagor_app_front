@@ -22,8 +22,8 @@
                                     year: 'numeric',
                                     hour: '2-digit',
                                     minute: '2-digit',
-                            hour12: true
-                            })
+                                    hour12: true
+                                })
                             }}
                         </p>
                     </v-card-text>
@@ -64,27 +64,32 @@
                     </v-card-text>
 
                     <v-row class="mt-2 pb-3 ml-0">
-
                         <v-col cols="12" class="pa-0">
-                            <v-btn block color="#539041" class="rounded-0" @click="openLoginDialog">
+                            <v-btn block color="#539041" class="rounded-0" @click="handleCountMeIn">
                                 Count me in
                             </v-btn>
                         </v-col>
                     </v-row>
 
+                    <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
+                        @click:close="showSuccessAlert = false">
+                        You’ve successfully joined this event! Visit the <strong>Events</strong> page to view it.
+
+                        <v-row class="mt-3">
+                            <v-col cols="12" class="text-center">
+                                <v-btn color="success" variant="flat" @click="goToEvents">
+                                    Go to Events
+                                </v-btn>
+                            </v-col>
+                        </v-row>
+                    </v-alert>
+
                     <!-- Dialog de login -->
                     <v-dialog v-model="showLoginDialog" width="460">
                         <v-card color="#1e1e1e" class="pa-4">
-                            <v-card-title class="text-h6 text-center text-white">
-                                Join an Event
-                            </v-card-title>
-
                             <v-card-text class="text-center text-white">
-                                To join a Drunagor event, you must be logged in.<br /><br />
-                                After logging in, you can find this event by visiting the
-                                <strong>Events</strong> tab.
+                                To continue your adventures in the world of Drunagor, you must be a registered user.
                             </v-card-text>
-
                             <v-card-actions class="justify-center mt-2">
                                 <v-btn variant="outlined" color="white" class="mx-2" size="small" @click="goToLogin">
                                     LOG IN
@@ -96,6 +101,25 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
+
+                    <v-dialog v-model="showConfirmationDialog" width="460">
+                        <v-card color="#1e1e1e" class="pa-4">
+                            <v-card-title class="text-h6 text-center text-white">
+                                You're in!
+                            </v-card-title>
+
+                            <v-card-text class="text-center text-white">
+                                You've successfully joined this event.<br />
+                                You can now view it in your <strong>Events</strong> tab.
+                            </v-card-text>
+
+                            <v-card-actions class="justify-center mt-2">
+                                <v-btn color="primary" @click="goToEvents">Go to Events</v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-dialog>
+
+
                 </v-card>
             </v-card>
         </v-col>
@@ -103,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from "vue";
+import { ref, onMounted, inject, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
@@ -139,6 +163,67 @@ const fetchEvent = async () => {
 };
 
 onMounted(fetchEvent);
+
+
+const showSuccessAlert = ref(false);
+
+const handleCountMeIn = async () => {
+    if (!isLoggedIn.value) {
+        openLoginDialog();
+        return;
+    }
+
+    if (!currentUser.value || !selectedEvent.value) {
+        console.warn("Usuário ou evento não disponível");
+        return;
+    }
+
+    try {
+        await axios.post(
+            '/rl_events_users/cadastro',
+            {
+                users_fk: currentUser.value.users_pk,
+                events_fk: selectedEvent.value.events_pk,
+                status: 1,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+                },
+            }
+        );
+
+        console.log("Participação registrada com sucesso!");
+        showSuccessAlert.value = true;
+    } catch (err) {
+        console.error("Erro ao registrar participação:", err.response?.data || err.message);
+    }
+};
+
+const goToEvents = () => {
+    router.push('/events');
+};
+
+
+
+
+const isLoggedIn = computed(() => !!localStorage.getItem('accessToken'));
+
+const currentUser = computed(() => {
+    const userRaw = localStorage.getItem('app_user');
+    try {
+        return userRaw ? JSON.parse(userRaw) : null;
+    } catch {
+        return null;
+    }
+});
+
+
+
+
+
+
+
 </script>
 
 
