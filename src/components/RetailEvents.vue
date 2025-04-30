@@ -899,19 +899,6 @@ const addEvent = async () => {
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
 
-    userCreatedEvents.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
-
-    events.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar evento:",
