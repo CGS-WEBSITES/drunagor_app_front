@@ -120,10 +120,36 @@
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
+
+                      <!-- Diálogo (Popup) para mostrar o link -->
+                      <v-dialog v-model="showDialog" width="400">
+                        <v-card>
+                          <v-card-title class="text-h6">Share Event</v-card-title>
+                          <v-card-text>
+                            <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
+                              hide-details></v-text-field>
+                          </v-card-text>
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="success" size="small" @click="copyLink(sharedLink)">
+                              Copy Link
+                            </v-btn>
+                            <v-btn color="grey" size="small" @click="showDialog = false">
+                              Close
+                            </v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>
             <v-card-text>
               <p></p>
+              <v-btn block color="blue" size="small" variant="flat" class="mt-2"
+                        @click="shareEvent(selectedEvent?.events_pk)">
+                        <v-icon start>mdi-share-variant</v-icon>
+                        Share Event
+                      </v-btn>
               <br />
-              <p>Disponible Seats: {{ selectedEvent?.seats_number }}</p>
+              <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
+              <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
               <br />
               <p class="text-end scheduled-box">
                 Scheduled for:
@@ -957,7 +983,41 @@ showSuccessAlert.value = true;
 const joinedEventPk = ref(null); // armazena o ID do evento confirmado
 
 
+const handleShareEvent = (eventId) => {
+  const shareLink = generateShareEventLink(eventId);
+  if (shareLink) {
+    sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
+    showCard.value = true;         // e que showCard controle exibir o card
+  }
+};
 
+const sharedLink = ref('');
+const showDialog = ref(false);
+const showAlert = ref(false);
+
+const shareEvent = (eventId) => {
+  try {
+    if (!eventId) throw new Error("ID do evento não encontrado!");
+
+    const encodedId = btoa(eventId.toString());
+    console.log("ID codificado:", encodedId);
+
+    sharedLink.value = `${window.location.origin}/event/${encodedId}`;
+    showDialog.value = true; // Abre o popup
+  } catch (error) {
+    console.error("Erro ao gerar link:", error);
+  }
+};
+
+const copyLink = async (link) => {
+  try {
+    await navigator.clipboard.writeText(link);
+    showDialog.value = false; // Fecha o popup
+    showAlert.value = true;   // Mostra o alerta
+  } catch (error) {
+    console.error("Erro ao copiar o link:", error);
+  }
+};
 
 
 
