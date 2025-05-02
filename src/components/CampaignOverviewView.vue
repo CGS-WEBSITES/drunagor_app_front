@@ -1,52 +1,3 @@
-<script setup lang="ts">
-import CampaignNew from "@/components/CampaignNew.vue";
-import type { HeroData } from "@/data/repository/HeroData";
-import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
-import { Campaign } from "@/store/Campaign";
-import { CampaignStore } from "@/store/CampaignStore";
-import { Hero } from "@/store/Hero";
-import { HeroStore } from "@/store/HeroStore";
-import { PartyStore } from "@/store/PartyStore";
-import { customAlphabet } from "nanoid";
-import CampaignImport from "@/components/CampaignImport.vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-
-const partyStore = PartyStore();
-const legacyCampaign = partyStore.findAll();
-const campaignStore = CampaignStore();
-console.log("campaignStore", campaignStore);
-const heroStore = HeroStore();
-const nanoid = customAlphabet("1234567890", 5);
-
-//backwards compatibility
-if (legacyCampaign.length > 0) {
-  let campaignId = nanoid();
-  campaignStore.add(new Campaign(campaignId, "core"));
-  legacyCampaign.forEach((hero) => {
-    let newHero = new Hero(hero.heroId, campaignId);
-    newHero.auraId = hero.auraId;
-    newHero.outcomeIds = hero.outcomeIds;
-    newHero.statusIds = hero.statusIds;
-
-    heroStore.add(newHero);
-    partyStore.removeMember(hero.heroId);
-  });
-}
-
-const heroDataRepository = new HeroDataRepository();
-
-function findHeroes(campaignId: string): HeroData[] {
-  const heroes: HeroData[] = [];
-  heroStore.findAllInCampaign(campaignId).forEach((hero) => {
-    heroes.push(heroDataRepository.find(hero.heroId) ?? ({} as HeroData));
-  });
-  console.log("heroes", heroes);
-  return heroes;
-}
-</script>
-
 <template>
   <v-container max-width="680">
     <v-card
@@ -73,7 +24,7 @@ function findHeroes(campaignId: string): HeroData[] {
         <v-col
           cols="12"
           class="py-3"
-          v-for="campaign in campaignStore.findAll()"
+          v-for="campaign in filteredCampaigns"
           :key="campaign.campaignId"
         >
           <v-card
@@ -139,5 +90,89 @@ function findHeroes(campaignId: string): HeroData[] {
     </div>
   </v-container>
 </template>
+
+<script setup lang="ts">
+import CampaignNew from "@/components/CampaignNew.vue";
+import type { HeroData } from "@/data/repository/HeroData";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { Campaign } from "@/store/Campaign";
+import { CampaignStore } from "@/store/CampaignStore";
+import { Hero } from "@/store/Hero";
+import { HeroStore } from "@/store/HeroStore";
+import { PartyStore } from "@/store/PartyStore";
+import { customAlphabet } from "nanoid";
+import CampaignImport from "@/components/CampaignImport.vue";
+import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
+
+const router = useRouter();
+
+const partyStore = PartyStore();
+const legacyCampaign = partyStore.findAll();
+const campaignStore = CampaignStore();
+console.log("campaignStore", campaignStore.findAll());
+const heroStore = HeroStore();
+const nanoid = customAlphabet("1234567890", 5);
+
+const allowedCampaignIds = ref<number[]>([]);
+
+onMounted(async () => {
+  const usersPkStr = localStorage.getItem("app_user");
+  const usersFk = usersPkStr ? JSON.parse(usersPkStr).users_pk : null;
+
+  if (!usersFk) return;
+
+  try {
+    const { data } = await axios.get('/rl_campaigns_users/search', {
+      params: { users_fk: usersFk }
+    });
+    // extrai só os campaigns_pk
+    allowedCampaignIds.value = data.campaigns.map((c: any) => c.campaigns_pk);
+
+    campaignStore.$patch({
+      campaigns: allowedCampaignIds.value.map(
+        (pk) => new Campaign(String(pk), "core") // Replace "core" with the appropriate default value if needed
+      ),
+    });
+
+    console.log("allowedCampaignIds", allowedCampaignIds.value);
+  } catch (err) {
+    console.error('Erro ao buscar campaigns do usuário', err);
+  }
+});
+
+const filteredCampaigns = computed(() =>
+  campaignStore.findAll().filter(c =>
+    allowedCampaignIds.value.includes(Number(c.campaignId))
+  )
+);
+
+//backwards compatibility
+if (legacyCampaign.length > 0) {
+  let campaignId = nanoid();
+  campaignStore.add(new Campaign(campaignId, "core"));
+  legacyCampaign.forEach((hero) => {
+    let newHero = new Hero(hero.heroId, campaignId);
+    newHero.auraId = hero.auraId;
+    newHero.outcomeIds = hero.outcomeIds;
+    newHero.statusIds = hero.statusIds;
+
+    heroStore.add(newHero);
+    partyStore.removeMember(hero.heroId);
+  });
+}
+
+const heroDataRepository = new HeroDataRepository();
+
+function findHeroes(campaignId: string): HeroData[] {
+  const heroes: HeroData[] = [];
+  heroStore.findAllInCampaign(campaignId).forEach((hero) => {
+    heroes.push(heroDataRepository.find(hero.heroId) ?? ({} as HeroData));
+  });
+  console.log("heroes", heroes);
+  return heroes;
+}
+</script>
 
 <style scoped></style>
