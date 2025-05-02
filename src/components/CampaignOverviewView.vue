@@ -132,7 +132,7 @@ onMounted(async () => {
 
     campaignStore.$patch({
       campaigns: allowedCampaignIds.value.map(
-        (pk) => new Campaign(String(pk), "core") // Replace "core" with the appropriate default value if needed
+        (pk) => new Campaign(String(pk)) // Replace "core" with the appropriate default value if needed
       ),
     });
 
