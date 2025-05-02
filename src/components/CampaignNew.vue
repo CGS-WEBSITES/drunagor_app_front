@@ -20,10 +20,8 @@ const heroStore = HeroStore();
 const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
-// let createdCampaignId = "001";
 const NEW_CAMPAIGN_ID = "001";
 
-// ––– Gera token exatamente igual antes –––
 function openModal(campaignId: string) {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(campaignId)),
@@ -35,15 +33,12 @@ function openModal(campaignId: string) {
   token.value = btoa(JSON.stringify({ campaignData: campaignCopy, heroes }));
 }
 
-// ––– Agora recebe o skus_pk diretamente –––
 async function saveCampaign(boxId: number) {
   const resp = await axios.post("/campaigns/cadastro", {
     tracker_hash: token.value,
     conclusion_percentage: 0,
     box: boxId,
   });
-
-  // createdCampaignId = resp.data.campaign.campaigns_pk;
 
   toast.add({
     severity: "success",
@@ -61,11 +56,8 @@ async function saveCampaign(boxId: number) {
   });
 
   successDialogVisible.value = true;
-
-  // return createdCampaignId;
 }
 
-// ––– Fluxo principal –––
 async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
   const usersPk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
   const { data } = await axios.get("/skus/search", {
@@ -92,14 +84,11 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
     return;
   }
 
-  // adiciona no store
   campaignStore.add(new Campaign(NEW_CAMPAIGN_ID, type));
 
-  // gera token e salva usando o skus_pk
   openModal(NEW_CAMPAIGN_ID);
   await saveCampaign(selectedSku.skus_pk);
 
-  // redireciona pegando de fato o skus_pk
   router.push(
     `/campaign-tracker/campaign/${NEW_CAMPAIGN_ID}?sku=${selectedSku.skus_pk}`,
   );
