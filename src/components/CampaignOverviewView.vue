@@ -111,7 +111,6 @@ const router = useRouter();
 const partyStore = PartyStore();
 const legacyCampaign = partyStore.findAll();
 const campaignStore = CampaignStore();
-console.log("campaignStore", campaignStore.findAll());
 const heroStore = HeroStore();
 const nanoid = customAlphabet("1234567890", 5);
 
@@ -124,19 +123,35 @@ onMounted(async () => {
   if (!usersFk) return;
 
   try {
-    const { data } = await axios.get('/rl_campaigns_users/search', {
+    const { data: listData } = await axios.get('/rl_campaigns_users/search', {
       params: { users_fk: usersFk }
     });
-    // extrai só os campaigns_pk
-    allowedCampaignIds.value = data.campaigns.map((c: any) => c.campaigns_pk);
 
-    campaignStore.$patch({
-      campaigns: allowedCampaignIds.value.map(
-        (pk) => new Campaign(String(pk)) // Replace "core" with the appropriate default value if needed
-      ),
+    const campaignsInfo: { campaigns_pk: number; tracker_hash: string }[] =
+      listData.campaigns;
+    allowedCampaignIds.value = campaignsInfo.map(ci => ci.campaigns_pk);
+
+    const heroStore = HeroStore();
+    campaignStore.$patch({ campaigns: [] });
+    heroStore.heroes = [];
+
+    campaignsInfo.forEach(({ campaigns_pk, tracker_hash }) => {
+      try {
+        const payload = JSON.parse(atob(tracker_hash));
+        const campaignData = payload.campaignData;
+        campaignData.campaignId = String(campaigns_pk);
+        const heroes = payload.heroes as any[];
+
+        // add campaign and heroes exactly as in the token
+        campaignStore.add(campaignData);
+        heroes.forEach(h => {
+          h.campaignId = campaignData.campaignId;
+          heroStore.add(h);
+        });
+      } catch (e) {
+        console.error('Invalid tracker_hash payload', e);
+      }
     });
-
-    console.log("allowedCampaignIds", allowedCampaignIds.value);
   } catch (err) {
     console.error('Erro ao buscar campaigns do usuário', err);
   }
