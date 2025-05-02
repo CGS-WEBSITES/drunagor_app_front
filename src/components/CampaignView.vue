@@ -47,7 +47,7 @@ function onSequentialAdventure() {
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
             <v-card class="mb-2" style="width: 100%;">
-              <v-card-actions class="justify-space-around pa-2">
+              <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
                 <CampaignRemove
                   :campaign-id="campaignId"
                   class="mx-2"
