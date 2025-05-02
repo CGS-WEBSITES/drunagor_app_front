@@ -116,19 +116,20 @@
             </v-card>
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
+
+              <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
+                class="align-center my-2">
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img :src="reward.image"></v-img>
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                  <p class="text-body-2">{{ reward.description }}</p>
+                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
                 </v-col>
               </v-row>
+
+              <p v-else class="text-caption">No rewards linked to this event.</p>
             </v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
@@ -381,19 +382,17 @@
                           <v-col cols="2" class="text-right pa-0"></v-col>
                         </v-row>
                       </v-card>
-                      <v-card-text>
+                      <v-card-text v-if="eventRewards.length">
                         <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-                        <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
+
+                        <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
                           <v-col cols="3" md="2">
-                            <v-avatar size="60">
-                              <v-img :src="reward.image"></v-img>
+                            <v-avatar size="30">
+                              <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
                             </v-avatar>
                           </v-col>
                           <v-col cols="9" md="10">
-                            <h4 class="text-subtitle-1 font-weight-bold">
-                              {{ reward.name }}
-                            </h4>
-                            <p class="text-body-2">{{ reward.description }}</p>
+                            <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
                           </v-col>
                         </v-row>
                       </v-card-text>
@@ -747,9 +746,25 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
-const openDialog = (event) => {
+
+const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
+
+  try {
+    const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: event.events_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    eventRewards.value = rewardsRes.data.rewards || [];
+    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
+  } catch (err) {
+    console.error("❌ Erro ao buscar rewards:", err);
+    eventRewards.value = [];
+  }
 };
 
 const joinEvent = () => {
@@ -786,6 +801,7 @@ const fetchPlayerEvents = async () => {
       return;
     }
 
+    // Buscar eventos do jogador
     const response = await axios.get("/events/list_events/", {
       params: { player_fk },
       headers: {
@@ -793,7 +809,32 @@ const fetchPlayerEvents = async () => {
       },
     });
 
-    events.value = response.data.events || [];
+    const baseEvents = response.data.events || [];
+
+    // Buscar rewards de cada evento
+    const enrichedEvents = await Promise.all(
+      baseEvents.map(async (event) => {
+        try {
+          const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
+
+          // A API já retorna os dados completos
+          const rewards = rewardsRes.data.rewards || [];
+
+          return { ...event, rewards };
+        } catch (err) {
+          console.error(`⚠️ Erro ao buscar rewards do evento ${event.events_pk}:`, err);
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+
+    events.value = enrichedEvents;
+    console.log("📦 Eventos carregados com rewards:", events.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -899,17 +940,17 @@ const addEvent = async () => {
     };
 
     const response = await axios.post("/events/cadastro", payload, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  },
-});
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
 
-const newEventId = response.data.event?.events_pk;
+    const newEventId = response.data.event?.events_pk;
 
-if (!newEventId) {
-  console.error("❌ Não foi possível extrair o ID do novo evento.");
-  return;
-}
+    if (!newEventId) {
+      console.error("❌ Não foi possível extrair o ID do novo evento.");
+      return;
+    }
 
     // ✅ Adiciona rewards ao evento
     for (const reward of selectedRewards.value) {
@@ -936,18 +977,18 @@ if (!newEventId) {
     );
   }
 
-newEvent.value = {
-  date: '',
-  hour: '',
-  ampm: 'AM',
-  store: '',
-  seats: '',
-  scenario: ''
-};
+  newEvent.value = {
+    date: '',
+    hour: '',
+    ampm: 'AM',
+    store: '',
+    seats: '',
+    scenario: ''
+  };
 
-selectedRewards.value = [];
+  selectedRewards.value = [];
 
-createEventDialog.value = false;
+  createEventDialog.value = false;
 
 };
 
@@ -998,29 +1039,7 @@ const fetchUserCreatedEvents = async () => {
 
 onMounted(fetchUserCreatedEvents);
 
-const availableRewards = ref([
-  {
-    name: "Vorn Armor",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Jaheen Shield",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Lorelai Kiss",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
-  },
-]);
+
 
 const createEventDialog = ref(false);
 const newEvent = ref({});
@@ -1175,6 +1194,47 @@ onMounted(() => {
   fetchAllRewards();
 });
 
+
+const eventRewards = ref([]);
+
+const fetchEventRewards = async (eventId) => {
+  try {
+    console.log("🔍 Buscando relações de rewards para evento:", eventId);
+
+    const response = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: eventId },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const relations = response.data || [];
+
+    // Agora busca cada reward completo
+    const fullRewards = await Promise.all(
+      relations.map(async (rel) => {
+        try {
+          const rewardRes = await axios.get(`/rewards/${rel.rewards_fk}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
+          return rewardRes.data;
+        } catch (err) {
+          console.error(`Erro ao buscar reward ${rel.rewards_fk}:`, err);
+          return null;
+        }
+      })
+    );
+
+    // Filtra nulls e define o resultado final
+    eventRewards.value = fullRewards.filter(r => r);
+    console.log("🎁 Rewards completos carregados:", eventRewards.value);
+  } catch (err) {
+    console.error("❌ Erro ao buscar rewards do evento:", err);
+    eventRewards.value = [];
+  }
+};
 
 
 
