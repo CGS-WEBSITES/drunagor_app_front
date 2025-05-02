@@ -45,66 +45,34 @@ function onSequentialAdventure() {
     <v-row no-gutters class="d-flex justify-center pa-1">
       <v-card class="mb-2 pa-2" style="width: 100%;">
         <v-card-actions class="d-flex justify-space-between">
-          <v-row no-gutter>
-            <v-col
-              cols="12"
-              sm="6"
-              md="2"
-              lg="2"
-              xl="2"
-              class="d-flex justify-center"
-            >
-              <CampaignRemove class="mr-2" :campaign-id="campaignId" />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="2"
-              lg="2"
-              xl="2"
-              class="d-flex justify-center"
-            >
-              <CampaignExport :campaign-id="campaignId" />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="2"
-              lg="2"
-              xl="2"
-              class="d-flex justify-center"
-            >
-              <SequentialAdventureButton
-                :campaign-id="campaignId"
-                @sequential-adventure="onSequentialAdventure"
-                :disabled="isSequentialAdventure"
-              />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="2"
-              lg="2"
-              xl="2"
-              class="d-flex justify-center"
-            >
-              <CampaignCampPhase
-                :campaign-id="campaignId"
-                @camp-phase="onCampPhase"
-              />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="2"
-              lg="2"
-              xl="2"
-              class="d-flex justify-center"
-            >
-              <CampaignSavePut
-                :campaign-id="campaignId"
-              />
-            </v-col>
+          <v-row no-gutters>
+            <v-card class="mb-2" style="width: 100%;">
+              <v-card-actions class="justify-space-around pa-2">
+                <CampaignRemove
+                  :campaign-id="campaignId"
+                  class="mx-2"
+                />
+                <CampaignExport
+                  :campaign-id="campaignId"
+                  class="mx-2"
+                />
+                <SequentialAdventureButton
+                  :campaign-id="campaignId"
+                  @sequential-adventure="onSequentialAdventure"
+                  :disabled="isSequentialAdventure"
+                  class="mx-2"
+                />
+                <CampaignCampPhase
+                  :campaign-id="campaignId"
+                  @camp-phase="onCampPhase"
+                  class="mx-2"
+                />
+                <CampaignSavePut
+                  :campaign-id="campaignId"
+                  class="mx-2"
+                />
+              </v-card-actions>
+            </v-card>
           </v-row>
         </v-card-actions>
       </v-card>
