@@ -20,7 +20,8 @@ const heroStore = HeroStore();
 const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
-let createdCampaignId = ""
+// let createdCampaignId = "001";
+const NEW_CAMPAIGN_ID = "001";
 
 // ––– Gera token exatamente igual antes –––
 function openModal(campaignId: string) {
@@ -42,7 +43,7 @@ async function saveCampaign(boxId: number) {
     box: boxId,
   });
 
-  createdCampaignId = resp.data.campaign.campaigns_pk;
+  // createdCampaignId = resp.data.campaign.campaigns_pk;
 
   toast.add({
     severity: "success",
@@ -61,7 +62,7 @@ async function saveCampaign(boxId: number) {
 
   successDialogVisible.value = true;
 
-  return createdCampaignId;
+  // return createdCampaignId;
 }
 
 // ––– Fluxo principal –––
@@ -92,15 +93,15 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
   }
 
   // adiciona no store
-  campaignStore.add(new Campaign(createdCampaignId, type));
+  campaignStore.add(new Campaign(NEW_CAMPAIGN_ID, type));
 
   // gera token e salva usando o skus_pk
-  openModal(createdCampaignId);
+  openModal(NEW_CAMPAIGN_ID);
   await saveCampaign(selectedSku.skus_pk);
 
   // redireciona pegando de fato o skus_pk
   router.push(
-    `/campaign-tracker/campaign/${createdCampaignId}?sku=${selectedSku.skus_pk}`,
+    `/campaign-tracker/campaign/${NEW_CAMPAIGN_ID}?sku=${selectedSku.skus_pk}`,
   );
 }
 </script>

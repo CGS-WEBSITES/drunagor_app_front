@@ -6,6 +6,7 @@ import { useRoute } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -48,9 +49,9 @@ function onSequentialAdventure() {
             <v-col
               cols="12"
               sm="6"
-              md="3"
-              lg="3"
-              xl="3"
+              md="2"
+              lg="2"
+              xl="2"
               class="d-flex justify-center"
             >
               <CampaignRemove class="mr-2" :campaign-id="campaignId" />
@@ -58,9 +59,9 @@ function onSequentialAdventure() {
             <v-col
               cols="12"
               sm="6"
-              md="3"
-              lg="3"
-              xl="3"
+              md="2"
+              lg="2"
+              xl="2"
               class="d-flex justify-center"
             >
               <CampaignExport :campaign-id="campaignId" />
@@ -68,9 +69,9 @@ function onSequentialAdventure() {
             <v-col
               cols="12"
               sm="6"
-              md="3"
-              lg="3"
-              xl="3"
+              md="2"
+              lg="2"
+              xl="2"
               class="d-flex justify-center"
             >
               <SequentialAdventureButton
@@ -82,14 +83,26 @@ function onSequentialAdventure() {
             <v-col
               cols="12"
               sm="6"
-              md="3"
-              lg="3"
-              xl="3"
+              md="2"
+              lg="2"
+              xl="2"
               class="d-flex justify-center"
             >
               <CampaignCampPhase
                 :campaign-id="campaignId"
                 @camp-phase="onCampPhase"
+              />
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="2"
+              lg="2"
+              xl="2"
+              class="d-flex justify-center"
+            >
+              <CampaignSavePut
+                :campaign-id="campaignId"
               />
             </v-col>
           </v-row>
