@@ -116,19 +116,20 @@
             </v-card>
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
+
+              <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
+                class="align-center my-2">
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img :src="reward.image"></v-img>
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                  <p class="text-body-2">{{ reward.description }}</p>
+                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
                 </v-col>
               </v-row>
+
+              <p v-else class="text-caption">No rewards linked to this event.</p>
             </v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
@@ -196,21 +197,30 @@
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
-                  <v-row>
-                    <v-row :class="{
-                      'selected-reward': selectedRewards.includes(reward),
-                      'unselected-reward': !selectedRewards.includes(reward),
-                    }" @click="isEditable && toggleEditReward(reward)" cols="auto"
-                      v-for="(reward, index) in availableRewards" :key="index">
-                      <v-avatar class="ml-4 mt-4" size="70">
-                        <v-img :src="reward.image"></v-img>
-                      </v-avatar>
-                      <p class="text-body-1 pt-10 pl-2">{{ reward.name }}</p>
-                      <p class="text-body-1 pt-10 pl-2">
-                        {{ reward.description }}
-                      </p>
-                    </v-row>
-                  </v-row>
+                  <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
+                    item-value="rewards_pk" label="Select Rewards" multiple return-object>
+                    <!-- Como o item é exibido na lista -->
+                    <template #item="{ item, props }">
+                      <v-list-item v-bind="props">
+                        <template #prepend>
+                          <v-avatar size="32">
+                            <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`" />
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                      </v-list-item>
+                    </template>
+
+                    <!-- Como o item selecionado é exibido -->
+                    <template #selection="{ item, index }">
+                      <v-chip size="small" class="ma-1" closable @click:close="selectedRewards.splice(index, 1)">
+                        <v-avatar start size="24">
+                          <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`" />
+                        </v-avatar>
+                        {{ item.raw.name }}
+                      </v-chip>
+                    </template>
+                  </v-autocomplete>
                 </v-col>
                 <v-col cols="12">
                   <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
@@ -372,53 +382,11 @@
                           <v-col cols="2" class="text-right pa-0"></v-col>
                         </v-row>
                       </v-card>
-                      <v-card-text>
-                        <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-                        <v-row v-for="(reward, index) in selectedEvent?.rewards" :key="index" class="align-center my-2">
-                          <v-col cols="3" md="2">
-                            <v-avatar size="60">
-                              <v-img :src="reward.image"></v-img>
-                            </v-avatar>
-                          </v-col>
-                          <v-col cols="9" md="10">
-                            <h4 class="text-subtitle-1 font-weight-bold">
-                              {{ reward.name }}
-                            </h4>
-                            <p class="text-body-2">{{ reward.description }}</p>
-                          </v-col>
-                        </v-row>
-                      </v-card-text>
-                      <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                        @click="shareEvent(selectedEvent?.events_pk)">
+                      <br>
+                      <v-btn block color="blue" size="small" variant="flat" class="mt-">
                         <v-icon start>mdi-share-variant</v-icon>
                         Share Event
                       </v-btn>
-
-                      <!-- Diálogo (Popup) para mostrar o link -->
-                      <v-dialog v-model="showDialog" width="400">
-                        <v-card>
-                          <v-card-title class="text-h6">Share Event</v-card-title>
-                          <v-card-text>
-                            <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                              hide-details></v-text-field>
-                          </v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="success" size="small" @click="copyLink(sharedLink)">
-                              Copy Link
-                            </v-btn>
-                            <v-btn color="grey" size="small" @click="showDialog = false">
-                              Close
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-
-                      <!-- Alerta elegante para sucesso -->
-                      <v-alert v-if="showAlert" type="success" class="mt-4" border="start" variant="tonal" closable
-                        @click:close="showAlert = false">
-                        Link copied successfully!
-                      </v-alert>
                     </v-card>
                   </v-col>
                   <v-col>
@@ -541,44 +509,6 @@ const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
-
-
-const handleShareEvent = (eventId) => {
-  const shareLink = generateShareEventLink(eventId);
-  if (shareLink) {
-    sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
-    showCard.value = true;         // e que showCard controle exibir o card
-  }
-};
-
-const sharedLink = ref('');
-const showDialog = ref(false);
-const showAlert = ref(false);
-
-const shareEvent = (eventId) => {
-  try {
-    if (!eventId) throw new Error("ID do evento não encontrado!");
-
-    const encodedId = btoa(eventId.toString());
-    console.log("ID codificado:", encodedId);
-
-    sharedLink.value = `${window.location.origin}/event/${encodedId}`;
-    showDialog.value = true; // Abre o popup
-  } catch (error) {
-    console.error("Erro ao gerar link:", error);
-  }
-};
-
-const copyLink = async (link) => {
-  try {
-    await navigator.clipboard.writeText(link);
-    showDialog.value = false; // Fecha o popup
-    showAlert.value = true;   // Mostra o alerta
-  } catch (error) {
-    console.error("Erro ao copiar o link:", error);
-  }
-};
-
 
 const eventStore = useEventStore();
 
@@ -803,9 +733,25 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
-const openDialog = (event) => {
+
+const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
+
+  try {
+    const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: event.events_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    eventRewards.value = rewardsRes.data.rewards || [];
+    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
+  } catch (err) {
+    console.error("❌ Erro ao buscar rewards:", err);
+    eventRewards.value = [];
+  }
 };
 
 const joinEvent = () => {
@@ -850,6 +796,7 @@ const fetchPlayerEvents = async () => {
     });
 
     events.value = response.data.events || [];
+    console.log("📦 Eventos carregados:", events.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -960,29 +907,51 @@ const addEvent = async () => {
       },
     });
 
-    selectedRewards.value = [];
+    const newEventId = response.data.event?.events_pk;
+
+    if (!newEventId) {
+      console.error("❌ Não foi possível extrair o ID do novo evento.");
+      return;
+    }
+
+    // ✅ Adiciona rewards ao evento
+    for (const reward of selectedRewards.value) {
+      await axios.post(
+        "/rl_events_rewards/cadastro",
+        {
+          events_fk: newEventId,
+          rewards_fk: reward.rewards_pk,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+    }
+
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
-
-    userCreatedEvents.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
-
-    events.value.push({
-      ...newEvent.value,
-      rewards: [...selectedRewards.value],
-      id: Date.now(),
-      createdByUser: true,
-    });
   } catch (error) {
     console.error(
-      "❌ Erro ao cadastrar evento:",
+      "❌ Erro ao cadastrar evento ou associar rewards:",
       error.response?.data || error.message,
     );
   }
+
+  newEvent.value = {
+    date: '',
+    hour: '',
+    ampm: 'AM',
+    store: '',
+    seats: '',
+    scenario: ''
+  };
+
+  selectedRewards.value = [];
+
+  createEventDialog.value = false;
+
 };
 
 const deleteEvent = async (events_pk) => {
@@ -1032,29 +1001,7 @@ const fetchUserCreatedEvents = async () => {
 
 onMounted(fetchUserCreatedEvents);
 
-const availableRewards = ref([
-  {
-    name: "Vorn Armor",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Jaheen Shield",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Lorelai Kiss",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
-  },
-]);
+
 
 const createEventDialog = ref(false);
 const newEvent = ref({});
@@ -1181,6 +1128,79 @@ const handleEditImageUpload = (event) => {
     reader.readAsDataURL(file);
   }
 };
+
+
+const allRewards = ref([]);
+
+
+const fetchAllRewards = async () => {
+  try {
+    const response = await axios.get('/rewards/search', {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
+
+    console.log("Resposta da API:", response.data);
+
+    allRewards.value = Array.isArray(response.data.rewards)
+      ? response.data.rewards
+      : [];
+  } catch (err) {
+    console.error("Erro ao buscar rewards:", err);
+    allRewards.value = [];
+  }
+};
+
+onMounted(() => {
+  fetchAllRewards();
+});
+
+
+const eventRewards = ref([]);
+
+const fetchEventRewards = async (eventId) => {
+  try {
+    console.log("🔍 Buscando relações de rewards para evento:", eventId);
+
+    const response = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: eventId },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const relations = response.data || [];
+
+    // Agora busca cada reward completo
+    const fullRewards = await Promise.all(
+      relations.map(async (rel) => {
+        try {
+          const rewardRes = await axios.get(`/rewards/${rel.rewards_fk}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
+          return rewardRes.data;
+        } catch (err) {
+          console.error(`Erro ao buscar reward ${rel.rewards_fk}:`, err);
+          return null;
+        }
+      })
+    );
+
+    // Filtra nulls e define o resultado final
+    eventRewards.value = fullRewards.filter(r => r);
+    console.log("🎁 Rewards completos carregados:", eventRewards.value);
+  } catch (err) {
+    console.error("❌ Erro ao buscar rewards do evento:", err);
+    eventRewards.value = [];
+  }
+};
+
+
+
+
 </script>
 
 <style scoped>

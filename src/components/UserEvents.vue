@@ -163,26 +163,24 @@
                 <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
-            <v-card-text>
-              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-for="(reward, index) in selectedEvent?.rewards"
-                :key="index"
-                class="align-center my-2"
-              >
-                <v-col cols="3" md="2">
-                  <v-avatar size="60">
-                    <v-img :src="reward.image"></v-img>
-                  </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                  <p class="text-body-2">{{ reward.description }}</p>
-                </v-col>
-              </v-row>
-            </v-card-text>
+            <v-card-text v-if="eventRewards.length">
+  <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
+  <v-row
+    v-for="(reward, index) in eventRewards"
+    :key="index"
+    class="align-center my-2"
+  >
+    <v-col cols="3" md="2">
+      <v-avatar size="60">
+        <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+      </v-avatar>
+    </v-col>
+    <v-col cols="9" md="10">
+      <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+      <p class="text-body-2">{{ reward.description }}</p>
+    </v-col>
+  </v-row>
+</v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="6" class="pa-0">
                 <v-btn
@@ -486,10 +484,26 @@ const toggleReward = (reward) => {
 
 const dialog = ref(false);
 const selectedEvent = ref(null);
+const eventRewards = ref([]);
 
-const openDialog = (event) => {
+const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
+
+  try {
+    const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: event.events_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    eventRewards.value = rewardsRes.data.rewards || [];
+    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
+  } catch (err) {
+    console.error("❌ Erro ao buscar rewards:", err);
+    eventRewards.value = [];
+  }
 };
 
 const joinEvent = () => {
