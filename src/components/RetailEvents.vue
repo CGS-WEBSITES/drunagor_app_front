@@ -197,7 +197,29 @@
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
-                    item-value="rewards_pk" label="Select Rewards" multiple chips return-object />
+                    item-value="rewards_pk" label="Select Rewards" multiple return-object>
+                    <!-- Como o item é exibido na lista -->
+                    <template #item="{ item, props }">
+                      <v-list-item v-bind="props">
+                        <template #prepend>
+                          <v-avatar size="32">
+                            <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`" />
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                      </v-list-item>
+                    </template>
+
+                    <!-- Como o item selecionado é exibido -->
+                    <template #selection="{ item, index }">
+                      <v-chip size="small" class="ma-1" closable @click:close="selectedRewards.splice(index, 1)">
+                        <v-avatar start size="24">
+                          <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`" />
+                        </v-avatar>
+                        {{ item.raw.name }}
+                      </v-chip>
+                    </template>
+                  </v-autocomplete>
                 </v-col>
                 <v-col cols="12">
                   <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
@@ -877,21 +899,56 @@ const addEvent = async () => {
     };
 
     const response = await axios.post("/events/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  },
+});
 
-    selectedRewards.value = [];
+const newEventId = response.data.event?.events_pk;
+
+if (!newEventId) {
+  console.error("❌ Não foi possível extrair o ID do novo evento.");
+  return;
+}
+
+    // ✅ Adiciona rewards ao evento
+    for (const reward of selectedRewards.value) {
+      await axios.post(
+        "/rl_events_rewards/cadastro",
+        {
+          events_fk: newEventId,
+          rewards_fk: reward.rewards_pk,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+    }
+
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
-
   } catch (error) {
     console.error(
-      "❌ Erro ao cadastrar evento:",
+      "❌ Erro ao cadastrar evento ou associar rewards:",
       error.response?.data || error.message,
     );
   }
+
+newEvent.value = {
+  date: '',
+  hour: '',
+  ampm: 'AM',
+  store: '',
+  seats: '',
+  scenario: ''
+};
+
+selectedRewards.value = [];
+
+createEventDialog.value = false;
+
 };
 
 const deleteEvent = async (events_pk) => {
