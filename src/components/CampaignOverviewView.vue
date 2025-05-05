@@ -185,7 +185,6 @@ function findHeroes(campaignId: string): HeroData[] {
   heroStore.findAllInCampaign(campaignId).forEach((hero) => {
     heroes.push(heroDataRepository.find(hero.heroId) ?? ({} as HeroData));
   });
-  console.log("heroes", heroes);
   return heroes;
 }
 </script>
