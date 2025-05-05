@@ -20,7 +20,7 @@ const heroStore = HeroStore();
 const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
-const NEW_CAMPAIGN_ID = "001";
+const NEW_CAMPAIGN_ID = Date.now().toString();
 
 function openModal(campaignId: string) {
   const campaignCopy = JSON.parse(
@@ -30,6 +30,8 @@ function openModal(campaignId: string) {
   const heroes = heroStore
     .findAllInCampaign(campaignId)
     .map((h) => ({ ...h, campaignId: "" }));
+
+  heroes.forEach((h) => heroStore.add(h));
   token.value = btoa(JSON.stringify({ campaignData: campaignCopy, heroes }));
 }
 
@@ -60,6 +62,7 @@ async function saveCampaign(boxId: number) {
 
 async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
   const usersPk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
+
   const { data } = await axios.get("/skus/search", {
     params: { users_fk: usersPk },
   });
