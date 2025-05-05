@@ -199,7 +199,6 @@
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
                     item-value="rewards_pk" label="Select Rewards" multiple return-object>
-                    <!-- Como o item é exibido na lista -->
                     <template #item="{ item, props }">
                       <v-list-item v-bind="props">
                         <template #prepend>
@@ -211,7 +210,6 @@
                       </v-list-item>
                     </template>
 
-                    <!-- Como o item selecionado é exibido -->
                     <template #selection="{ item, index }">
                       <v-chip size="small" class="ma-1" closable @click:close="selectedRewards.splice(index, 1)">
                         <v-avatar start size="24">
@@ -221,6 +219,7 @@
                       </v-chip>
                     </template>
                   </v-autocomplete>
+
                 </v-col>
                 <v-col cols="12">
                   <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
@@ -331,16 +330,9 @@
                 </v-col>
                 <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
-                  <v-row>
-                    <v-col cols="auto" v-for="(reward, index) in availableRewards" :key="index">
-                      <v-avatar size="50" :class="{
-                        'selected-reward': editableEvent.rewards?.includes(reward) ?? false,
-                        'unselected-reward': !(editableEvent.rewards?.includes(reward) ?? false)
-                      }" @click="toggleEditReward(reward)">
-                        <v-img :src="reward.image"></v-img>
-                      </v-avatar>
-                    </v-col>
-                  </v-row>
+                  <v-autocomplete v-model="editableEvent.rewards" :items="availableRewards" item-title="name"
+                    item-value="rewards_pk" label="Select Rewards" multiple chips
+                    return-object={false}></v-autocomplete>
                 </v-col>
                 <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
                 <v-col cols="12" class="d-flex align-end flex-column" v-if="!isEditable">
@@ -529,17 +521,15 @@ const validateTime = () => {
     .padStart(2, "0")}`;
 };
 
-const openEditDialog = (event, editable = false) => {
+const availableRewards = ref([]);
+
+const openEditDialog = async (event, editable = false) => {
   const [datePart, timePart] = event.event_date.split('T');
   const [hoursStr, minutesStr] = timePart.split(':');
   const hours24 = parseInt(hoursStr, 10);
   const minutes = minutesStr;
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? 'PM' : 'AM';
-  const hourValue = editableEvent.value.hour?.trim() || "12:00";
-  const ampmValue = editableEvent.value.ampm?.trim() || "PM";
-  const dateValue = editableEvent.value.date;
-  const eventDateFormatted = `${dateValue}; ${hourValue} ${ampmValue}`;
 
   editableEvent.value = {
     events_pk: event.events_pk,
@@ -548,7 +538,7 @@ const openEditDialog = (event, editable = false) => {
     ampm,
     seats_number: event.seats_number,
     sceneries: event.scenario,
-    rewards: event.rewards || [],
+    rewards: [], // será preenchido depois
   };
 
   selectedEvent.value = event;
@@ -559,6 +549,16 @@ const openEditDialog = (event, editable = false) => {
     fetchPlayersForEvent(event.events_pk);
     fetchStatuses();
   }
+
+  // 🔄 Carrega e sincroniza rewards
+  await fetchAllRewards();
+  const rewardsFromRelation = await fetchEventRewards(event.events_pk);
+
+  editableEvent.value.rewards = availableRewards.value.filter(ar =>
+    rewardsFromRelation.some(rr => rr.rewards_pk === ar.rewards_pk)
+  );
+
+  console.log("🟢 Rewards sincronizados:", editableEvent.value.rewards);
 };
 
 const players = ref([]);
@@ -902,12 +902,12 @@ const addEvent = async () => {
     };
 
     const response = await axios.post("/events/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  },
+});
 
-    const newEventId = response.data.event?.events_pk;
+const newEventId = response.data?.event?.events_pk;
 
     if (!newEventId) {
       console.error("❌ Não foi possível extrair o ID do novo evento.");
@@ -916,19 +916,20 @@ const addEvent = async () => {
 
     // ✅ Adiciona rewards ao evento
     for (const reward of selectedRewards.value) {
-      await axios.post(
-        "/rl_events_rewards/cadastro",
-        {
-          events_fk: newEventId,
-          rewards_fk: reward.rewards_pk,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-    }
+  try {
+    await axios.post("/rl_events_rewards/cadastro", {
+      events_fk: newEventId,
+      rewards_fk: reward.rewards_pk,
+      active: true
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+  } catch (err) {
+    console.error("❌ Erro ao associar reward ao evento:", err);
+  }
+}
 
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
@@ -1064,40 +1065,82 @@ const saveEditedEvent = async () => {
   try {
     const eventPk = editableEvent.value.events_pk;
     if (!eventPk) {
-      console.error("Evento sem events_pk definido");
+      console.error("❌ Evento sem events_pk definido");
       return;
     }
 
-    const hourValue = editableEvent.value.hour && editableEvent.value.hour.trim() !== ""
-      ? editableEvent.value.hour
-      : "12:00";
-    const ampmValue = editableEvent.value.ampm && editableEvent.value.ampm.trim() !== ""
-      ? editableEvent.value.ampm
-      : "PM";
-
+    // Formata a data e hora
+    const hourValue = editableEvent.value.hour?.trim() || "12:00";
+    const ampmValue = editableEvent.value.ampm?.trim() || "PM";
     const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
 
+    // Atualiza os dados do evento
     const payload = {
       seats_number: editableEvent.value.seats_number,
       sceneries_fk: editableEvent.value.sceneries_fk,
       date: eventDateFormatted,
     };
 
-    const response = await axios.put(
-      "/events/alter",
-      payload,
-      {
-        params: {
-          events_pk: eventPk,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+    await axios.put("/events/alter", payload, {
+      params: { events_pk: eventPk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    // 🔄 Pega os rewards já salvos na relação para este evento
+    const existingRelationsRes = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: eventPk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const currentRelations = existingRelationsRes.data.rewards || [];
+    const currentIds = currentRelations.map(r => r.rewards_pk);
+    const updatedIds = editableEvent.value.rewards.map(r => r.rewards_pk);
+
+    // ➕ Adicionar novos rewards
+    const toAdd = updatedIds.filter(id => !currentIds.includes(id));
+    for (const rewards_fk of toAdd) {
+      console.log("🔼 Tentando adicionar reward:", { events_fk: eventPk, rewards_fk });
+      try {
+        await axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk,
+          active: true,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        console.log("✅ Reward adicionado com sucesso:", rewards_fk);
+      } catch (err) {
+        console.error("❌ Erro ao adicionar reward:", rewards_fk, err.response?.data || err.message);
       }
-    );
+    }
 
+    // ❌ Remover (inativar) os desmarcados
+    const toRemove = currentIds.filter(id => !updatedIds.includes(id));
+    for (const rewards_fk of toRemove) {
+      try {
+        await axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk,
+          active: false,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        console.log("🗑️ Reward inativado com sucesso:", rewards_fk);
+      } catch (err) {
+        console.error("❌ Erro ao inativar reward:", rewards_fk, err.response?.data || err.message);
+      }
+    }
+
+    // Atualiza localmente
     const index = events.value.findIndex((e) => e.events_pk === eventPk);
-
     if (index !== -1) {
       events.value[index] = { ...editableEvent.value };
     }
@@ -1109,12 +1152,42 @@ const saveEditedEvent = async () => {
   }
 };
 
-const toggleEditReward = (reward) => {
-  const index = editableEvent.value.rewards.findIndex((r) => r === reward);
-  if (index === -1) {
-    editableEvent.value.rewards.push(reward);
-  } else {
-    editableEvent.value.rewards.splice(index, 1);
+const toggleEditReward = async (reward) => {
+  const eventId = editableEvent.value.events_pk;
+  const alreadySelected = editableEvent.value.rewards.some(r => r.rewards_pk === reward.rewards_pk);
+
+  try {
+    if (alreadySelected) {
+      await axios.post("/rl_events_rewards/cadastro", {
+        events_fk: eventId,
+        rewards_fk: reward.rewards_pk,
+        active: false
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      editableEvent.value.rewards = editableEvent.value.rewards.filter(
+        r => r.rewards_pk !== reward.rewards_pk
+      );
+    } else {
+      await axios.post("/rl_events_rewards/cadastro", {
+        events_fk: eventId,
+        rewards_fk: reward.rewards_pk,
+        active: true
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      editableEvent.value.rewards.push(reward);
+    }
+
+    console.log("✅ Rewards atualizados:", editableEvent.value.rewards);
+  } catch (error) {
+    console.error("❌ Erro ao atualizar rewards:", error.response?.data || error.message);
   }
 };
 
@@ -1132,30 +1205,19 @@ const handleEditImageUpload = (event) => {
 
 const allRewards = ref([]);
 
-
 const fetchAllRewards = async () => {
   try {
-    const response = await axios.get('/rewards/search', {
+    const res = await axios.get("/rewards/search", {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
-    console.log("Resposta da API:", response.data);
-
-    allRewards.value = Array.isArray(response.data.rewards)
-      ? response.data.rewards
-      : [];
+    allRewards.value = res.data.rewards || [];
   } catch (err) {
-    console.error("Erro ao buscar rewards:", err);
-    allRewards.value = [];
+    console.error("❌ Erro ao buscar todos os rewards:", err);
   }
 };
-
-onMounted(() => {
-  fetchAllRewards();
-});
-
 
 const eventRewards = ref([]);
 
@@ -1170,33 +1232,36 @@ const fetchEventRewards = async (eventId) => {
       },
     });
 
-    const relations = response.data || [];
+    const relations = response.data.rewards || [];
 
-    // Agora busca cada reward completo
+    // Busca os dados completos de cada reward
     const fullRewards = await Promise.all(
       relations.map(async (rel) => {
         try {
-          const rewardRes = await axios.get(`/rewards/${rel.rewards_fk}`, {
+          const rewardRes = await axios.get(`/rewards/${rel.rewards_pk}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           });
           return rewardRes.data;
         } catch (err) {
-          console.error(`Erro ao buscar reward ${rel.rewards_fk}:`, err);
+          console.error(`Erro ao buscar reward ${rel.rewards_pk}:`, err);
           return null;
         }
       })
     );
 
-    // Filtra nulls e define o resultado final
-    eventRewards.value = fullRewards.filter(r => r);
-    console.log("🎁 Rewards completos carregados:", eventRewards.value);
+    // Retorna apenas os válidos
+    return fullRewards.filter(Boolean);
   } catch (err) {
     console.error("❌ Erro ao buscar rewards do evento:", err);
-    eventRewards.value = [];
+    return [];
   }
 };
+
+onMounted(() => {
+  fetchAllRewards();
+});
 
 
 
