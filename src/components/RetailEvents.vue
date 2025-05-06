@@ -337,7 +337,7 @@
                 <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
                 <v-col cols="12" class="d-flex align-end flex-column" v-if="!isEditable">
                   <v-col class="d-flex align-center flex-column">
-                    <v-card color="surface">
+                    <v-card color="surface" class="ml-5">
                       <v-card-text>
                         <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
                         <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
@@ -375,22 +375,22 @@
                         </v-row>
                       </v-card>
                       <v-card-text>
-              <h3 class="text-h6 font-weight-bold mb-1">REWARDS:</h3>
+                        <h3 class="text-h6 font-weight-bold mb-1">REWARDS:</h3>
 
-              <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
-                class="align-center ">
-                <v-col cols="3" md="2">
-                  <v-avatar>
-                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
-                  </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
-                </v-col>
-              </v-row>
+                        <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
+                          class="align-center ">
+                          <v-col cols="3" md="2">
+                            <v-avatar>
+                              <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                            </v-avatar>
+                          </v-col>
+                          <v-col cols="9" md="10">
+                            <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+                          </v-col>
+                        </v-row>
 
-              <p v-else class="text-caption">No rewards linked to this event.</p>
-            </v-card-text>
+                        <p v-else class="text-caption">No rewards linked to this event.</p>
+                      </v-card-text>
                       <br>
                       <v-btn block color="blue" size="small" variant="flat" class="mt-">
                         <v-icon start>mdi-share-variant</v-icon>
@@ -438,7 +438,7 @@
                             <!-- Ícone de Granted Passage, centralizado -->
                             <template v-if="player.event_status === 'Granted Passage'">
 
-                              <v-btn color="deep-purple" size="x-small" class="ma-0 pa-0" block
+                              <v-btn color="deep-purple" size="x-small" class="mt-2 mt-md-0 pa-0" block
                                 @click="updatePlayerStatus(player, JoinedtheQuest)">
                                 <v-icon start>mdi-flag-checkered</v-icon>
                                 Start Event
@@ -679,6 +679,24 @@ const updatePlayerStatus = async (player, statusPk) => {
 
     player.event_status = response.data.event_status || player.event_status;
     fetchPlayersForEvent(eventFk);
+
+    // ✅ Usa o eventRewards aqui
+    if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
+      for (const reward of eventRewards.value) {
+        await axios.post(
+          "/rl_users_rewards/cadastro",
+          {
+            users_fk: player.users_pk,
+            rewards_fk: reward.rewards_pk,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+      }
+    }
   } catch (error) {
     console.error("Error updating player status:", {
       request: error.config?.data,
@@ -687,6 +705,7 @@ const updatePlayerStatus = async (player, statusPk) => {
     });
   }
 };
+
 
 const dateRules = [
   (value) => {
@@ -749,6 +768,8 @@ const toggleReward = (reward) => {
 
 const dialog = ref(false);
 const selectedEvent = ref(null);
+
+
 
 
 const openDialog = async (event) => {
@@ -919,12 +940,12 @@ const addEvent = async () => {
     };
 
     const response = await axios.post("/events/cadastro", payload, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  },
-});
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
 
-const newEventId = response.data?.event?.events_pk;
+    const newEventId = response.data?.event?.events_pk;
 
     if (!newEventId) {
       console.error("❌ Não foi possível extrair o ID do novo evento.");
@@ -933,20 +954,20 @@ const newEventId = response.data?.event?.events_pk;
 
     // ✅ Adiciona rewards ao evento
     for (const reward of selectedRewards.value) {
-  try {
-    await axios.post("/rl_events_rewards/cadastro", {
-      events_fk: newEventId,
-      rewards_fk: reward.rewards_pk,
-      active: true
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-  } catch (err) {
-    console.error("❌ Erro ao associar reward ao evento:", err);
-  }
-}
+      try {
+        await axios.post("/rl_events_rewards/cadastro", {
+          events_fk: newEventId,
+          rewards_fk: reward.rewards_pk,
+          active: true
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+      } catch (err) {
+        console.error("❌ Erro ao associar reward ao evento:", err);
+      }
+    }
 
     createEventDialog.value = false;
     await fetchUserCreatedEvents();
