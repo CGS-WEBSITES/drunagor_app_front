@@ -355,9 +355,9 @@
     class="mb-8"
       block
       color="red"
-      @click="quitCampaign()"
+      @click="quitEvent()"
     >
-      Quit Campaign
+      Quit Event
     </v-btn>
   </v-col>
 </v-row>
