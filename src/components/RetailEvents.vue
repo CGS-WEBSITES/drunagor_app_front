@@ -374,6 +374,23 @@
                           <v-col cols="2" class="text-right pa-0"></v-col>
                         </v-row>
                       </v-card>
+                      <v-card-text>
+              <h3 class="text-h6 font-weight-bold mb-1">REWARDS:</h3>
+
+              <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
+                class="align-center ">
+                <v-col cols="3" md="2">
+                  <v-avatar>
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                  </v-avatar>
+                </v-col>
+                <v-col cols="9" md="10">
+                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+                </v-col>
+              </v-row>
+
+              <p v-else class="text-caption">No rewards linked to this event.</p>
+            </v-card-text>
                       <br>
                       <v-btn block color="blue" size="small" variant="flat" class="mt-">
                         <v-icon start>mdi-share-variant</v-icon>
@@ -552,7 +569,7 @@ const openEditDialog = async (event, editable = false) => {
 
   // 🔄 Carrega e sincroniza rewards
   await fetchAllRewards();
-  const rewardsFromRelation = await fetchEventRewards(event.events_pk);
+  eventRewards.value = await fetchEventRewards(event.events_pk);
 
   editableEvent.value.rewards = availableRewards.value.filter(ar =>
     rewardsFromRelation.some(rr => rr.rewards_pk === ar.rewards_pk)
@@ -1223,8 +1240,6 @@ const eventRewards = ref([]);
 
 const fetchEventRewards = async (eventId) => {
   try {
-    console.log("🔍 Buscando relações de rewards para evento:", eventId);
-
     const response = await axios.get("/rl_events_rewards/list_rewards", {
       params: { events_fk: eventId },
       headers: {
@@ -1234,7 +1249,6 @@ const fetchEventRewards = async (eventId) => {
 
     const relations = response.data.rewards || [];
 
-    // Busca os dados completos de cada reward
     const fullRewards = await Promise.all(
       relations.map(async (rel) => {
         try {
@@ -1251,8 +1265,7 @@ const fetchEventRewards = async (eventId) => {
       })
     );
 
-    // Retorna apenas os válidos
-    return fullRewards.filter(Boolean);
+    return fullRewards.filter(Boolean); // 🔁 Aqui retorna a lista válida
   } catch (err) {
     console.error("❌ Erro ao buscar rewards do evento:", err);
     return [];
