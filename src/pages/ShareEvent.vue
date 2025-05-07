@@ -15,16 +15,14 @@
                         <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
                         <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
                         <p class="text-end scheduled-box">
-                            Scheduled for: {{
-                                new Date(selectedEvent?.date).toLocaleString('en-US', {
-                                    month: '2-digit',
-                                    day: '2-digit',
-                                    year: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                })
-                            }}
+                            Scheduled for: {{ new Date(selectedEvent?.event_date).toLocaleString('en-US', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: true
+                            }) }}
                         </p>
                     </v-card-text>
 
@@ -156,7 +154,7 @@ const fetchEvent = async () => {
 
         const decodedId = atob(eventIdEncoded);
         const response = await axios.get(`/events/${decodedId}`);
-        selectedEvent.value = response.data;
+        selectedEvent.value = Array.isArray(response.data) ? response.data[0] : response.data;
     } catch (err) {
         console.error("Event fetch failed:", err);
     }
