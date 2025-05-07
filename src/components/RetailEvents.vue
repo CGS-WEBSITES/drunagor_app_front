@@ -193,7 +193,7 @@
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
                     item-value="rewards_pk" label="Select Rewards" multiple return-object>
-                    <!-- Como o item é exibido na lista -->
+
                     <template #item="{ item, props }">
                       <v-list-item v-bind="props">
                         <template #prepend>
@@ -204,8 +204,6 @@
                         <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
                       </v-list-item>
                     </template>
-
-                    <!-- Como o item selecionado é exibido -->
                     <template #selection="{ item, index }">
                       <v-chip size="small" class="ma-1" closable @click:close="selectedRewards.splice(index, 1)">
                         <v-avatar start size="24">
@@ -325,21 +323,14 @@
                 </v-col>
                 <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
-                  <v-row>
-                    <v-col cols="auto" v-for="(reward, index) in availableRewards" :key="index">
-                      <v-avatar size="50" :class="{
-                        'selected-reward': editableEvent.rewards?.includes(reward) ?? false,
-                        'unselected-reward': !(editableEvent.rewards?.includes(reward) ?? false)
-                      }" @click="toggleEditReward(reward)">
-                        <v-img :src="reward.image"></v-img>
-                      </v-avatar>
-                    </v-col>
-                  </v-row>
+                  <v-autocomplete v-model="editableEvent.rewards" :items="availableRewards" item-title="name"
+                    item-value="rewards_pk" label="Select Rewards" multiple chips
+                    return-object={false}></v-autocomplete>
                 </v-col>
                 <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
                 <v-col cols="12" class="d-flex align-end flex-column" v-if="!isEditable">
                   <v-col class="d-flex align-center flex-column">
-                    <v-card color="surface">
+                    <v-card color="surface" class="ml-5">
                       <v-card-text>
                         <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
                         <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
@@ -376,12 +367,13 @@
                           <v-col cols="2" class="text-right pa-0"></v-col>
                         </v-row>
                       </v-card>
-                      <v-card-text v-if="eventRewards.length">
-                        <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
+                      <v-card-text>
+                        <h3 class="text-h6 font-weight-bold mb-1">REWARDS:</h3>
 
-                        <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
+                        <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
+                          class="align-center ">
                           <v-col cols="3" md="2">
-                            <v-avatar size="30">
+                            <v-avatar>
                               <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
                             </v-avatar>
                           </v-col>
@@ -389,38 +381,14 @@
                             <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
                           </v-col>
                         </v-row>
+
+                        <p v-else class="text-caption">No rewards linked to this event.</p>
                       </v-card-text>
-                      <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                        @click="shareEvent(selectedEvent?.events_pk)">
+                      <br>
+                      <v-btn block color="blue" size="small" variant="flat" class="mt-">
                         <v-icon start>mdi-share-variant</v-icon>
                         Share Event
                       </v-btn>
-
-                      <!-- Diálogo (Popup) para mostrar o link -->
-                      <v-dialog v-model="showDialog" width="400">
-                        <v-card>
-                          <v-card-title class="text-h6">Share Event</v-card-title>
-                          <v-card-text>
-                            <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                              hide-details></v-text-field>
-                          </v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="success" size="small" @click="copyLink(sharedLink)">
-                              Copy Link
-                            </v-btn>
-                            <v-btn color="grey" size="small" @click="showDialog = false">
-                              Close
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
-
-                      <!-- Alerta elegante para sucesso -->
-                      <v-alert v-if="showAlert" type="success" class="mt-4" border="start" variant="tonal" closable
-                        @click:close="showAlert = false">
-                        Link copied successfully!
-                      </v-alert>
                     </v-card>
                   </v-col>
                   <v-col>
@@ -463,7 +431,7 @@
                             <!-- Ícone de Granted Passage, centralizado -->
                             <template v-if="player.event_status === 'Granted Passage'">
 
-                              <v-btn color="deep-purple" size="x-small" class="ma-0 pa-0" block
+                              <v-btn color="deep-purple" size="x-small" class="mt-2 mt-md-0 pa-0" block
                                 @click="updatePlayerStatus(player, JoinedtheQuest)">
                                 <v-icon start>mdi-flag-checkered</v-icon>
                                 Start Event
@@ -544,44 +512,6 @@ if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-
-const handleShareEvent = (eventId) => {
-  const shareLink = generateShareEventLink(eventId);
-  if (shareLink) {
-    sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
-    showCard.value = true;         // e que showCard controle exibir o card
-  }
-};
-
-const sharedLink = ref('');
-const showDialog = ref(false);
-const showAlert = ref(false);
-
-const shareEvent = (eventId) => {
-  try {
-    if (!eventId) throw new Error("ID do evento não encontrado!");
-
-    const encodedId = btoa(eventId.toString());
-    console.log("ID codificado:", encodedId);
-
-    sharedLink.value = `${window.location.origin}/event/${encodedId}`;
-    showDialog.value = true; // Abre o popup
-  } catch (error) {
-    console.error("Erro ao gerar link:", error);
-  }
-};
-
-const copyLink = async (link) => {
-  try {
-    await navigator.clipboard.writeText(link);
-    showDialog.value = false; // Fecha o popup
-    showAlert.value = true;   // Mostra o alerta
-  } catch (error) {
-    console.error("Erro ao copiar o link:", error);
-  }
-};
-
-
 const eventStore = useEventStore();
 
 const isEditable = ref(false);
@@ -601,17 +531,15 @@ const validateTime = () => {
     .padStart(2, "0")}`;
 };
 
-const openEditDialog = (event, editable = false) => {
+const availableRewards = ref([]);
+
+const openEditDialog = async (event, editable = false) => {
   const [datePart, timePart] = event.event_date.split('T');
   const [hoursStr, minutesStr] = timePart.split(':');
   const hours24 = parseInt(hoursStr, 10);
   const minutes = minutesStr;
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? 'PM' : 'AM';
-  const hourValue = editableEvent.value.hour?.trim() || "12:00";
-  const ampmValue = editableEvent.value.ampm?.trim() || "PM";
-  const dateValue = editableEvent.value.date;
-  const eventDateFormatted = `${dateValue}; ${hourValue} ${ampmValue}`;
 
   editableEvent.value = {
     events_pk: event.events_pk,
@@ -620,7 +548,7 @@ const openEditDialog = (event, editable = false) => {
     ampm,
     seats_number: event.seats_number,
     sceneries: event.scenario,
-    rewards: event.rewards || [],
+    rewards: [], // será preenchido depois
   };
 
   selectedEvent.value = event;
@@ -631,6 +559,16 @@ const openEditDialog = (event, editable = false) => {
     fetchPlayersForEvent(event.events_pk);
     fetchStatuses();
   }
+
+  // 🔄 Carrega e sincroniza rewards
+  await fetchAllRewards();
+  eventRewards.value = await fetchEventRewards(event.events_pk);
+
+  editableEvent.value.rewards = availableRewards.value.filter(ar =>
+    rewardsFromRelation.some(rr => rr.rewards_pk === ar.rewards_pk)
+  );
+
+  console.log("🟢 Rewards sincronizados:", editableEvent.value.rewards);
 };
 
 const players = ref([]);
@@ -734,6 +672,24 @@ const updatePlayerStatus = async (player, statusPk) => {
 
     player.event_status = response.data.event_status || player.event_status;
     fetchPlayersForEvent(eventFk);
+
+    // ✅ Usa o eventRewards aqui
+    if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
+      for (const reward of eventRewards.value) {
+        await axios.post(
+          "/rl_users_rewards/cadastro",
+          {
+            users_fk: player.users_pk,
+            rewards_fk: reward.rewards_pk,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+      }
+    }
   } catch (error) {
     console.error("Error updating player status:", {
       request: error.config?.data,
@@ -742,6 +698,7 @@ const updatePlayerStatus = async (player, statusPk) => {
     });
   }
 };
+
 
 const dateRules = [
   (value) => {
@@ -805,7 +762,6 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
-
 const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
@@ -868,32 +824,10 @@ const fetchPlayerEvents = async () => {
       },
     });
 
-    const baseEvents = response.data.events || [];
 
-    // Buscar rewards de cada evento
-    const enrichedEvents = await Promise.all(
-      baseEvents.map(async (event) => {
-        try {
-          const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
-            params: { events_fk: event.events_pk },
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          });
-
-          // A API já retorna os dados completos
-          const rewards = rewardsRes.data.rewards || [];
-
-          return { ...event, rewards };
-        } catch (err) {
-          console.error(`⚠️ Erro ao buscar rewards do evento ${event.events_pk}:`, err);
-          return { ...event, rewards: [] };
-        }
-      })
-    );
-
-    events.value = enrichedEvents;
-    console.log("📦 Eventos carregados com rewards:", events.value);
+    events.value = response.data.events || [];
+    console.log("📦 Eventos carregados:", events.value);
+    
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -1004,7 +938,8 @@ const addEvent = async () => {
       },
     });
 
-    const newEventId = response.data.event?.events_pk;
+
+    const newEventId = response.data?.event?.events_pk;
 
     if (!newEventId) {
       console.error("❌ Não foi possível extrair o ID do novo evento.");
@@ -1013,18 +948,20 @@ const addEvent = async () => {
 
     // ✅ Adiciona rewards ao evento
     for (const reward of selectedRewards.value) {
-      await axios.post(
-        "/rl_events_rewards/cadastro",
-        {
+
+      try {
+        await axios.post("/rl_events_rewards/cadastro", {
           events_fk: newEventId,
           rewards_fk: reward.rewards_pk,
-        },
-        {
+          active: true
+        }, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        }
-      );
+        });
+      } catch (err) {
+        console.error("❌ Erro ao associar reward ao evento:", err);
+      }
     }
 
     createEventDialog.value = false;
@@ -1161,40 +1098,82 @@ const saveEditedEvent = async () => {
   try {
     const eventPk = editableEvent.value.events_pk;
     if (!eventPk) {
-      console.error("Evento sem events_pk definido");
+      console.error("❌ Evento sem events_pk definido");
       return;
     }
 
-    const hourValue = editableEvent.value.hour && editableEvent.value.hour.trim() !== ""
-      ? editableEvent.value.hour
-      : "12:00";
-    const ampmValue = editableEvent.value.ampm && editableEvent.value.ampm.trim() !== ""
-      ? editableEvent.value.ampm
-      : "PM";
-
+    // Formata a data e hora
+    const hourValue = editableEvent.value.hour?.trim() || "12:00";
+    const ampmValue = editableEvent.value.ampm?.trim() || "PM";
     const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
 
+    // Atualiza os dados do evento
     const payload = {
       seats_number: editableEvent.value.seats_number,
       sceneries_fk: editableEvent.value.sceneries_fk,
       date: eventDateFormatted,
     };
 
-    const response = await axios.put(
-      "/events/alter",
-      payload,
-      {
-        params: {
-          events_pk: eventPk,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+    await axios.put("/events/alter", payload, {
+      params: { events_pk: eventPk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    // 🔄 Pega os rewards já salvos na relação para este evento
+    const existingRelationsRes = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: eventPk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const currentRelations = existingRelationsRes.data.rewards || [];
+    const currentIds = currentRelations.map(r => r.rewards_pk);
+    const updatedIds = editableEvent.value.rewards.map(r => r.rewards_pk);
+
+    // ➕ Adicionar novos rewards
+    const toAdd = updatedIds.filter(id => !currentIds.includes(id));
+    for (const rewards_fk of toAdd) {
+      console.log("🔼 Tentando adicionar reward:", { events_fk: eventPk, rewards_fk });
+      try {
+        await axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk,
+          active: true,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        console.log("✅ Reward adicionado com sucesso:", rewards_fk);
+      } catch (err) {
+        console.error("❌ Erro ao adicionar reward:", rewards_fk, err.response?.data || err.message);
       }
-    );
+    }
 
+    // ❌ Remover (inativar) os desmarcados
+    const toRemove = currentIds.filter(id => !updatedIds.includes(id));
+    for (const rewards_fk of toRemove) {
+      try {
+        await axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk,
+          active: false,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        console.log("🗑️ Reward inativado com sucesso:", rewards_fk);
+      } catch (err) {
+        console.error("❌ Erro ao inativar reward:", rewards_fk, err.response?.data || err.message);
+      }
+    }
+
+    // Atualiza localmente
     const index = events.value.findIndex((e) => e.events_pk === eventPk);
-
     if (index !== -1) {
       events.value[index] = { ...editableEvent.value };
     }
@@ -1206,12 +1185,42 @@ const saveEditedEvent = async () => {
   }
 };
 
-const toggleEditReward = (reward) => {
-  const index = editableEvent.value.rewards.findIndex((r) => r === reward);
-  if (index === -1) {
-    editableEvent.value.rewards.push(reward);
-  } else {
-    editableEvent.value.rewards.splice(index, 1);
+const toggleEditReward = async (reward) => {
+  const eventId = editableEvent.value.events_pk;
+  const alreadySelected = editableEvent.value.rewards.some(r => r.rewards_pk === reward.rewards_pk);
+
+  try {
+    if (alreadySelected) {
+      await axios.post("/rl_events_rewards/cadastro", {
+        events_fk: eventId,
+        rewards_fk: reward.rewards_pk,
+        active: false
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      editableEvent.value.rewards = editableEvent.value.rewards.filter(
+        r => r.rewards_pk !== reward.rewards_pk
+      );
+    } else {
+      await axios.post("/rl_events_rewards/cadastro", {
+        events_fk: eventId,
+        rewards_fk: reward.rewards_pk,
+        active: true
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      editableEvent.value.rewards.push(reward);
+    }
+
+    console.log("✅ Rewards atualizados:", editableEvent.value.rewards);
+  } catch (error) {
+    console.error("❌ Erro ao atualizar rewards:", error.response?.data || error.message);
   }
 };
 
@@ -1229,36 +1238,24 @@ const handleEditImageUpload = (event) => {
 
 const allRewards = ref([]);
 
-
 const fetchAllRewards = async () => {
   try {
-    const response = await axios.get('/rewards/search', {
+    const res = await axios.get("/rewards/search", {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
-    console.log("Resposta da API:", response.data);
-
-    allRewards.value = Array.isArray(response.data.rewards)
-      ? response.data.rewards
-      : [];
+    allRewards.value = res.data.rewards || [];
   } catch (err) {
-    console.error("Erro ao buscar rewards:", err);
-    allRewards.value = [];
+    console.error("❌ Erro ao buscar todos os rewards:", err);
   }
 };
-
-onMounted(() => {
-  fetchAllRewards();
-});
-
 
 const eventRewards = ref([]);
 
 const fetchEventRewards = async (eventId) => {
   try {
-    console.log("🔍 Buscando relações de rewards para evento:", eventId);
 
     const response = await axios.get("/rl_events_rewards/list_rewards", {
       params: { events_fk: eventId },
@@ -1267,33 +1264,33 @@ const fetchEventRewards = async (eventId) => {
       },
     });
 
-    const relations = response.data || [];
+    const relations = response.data.rewards || [];
 
-    // Agora busca cada reward completo
     const fullRewards = await Promise.all(
       relations.map(async (rel) => {
         try {
-          const rewardRes = await axios.get(`/rewards/${rel.rewards_fk}`, {
+          const rewardRes = await axios.get(`/rewards/${rel.rewards_pk}`, {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
           });
           return rewardRes.data;
         } catch (err) {
-          console.error(`Erro ao buscar reward ${rel.rewards_fk}:`, err);
           return null;
         }
       })
     );
 
-    // Filtra nulls e define o resultado final
-    eventRewards.value = fullRewards.filter(r => r);
-    console.log("🎁 Rewards completos carregados:", eventRewards.value);
+    return fullRewards.filter(Boolean); // 🔁 Aqui retorna a lista válida
   } catch (err) {
     console.error("❌ Erro ao buscar rewards do evento:", err);
-    eventRewards.value = [];
+    return [];
   }
 };
+
+onMounted(() => {
+  fetchAllRewards();
+});
 
 
 
