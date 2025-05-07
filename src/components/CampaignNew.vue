@@ -42,7 +42,6 @@ async function saveCampaign(boxId: number) {
   });
 
   const serverPk = resp.data.campaign.campaigns_pk.toString();
-  console.log("serverPk", serverPk);
   toast.add({
     severity: "success",
     summary: t("label.success"),

@@ -99,6 +99,7 @@ import { Campaign } from "@/store/Campaign";
 import { CampaignStore } from "@/store/CampaignStore";
 import { Hero } from "@/store/Hero";
 import { HeroStore } from "@/store/HeroStore";
+import { HeroEquipment } from "@/store/Hero";
 import { PartyStore } from "@/store/PartyStore";
 import { customAlphabet } from "nanoid";
 import CampaignImport from "@/components/CampaignImport.vue";
@@ -146,6 +147,14 @@ onMounted(async () => {
         campaignStore.add(campaignData);
         heroes.forEach(h => {
           h.campaignId = campaignData.campaignId;
+
+          if (typeof h.equipment === "undefined") {
+            h.equipment = new HeroEquipment();
+          }
+
+          if (typeof h.sequentialAdventureState === "undefined") {
+            h.sequentialAdventureState = null;
+          }
           heroStore.add(h);
         });
       } catch (e) {
@@ -181,11 +190,12 @@ if (legacyCampaign.length > 0) {
 const heroDataRepository = new HeroDataRepository();
 
 function findHeroes(campaignId: string): HeroData[] {
-  const heroes: HeroData[] = [];
-  heroStore.findAllInCampaign(campaignId).forEach((hero) => {
-    heroes.push(heroDataRepository.find(hero.heroId) ?? ({} as HeroData));
-  });
-  return heroes;
+
+  return heroStore
+    .findAllInCampaign(campaignId)
+    .map(h => heroDataRepository.find(h.heroId))
+    .filter((h): h is HeroData => !!h);   
+    
 }
 </script>
 
