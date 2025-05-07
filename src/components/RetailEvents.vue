@@ -132,12 +132,6 @@
               <p v-else class="text-caption">No rewards linked to this event.</p>
             </v-card-text>
             <v-row class="mt-2 ml-0">
-              <v-col cols="6" class="pa-0">
-                <v-btn block color="#907041" class="rounded-0" @click="joinEvent">Maybe I’ll Go</v-btn>
-              </v-col>
-              <v-col cols="6" class="pa-0">
-                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">Count me in</v-btn>
-              </v-col>
             </v-row>
           </v-card>
         </v-dialog>
@@ -199,6 +193,7 @@
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
                     item-value="rewards_pk" label="Select Rewards" multiple return-object>
+
                     <template #item="{ item, props }">
                       <v-list-item v-bind="props">
                         <template #prepend>
@@ -209,7 +204,6 @@
                         <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
                       </v-list-item>
                     </template>
-
                     <template #selection="{ item, index }">
                       <v-chip size="small" class="ma-1" closable @click:close="selectedRewards.splice(index, 1)">
                         <v-avatar start size="24">
@@ -219,7 +213,6 @@
                       </v-chip>
                     </template>
                   </v-autocomplete>
-
                 </v-col>
                 <v-col cols="12">
                   <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
@@ -769,9 +762,6 @@ const toggleReward = (reward) => {
 const dialog = ref(false);
 const selectedEvent = ref(null);
 
-
-
-
 const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
@@ -826,6 +816,7 @@ const fetchPlayerEvents = async () => {
       return;
     }
 
+    // Buscar eventos do jogador
     const response = await axios.get("/events/list_events/", {
       params: { player_fk },
       headers: {
@@ -833,8 +824,10 @@ const fetchPlayerEvents = async () => {
       },
     });
 
+
     events.value = response.data.events || [];
     console.log("📦 Eventos carregados:", events.value);
+    
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -945,6 +938,7 @@ const addEvent = async () => {
       },
     });
 
+
     const newEventId = response.data?.event?.events_pk;
 
     if (!newEventId) {
@@ -954,6 +948,7 @@ const addEvent = async () => {
 
     // ✅ Adiciona rewards ao evento
     for (const reward of selectedRewards.value) {
+
       try {
         await axios.post("/rl_events_rewards/cadastro", {
           events_fk: newEventId,
@@ -1261,6 +1256,7 @@ const eventRewards = ref([]);
 
 const fetchEventRewards = async (eventId) => {
   try {
+
     const response = await axios.get("/rl_events_rewards/list_rewards", {
       params: { events_fk: eventId },
       headers: {
@@ -1280,7 +1276,6 @@ const fetchEventRewards = async (eventId) => {
           });
           return rewardRes.data;
         } catch (err) {
-          console.error(`Erro ao buscar reward ${rel.rewards_pk}:`, err);
           return null;
         }
       })
