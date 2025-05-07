@@ -40,13 +40,12 @@
 </div>
 
 <!-- Mensagem de nenhum reward -->
-<div v-else class="text-center py-2">
+<div v-else class="text-center py-2vc">
   <v-icon color="grey lighten-1" size="48">mdi-emoticon-sad-outline</v-icon>
   <p class="mt-4 text-body-1 white--text font-weight-medium">
     You don't have any rewards yet.
   </p>
-  <p class="text-caption grey--text pb-2">
-    Join events to fight for them!
+  <p class="text-caption grey--text pb-3">
   </p>
 </div>
     </v-card>
@@ -55,17 +54,19 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 
 const userRewards = ref([]);
+const route = useRoute();
 
 const fetchUserRewards = async () => {
   try {
-    const userData = JSON.parse(localStorage.getItem('app_user'));
-    if (!userData?.users_pk) return;
+    const encodedId = route.params.id;
+    const userId = atob(encodedId);
 
     const response = await axios.get('/rl_users_rewards/list_rewards', {
-      params: { users_fk: userData.users_pk },
+      params: { users_fk: userId },
       headers: {
         Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
@@ -78,7 +79,7 @@ const fetchUserRewards = async () => {
       date: new Date(reward.date).toLocaleDateString(),
     }));
   } catch (err) {
-    console.error('❌ Erro ao buscar rewards do usuário:', err);
+    console.error('❌ Error fetching user rewards:', err);
     userRewards.value = [];
   }
 };
