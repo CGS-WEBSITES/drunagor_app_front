@@ -45,6 +45,11 @@ const router = createRouter({
       component: () => import("@/pages/User.vue"),
     },
     {
+      path: "/event/:id",
+      name: "ShareEvent",
+      component: () => import("@/pages/ShareEvent.vue"),
+    },
+    {
       path: "/library",
       name: "Library",
       component: () => import("@/pages/Library.vue"),
@@ -139,12 +144,12 @@ const router = createRouter({
           path: "/campaign-tracker/campaign",
           name: "Campaign Overview",
           component: () => import("@/components/CampaignOverviewView.vue"),
-          beforeEnter(to, from, next) {
+          /* beforeEnter(to, from, next) {
             if (isSignedIn()) {
               next()
               return
             }
-          },
+          }, */
         },
         {
           path: "/campaign-tracker/keyword",
