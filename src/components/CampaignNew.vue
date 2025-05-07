@@ -20,9 +20,8 @@ const heroStore = HeroStore();
 const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
-const NEW_CAMPAIGN_ID = "001";
+// const NEW_CAMPAIGN_ID = Date.now().toString();
 
-// ––– Gera token exatamente igual antes –––
 function openModal(campaignId: string) {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(campaignId)),
@@ -31,10 +30,10 @@ function openModal(campaignId: string) {
   const heroes = heroStore
     .findAllInCampaign(campaignId)
     .map((h) => ({ ...h, campaignId: "" }));
+
   token.value = btoa(JSON.stringify({ campaignData: campaignCopy, heroes }));
 }
 
-// ––– Agora recebe o skus_pk diretamente –––
 async function saveCampaign(boxId: number) {
   const resp = await axios.post("/campaigns/cadastro", {
     tracker_hash: token.value,
@@ -42,6 +41,7 @@ async function saveCampaign(boxId: number) {
     box: boxId,
   });
 
+  const serverPk = resp.data.campaign.campaigns_pk.toString();
   toast.add({
     severity: "success",
     summary: t("label.success"),
@@ -52,21 +52,21 @@ async function saveCampaign(boxId: number) {
   const users_pk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
   await axios.post("rl_campaigns_users/cadastro", {
     users_fk: users_pk,
-    campaigns_fk: resp.data.campaign.campaigns_pk,
+    campaigns_fk: serverPk,
     party_roles_fk: 1,
     skus_fk: boxId,
   });
 
   successDialogVisible.value = true;
+
+  return serverPk;
 }
 
-// ––– Fluxo principal –––
 async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
   const usersPk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
   const { data } = await axios.get("/skus/search", {
     params: { users_fk: usersPk },
   });
-
   const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data);
   const expectedName = {
     core: "Corebox",
@@ -74,7 +74,7 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
     awakenings: "Awakenings",
   }[type];
   const selectedSku = skuList.find(
-    (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase(),
+    (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase()
   );
 
   if (!selectedSku) {
@@ -87,17 +87,20 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
     return;
   }
 
-  // adiciona no store
-  campaignStore.add(new Campaign(NEW_CAMPAIGN_ID, type));
+  // 1) Primeiro, salve no back e pegue o ID real
+  const serverPk = await saveCampaign(selectedSku.skus_pk);
 
-  // gera token e salva usando o skus_pk
-  openModal(NEW_CAMPAIGN_ID);
-  await saveCampaign(selectedSku.skus_pk);
+  // 2) Agora crie a campanha no store usando o serverPk
+  campaignStore.add(new Campaign(serverPk, type));
 
-  // redireciona pegando de fato o skus_pk
-  router.push(
-    `/campaign-tracker/campaign/${NEW_CAMPAIGN_ID}?sku=${selectedSku.skus_pk}`,
-  );
+  // 3) Abra o modal para esse ID real
+  openModal(serverPk);
+
+  // 4) Redirecione usando o serverPk no path
+  router.push({
+    path: `/campaign-tracker/campaign/${serverPk}`,
+    query: { sku: selectedSku.skus_pk.toString() },
+  });
 }
 </script>
 
