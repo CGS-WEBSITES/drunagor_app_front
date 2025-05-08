@@ -3,7 +3,7 @@ import { ref } from "vue";
 import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
 import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
-import MegaDungeonLogo from "@/assets/logo/megadungeon.png";
+import UnderKeepLogo from "@/assets/logo/underkeep.png";
 import { CampaignStore } from "@/store/CampaignStore";
 import { Campaign } from "@/store/Campaign";
 import { customAlphabet } from "nanoid";
@@ -16,7 +16,7 @@ const nanoid = customAlphabet("1234567890", 5);
 const router = useRouter();
 const { t } = useI18n();
 
-function newCampaign(campaign: "core" | "apocalypse" | "awakenings" | "MegaDungeon") {
+function newCampaign(campaign: "core" | "apocalypse" | "awakenings" | "underkeep") {
   let campaignId = nanoid();
   campaignStore.add(new Campaign(campaignId, campaign));
   visible.value = false;
@@ -61,8 +61,8 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings" | "MegaDunge
           width="300"
           id="campaign-core"
           class="cursor-pointer"
-          :src="MegaDungeonLogo.toString()"
-          @click="newCampaign('MegaDungeon')"
+          :src="UnderKeepLogo.toString()"
+          @click="newCampaign('underkeep')"
         />
       </v-card-text>
     </v-card>

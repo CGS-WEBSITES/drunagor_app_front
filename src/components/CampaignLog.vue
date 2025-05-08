@@ -3,7 +3,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
 import CampaignLogCore from "./CampaignLogCore.vue";
-import CampaignLogMegaDungeon from "./CampaignLogMegaDungeon.vue"
+import CampaignLogUnderKeep from "./CampaignLogUnderKeep.vue"
 import CampaignLogAwakenings from "./CampaignLogAwakenings.vue";
 import CampaignLogApocalypse from "./CampaignLogApocalypse.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
@@ -95,8 +95,8 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
         </v-col>
 
         <v-col cols="12">
-          <CampaignLogMegaDungeon
-            v-if="campaign.campaign == 'MegaDungeon'"
+          <CampaignLogUnderKeep
+            v-if="campaign.campaign == 'underkeep'"
             :campaign-id="props.campaignId"
             :hero-id="props.heroId"
           />
