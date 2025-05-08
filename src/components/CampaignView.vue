@@ -40,11 +40,12 @@ function onSequentialAdventure() {
 </script>
 
 <template>
-  <v-col cols="12">
+  <v-row class="justify-center">
+  <v-col cols="12" md="8">
     <v-row no-gutters class="d-flex justify-center pa-1">
-      <v-card class="mb-2 pa-2" style="width: 100%;">
+      <v-card class="mb-4 px-2 ml-3" color="primary" style="width: 100%;">
         <v-card-actions class="d-flex justify-space-between">
-          <v-row no-gutter>
+          <v-row no-gutters>
             <v-col
               cols="12"
               sm="6"
@@ -97,15 +98,16 @@ function onSequentialAdventure() {
       </v-card>
     </v-row>
   </v-col>
+</v-row>
 
   <v-row no-gutters class="d-flex justify-center">
-    <v-col cols="12 px-2">
+    <v-col cols="12 px-5 mr-2" md="8">
       <CampaignName :campaign-id="campaignId" />
     </v-col>
   </v-row>
 
   <v-row v-if="isSequentialAdventure" no-gutters class="d-flex justify-center">
-    <v-col cols="12 px-2">
+    <v-col cols="12 px-">
       <CampaignRunes :campaign-id="campaignId" />
     </v-col>
   </v-row>

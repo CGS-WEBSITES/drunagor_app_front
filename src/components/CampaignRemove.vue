@@ -42,7 +42,9 @@ function removeCampaign() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-remove" rounded @click="openModal">{{
+  <v-btn variant="elevated" id="campaign-remove" class="px-6 my-2" rounded @click="openModal">
+    <v-icon start>mdi-delete</v-icon>
+    {{
     t("label.remove-campaign")
   }}</v-btn>
   <v-dialog v-model="visible">

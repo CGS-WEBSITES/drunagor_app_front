@@ -55,7 +55,8 @@ function closeModal() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-export" rounded  @click="openModal">
+  <v-btn variant="elevated" id="campaign-export" class="px-6 my-2" rounded  @click="openModal">
+    <v-icon start>mdi-export</v-icon>
     {{ t("label.export-campaign") }}
   </v-btn>
   <v-dialog v-model="visible">
