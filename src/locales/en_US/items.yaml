@@ -1,5 +1,11 @@
 ---
 weapon:
+  underkeep:
+    tools-of-the-trade: Tools of The Trade
+    amiran-hammer: Amiran Hammer
+    magicians-staff: Magician's Staff
+    robins-crossbow: Robin's Crossbow
+    dwarven-warhammer: Dwarven Warhammer
   core:
     amiran-crossbow: Amiran Crossbow
     amiran-halberd: Amiran Halberd
@@ -195,6 +201,12 @@ trinket:
     ultimate-cornucopia: Ultimate Cornucopia
     ultimate-grimoire: Ultimate Grimoire
 armor:
+  underkeep:
+    smugglers-vest: Smuggler's Vest
+    clerics-mail: Cleric's Mail
+    elvensilk-robe: Elvensilk Robe
+    hunters-cuirass: Hunter's Cuirass
+    dwarven-plate: Dwarven Plate
   core:
     breastplate: Breastplate
     cloth-armor: Cloth Armor
