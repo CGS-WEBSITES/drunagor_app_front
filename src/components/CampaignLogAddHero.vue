@@ -65,9 +65,10 @@ function addRandomHeroToCampaign() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-add-hero" rounded @click="openModal">{{
-    t("label.add-hero")
-  }}</v-btn>
+  <v-btn variant="elevated" id="campaign-add-hero" rounded @click="openModal">
+    <v-icon start>mdi-plus</v-icon>
+    {{ t("label.add-hero") }}
+  </v-btn>
 
   <v-dialog v-model="visible" max-width="500">
     <v-card>
