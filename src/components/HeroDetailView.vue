@@ -8,6 +8,7 @@ import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
 import { ref } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
+import { MegaDungeonItemDataRepository } from "@/data/repository/campaign/MegaDungeon/MegaDungeonItemDataRepository";
 import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
@@ -29,7 +30,9 @@ if (campaign.campaign === "core") {
   repository = new ApocalypseItemDataRepository();
 } else if (campaign.campaign === "awakenings") {
   repository = new AwakeningsItemDataRepository();
-} else {
+} else if (campaign.campaign === "MegaDungeon") {
+  repository = new MegaDungeonItemDataRepository();
+}else {
   throw new Error("Unknown campaign");
 }
 
