@@ -297,7 +297,46 @@ export class UnderKeepItemDataRepository implements ItemDataRepository {
       cardType: "Adventure",
       translation_key: "trinket.underkeep.gravity-boots-gem",
     } as ItemData,
-    
+    {
+      id: "scroll-of-incinerate",
+      itemType: "Consumable",
+      cardType: "Chest",
+      consumableType: "Scroll",
+      translation_key:
+        "consumable.underkeep.scroll-of-incinerate",
+    } as ConsumableItemData,
+    {
+      id: "potion-of-rejuvenation",
+      itemType: "Consumable",
+      cardType: "Chest",
+      consumableType: "Potion",
+      translation_key:
+        "consumable.underkeep.potion-of-rejuvenation",
+    } as ConsumableItemData,
+    {
+      id: "scroll-of-winter",
+      itemType: "Consumable",
+      cardType: "Chest",
+      consumableType: "Scroll",
+      translation_key:
+        "consumable.underkeep.scroll-of-winter",
+    } as ConsumableItemData,
+    {
+      id: "potion-of-strength",
+      itemType: "Consumable",
+      cardType: "Chest",
+      consumableType: "Potion",
+      translation_key:
+        "consumable.underkeep.potion-of-strength",
+    } as ConsumableItemData,
+    {
+      id: "potion-of-concentration",
+      itemType: "Consumable",
+      cardType: "Chest",
+      consumableType: "Potion",
+      translation_key:
+        "consumable.underkeep.potion-of-concentration",
+    } as ConsumableItemData,
 
 
 
