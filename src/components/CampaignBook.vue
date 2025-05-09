@@ -5,26 +5,31 @@
       class="text-white rounded-xl text-uppercase font-weight-bold"
       @click="dialog = true"
       prepend-icon="mdi-book-open-page-variant"
-      style="font-family: 'Uncial Antiqua', serif; letter-spacing: 1px;"
     >
       Open Campaign Book
     </v-btn>
 
     <v-dialog 
       v-model="dialog"
-      max-width="720px"
-      persistent
-      scrim="false"
-      attach="body"
-      content-class="draggable-dialog"
+      max-width="550px"
+      :scrim="false"
+      :persistent="true"
+      :hide-overlay="true"
+      no-click-animation
+      :retain-focus="false"
+      content-class="transparent-dialog"
+      :style="{ 
+        'position': 'fixed',
+        'transform': `translate(${dragX}px, ${dragY}px)`,
+        'transition': 'transform 0.1s',
+        'z-index': 1000
+      }"
     >
-      <v-card class="book-dialog" elevation="8">
-        <v-card-title class="d-flex justify-end align-center">
-          <v-btn icon @click="dialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-
+      <v-card 
+        class="book-dialog" 
+        elevation="10"
+        @mousedown="startDrag"
+      >
         <v-card-text class="pa-0">
           <v-sheet
             v-if="currentPage"
@@ -36,11 +41,22 @@
             @click="handlePageClick"
           >
             <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
-
             <v-container class="pa-6">
               <v-row>
                 <v-col cols="12">
-                  <h4 class="section-title">{{ currentPage.section }}</h4>
+                  <div 
+                    class="d-flex align-center justify-space-between pa-6 pb-0"
+                    @mousedown.stop="startDrag"
+                  >
+                    <h4 class="section-title">{{ currentPage.section }}</h4>
+                    <v-btn 
+                      icon 
+                      @click="dialog = false"
+                      class="close-btn"
+                    >
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </div>
                   <h2 class="chapter-title">{{ currentPage.title }}</h2>
                   <div class="body-text" v-html="currentPage.body"></div>
 
@@ -59,7 +75,7 @@
                     <v-btn
                       color="amber-darken-2"
                       variant="flat"
-                      @click="prevPage"
+                      @click.stop="prevPage"
                       :disabled="currentIndex === 0"
                       class="mx-4 px-6 text-white font-weight-bold"
                     >
@@ -68,7 +84,7 @@
                     <v-btn
                       color="amber-darken-2"
                       variant="flat"
-                      @click="nextPage"
+                      @click.stop="nextPage"
                       :disabled="currentIndex >= pages.length - 1"
                       class="mx-4 px-6 text-white font-weight-bold"
                     >
@@ -136,8 +152,80 @@ const pages = ref([
     instruction: "All heroes must test Wits (difficulty 3). If failed, place 1 Curse Cube.",
     layout: "full-screen",
     background: "url('/img/bg2.png')"
-  }
+  },
+  {
+    section: "CHAPTER INTRO",
+    title: "A Cry for Help",
+    body: `
+      <p>
+        A desperate, piercing scream rips through the silence of the night, jolting you awake.
+        Rain taps gently on the wooden shutters, and the embers in the hearth glow faintly as you rise from a restless sleep.
+        The cry echoes again, now distant but unmistakable — a cry for help.
+      </p>
+      <p>
+        Without hesitation, you grab your cloak and weapon, instincts taking over.
+        You exit the safety of the parish house into the damp darkness beyond, guided only by moonlight and the pull of duty.
+        Your boots sink slightly into the wet forest floor as you tread deeper into the unknown.
+      </p>
+      <p>
+        A sense of urgency quickens your pace, though you know not what awaits.
+        Tales of revenants and cursed woods linger in your mind, but still, you press forward.
+        Tonight, something calls to you from within the trees, and whether it is fate, madness, or providence — you intend to answer.
+      </p>
+    `,
+    instruction: "Mark this chapter as 'Discovered'. All players must draw 1 Fate card.",
+    layout: "single-column",
+    background: "url('/img/bg-apoc.png')"
+  },
+  {
+    section: "ADVENTURE CONTINUES",
+    title: "Into the Unknown",
+    body: `
+      <p>
+        As you push through the brush, the woods grow unnaturally silent. The fog thickens, wrapping around your limbs like a living thing.
+        Shadows move at the edges of your vision, but when you turn, nothing is there. Your breath becomes visible in the air, though the night isn't cold.
+      </p>
+      <p>
+        Then you see it — a faint blue glow hovering above the forest path. You step closer, and it takes shape: a wisp, beckoning you forward.
+        You follow. Not because you trust it, but because you must know.
+      </p>
+      <p>
+        The path twists unnaturally, looping in on itself. Trees seem to shift when you glance away. Time dilates.
+        You find a tattered journal on a broken stone altar, its pages torn, the ink smeared but still legible:
+        <em>"The darkness watches... it learns."</em>
+      </p>
+    `,
+    instruction: "All heroes must test Wits (difficulty 3). If failed, place 1 Curse Cube.",
+    layout: "full-screen",
+    background: "url('/img/bg2.png')"
+  },
 ]);
+
+const drag = ref(false);
+const dragX = ref(20);
+const dragY = ref(20);
+const startX = ref(0);
+const startY = ref(0);
+
+const startDrag = (e: MouseEvent) => {
+  drag.value = true;
+  startX.value = e.clientX - dragX.value;
+  startY.value = e.clientY - dragY.value;
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('mouseup', stopDrag);
+};
+
+const onDrag = (e: MouseEvent) => {
+  if (!drag.value) return;
+  dragX.value = e.clientX - startX.value;
+  dragY.value = e.clientY - startY.value;
+};
+
+const stopDrag = () => {
+  drag.value = false;
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('mouseup', stopDrag);
+};
 
 const backgroundStyle = computed(() => {
   const bg = currentPage.value?.background;
@@ -200,7 +288,8 @@ function prevPage() {
 
 <style scoped>
 .book-dialog {
-  max-height: 85vh;
+  max-height: 50vh;
+  width: 550px;
   overflow-y: auto;
   border-radius: 16px;
   background-color: transparent;
@@ -210,7 +299,7 @@ function prevPage() {
 .book-page {
   position: relative;
   border-radius: 16px;
-  padding: 32px;
+  padding: 24px;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -225,25 +314,30 @@ function prevPage() {
   font-weight: bold;
   font-size: 1rem;
   letter-spacing: 1.5px;
-  font-family: 'Uncial Antiqua', serif;
+  margin: 0;
+  padding: 8px 0;
+}
+
+.close-btn {
+  position: relative;
+  top: -4px;
+  right: -8px;
 }
 
 .chapter-title {
-  font-size: 2.2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1.25rem;
-  font-family: 'Uncial Antiqua', serif;
   color: #f4e7c1;
   text-shadow: 1px 1px 3px #000;
 }
 
 .body-text p {
-  font-size: 1.05rem;
+  font-size: 0.875rem;
   line-height: 1.8;
   margin-bottom: 1rem;
   text-align: justify;
   color: #f0e6d2;
-  font-family: 'EB Garamond', serif;
 }
 
 .instruction-box {
@@ -258,21 +352,33 @@ function prevPage() {
 }
 
 .draggable-dialog {
-  position: fixed !important;
+  pointer-events: all;
+  margin: 0 !important;
   top: 20px !important;
   right: 20px !important;
-  margin: 0 !important;
-  z-index: 999;
-  cursor: grab;
 }
 
-.draggable-dialog .v-card-title {
+.drag-handle {
   cursor: move;
   user-select: none;
-  -webkit-user-drag: none;
+  padding: 12px 24px;
 }
 
 .v-overlay__scrim {
-  display: none;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.book-dialog {
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4) !important;
+  border: 2px solid #5d4037 !important;
+}
+
+.transparent-dialog {
+  pointer-events: none;
+}
+
+.transparent-dialog > * {
+  pointer-events: all;
 }
 </style>
