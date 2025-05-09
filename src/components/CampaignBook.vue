@@ -298,24 +298,49 @@ function prevPage() {
 
 .book-page {
   position: relative;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 24px;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
   backdrop-filter: blur(3px);
-  background-color: rgba(0, 0, 0, 0.55);
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 0, 0, 0.4);
+  font-family: 'EB Garamond', serif;
+}
+
+.book-page::before {
+  content: "";
+  position: absolute;
+  top: 16px;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  border: 3px double #5d4037;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .section-title {
-  color: #c0392b;
+  color: #6d4c41;
   text-transform: uppercase;
   font-weight: bold;
   font-size: 1rem;
   letter-spacing: 1.5px;
   margin: 0;
   padding: 8px 0;
+}
+
+.book-page::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 15px;
+  height: 100%;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.2), transparent);
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .close-btn {
@@ -338,6 +363,7 @@ function prevPage() {
   margin-bottom: 1rem;
   text-align: justify;
   color: #f0e6d2;
+  text-shadow: 1px 1px 1px #fff2e0;
 }
 
 .instruction-box {
