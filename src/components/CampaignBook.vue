@@ -11,7 +11,7 @@
 
     <v-dialog 
       v-model="dialog"
-      max-width="550px"
+      max-width="500px"
       :scrim="false"
       :persistent="true"
       :hide-overlay="true"
@@ -229,21 +229,24 @@ const stopDrag = () => {
 
 const backgroundStyle = computed(() => {
   const bg = currentPage.value?.background;
+  const baseStyle = {
+    color: '#191919',
+    position: "relative",
+    borderRadius: "12px"
+  };
+  
   if (bg) {
     return {
+      ...baseStyle,
       backgroundImage: bg,
       backgroundSize: "cover",
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center center",
-      color: "white",
-      position: "relative",
-      borderRadius: "12px"
     };
   }
   return {
+    ...baseStyle,
     backgroundColor: "#1c1c1c",
-    color: "#eee",
-    borderRadius: "12px"
   };
 });
 
@@ -289,122 +292,96 @@ function prevPage() {
 <style scoped>
 .book-dialog {
   max-height: 50vh;
-  width: 550px;
+  width: 500px;
   overflow-y: auto;
-  border-radius: 16px;
-  background-color: transparent;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+  border-radius: 4px 16px 16px 4px;
+  background: #3e2723;
+  position: relative;
+  border: 2px solid #5d4037;
+  box-shadow: 
+    15px 0 15px -5px rgba(0,0,0,0.3),
+    0 10px 20px rgba(0,0,0,0.5),
+    inset 5px 0 10px rgba(255,255,255,0.1);
+}
+
+.book-dialog::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 0;
+  height: 100%;
+  width: 30px;
+  background: linear-gradient(
+    to right,
+    #2d1b16 0%,
+    #4a342e 20%,
+    #3e2723 100%
+  );
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -5px 0 10px rgba(0,0,0,0.2);
 }
 
 .book-page {
-  position: relative;
-  border-radius: 12px;
-  padding: 24px;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: center;
-  backdrop-filter: blur(3px);
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.2), 0 0 30px rgba(0, 0, 0, 0.4);
-  font-family: 'EB Garamond', serif;
-}
-
-.book-page::before {
-  content: "";
-  position: absolute;
-  top: 16px;
-  bottom: 16px;
-  left: 16px;
-  right: 16px;
-  border: 3px double #5d4037;
-  border-radius: 8px;
-  pointer-events: none;
-  z-index: 1;
+  background-image: url('data:image/png;base64,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');
+  background-color: #f0e6d2;
+  color: #3e2723;
+  border: 1px solid #5d4037;
+  margin: 20px 40px 20px 30px;
+  box-shadow: 
+    0 0 10px rgba(94, 69, 57, 0.3),
+    inset 0 0 20px rgba(94, 69, 57, 0.2);
 }
 
 .section-title {
-  color: #6d4c41;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 1rem;
-  letter-spacing: 1.5px;
-  margin: 0;
-  padding: 8px 0;
-}
-
-.book-page::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 15px;
-  height: 100%;
-  background: linear-gradient(to left, rgba(0, 0, 0, 0.2), transparent);
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-}
-
-.close-btn {
-  position: relative;
-  top: -4px;
-  right: -8px;
+  font-family: 'Uncial Antiqua', cursive;
+  color: #5d4037;
+  font-size: 1.2rem;
+  text-shadow: 1px 1px 1px rgba(255,255,255,0.5);
+  letter-spacing: 3px;
+  border-bottom: 2px solid #5d4037;
+  display: inline-block;
+  padding: 0 15px 5px 0;
 }
 
 .chapter-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1.25rem;
-  color: #f4e7c1;
-  text-shadow: 1px 1px 3px #000;
+  font-family: 'Cinzel Decorative', cursive;
+  color: #3e2723;
+  font-size: 2rem;
+  margin: 15px 0;
+  text-shadow: 2px 2px 3px rgba(94, 69, 57, 0.2);
 }
 
 .body-text p {
-  font-size: 0.875rem;
-  line-height: 1.8;
-  margin-bottom: 1rem;
-  text-align: justify;
-  color: #f0e6d2;
-  text-shadow: 1px 1px 1px #fff2e0;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-indent: 2em;
+  color: #191919 !important;
+  margin-bottom: 1.5rem;
+}
+
+.close-btn {
+  background-color: #5d4037 !important;
+  color: #f0e6d2 !important;
+  border: 1px solid #3e2723;
+  border-radius: 50%;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.close-btn:hover {
+  background-color: #3e2723 !important;
 }
 
 .instruction-box {
-  background-color: rgba(30, 30, 30, 0.85);
-  color: #f4f4f4;
-  border-left: 4px solid #81d4fa;
-  padding: 12px;
-  margin-top: 1.5rem;
-  font-size: 1rem;
-  font-style: italic;
-  border-radius: 8px;
-}
-
-.draggable-dialog {
-  pointer-events: all;
-  margin: 0 !important;
-  top: 20px !important;
-  right: 20px !important;
-}
-
-.drag-handle {
-  cursor: move;
-  user-select: none;
-  padding: 12px 24px;
-}
-
-.v-overlay__scrim {
-  opacity: 0 !important;
-  pointer-events: none !important;
-}
-
-.book-dialog {
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4) !important;
+  background: #f0e6d2 !important;
   border: 2px solid #5d4037 !important;
+  color: #4e342e !important;
+  box-shadow: 3px 3px 0px #5d4037;
 }
 
-.transparent-dialog {
-  pointer-events: none;
-}
-
-.transparent-dialog > * {
-  pointer-events: all;
+.v-btn {
+  font-family: 'Uncial Antiqua', cursive !important;
+  letter-spacing: 1px;
+  border: 1px solid #5d4037 !important;
 }
 </style>
