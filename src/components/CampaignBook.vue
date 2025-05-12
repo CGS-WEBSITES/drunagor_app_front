@@ -98,7 +98,7 @@
 
 <script setup lang="ts">
 import { ref, computed, CSSProperties } from "vue";
-import axios from "axios";
+/* import axios from "axios"; */
 
 const dialog = ref(false);
 
