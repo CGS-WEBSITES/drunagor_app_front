@@ -337,6 +337,58 @@ export class UnderKeepItemDataRepository implements ItemDataRepository {
       translation_key:
         "consumable.underkeep.potion-of-concentration",
     } as ConsumableItemData,
+    {
+      id: "bulwark-shield",
+      itemType: "Off Hand",
+      cardType: "Gift",
+      offHandTypes: ["Off Hand Weapon", "Shield"],
+      translation_key: "offhand.underkeep.bulwark-shield",
+    } as OffHandItemData,
+    {
+      id: "hallowed-symbol",
+      itemType: "Off Hand",
+      cardType: "Gift",
+      offHandTypes: ["Off Hand Weapon", "Relic"],
+      translation_key: "offhand.underkeep.hallowed-symbol",
+    } as OffHandItemData,
+    {
+      id: "weakening-dagger",
+      itemType: "Off Hand",
+      cardType: "Gift",
+      offHandTypes: ["Off Hand Weapon"],
+      translation_key: "offhand.underkeep.weakening-dagger",
+    } as OffHandItemData,
+    {
+      id: "ring-of-mastery",
+      itemType: "Trinket",
+      cardType: "Gift",
+      translation_key: "trinket.underkeep.ring-of-mastery",
+    } as ItemData,
+    {
+      id: "bracers-of-endurance",
+      itemType: "Trinket",
+      cardType: "Gift",
+      translation_key: "trinket.underkeep.bracers-of-endurance",
+    } as ItemData,
+    {
+      id: "bauble-of-power",
+      itemType: "Trinket",
+      cardType: "Gift",
+      translation_key: "trinket.underkeep.bauble-of-power",
+    } as ItemData,
+    {
+      id: "boots-of-haste",
+      itemType: "Trinket",
+      cardType: "Gift",
+      translation_key: "trinket.underkeep.boots-of-haste",
+    } as ItemData,
+    {
+      id: "heroic-heart",
+      itemType: "Trinket",
+      cardType: "Gift",
+      translation_key: "trinket.underkeep.heroic-heart",
+    } as ItemData,
+    
 
 
 

@@ -125,6 +125,11 @@ trinket:
     living-torch: Living Torch
     gravity-boots: Gravity Boots
     gravity-boots-gem: Gravity Boots (Cosmic Gem)
+    ring-of-mastery: Ring of Mastery (Gift)
+    bracers-of-endurance: Bracers of Endurance (Gift)
+    bauble-of-power: Bauble of Power (Gift)
+    boots-of-haste: Boots of Haste (Gift)
+    heroic-heart: Heroic Heart (Gift)
   core:
     amulet-of-power: Amulet Of Power
     amulet-of-rewinding: Amulet Of Rewinding
@@ -348,6 +353,9 @@ offhand:
     earls-shield: Earl's Shield
     arcane-bulwark: Arcane Bulwark
     ritual-dagger: Ritual Dagger
+    bulwark-shield: Bulward Shield (Gift)
+    hallowed-symbol: Hallowed Symbol (Gift)
+    weakening-dagger: Weakening Dagger (Gift)
   core:
     deadly-backstabber: Deadly Backstabber
     deft-stilleto: Deft Stilleto
