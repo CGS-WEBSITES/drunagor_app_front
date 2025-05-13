@@ -115,7 +115,7 @@ function findHeroes(campaignId: string): HeroData[] {
   <v-img
     v-else-if="campaign.campaign === 'underkeep'"
     src="@/assets/underkeep.png"
-    max-height="200"
+    max-height="300"
     cover
   ></v-img>
 

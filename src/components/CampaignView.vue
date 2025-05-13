@@ -41,7 +41,7 @@ function onSequentialAdventure() {
 
 <template>
   <v-row class="justify-center">
-  <v-col cols="12" md="8">
+  <v-col cols="12" md="12" lg="12" xl="8">
     <v-row no-gutters class="d-flex justify-center pa-1">
       <v-card class="mb-4 px-2 ml-3" color="primary" style="width: 100%;">
         <v-card-actions class="d-flex justify-space-between">
@@ -101,7 +101,7 @@ function onSequentialAdventure() {
 </v-row>
 
   <v-row no-gutters class="d-flex justify-center">
-    <v-col cols="12 px-5 mr-2" md="8">
+    <v-col cols="12 px-5 mr-2" md="12" lg="12" xl="8">
       <CampaignName :campaign-id="campaignId" />
     </v-col>
   </v-row>
@@ -119,7 +119,7 @@ function onSequentialAdventure() {
       campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
     "
   >
-    <v-col cols="12" class="px-2">
+    <v-col cols="12" md="12" lg="12" xl="8" class="px-5 mr-2">
       <StoryRecord :campaign-id="campaignId" />
     </v-col>
   </v-row>
