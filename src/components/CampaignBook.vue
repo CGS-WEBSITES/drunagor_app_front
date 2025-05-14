@@ -52,6 +52,7 @@
                 title="Events"
                 value="events"
                 class="drawer-item"
+                @click="navigateToEvents"
               >
                 <template v-slot:prepend>
                   <v-icon color="#f0e6d2"></v-icon>
@@ -62,6 +63,7 @@
                 title="Library"
                 value="library"
                 class="drawer-item"
+                @click="navigateToLibrary"
               >
                 <template v-slot:prepend>
                   <v-icon color="#f0e6d2"></v-icon>
@@ -93,11 +95,7 @@
                         @mousedown.stop="startDrag"
                       >
                         <h4 class="section-title">{{ currentPage.section }}</h4>
-                        <v-btn 
-                          icon 
-                          @click="dialog = false" 
-                          class="close-btn"
-                        >
+                        <v-btn icon @click="dialog = false" class="close-btn">
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </div>
@@ -149,6 +147,9 @@
 
 <script setup lang="ts">
 import { ref, computed, CSSProperties } from "vue";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const dialog = ref(false);
 const drag = ref(false);
@@ -207,6 +208,14 @@ const pages = ref([
     background: "url('/img/bg2.png')",
   },
 ]);
+
+const navigateToLibrary = () => {
+  router.push('/library');
+};
+
+const navigateToEvents = () => {
+  router.push('/events');
+};
 
 const startDrag = (e: MouseEvent) => {
   drag.value = true;
@@ -396,7 +405,9 @@ function prevPage() {
 .nav-drawer:hover .v-list-item-title {
   opacity: 1;
   margin-left: 0;
-  transition: opacity 0.3s ease 0.1s, margin-left 0.3s ease;
+  transition:
+    opacity 0.3s ease 0.1s,
+    margin-left 0.3s ease;
 }
 
 .v-navigation-drawer--rail {
