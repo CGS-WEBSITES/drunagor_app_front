@@ -73,7 +73,7 @@
           </v-navigation-drawer>
 
           <v-main class="main-content">
-            <v-card-text class="pa-0">
+            <v-card-text class="pa-0 scrollable-content">
               <v-sheet
                 v-if="currentPage"
                 :key="currentIndex"
@@ -292,7 +292,7 @@ function prevPage() {
 .book-dialog {
   max-height: 70vh;
   width: 800px;
-  overflow: hidden;
+  overflow-y: auto !important;
   border-radius: 4px 16px 16px 4px;
   background: #212121;
   position: relative;
@@ -325,6 +325,8 @@ function prevPage() {
     inset 0 0 20px rgba(94, 69, 57, 0.2);
   border-radius: 12px;
   margin: 20px;
+  min-height: calc(90vh - 40px);
+  overflow-y: auto !important;
 }
 
 .section-title {
@@ -433,5 +435,113 @@ function prevPage() {
 .v-list-item__title {
   white-space: nowrap;
   margin-left: 8px;
+}
+
+.scrollable-content {
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+@media (max-width: 960px) {
+  .book-dialog {
+    width: 90vw !important;
+    max-height: 80vh !important;
+  }
+  
+  .chapter-title {
+    font-size: 1.8rem !important;
+  }
+
+  .body-text p {
+    font-size: 1rem !important;
+    line-height: 1.5;
+  }
+}
+
+/* Mobile Styles */
+@media (max-width: 600px) {
+  .book-dialog {
+    width: 80vw !important;
+    max-height: 70vh !important;
+  }
+
+  .d-flex.justify-end {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent, #f0e6d2 30%);
+    padding: 16px 0;
+    z-index: 100;
+  }
+
+  .scrollable-content {
+    overflow-y: auto;
+    max-height: 70vh;
+  }
+
+  .nav-drawer {
+    width: 48px !important;
+  }
+
+  .nav-drawer:hover {
+    width: 180px !important;
+  }
+
+  .v-navigation-drawer--rail {
+    width: 48px !important;
+  }
+
+  .main-content.mobile-padding {
+    padding: 0 8px !important;
+  }
+
+  .section-title {
+    font-size: 1rem !important;
+    letter-spacing: 1px;
+  }
+
+  .chapter-title {
+    font-size: 1.5rem !important;
+    margin: 10px 0 !important;
+  }
+
+  .body-text p {
+    font-size: 0.9rem !important;
+    text-indent: 1em;
+    line-height: 1.4;
+  }
+
+  .v-btn {
+    font-size: 0.8rem !important;
+    padding: 8px 12px !important;
+    margin: 4px !important;
+    width: auto !important;
+  }
+
+  .book-page {
+    margin: 10px !important;
+  }
+
+  .instruction-box {
+    font-size: 0.85rem !important;
+    padding: 12px !important;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 400px) {
+  .d-flex.justify-end {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .v-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .book-dialog {
+    width: 80vw !important;
+    max-height: 70vh !important;
+  }
 }
 </style>
