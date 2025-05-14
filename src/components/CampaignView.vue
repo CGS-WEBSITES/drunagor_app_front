@@ -106,6 +106,14 @@ function onSequentialAdventure() {
     </v-col>
   </v-row>
 
+  <v-row no-gutters class="d-flex justify-center" v-if="campaign.campaign == 'underkeep'">
+    <v-col cols="12 px-5 mr-2" md="12" lg="12" xl="8">
+      <SelectDoor :campaign-id="campaignId" />
+    </v-col>
+  </v-row>
+
+
+
   <v-row v-if="isSequentialAdventure" no-gutters class="d-flex justify-center">
     <v-col cols="12 px-">
       <CampaignRunes :campaign-id="campaignId" />
@@ -116,7 +124,7 @@ function onSequentialAdventure() {
     no-gutters
     class="d-flex justify-center"
     v-if="
-      campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
+      campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse' 
     "
   >
     <v-col cols="12" md="12" lg="12" xl="8" class="px-5 mr-2">

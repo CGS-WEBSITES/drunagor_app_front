@@ -2,6 +2,8 @@ export class Campaign {
   public campaignId: string;
   public campaign: "core" | "apocalypse" | "awakenings" | "underkeep";
   public name: string = "";
+  public door: string = "";
+  public wing: string = "";
   public statusIds: string[] = [];
   public outcomeIds: string[] = [];
   public followerIds: string[] = [];

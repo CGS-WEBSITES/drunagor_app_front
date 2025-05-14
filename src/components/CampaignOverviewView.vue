@@ -119,9 +119,10 @@ function findHeroes(campaignId: string): HeroData[] {
     cover
   ></v-img>
 
-  <v-card-title class="text-uppercase" v-if="campaign.name">
-    {{ campaign.name }}
-  </v-card-title>
+  <v-card-title class="d-flex flex-column text-uppercase">
+  <span class="text-h5 font-weight-bold mb-0">{{ campaign.name }}</span>
+  <span class="text-subtitle-1 mt-0">{{ campaign.wing }}</span>
+</v-card-title>
   <v-card-text>
     <v-row no-gutters>
       <v-col
