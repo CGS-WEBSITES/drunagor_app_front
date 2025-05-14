@@ -11,7 +11,7 @@
 
     <v-dialog
       v-model="dialog"
-      max-width="500px"
+      max-width="800px"
       :scrim="false"
       :persistent="true"
       :hide-overlay="true"
@@ -22,75 +22,126 @@
         position: 'fixed',
         transform: `translate(${dragX}px, ${dragY}px)`,
         transition: 'transform 0.1s',
-        'z-index': 1000,
+        zIndex: 1000,
       }"
     >
       <v-card class="book-dialog" elevation="10" @mousedown="startDrag">
-        <v-card-text class="pa-0">
-          <v-sheet
-          v-if="currentPage"
-            :key="currentIndex"
-            :style="backgroundStyle as CSSProperties"
-            class="book-page"
-            elevation="0"
-            rounded
-            @click="handlePageClick"
+        <v-layout>
+          <v-navigation-drawer
+            expand-on-hover
+            rail
+            permanent
+            width="240"
+            class="nav-drawer"
+            :floating="false"
+            absolute
           >
-            <div
-              v-if="isFullScreenWithBackground"
-              class="background-overlay"
-            ></div>
-            <v-container class="pa-6">
-              <v-row>
-                <v-col cols="12">
-                  <div
-                    class="d-flex align-center justify-space-between pa-6 pb-0"
-                    @mousedown.stop="startDrag"
-                  >
-                    <h4 class="section-title">{{ currentPage.section }}</h4>
-                    <v-btn icon @click="dialog = false" class="close-btn">
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </div>
-                  <h2 class="chapter-title">{{ currentPage.title }}</h2>
-                  <div class="body-text" v-html="currentPage.body"></div>
+            <v-list density="compact" nav>
+              <v-list-item
+                prepend-icon="mdi-account-group"
+                title="Gamer Player"
+                value="player"
+                class="drawer-item"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="#f0e6d2"></v-icon>
+                </template>
+              </v-list-item>
+              <v-list-item
+                prepend-icon="mdi-calendar"
+                title="Events"
+                value="events"
+                class="drawer-item"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="#f0e6d2"></v-icon>
+                </template>
+              </v-list-item>
+              <v-list-item
+                prepend-icon="mdi-bookshelf"
+                title="Library"
+                value="library"
+                class="drawer-item"
+              >
+                <template v-slot:prepend>
+                  <v-icon color="#f0e6d2"></v-icon>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-navigation-drawer>
 
-                  <v-alert
-                    v-if="currentPage.instruction"
-                    type="info"
-                    border="start"
-                    elevation="2"
-                    class="mt-6 instruction-box"
-                  >
-                    <strong>📜 Instruction:</strong><br />
-                    {{ currentPage.instruction }}
-                  </v-alert>
+          <v-main class="main-content">
+            <v-card-text class="pa-0">
+              <v-sheet
+                v-if="currentPage"
+                :key="currentIndex"
+                :style="backgroundStyle as CSSProperties"
+                class="book-page"
+                elevation="0"
+                rounded
+                @click="handlePageClick"
+              >
+                <div
+                  v-if="isFullScreenWithBackground"
+                  class="background-overlay"
+                ></div>
+                <v-container class="pa-6">
+                  <v-row>
+                    <v-col cols="12">
+                      <div
+                        class="d-flex align-center justify-space-between pa-6 pb-0"
+                        @mousedown.stop="startDrag"
+                      >
+                        <h4 class="section-title">{{ currentPage.section }}</h4>
+                        <v-btn 
+                          icon 
+                          @click="dialog = false" 
+                          class="close-btn"
+                        >
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                      </div>
+                      <h2 class="chapter-title">{{ currentPage.title }}</h2>
+                      <div class="body-text" v-html="currentPage.body"></div>
 
-                  <div class="d-flex justify-end mt-8">
-                    <v-btn
-                      color="amber-darken-2"
-                      variant="flat"
-                      @click.stop="prevPage"
-                      :disabled="currentIndex === 0"
-                      class="mx-4 px-6 text-white font-weight-bold"
-                    >
-                      ◀ Previous
-                    </v-btn>
-                    <v-btn
-                      color="amber-darken-2"
-                      variant="flat"
-                      @click.stop="nextPage"
-                      :disabled="currentIndex >= pages.length - 1"
-                      class="mx-4 px-6 text-white font-weight-bold"
-                    >
-                      Next ▶
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-sheet>
-        </v-card-text>
+                      <v-alert
+                        v-if="currentPage.instruction"
+                        type="info"
+                        border="start"
+                        elevation="2"
+                        class="mt-6 instruction-box"
+                      >
+                        <strong>📜 Instruction:</strong><br />
+                        {{ currentPage.instruction }}
+                      </v-alert>
+
+                      <div class="d-flex justify-end mt-8">
+                        <v-btn
+                          color="amber-darken-2"
+                          variant="flat"
+                          @click.stop="prevPage"
+                          :disabled="currentIndex === 0"
+                          class="mx-4 px-6 text-white font-weight-bold"
+                        >
+                          ◀ Previous
+                        </v-btn>
+                        <v-btn
+                          color="amber-darken-2"
+                          variant="flat"
+                          @click.stop="nextPage"
+                          :disabled="currentIndex >= pages.length - 1"
+                          class="mx-4 px-6 text-white font-weight-bold"
+                        >
+                          Next ▶
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-sheet>
+            </v-card-text>
+          </v-main>
+        </v-layout>
       </v-card>
     </v-dialog>
   </div>
@@ -98,9 +149,13 @@
 
 <script setup lang="ts">
 import { ref, computed, CSSProperties } from "vue";
-/* import axios from "axios"; */
 
 const dialog = ref(false);
+const drag = ref(false);
+const dragX = ref(20);
+const dragY = ref(20);
+const startX = ref(0);
+const startY = ref(0);
 
 const pages = ref([
   {
@@ -112,13 +167,11 @@ const pages = ref([
         Rain taps gently on the wooden shutters, and the embers in the hearth glow faintly as you rise from a restless sleep.
         The cry echoes again, now distant but unmistakable — a cry for help.
       </p>
-
       <p>
         Without hesitation, you grab your cloak and weapon, instincts taking over.
         You exit the safety of the parish house into the damp darkness beyond, guided only by moonlight and the pull of duty.
         Your boots sink slightly into the wet forest floor as you tread deeper into the unknown.
       </p>
-
       <p>
         A sense of urgency quickens your pace, though you know not what awaits.
         Tales of revenants and cursed woods linger in your mind, but still, you press forward.
@@ -138,64 +191,10 @@ const pages = ref([
         As you push through the brush, the woods grow unnaturally silent. The fog thickens, wrapping around your limbs like a living thing.
         Shadows move at the edges of your vision, but when you turn, nothing is there. Your breath becomes visible in the air, though the night isn't cold.
       </p>
-
       <p>
         Then you see it — a faint blue glow hovering above the forest path. You step closer, and it takes shape: a wisp, beckoning you forward.
         You follow. Not because you trust it, but because you must know.
       </p>
-
-      <p>
-        The path twists unnaturally, looping in on itself. Trees seem to shift when you glance away. Time dilates.
-        You find a tattered journal on a broken stone altar, its pages torn, the ink smeared but still legible:
-        <em>"The darkness watches... it learns."</em>
-      </p>
-    `,
-    instruction:
-      "All heroes must test Wits (difficulty 3). If failed, place 1 Curse Cube.",
-    layout: "full-screen",
-    background: "url('/img/bg2.png')",
-  },
-  {
-    section: "CHAPTER INTRO",
-    title: "A Cry for Help",
-    body: `
-      <p>
-        A desperate, piercing scream rips through the silence of the night, jolting you awake.
-        Rain taps gently on the wooden shutters, and the embers in the hearth glow faintly as you rise from a restless sleep.
-        The cry echoes again, now distant but unmistakable — a cry for help.
-      </p>
-
-      <p>
-        Without hesitation, you grab your cloak and weapon, instincts taking over.
-        You exit the safety of the parish house into the damp darkness beyond, guided only by moonlight and the pull of duty.
-        Your boots sink slightly into the wet forest floor as you tread deeper into the unknown.
-      </p>
-
-      <p>
-        A sense of urgency quickens your pace, though you know not what awaits.
-        Tales of revenants and cursed woods linger in your mind, but still, you press forward.
-        Tonight, something calls to you from within the trees, and whether it is fate, madness, or providence — you intend to answer.
-      </p>
-    `,
-    instruction:
-      "Mark this chapter as 'Discovered'. All players must draw 1 Fate card.",
-    layout: "single-column",
-    background: "url('/img/bg-apoc.png')",
-  },
-  {
-    section: "ADVENTURE CONTINUES",
-    title: "Into the Unknown",
-    body: `
-      <p>
-        As you push through the brush, the woods grow unnaturally silent. The fog thickens, wrapping around your limbs like a living thing.
-        Shadows move at the edges of your vision, but when you turn, nothing is there. Your breath becomes visible in the air, though the night isn't cold.
-      </p>
-
-      <p>
-        Then you see it — a faint blue glow hovering above the forest path. You step closer, and it takes shape: a wisp, beckoning you forward.
-        You follow. Not because you trust it, but because you must know.
-      </p>
-
       <p>
         The path twists unnaturally, looping in on itself. Trees seem to shift when you glance away. Time dilates.
         You find a tattered journal on a broken stone altar, its pages torn, the ink smeared but still legible:
@@ -208,12 +207,6 @@ const pages = ref([
     background: "url('/img/bg2.png')",
   },
 ]);
-
-const drag = ref(false);
-const dragX = ref(20);
-const dragY = ref(20);
-const startX = ref(0);
-const startY = ref(0);
 
 const startDrag = (e: MouseEvent) => {
   drag.value = true;
@@ -235,24 +228,6 @@ const stopDrag = () => {
   document.removeEventListener("mouseup", stopDrag);
 };
 
-const backgroundStyle = computed<CSSProperties>(() => {
-  if (!currentPage.value) return {}
-  const style: CSSProperties = {
-    position: 'relative',
-    color: '#191919',
-    borderRadius: '12px'
-  }
-  if (currentPage.value.background) {
-    style.backgroundImage   = currentPage.value.background
-    style.backgroundSize    = 'cover'
-    style.backgroundRepeat  = 'no-repeat'
-    style.backgroundPosition= 'center center'
-  } else {
-    style.backgroundColor = '#1c1c1c'
-  }
-  return style
-});
-
 const currentIndex = ref(0);
 const currentPage = computed(() => pages.value[currentIndex.value]);
 
@@ -261,6 +236,24 @@ const isFullScreenWithBackground = computed(() => {
     currentPage.value?.layout === "full-screen" &&
     !!currentPage.value?.background
   );
+});
+
+const backgroundStyle = computed<CSSProperties>(() => {
+  if (!currentPage.value) return {};
+  const s: CSSProperties = {
+    position: "relative",
+    color: "#191919",
+    borderRadius: "12px",
+  };
+  if (currentPage.value.background) {
+    s.backgroundImage = currentPage.value.background;
+    s.backgroundSize = "cover";
+    s.backgroundRepeat = "no-repeat";
+    s.backgroundPosition = "center center";
+  } else {
+    s.backgroundColor = "#1c1c1c";
+  }
+  return s;
 });
 
 function handlePageClick(event: MouseEvent) {
@@ -284,25 +277,13 @@ function nextPage() {
 function prevPage() {
   if (currentIndex.value > 0) currentIndex.value--;
 }
-
-/* const campaignId = ref(""); 
-
-onMounted(async () => {
-  try {
-    const { data } = await axios.get(`/api/campaigns/${campaignId.value}/book`);
-
-    pages.value = data.pages;
-  } catch (err) {
-    console.error('Erro ao carregar book:', err);
-  }
-}); */
 </script>
 
 <style scoped>
 .book-dialog {
-  max-height: 50vh;
-  width: 500px;
-  overflow-y: auto;
+  max-height: 70vh;
+  width: 800px;
+  overflow: hidden;
   border-radius: 4px 16px 16px 4px;
   background: #212121;
   position: relative;
@@ -313,16 +294,15 @@ onMounted(async () => {
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
 }
 
-.book-dialog::before {
-  content: "";
-  position: absolute;
-  left: -15px;
-  top: 0;
+.book-container {
+  display: flex;
   height: 100%;
-  width: 30px;
-  background: linear-gradient(to right, #212121 0%, #1a120f 50%, #140d0b 100%);
-  border-radius: 4px 0 0 4px;
-  box-shadow: inset -5px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.book-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-left: 16px;
 }
 
 .book-page {
@@ -330,10 +310,12 @@ onMounted(async () => {
   background-color: #f0e6d2;
   color: #212121;
   border: 1px solid #1e1e1e;
-  margin: 20px 40px 20px 30px;
+  margin: 20px;
   box-shadow:
     0 0 10px rgba(94, 69, 57, 0.3),
     inset 0 0 20px rgba(94, 69, 57, 0.2);
+  border-radius: 12px;
+  margin: 20px;
 }
 
 .section-title {
@@ -387,5 +369,58 @@ onMounted(async () => {
   font-family: "Uncial Antiqua", cursive !important;
   letter-spacing: 1px;
   border: 1px solid #212121 !important;
+}
+
+.nav-drawer {
+  background: #1a120f !important;
+  border-right: 2px solid #212121 !important;
+  z-index: 1001;
+  height: 100%;
+  position: absolute !important;
+  transition: width 0.3s ease !important;
+}
+
+/* Ícones sempre visíveis */
+.v-list-item__prepend {
+  opacity: 1 !important;
+  margin-right: 12px !important;
+}
+
+/* Títulos apenas quando expandido */
+.v-list-item-title {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 0px;
+}
+
+.nav-drawer:hover .v-list-item-title {
+  opacity: 1;
+  margin-left: 0;
+  transition: opacity 0.3s ease 0.1s, margin-left 0.3s ease;
+}
+
+.v-navigation-drawer--rail {
+  width: 56px !important;
+}
+
+.v-navigation-drawer--rail:hover {
+  width: 240px !important;
+}
+
+.main-content {
+  transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-drawer:hover ~ .main-content {
+  margin-left: 240px;
+}
+
+.v-list-item__prepend {
+  margin-right: 12px !important;
+}
+
+.v-list-item__title {
+  white-space: nowrap;
+  margin-left: 8px;
 }
 </style>
