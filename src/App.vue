@@ -1,26 +1,43 @@
 <template>
   <v-app :theme="theme">
-
-
     <v-btn
-  v-if="route.name === 'Dashboard'"
-  @click="switchTheme"
-  class="d-md-none"
-  color="primary"
-  style="position: absolute; top: 12px; right: 12px; padding: 0; width: 48px; height: 48px ; z-index: 999;;"
-  icon
->
-  <v-img :src="themeIcon" width="32" height="32" cover></v-img>
-</v-btn>
+      v-if="route.name === 'Dashboard'"
+      @click="switchTheme"
+      class="d-md-none"
+      color="primary"
+      style="
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        padding: 0;
+        width: 48px;
+        height: 48px;
+        z-index: 999;
+      "
+      icon
+    >
+      <v-img :src="themeIcon" width="32" height="32" cover></v-img>
+    </v-btn>
     <Toast />
 
     <!-- Barra de Navegação Superior -->
 
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
-        <div @click="$router.push({ name: 'Dashboard' })" style="cursor: pointer" class="d-flex align-center pl-6">
+        <div
+          @click="$router.push({ name: 'Dashboard' })"
+          style="cursor: pointer"
+          class="d-flex align-center pl-6"
+        >
           <!-- Ícone Drunagor -->
-          <v-img src="@/assets/darknessl.png" height="30" width="30" alt="Drunagor Icon" contain class="mr-2"></v-img>
+          <v-img
+            src="@/assets/darknessl.png"
+            height="30"
+            width="30"
+            alt="Drunagor Icon"
+            contain
+            class="mr-2"
+          ></v-img>
           <span>App Drunagor</span>
         </div>
 
@@ -48,18 +65,34 @@
           Community
         </v-btn> -->
 
-        <v-btn v-if="['Home', 'Login', 'Gama', 'Community', 'RetailerRegistration', 'ForgotPassword', 'ShareEvent'].includes(route.name)" color="WHITE" large
-        @click="$router.push({ name: 'Login', query: { tab: 'signup' } })">
+        <v-btn
+          v-if="
+            [
+              'Home',
+              'Login',
+              'Gama',
+              'Community',
+              'RetailerRegistration',
+              'ForgotPassword',
+              'ShareEvent',
+            ].includes(route.name)
+          "
+          color="WHITE"
+          large
+          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
+        >
           Sign up
         </v-btn>
 
-
-        
-
         <div class="d-flex w-100 align-center justify-space-between" v-else>
           <v-btn @click="switchTheme" icon>
-  <v-img src="@/assets/theme.png" width="24" height="24" cover></v-img>
-</v-btn>
+            <v-img
+              src="@/assets/theme.png"
+              width="24"
+              height="24"
+              cover
+            ></v-img>
+          </v-btn>
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">
@@ -77,7 +110,6 @@
             </v-hover>
           </div>
 
-          
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
               <v-btn
@@ -88,17 +120,19 @@
               >
                 <span class="pr-1">{{ user.user_name }}</span>
                 <v-avatar size="35" class="mr-2">
-                  <v-img :src="user.picture_hash
-                      ? assets + '/Profile/' + user.picture_hash
-                      : assets + '/Profile/user.png'
-                    " />
+                  <v-img
+                    :src="
+                      user.picture_hash
+                        ? assets + '/Profile/' + user.picture_hash
+                        : assets + '/Profile/user.png'
+                    "
+                  />
                 </v-avatar>
                 <v-icon right>mdi-chevron-down</v-icon>
               </v-btn>
             </template>
 
             <v-list>
-              
               <v-list-item @click="logOut">
                 <v-list-item-icon>
                   <v-icon>mdi-logout</v-icon>
@@ -112,50 +146,42 @@
     </v-row>
 
     <v-bottom-navigation
-
-
-
-
-    
-  v-else-if="
-    route.name !== 'Home' &&
-    route.name !== 'Login' &&
-    route.name !== 'RetailerRegistration' &&
-    route.name !== 'Gama' &&
-    route.name !== 'Community'
-  "
-  app
-  v-model="bottomNavVisible"
-  class="hidden-md-and-up fixed bg-black text-white"
-  elevation="10"
-  dense
->
-  <v-row align="center" justify="space-between" no-gutters>
-    <v-col
-      v-for="(item, index) in menuItems"
-      :key="index"
-      link
-      :class="{ 'v-list-item--active': selectedItem === item }"
-      cols="2"
+      v-else-if="
+        route.name !== 'Home' &&
+        route.name !== 'Login' &&
+        route.name !== 'RetailerRegistration' &&
+        route.name !== 'Gama' &&
+        route.name !== 'Community'
+      "
+      app
+      v-model="bottomNavVisible"
+      class="hidden-md-and-up fixed bg-black text-white"
+      elevation="10"
+      dense
     >
-      <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
-        <v-img
-          v-if="item.iconImage"
-          :src="item.iconImage"
-          width="24"
-          height="24"
-          contain
-        ></v-img>
-        <v-icon
-          v-else
-          style="font-size: 24px"
+      <v-row align="center" justify="space-between" no-gutters>
+        <v-col
+          v-for="(item, index) in menuItems"
+          :key="index"
+          link
+          :class="{ 'v-list-item--active': selectedItem === item }"
+          cols="2"
         >
-          {{ item.icon }}
-        </v-icon>
-      </v-btn>
-    </v-col>
-  </v-row>
-</v-bottom-navigation>
+          <v-btn @click="router.push(item.to)" icon :disabled="item.disabled">
+            <v-img
+              v-if="item.iconImage"
+              :src="item.iconImage"
+              width="24"
+              height="24"
+              contain
+            ></v-img>
+            <v-icon v-else style="font-size: 24px">
+              {{ item.icon }}
+            </v-icon>
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-bottom-navigation>
 
     <!-- Exibe o conteúdo da rota -->
     <router-view :style="contentStyle" />
@@ -164,24 +190,57 @@
     <v-footer class="footer black bg-black pb-12" padless>
       <v-row justify="center" align="center" class="text-center">
         <v-col cols="12" sm="4">
-          <v-img class="logocgs mx-auto" src="@/assets/cgs.png" max-width="92" alt="logo" />
+          <v-img
+            class="logocgs mx-auto"
+            src="@/assets/cgs.png"
+            max-width="92"
+            alt="logo"
+          />
         </v-col>
 
-        <v-col cols="12" sm="4" class="d-flex flex-column info-footer text-center align-center">
+        <v-col
+          cols="12"
+          sm="4"
+          class="d-flex flex-column info-footer text-center align-center"
+        >
           <h3 class="white--text">Join us on Discord</h3>
-          <v-img class="mt-4" width="30" src="@/assets/discord-mark-white.svg" alt="Discord" style="cursor: pointer;"
-            @click="openPopup('https://discord.gg/7STSkSe5')"></v-img>
+          <v-img
+            class="mt-4"
+            width="30"
+            src="@/assets/discord-mark-white.svg"
+            alt="Discord"
+            style="cursor: pointer"
+            @click="openPopup('https://discord.gg/7STSkSe5')"
+          ></v-img>
         </v-col>
 
         <v-col cols="12" sm="4" class="text-center">
           <h3 class="white--text">Social medias</h3>
-          <v-btn fab icon color="black" dark @click="openPopup('https://www.instagram.com/wearecreativegames/')">
+          <v-btn
+            fab
+            icon
+            color="black"
+            dark
+            @click="openPopup('https://www.instagram.com/wearecreativegames/')"
+          >
             <v-icon color="white">mdi-instagram</v-icon>
           </v-btn>
-          <v-btn fab icon color="black" dark @click="openPopup('https://www.facebook.com/wearecgs')">
+          <v-btn
+            fab
+            icon
+            color="black"
+            dark
+            @click="openPopup('https://www.facebook.com/wearecgs')"
+          >
             <v-icon color="white">mdi-facebook</v-icon>
           </v-btn>
-          <v-btn fab icon color="black" dark @click="openPopup('https://www.youtube.com/@wearecgs')">
+          <v-btn
+            fab
+            icon
+            color="black"
+            dark
+            @click="openPopup('https://www.youtube.com/@wearecgs')"
+          >
             <v-icon color="white">mdi-youtube</v-icon>
           </v-btn>
         </v-col>
@@ -190,18 +249,16 @@
   </v-app>
 </template>
 
-
 <script setup lang="ts">
 import { ref, inject, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
-import themeIcon from '@/assets/theme.png'; 
+import themeIcon from "@/assets/theme.png";
 
 const openLink = (url) => {
   window.open(url, "_blank");
 };
-
 
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
@@ -214,15 +271,12 @@ const route = useRoute();
 const assets = inject<string>("assets");
 
 const theme = ref("DarkTheme");
-const themes = ['DarkTheme', 'CoreTheme', 'ApocTheme']
+const themes = ["DarkTheme", "CoreTheme", "ApocTheme"];
 
 const switchTheme = () => {
-  const currentIndex = themes.indexOf(theme.value)
-  theme.value = themes[(currentIndex + 1) % themes.length]
-}
-
-
-
+  const currentIndex = themes.indexOf(theme.value);
+  theme.value = themes[(currentIndex + 1) % themes.length];
+};
 
 const bottomNavVisible = ref(true);
 
@@ -235,14 +289,14 @@ const logOut = () => {
 
 const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor padrão para evitar erros
 
-import VectorIcon from '@/assets/Vector.png';
+import VectorIcon from "@/assets/Vector.png";
 
 const menuItems = computed(() => {
   return [
     {
       title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
       iconImage: VectorIcon,
-      to: { name: "CampaignTracker" },
+      to: { name: "Campaign Overview" },
       disabled: false,
     },
     {
@@ -269,7 +323,6 @@ const menuItems = computed(() => {
       to: { name: "PerfilHome" },
       disabled: false,
     },
-  
   ];
 });
 
@@ -279,16 +332,15 @@ watch(
   (newRole) => {
     console.log("Role atualizada:", newRole);
   },
-  { immediate: true }
+  { immediate: true },
 );
-
 
 const contentStyle = computed(() => {
   if (
-  route.name === "Login" ||
-  route.name === "RetailerRegistration" ||
-  route.name === "ForgotPassword"
-) {
+    route.name === "Login" ||
+    route.name === "RetailerRegistration" ||
+    route.name === "ForgotPassword"
+  ) {
     return display.value.mdAndUp
       ? {
           "background-image":
@@ -316,20 +368,20 @@ const contentStyle = computed(() => {
 
   return display.value.mdAndUp
     ? {
-      "background-image":
-        "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-      "background-repeat": "repeat",
-      "margin-top": "65px",
-    }
+        "background-image":
+          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+        "background-repeat": "repeat",
+        "margin-top": "65px",
+      }
     : {
-      "background-image":
-        "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-      "background-repeat": "repeat-y",
-    };
+        "background-image":
+          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+        "background-repeat": "repeat-y",
+      };
 });
 
 const openPopup = (url: string) => {
-  window.open(url, '_blank', 'width=800,height=600,scrollbars=yes');
+  window.open(url, "_blank", "width=800,height=600,scrollbars=yes");
 };
 
 onMounted(() => {
