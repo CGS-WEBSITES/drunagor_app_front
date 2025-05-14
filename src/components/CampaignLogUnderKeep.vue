@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CampaignLogOutcome from "@/components/CampaignLogOutcome.vue";
 import CampaignLogStatus from "@/components/CampaignLogStatus.vue";
-import { CampaignLogStatusRepository } from "@/data/repository/campaign/core/CampaignLogStatusRepository";
+import { CampaignLogStatusRepository } from "@/data/repository/campaign/underkeep/CampaignLogStatusRepository";
 import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/core/CampaignLogOutcomeRepository";
 import { useI18n } from "vue-i18n";
 
