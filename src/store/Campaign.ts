@@ -28,6 +28,8 @@ export class Campaign {
     campaign: "core" | "apocalypse" | "awakenings" | "underkeep",
   ) {
     this.campaignId = campaignId;
-    this.campaign = campaign;
+    if (campaign) {
+      this.campaign = campaign;
+    }
   }
 }

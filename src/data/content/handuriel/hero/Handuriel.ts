@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/HandurielAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/HandurielAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/HandurielINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,5 +25,6 @@ export class Handuriel implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }

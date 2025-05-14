@@ -1,5 +1,6 @@
-import AvatarImageUrl from "@/assets/hero/avatar/NyxAvatar.webp";
+import AvatarImageUrl from "@/assets/hero/avatar/NyxSwordAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/NyxSwordAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/NyxSwordINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,5 +25,6 @@ export class NyxSwordmage implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }

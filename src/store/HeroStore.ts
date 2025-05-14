@@ -29,6 +29,7 @@ export const HeroStore = defineStore("hero", () => {
   }
 
   function findAllInCampaign(campaignId: string): Hero[] {
+
     return _.filter(heroes.value, (hero: Hero) => {
       if (hero.campaignId === campaignId) {
         return true;

@@ -6,6 +6,7 @@ import { useRoute } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -16,7 +17,7 @@ import SequentialAdventureButton from "@/components/SequentialAdventureButton.vu
 
 const route = useRoute();
 
-const campaignId = route.params.id.toString();
+const campaignId = (route.params as { id: string }).id.toString();
 const campaignStore = CampaignStore();
 const campaign = campaignStore.find(campaignId);
 
@@ -46,53 +47,33 @@ function onSequentialAdventure() {
       <v-card class="mb-4 px-2 ml-3" color="primary" style="width: 100%;">
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
-            <v-col
-              cols="12"
-              sm="6"
-              md="3"
-              lg="3"
-              xl="3"
-              class="d-flex justify-center"
-            >
-              <CampaignRemove class="mr-2" :campaign-id="campaignId" />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="3"
-              lg="3"
-              xl="3"
-              class="d-flex justify-center"
-            >
-              <CampaignExport :campaign-id="campaignId" />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="3"
-              lg="3"
-              xl="3"
-              class="d-flex justify-center"
-            >
-              <SequentialAdventureButton
-                :campaign-id="campaignId"
-                @sequential-adventure="onSequentialAdventure"
-                :disabled="isSequentialAdventure"
-              />
-            </v-col>
-            <v-col
-              cols="12"
-              sm="6"
-              md="3"
-              lg="3"
-              xl="3"
-              class="d-flex justify-center"
-            >
-              <CampaignCampPhase
-                :campaign-id="campaignId"
-                @camp-phase="onCampPhase"
-              />
-            </v-col>
+            <v-card class="mb-2" style="width: 100%;">
+              <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
+                <CampaignRemove
+                  :campaign-id="campaignId"
+                  class="mx-2"
+                />
+                <CampaignExport
+                  :campaign-id="campaignId"
+                  class="mx-2"
+                />
+                <SequentialAdventureButton
+                  :campaign-id="campaignId"
+                  @sequential-adventure="onSequentialAdventure"
+                  :disabled="isSequentialAdventure"
+                  class="mx-2"
+                />
+                <CampaignCampPhase
+                  :campaign-id="campaignId"
+                  @camp-phase="onCampPhase"
+                  class="mx-2"
+                />
+                <CampaignSavePut
+                  :campaign-id="campaignId"
+                  class="mx-2"
+                />
+              </v-card-actions>
+            </v-card>
           </v-row>
         </v-card-actions>
       </v-card>

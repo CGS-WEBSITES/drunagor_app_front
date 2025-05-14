@@ -155,7 +155,7 @@
        
      </v-card>
  
- <Badges/>
+ <BadgesUser/>
  
  <favorite-campaign-card/>
  
