@@ -38,7 +38,8 @@ function campPhase() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="camp-phase" rounded @click="openModal">
+  <v-btn variant="elevated" id="camp-phase" class="px-6 my-2" rounded @click="openModal">
+    <v-icon start>mdi-campfire</v-icon>
     {{ t("label.camp-phase") }}
   </v-btn>
   <v-dialog v-model="visible" modal>

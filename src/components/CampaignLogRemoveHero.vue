@@ -47,6 +47,7 @@ function removeHeroFromCampaign(heroId: string) {
     @click="openModal"
     :disabled="filteredHeroes.length === 0"
   >
+  <v-icon start>mdi-minus</v-icon>
     {{ t("label.remove-hero") }}
   </v-btn>
 
