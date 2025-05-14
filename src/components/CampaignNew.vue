@@ -114,9 +114,6 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
 const selected = ref(null);
 
 
-
-
-
 </script>
 
 <template>
@@ -177,16 +174,7 @@ const selected = ref(null);
       </v-card-text>
     </v-card>
   </v-dialog>
-
-<style scoped>
-
-.v-slide-item--active {
-  transform: scale(1.1);
-  transition: transform 0.3s ease;
-  z-index: 2;
-}
-
-</style>
+  
   <v-dialog v-model="successDialogVisible" max-width="300">
     <v-card>
       <v-card-title>{{ t("label.success") }}</v-card-title>
@@ -200,4 +188,13 @@ const selected = ref(null);
       </v-card-actions>
     </v-card>
   </v-dialog>
-</template>
+
+<style scoped>
+
+.v-slide-item--active {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+</style>
