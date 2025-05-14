@@ -22,51 +22,81 @@ function newCampaign(campaign: "core" | "apocalypse" | "awakenings" | "underkeep
   visible.value = false;
   router.push("/campaign-tracker/campaign/" + campaignId);
 }
+
+const selected = ref(null);
+
+
+
+
+
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-new" rounded @click="visible = true">{{
-    t("label.new-campaign")
-  }}</v-btn>
-  <v-dialog v-model="visible">
+  <v-btn variant="elevated" id="campaign-new" rounded @click="visible = true">
+    {{ t("label.new-campaign") }}
+  </v-btn>
+
+  <v-dialog v-model="visible" max-width="800">
     <v-card>
-      <v-card-title class="text-center">
-        {{ t("label.new-campaign") }}
-      </v-card-title>
-      <v-card-text class="d-flex flex-column align-center justify-center">
-        <v-img
-          center
-          width="300"
-          id="campaign-core"
-          class="cursor-pointer"
-          :src="CoreLogo.toString()"
-          @click="newCampaign('core')"
-        />
-        <v-img
-          width="300"
-          id="campaign-apocalypse"
-          class="cursor-pointer"
-          :src="ApocalypseLogo.toString()"
-          @click="newCampaign('apocalypse')"
-        />
-        <v-img
-          width="300"
-          id="campaign-awakenings"
-          class="cursor-pointer"
-          :src="AwakeningsLogo.toString()"
-          @click="newCampaign('awakenings')"
-        />
-        <v-img
-          center
-          width="300"
-          id="campaign-core"
-          class="cursor-pointer"
-          :src="UnderKeepLogo.toString()"
-          @click="newCampaign('underkeep')"
-        />
+
+      <v-card-text>
+        <v-slide-group
+          v-model="selected"
+          class="pl-1"
+          show-arrows
+          center-active
+        >
+          <v-slide-item value="core">
+            <v-img
+              width="336"
+              height="200"
+              class="ma-2 cursor-pointer"
+              :src="CoreLogo.toString()"
+              @click="newCampaign('core')"
+            />
+          </v-slide-item>
+
+          <v-slide-item value="apocalypse">
+            <v-img
+              width="336"
+              height="200"
+              class="ma-2 cursor-pointer"
+              :src="ApocalypseLogo.toString()"
+              @click="newCampaign('apocalypse')"
+            />
+          </v-slide-item>
+
+          <v-slide-item value="awakenings">
+            <v-img
+              width="336"
+              height="200"
+              class="ma-2 cursor-pointer"
+              :src="AwakeningsLogo.toString()"
+              @click="newCampaign('awakenings')"
+            />
+          </v-slide-item>
+
+          <v-slide-item value="underkeep">
+            <v-img
+              width="336"
+              height="200"
+              class="ml-0 cursor-pointer"
+              :src="UnderKeepLogo.toString()"
+              @click="newCampaign('underkeep')"
+            />
+          </v-slide-item>
+        </v-slide-group>
       </v-card-text>
     </v-card>
   </v-dialog>
 </template>
 
-<style scoped></style>
+<style scoped>
+
+.v-slide-item--active {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+  z-index: 2;
+}
+
+</style>
