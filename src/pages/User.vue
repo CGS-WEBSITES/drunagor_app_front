@@ -163,28 +163,26 @@
  
  </template>
  
- <script lang="ts" setup>
+<script lang="ts" setup>
 import { inject, computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
+import { useUserStore } from "@/store/UserStore";
 
 const assets = inject<string>("assets");
 const route = useRoute();
 const user = ref({});
 
+// Buscar perfil do usuário sem expor URL
 const fetchUserProfile = async () => {
   try {
     const encodedId = route.params.id;
     const userId = atob(encodedId);
-    const response = await axios.get(
-      `https://api.drunagor.app/test/system/users/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }
-    );
-
+    const response = await axios.get(`/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
     user.value = response.data;
   } catch (error) {
     console.error("Erro ao buscar o perfil:", error);
@@ -203,14 +201,12 @@ const formattedJoinDate = computed(() => {
 
 fetchUserProfile();
 
-import { useUserStore } from "@/store/UserStore";
-
 const userStore = useUserStore();
-const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
 const showAlert = ref(false);
 const showErrorAlert = ref(false);
 const errorMessage = ref("");
 
+// Enviar pedido de amizade
 const addFriend = async () => {
   try {
     const invite_users_fk = userStore.user?.users_pk;
@@ -221,8 +217,8 @@ const addFriend = async () => {
       return;
     }
 
-    const response = await axios.post(
-      `${apiUrl}/friends/register`,
+    await axios.post(
+      "/friends/register",
       {
         invite_users_fk,
         recipient_users_fk,
@@ -235,28 +231,27 @@ const addFriend = async () => {
       }
     );
 
-    // Exibir alerta de sucesso
     showAlert.value = true;
-
-    // Esconder alerta após 3 segundos
     setTimeout(() => {
       showAlert.value = false;
     }, 3000);
   } catch (error) {
     showErrorAlert.value = true;
-    errorMessage.value = error.response?.data?.message || "Erro ao enviar o pedido de amizade.";
+    errorMessage.value =
+      error.response?.data?.message || "Erro ao enviar o pedido de amizade.";
     setTimeout(() => (showErrorAlert.value = false), 3000);
   }
 };
 
-const isFriend = ref(); // Define se o usuário já é amigo ou não
+// Verifica se o usuário já é amigo
+const isFriend = ref(false);
 
 const checkFriendStatus = async () => {
   try {
     const encodedId = route.params.id;
-    const userId = parseInt(atob(encodedId)); // Converte de Base64 para número
+    const userId = parseInt(atob(encodedId));
 
-    const response = await axios.get(`${apiUrl}/friends/list_friends`, {
+    const response = await axios.get("/friends/list_friends", {
       params: { invite_users_fk: userStore.user?.users_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -265,7 +260,6 @@ const checkFriendStatus = async () => {
 
     const friendData = response.data.friends || [];
 
-    // 🔥 Verifica se a amizade já existe e está aceita
     const friend = friendData.find(
       (f) =>
         (f.invite_users_fk === userStore.user?.users_pk &&
@@ -280,7 +274,6 @@ const checkFriendStatus = async () => {
   }
 };
 
-// Chama a função de verificação ao carregar a página
 checkFriendStatus();
 </script>
  
