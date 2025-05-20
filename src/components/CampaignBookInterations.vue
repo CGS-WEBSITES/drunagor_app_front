@@ -33,9 +33,11 @@
       >
         <v-container class="py-2 px-4" style="flex: 1; display: flex; flex-direction: column;">
           <!-- Header -->
-          <v-row class="d-flex align-center justify-space-between mb-2" style="flex-shrink: 0;">
-            <template v-if="currentPage === 'titles'">
-              <h3 class="dialog-title">Interactions</h3>
+          <v-row class="d-flex align-center justify-space-between mb-2 mt-2" style="flex-shrink: 0;">
+            <!-- Botão de voltar apenas na página de conteúdo -->
+            <template v-if="currentPage === 'titles' || currentPage === 'scan'">
+              <h3 v-if="currentPage === 'titles'" class="dialog-title">Interactions</h3>
+              <h3 v-else class="dialog-title">Scan QR Code</h3>
             </template>
             <template v-else>
               <v-btn
@@ -51,6 +53,16 @@
               <v-icon>mdi-close</v-icon>
             </v-btn>
           </v-row>
+
+          <!-- QR Scan Page -->
+          <div
+            v-if="currentPage === 'scan' && !scanned"
+            class="scan-page d-flex flex-column align-center justify-center"
+          >
+            <!-- <video id="qr-video" class="qr-video"></video> -->
+            <img :src="qrImage" alt="QR Code" class="qr-img mb-4" />
+            <p class="mt-4 text-white">Point your phone at the QR Code</p>
+          </div>
 
           <!-- Titles Page -->
           <div 
@@ -106,7 +118,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue';
+import { ref, nextTick, watch, onBeforeUnmount } from 'vue';
+import { BrowserMultiFormatReader } from '@zxing/library';
+import qrImage from "@/assets/DN_S01_INTER_01_TEST.png";
 
 const dialog = ref(false);
 const drag = ref(false);
@@ -114,62 +128,84 @@ const dragX = ref(20);
 const dragY = ref(20);
 const startX = ref(0);
 const startY = ref(0);
-const currentPage = ref<'titles' | 'content'>('titles');
+const currentPage = ref<'scan'|'titles' | 'content'>('titles');
+const scanned = ref(false)
 
-const interactions = ref([
-  {
-    id: 'interaction-01',
-    title: '#01: Talk to the girl',
-    body: [
-      `Seeing that the girl is terrified, you kneel next to her and greet her...`,
-      `You face a dilemma: As a group, you and your partners must choose...`
-    ]
-  },
-  {
-    id: 'interaction-02',
-    title: '#02: Try to calm the lady down',
-    body: [
-      `Realizing that the older woman is too scared for rational thought...`,
-      `You face a dilemma: As a group, you and your partners must choose...`
-    ]
-  },
-  {
-    id: 'interaction-03',
-    title: '#03: Step away and leave them alone',
-    body: [
-      `Keeping her weapon pointed to you, the older woman carefully leads the girl out of the hut...`,
-      `The Party Leader writes the “Boon of Gratitude” Aura...`
-    ]
-  },
-  {
-    id: 'interaction-04',
-    title: '#04: Pry the gems out',
-    body: [
-      `Impressed by their beauty, you pull out your thief’s tools...`,
-      `Make a Dexterity (red) Skill Challenge of Difficulty 13...`,
-      `FAILURE: The tools scratch...`,
-      `You gain FOCUS 2 and suffer BURN 4 and KNOCKDOWN.`,
-      `SUCCESS: With the skill of an expert safecracker...`,
-      `Write down the “Fire Ruby” Status...`
-    ]
+const interactions = ref<any[]>([]);
+const codeReader = new BrowserMultiFormatReader();
+
+async function fetchInteractions(endpoint: string) {
+  console.log('Endpoint lido:', endpoint);
+  // const r = await fetch(endpoint);
+  // return await r.json();
+  return [
+    {
+      id: 'interaction-01',
+      title: '#01: Talk to the girl',
+      body: [
+        'Seeing that the girl is terrified, you kneel next to her and greet her...',
+        'You face a dilemma: As a group, you and your partners must choose...'
+      ]
+    },
+    {
+      id: 'interaction-02',
+      title: '#02: Try to calm the lady down',
+      body: [
+        'Realizing that the older woman is too scared for rational thought...',
+        'You face a dilemma: As a group, you and your partners must choose...'
+      ]
+    },
+    {
+      id: 'interaction-03',
+      title: '#03: Step away and leave them alone',
+      body: [
+        'Keeping her weapon pointed to you, the older woman carefully leads the girl out of the hut...',
+        'The Party Leader writes the “Boon of Gratitude” Aura...'
+      ]
+    },
+    {
+      id: 'interaction-04',
+      title: '#04: Pry the gems out',
+      body: [
+        'Impressed by their beauty, you pull out your thief’s tools...',
+        'Make a Dexterity (red) Skill Challenge of Difficulty 13...',
+        'FAILURE: The tools scratch...',
+        'You gain FOCUS 2 and suffer BURN 4 and KNOCKDOWN.',
+        'SUCCESS: With the skill of an expert safecracker...',
+        'Write down the “Fire Ruby” Status...'
+      ]
+    }
+  ];
+}
+
+async function startScanner() {
+  try {
+    const img = document.getElementById('qr-img') as HTMLImageElement;
+    const result = await codeReader.decodeFromImageElement(img);
+
+    scanned.value = true; 
+
+    const endpoint = result.getText();
+    console.log('Endpoint lido:', endpoint);
+
+    interactions.value = await fetchInteractions(endpoint);
+    currentPage.value = 'titles';
+    codeReader.reset();
+  } catch (err) {
+    console.error('Falha ao ler QR:', err);
   }
-]);
+}
 
 function showContent(id: string) {
   currentPage.value = 'content';
-  
   nextTick(() => {
     setTimeout(() => {
       const el = document.getElementById(id);
       const container = document.querySelector('.content-wrapper');
-      
+
       if (el && container) {
         const targetPosition = el.offsetTop - container.getBoundingClientRect().top;
-        
-        container.scrollTo({
-          top: targetPosition - 20,
-          behavior: 'smooth'
-        });
+        container.scrollTo({ top: targetPosition - 20, behavior: 'smooth' });
       }
     }, 50);
   });
@@ -195,15 +231,17 @@ function stopDrag() {
   document.removeEventListener('mouseup', stopDrag);
 }
 
-watch(dialog, (newVal) => {
-  if (!newVal) {
+watch(dialog, (open) => {
+  if (open && !scanned.value) {
+    currentPage.value = 'scan';
+    startScanner();
+  } else if (!open) {
     currentPage.value = 'titles';
-    // Opcional: resetar scroll também
-    nextTick(() => {
-      const container = document.querySelector('.content-wrapper');
-      if (container) container.scrollTop = 0;
-    });
   }
+});
+
+onBeforeUnmount(() => {
+  codeReader.reset();
 });
 </script>
 
@@ -222,6 +260,20 @@ watch(dialog, (newVal) => {
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.scan-page {
+  flex: 1;
+  text-align: center;
+  padding-top: 32px;
+}
+
+.qr-img {
+  width: 100%;
+  max-width: 300px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  margin-bottom: 24px;
 }
 
 .title-page {
@@ -304,13 +356,8 @@ watch(dialog, (newVal) => {
   font-size: 1.3rem;
   color: #f0e6d2;
   margin: 0;
-  padding-left: 8px;
+  padding-left: 15px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.v-row.d-flex.align-center.justify-space-between.mb-2 {
-  padding-top: 20px;
-  margin-bottom: 20px !important;
 }
 
 @media (max-width: 600px) {
@@ -318,27 +365,22 @@ watch(dialog, (newVal) => {
     width: 90vw;
     max-height: 80vh;
   }
-  
   .title-page {
     height: calc(80vh - 100px);
     padding-top: 30px;
     justify-content: flex-start;
   }
-  
   .content-page {
     height: calc(80vh - 60px);
     padding-top: 20px;
   }
-  
   .dialog-title {
     font-size: 1.1rem;
     padding-top: 10px;
   }
-  
   .chapter-title {
     font-size: 1.2rem;
   }
-  
   .body-text p {
     font-size: 0.95rem;
   }
@@ -347,12 +389,10 @@ watch(dialog, (newVal) => {
 ::-webkit-scrollbar {
   width: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #5d4037;
   border-radius: 4px;
