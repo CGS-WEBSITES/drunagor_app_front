@@ -83,7 +83,7 @@ const subtitleColor = computed(() => {
       return "transparent"; // fallback, though we hide the divs anyway
     case "black":
     default:
-      return "white";
+      return "black";
   }
 });
 
@@ -141,10 +141,11 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
             top: 'clamp(42px, 21vw, 24px)',
             left: 'clamp(98px, 21vw, 24px)',
             color: subtitleColor,
+            WebkitTextStroke: '0.4px white',
             padding: 'clamp(4px, 1vw, 12px)',
             borderRadius: '6px',
-            fontSize: 'clamp(1.2rem, 1.5vw, 1rem)',
-            fontWeight: '600',
+            fontSize: 'clamp(1.4rem, 1.5vw, 1rem)',
+            fontWeight: '800',
             zIndex: 2,
           }"
         >
