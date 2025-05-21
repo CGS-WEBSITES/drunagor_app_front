@@ -15,11 +15,13 @@ const currentImage = ref("");
 const frontImage = toRef(props, "frontImage");
 currentImage.value = frontImage.value;
 
+const showHelp = ref(false);
+const helpOverlayImage = new URL('@/assets/monster/big/help.webp', import.meta.url).href;
+
 watch(frontImage, async (newImage: string) => {
   currentImage.value = newImage;
 });
 
-// Lista com cores dos monstros e comandantes
 const monsterColorMap: Record<string, MonsterColor> = {
   "hellish flayer": "gray",
   "abomination": "black",
@@ -66,7 +68,8 @@ const monsterColorMap: Record<string, MonsterColor> = {
   "doctor": "commander",
   "fallen sisters": "commander",
   "witch": "commander",
-  "wermuggdir": "commander"
+  "wermuggdir": "commander",
+  "walking horror": "white"
 };
 
 const resolvedColor = computed<MonsterColor>(() => {
@@ -80,10 +83,10 @@ const subtitleColor = computed(() => {
     case "gray":
       return "black";
     case "commander":
-      return "transparent"; // fallback, though we hide the divs anyway
+      return "transparent";
     case "black":
     default:
-      return "black";
+      return "white";
   }
 });
 
@@ -94,6 +97,16 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
   <v-container max-width="666" class="d-flex justify-center">
     <v-card-text class="pa-0" style="position: relative;">
       <v-img :src="currentImage" width="100%" style="border-radius: 12px;">
+        <!-- Overlay Trigger -->
+        <v-btn
+          icon
+          size="x-small"
+          style="position: absolute; top: 12px; right: 12px; z-index: 3;"
+          @click="showHelp = true"
+        >
+          <v-icon color="white">mdi-help-circle</v-icon>
+        </v-btn>
+
         <!-- XS -->
         <div
           v-if="showSubtitle"
@@ -103,9 +116,10 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
             top: '24px',
             left: '60px',
             color: subtitleColor,
+            WebkitTextStroke: '0.4px white',
             padding: '6px',
             borderRadius: '6px',
-            fontSize: '0.95rem',
+            fontSize: '1.15rem',
             fontWeight: '600',
             zIndex: 2,
           }"
@@ -122,10 +136,11 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
             top: '44px',
             left: '102px',
             color: subtitleColor,
+            WebkitTextStroke: '0.3px white',
             padding: '8px',
             borderRadius: '6px',
-            fontSize: '1.05rem',
-            fontWeight: '600',
+            fontSize: '1.45rem',
+            fontWeight: '800',
             zIndex: 2,
           }"
         >
@@ -150,6 +165,25 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
           }"
         >
           {{ props.subTitle }}
+        </div>
+
+        <!-- OVERLAY HELP IMAGE -->
+        <div
+          v-if="showHelp"
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4;"
+          class="d-flex align-center justify-center"
+        >
+          <v-img :src="helpOverlayImage" width="90%" />
+
+          <v-btn
+            icon
+            size="small"
+            color="white"
+            style="position: absolute; top: 8px; right: 8px;"
+            @click="showHelp = false"
+          >
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </div>
       </v-img>
     </v-card-text>
