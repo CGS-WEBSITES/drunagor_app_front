@@ -64,15 +64,15 @@ const buttons = ref([
   {
     iconType: 'image',
     icon: new URL('@/assets/randomiicon.png', import.meta.url).href,
-    value: 'CampaignTracker',
-    route: '/campaign-tracker',
+    value: 'Campaign Overview',
+    route: '/campaign-tracker/randomizer',
     text: "Randomize"
   },
   {
     iconType: 'mdi',
     icon: 'mdi-sword',
-    value: 'CampaignOverview',
-    route: '/campaign-tracker/campaign',
+    value: 'Campaign Overview',
+    route: '/campaign-tracker/',
     text: "Campaign"
   },
   {

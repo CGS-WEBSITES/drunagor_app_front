@@ -728,7 +728,7 @@ async function createdCompanion() {
       });
     });
     // 4) Redireciona
-    router.push({ path: "/campaign-tracker/campaign" });
+    router.push({ path: "/campaign-tracker/" });
   } catch (err) {
     console.error("Erro no fluxo de salvar campanha:", err);
     toast.add({

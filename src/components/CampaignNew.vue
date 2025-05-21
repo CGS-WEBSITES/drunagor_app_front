@@ -26,47 +26,49 @@ const user = useUserStore().user
 
 // const NEW_CAMPAIGN_ID = Date.now().toString();
 
-function openModal(campaignId: string) {
+function compressCampaign(campaignId: string) {
+
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(campaignId)),
   );
-  campaignCopy.campaignId = "";
-  const heroes = heroStore
-    .findAllInCampaign(campaignId)
-    .map((h) => ({ ...h, campaignId: "" }));
 
-  token.value = btoa(JSON.stringify({ campaignData: campaignCopy, heroes }));
+  const heroes = heroStore.findAllInCampaign(campaignId);
+
+  const data = {
+    campaignData: campaignCopy,
+    heroes: heroes.map((h) => {
+      const clone = JSON.parse(JSON.stringify(h));
+      return clone;
+    }),
+  };
+
+  token.value = btoa(JSON.stringify(data));
+
+  return token
 }
 
 async function createCampaign(boxId: number) {
-  const resp = await axios.post("/campaigns/cadastro", {
+  return await axios.post("/campaigns/cadastro", {
     tracker_hash: "",
     conclusion_percentage: 0,
     box: boxId,
+  }).then((res) => {
+    return res.data
   })
-
-  return resp
 }
 
-async function saveCampaign(boxId: number) {
-  const resp = await axios.post("/campaigns/cadastro", {
-    tracker_hash: token.value,
-    conclusion_percentage: 0,
-    box: boxId,
-  });
+async function saveCampaign(campaign_pk: number, tracker_hash: string , party_name: string ) {
 
-  const serverPk = resp.data.campaign.campaigns_pk.toString();
-  toast.add({
-    severity: "success",
-    summary: t("label.success"),
-    detail: "Campaign saved successfully.",
-    life: 3000,
+  await axios.put("campaigns/alter", {
+    campaign_pk: campaign_pk, tracker_hash: tracker_hash, party_name: party_name,
   });
+}
 
-  const users_pk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
+async function addRelationship(users_pk: number, campaign_fk: number, boxId: number) {
+
   await axios.post("rl_campaigns_users/cadastro", {
     users_fk: users_pk,
-    campaigns_fk: serverPk,
+    campaigns_fk: campaign_fk,
     party_roles_fk: 1,
     skus_fk: boxId,
   });
@@ -102,13 +104,23 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underke
     (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase()
   );
 
-  let campaignResp = createCampaign(selectedSku)
-  
-  console.log(campaignResp)
+  let campaignResp = await createCampaign(selectedSku.skus_pk)
 
-  let newCampaign = new Campaign("1", type)
+  console.log(campaignResp.campaign)
+
+  let campaignFk = campaignResp.campaign.campaigns_pk
+
+  let newCampaign = new Campaign(campaignFk, type)
 
   console.log(newCampaign)
+
+  campaignStore.add(newCampaign);
+
+  let token = compressCampaign(campaignFk)
+
+  console.log(token.value)
+
+  await saveCampaign(campaignFk, token.value, "")
 
   return
 
@@ -116,7 +128,6 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underke
   const serverPk = await saveCampaign(selectedSku.skus_pk);
 
   // 2) Agora crie a campanha no store usando o serverPk
-  campaignStore.add(new Campaign(serverPk, type));
 
   // 3) Abra o modal para esse ID real
   openModal(serverPk);

@@ -235,7 +235,7 @@ const carouselItems = ref([
 {
     img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-campaignmanager.png",
     label: "CAMPAIGN MANAGER",
-    route: { name: "CampaignTracker" },
+    route: { name: "Campaign Overview" },
   },
   {
     img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-skusmannager.png",
