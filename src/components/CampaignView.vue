@@ -15,7 +15,6 @@ import { ref } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
-import CampaignBookInterations from "@/components/CampaignBookInterations.vue";
 
 const route = useRoute();
 
@@ -74,10 +73,6 @@ function onSequentialAdventure() {
                   class="mx-2"
                 />
                 <CampaignBook
-                  :campaign-id="campaignId"
-                  class="mx-2"
-                />
-                <CampaignBookInterations
                   :campaign-id="campaignId"
                   class="mx-2"
                 />
