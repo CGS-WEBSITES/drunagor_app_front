@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
@@ -11,6 +11,7 @@ import UnderKeepLogo from "@/assets/logo/underkeep.png";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
+import { useUserStore } from "@/store/UserStore";
 
 const toast = useToast();
 const { t } = useI18n();
@@ -21,6 +22,8 @@ const heroStore = HeroStore();
 const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
+const user = useUserStore().user
+
 // const NEW_CAMPAIGN_ID = Date.now().toString();
 
 function openModal(campaignId: string) {
@@ -33,6 +36,16 @@ function openModal(campaignId: string) {
     .map((h) => ({ ...h, campaignId: "" }));
 
   token.value = btoa(JSON.stringify({ campaignData: campaignCopy, heroes }));
+}
+
+async function createCampaign(boxId: number) {
+  const resp = await axios.post("/campaigns/cadastro", {
+    tracker_hash: "",
+    conclusion_percentage: 0,
+    box: boxId,
+  })
+
+  return resp
 }
 
 async function saveCampaign(boxId: number) {
@@ -57,9 +70,9 @@ async function saveCampaign(boxId: number) {
     party_roles_fk: 1,
     skus_fk: boxId,
   });
-  
+
   successDialogVisible.value = true;
-  
+
   return serverPk;
 }
 
@@ -70,30 +83,34 @@ async function saveCampaign(boxId: number) {
 //   router.push("/campaign-tracker/campaign/" + campaignId);
 // }
 
-async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
-  const usersPk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
+async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underkeep") {
+  const usersPk = user.users_pk;
+
   const { data } = await axios.get("/skus/search", {
     params: { users_fk: usersPk },
   });
+
   const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data);
   const expectedName = {
     core: "Corebox",
     apocalypse: "Apocalypse",
     awakenings: "Awakenings",
+    underkeep: "underkeep"
   }[type];
+
   const selectedSku = skuList.find(
     (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase()
   );
 
-  if (!selectedSku) {
-    toast.add({
-      severity: "error",
-      summary: t("label.error"),
-      detail: `SKU for ${expectedName} not found.`,
-      life: 3000,
-    });
-    return;
-  }
+  let campaignResp = createCampaign(selectedSku)
+  
+  console.log(campaignResp)
+
+  let newCampaign = new Campaign("1", type)
+
+  console.log(newCampaign)
+
+  return
 
   // 1) Primeiro, salve no back e pegue o ID real
   const serverPk = await saveCampaign(selectedSku.skus_pk);

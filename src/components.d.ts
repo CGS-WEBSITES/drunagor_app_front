@@ -35,7 +35,6 @@ declare module 'vue' {
     CampaignLogAura: typeof import('./components/CampaignLogAura.vue')['default']
     CampaignLogAwakenings: typeof import('./components/CampaignLogAwakenings.vue')['default']
     CampaignLogCore: typeof import('./components/CampaignLogCore.vue')['default']
-    CampaignLogMegaDungeon: typeof import('./components/CampaignLogMegaDungeon.vue')['default']
     CampaignLogOutcome: typeof import('./components/CampaignLogOutcome.vue')['default']
     CampaignLogRemoveHero: typeof import('./components/CampaignLogRemoveHero.vue')['default']
     CampaignLogSequentialAdventure: typeof import('./components/CampaignLogSequentialAdventure.vue')['default']
