@@ -13,14 +13,14 @@
       v-model="dialog"
       max-width="800px"
       :scrim="false"
-      :persistent="true"
-      :hide-overlay="true"
+      persistent
+      hide-overlay
       no-click-animation
       :retain-focus="false"
       content-class="transparent-dialog"
       :style="{
         position: 'fixed',
-        transform: `translate(${dragX}px, ${dragY}px)`,
+        transform: `translate(\${dragX}px, \${dragY}px)`,
         transition: 'transform 0.1s',
         zIndex: 1000,
       }"
@@ -33,110 +33,205 @@
             permanent
             width="240"
             class="nav-drawer"
-            :floating="false"
             absolute
           >
-            <v-list density="compact" nav>
+            <v-list density="compact" nav v-model="currentView">
               <v-list-item
-                prepend-icon="mdi-account-group"
-                title="Gamer Player"
-                value="player"
+                prepend-icon="mdi-book-open-page-variant"
                 class="drawer-item"
+                @click="currentView = 'player'"
+                :class="{ 'drawer-item--active': currentView === 'player' }"
               >
-                <template v-slot:prepend>
-                  <v-icon color="#f0e6d2"></v-icon>
+                <template #prepend>
+                  <v-icon color="#f0e6d2" />
                 </template>
+                <v-list-item-title>Book Player</v-list-item-title>
               </v-list-item>
               <v-list-item
-                prepend-icon="mdi-calendar"
-                title="Events"
-                value="events"
+                prepend-icon="mdi-hand-pointing"
                 class="drawer-item"
-                @click="navigateToEvents"
+                @click="currentView = 'interactions'"
+                :class="{ 'drawer-item--active': currentView === 'interactions' }"
               >
-                <template v-slot:prepend>
-                  <v-icon color="#f0e6d2"></v-icon>
+                <template #prepend>
+                  <v-icon color="#f0e6d2" />
                 </template>
-              </v-list-item>
-              <v-list-item
-                prepend-icon="mdi-bookshelf"
-                title="Library"
-                value="library"
-                class="drawer-item"
-                @click="navigateToLibrary"
-              >
-                <template v-slot:prepend>
-                  <v-icon color="#f0e6d2"></v-icon>
-                </template>
+                <v-list-item-title>Book Interactions</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-navigation-drawer>
 
           <v-main class="main-content">
             <v-card-text class="pa-0 scrollable-content">
-              <v-sheet
-                v-if="currentPage"
-                :key="currentIndex"
-                :style="backgroundStyle as CSSProperties"
-                class="book-page"
-                elevation="0"
-                rounded
-                @click="handlePageClick"
-              >
-                <div
-                  v-if="isFullScreenWithBackground"
-                  class="background-overlay"
-                ></div>
-                <v-container class="pa-6">
-                  <v-row>
-                    <v-col cols="12">
-                      <div
-                        class="d-flex align-center justify-space-between pa-6 pb-0"
-                        @mousedown.stop="startDrag"
-                      >
-                        <h4 class="section-title">{{ currentPage.section }}</h4>
-                        <v-btn icon @click="dialog = false" class="close-btn">
-                          <v-icon>mdi-close</v-icon>
-                        </v-btn>
-                      </div>
-                      <h2 class="chapter-title">{{ currentPage.title }}</h2>
-                      <div class="body-text" v-html="currentPage.body"></div>
-
-                      <v-alert
-                        v-if="currentPage.instruction"
-                        type="info"
-                        border="start"
-                        elevation="2"
-                        class="mt-6 instruction-box"
-                      >
-                        <strong>📜 Instruction:</strong><br />
-                        {{ currentPage.instruction }}
-                      </v-alert>
-
-                      <div class="d-flex justify-end mt-8">
-                        <v-btn
-                          color="amber-darken-2"
-                          variant="flat"
-                          @click.stop="prevPage"
-                          :disabled="currentIndex === 0"
-                          class="mx-4 px-6 text-white font-weight-bold"
+              <!-- Book Player -->
+              <div v-if="currentView === 'player'">
+                <v-sheet
+                  v-if="currentPage"
+                  :key="currentIndex"
+                  :style="backgroundStyle as CSSProperties"
+                  class="book-page"
+                  elevation="0"
+                  rounded
+                  @click="handlePageClick"
+                >
+                  <div
+                    v-if="isFullScreenWithBackground"
+                    class="background-overlay"
+                  ></div>
+                  <v-container class="pa-6">
+                    <v-row>
+                      <v-col cols="12">
+                        <div
+                          class="d-flex align-center justify-space-between pa-6 pb-0"
+                          @mousedown.stop="startDrag"
                         >
-                          ◀ Previous
-                        </v-btn>
-                        <v-btn
-                          color="amber-darken-2"
-                          variant="flat"
-                          @click.stop="nextPage"
-                          :disabled="currentIndex >= pages.length - 1"
-                          class="mx-4 px-6 text-white font-weight-bold"
+                          <h4 class="section-title">
+                            {{ currentPage.section }}
+                          </h4>
+                          <v-btn icon @click="dialog = false" class="close-btn">
+                            <v-icon>mdi-close</v-icon>
+                          </v-btn>
+                        </div>
+                        <h2 class="chapter-title">{{ currentPage.title }}</h2>
+                        <div class="body-text" v-html="currentPage.body"></div>
+
+                        <v-alert
+                          v-if="currentPage.instruction"
+                          type="info"
+                          border="start"
+                          elevation="2"
+                          class="mt-6 instruction-box"
                         >
-                          Next ▶
-                        </v-btn>
-                      </div>
-                    </v-col>
+                          <strong>📜 Instruction:</strong><br />
+                          {{ currentPage.instruction }}
+                        </v-alert>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-sheet>
+
+                <div class="d-flex justify-end mt-8">
+                  <v-btn
+                    color="amber-darken-2"
+                    variant="flat"
+                    @click.stop="prevPage"
+                    :disabled="currentIndex === 0"
+                    class="mx-4 px-6 text-white font-weight-bold"
+                  >
+                    ◀ Previous
+                  </v-btn>
+                  <v-btn
+                    color="amber-darken-2"
+                    variant="flat"
+                    @click.stop="nextPage"
+                    :disabled="currentIndex >= pages.length - 1"
+                    class="mx-4 px-6 text-white font-weight-bold"
+                  >
+                    Next ▶
+                  </v-btn>
+                </div>
+              </div>
+
+              <!-- Book Interactions (inline, sem diálogo extra) -->
+              <div v-else-if="currentView === 'interactions'">
+                <v-container
+                  class="py-2 px-4"
+                  style="flex: 1; display: flex; flex-direction: column"
+                >
+                  <!-- Header -->
+                  <v-row
+                    class="d-flex align-center justify-space-between mb-2 mt-2"
+                    style="flex-shrink: 0"
+                  >
+                    <template v-if="interPage === 'scan' && !scanned">
+                      <h3 class="dialog-title">Scan QR Code</h3>
+                      <v-btn icon @click="dialog = false" class="close-btn">
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+                    <template v-else-if="interPage === 'titles'">
+                      <h3 class="dialog-title">Interactions</h3>
+                      <v-btn icon @click="dialog = false" class="close-btn">
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+                    <template v-else>
+                      <v-btn
+                        class="back-btn text-white mt-4"
+                        color="grey darken-2"
+                        @click="interPage = 'titles'"
+                      >
+                        <v-icon left>mdi-arrow-left</v-icon>
+                        Back to Options
+                      </v-btn>
+                      <v-btn icon @click="dialog = false" class="close-btn">
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
                   </v-row>
+
+                  <!-- QR Scanner -->
+                  <div
+                    v-if="interPage === 'scan' && !scanned"
+                    class="scan-page d-flex flex-column align-center justify-center"
+                  >
+                    <video
+                      id="qr-video"
+                      class="qr-video mb-4"
+                      autoplay
+                      muted
+                      playsinline
+                    ></video>
+                    <p class="mt-4 text-white">
+                      Aponte a câmera para o QR Code
+                    </p>
+                  </div>
+
+                  <!-- Titles -->
+                  <div v-else-if="interPage === 'titles'" class="title-page-interactions">
+                    <v-row class="mt-2">
+                      <v-col
+                        v-for="(interaction, idx) in interactions"
+                        :key="idx"
+                        cols="12"
+                        class="text-center py-3"
+                      >
+                        <v-btn
+                          color="amber-darken-3"
+                          class="text-white font-weight-bold px-8 interaction-btn"
+                          block
+                          @click="showContent(interaction.id)"
+                        >
+                          {{ interaction.title }}
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </div>
+
+                  <!-- Content -->
+                  <div v-else class="content-page-interactions">
+                    <div class="content-wrapper-interactions">
+                      <div
+                        v-for="(interaction, idx) in interactions"
+                        :key="idx"
+                        :id="interaction.id"
+                        class="interaction-detail pa-4"
+                      >
+                        <h2 class="chapter-title-interactions mb-4">
+                          {{ interaction.title }}
+                        </h2>
+                        <div class="body-text-interactions">
+                          <p
+                            v-for="(p, i) in interaction.body"
+                            :key="i"
+                            v-html="p"
+                          ></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </v-container>
-              </v-sheet>
+              </div>
             </v-card-text>
           </v-main>
         </v-layout>
@@ -146,18 +241,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, CSSProperties } from "vue";
-import { useRouter } from 'vue-router';
+import {
+  ref,
+  computed,
+  CSSProperties,
+  nextTick,
+  watch,
+  onBeforeUnmount,
+} from "vue";
+import { BrowserMultiFormatReader, NotFoundException } from "@zxing/library";
 
-const router = useRouter();
-
+// diálogo e arrastar
 const dialog = ref(false);
 const drag = ref(false);
 const dragX = ref(20);
 const dragY = ref(20);
 const startX = ref(0);
 const startY = ref(0);
+const currentView = ref<"player" | "interactions">("player");
 
+// Book Player state
 const pages = ref([
   {
     section: "CHAPTER INTRO",
@@ -209,44 +312,13 @@ const pages = ref([
   },
 ]);
 
-const navigateToLibrary = () => {
-  router.push('/library');
-};
-
-const navigateToEvents = () => {
-  router.push('/events');
-};
-
-const startDrag = (e: MouseEvent) => {
-  drag.value = true;
-  startX.value = e.clientX - dragX.value;
-  startY.value = e.clientY - dragY.value;
-  document.addEventListener("mousemove", onDrag);
-  document.addEventListener("mouseup", stopDrag);
-};
-
-const onDrag = (e: MouseEvent) => {
-  if (!drag.value) return;
-  dragX.value = e.clientX - startX.value;
-  dragY.value = e.clientY - startY.value;
-};
-
-const stopDrag = () => {
-  drag.value = false;
-  document.removeEventListener("mousemove", onDrag);
-  document.removeEventListener("mouseup", stopDrag);
-};
-
 const currentIndex = ref(0);
 const currentPage = computed(() => pages.value[currentIndex.value]);
-
 const isFullScreenWithBackground = computed(() => {
   return (
-    currentPage.value?.layout === "full-screen" &&
-    !!currentPage.value?.background
+    currentPage.value.layout === "full-screen" && !!currentPage.value.background
   );
 });
-
 const backgroundStyle = computed<CSSProperties>(() => {
   if (!currentPage.value) return {};
   const s: CSSProperties = {
@@ -264,31 +336,158 @@ const backgroundStyle = computed<CSSProperties>(() => {
   }
   return s;
 });
-
-function handlePageClick(event: MouseEvent) {
-  const width = (event.currentTarget as HTMLElement).offsetWidth;
-  const clickX = event.offsetX;
-
-  if (clickX < width * 0.33 && currentIndex.value > 0) {
-    prevPage();
-  } else if (
-    clickX > width * 0.66 &&
-    currentIndex.value < pages.value.length - 1
-  ) {
-    nextPage();
-  }
+function handlePageClick(e: MouseEvent) {
+  const w = (e.currentTarget as HTMLElement).offsetWidth;
+  const x = e.offsetX;
+  if (x < w * 0.33) prevPage();
+  else if (x > w * 0.66) nextPage();
 }
-
 function nextPage() {
   if (currentIndex.value < pages.value.length - 1) currentIndex.value++;
 }
-
 function prevPage() {
   if (currentIndex.value > 0) currentIndex.value--;
 }
+
+// Dragging
+function startDrag(e: MouseEvent) {
+  drag.value = true;
+  startX.value = e.clientX - dragX.value;
+  startY.value = e.clientY - dragY.value;
+  document.addEventListener("mousemove", onDrag);
+  document.addEventListener("mouseup", stopDrag);
+}
+function onDrag(e: MouseEvent) {
+  if (!drag.value) return;
+  dragX.value = e.clientX - startX.value;
+  dragY.value = e.clientY - startY.value;
+}
+function stopDrag() {
+  drag.value = false;
+  document.removeEventListener("mousemove", onDrag);
+  document.removeEventListener("mouseup", stopDrag);
+}
+
+// Book Interactions state
+const interPage = ref<"scan" | "titles" | "content">("scan");
+const scanned = ref(false);
+const interactions = ref<any[]>([]);
+const codeReader = new BrowserMultiFormatReader();
+
+async function fetchInteractions(endpoint: string) {
+  // aqui você pode substituir por fetch real:
+  // const res = await fetch(endpoint);
+  // return await res.json();
+  return [
+    {
+      id: "interaction-01",
+      title: "#01: Talk to the girl",
+      body: [
+        "Seeing that the girl is terrified...",
+        "Você e o grupo devem escolher...",
+      ],
+    },
+    {
+      id: "interaction-02",
+      title: "#02: Try to calm the lady down",
+      body: [
+        "Realizing that the older woman is too scared...",
+        "Você e o grupo devem escolher...",
+      ],
+    },
+    {
+      id: "interaction-03",
+      title: "#03: Step away and leave them alone",
+      body: [
+        "Keeping her weapon pointed to you...",
+        "O líder de grupo escreve...",
+      ],
+    },
+    {
+      id: "interaction-04",
+      title: "#04: Pry the gems out",
+      body: [
+        "Impressed by their beauty...",
+        "FAILURE: The tools scratch...",
+        "SUCCESS: With the skill...",
+      ],
+    },
+  ];
+}
+
+async function startScanner() {
+  try {
+    const devices = await codeReader.listVideoInputDevices();
+    if (!devices.length) throw new Error("Nenhuma câmera encontrada");
+    const deviceId = devices[0].deviceId;
+    codeReader.decodeFromVideoDevice(
+      deviceId,
+      "qr-video",
+      async (result, err) => {
+        if (result) {
+          scanned.value = true;
+          codeReader.reset();
+          interactions.value = await fetchInteractions(result.getText());
+          interPage.value = "titles";
+        } else if (err && !(err instanceof NotFoundException)) {
+          console.error(err);
+        }
+      }
+    );
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function showContent(id: string) {
+  interPage.value = "content";
+  nextTick(() => {
+    setTimeout(() => {
+      const el = document.getElementById(id),
+        container = document.querySelector(".content-wrapper-interactions");
+      if (el && container) {
+        const top =
+          el.offsetTop - (container as HTMLElement).getBoundingClientRect().top;
+        (container as HTMLElement).scrollTo({
+          top: top - 20,
+          behavior: "smooth",
+        });
+      }
+    }, 100); 
+  });
+}
+
+// start/stop scanner when view toggles
+watch(currentView, (val) => {
+  if (val === "interactions") {
+    interPage.value = "scan";
+    startScanner();
+  } else {
+    codeReader.reset();
+    scanned.value = false;
+  }
+});
+
+watch(dialog, (open) => {
+  if (open) {
+    currentView.value = 'player';
+
+    interPage.value = 'scan';
+    codeReader.reset();
+    scanned.value = false;
+  }
+})
+
+onBeforeUnmount(() => {
+  codeReader.reset();
+});
 </script>
 
 <style scoped>
+.drawer-item--active {
+  background-color: rgba(255, 193, 7, 0.2) !important;
+}
+
 .book-dialog {
   max-height: 70vh;
   width: 800px;
@@ -325,7 +524,7 @@ function prevPage() {
     inset 0 0 20px rgba(94, 69, 57, 0.2);
   border-radius: 12px;
   margin: 20px;
-  min-height: calc(90vh - 40px);
+  min-height: calc(50vh - 40px);
   overflow-y: auto !important;
 }
 
@@ -442,12 +641,145 @@ function prevPage() {
   max-height: 70vh;
 }
 
+.scan-page {
+  flex: 1;
+  text-align: center;
+  padding-top: 32px;
+}
+
+.qr-video {
+  width: 100%;
+  max-width: 300px;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  background: #000;
+}
+
+.title-page-interactions {
+  height: calc(65vh - 120px);
+  padding: 40px 8px 16px;
+  overflow-y: auto;
+}
+
+.content-page-interactions {
+  height: calc(65vh - 80px);
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+  overflow: hidden;
+}
+
+.content-wrapper-interactions {
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 8px;
+  transform: translateZ(0);
+  scroll-snap-type: y proximity;
+}
+
+.interaction-detail {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  margin: 20px 0 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  scroll-snap-align: start;
+}
+
+.v-btn.interaction-btn {
+  padding: 20px 24px !important;
+  letter-spacing: 1.5px !important;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  margin: 8px 0;
+}
+.v-btn.interaction-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.chapter-title-interactions {
+  font-family: "Cinzel Decorative", serif;
+  font-size: 1.4rem;
+  color: #fff8e1;
+  text-align: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.body-text-interactions p {
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #f0e6d2;
+  margin-bottom: 1.5em;
+  padding: 0 12px;
+  text-indent: 2em;
+}
+
+.back-btn {
+  align-self: flex-start;
+  margin-left: 24px !important;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+}
+.back-btn:hover {
+  transform: translateX(-4px);
+}
+
+.dialog-title {
+  font-family: "Uncial Antiqua", cursive;
+  font-size: 1.3rem;
+  color: #f0e6d2;
+  margin: 0;
+  padding-left: 15px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 600px) {
+  .book-dialog {
+    width: 90vw;
+    max-height: 80vh;
+  }
+  .title-page-interactions {
+    height: calc(80vh - 100px);
+    padding-top: 30px;
+  }
+  .content-page-interactions {
+    height: calc(80vh - 60px);
+    padding-top: 20px;
+  }
+  .dialog-title {
+    font-size: 1.1rem;
+    padding-top: 10px;
+  }
+  .chapter-title-interactions {
+    font-size: 1.2rem;
+  }
+  .body-text-interactions p {
+    font-size: 0.95rem;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #5d4037;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 @media (max-width: 960px) {
   .book-dialog {
     width: 90vw !important;
     max-height: 80vh !important;
   }
-  
+
   .chapter-title {
     font-size: 1.8rem !important;
   }
