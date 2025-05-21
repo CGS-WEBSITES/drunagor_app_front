@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
@@ -11,6 +11,7 @@ import UnderKeepLogo from "@/assets/logo/underkeep.png";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
+import { useUserStore } from "@/store/UserStore";
 
 const toast = useToast();
 const { t } = useI18n();
@@ -21,6 +22,8 @@ const heroStore = HeroStore();
 const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
+const user = useUserStore().user
+
 // const NEW_CAMPAIGN_ID = Date.now().toString();
 
 function openModal(campaignId: string) {
@@ -71,10 +74,12 @@ async function saveCampaign(boxId: number) {
 // }
 
 async function newCampaign(type: "core" | "apocalypse" | "awakenings") {
-  const usersPk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
+  const usersPk = user.users_pk;
+
   const { data } = await axios.get("/skus/search", {
     params: { users_fk: usersPk },
   });
+  
   const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data);
   const expectedName = {
     core: "Corebox",

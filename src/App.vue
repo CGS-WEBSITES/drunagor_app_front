@@ -113,7 +113,6 @@
           <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ props }">
               <v-btn
-                @click="$router.push({ name: 'PerfilHome' })"
                 v-bind="props"
                 text
                 class="px-3"

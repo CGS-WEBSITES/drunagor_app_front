@@ -39,9 +39,9 @@ function openModal() {
       return clone;
     }),
   };
+  console.log('token', data)
   token.value = btoa(JSON.stringify(data));
 
-  console.log('token', token.value)
   visible.value = true;
 }
 
