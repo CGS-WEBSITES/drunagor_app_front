@@ -3,44 +3,60 @@
     <v-card
       class="book-dialog pa-0"
       @mousedown="startDrag"
-      v-if="!hideCard" >
+      v-if="!hideCard"
+    >
       <v-layout>
         <v-navigation-drawer
           expand-on-hover
           rail
           permanent
-          width="240"
+          width="270"
           class="nav-drawer"
           :floating="false"
           absolute
         >
           <v-list density="compact" nav>
-            <v-list-item prepend-icon="mdi-account-group" title="Gamer Player" value="player" class="drawer-item">
-              <template v-slot:prepend>
-                <v-icon color="#f0e6d2"></v-icon>
+            <v-list-group
+              v-for="(sectionItems, sectionName) in groupedNavigationItems"
+              :key="sectionName.toString()"
+              :value="sectionName"
+            >
+              <template v-slot:activator="{ props }">
+                <v-list-item
+                  v-bind="props"
+                  :prepend-icon="getSectionIcon(sectionName.toString())"
+                  :title="sectionName.toString()"
+                  class="drawer-section-header"
+                >
+                   <template v-slot:prepend>
+                     <v-icon color="#f0e6d2"></v-icon>
+                   </template>
+                </v-list-item>
               </template>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-calendar" title="Events" value="events" class="drawer-item"
-              @click="navigateToEvents">
-              <template v-slot:prepend>
-                <v-icon color="#f0e6d2"></v-icon>
-              </template>
-            </v-list-item>
-            <v-list-item prepend-icon="mdi-bookshelf" title="Library" value="library" class="drawer-item"
-              @click="navigateToLibrary">
-              <template v-slot:prepend>
-                <v-icon color="#f0e6d2"></v-icon>
-              </template>
-            </v-list-item>
+
+              <v-list-item
+                v-for="navItem in sectionItems"
+                :key="navItem.id"
+                :title="navItem.title"
+                :value="navItem.id"
+                @click="navigateToContent(navItem.sectionIndex, navItem.id)"
+                class="drawer-item-index"
+                density="compact"
+              >
+                <template v-slot:prepend>
+                  <v-icon size="x-small" color="#c9aa71" style="margin-left: 16px; opacity: 0.8;">mdi-circle-medium</v-icon>
+                </template>
+                 <v-tooltip activator="parent" location="end">{{ navItem.title }}</v-tooltip>
+              </v-list-item>
+            </v-list-group>
           </v-list>
         </v-navigation-drawer>
 
         <v-main class="main-content">
-          <v-card-text class="pa-0 scrollable-content">
+          <v-card-text class="pa-0 scrollable-content" ref="scrollableContentRef">
             <v-sheet
               v-if="currentPage"
-              :key="currentIndex"
-              :style="backgroundStyle as CSSProperties"
+              :key="currentIndex" :style="backgroundStyle as CSSProperties"
               class="book-page"
               elevation="0"
               rounded
@@ -50,9 +66,12 @@
               <v-container class="pa-3 ml-2">
                 <v-row>
                   <v-col cols="12">
-                    <div v-for="(item, index) in currentPage.content" :key="index" class="content-block">
+                    <div v-for="(item, contentLoopIndex) in currentPage.content" 
+                         :key="`content-${currentIndex}-${contentLoopIndex}`" 
+                         :id="`content-block-${currentIndex}-${contentLoopIndex}`" 
+                         class="content-block">
                       <div class="header-banner">
-                        <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDrag">
+                        <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDragHeader">
                           <h4 class="section-title">{{ currentPage.section }}</h4>
                           <v-btn icon class="close-btn" @click="hideCard = true">
                             <v-icon>mdi-close</v-icon>
@@ -63,20 +82,11 @@
                         </h2>
                       </div>
                       
-                      <div class="body-text mt-3" v-html="item.body"></div> <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
+                      <div class="body-text mt-3" v-html="item.body"></div>
+                      
+                      <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
                         <v-card-text v-html="item.instruction" />
                       </v-card>
-                    </div>
-
-                    <div class="d-flex justify-end mt-8">
-                      <v-btn color="amber-darken-2" variant="flat" @click.stop="prevPage"
-                        :disabled="currentIndex === 0" class="mx-4 px-6 text-white font-weight-bold">
-                        ◀ Previous
-                      </v-btn>
-                      <v-btn color="amber-darken-2" variant="flat" @click.stop="nextPage"
-                        :disabled="currentIndex >= pages.length - 1" class="mx-4 px-6 text-white font-weight-bold">
-                        Next ▶
-                      </v-btn>
                     </div>
 
                   </v-col>
@@ -91,10 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, CSSProperties } from "vue";
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
+import { ref, computed, CSSProperties, nextTick } from "vue";
 
 const dialog = ref(false); 
 const hideCard = ref(false); 
@@ -110,54 +117,8 @@ const pages = ref([
     content: [
       { 
         title: "INTO THE UNDERKEEP (TUTORIAL)",
-        body: `
-          <p>
-          Times are changing...
-          </p>
-          <p>
-          The bravery of adventurers is needed once again. 
-          Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. 
-          People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.
-          </p>
-          <p>
-            You arrived late, from far away. 
-            In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red. 
-            There’s no sign of your contractor. Or of any living soul, really. 
-            Those who remain have locked themselves inside their homes, praying for a miracle.
-          </p>
-          <p>
-          There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. 
-          Or rather, to fight.
-          The hair on your arms stands on end—it’s unmistakable...  
-          </p>
-        `,
-        instruction: [
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: px;">
-            SCENARIO OBJECTIVE – DUNGEON CRAWL'.
-          </div>`,
-          `<div style="color: #1a120f;">
-            To complete this Adventure, you must move through all the rooms, defeating every enemy in your way until you find the Adventure End Trigger.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">
-            DEFEAT CONDITIONS – STANDARD'.
-          </div>`,
-          `<div style="color: #1a120f;">
-            The Adventure immediately fails if any Hero’s Health Points are reduced to 0. The team cannot continue if even just one Hero is defeated.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">
-            TUTORIAL – FIRST STEPS'.
-          </div>`,
-          `<div style="color: #1a120f;">
-            Read the Tutorials “Turns and Rounds,” “A Hero’s Turn,” “Move Action,” “Cube Action,” and “Making Attacks”.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">
-            STARTGAME TRIGGER'.
-          </div>`,
-          `<div style="color: #1a120f;">
-            You may begin to play the Adventure. The Hero with the Defender Dungeon Role starts the game since that is the first card on the Initiative Track. 
-            Once their turn ends, move the marker to the next card, the Vampire Monster, and read the Tutorials “The Monsters’ Turn” and “Reactions”.
-          </div>`,
-        ].join(""),
+        body: `<p>Times are changing...</p><p>The bravery of adventurers is needed once again. Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.</p><p>You arrived late, from far away. In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red. There’s no sign of your contractor. Or of any living soul, really. Those who remain have locked themselves inside their homes, praying for a miracle.</p><p>There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. Or rather, to fight. The hair on your arms stands on end—it’s unmistakable...</p>`,
+        instruction: [`<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: px;">SCENARIO OBJECTIVE – DUNGEON CRAWL'.</div><div style="color: #1a120f;">To complete this Adventure, you must move through all the rooms, defeating every enemy in your way until you find the Adventure End Trigger.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">DEFEAT CONDITIONS – STANDARD'.</div><div style="color: #1a120f;">The Adventure immediately fails if any Hero’s Health Points are reduced to 0. The team cannot continue if even just one Hero is defeated.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">TUTORIAL – FIRST STEPS'.</div><div style="color: #1a120f;">Read the Tutorials “Turns and Rounds,” “A Hero’s Turn,” “Move Action,” “Cube Action,” and “Making Attacks”.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">STARTGAME TRIGGER'.</div><div style="color: #1a120f;">You may begin to play the Adventure. The Hero with the Defender Dungeon Role starts the game since that is the first card on the Initiative Track. Once their turn ends, move the marker to the next card, the Vampire Monster, and read the Tutorials “The Monsters’ Turn” and “Reactions”.</div>`].join(""),
       },
     ],
     layout: "single-column",
@@ -168,142 +129,23 @@ const pages = ref([
     content: [
       { 
         title: "INTO THE UNDERKEEP", 
-        body: `
-          <p>
-          Times are changing...
-          </p>
-          <p>
-          The bravery of adventurers is needed once again.
-          Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. 
-          People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.
-          </p>
-          <p>
-            You arrived late, from far away. 
-            In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red.
-            There’s no sign of your contractor. Or of any living soul, really. 
-            Those who remain have locked themselves inside their homes, praying for a miracle.
-          </p>
-          <p>
-          There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. Or rather, to fight.
-          The hair on your arms stands on end—it’s unmistakable.. 
-          </p>
-          <div style="color: Black; font-weight: bold; text-transform: uppercase; margin-top: 8px;">
-            Blackriver needs your help. First, set up the components as shown below and then read the instructions for this Adventure:'.
-          </div>
-        `,
-        instruction: [
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
-            SCENARIO OBJECTIVE – DUNGEON CRAWL
-          </div>`,
-          `<div style="color: #1a120f;">
-            To complete this Adventure, you must move through all the rooms defeating every enemy in your way until you find the Adventure End Trigger.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            DEFEAT CONDITIONS – STANDARD
-          </div>`,
-          `<div style="color: #1a120f;">
-            The Adventure immediately fails when one of the following occurs: 1) A Rune cannot be drawn from the bag; 2) any Hero collects their 2nd Trauma Cube; or 3) any Hero acquires their 6th Curse Cube. The team cannot proceed if any Hero is defeated.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            RECOVERY ACTION PENALTY – SINGLE
-          </div>`,
-          `<div style="color: #1a120f;">
-            Whenever Heroes take a Voluntary or Involuntary Recall Action, after completing the Action they are performing and recovering their Cubes, they receive 1 Curse Cube.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            GAME MECHANIC – GROWING DARKNESS
-          </div>`,
-          `<div style="color: #1a120f;">
-            Darkness lurks in the shadows, but it is too weak to manifest. Place the <span style="color: #0066cc;">Growing Darkness</span> Rune card with face A up in the Rune Slot at the bottom end of the Initiative Track.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            GAME MECHANIC – DRUNAGOR NIGHTS
-          </div>`,
-          `<div style="color: #1a120f;">
-            Doors are opened differently in this Adventure: Place the <span style="color: #0066cc;">End of Round</span> Game State Check-Up card in the Rune Slot at the bottom end of the Initiative Track, just below the Rune card, with face A up. It will help you manage this mechanic.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            DUNGEON ACTION – DISTURBED DARKNESS
-          </div>`,
-          `<div style="color: #1a120f;">
-            The hold of Darkness is strong here: Draw 24 Runes and place them on the Initiative Track. 12 remain in the bag, enough for 9 complete rounds before a Rune will fail to be drawn.
-          </div>`,
-          `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            STARTGAME TRIGGER
-          </div>`,
-          `<div style="color: #1a120f;">
-            With the Setup prepared and all these instructions read, you may begin playing the Adventure.
-          </div>`
-        ].join(""),
+        body: `<p>Times are changing...</p><p>The bravery of adventurers is needed once again. Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.</p><p>You arrived late, from far away. In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red. There’s no sign of your contractor. Or of any living soul, really. Those who remain have locked themselves inside their homes, praying for a miracle.</p><p>There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. Or rather, to fight. The hair on your arms stands on end—it’s unmistakable..</p><div style="color: Black; font-weight: bold; text-transform: uppercase; margin-top: 8px;">Blackriver needs your help. First, set up the components as shown below and then read the instructions for this Adventure:'.</div>`,
+        instruction: [`<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">SCENARIO OBJECTIVE – DUNGEON CRAWL</div><div style="color: #1a120f;">To complete this Adventure, you must move through all the rooms defeating every enemy in your way until you find the Adventure End Trigger.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DEFEAT CONDITIONS – STANDARD</div><div style="color: #1a120f;">The Adventure immediately fails when one of the following occurs: 1) A Rune cannot be drawn from the bag; 2) any Hero collects their 2nd Trauma Cube; or 3) any Hero acquires their 6th Curse Cube. The team cannot proceed if any Hero is defeated.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RECOVERY ACTION PENALTY – SINGLE</div><div style="color: #1a120f;">Whenever Heroes take a Voluntary or Involuntary Recall Action, after completing the Action they are performing and recovering their Cubes, they receive 1 Curse Cube.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – GROWING DARKNESS</div><div style="color: #1a120f;">Darkness lurks in the shadows, but it is too weak to manifest. Place the <span style="color: #0066cc;">Growing Darkness</span> Rune card with face A up in the Rune Slot at the bottom end of the Initiative Track.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – DRUNAGOR NIGHTS</div><div style="color: #1a120f;">Doors are opened differently in this Adventure: Place the <span style="color: #0066cc;">End of Round</span> Game State Check-Up card in the Rune Slot at the bottom end of the Initiative Track, just below the Rune card, with face A up. It will help you manage this mechanic.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DUNGEON ACTION – DISTURBED DARKNESS</div><div style="color: #1a120f;">The hold of Darkness is strong here: Draw 24 Runes and place them on the Initiative Track. 12 remain in the bag, enough for 9 complete rounds before a Rune will fail to be drawn.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">STARTGAME TRIGGER</div><div style="color: #1a120f;">With the Setup prepared and all these instructions read, you may begin playing the Adventure.</div>`].join(""),
       },
       {
         title: "HAIL TO HIS MAJESTY", 
-        body: `
-          <p>Madness. The only word that fits this moment.</p>
-          <p>Corrupted creatures laid siege to the city from the inside out, abducting villagers night after night to sacrifice them in a ritual to a dreadful entity. A classic tale.</p>
-          <p>When the last of the aberrations falls, the chorus goes silent and the world around you begins to tremble as if the ground were about to split in two. The shadows dance as if they’ve come to life, and you find it hard to describe what unfolds before your eyes.</p>
-          <p>“Hahaha! What is this?” echoes a hoarse laugh, coming from nowhere—sounding as if it emerged from a decaying corpse. Slowly, the darkness swirls and joins together to form a monster unlike anything you’ve ever seen: fifteen feet tall, a crown on its head, and the spine of a giant wielded like a weapon by skeletal hands. “Why resist? Everything that lives, sooner or later, dies. It’s not a matter of ‘if’, but ‘when’—and for you, that moment is now…”</p>
-        `,
-        instruction: `
-          <div style="color: #1a120f;">The monster behind Blackriver’s downfall has emerged from the shadows. Make the following preparations for your first Boss Fight:</div>
-          <ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;">
-            <li>Flip the second Monster Status Board (from orange to brown).</li>
-            <li>Set the Undead King’s starting Health Points. He has 25 HP for each Hero (for a total between 25 and 100).</li>
-            <li>Grab the Undead King’s Monster card, along with his 4 First Encounter Boss Attack cards, and place them with the “FRONT” side facing up in the designated slots of the Initiative Track.</li>
-            <li>Place the Undead King’s model on Map E11-F, occupying the central emerald-colored area. If any Hero is in that area, they must reposition their model to a square adjacent to the villain.</li>
-            <li>Replace the Hail to His Majesty Scene Trigger card on the Initiative Track with the Age of Darkness card.</li>
-            <li>Finally, each Hero on a square of Bridge BR2-B or any Map from the previous Setups must move their model to a square on Map E12-F. Those Heroes suffer FATIGUE X, with X being the number of squares they had to move. They take 1 non-preventable damage for each AC they should have discarded but couldn’t.</li>
-            <li>Remove Bridge BR2-B from the board. Heroes can no longer access previous Setup areas in any way. Pets that were on the Bridge or earlier Setups are Dispelled.</li>
-          </ul>
-          <div style="color: #1a120f; margin-top: 1em;">A Boss Battle is about to begin. Read the Tutorials “Boss Battles” and “Focus Abilities”. Then read the rule below before continuing the Adventure.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            RULE – THIS IS NOT OVER YET
-          </div>
-          <div style="color: #1a120f;">
-            When the Undead King dies for the first time, do not remove his model from the board or his cards from the Initiative Track. Skip all ACTIVATIONS from his Attack and Monster cards while he is in this suspended state. Heroes being GRAPPLED by the Undead King are released into a square adjacent to the Undead King’s model.
-          </div>
-        `
+        body: `<p>Madness. The only word that fits this moment.</p><p>Corrupted creatures laid siege to the city from the inside out, abducting villagers night after night to sacrifice them in a ritual to a dreadful entity. A classic tale.</p><p>When the last of the aberrations falls, the chorus goes silent and the world around you begins to tremble as if the ground were about to split in two. The shadows dance as if they’ve come to life, and you find it hard to describe what unfolds before your eyes.</p><p>“Hahaha! What is this?” echoes a hoarse laugh, coming from nowhere—sounding as if it emerged from a decaying corpse. Slowly, the darkness swirls and joins together to form a monster unlike anything you’ve ever seen: fifteen feet tall, a crown on its head, and the spine of a giant wielded like a weapon by skeletal hands. “Why resist? Everything that lives, sooner or later, dies. It’s not a matter of ‘if’, but ‘when’—and for you, that moment is now…”</p>`,
+        instruction: `<div style="color: #1a120f;">The monster behind Blackriver’s downfall has emerged from the shadows. Make the following preparations for your first Boss Fight:</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>Flip the second Monster Status Board (from orange to brown).</li><li>Set the Undead King’s starting Health Points. He has 25 HP for each Hero (for a total between 25 and 100).</li><li>Grab the Undead King’s Monster card, along with his 4 First Encounter Boss Attack cards, and place them with the “FRONT” side facing up in the designated slots of the Initiative Track.</li><li>Place the Undead King’s model on Map E11-F, occupying the central emerald-colored area. If any Hero is in that area, they must reposition their model to a square adjacent to the villain.</li><li>Replace the Hail to His Majesty Scene Trigger card on the Initiative Track with the Age of Darkness card.</li><li>Finally, each Hero on a square of Bridge BR2-B or any Map from the previous Setups must move their model to a square on Map E12-F. Those Heroes suffer FATIGUE X, with X being the number of squares they had to move. They take 1 non-preventable damage for each AC they should have discarded but couldn’t.</li><li>Remove Bridge BR2-B from the board. Heroes can no longer access previous Setup areas in any way. Pets that were on the Bridge or earlier Setups are Dispelled.</li></ul><div style="color: #1a120f; margin-top: 1em;">A Boss Battle is about to begin. Read the Tutorials “Boss Battles” and “Focus Abilities”. Then read the rule below before continuing the Adventure.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RULE – THIS IS NOT OVER YET</div><div style="color: #1a120f;">When the Undead King dies for the first time, do not remove his model from the board or his cards from the Initiative Track. Skip all ACTIVATIONS from his Attack and Monster cards while he is in this suspended state. Heroes being GRAPPLED by the Undead King are released into a square adjacent to the Undead King’s model.</div>`
       },
       {
         title: "AGE OF DARKNESS", 
-        body: `
-          <p>The author of Blackriver’s misery is not a man. Not anymore. Now he is a carcass corrupted by the same unholy power he claims dominion over. Without a soul to long for anything, all he seeks is death and destruction.</p>
-          <p>“Who the hell are you?” the monster demands. The living usually don’t strike back. “You’re strong, I’ll admit that—but this ends now. The seeds have already been planted. There is no more escape, no more rest!”</p>
-          <p>Boulders fall from the ceiling as the Undead King raises his hands and makes the hall tremble once again. Your legs fight to stay grounded, but it is your mind that reels at the sight of a nightmare: Shadows condense like black clouds, flashing with emerald light. Then, like a storm, something warm and sticky as pitch spills into the hall.</p>
-          <p>The falling slime creeps along the floor and devours corpses with the hunger of a predator, sending a shiver down your spine. Flesh, entrails, and bones vanish in the blink of an eye, thickening and strengthening the mass that oozes ever closer.</p>
-          <p>“Welcome, mortals... to the Age of Darkness!”</p>
-        `,
-        instruction: `
-          <div style="color: #1a120f;">The Undead King is not yet defeated and summons the Darkness to aid him. Make the following preparations for the second stage of this Boss Fight:</div>
-          <ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;">
-            <li>The Undead King restores 20 Health Points per Hero (for a total between 20 and 80).</li>
-            <li>Flip all of the Undead King’s Attack cards to their BACK side.</li>
-            <li>The Undead King releases all Heroes who are GRAPPLED.</li>
-            <li>Flip Maps E8-B and E5-F. Remove any Special Event tokens from them, but leave all other elements in their current squares (including Rune Piles). Heroes on those Maps are engulfed by Darkness.</li>
-            <li>Replace the Age of Darkness Scene Trigger card with the Into the Underkeep Endgame Trigger card.</li>
-          </ul>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
-            GAME MECHANIC – DARKNESS HUNTING
-          </div>
-          <div style="color: #1a120f;">
-            The Darkness is now strong enough to hunt new victims. Replace the Growing Darkness Rune card on the Initiative Track with the Darkness Hunting card, keeping the same face up. The Darkness now chases the Heroes according to the Standard Behavior. You can find details about the emergence of Darkness and its effects here. Reminder: If all Heroes are already in Darkness when a Rune is drawn, they suffer CRUSH damage instead of spawning Darkness.
-          </div>
-          <div style="color: #1a120f; margin-top: 1em;">With these preparations complete, proceed with the Adventure. The fight continues until the Undead King is ultimately defeated.</div>
-        `
+        body: `<p>The author of Blackriver’s misery is not a man. Not anymore. Now he is a carcass corrupted by the same unholy power he claims dominion over. Without a soul to long for anything, all he seeks is death and destruction.</p><p>“Who the hell are you?” the monster demands. The living usually don’t strike back. “You’re strong, I’ll admit that—but this ends now. The seeds have already been planted. There is no more escape, no more rest!”</p><p>Boulders fall from the ceiling as the Undead King raises his hands and makes the hall tremble once again. Your legs fight to stay grounded, but it is your mind that reels at the sight of a nightmare: Shadows condense like black clouds, flashing with emerald light. Then, like a storm, something warm and sticky as pitch spills into the hall.</p><p>The falling slime creeps along the floor and devours corpses with the hunger of a predator, sending a shiver down your spine. Flesh, entrails, and bones vanish in the blink of an eye, thickening and strengthening the mass that oozes ever closer.</p><p>“Welcome, mortals... to the Age of Darkness!”</p>`,
+        instruction: `<div style="color: #1a120f;">The Undead King is not yet defeated and summons the Darkness to aid him. Make the following preparations for the second stage of this Boss Fight:</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>The Undead King restores 20 Health Points per Hero (for a total between 20 and 80).</li><li>Flip all of the Undead King’s Attack cards to their BACK side.</li><li>The Undead King releases all Heroes who are GRAPPLED.</li><li>Flip Maps E8-B and E5-F. Remove any Special Event tokens from them, but leave all other elements in their current squares (including Rune Piles). Heroes on those Maps are engulfed by Darkness.</li><li>Replace the Age of Darkness Scene Trigger card with the Into the Underkeep Endgame Trigger card.</li></ul><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – DARKNESS HUNTING</div><div style="color: #1a120f;">The Darkness is now strong enough to hunt new victims. Replace the Growing Darkness Rune card on the Initiative Track with the Darkness Hunting card, keeping the same face up. The Darkness now chases the Heroes according to the Standard Behavior. You can find details about the emergence of Darkness and its effects here. Reminder: If all Heroes are already in Darkness when a Rune is drawn, they suffer CRUSH damage instead of spawning Darkness.</div><div style="color: #1a120f; margin-top: 1em;">With these preparations complete, proceed with the Adventure. The fight continues until the Undead King is ultimately defeated.</div>`
       },
-      // NOVO CONTEÚDO ADICIONADO ABAIXO:
       {
-        title: "INTO THE UNDERKEEP", // Título do novo bloco de conteúdo
-        body: `
-          <p>What takes place in the Great Hall is the embodiment of life’s struggle, as the adrenaline surging through your veins turns any dreams of wealth or glory into a single purpose: survival. Violence is met with violence, but in the end, the final blow is delivered by you.</p>
-          <p>“How... How can flesh surpass death?” the skeletal colossus murmurs as he collapses to the ground—but surprisingly, he laughs again. The black mass had already infiltrated the fortress’s foundations, shaking the ground harder than ever. “You know what? It doesn’t matter. You’ve won nothing but the right to dig your own graves...”</p>
-          <p>You barely have time to look at each other, let alone think of fleeing, before the cacophony of the collapse silences the hall, raising dust everywhere. All that’s left is to take a deep breath and hope for the best.</p>
-          <p>Surely, this job is turning out to be more costly than you expected…</p>
-        `,
-        instruction: `
-          <div style="color: #1a120f; font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">Congratulations! You’ve completed the Drunagor Nights Season 01, Tutorial!</div>
-          <div style="color: #1a120f;">Register your Heroes by marking in the app the Skills, Class Abilities, and Equipment you own. Proceed to the Adventure Underkeep Level 01 for your next game session—or if you prefer, replay this adventure in Advanced Mode first.</div>
-        `
+        title: "INTO THE UNDERKEEP", 
+        body: `<p>What takes place in the Great Hall is the embodiment of life’s struggle, as the adrenaline surging through your veins turns any dreams of wealth or glory into a single purpose: survival. Violence is met with violence, but in the end, the final blow is delivered by you.</p><p>“How... How can flesh surpass death?” the skeletal colossus murmurs as he collapses to the ground—but surprisingly, he laughs again. The black mass had already infiltrated the fortress’s foundations, shaking the ground harder than ever. “You know what? It doesn’t matter. You’ve won nothing but the right to dig your own graves...”</p><p>You barely have time to look at each other, let alone think of fleeing, before the cacophony of the collapse silences the hall, raising dust everywhere. All that’s left is to take a deep breath and hope for the best.</p><p>Surely, this job is turning out to be more costly than you expected…</p>`,
+        instruction: `<div style="color: #1a120f; font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">Congratulations! You’ve completed the Drunagor Nights Season 01, Tutorial!</div><div style="color: #1a120f;">Register your Heroes by marking in the app the Skills, Class Abilities, and Equipment you own. Proceed to the Adventure Underkeep Level 01 for your next game session—or if you prefer, replay this adventure in Advanced Mode first.</div>`
       }
     ],
     layout: "single-column",
@@ -311,17 +153,129 @@ const pages = ref([
   }
 ]);
 
-const navigateToLibrary = () => {
-  router.push('/library');
+const scrollableContentRef = ref<HTMLElement | null>(null);
+
+interface NavigationItem {
+  sectionTitle: string;
+  title: string;
+  sectionIndex: number;
+  contentIndex: number; // Adicionado para referência direta ao índice do conteúdo
+  id: string;
+}
+
+const navigationItems = computed(() => {
+  const items: NavigationItem[] = [];
+  pages.value.forEach((section, sectionIdx) => {
+    if (section.content && section.content.length > 0) {
+      section.content.forEach((contentItem, contentIdx) => {
+        if (contentItem.title) {
+          items.push({
+            sectionTitle: section.section,
+            title: contentItem.title,
+            sectionIndex: sectionIdx,
+            contentIndex: contentIdx, // Guardando o índice do conteúdo
+            id: `content-block-${sectionIdx}-${contentIdx}`
+          });
+        }
+      });
+    }
+  });
+  return items;
+});
+
+const groupedNavigationItems = computed(() => {
+  const groups: { [key: string]: NavigationItem[] } = {};
+  navigationItems.value.forEach(item => {
+    if (!groups[item.sectionTitle]) {
+      groups[item.sectionTitle] = [];
+    }
+    groups[item.sectionTitle].push(item);
+  });
+  return groups;
+});
+
+const getSectionIcon = (_sectionName: string) => {
+  return 'mdi-book-open-page-variant';
 };
 
-const navigateToEvents = () => {
-  router.push('/events');
+const navigateToContent = async (sectionIndex: number, contentBlockId: string) => {
+  console.log(`[Nav] Attempting to navigate. Target Section Idx: ${sectionIndex}, Target Element ID: ${contentBlockId}`);
+
+  if (sectionIndex < 0 || sectionIndex >= pages.value.length) {
+    console.error(`[Nav] Invalid sectionIndex: ${sectionIndex}. Total pages: ${pages.value.length}`);
+    return;
+  }
+  
+  const parts = contentBlockId.split('-'); // Ex: "content-block-1-2"
+  const targetContentLoopIndex = parseInt(parts[parts.length - 1], 10); // Pega o último número (índice do loop de conteúdo)
+
+  if (isNaN(targetContentLoopIndex) || 
+      !pages.value[sectionIndex]?.content?.[targetContentLoopIndex]) {
+    console.error(`[Nav] Invalid contentBlockId or target content does not exist in data: ${contentBlockId}`);
+    if (currentIndex.value !== sectionIndex) {
+        currentIndex.value = sectionIndex;
+        await nextTick();
+        if (scrollableContentRef.value) {
+            scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }
+    return;
+  }
+
+  const oldCurrentIndex = currentIndex.value;
+  if (oldCurrentIndex !== sectionIndex) {
+    currentIndex.value = sectionIndex;
+    console.log(`[Nav] currentIndex changed from ${oldCurrentIndex} to: ${sectionIndex}`);
+    // É crucial esperar que o DOM seja atualizado com os novos itens da seção
+    await nextTick(); 
+    console.log(`[Nav] DOM updated after section change. Now trying to find element ${contentBlockId}`);
+  } else {
+    // Se já estamos na seção correta, um nextTick ainda é importante
+    // para qualquer atualização de estado que possa ter ocorrido.
+    await nextTick();
+    console.log(`[Nav] Already in section ${sectionIndex}. DOM ticked. Now trying to find element ${contentBlockId}`);
+  }
+
+  // O ID no DOM será `content-block-${atual_currentIndex}-${content_loop_index}`
+  // O contentBlockId que recebemos é `content-block-${sectionIndex_alvo}-${contentIndex_alvo_original}`
+  // Após o currentIndex ser atualizado para sectionIndex_alvo, o ID do elemento no DOM será
+  // `content-block-${sectionIndex_alvo}-${content_loop_index_correto}`
+  // O contentBlockId já tem o formato correto que será gerado no DOM.
+  const element = document.getElementById(contentBlockId);
+  
+  if (element) {
+    console.log(`[Nav] Element ${contentBlockId} FOUND. OffsetTop: ${element.offsetTop}, ClientHeight: ${element.clientHeight}`);
+    if (scrollableContentRef.value) {
+      const container = scrollableContentRef.value;
+      console.log(`[Nav] Scrollable container FOUND. ScrollTop: ${container.scrollTop}, ScrollHeight: ${container.scrollHeight}, ClientHeight: ${container.clientHeight}`);
+      
+      // Tenta rolar o elemento para o topo do container visível.
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      console.log(`[Nav] scrollIntoView({ block: 'start' }) called on ${contentBlockId}`);
+    } else {
+      console.warn(`[Nav] scrollableContentRef is NOT defined. Falling back to global scrollIntoView for ${contentBlockId}.`);
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } else {
+    console.error(`[Nav] Element with ID ${contentBlockId} NOT FOUND in DOM after potential section change and nextTick.`);
+    if (oldCurrentIndex !== sectionIndex && scrollableContentRef.value) {
+        console.log(`[Nav] Fallback: Scrolling to top of new section ${sectionIndex}`);
+        scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
 };
 
-const startDrag = (e: MouseEvent) => {
+
+const startDragHeader = (e: MouseEvent) => { 
+  drag.value = true;
+  startX.value = e.clientX - dragX.value;
+  startY.value = e.clientY - dragY.value;
+  document.addEventListener("mousemove", onDrag);
+  document.addEventListener("mouseup", stopDrag);
+};
+const startDrag = (e: MouseEvent) => { 
   const target = e.target as HTMLElement;
-  if (target.closest('button')) { // Previne o arrasto se o clique for em um botão DENTRO do header-banner
+  if (target.closest('button, a, input, textarea, .v-navigation-drawer, .header-banner .d-flex')) {
     return;
   }
   drag.value = true;
@@ -344,7 +298,14 @@ const stopDrag = () => {
 };
 
 const currentIndex = ref(0);
-const currentPage = computed(() => pages.value[currentIndex.value]);
+const currentPage = computed(() => {
+    if (pages.value.length === 0) return null;
+    const safeIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
+    if (currentIndex.value !== safeIndex && pages.value.length > 0) { // Evitar setar se pages for vazio
+        currentIndex.value = safeIndex;
+    }
+    return pages.value[safeIndex];
+});
 
 const isFullScreenWithBackground = computed(() => {
   return (
@@ -373,7 +334,7 @@ const backgroundStyle = computed<CSSProperties>(() => {
 
 function handlePageClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
-  if (target.closest('button, a, .v-card, .v-btn, .header-banner')) { // Evita navegação em elementos clicáveis e no header-banner
+  if (target.closest('button, a, .v-card, .v-btn, .header-banner, .v-navigation-drawer')) { 
     return;
   }
 
@@ -426,18 +387,20 @@ function prevPage() {
   background-repeat: no-repeat;
   background-position: top center;
   padding: 2px 14px 10px; 
-  /* margin-bottom: 12px; Removido pois o content-block cuidará do espaçamento inferior */
   position: relative;
   z-index: 1;
   color: #212121; 
-  border-top-left-radius: 6px; /* Para arredondar com o content-block se ele tiver borda */
+  border-top-left-radius: 6px; 
   border-top-right-radius: 6px;
+}
+.header-banner .d-flex { 
+  cursor: move; 
 }
 
 .section-title {
   font-size: 0.7rem;
   color: white;
-  padding: 23px 64px 25px; 
+  padding: 23px 44px 5px; 
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
@@ -454,15 +417,6 @@ function prevPage() {
   padding-right: 44px;
   text-align: left; 
 }
-
-/* .chapter-title { Comentado pois todos os títulos agora usam chapter-title-banner
-  font-family: "Cinzel Decorative", cursive;
-  font-size: 1.8rem;
-  color: #191919;
-  margin-bottom: 16px; 
-  text-shadow: 1px 1px 2px rgba(94, 69, 57, 0.1);
-} */
-
 
 .body-text p {
   font-family: "EB Garamond", serif;
@@ -496,7 +450,7 @@ function prevPage() {
   color: #1a120f !important;
   box-shadow: 3px 3px 0px #212121;
   padding: 16px;
-  margin-top: 1rem; /* Adicionado para dar espaço após o body-text */
+  margin-top: 1rem; 
 }
 
 .instruction-card ul { 
@@ -507,7 +461,6 @@ function prevPage() {
 .instruction-card li {
   margin-bottom: 0.5em;
 }
-
 
 .v-btn {
   font-family: "Uncial Antiqua", cursive !important;
@@ -524,15 +477,36 @@ function prevPage() {
   transition: width 0.3s ease !important;
 }
 
+.nav-drawer .v-list-item-title {
+  color: #f0e6d2;
+  font-size: 0.8rem !important;
+  line-height: 1.2;
+  white-space: normal !important; 
+}
+.nav-drawer .v-list-subheader {
+  color: #e6c68a !important; 
+  font-size: 0.9rem;
+  font-family: "Cinzel Decorative", cursive;
+  padding-left: 16px; /* Alinhamento com itens */
+}
+.drawer-section-header .v-list-item-title {
+ font-weight: bold;
+ font-size: 0.85rem !important;
+ color: #f5e1a9 !important; 
+}
+.drawer-item-index .v-list-item-title {
+  font-size: 0.75rem !important; 
+  font-family: "EB Garamond", serif;
+  color: #d4be94 !important;
+  padding-right: 8px; /* Para evitar sobreposição com scrollbar se houver */
+}
+.drawer-item-index:hover .v-list-item-title {
+  color: #fff !important;
+}
+
 .v-list-item__prepend {
   opacity: 1 !important;
   margin-right: 12px !important;
-}
-
-.v-list-item-title {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  margin-left: 0px;
 }
 
 .nav-drawer:hover .v-list-item-title {
@@ -548,16 +522,20 @@ function prevPage() {
 }
 
 .v-navigation-drawer--rail:hover {
-  width: 240px !important;
+  width: 270px !important; 
 }
 
 .main-content {
-  transition: margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.nav-drawer:hover~.main-content {
-  margin-left: 240px;
+.v-navigation-drawer--rail:hover ~ .main-content {
+   margin-left: 270px !important; 
 }
+.v-navigation-drawer:not(.v-navigation-drawer--rail) ~ .main-content {
+  margin-left: 270px !important; /* Garante que o margin-left seja aplicado quando não está em modo rail */
+}
+
 
 .scrollable-content {
   overflow-y: auto;
@@ -565,133 +543,71 @@ function prevPage() {
 }
 
 .content-block {
-  background-color: #fff; /* Fundo branco para o bloco de conteúdo se destacar da página */
-  border: 1px solid #dedede; /* Borda sutil para o bloco */
-  border-radius: 6px; /* Cantos arredondados para o bloco */
-  padding: 0 16px 16px 16px; /* Padding interno, sem padding no topo pois o banner preenche */
+  background-color: #fff; 
+  border: 1px solid #dedede; 
+  border-radius: 6px; 
+  padding: 0 0 16px 0; 
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.content-block .header-banner { 
+  padding-left: 16px;
+  padding-right: 16px;
 }
 
 .content-block:not(:last-child) {
   margin-bottom: 24px; 
-  /* padding-bottom: 16px; Removido, padding agora no .content-block */
-  /* border-bottom: 1px dashed #ccc; Removido, .content-block tem borda completa */
 }
 .content-block:last-child {
   margin-bottom: 16px; 
 }
 
-.body-text.mt-3 { /* Assegura que o mt-3 seja aplicado após o banner interno */
-    margin-top: 1rem !important; /* 1rem = mt-4, ajuste se mt-3 for 0.75rem */
+.body-text.mt-3 { 
+    margin-top: 1rem !important; 
+    padding: 0 16px; 
+}
+.instruction-card {
+    margin-left: 16px;
+    margin-right: 16px;
+    width: calc(100% - 32px); 
 }
 
-
 @media (max-width: 960px) {
-  .book-dialog {
-    width: 90vw !important;
-    max-height: 85vh !important; 
-  }
-
-  .scrollable-content {
-    max-height: calc(85vh - 80px); 
-  }
-  
-  .chapter-title-banner {
-    font-size: 1.6rem !important; 
-  }
-
-  .body-text p {
-    font-size: 1rem !important;
-    line-height: 1.5;
-  }
-  .content-block {
-    padding: 0 12px 12px 12px;
-  }
+  .book-dialog { width: 90vw !important; max-height: 85vh !important; }
+  .scrollable-content { max-height: calc(85vh - 80px); }
+  .chapter-title-banner { font-size: 1.6rem !important; }
+  .body-text p { font-size: 1rem !important; line-height: 1.5; }
+  .content-block .header-banner, .body-text.mt-3 { padding-left: 12px; padding-right: 12px; }
+  .instruction-card { margin-left: 12px; margin-right: 12px; width: calc(100% - 24px); }
 }
 
 @media (max-width: 600px) {
-  .book-dialog {
-    width: 96vw !important;
-    max-height: 90vh !important; 
-  }
-
-  .scrollable-content {
-    max-height: calc(90vh - 70px); 
-  }
-
-  .d-flex.justify-end {
-    position: sticky;
-    bottom: 0;
-    background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%); 
-    padding: 16px 0;
-    z-index: 100;
-  }
-
+  .book-dialog { width: 96vw !important; max-height: 90vh !important; }
+  .scrollable-content { max-height: calc(90vh - 70px); }
+  .d-flex.justify-end { position: sticky; bottom: 0; background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%); padding: 16px 0; z-index: 100; }
+  
   .nav-drawer { width: 48px !important; }
-  .nav-drawer:hover { width: 180px !important; }
-  .v-navigation-drawer--rail { width: 48px !important; }
+  .nav-drawer:hover, .v-navigation-drawer--rail:hover  { width: 220px !important; }
+  .v-navigation-drawer--rail:hover ~ .main-content { margin-left: 220px !important; }
+  .v-navigation-drawer:not(.v-navigation-drawer--rail) ~ .main-content { margin-left: 220px !important; }
 
-  .header-banner {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-  .section-title { 
-    font-size: 0.6rem !important; 
-    padding: 15px 10px 5px 10px !important; 
-  }
 
-  .chapter-title-banner {
-    font-size: 1.4rem !important; 
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    margin-top: 2px;
-    margin-bottom: 8px;
-  }
-
-  .body-text p {
-    font-size: 0.9rem !important;
-    text-indent: 1em;
-    line-height: 1.4;
-  }
-
-  .v-btn {
-    font-size: 0.8rem !important;
-    padding: 8px 10px !important; 
-    margin: 4px !important;
-  }
-
-  .book-page {
-    margin: 10px !important;
-    min-height: unset; 
-  }
-  .content-block {
-    padding: 0 8px 8px 8px;
-  }
-  .instruction-card { 
-    font-size: 0.85rem !important;
-    padding: 12px !important;
-  }
-  .content-block:not(:last-child) {
-    margin-bottom: 16px;
-  }
+  .header-banner { padding-left: 8px; padding-right: 8px; }
+  .section-title { font-size: 0.6rem !important; padding: 15px 10px 5px 10px !important; }
+  .chapter-title-banner { font-size: 1.4rem !important; padding-left: 10px !important; padding-right: 10px !important; margin-top: 2px; margin-bottom: 8px; }
+  .body-text p { font-size: 0.9rem !important; text-indent: 1em; line-height: 1.4; }
+  .v-btn { font-size: 0.8rem !important; padding: 8px 10px !important; margin: 4px !important; }
+  .book-page { margin: 10px !important; min-height: unset; }
+  .content-block .header-banner, .body-text.mt-3 { padding-left: 8px; padding-right: 8px; }
+  .instruction-card { font-size: 0.85rem !important; padding: 12px !important; margin-left: 8px; margin-right: 8px; width: calc(100% - 16px); }
+  .content-block:not(:last-child) { margin-bottom: 16px; }
 }
 
 @media (max-width: 400px) {
-  .d-flex.justify-end {
-    flex-direction: column;
-    gap: 8px;
-  }
-
+  .d-flex.justify-end { flex-direction: column; gap: 8px; }
   .v-btn { width: 100% !important; justify-content: center; }
-
-  .book-dialog {
-    width: 98vw !important; 
-    max-height: 95vh !important;
-    margin: auto;
-  }
+  .book-dialog { width: 98vw !important; max-height: 95vh !important; margin: auto; }
   .scrollable-content { max-height: calc(95vh - 60px); }
-
-  .header-banner { margin-bottom: 0; } /* Removido margin-bottom pois o content-block tem padding agora */
+  .header-banner { margin-bottom: 0; } 
   .section-title { padding: 10px 8px 2px 8px !important; font-size: 0.55rem !important; }
   .chapter-title-banner { font-size: 1.3rem !important; padding-left: 8px !important; padding-right: 8px !important; margin-bottom: 5px;}
 }
