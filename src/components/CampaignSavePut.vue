@@ -7,41 +7,49 @@ import axios from 'axios';
 import { useRoute } from 'vue-router';
 
 const props = defineProps<{ campaignId: string }>();
+const emit = defineEmits(['success', 'fail'])
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const token = ref('');
 const { t } = useI18n();
 const route = useRoute();
 
-async function saveCampaign() {
-  // gera o token
-  const campaignCopy = JSON.parse(JSON.stringify(campaignStore.find(props.campaignId)));
-  campaignCopy.campaignId = '';
-  const heroes = heroStore.findAllInCampaign(props.campaignId);
+function compressCampaign(campaignId: string) {
+
+  const campaign = campaignStore.find(campaignId)
+
+  const campaignCopy = JSON.parse(
+    JSON.stringify(campaign),
+  );
+
+  const heroes = heroStore.findAllInCampaign(campaignId);
+
   const data = {
     campaignData: campaignCopy,
-    heroes: heroes.map(h => {
+    heroes: heroes.map((h) => {
       const clone = JSON.parse(JSON.stringify(h));
-      clone.campaignId = '';
       return clone;
     }),
   };
+
+
   token.value = btoa(JSON.stringify(data));
 
-  // pega o ID da URL e converte para number
-  const { id } = route.params as { id: string };
-  const campaigns_pk = Number(id);
+  return campaign.name
+}
 
-  try {
-    await axios.put('/campaigns/alter', {
-      campaigns_pk,
-      tracker_hash: token.value,
-    });
-    alert(t('label.success')); // ou: alert('Campanha salva com sucesso');
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    alert(t('label.error') || msg);
-  }
+async function saveCampaign() {
+
+  const party_name = compressCampaign(props.campaignId)
+
+  await axios.put(`campaigns/alter/${props.campaignId}`, {
+    tracker_hash: token.value, party_name: party_name,
+  }).then(() => {
+    emit("success")
+  }).catch((err) => {
+    emit("fail")
+  })
+
 }
 </script>
 

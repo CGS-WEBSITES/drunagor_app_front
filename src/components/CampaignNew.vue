@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import CoreLogo from "@/assets/campaign/logo/core.webp";
@@ -13,7 +12,6 @@ import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
 import { useUserStore } from "@/store/UserStore";
 
-const toast = useToast();
 const { t } = useI18n();
 const router = useRouter();
 const campaignStore = CampaignStore();
@@ -23,6 +21,7 @@ const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
 const user = useUserStore().user
+const loading = ref(false)
 
 // const NEW_CAMPAIGN_ID = Date.now().toString();
 
@@ -43,8 +42,6 @@ function compressCampaign(campaignId: string) {
   };
 
   token.value = btoa(JSON.stringify(data));
-
-  return token
 }
 
 async function createCampaign(boxId: number) {
@@ -57,14 +54,14 @@ async function createCampaign(boxId: number) {
   })
 }
 
-async function saveCampaign(campaign_pk: number, tracker_hash: string , party_name: string ) {
+async function saveCampaign(campaign_pk: number, party_name: string) {
 
-  await axios.put("campaigns/alter", {
-    campaign_pk: campaign_pk, tracker_hash: tracker_hash, party_name: party_name,
+  await axios.put(`campaigns/alter/${campaign_pk}`, {
+    tracker_hash: token.value, party_name: party_name,
   });
 }
 
-async function addRelationship(users_pk: number, campaign_fk: number, boxId: number) {
+async function addRelationship(users_pk: number, campaign_fk: string, boxId: number) {
 
   await axios.post("rl_campaigns_users/cadastro", {
     users_fk: users_pk,
@@ -75,17 +72,12 @@ async function addRelationship(users_pk: number, campaign_fk: number, boxId: num
 
   successDialogVisible.value = true;
 
-  return serverPk;
 }
 
-// function newCampaign(campaign: "core" | "apocalypse" | "awakenings" | "underkeep") {
-//   let campaignId = nanoid();
-//   campaignStore.add(new Campaign(campaignId, campaign));
-//   visible.value = false;
-//   router.push("/campaign-tracker/campaign/" + campaignId);
-// }
-
 async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underkeep") {
+  
+  loading.value = true
+
   const usersPk = user.users_pk;
 
   const { data } = await axios.get("/skus/search", {
@@ -106,35 +98,23 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underke
 
   let campaignResp = await createCampaign(selectedSku.skus_pk)
 
-  console.log(campaignResp.campaign)
-
-  let campaignFk = campaignResp.campaign.campaigns_pk
+  let campaignFk = String(campaignResp.campaign.campaigns_pk)
 
   let newCampaign = new Campaign(campaignFk, type)
 
-  console.log(newCampaign)
-
   campaignStore.add(newCampaign);
 
-  let token = compressCampaign(campaignFk)
+  compressCampaign(campaignFk)
 
-  console.log(token.value)
+  await saveCampaign(campaignFk, "")
 
-  await saveCampaign(campaignFk, token.value, "")
+  await addRelationship(usersPk, campaignFk, selectedSku.skus_pk)
 
-  return
-
-  // 1) Primeiro, salve no back e pegue o ID real
-  const serverPk = await saveCampaign(selectedSku.skus_pk);
-
-  // 2) Agora crie a campanha no store usando o serverPk
-
-  // 3) Abra o modal para esse ID real
-  openModal(serverPk);
+  loading.value = false
 
   // 4) Redirecione usando o serverPk no path
   router.push({
-    path: `/campaign-tracker/campaign/${serverPk}`,
+    path: `/campaign-tracker/campaign/${campaignFk}`,
     query: { sku: selectedSku.skus_pk.toString() },
   });
 }
@@ -153,8 +133,11 @@ const selected = ref(null);
   <v-dialog v-model="visible" max-width="800">
     <v-card>
 
-      <v-card-text>
-        <v-slide-group v-model="selected" class="pl-1" show-arrows center-active>
+      <v-card-text class="d-flex justify-center">
+
+        <v-progress-circular v-if="loading" :size="80" :width="7" color="primary" indeterminate></v-progress-circular>
+
+        <v-slide-group v-else v-model="selected" class="pl-1" show-arrows center-active>
           <v-slide-item value="core">
             <v-img width="336" height="200" class="ma-2 cursor-pointer" :src="CoreLogo.toString()"
               @click="newCampaign('core')" />
@@ -176,20 +159,6 @@ const selected = ref(null);
           </v-slide-item>
         </v-slide-group>
       </v-card-text>
-    </v-card>
-  </v-dialog>
-
-  <v-dialog v-model="successDialogVisible" max-width="300">
-    <v-card>
-      <v-card-title>{{ t("label.success") }}</v-card-title>
-      <v-card-text>
-        {{ t("Campaign created successfully") }}
-      </v-card-text>
-      <v-card-actions>
-        <v-btn block @click="successDialogVisible = false">
-          {{ t("label.close") }}
-        </v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

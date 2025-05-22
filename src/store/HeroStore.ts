@@ -50,6 +50,10 @@ export const HeroStore = defineStore("hero", () => {
       return true;
     });
   }
+  
+  function reset() {
+    heroes.value = [];
+  }
 
   return {
     heroes,
@@ -58,5 +62,6 @@ export const HeroStore = defineStore("hero", () => {
     findAllInCampaign,
     add,
     removeFromCampaign,
+    reset,
   };
 });
