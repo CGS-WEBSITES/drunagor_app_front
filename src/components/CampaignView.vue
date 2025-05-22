@@ -77,7 +77,6 @@ function onSequentialAdventure() {
                   <CampaignSavePut :campaign-id="campaignId" class="mx-2"
                     @success="setAllert('mdi-check', 200, 'The campaign was successfully saved!', 'success')" 
                     @fail="setAllert('mdi-alert-circle', 500, 'The campaign was not successfully saved', 'error')"/>
-                  <CampaignBook :campaign-id="campaignId" class="mx-2" />
                 </v-card-actions>
               </v-card>
             </v-row>
@@ -102,6 +101,17 @@ function onSequentialAdventure() {
       <SelectDoor :campaign-id="campaignId" />
     </v-col>
   </v-row>
+
+
+    <v-row no-gutters class="d-flex justify-center">
+    <v-sheet rounded >
+      <v-col cols="10">
+       <CampaignBook :campaign-id="campaignId"  />
+      </v-col>
+    </v-sheet>
+  </v-row>
+
+
 
 
 

@@ -1,85 +1,90 @@
 <template>
   <div>
-    <v-btn color="brown darken-3" class="text-white rounded-xl text-uppercase font-weight-bold" @click="dialog = true"
-      prepend-icon="mdi-book-open-page-variant">
-      Open Campaign Book
-    </v-btn>
+    <v-card
+      class="book-dialog pa-0"
+      @mousedown="startDrag"
+    >
+      <v-layout>
+        <v-navigation-drawer
+          expand-on-hover
+          rail
+          permanent
+          width="240"
+          class="nav-drawer"
+          :floating="false"
+          absolute
+        >
+          <v-list density="compact" nav>
+            <v-list-item prepend-icon="mdi-account-group" title="Gamer Player" value="player" class="drawer-item">
+              <template v-slot:prepend>
+                <v-icon color="#f0e6d2"></v-icon>
+              </template>
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-calendar" title="Events" value="events" class="drawer-item"
+              @click="navigateToEvents">
+              <template v-slot:prepend>
+                <v-icon color="#f0e6d2"></v-icon>
+              </template>
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-bookshelf" title="Library" value="library" class="drawer-item"
+              @click="navigateToLibrary">
+              <template v-slot:prepend>
+                <v-icon color="#f0e6d2"></v-icon>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-navigation-drawer>
 
-    <v-dialog v-model="dialog" max-width="800px" :scrim="false" :persistent="true" :hide-overlay="true"
-      no-click-animation :retain-focus="false" content-class="transparent-dialog" :style="{
-        position: 'fixed',
-        transform: `translate(${dragX}px, ${dragY}px)`,
-        transition: 'transform 0.1s',
-        zIndex: 1000,
-      }">
-      <v-card class="book-dialog" elevation="10" @mousedown="startDrag">
-        <v-layout>
-          <v-navigation-drawer expand-on-hover rail permanent width="240" class="nav-drawer" :floating="false" absolute>
-            <v-list density="compact" nav>
-              <v-list-item prepend-icon="mdi-account-group" title="Gamer Player" value="player" class="drawer-item">
-                <template v-slot:prepend>
-                  <v-icon color="#f0e6d2"></v-icon>
-                </template>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-calendar" title="Events" value="events" class="drawer-item"
-                @click="navigateToEvents">
-                <template v-slot:prepend>
-                  <v-icon color="#f0e6d2"></v-icon>
-                </template>
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-bookshelf" title="Library" value="library" class="drawer-item"
-                @click="navigateToLibrary">
-                <template v-slot:prepend>
-                  <v-icon color="#f0e6d2"></v-icon>
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-navigation-drawer>
-
-          <v-main class="main-content">
-            <v-card-text class="pa-0 scrollable-content">
-              <v-sheet v-if="currentPage" :key="currentIndex" :style="backgroundStyle as CSSProperties"
-                class="book-page" elevation="0" rounded @click="handlePageClick">
-                <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
-                <v-container class="pa-6">
-                  <v-row>
-                    <v-col cols="12">
+        <v-main class="main-content">
+          <v-card-text class="pa-0 scrollable-content">
+            <v-sheet
+              v-if="currentPage"
+              :key="currentIndex"
+              :style="backgroundStyle as CSSProperties"
+              class="book-page"
+              elevation="0"
+              rounded
+              @click="handlePageClick"
+            >
+              <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
+              <v-container class="pa-3 ml-2">
+                <v-row>
+                  <v-col cols="12">
+                    <div class="header-banner">
                       <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDrag">
                         <h4 class="section-title">{{ currentPage.section }}</h4>
-                        <v-btn icon @click="dialog = false" class="close-btn">
+                        <v-btn icon class="close-btn" @click="hideCard = true">
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </div>
                       <h2 class="chapter-title">{{ currentPage.title }}</h2>
-                      <div class="body-text" v-html="currentPage.body"></div>
+                    </div>
 
-                     <v-card
-                      v-if="currentPage.instruction"
-                      class="instruction-card mt-6"
-                      flat
-                    >
+                    <div class="body-text" v-html="currentPage.body"></div>
+
+                    <v-card v-if="currentPage.instruction" class="instruction-card mt-6 py-0" flat>
                       <v-card-text v-html="currentPage.instruction" />
                     </v-card>
 
-                      <div class="d-flex justify-end mt-8">
-                        <v-btn color="amber-darken-2" variant="flat" @click.stop="prevPage"
-                          :disabled="currentIndex === 0" class="mx-4 px-6 text-white font-weight-bold">
-                          ◀ Previous
-                        </v-btn>
-                        <v-btn color="amber-darken-2" variant="flat" @click.stop="nextPage"
-                          :disabled="currentIndex >= pages.length - 1" class="mx-4 px-6 text-white font-weight-bold">
-                          Next ▶
-                        </v-btn>
-                      </div>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-sheet>
-            </v-card-text>
-          </v-main>
-        </v-layout>
-      </v-card>
-    </v-dialog>
+                    <div class="d-flex justify-end mt-8">
+                      <v-btn color="amber-darken-2" variant="flat" @click.stop="prevPage"
+                        :disabled="currentIndex === 0" class="mx-4 px-6 text-white font-weight-bold">
+                        ◀ Previous
+                      </v-btn>
+                      <v-btn color="amber-darken-2" variant="flat" @click.stop="nextPage"
+                        :disabled="currentIndex >= pages.length - 1" class="mx-4 px-6 text-white font-weight-bold">
+                        Next ▶
+                      </v-btn>
+                    </div>
+
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-sheet>
+          </v-card-text>
+        </v-main>
+      </v-layout>
+    </v-card>
   </div>
 </template>
 
@@ -124,14 +129,14 @@ const pages = ref([
     The hair on your arms stands on end—it’s unmistakable...  
       </p>
     `,
-      instruction: [
+    instruction: [
       `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: px;">
         SCENARIO OBJECTIVE – DUNGEON CRAWL'.
       </div>`,
       `<div style="color: #1a120f;">
        To complete this Adventure, you must move through all the rooms, defeating every enemy in your way until you find the Adventure End Trigger.
       </div>`,
-        `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">
+      `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">
         DEFEAT CONDITIONS – STANDARD'.
       </div>`,
       `<div style="color: #1a120f;">
@@ -152,7 +157,94 @@ const pages = ref([
       </div>`,
     ].join(""),
 
+
+    layout: "single-column",
+    background: "url('/img/bg-apoc.png')",
+  },
+   {
+    section: "WING 1 - ADVANNCED",
+    title: "INTO THE UNDERKEEP",
+    body: `
+      <p>
+      Times are changing...
+      </p>
+        <p>
+      The bravery of adventurers is needed once again.
+      Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. 
+      People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.
+
+      </p>
+
+      <p>
+       You arrived late, from far away. 
+       In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red.
+       There’s no sign of your contractor. Or of any living soul, really. 
+       Those who remain have locked themselves inside their homes, praying for a miracle.
+      </p>
+
+      <p>
+    There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. Or rather, to fight.
+    The hair on your arms stands on end—it’s unmistakable.. 
+      </p>
       
+     <div style="color: Black; font-weight: bold; text-transform: uppercase; margin-top: 8px;">
+        Blackriver needs your help. First, set up the components as shown below and then read the instructions for this Adventure:'.
+      </div
+    `,
+    instruction: [
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">
+    SCENARIO OBJECTIVE – DUNGEON CRAWL
+  </div>`,
+  `<div style="color: #1a120f;">
+    To complete this Adventure, you must move through all the rooms defeating every enemy in your way until you find the Adventure End Trigger.
+  </div>`,
+
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
+    DEFEAT CONDITIONS – STANDARD
+  </div>`,
+  `<div style="color: #1a120f;">
+    The Adventure immediately fails when one of the following occurs: 1) A Rune cannot be drawn from the bag; 2) any Hero collects their 2nd Trauma Cube; or 3) any Hero acquires their 6th Curse Cube. The team cannot proceed if any Hero is defeated.
+  </div>`,
+
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
+    RECOVERY ACTION PENALTY – SINGLE
+  </div>`,
+  `<div style="color: #1a120f;">
+    Whenever Heroes take a Voluntary or Involuntary Recall Action, after completing the Action they are performing and recovering their Cubes, they receive 1 Curse Cube.
+  </div>`,
+
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
+    GAME MECHANIC – GROWING DARKNESS
+  </div>`,
+  `<div style="color: #1a120f;">
+    Darkness lurks in the shadows, but it is too weak to manifest. Place the <span style="color: #0066cc;">Growing Darkness</span> Rune card with face A up in the Rune Slot at the bottom end of the Initiative Track.
+  </div>`,
+
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
+    GAME MECHANIC – DRUNAGOR NIGHTS
+  </div>`,
+  `<div style="color: #1a120f;">
+    Doors are opened differently in this Adventure: Place the <span style="color: #0066cc;">End of Round</span> Game State Check-Up card in the Rune Slot at the bottom end of the Initiative Track, just below the Rune card, with face A up. It will help you manage this mechanic.
+  </div>`,
+
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
+    DUNGEON ACTION – DISTURBED DARKNESS
+  </div>`,
+  `<div style="color: #1a120f;">
+    The hold of Darkness is strong here: Draw 24 Runes and place them on the Initiative Track. 12 remain in the bag, enough for 9 complete rounds before a Rune will fail to be drawn.
+  </div>`,
+
+  `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">
+    STARTGAME TRIGGER
+  </div>`,
+  `<div style="color: #1a120f;">
+    With the Setup prepared and all these instructions read, you may begin playing the Adventure.
+  </div>`
+].join(""),
+
+
+
+
     layout: "single-column",
     background: "url('/img/bg-apoc.png')",
   }
@@ -239,13 +331,7 @@ function prevPage() {
 
 <style scoped>
 .book-dialog {
-  max-height: 70vh;
-  width: 800px;
-  overflow-y: auto !important;
-  border-radius: 4px 16px 16px 4px;
-  background: #212121;
-  position: relative;
-  border: 2px solid #1e1e1e;
+  width: 1000px;
   box-shadow:
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
@@ -264,7 +350,6 @@ function prevPage() {
 }
 
 .book-page {
-
   background-color: #ffffff;
   color: #212121;
   border: 1px solid #1e1e1e;
@@ -278,22 +363,32 @@ function prevPage() {
   overflow-y: auto !important;
 }
 
-.section-title {
-  font-family: "Uncial Antiqua", cursive;
+.header-banner {
+  background-image: url('@/assets/booktop.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  padding: 2px 14px 18px; /* topo, laterais, fundo */
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
   color: #212121;
-  font-size: 1.2rem;
-  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
-  letter-spacing: 3px;
-  border-bottom: 2px solid #1e1e1e;
-  display: inline-block;
-  padding: 0 15px 5px 0;
+}
+
+.section-title {
+  font-size: 0.7rem;
+  color: white;
+  padding: 23px 44px 48px; /* topo, laterais, fundo */
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .chapter-title {
   font-family: "Cinzel Decorative", cursive;
-  color: #212121;
-  font-size: 2rem;
-  margin: 15px 0;
+  font-size: 1.8rem;
+  color: white;
+  margin: 0;
   text-shadow: 2px 2px 3px rgba(94, 69, 57, 0.2);
 }
 
@@ -424,7 +519,7 @@ function prevPage() {
 /* Mobile Styles */
 @media (max-width: 600px) {
   .book-dialog {
-    width: 100vw !important;
+    width: 96vw !important;
     max-height: 70vh !important;
   }
 
