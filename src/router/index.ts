@@ -95,6 +95,17 @@ const router = createRouter({
             }
           },
         },
+        {
+          path: "/campaign-tracker/hero-creator",
+          name: "Hero Creator",
+          component: () => import("@/components/HeroCreator/HeroCreator.vue"),
+          beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          },
+        },
         { path: "/campaign-tracker/party", redirect: "/campaign-tracker/campaign" },
         {
           path: "/campaign-tracker/campaign/:id",
@@ -228,4 +239,3 @@ const router = createRouter({
 });
 
 export default router;
-

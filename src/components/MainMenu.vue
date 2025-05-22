@@ -65,6 +65,7 @@ const buttons = ref([
   { icon: 'mdi-account-group', value: 'CampaignOverview', route: '/campaign-tracker/campaign', text: "Campaign" },
   { icon: 'mdi-magnify', value: 'Keyword', route: '/campaign-tracker/keyword', text: "Keywords" },
   { icon: 'mdi-cog-outline', value: 'settings', route: '/campaign-tracker/configuration', text: "Settings" },
+  { icon: 'mdi-account-edit', value: 'hero-creator', route: '/campaign-tracker/hero-creator', text: "Hero Creator" },
 ]);
 
 
@@ -75,7 +76,7 @@ const buttons = ref([
 
 <!--
 <template>
-  
+
   <div class="card sticky top-0 z-20">
     <v-container max-width="800" style="min-width: 360px;" class="d-none d-md-flex">
       <v-card rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center ">
@@ -103,14 +104,14 @@ const buttons = ref([
         :key="i"
         @click="item.command()"
         :prepend-icon="item.icon"
-        > 
+        >
       </v-btn>
   </v-row>
 </v-container>
 
 
 
-    
+
   </div>
 </template>
 -->
@@ -122,11 +123,8 @@ const buttons = ref([
       <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
         <!-- Grupo 1: Profile e Edit -->
         <template v-for="(button, i) in buttons" :key="button.value">
-          <v-btn :icon="button.icon" @click="navigateTo(button.route)">
-          </v-btn>
-
+          <v-btn :icon="button.icon" @click="navigateTo(button.route)"/>
         </template>
-
       </v-row>
     </v-card>
   </v-container>
@@ -136,7 +134,7 @@ const buttons = ref([
       <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
         <!-- Grupo 1: Profile e Edit -->
         <template v-for="(button,) in buttons" :key="button.value">
-          <v-btn class="mx-1" rounded @click="navigateTo(button.route)">
+          <v-btn class="mx-1 my-1" rounded @click="navigateTo(button.route)">
             <v-icon style="font-size: 24px;">{{ button.icon }}</v-icon>
             <span> {{ button.text }} </span>
           </v-btn>
@@ -146,4 +144,3 @@ const buttons = ref([
     </v-card>
   </v-container>
 </template>
-
