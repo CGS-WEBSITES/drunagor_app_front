@@ -1037,6 +1037,12 @@ const copyLink = async (link) => {
   }
 };
 
+watch(dialog, (val) => {
+  if (!val) {
+    showSuccessAlert.value = false;
+  }
+});
+
 
 
 </script>
