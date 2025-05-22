@@ -39,7 +39,6 @@ function openModal() {
       return clone;
     }),
   };
-  console.log('token', data)
   token.value = btoa(JSON.stringify(data));
 
   visible.value = true;
@@ -55,64 +54,6 @@ function copyToClipboard() {
   });
   closeModal();
 }
-
-// function saveCampaign() {
-//   axios
-//     .post("/campaigns/cadastro", {
-//       tracker_hash: token.value,
-//       conclusion_percentage: 0,
-//       box: boxSku.value,
-//     })
-//     .then((response) => {
-//       toast.add({
-//         severity: "success",
-//         summary: t("label.success"),
-//         detail: "Campaign saved successfully.",
-//         life: 3000,
-//       });
-//       successDialogVisible.value = true;
-//       const campaignData = response.data.campaign;
-//       const campaigns_pk = campaignData.campaigns_pk;
-//       const box = campaignData.box;
-//       const boxNumber = parseInt(box, 10);
-//       const appUser = localStorage.getItem("app_user");
-//       if (appUser) {
-//         const user = JSON.parse(appUser);
-//         const users_pk = user.users_pk;
-
-//         axios
-//           .post("rl_campaigns_users/cadastro", {
-//             users_fk: users_pk,
-//             campaigns_fk: campaigns_pk,
-//             party_roles_fk: 1,
-//             skus_fk: boxNumber,
-//           })
-//           .then((response) => {
-//             console.log("Relationship successfully created.", response.data);
-//           })
-//           .catch((error) => {
-//             console.error("Error creating relationship:", error);
-//             toast.add({
-//               severity: "error",
-//               summary: t("label.error"),
-//               detail: "Error creating campaign-user relationship.",
-//               life: 3000,
-//             });
-//           });
-//       } else {
-//         console.error("User not found in localStorage");
-//       }
-//     })
-//     .catch((error) => {
-//       console.error("Error saving campaign:", error);
-//       toast.add({
-//         severity: "error",
-//         summary: t("label.error"),
-//         detail: "Failed to save campaign.",
-//         life: 3000,
-//       });
-//     });
-// }
 
 function closeModal() {
   visible.value = false;

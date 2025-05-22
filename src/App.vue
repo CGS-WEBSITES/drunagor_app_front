@@ -110,7 +110,7 @@
             </v-hover>
           </div>
 
-          <v-menu open-on-hover offset-y>
+          <v-menu open-on-click offset-y>
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"

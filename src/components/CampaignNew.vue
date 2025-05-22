@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import CoreLogo from "@/assets/campaign/logo/core.webp";
@@ -13,7 +12,6 @@ import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
 import { useUserStore } from "@/store/UserStore";
 
-const toast = useToast();
 const { t } = useI18n();
 const router = useRouter();
 const campaignStore = CampaignStore();
@@ -23,67 +21,63 @@ const visible = ref(false);
 const successDialogVisible = ref(false);
 const token = ref("");
 const user = useUserStore().user
+const loading = ref(false)
 
 // const NEW_CAMPAIGN_ID = Date.now().toString();
 
-function openModal(campaignId: string) {
+function compressCampaign(campaignId: string) {
+
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(campaignId)),
   );
-  campaignCopy.campaignId = "";
-  const heroes = heroStore
-    .findAllInCampaign(campaignId)
-    .map((h) => ({ ...h, campaignId: "" }));
 
-  token.value = btoa(JSON.stringify({ campaignData: campaignCopy, heroes }));
+  const heroes = heroStore.findAllInCampaign(campaignId);
+
+  const data = {
+    campaignData: campaignCopy,
+    heroes: heroes.map((h) => {
+      const clone = JSON.parse(JSON.stringify(h));
+      return clone;
+    }),
+  };
+
+  token.value = btoa(JSON.stringify(data));
 }
 
 async function createCampaign(boxId: number) {
-  const resp = await axios.post("/campaigns/cadastro", {
+  return await axios.post("/campaigns/cadastro", {
     tracker_hash: "",
     conclusion_percentage: 0,
     box: boxId,
+  }).then((res) => {
+    return res.data
   })
-
-  return resp
 }
 
-async function saveCampaign(boxId: number) {
-  const resp = await axios.post("/campaigns/cadastro", {
-    tracker_hash: token.value,
-    conclusion_percentage: 0,
-    box: boxId,
-  });
+async function saveCampaign(campaign_pk: number, party_name: string) {
 
-  const serverPk = resp.data.campaign.campaigns_pk.toString();
-  toast.add({
-    severity: "success",
-    summary: t("label.success"),
-    detail: "Campaign saved successfully.",
-    life: 3000,
+  await axios.put(`campaigns/alter/${campaign_pk}`, {
+    tracker_hash: token.value, party_name: party_name,
   });
+}
 
-  const users_pk = JSON.parse(localStorage.getItem("app_user")!).users_pk;
+async function addRelationship(users_pk: number, campaign_fk: string, boxId: number) {
+
   await axios.post("rl_campaigns_users/cadastro", {
     users_fk: users_pk,
-    campaigns_fk: serverPk,
+    campaigns_fk: campaign_fk,
     party_roles_fk: 1,
     skus_fk: boxId,
   });
 
   successDialogVisible.value = true;
 
-  return serverPk;
 }
 
-// function newCampaign(campaign: "core" | "apocalypse" | "awakenings" | "underkeep") {
-//   let campaignId = nanoid();
-//   campaignStore.add(new Campaign(campaignId, campaign));
-//   visible.value = false;
-//   router.push("/campaign-tracker/campaign/" + campaignId);
-// }
-
 async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underkeep") {
+  
+  loading.value = true
+
   const usersPk = user.users_pk;
 
   const { data } = await axios.get("/skus/search", {
@@ -102,28 +96,25 @@ async function newCampaign(type: "core" | "apocalypse" | "awakenings" | "underke
     (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase()
   );
 
-  let campaignResp = createCampaign(selectedSku)
-  
-  console.log(campaignResp)
+  let campaignResp = await createCampaign(selectedSku.skus_pk)
 
-  let newCampaign = new Campaign("1", type)
+  let campaignFk = String(campaignResp.campaign.campaigns_pk)
 
-  console.log(newCampaign)
+  let newCampaign = new Campaign(campaignFk, type)
 
-  return
+  campaignStore.add(newCampaign);
 
-  // 1) Primeiro, salve no back e pegue o ID real
-  const serverPk = await saveCampaign(selectedSku.skus_pk);
+  compressCampaign(campaignFk)
 
-  // 2) Agora crie a campanha no store usando o serverPk
-  campaignStore.add(new Campaign(serverPk, type));
+  await saveCampaign(campaignFk, "")
 
-  // 3) Abra o modal para esse ID real
-  openModal(serverPk);
+  await addRelationship(usersPk, campaignFk, selectedSku.skus_pk)
+
+  loading.value = false
 
   // 4) Redirecione usando o serverPk no path
   router.push({
-    path: `/campaign-tracker/campaign/${serverPk}`,
+    path: `/campaign-tracker/campaign/${campaignFk}`,
     query: { sku: selectedSku.skus_pk.toString() },
   });
 }
@@ -142,8 +133,11 @@ const selected = ref(null);
   <v-dialog v-model="visible" max-width="800">
     <v-card>
 
-      <v-card-text>
-        <v-slide-group v-model="selected" class="pl-1" show-arrows center-active>
+      <v-card-text class="d-flex justify-center">
+
+        <v-progress-circular v-if="loading" :size="80" :width="7" color="primary" indeterminate></v-progress-circular>
+
+        <v-slide-group v-else v-model="selected" class="pl-1" show-arrows center-active>
           <v-slide-item value="core">
             <v-img width="336" height="200" class="ma-2 cursor-pointer" :src="CoreLogo.toString()"
               @click="newCampaign('core')" />
@@ -165,20 +159,6 @@ const selected = ref(null);
           </v-slide-item>
         </v-slide-group>
       </v-card-text>
-    </v-card>
-  </v-dialog>
-
-  <v-dialog v-model="successDialogVisible" max-width="300">
-    <v-card>
-      <v-card-title>{{ t("label.success") }}</v-card-title>
-      <v-card-text>
-        {{ t("Campaign created successfully") }}
-      </v-card-text>
-      <v-card-actions>
-        <v-btn block @click="successDialogVisible = false">
-          {{ t("label.close") }}
-        </v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

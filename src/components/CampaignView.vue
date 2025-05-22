@@ -10,8 +10,9 @@ import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
 import { CampaignStore } from "@/store/CampaignStore";
+import { Campaign } from "@/store/Campaign";
 import CampaignCampPhase from "@/components/CampaignCampPhase.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
@@ -20,15 +21,32 @@ const route = useRoute();
 
 const campaignId = (route.params as { id: string }).id.toString();
 const campaignStore = CampaignStore();
-const campaign = campaignStore.find(campaignId);
-
 const heroStore = HeroStore();
-
 const isSequentialAdventure = ref(false);
-isSequentialAdventure.value =
-  campaignStore.find(campaignId).isSequentialAdventure ?? false;
-
 const update = ref(0);
+const campaign = ref(Campaign)
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref("");
+const showAlert = ref(false);
+
+
+
+onMounted(() => {
+  campaign.value = campaignStore.find(campaignId);
+
+  isSequentialAdventure.value =
+    campaignStore.find(campaignId).isSequentialAdventure ?? false;
+})
+
+const setAllert = (icon: string, title: string, text: string, type: string) => {
+  alertIcon.value = icon;
+  alertTitle.value = title;
+  alertText.value = text;
+  showAlert.value = true;
+  alertType.value = type;
+};
 
 function onCampPhase() {
   isSequentialAdventure.value = false;
@@ -43,48 +61,34 @@ function onSequentialAdventure() {
 
 <template>
   <v-row class="justify-center">
-  <v-col cols="12" md="12" lg="12" xl="8">
-    <v-row no-gutters class="d-flex justify-center pa-1">
-      <v-card class="mb-4 px-2 ml-3" color="primary" style="width: 100%;">
-        <v-card-actions class="d-flex justify-space-between">
-          <v-row no-gutters>
-            <v-card class="mb-2" style="width: 100%;">
-              <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
-                <CampaignRemove
-                  :campaign-id="campaignId"
-                  class="mx-2"
-                />
-                <CampaignExport
-                  :campaign-id="campaignId"
-                  class="mx-2"
-                />
-                <SequentialAdventureButton
-                  :campaign-id="campaignId"
-                  @sequential-adventure="onSequentialAdventure"
-                  :disabled="isSequentialAdventure"
-                  class="mx-2"
-                />
-                <CampaignCampPhase
-                  :campaign-id="campaignId"
-                  @camp-phase="onCampPhase"
-                  class="mx-2"
-                />
-                <CampaignSavePut
-                  :campaign-id="campaignId"
-                  class="mx-2"
-                />
-                <CampaignBook
-                  :campaign-id="campaignId"
-                  class="mx-2"
-                />
-              </v-card-actions>
-            </v-card>
-          </v-row>
-        </v-card-actions>
-      </v-card>
-    </v-row>
-  </v-col>
-</v-row>
+    <v-col cols="12" md="12" lg="12" xl="8">
+      <v-row no-gutters class="d-flex justify-center pa-1">
+        <v-card class="mb-4 px-2 ml-3" color="primary" style="width: 100%;">
+          <v-card-actions class="d-flex justify-space-between">
+            <v-row no-gutters>
+              <v-card class="mb-2" style="width: 100%;">
+                <v-card-text>
+                  <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
+                    :type="alertType"></v-alert>
+                </v-card-text>
+                <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
+                  <CampaignRemove :campaign-id="campaignId" class="mx-2" />
+                  <CampaignExport :campaign-id="campaignId" class="mx-2" />
+                  <SequentialAdventureButton :campaign-id="campaignId" @sequential-adventure="onSequentialAdventure"
+                    :disabled="isSequentialAdventure" class="mx-2" />
+                  <CampaignCampPhase :campaign-id="campaignId" @camp-phase="onCampPhase" class="mx-2" />
+                  <CampaignSavePut :campaign-id="campaignId" class="mx-2"
+                    @success="setAllert('mdi-check', 200, 'The campaign was successfully saved!', 'success')" 
+                    @fail="setAllert('mdi-alert-circle', 500, 'The campaign was not successfully saved', 'error')"/>
+                  <CampaignBook :campaign-id="campaignId" class="mx-2" />
+                </v-card-actions>
+              </v-card>
+            </v-row>
+          </v-card-actions>
+        </v-card>
+      </v-row>
+    </v-col>
+  </v-row>
 
   <v-row no-gutters class="d-flex justify-center">
     <v-col cols="12 px-5 mr-2" md="12" lg="12" xl="8">
@@ -106,25 +110,17 @@ function onSequentialAdventure() {
     </v-col>
   </v-row>
 
-  <v-row
-    no-gutters
-    class="d-flex justify-center"
-    v-if="
-      campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse' 
-    "
-  >
+  <v-row no-gutters class="d-flex justify-center" v-if="
+    campaign.campaign == 'awakenings' || campaign.campaign == 'apocalypse'
+  ">
     <v-col cols="12" md="12" lg="12" xl="8" class="px-5 mr-2">
       <StoryRecord :campaign-id="campaignId" />
     </v-col>
   </v-row>
 
 
-  
-  <v-row
-    no-gutters
-    class="d-flex justify-center"
-    v-if="campaign.campaign == 'apocalypse'"
-  >
+
+  <v-row no-gutters class="d-flex justify-center" v-if="campaign.campaign == 'apocalypse'">
     <v-col cols="12" class="pa-2">
       <v-sheet rounded border="md" class="mb-6 pa-6 text-white">
         <StoryRecordLegacyTrail :campaign-id="campaignId" />
@@ -135,13 +131,7 @@ function onSequentialAdventure() {
   </v-row>
 
   <v-row no-gutters class="justify-center pa-6">
-    <v-col
-      cols="12"
-      sm="12"
-      md="6"
-      lg="4"
-      class="d-flex flex-row justify-space-around px-0"
-    >
+    <v-col cols="12" sm="12" md="6" lg="4" class="d-flex flex-row justify-space-around px-0">
       <CampaignLogAddHero :campaign-id="campaignId" />
       <CampaignLogRemoveHero :campaign-id="campaignId" />
     </v-col>
@@ -149,21 +139,13 @@ function onSequentialAdventure() {
 
   <v-row no-gutters class="d-flex justify-center">
     <v-sheet rounded border="md" class="text-white" width="1150px">
-      <v-col
-        cols="12"
-        id="heroes"
-        v-for="hero in heroStore.findAllInCampaign(campaignId)"
-        :key="hero.heroId"
-      >
-        <CampaignLog
-          :campaign-id="campaignId"
-          :hero-id="hero.heroId"
-          :is-sequential-adventure="isSequentialAdventure"
-        />
+      <v-col cols="12" id="heroes" v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId">
+        <CampaignLog :campaign-id="campaignId" :hero-id="hero.heroId"
+          :is-sequential-adventure="isSequentialAdventure" />
       </v-col>
     </v-sheet>
   </v-row>
-  
+
 </template>
 
 <style scoped></style>

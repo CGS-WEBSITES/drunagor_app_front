@@ -27,8 +27,6 @@ function importCampaign() {
     const campaignId = nanoid();
     let campaign: Campaign;
 
-    console.log(data)
-
     if ("campaign" in data || "name" in data) {
       // This means that it's a legacy token
       campaign = new Campaign(campaignId, data.campaign);
@@ -45,8 +43,6 @@ function importCampaign() {
       });
       return;
     }
-
-    console.log(campaign)
 
     campaignStore.add(campaign);
 
