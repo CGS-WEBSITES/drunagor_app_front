@@ -1,0 +1,18 @@
+[
+  {
+    "section": "CHAPTER INTRO",
+    "title": "A Cry for Help",
+    "body": "<p>A desperate, piercing scream rips through the silence of the night, jolting you awake. Rain taps gently on the wooden shutters, and the embers in the hearth glow faintly as you rise from a restless sleep. The cry echoes again, now distant but unmistakable — a cry for help.</p><br><p>Without hesitation, you grab your cloak and weapon, instincts taking over. You exit the safety of the parish house into the damp darkness beyond, guided only by moonlight and the pull of duty. Your boots sink slightly into the wet forest floor as you tread deeper into the unknown.</p><br><p>A sense of urgency quickens your pace, though you know not what awaits. Tales of revenants and cursed woods linger in your mind, but still, you press forward. Tonight, something calls to you from within the trees, and whether it is fate, madness, or providence — you intend to answer.</p><br>",
+    "instruction": "Mark this chapter as 'Discovered'. All players must draw 1 Fate card.",
+    "layout": "single-column",
+    "background": "url('/img/bg-apoc.png')"
+  },
+  {
+    "section": "ADVENTURE CONTINUES",
+    "title": "Into the Unknown",
+    "body": "<p>As you push through the brush, the woods grow unnaturally silent. The fog thickens, wrapping around your limbs like a living thing. Shadows move at the edges of your vision, but when you turn, nothing is there. Your breath becomes visible in the air, though the night isn't cold.</p><br><p>Then you see it — a faint blue glow hovering above the forest path. You step closer, and it takes shape: a wisp, beckoning you forward. You follow. Not because you trust it, but because you must know.</p><br><p>The path twists unnaturally, looping in on itself. Trees seem to shift when you glance away. Time dilates. You find a tattered journal on a broken stone altar, its pages torn, the ink smeared but still legible: <em>\"The darkness watches... it learns.\"</em></p><br>",
+    "instruction": "All heroes must test Wits (difficulty 3). If failed, place 1 Curse Cube.",
+    "layout": "full-screen",
+    "background": "url('/img/bg2.png')"
+  }
+]
