@@ -61,6 +61,7 @@ declare module 'vue' {
     FriendStore: typeof import('./components/FriendStore.vue')['default']
     FriendStoreList: typeof import('./components/FriendStoreList.vue')['default']
     HeroDetailView: typeof import('./components/HeroDetailView.vue')['default']
+    InteractionBarricade: typeof import('./components/InteractionBarricade.vue')['default']
     ItemCardSelect: typeof import('./components/ItemCardSelect.vue')['default']
     ItemCardSelectCategorized: typeof import('./components/ItemCardSelectCategorized.vue')['default']
     ItemDialog: typeof import('./components/ItemDialog.vue')['default']
