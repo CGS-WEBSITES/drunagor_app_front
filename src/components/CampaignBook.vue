@@ -15,39 +15,49 @@
           :floating="false"
           absolute
         >
-          <v-list density="compact" nav>
+          <v-list density="compact" nav v-model:opened="openGroups">
            
+            
             <v-list-group
               v-for="(sectionItems, sectionName) in groupedNavigationItems"
               :key="sectionName.toString()"
-              :value="sectionName"
+              :value="sectionName.toString()" 
             >
-              <template v-slot:activator="{ props }">
+              <template v-slot:activator="{ props: activatorPropsInternal, isOpen }">
                 <v-list-item
-                  v-bind="props"
-                  :prepend-icon="getSectionIcon(sectionName.toString())"
+                  v-bind="activatorPropsInternal"
                   :title="sectionName.toString()"
                   class="drawer-section-header"
                 >
                    <template v-slot:prepend>
-                     <v-icon color="#f0e6d2"></v-icon>
+                     <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString()) }}</v-icon>
                    </template>
                 </v-list-item>
               </template>
-
+              
               <v-list-item
-                v-for="navItem in sectionItems"
+                v-for="(navItem, itemIndex) in sectionItems"
                 :key="navItem.id"
                 :title="navItem.title"
                 :value="navItem.id"
-                @click="navigateToContent(navItem.sectionIndex, navItem.id)"
+                @click="navigateToContent(navItem.sectionIndex, navItem.id, navItem.sectionTitle)"
                 class="drawer-item-index"
+                :active="navItem.id === activeClickedItemId"
+                active-class="v-list-item--active-book-index"
                 density="compact"
               >
                 <template v-slot:prepend>
-                  <v-icon size="x-small" color="#c9aa71" style="margin-left: 16px; opacity: 0.8;">mdi-circle-medium</v-icon>
+                  <v-avatar 
+                    :color="navItem.id === activeClickedItemId ? 'amber-darken-2' : 'grey-darken-1'" 
+                    size="24" 
+                    class="numbered-avatar"
+                  >
+                    <span class="text-caption font-weight-bold" :style="{ color: navItem.id === activeClickedItemId ? 'white' : '#f0e6d2' }">
+                      {{ itemIndex + 1 }}
+                    </span>
+                  </v-avatar>
                 </template>
-                 <v-tooltip activator="parent" location="end">{{ navItem.title }}</v-tooltip>
+                <v-tooltip activator="parent" location="end">{{ navItem.title }}</v-tooltip>
               </v-list-item>
             </v-list-group>
           </v-list>
@@ -91,7 +101,7 @@
                       </v-card>
                     </div>
 
-                    <div class="d-flex justify-end mt-8">
+                     <div class="d-flex justify-end mt-8">
                       <v-btn color="amber-darken-2" variant="flat" @click.stop="prevPage"
                         :disabled="currentIndex === 0" class="mx-4 px-6 text-white font-weight-bold">
                         ◀ Previous
@@ -106,6 +116,9 @@
                 </v-row>
               </v-container>
             </v-sheet>
+             <div v-else class="text-center pa-5 fill-height d-flex align-center justify-center">
+                <div>Nenhum conteúdo para exibir. Verifique os dados do livro.</div>
+            </div>
           </v-card-text>
         </v-main>
       </v-layout>
@@ -124,6 +137,7 @@ const dragY = ref(20);
 const startX = ref(0);
 const startY = ref(0);
 
+// SEUS DADOS COMPLETOS DA ARRAY `pages` ESTÃO AQUI (COMO VOCÊ PEDIU PARA GRAVAR)
 const pages = ref([
   {
     section: "WING 1 - TUTORIAL",
@@ -165,158 +179,70 @@ const pages = ref([
     background: "url('/img/bg-apoc.png')",
   },
   {
-    section: "Wing 2 - Advanced",
+    section: "WING 2 - ADVANCED",
     content: [
       {
-        title: "The Underkeep Level 01",
-        body: `
-          <p>Screams, pain, and despair.</p>
-          <p>The ground gives way beneath your feet, dragging you into a sinkhole. Instinctively, you curl up like turtles as you fall, your ears ringing with the echo of another cadaverous laugh fading into the distance.</p>
-          <p>At long last, the world around you settles and falls silent and you are able to regain your feet. Every part of your body aches, though it could’ve ended much worse.&nbsp;</p>
-          <p>You find yourself on a floor made of raw stone slabs, rough and uncomfortable. There is barely any light, except for a sinister emerald glow flickering from the walls, fueling that murderous shadowy mass. It is here too, of course. Staining the walls like a giant creeping vine, gathering strength to strike at the right moment.&nbsp;</p>
-          <p>Turning back is no longer possible, and staying is not an option. This is no longer an incursion—it’s a battle for survival, and you are the prey.</p>
-          <p>Surely, you should have read the fine print of that contract…</p>
-          <p>You are cornered and must survive Blackriver’s dungeon. First, set up the Initial Setup and then read the Scenario Instructions for this Adventure:</p>
-          <div class="setup-placeholder"><strong>FIRST SETUP</strong></div>
-        `,
-        instruction: `
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">SCENARIO OBJECTIVE – DUNGEON CRAWL</div>
-          <div style="color: #1a120f;">To complete this Adventure, you must advance through all the rooms defeating every enemy along the way until you find the Adventure End Trigger.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DEFEAT CONDITIONS – STANDARD</div>
-          <div style="color: #1a120f;">The Adventure immediately fails when one of the following occurs: 1) A Rune cannot be drawn from the bag; 2) any Hero collects their 2nd Trauma Cube; or 3) any Hero acquires their 6th Curse Cube. The team cannot proceed if any Hero is defeated.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RECALL ACTION PENALTY – DOUBLE</div>
-          <div style="color: #1a120f;">Whenever Heroes take a Voluntary or Involuntary Recall Action, after completing the Action they are performing and recovering their Cubes, they receive 2 Curse Cubes.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – GROWING DARKNESS</div>
-          <div style="color: #1a120f;">Darkness lurks in the shadows, but it is too weak to manifest. Place the <span style="color: #2196F3; font-weight: bold;">Growing Darkness</span> Rune card with face A up in the Rune Slot at the bottom of the Initiative Track.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – THE UNDERKEEP</div>
-          <div style="color: #1a120f;">Doors are opened differently in this Adventure: Place the <span style="color: #2196F3; font-weight: bold;">End of Round</span> Game State Check-Up card in the Rune Slot at the bottom of the Initiative Track, just below the Rune card, with face A up. It will help you manage this mechanic.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DUNGEON ACTION – STIRRING DARKNESS</div>
-          <div style="color: #1a120f;">Darkness holds strong here: Draw 30 Runes and place them on the Initiative Track. 6 remain in the bag, enough for 5 full rounds before a Rune will fail to be drawn.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RULE – LOCKED DOOR</div>
-          <div style="color: #1a120f;">Door 01 cannot be opened until another effect states otherwise.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">STARTGAME TRIGGER</div>
-          <div style="color: #1a120f;">With the Setup ready and all these instructions read, you may begin playing the Adventure.</div>
-        `
+        title: "THE UNDERKEEP LEVEL 01",
+        body: `<p>Screams, pain, and despair.</p><p>The ground gives way beneath your feet, dragging you into a sinkhole. Instinctively, you curl up like turtles as you fall, your ears ringing with the echo of another cadaverous laugh fading into the distance.</p><p>At long last, the world around you settles and falls silent and you are able to regain your feet. Every part of your body aches, though it could’ve ended much worse.&nbsp;</p><p>You find yourself on a floor made of raw stone slabs, rough and uncomfortable. There is barely any light, except for a sinister emerald glow flickering from the walls, fueling that murderous shadowy mass. It is here too, of course. Staining the walls like a giant creeping vine, gathering strength to strike at the right moment.&nbsp;</p><p>Turning back is no longer possible, and staying is not an option. This is no longer an incursion—it’s a battle for survival, and you are the prey.</p><p>Surely, you should have read the fine print of that contract…</p><p>You are cornered and must survive Blackriver’s dungeon. First, set up the Initial Setup and then read the Scenario Instructions for this Adventure:</p><div class="setup-placeholder"><strong>FIRST SETUP</strong></div>`,
+        instruction: `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">SCENARIO OBJECTIVE – DUNGEON CRAWL</div><div style="color: #1a120f;">To complete this Adventure, you must advance through all the rooms defeating every enemy along the way until you find the Adventure End Trigger.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DEFEAT CONDITIONS – STANDARD</div><div style="color: #1a120f;">The Adventure immediately fails when one of the following occurs: 1) A Rune cannot be drawn from the bag; 2) any Hero collects their 2nd Trauma Cube; or 3) any Hero acquires their 6th Curse Cube. The team cannot proceed if any Hero is defeated.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RECALL ACTION PENALTY – DOUBLE</div><div style="color: #1a120f;">Whenever Heroes take a Voluntary or Involuntary Recall Action, after completing the Action they are performing and recovering their Cubes, they receive 2 Curse Cubes.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – GROWING DARKNESS</div><div style="color: #1a120f;">Darkness lurks in the shadows, but it is too weak to manifest. Place the <span style="color: #2196F3; font-weight: bold;">Growing Darkness</span> Rune card with face A up in the Rune Slot at the bottom of the Initiative Track.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – THE UNDERKEEP</div><div style="color: #1a120f;">Doors are opened differently in this Adventure: Place the <span style="color: #2196F3; font-weight: bold;">End of Round</span> Game State Check-Up card in the Rune Slot at the bottom of the Initiative Track, just below the Rune card, with face A up. It will help you manage this mechanic.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DUNGEON ACTION – STIRRING DARKNESS</div><div style="color: #1a120f;">Darkness holds strong here: Draw 30 Runes and place them on the Initiative Track. 6 remain in the bag, enough for 5 full rounds before a Rune will fail to be drawn.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RULE – LOCKED DOOR</div><div style="color: #1a120f;">Door 01 cannot be opened until another effect states otherwise.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">STARTGAME TRIGGER</div><div style="color: #1a120f;">With the Setup ready and all these instructions read, you may begin playing the Adventure.</div>`
       },
       {
         title: "DOWN THE RIVER",
-        body: `
-          <p>The gates have opened, and the unmistakable sound of water flowing over stone echoes through the cistern. Quickly, the first third of the volume drains away, ending the stillness of waters left untouched for years—decades, perhaps centuries. Childhood lessons flash through your mind: disturbing things that lie in peace is almost never a good idea. Should you really have done that?</p>
-        `,
-        instruction: `
-          <div style="color: #1a120f;">If the <span style="color: #e91e63; font-weight: bold;">Locked Mechanism</span> Status is noted on the Party’s Campaign Log, the wheel prevents the gates from closing and nothing special happens. Otherwise, continue reading below:</div>
-          <div style="color: #1a120f; margin-top: 8px;">The force of the water pouring through the drains forces the gates to close on their own, returning the mechanism to its resting state…</div>
-          <div style="color: #1a120f; margin-top: 8px;">Flip the <span style="color: #2196F3; font-weight: bold;">Drainage</span> Game Mechanic card to face B again.</div>
-          <div style="color: #1a120f; margin-top: 8px;">Proceed with the Adventure.</div>
-        `
+        body: `<p>The gates have opened, and the unmistakable sound of water flowing over stone echoes through the cistern. Quickly, the first third of the volume drains away, ending the stillness of waters left untouched for years—decades, perhaps centuries. Childhood lessons flash through your mind: disturbing things that lie in peace is almost never a good idea. Should you really have done that?</p>`,
+        instruction: `<div style="color: #1a120f;">If the <span style="color: #e91e63; font-weight: bold;">Locked Mechanism</span> Status is noted on the Party’s Campaign Log, the wheel prevents the gates from closing and nothing special happens. Otherwise, continue reading below:</div><div style="color: #1a120f; margin-top: 8px;">The force of the water pouring through the drains forces the gates to close on their own, returning the mechanism to its resting state…</div><div style="color: #1a120f; margin-top: 8px;">Flip the <span style="color: #2196F3; font-weight: bold;">Drainage</span> Game Mechanic card to face B again.</div><div style="color: #1a120f; margin-top: 8px;">Proceed with the Adventure.</div>`
       },
       {
         title: "LURKING FROM THE DEPTHS",
-        body: `
-          <p>The gates open, water continues to pour through the drains like an underground river. The second third of the volume drains, revealing an unpleasant surprise: the Darkness is there. The reservoir does not just hold the precious liquid of life, but also death. What other secrets lie at the bottom? Do you really want to know? Suddenly, another internal mechanism activates, and one of the chamber walls retracts into the stone, revealing a door long forgotten…</p>
-          <p><strong>Flip Map DNC5-F to side DNC5-B and add the following elements to the Setup:</strong></p>
-          <div class="setup-placeholder"><strong>SHOW SETUP</strong></div>
-        `,
-        instruction: `
-          <div style="color: #1a120f;">If the <span style="color: #e91e63; font-weight: bold;">Locked Mechanism</span> Status is noted on the Party’s Campaign Log, the wheel prevents the gates from closing and nothing special happens. Otherwise, continue reading below:</div>
-          <div style="color: #1a120f; margin-top: 8px;">The force of the water pouring through the drains forces the gates to close on their own, returning the mechanism to its resting state…</div>
-          <div style="color: #1a120f; margin-top: 8px;">Flip the <span style="color: #2196F3; font-weight: bold;">Drainage</span> Game Mechanic card to face B again.</div>
-          <div style="color: #1a120f; margin-top: 8px;">Proceed with the Adventure.</div>
-        `
+        body: `<p>The gates open, water continues to pour through the drains like an underground river. The second third of the volume drains, revealing an unpleasant surprise: the Darkness is there. The reservoir does not just hold the precious liquid of life, but also death. What other secrets lie at the bottom? Do you really want to know? Suddenly, another internal mechanism activates, and one of the chamber walls retracts into the stone, revealing a door long forgotten…</p><p><strong>Flip Map DNC5-F to side DNC5-B and add the following elements to the Setup:</strong></p><div class="setup-placeholder"><strong>SHOW SETUP</strong></div>`,
+        instruction: `<div style="color: #1a120f;">If the <span style="color: #e91e63; font-weight: bold;">Locked Mechanism</span> Status is noted on the Party’s Campaign Log, the wheel prevents the gates from closing and nothing special happens. Otherwise, continue reading below:</div><div style="color: #1a120f; margin-top: 8px;">The force of the water pouring through the drains forces the gates to close on their own, returning the mechanism to its resting state…</div><div style="color: #1a120f; margin-top: 8px;">Flip the <span style="color: #2196F3; font-weight: bold;">Drainage</span> Game Mechanic card to face B again.</div><div style="color: #1a120f; margin-top: 8px;">Proceed with the Adventure.</div>`
       },
       {
         title: "THE BOTTOM OF THE PIT",
-        body: `
-          <p>The last of the water drains into the stone, but the vortex is not strong enough to drag the Darkness with it. Exposed once again, the black miasma begins to slither as if it had been waiting for this moment all along, hungrier than ever. The enemy is once again on your trail. But not all the reservoir’s secrets are grim: treasures also lie in the dark, an inheritance from the unfortunate souls of ages past… Were they adventurers like you? Or perhaps the power-hungry men who brought this thing to life?</p>
-          <p><strong>Remove both the Drainage Game Mechanic card from the Initiative Track and the Interaction token from the board.</strong></p>
-          <p><strong>Replace Map DNC5-B with Map DNC2-B and add the following elements to the Setup:</strong></p>
-          <div class="setup-placeholder"><strong>MOSTRAR A CONFIGURAÇÃO</strong></div>
-        `,
-        instruction: `
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – DARKNESS HUNTING</div>
-          <div style="color: #1a120f;">The Darkness is now strong enough to hunt new victims. Replace the <span style="color: #2196F3; font-weight: bold;">Growing Darkness</span> Rune card on the Initiative Track with the <span style="color: #2196F3; font-weight: bold;">Darkness Hunting</span> card, keeping the same face up. The Darkness now chases the Heroes according to the Standard Behavior.</div>
-          <ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;">
-            <li>Consider the Darkness Nodes to be the Spawn Points for Darkness tiles instead of those printed on the Maps.</li>
-            <li>if there are no Nodes on the board when a Rune is drawn, do not Spawn that tile.</li>
-          </ul>
-          <div style="color: #1a120f;">You can find details about Darkness Spawning and its Effects here. Reminder: If all Heroes are already in Darkness when a Rune is drawn, they suffer CRUSH damage instead of spawning Darkness.</div>
-          <div style="color: #1a120f; margin-top: 8px;">Proceed with the Adventure.</div>
-        `
+        body: `<p>The last of the water drains into the stone, but the vortex is not strong enough to drag the Darkness with it. Exposed once again, the black miasma begins to slither as if it had been waiting for this moment all along, hungrier than ever. The enemy is once again on your trail. But not all the reservoir’s secrets are grim: treasures also lie in the dark, an inheritance from the unfortunate souls of ages past… Were they adventurers like you? Or perhaps the power-hungry men who brought this thing to life?</p><p><strong>Remove both the Drainage Game Mechanic card from the Initiative Track and the Interaction token from the board.</strong></p><p><strong>Replace Map DNC5-B with Map DNC2-B and add the following elements to the Setup:</strong></p><div class="setup-placeholder"><strong>MOSTRAR A CONFIGURAÇÃO</strong></div>`,
+        instruction: `<div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – DARKNESS HUNTING</div><div style="color: #1a120f;">The Darkness is now strong enough to hunt new victims. Replace the <span style="color: #2196F3; font-weight: bold;">Growing Darkness</span> Rune card on the Initiative Track with the <span style="color: #2196F3; font-weight: bold;">Darkness Hunting</span> card, keeping the same face up. The Darkness now chases the Heroes according to the Standard Behavior.</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>Consider the Darkness Nodes to be the Spawn Points for Darkness tiles instead of those printed on the Maps.</li><li>if there are no Nodes on the board when a Rune is drawn, do not Spawn that tile.</li></ul><div style="color: #1a120f;">You can find details about Darkness Spawning and its Effects here. Reminder: If all Heroes are already in Darkness when a Rune is drawn, they suffer CRUSH damage instead of spawning Darkness.</div><div style="color: #1a120f; margin-top: 8px;">Proceed with the Adventure.</div>`
       },
       {
         title: "THE REUNION",
-        body: `
-          <p>Then, as if from nowhere once again, there he is—the Undead King in all his decaying glory. Defeat seems to have affected him little.</p>
-          <p>“Life is persistent. Stubborn. Indeed, it always finds a way…” taunts the unforgettable raspy voice. “How many times has Drunagor survived the ‘End of the World’ only to find itself again in the same situation? A pointless struggle with no end…”</p>
-          <p>You hesitate. Part of you wants to see the man inside that husk, but Darkness is not a disease—it’s something far worse. There is no cure for it, as it plagues both flesh and mind.</p>
-          <p>“Life is overrated. The future of all creatures is unlife. A perpetual existence with no pain, no greed, no need. Why fight destiny? What we offer—isn’t it what you seek? Ascension?”</p>
-          <p>It takes only that spark of blasphemy to make your blood boil…</p>
-        `,
-        instruction: `
-          <div style="color: #1a120f;">The worst phrase imaginable has become reality: Somehow, the Undead King has returned. Make the following preparations for this Boss Fight:</div>
-          <ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;">
-            <li>Flip the second Monster Status Board (from orange to brown).</li>
-            <li>Set the Undead King’s starting Health Points. He has 60 HP for each Hero (for a total between 60 and 240).</li>
-            <li>Take the <span style="color: #2196F3; font-weight: bold;">Undead King</span> Monster card, along with his 4 Second Encounter Boss Attack cards, and place them with the “FRONT” side facing up in the designated slots of the Initiative Track.</li>
-          </ul>
-          <div style="color: #1a120f;">Now, each Hero and Pet repositions their model in the spaces indicated by the Setup. Each Hero suffers FATIGUE 1 for each area (not square) they must move through to reach one of these positions. If necessary, they must take Involuntary Recovery Actions during this movement, but they do not suffer damage for stepping into Darkness. Finally, if a Hero would receive their 5th or 6th Curse Cube this way, that Hero does not receive them.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – SUDDEN DEATH</div>
-          <div style="color: #1a120f;">The Undead King had to spend Darkness energy to restore himself, weakening it. Remove the <span style="color: #2196F3; font-weight: bold;">Darkness Hunting</span> Rune card from the Initiative Track. Until the end of this Adventure, Darkness no longer pursues the Heroes—but that doesn’t mean they have much time to defeat him. The Undead King’s Attack cards draw many Runes per round.</div>
-          <div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – REALM OF CHAOS</div>
-          <div style="color: #1a120f;">The chaotic and cursed influence of this level also affects the Undead King’s Attacks. Whenever a card instructs you to “DRAW 1 RUNE AND 'LOCK-ON' THE APPROPRIATE TARGET AT ANY RANGE”, it means the target of that Attack is determined by the color of the Rune drawn:</div>
-          <ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;">
-            <li>ORANGE – Strongest Hero at Any Range.</li>
-            <li>GREEN – Most Vigorous Hero at Any Range. The Most Vigorous Hero is the one with the most Available Action Cubes on their board at that moment. If two or more Heroes are tied, the one who acts first on the Initiative Track is considered the Most Vigorous.</li>
-            <li>BLUE – Most Tired Hero at Any Range. The Most Tired Hero is the one with the fewest Available Action Cubes on their board. If two or more Heroes are tied, the one who acts last on the Initiative Track is the Most Tired among them.</li>
-            <li>RED – Weakest Hero at Any Range.</li>
-            <li>GRAY – Most Corrupted Hero at Any Range.</li>
-          </ul>
-          <div style="color: #1a120f;">Note that not all of the Undead King’s Attacks are affected by this Game Mechanic. Those that draw Runes but do not determine “LOCK-ON” do not follow these instructions.</div>
-          <div style="color: #1a120f; margin-top: 8px;">Finally, no Character may occupy spaces outside this hall, as if the rest of the dungeon had ceased to exist. When these preparations are complete, proceed with the Adventure. Reminder: The <span style="color: #2196F3; font-weight: bold;">Monster Raid</span> Game Mechanic is still in effect during this fight.</div>
-        `
+        body: `<p>Then, as if from nowhere once again, there he is—the Undead King in all his decaying glory. Defeat seems to have affected him little.</p><p>“Life is persistent. Stubborn. Indeed, it always finds a way…” taunts the unforgettable raspy voice. “How many times has Drunagor survived the ‘End of the World’ only to find itself again in the same situation? A pointless struggle with no end…”</p><p>You hesitate. Part of you wants to see the man inside that husk, but Darkness is not a disease—it’s something far worse. There is no cure for it, as it plagues both flesh and mind.</p><p>“Life is overrated. The future of all creatures is unlife. A perpetual existence with no pain, no greed, no need. Why fight destiny? What we offer—isn’t it what you seek? Ascension?”</p><p>It takes only that spark of blasphemy to make your blood boil…</p>`,
+        instruction: `<div style="color: #1a120f;">The worst phrase imaginable has become reality: Somehow, the Undead King has returned. Make the following preparations for this Boss Fight:</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>Flip the second Monster Status Board (from orange to brown).</li><li>Set the Undead King’s starting Health Points. He has 60 HP for each Hero (for a total between 60 and 240).</li><li>Take the <span style="color: #2196F3; font-weight: bold;">Undead King</span> Monster card, along with his 4 Second Encounter Boss Attack cards, and place them with the “FRONT” side facing up in the designated slots of the Initiative Track.</li></ul><div style="color: #1a120f;">Now, each Hero and Pet repositions their model in the spaces indicated by the Setup. Each Hero suffers FATIGUE 1 for each area (not square) they must move through to reach one of these positions. If necessary, they must take Involuntary Recovery Actions during this movement, but they do not suffer damage for stepping into Darkness. Finally, if a Hero would receive their 5th or 6th Curse Cube this way, that Hero does not receive them.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – SUDDEN DEATH</div><div style="color: #1a120f;">The Undead King had to spend Darkness energy to restore himself, weakening it. Remove the <span style="color: #2196F3; font-weight: bold;">Darkness Hunting</span> Rune card from the Initiative Track. Until the end of this Adventure, Darkness no longer pursues the Heroes—but that doesn’t mean they have much time to defeat him. The Undead King’s Attack cards draw many Runes per round.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – REALM OF CHAOS</div><div style="color: #1a120f;">The chaotic and cursed influence of this level also affects the Undead King’s Attacks. Whenever a card instructs you to “DRAW 1 RUNE AND 'LOCK-ON' THE APPROPRIATE TARGET AT ANY RANGE”, it means the target of that Attack is determined by the color of the Rune drawn:</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>ORANGE – Strongest Hero at Any Range.</li><li>GREEN – Most Vigorous Hero at Any Range. The Most Vigorous Hero is the one with the most Available Action Cubes on their board at that moment. If two or more Heroes are tied, the one who acts first on the Initiative Track is considered the Most Vigorous.</li><li>BLUE – Most Tired Hero at Any Range. The Most Tired Hero is the one with the fewest Available Action Cubes on their board. If two or more Heroes are tied, the one who acts last on the Initiative Track is the Most Tired among them.</li><li>RED – Weakest Hero at Any Range.</li><li>GRAY – Most Corrupted Hero at Any Range.</li></ul><div style="color: #1a120f;">Note that not all of the Undead King’s Attacks are affected by this Game Mechanic. Those that draw Runes but do not determine “LOCK-ON” do not follow these instructions.</div><div style="color: #1a120f; margin-top: 8px;">Finally, no Character may occupy spaces outside this hall, as if the rest of the dungeon had ceased to exist. When these preparations are complete, proceed with the Adventure. Reminder: The <span style="color: #2196F3; font-weight: bold;">Monster Raid</span> Game Mechanic is still in effect during this fight.</div>`
       },
       {
         title: "TO THE DARK AND BEYOND",
-        body: `
-          <p>Darkness, minions, and a flirt with death make this battle just as intense as the first—but you muster every ounce of determination within you and bring the villain to his knees once more, filling yourselves with renewed confidence.</p>
-          <p>“Oh… I can feel it…” The monster’s laugh makes you question whether it’s all a façade, or if he truly doesn’t care about dying again and again. “Do not celebrate, mortals. I shall rise once more—for I transcended the weakness of flesh long, long ago.”</p>
-          <p>Then, as if centuries were passing in the blink of an eye, his once ornate garments crumble into dust along with the bones inside. The crown is the last to fall, disintegrating into rust as it hits the ground.</p>
-          <p>The Darkness nodes weaken, and the great mold covering the walls dissolves, revealing staircases plunging into the heart of the dungeon. Any adventurer might think it’s time to set up camp and rest—but that is a luxury you cannot afford.</p>
-          <p>This isn’t over yet…</p>
-        `,
-        instruction: `
-          <div style="color: #1a120f; font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">Congratulations! You’ve completed the second Wing of Drunagor Nights!</div>
-          <div style="color: #1a120f;">Register your Heroes in the Chronicles of Drunagor app, marking the Skills, Class Abilities, and Equipment you possess. Proceed to the <span style="color: #D32F2F; font-weight: bold;">Adventure Underkeep Level 02</span> for your next game session.</div>
-        `
+        body: `<p>Darkness, minions, and a flirt with death make this battle just as intense as the first—but you muster every ounce of determination within you and bring the villain to his knees once more, filling yourselves with renewed confidence.</p><p>“Oh… I can feel it…” The monster’s laugh makes you question whether it’s all a façade, or if he truly doesn’t care about dying again and again. “Do not celebrate, mortals. I shall rise once more—for I transcended the weakness of flesh long, long ago.”</p><p>Then, as if centuries were passing in the blink of an eye, his once ornate garments crumble into dust along with the bones inside. The crown is the last to fall, disintegrating into rust as it hits the ground.</p><p>The Darkness nodes weaken, and the great mold covering the walls dissolves, revealing staircases plunging into the heart of the dungeon. Any adventurer might think it’s time to set up camp and rest—but that is a luxury you cannot afford.</p><p>This isn’t over yet…</p>`,
+        instruction: `<div style="color: #1a120f; font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">Congratulations! You’ve completed the second Wing of Drunagor Nights!</div><div style="color: #1a120f;">Register your Heroes in the Chronicles of Drunagor app, marking the Skills, Class Abilities, and Equipment you possess. Proceed to the <span style="color: #D32F2F; font-weight: bold;">Adventure Underkeep Level 02</span> for your next game session.</div>`
       }
     ],
     layout: "single-column",
     background: "url('/img/bg-apoc.png')", 
   }
 ]);
+// --- FIM DOS DADOS `pages` ---
 
 const scrollableContentRef = ref<HTMLElement | null>(null);
+const activeClickedItemId = ref<string | null>(null);
+const openGroups = ref<string[]>([]);
+
 
 interface NavigationItem {
   sectionTitle: string;
   title: string;
-  sectionIndex: number;
+  sectionIndex: number; 
   contentIndex: number;
-  id: string;
+  id: string;           
 }
 
-const navigationItems = computed(() => {
+const navigationItems = computed<NavigationItem[]>(() => {
   const items: NavigationItem[] = [];
-  pages.value.forEach((section, sectionIdx) => {
+  pages.value.forEach((section, sectionGlobalIdx) => { 
     if (section.content && section.content.length > 0) {
       section.content.forEach((contentItem, contentIdx) => {
         if (contentItem.title) {
           items.push({
             sectionTitle: section.section,
             title: contentItem.title,
-            sectionIndex: sectionIdx,
+            sectionIndex: sectionGlobalIdx, 
             contentIndex: contentIdx, 
-            id: `content-block-${sectionIdx}-${contentIdx}`
+            id: `content-block-${sectionGlobalIdx}-${contentIdx}`
           });
         }
       });
@@ -340,58 +266,28 @@ const getSectionIcon = (_sectionName: string) => {
   return 'mdi-book-open-page-variant';
 };
 
-const navigateToContent = async (sectionIndex: number, contentBlockId: string) => {
-  console.log(`[Nav] Attempting to navigate. Target Section Idx: ${sectionIndex}, Target Element ID: ${contentBlockId}`);
+const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: string, sectionTitle: string) => {
+  console.log(`[Nav] Clicked. Target GlobalSectionIdx: ${sectionGlobalIndex}, ElementID: ${contentBlockId}, SectionTitle: ${sectionTitle}`);
 
-  if (sectionIndex < 0 || sectionIndex >= pages.value.length) {
-    console.error(`[Nav] Invalid sectionIndex: ${sectionIndex}. Total pages: ${pages.value.length}`);
+  if (sectionGlobalIndex < 0 || sectionGlobalIndex >= pages.value.length) {
+    console.error(`[Nav] Invalid global sectionIndex: ${sectionGlobalIndex}.`);
     return;
   }
   
-  const parts = contentBlockId.split('-');
-  const targetContentLoopIndex = parseInt(parts[parts.length - 1], 10); 
+  currentIndex.value = sectionGlobalIndex;
+  activeClickedItemId.value = contentBlockId; 
 
-  if (isNaN(targetContentLoopIndex) || 
-      !pages.value[sectionIndex]?.content?.[targetContentLoopIndex]) {
-    console.error(`[Nav] Invalid contentBlockId or target content does not exist in data: ${contentBlockId}`);
-    if (currentIndex.value !== sectionIndex) {
-        currentIndex.value = sectionIndex;
-        await nextTick();
-        if (scrollableContentRef.value) {
-            scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-    return;
+  if (!openGroups.value.includes(sectionTitle)) {
+    openGroups.value = [sectionTitle]; 
   }
-
-  const oldCurrentIndex = currentIndex.value;
-  if (oldCurrentIndex !== sectionIndex) {
-    currentIndex.value = sectionIndex;
-    console.log(`[Nav] currentIndex changed from ${oldCurrentIndex} to: ${sectionIndex}`);
-    await nextTick(); 
-    console.log(`[Nav] DOM updated after section change. Now trying to find element ${contentBlockId}`);
-  } else {
-    await nextTick();
-    console.log(`[Nav] Already in section ${sectionIndex}. DOM ticked. Now trying to find element ${contentBlockId}`);
-  }
-
+  
+  await nextTick(); 
+  
   const element = document.getElementById(contentBlockId);
-  
   if (element) {
-    console.log(`[Nav] Element ${contentBlockId} FOUND. OffsetTop: ${element.offsetTop}, ClientHeight: ${element.clientHeight}`);
-    if (scrollableContentRef.value) {
-      const container = scrollableContentRef.value;
-      console.log(`[Nav] Scrollable container FOUND. ScrollTop: ${container.scrollTop}, ScrollHeight: ${container.scrollHeight}, ClientHeight: ${container.clientHeight}`);
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      console.log(`[Nav] scrollIntoView({ block: 'start' }) called on ${contentBlockId}`);
-    } else {
-      console.warn(`[Nav] scrollableContentRef is NOT defined. Falling back to global scrollIntoView for ${contentBlockId}.`);
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } else {
-    console.error(`[Nav] Element with ID ${contentBlockId} NOT FOUND in DOM after potential section change and nextTick.`);
-    if (oldCurrentIndex !== sectionIndex && scrollableContentRef.value) {
-        console.log(`[Nav] Fallback: Scrolling to top of new section ${sectionIndex}`);
+    if (scrollableContentRef.value) {
         scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
@@ -428,14 +324,13 @@ const stopDrag = () => {
   document.removeEventListener("mouseup", stopDrag);
 };
 
-const currentIndex = ref(0);
+const currentIndex = ref(0); 
 const currentPage = computed(() => {
-    if (pages.value.length === 0) return null;
-    const safeIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
-    if (currentIndex.value !== safeIndex && pages.value.length > 0) { 
-        currentIndex.value = safeIndex;
+    if (!pages.value || pages.value.length === 0) {
+      return null;
     }
-    return pages.value[safeIndex];
+    const clampedIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
+    return pages.value[clampedIndex];
 });
 
 const isFullScreenWithBackground = computed(() => {
@@ -465,33 +360,75 @@ const backgroundStyle = computed<CSSProperties>(() => {
 
 function handlePageClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
-  if (target.closest('button, a, .v-card, .v-btn, .header-banner, .v-navigation-drawer')) { 
-    return;
-  }
-
-  const width = (event.currentTarget as HTMLElement).offsetWidth;
-  const clickX = event.offsetX;
-
-  if (clickX < width * 0.33 && currentIndex.value > 0) {
-    prevPage();
-  } else if (
-    clickX > width * 0.66 &&
-    currentIndex.value < pages.value.length - 1
-  ) {
-    nextPage();
-  }
+  if (target.closest('button, a, .v-card, .v-btn, .header-banner, .v-navigation-drawer')) { return; }
 }
 
 function nextPage() {
-  if (currentIndex.value < pages.value.length - 1) currentIndex.value++;
+  if (currentIndex.value < pages.value.length - 1) {
+    currentIndex.value++;
+    activeClickedItemId.value = null; 
+    nextTick(() => {
+        if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
+        if (pages.value[currentIndex.value]?.section) {
+            const newSectionTitle = pages.value[currentIndex.value].section;
+            openGroups.value = [newSectionTitle]; 
+            const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
+            if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
+        }
+    });
+  }
 }
 
 function prevPage() {
-  if (currentIndex.value > 0) currentIndex.value--;
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+    activeClickedItemId.value = null;
+     nextTick(() => {
+        if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
+         if (pages.value[currentIndex.value]?.section) {
+            const newSectionTitle = pages.value[currentIndex.value].section;
+            openGroups.value = [newSectionTitle];
+            const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
+            if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
+        }
+    });
+  }
 }
 </script>
 
 <style scoped>
+.body-text {
+  font-style: italic;
+}
+.body-text p {
+  font-family: "EB Garamond", serif;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-indent: 2em;
+  color: #191919 !important;
+  margin-bottom: 1.5rem;
+}
+.body-text p strong { 
+    font-style: normal; 
+    font-weight: bold; 
+}
+.body-text div[style*="color: Black"] { 
+    text-indent: 0em !important; 
+}
+.setup-placeholder {
+  text-align: center;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 2px dashed #ccc;
+  background-color: #f9f9f9;
+  font-size: 1.1em;
+  font-style: normal !important; 
+}
+.setup-placeholder strong {
+    font-style: normal !important; 
+}
+
 .book-dialog {
   width: 1000px;
   box-shadow:
@@ -549,45 +486,6 @@ function prevPage() {
   text-align: left; 
 }
 
-/* Aplica itálico a todo o conteúdo dentro de .body-text */
-.body-text {
-  font-style: italic;
-}
-
-.body-text p {
-  font-family: "EB Garamond", serif;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  text-indent: 2em;
-  color: #191919 !important;
-  margin-bottom: 1.5rem;
-  /* font-style: italic; removido daqui pois é herdado de .body-text */
-}
-
-/* Para elementos <strong> dentro do corpo, eles serão bold-italic por herança. */
-/* Se quisesse apenas bold, adicionaria: */
-/* .body-text strong { font-style: normal; } */
-
-
-.body-text div[style*="color: Black"] { 
-    text-indent: 0em !important; 
-    /* Herda font-style: italic de .body-text */
-}
-.setup-placeholder {
-  text-align: center;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  border: 2px dashed #ccc;
-  background-color: #f9f9f9;
-  font-size: 1.1em;
-  font-style: normal !important; /* Garante que não seja itálico */
-}
-.setup-placeholder strong {
-    font-style: normal !important; /* Garante que não seja itálico */
-}
-
-
 .close-btn {
   background-color: #212121 !important;
   color: #f0e6d2 !important;
@@ -644,6 +542,10 @@ function prevPage() {
   font-size: 0.9rem;
   font-family: "Cinzel Decorative", cursive;
   padding-left: 16px; 
+  line-height: normal;
+  height: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .drawer-section-header .v-list-item-title {
  font-weight: bold;
@@ -654,16 +556,86 @@ function prevPage() {
   font-size: 0.75rem !important; 
   font-family: "EB Garamond", serif;
   color: #d4be94 !important;
-  padding-right: 8px; 
-}
-.drawer-item-index:hover .v-list-item-title {
-  color: #fff !important;
+  margin-left: 8px; /* Espaço padrão ao lado do avatar */
 }
 
-.v-list-item__prepend {
-  opacity: 1 !important;
-  margin-right: 12px !important;
+.drawer-item-index.v-list-item--active-book-index {
+  background-color: rgba(201, 170, 113, 0.2) !important; 
 }
+.drawer-item-index.v-list-item--active-book-index .v-list-item-title,
+.drawer-item-index:hover .v-list-item-title { 
+  color: #ffffff !important;
+  font-weight: bold;
+}
+.drawer-item-index.v-list-item--active-book-index .numbered-avatar span { 
+    color: white !important;
+}
+
+/* === INÍCIO DOS AJUSTES DE CSS PARA ALINHAMENTO DOS NÚMEROS === */
+.drawer-section-header.v-list-item {
+  padding-inline-start: 16px !important; /* Padrão para itens de topo com ícone */
+}
+.drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
+  margin-inline-end: 16px !important; /* Espaço entre ícone da wing e título da wing */
+}
+
+.drawer-item-index.v-list-item {
+  /* Força o mesmo padding dos itens de topo para alinhar os slots prepend */
+  padding-inline-start: 16px !important; 
+}
+
+.drawer-item-index.v-list-item .v-list-item__prepend {
+  /* Faz o slot prepend se comportar de forma que o avatar fique alinhado com o ícone da wing */
+  min-width: 24px !important; /* Largura aproximada do ícone da wing */
+  max-width: 24px !important; /* Evita que o prepend se estique demais */
+  margin-right: 16px !important; /* Espaçamento entre o avatar e o título do capítulo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drawer-item-index .numbered-avatar {
+  /* O avatar deve preencher o espaço do prepend, sem margens próprias que o desloquem */
+  margin: 0 !important; 
+  flex-shrink: 0;
+  font-weight: bold;
+}
+.drawer-item-index .numbered-avatar .text-caption {
+  font-size: 0.75rem !important;
+  line-height: 1; 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Modo Rail (Drawer minimizado e NÃO sob hover) */
+/* Quando o drawer está efetivamente no modo "rail" (estreito) */
+:deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .v-list-item__prepend {
+    /* Força o ícone/avatar a ocupar o centro da pequena área do item no modo rail */
+    width: auto !important; /* Permite que o ícone/avatar defina a largura */
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+}
+:deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
+    margin: 0 !important; /* Remove margens do ícone da wing no rail */
+}
+:deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-item-index.v-list-item .v-list-item__prepend .numbered-avatar {
+    margin: 0 !important; /* Remove margens do avatar no rail */
+}
+
+/* Esconde o título do capítulo no modo RAIL (quando não está em hover),
+   mas o v-avatar no prepend deve continuar visível */
+.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .drawer-item-index .v-list-item__content {
+  display: none !important;
+}
+.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .drawer-section-header .v-list-item__content {
+  display: none !important; /* Esconde também o título da wing no rail */
+}
+/* === FIM DOS AJUSTES DE CSS PARA ALINHAMENTO DOS NÚMEROS === */
+
 
 .nav-drawer:hover .v-list-item-title {
   opacity: 1;
