@@ -1,4 +1,3 @@
----
 randomizer:
   random-monster: Random monster
   exclude-current-monster: Exclude current drawn character
