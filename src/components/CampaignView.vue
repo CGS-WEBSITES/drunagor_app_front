@@ -103,7 +103,7 @@ function onSequentialAdventure() {
   </v-row>
 
 
-    <v-row no-gutters class="d-flex justify-center">
+    <v-row no-gutters class="d-flex justify-center" v-if="campaign.campaign == 'underkeep'">
     <v-sheet rounded >
       <v-col cols="10">
        <CampaignBook :campaign-id="campaignId"  />
