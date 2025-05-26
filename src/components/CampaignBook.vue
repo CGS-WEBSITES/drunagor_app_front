@@ -16,7 +16,7 @@
           absolute
         >
           <v-list density="compact" nav>
-            <v-list-subheader class="text-white font-weight-bold">ÍNDICE DO LIVRO</v-list-subheader>
+           
             <v-list-group
               v-for="(sectionItems, sectionName) in groupedNavigationItems"
               :key="sectionName.toString()"
@@ -164,7 +164,6 @@ const pages = ref([
     layout: "single-column",
     background: "url('/img/bg-apoc.png')",
   },
-  // NOVA SEÇÃO ADICIONADA AQUI
   {
     section: "Wing 2 - Advanced",
     content: [
@@ -550,6 +549,11 @@ function prevPage() {
   text-align: left; 
 }
 
+/* Aplica itálico a todo o conteúdo dentro de .body-text */
+.body-text {
+  font-style: italic;
+}
+
 .body-text p {
   font-family: "EB Garamond", serif;
   font-size: 1.1rem;
@@ -557,24 +561,17 @@ function prevPage() {
   text-indent: 2em;
   color: #191919 !important;
   margin-bottom: 1.5rem;
-  font-style: italic; /* TEXTO DO CORPO EM ITÁLICO */
+  /* font-style: italic; removido daqui pois é herdado de .body-text */
 }
-/* Para outros elementos dentro de body-text que também deveriam ser itálicos, adicione aqui */
-.body-text div:not([class]), /* Divs genéricas dentro de body-text */
-.body-text strong /* Para manter o negrito mas aplicar itálico ao texto pai */
- {
-  font-style: italic;
-}
-/* Se o strong estiver dentro de um <p>, ele já herdará o itálico do <p> */
-.body-text p strong {
-    font-style: normal; /* Para que o strong não seja duplamente italic, apenas bold */
-    /* Ou, se você quiser bold italic: font-style: italic; já será herdado */
-}
+
+/* Para elementos <strong> dentro do corpo, eles serão bold-italic por herança. */
+/* Se quisesse apenas bold, adicionaria: */
+/* .body-text strong { font-style: normal; } */
 
 
 .body-text div[style*="color: Black"] { 
     text-indent: 0em !important; 
-    /* font-style: italic; Se este div específico também precisar */
+    /* Herda font-style: italic de .body-text */
 }
 .setup-placeholder {
   text-align: center;
@@ -584,10 +581,10 @@ function prevPage() {
   border: 2px dashed #ccc;
   background-color: #f9f9f9;
   font-size: 1.1em;
-  font-style: normal; /* Placeholders não precisam ser itálicos por padrão */
+  font-style: normal !important; /* Garante que não seja itálico */
 }
 .setup-placeholder strong {
-    font-style: normal;
+    font-style: normal !important; /* Garante que não seja itálico */
 }
 
 
