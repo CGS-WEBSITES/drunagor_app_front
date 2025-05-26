@@ -101,16 +101,7 @@
                       </v-card>
                     </div>
 
-                     <div class="d-flex justify-end mt-8">
-                      <v-btn color="amber-darken-2" variant="flat" @click.stop="prevPage"
-                        :disabled="currentIndex === 0" class="mx-4 px-6 text-white font-weight-bold">
-                        ◀ Previous
-                      </v-btn>
-                      <v-btn color="amber-darken-2" variant="flat" @click.stop="nextPage"
-                        :disabled="currentIndex >= pages.length - 1" class="mx-4 px-6 text-white font-weight-bold">
-                        Next ▶
-                      </v-btn>
-                    </div>
+                 
 
                   </v-col>
                 </v-row>
@@ -646,7 +637,7 @@ function prevPage() {
 }
 
 .v-navigation-drawer--rail {
-  width: 56px !important;
+  width: 72px !important;
 }
 
 .v-navigation-drawer--rail:hover {
