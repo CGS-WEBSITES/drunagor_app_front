@@ -95,11 +95,24 @@
                       </div>
                       
                       <div class="body-text mt-3" v-html="item.body"></div>
+
+                      <div class="pt-5 px-16">
+                        <v-img src="@/assets/Barra.png">
+                        </v-img>
+                      </div>
                       
                       <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
                         <v-card-text v-html="item.instruction" />
                       </v-card>
+
+                      <div class="pt-5 px-16">
+                        <v-img src="@/assets/Barra.png">
+                        </v-img>
+                      </div>
+
                     </div>
+
+                    
 
                  
 
@@ -207,7 +220,7 @@ const pages = ref([
     background: "url('/img/bg-apoc.png')", 
   }
 ]);
-// --- FIM DOS DADOS `pages` ---
+
 
 const scrollableContentRef = ref<HTMLElement | null>(null);
 const activeClickedItemId = ref<string | null>(null);
