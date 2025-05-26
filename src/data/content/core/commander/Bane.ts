@@ -1,4 +1,4 @@
-import ImageUrl from "@/assets/monster/big/ShadowVampireBig.webp";
+import ImageUrl from "@/assets/monster/big/BaneBig.webp";
 import MiniatureUrl from "@/assets/monster/miniature/ShadowVampireMiniature.webp";
 import type { CommanderData } from "@/data/store/CommanderData";
 import type { ContentId } from "@/data/type/ContentId";
