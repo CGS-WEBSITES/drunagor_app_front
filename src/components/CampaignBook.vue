@@ -16,12 +16,11 @@
           absolute
         >
           <v-list density="compact" nav v-model:opened="openGroups">
-           
-            
+
             <v-list-group
               v-for="(sectionItems, sectionName) in groupedNavigationItems"
               :key="sectionName.toString()"
-              :value="sectionName.toString()" 
+              :value="sectionName.toString()"
             >
               <template v-slot:activator="{ props: activatorPropsInternal, isOpen }">
                 <v-list-item
@@ -29,12 +28,12 @@
                   :title="sectionName.toString()"
                   class="drawer-section-header"
                 >
-                   <template v-slot:prepend>
-                     <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString()) }}</v-icon>
-                   </template>
+                  <template v-slot:prepend>
+                    <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString()) }}</v-icon>
+                  </template>
                 </v-list-item>
               </template>
-              
+
               <v-list-item
                 v-for="(navItem, itemIndex) in sectionItems"
                 :key="navItem.id"
@@ -47,9 +46,9 @@
                 density="compact"
               >
                 <template v-slot:prepend>
-                  <v-avatar 
-                    :color="navItem.id === activeClickedItemId ? 'amber-darken-2' : 'grey-darken-1'" 
-                    size="24" 
+                  <v-avatar
+                    :color="navItem.id === activeClickedItemId ? 'amber-darken-2' : 'grey-darken-1'"
+                    size="24"
                     class="numbered-avatar"
                   >
                     <span class="text-caption font-weight-bold" :style="{ color: navItem.id === activeClickedItemId ? 'white' : '#f0e6d2' }">
@@ -60,70 +59,78 @@
                 <v-tooltip activator="parent" location="end">{{ navItem.title }}</v-tooltip>
               </v-list-item>
             </v-list-group>
-          </v-list>
+            <v-divider v-if="Object.keys(groupedNavigationItems).length > 0"></v-divider>
+            <v-list-item
+              title="Keywords"
+              value="keywords"
+              @click="showKeywords"
+              :active="'keywords' === activeClickedItemId"
+              active-class="v-list-item--active-book-index"
+              density="compact"
+              class="drawer-section-header" >
+              <template v-slot:prepend>
+                <v-icon :color="'keywords' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-book-search-outline</v-icon> </template>
+              <v-tooltip activator="parent" location="end">Keywords</v-tooltip>
+            </v-list-item>
+            </v-list>
         </v-navigation-drawer>
 
         <v-main class="main-content">
           <v-card-text class="pa-0 scrollable-content" ref="scrollableContentRef">
-            <v-sheet
-              v-if="currentPage"
-              :key="currentIndex"
-              :style="backgroundStyle as CSSProperties"
-              class="book-page"
-              elevation="0"
-              rounded
-              @click="handlePageClick"
-            >
-              <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
-              <v-container class="pa-3 ml-2">
-                <v-row>
-                  <v-col cols="12">
-                    <div v-for="(item, contentLoopIndex) in currentPage.content" 
-                         :key="`content-${currentIndex}-${contentLoopIndex}`" 
-                         :id="`content-block-${currentIndex}-${contentLoopIndex}`" 
-                         class="content-block">
-                      <div class="header-banner">
-                        <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDragHeader">
-                          <h4 class="section-title">{{ currentPage.section }}</h4>
-                          <v-btn icon class="close-btn" @click="hideCard = true">
-                            <v-icon>mdi-close</v-icon>
-                          </v-btn>
+
+            <KeywordView v-if="showKeywordView" /> <template v-else>
+              <v-sheet
+                v-if="currentPage"
+                :key="currentIndex"
+                :style="backgroundStyle as CSSProperties"
+                class="book-page"
+                elevation="0"
+                rounded
+                @click="handlePageClick"
+              >
+                <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
+                <v-container class="pa-3 ml-2">
+                  <v-row>
+                    <v-col cols="12">
+                      <div v-for="(item, contentLoopIndex) in currentPage.content"
+                           :key="`content-${currentIndex}-${contentLoopIndex}`"
+                           :id="`content-block-${currentIndex}-${contentLoopIndex}`"
+                           class="content-block">
+                        <div class="header-banner">
+                          <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDragHeader">
+                            <h4 class="section-title">{{ currentPage.section }}</h4>
+                            <v-btn icon class="close-btn" @click="hideCard = true">
+                              <v-icon>mdi-close</v-icon>
+                            </v-btn>
+                          </div>
+                          <h2 v-if="item.title" class="chapter-title-banner">
+                            {{ item.title }}
+                          </h2>
                         </div>
-                        <h2 v-if="item.title" class="chapter-title-banner">
-                          {{ item.title }}
-                        </h2>
+
+                        <div class="body-text mt-3" v-html="item.body"></div>
+
+                        <div class="pt-5 px-16">
+                          <v-img src="@/assets/Barra.png"></v-img>
+                        </div>
+
+                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
+                          <v-card-text v-html="item.instruction" />
+                        </v-card>
+
+                        <div class="pt-5 px-16">
+                          <v-img src="@/assets/Barra.png"></v-img>
+                        </div>
                       </div>
-                      
-                      <div class="body-text mt-3" v-html="item.body"></div>
-
-                      <div class="pt-5 px-16">
-                        <v-img src="@/assets/Barra.png">
-                        </v-img>
-                      </div>
-                      
-                      <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
-                        <v-card-text v-html="item.instruction" />
-                      </v-card>
-
-                      <div class="pt-5 px-16">
-                        <v-img src="@/assets/Barra.png">
-                        </v-img>
-                      </div>
-
-                    </div>
-
-                    
-
-                 
-
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-sheet>
-             <div v-else class="text-center pa-5 fill-height d-flex align-center justify-center">
-                <div>Nenhum conteúdo para exibir. Verifique os dados do livro.</div>
-            </div>
-          </v-card-text>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-sheet>
+              <div v-else class="text-center pa-5 fill-height d-flex align-center justify-center">
+                <div>Selecione um capítulo ou Keyword no índice.</div>
+              </div>
+            </template>
+            </v-card-text>
         </v-main>
       </v-layout>
     </v-card>
@@ -132,21 +139,23 @@
 
 <script setup lang="ts">
 import { ref, computed, CSSProperties, nextTick } from "vue";
+import KeywordView from '@/components/KeywordView.vue'; // <-- ADICIONADO: Importe o KeywordView (ajuste o caminho se necessário)
 
-const dialog = ref(false); 
-const hideCard = ref(false); 
+const dialog = ref(false);
+const hideCard = ref(false);
 const drag = ref(false);
 const dragX = ref(20);
 const dragY = ref(20);
 const startX = ref(0);
 const startY = ref(0);
+const showKeywordView = ref(false); // <-- ADICIONADO: Ref para controlar a exibição
 
-// SEUS DADOS COMPLETOS DA ARRAY `pages` ESTÃO AQUI (COMO VOCÊ PEDIU PARA GRAVAR)
+// SEUS DADOS COMPLETOS DA ARRAY `pages` ESTÃO AQUI
 const pages = ref([
   {
     section: "WING 1 - TUTORIAL",
     content: [
-      { 
+      {
         title: "INTO THE UNDERKEEP (TUTORIAL)",
         body: `<p>Times are changing...</p><p>The bravery of adventurers is needed once again. Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.</p><p>You arrived late, from far away. In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red. There’s no sign of your contractor. Or of any living soul, really. Those who remain have locked themselves inside their homes, praying for a miracle.</p><p>There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. Or rather, to fight. The hair on your arms stands on end—it’s unmistakable...</p>`,
         instruction: [`<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: px;">SCENARIO OBJECTIVE – DUNGEON CRAWL'.</div><div style="color: #1a120f;">To complete this Adventure, you must move through all the rooms, defeating every enemy in your way until you find the Adventure End Trigger.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">DEFEAT CONDITIONS – STANDARD'.</div><div style="color: #1a120f;">The Adventure immediately fails if any Hero’s Health Points are reduced to 0. The team cannot continue if even just one Hero is defeated.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">TUTORIAL – FIRST STEPS'.</div><div style="color: #1a120f;">Read the Tutorials “Turns and Rounds,” “A Hero’s Turn,” “Move Action,” “Cube Action,” and “Making Attacks”.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 6px;">STARTGAME TRIGGER'.</div><div style="color: #1a120f;">You may begin to play the Adventure. The Hero with the Defender Dungeon Role starts the game since that is the first card on the Initiative Track. Once their turn ends, move the marker to the next card, the Vampire Monster, and read the Tutorials “The Monsters’ Turn” and “Reactions”.</div>`].join(""),
@@ -156,25 +165,25 @@ const pages = ref([
     background: "url('/img/bg-apoc.png')",
   },
   {
-    section: "WING 1 - ADVANNCED", 
+    section: "WING 1 - ADVANNCED",
     content: [
-      { 
-        title: "INTO THE UNDERKEEP", 
+      {
+        title: "INTO THE UNDERKEEP",
         body: `<p>Times are changing...</p><p>The bravery of adventurers is needed once again. Blackriver, a county of the Kingdom of Elan, has been suffering from macabre events, beginning with the kidnapping of villagers under the cover of night. People are frightened, and monstrous silhouettes wander in the darkness, gnashing teeth and claws.</p><p>You arrived late, from far away. In the twilight gloom, wherever you look, there is only desolation and bloodstains painting the walls and alleys red. There’s no sign of your contractor. Or of any living soul, really. Those who remain have locked themselves inside their homes, praying for a miracle.</p><p>There is no mystery here: All tracks lead to the Count’s fortress, and whatever is happening there must be what you were hired to stop. Or rather, to fight. The hair on your arms stands on end—it’s unmistakable..</p><div style="color: Black; font-weight: bold; text-transform: uppercase; margin-top: 8px;">Blackriver needs your help. First, set up the components as shown below and then read the instructions for this Adventure:'.</div>`,
         instruction: [`<div style="color: red; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">SCENARIO OBJECTIVE – DUNGEON CRAWL</div><div style="color: #1a120f;">To complete this Adventure, you must move through all the rooms defeating every enemy in your way until you find the Adventure End Trigger.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DEFEAT CONDITIONS – STANDARD</div><div style="color: #1a120f;">The Adventure immediately fails when one of the following occurs: 1) A Rune cannot be drawn from the bag; 2) any Hero collects their 2nd Trauma Cube; or 3) any Hero acquires their 6th Curse Cube. The team cannot proceed if any Hero is defeated.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RECOVERY ACTION PENALTY – SINGLE</div><div style="color: #1a120f;">Whenever Heroes take a Voluntary or Involuntary Recall Action, after completing the Action they are performing and recovering their Cubes, they receive 1 Curse Cube.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – GROWING DARKNESS</div><div style="color: #1a120f;">Darkness lurks in the shadows, but it is too weak to manifest. Place the <span style="color: #0066cc;">Growing Darkness</span> Rune card with face A up in the Rune Slot at the bottom end of the Initiative Track.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – DRUNAGOR NIGHTS</div><div style="color: #1a120f;">Doors are opened differently in this Adventure: Place the <span style="color: #0066cc;">End of Round</span> Game State Check-Up card in the Rune Slot at the bottom end of the Initiative Track, just below the Rune card, with face A up. It will help you manage this mechanic.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">DUNGEON ACTION – DISTURBED DARKNESS</div><div style="color: #1a120f;">The hold of Darkness is strong here: Draw 24 Runes and place them on the Initiative Track. 12 remain in the bag, enough for 9 complete rounds before a Rune will fail to be drawn.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">STARTGAME TRIGGER</div><div style="color: #1a120f;">With the Setup prepared and all these instructions read, you may begin playing the Adventure.</div>`].join(""),
       },
       {
-        title: "HAIL TO HIS MAJESTY", 
+        title: "HAIL TO HIS MAJESTY",
         body: `<p>Madness. The only word that fits this moment.</p><p>Corrupted creatures laid siege to the city from the inside out, abducting villagers night after night to sacrifice them in a ritual to a dreadful entity. A classic tale.</p><p>When the last of the aberrations falls, the chorus goes silent and the world around you begins to tremble as if the ground were about to split in two. The shadows dance as if they’ve come to life, and you find it hard to describe what unfolds before your eyes.</p><p>“Hahaha! What is this?” echoes a hoarse laugh, coming from nowhere—sounding as if it emerged from a decaying corpse. Slowly, the darkness swirls and joins together to form a monster unlike anything you’ve ever seen: fifteen feet tall, a crown on its head, and the spine of a giant wielded like a weapon by skeletal hands. “Why resist? Everything that lives, sooner or later, dies. It’s not a matter of ‘if’, but ‘when’—and for you, that moment is now…”</p>`,
         instruction: `<div style="color: #1a120f;">The monster behind Blackriver’s downfall has emerged from the shadows. Make the following preparations for your first Boss Fight:</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>Flip the second Monster Status Board (from orange to brown).</li><li>Set the Undead King’s starting Health Points. He has 25 HP for each Hero (for a total between 25 and 100).</li><li>Grab the Undead King’s Monster card, along with his 4 First Encounter Boss Attack cards, and place them with the “FRONT” side facing up in the designated slots of the Initiative Track.</li><li>Place the Undead King’s model on Map E11-F, occupying the central emerald-colored area. If any Hero is in that area, they must reposition their model to a square adjacent to the villain.</li><li>Replace the Hail to His Majesty Scene Trigger card on the Initiative Track with the Age of Darkness card.</li><li>Finally, each Hero on a square of Bridge BR2-B or any Map from the previous Setups must move their model to a square on Map E12-F. Those Heroes suffer FATIGUE X, with X being the number of squares they had to move. They take 1 non-preventable damage for each AC they should have discarded but couldn’t.</li><li>Remove Bridge BR2-B from the board. Heroes can no longer access previous Setup areas in any way. Pets that were on the Bridge or earlier Setups are Dispelled.</li></ul><div style="color: #1a120f; margin-top: 1em;">A Boss Battle is about to begin. Read the Tutorials “Boss Battles” and “Focus Abilities”. Then read the rule below before continuing the Adventure.</div><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">RULE – THIS IS NOT OVER YET</div><div style="color: #1a120f;">When the Undead King dies for the first time, do not remove his model from the board or his cards from the Initiative Track. Skip all ACTIVATIONS from his Attack and Monster cards while he is in this suspended state. Heroes being GRAPPLED by the Undead King are released into a square adjacent to the Undead King’s model.</div>`
       },
       {
-        title: "AGE OF DARKNESS", 
+        title: "AGE OF DARKNESS",
         body: `<p>The author of Blackriver’s misery is not a man. Not anymore. Now he is a carcass corrupted by the same unholy power he claims dominion over. Without a soul to long for anything, all he seeks is death and destruction.</p><p>“Who the hell are you?” the monster demands. The living usually don’t strike back. “You’re strong, I’ll admit that—but this ends now. The seeds have already been planted. There is no more escape, no more rest!”</p><p>Boulders fall from the ceiling as the Undead King raises his hands and makes the hall tremble once again. Your legs fight to stay grounded, but it is your mind that reels at the sight of a nightmare: Shadows condense like black clouds, flashing with emerald light. Then, like a storm, something warm and sticky as pitch spills into the hall.</p><p>The falling slime creeps along the floor and devours corpses with the hunger of a predator, sending a shiver down your spine. Flesh, entrails, and bones vanish in the blink of an eye, thickening and strengthening the mass that oozes ever closer.</p><p>“Welcome, mortals... to the Age of Darkness!”</p>`,
         instruction: `<div style="color: #1a120f;">The Undead King is not yet defeated and summons the Darkness to aid him. Make the following preparations for the second stage of this Boss Fight:</div><ul style="color: #1a120f; margin-left: 20px; margin-top: 8px; margin-bottom: 8px; list-style-type: disc;"><li>The Undead King restores 20 Health Points per Hero (for a total between 20 and 80).</li><li>Flip all of the Undead King’s Attack cards to their BACK side.</li><li>The Undead King releases all Heroes who are GRAPPLED.</li><li>Flip Maps E8-B and E5-F. Remove any Special Event tokens from them, but leave all other elements in their current squares (including Rune Piles). Heroes on those Maps are engulfed by Darkness.</li><li>Replace the Age of Darkness Scene Trigger card with the Into the Underkeep Endgame Trigger card.</li></ul><div style="color: red; font-weight: bold; text-transform: uppercase; margin-top: 12px; margin-bottom: 4px;">GAME MECHANIC – DARKNESS HUNTING</div><div style="color: #1a120f;">The Darkness is now strong enough to hunt new victims. Replace the Growing Darkness Rune card on the Initiative Track with the Darkness Hunting card, keeping the same face up. The Darkness now chases the Heroes according to the Standard Behavior. You can find details about the emergence of Darkness and its effects here. Reminder: If all Heroes are already in Darkness when a Rune is drawn, they suffer CRUSH damage instead of spawning Darkness.</div><div style="color: #1a120f; margin-top: 1em;">With these preparations complete, proceed with the Adventure. The fight continues until the Undead King is ultimately defeated.</div>`
       },
       {
-        title: "INTO THE UNDERKEEP", 
+        title: "INTO THE UNDERKEEP",
         body: `<p>What takes place in the Great Hall is the embodiment of life’s struggle, as the adrenaline surging through your veins turns any dreams of wealth or glory into a single purpose: survival. Violence is met with violence, but in the end, the final blow is delivered by you.</p><p>“How... How can flesh surpass death?” the skeletal colossus murmurs as he collapses to the ground—but surprisingly, he laughs again. The black mass had already infiltrated the fortress’s foundations, shaking the ground harder than ever. “You know what? It doesn’t matter. You’ve won nothing but the right to dig your own graves...”</p><p>You barely have time to look at each other, let alone think of fleeing, before the cacophony of the collapse silences the hall, raising dust everywhere. All that’s left is to take a deep breath and hope for the best.</p><p>Surely, this job is turning out to be more costly than you expected…</p>`,
         instruction: `<div style="color: #1a120f; font-weight: bold; font-size: 1.1em; margin-bottom: 8px;">Congratulations! You’ve completed the Drunagor Nights Season 01, Tutorial!</div><div style="color: #1a120f;">Register your Heroes by marking in the app the Skills, Class Abilities, and Equipment you own. Proceed to the Adventure Underkeep Level 01 for your next game session—or if you prefer, replay this adventure in Advanced Mode first.</div>`
       }
@@ -217,7 +226,7 @@ const pages = ref([
       }
     ],
     layout: "single-column",
-    background: "url('/img/bg-apoc.png')", 
+    background: "url('/img/bg-apoc.png')",
   }
 ]);
 
@@ -230,22 +239,22 @@ const openGroups = ref<string[]>([]);
 interface NavigationItem {
   sectionTitle: string;
   title: string;
-  sectionIndex: number; 
+  sectionIndex: number;
   contentIndex: number;
-  id: string;           
+  id: string;
 }
 
 const navigationItems = computed<NavigationItem[]>(() => {
   const items: NavigationItem[] = [];
-  pages.value.forEach((section, sectionGlobalIdx) => { 
+  pages.value.forEach((section, sectionGlobalIdx) => {
     if (section.content && section.content.length > 0) {
       section.content.forEach((contentItem, contentIdx) => {
         if (contentItem.title) {
           items.push({
             sectionTitle: section.section,
             title: contentItem.title,
-            sectionIndex: sectionGlobalIdx, 
-            contentIndex: contentIdx, 
+            sectionIndex: sectionGlobalIdx,
+            contentIndex: contentIdx,
             id: `content-block-${sectionGlobalIdx}-${contentIdx}`
           });
         }
@@ -270,23 +279,32 @@ const getSectionIcon = (_sectionName: string) => {
   return 'mdi-book-open-page-variant';
 };
 
+// <-- ADICIONADO: Função para mostrar a KeywordView -->
+const showKeywords = () => {
+  showKeywordView.value = true;
+  currentIndex.value = -1;
+  activeClickedItemId.value = 'keywords';
+  openGroups.value = [];
+};
+
 const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: string, sectionTitle: string) => {
+  showKeywordView.value = false; // <-- MODIFICADO: Garante que a KeywordView seja ocultada
   console.log(`[Nav] Clicked. Target GlobalSectionIdx: ${sectionGlobalIndex}, ElementID: ${contentBlockId}, SectionTitle: ${sectionTitle}`);
 
   if (sectionGlobalIndex < 0 || sectionGlobalIndex >= pages.value.length) {
     console.error(`[Nav] Invalid global sectionIndex: ${sectionGlobalIndex}.`);
     return;
   }
-  
+
   currentIndex.value = sectionGlobalIndex;
-  activeClickedItemId.value = contentBlockId; 
+  activeClickedItemId.value = contentBlockId;
 
   if (!openGroups.value.includes(sectionTitle)) {
-    openGroups.value = [sectionTitle]; 
+    openGroups.value = [sectionTitle];
   }
-  
-  await nextTick(); 
-  
+
+  await nextTick();
+
   const element = document.getElementById(contentBlockId);
   if (element) {
     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -297,14 +315,14 @@ const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: str
   }
 };
 
-const startDragHeader = (e: MouseEvent) => { 
+const startDragHeader = (e: MouseEvent) => {
   drag.value = true;
   startX.value = e.clientX - dragX.value;
   startY.value = e.clientY - dragY.value;
   document.addEventListener("mousemove", onDrag);
   document.addEventListener("mouseup", stopDrag);
 };
-const startDrag = (e: MouseEvent) => { 
+const startDrag = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
   if (target.closest('button, a, input, textarea, .v-navigation-drawer, .header-banner .d-flex')) {
     return;
@@ -328,9 +346,10 @@ const stopDrag = () => {
   document.removeEventListener("mouseup", stopDrag);
 };
 
-const currentIndex = ref(0); 
+const currentIndex = ref(0);
 const currentPage = computed(() => {
-    if (!pages.value || pages.value.length === 0) {
+    // <-- MODIFICADO: Retorna null se estiver mostrando KeywordView ou se o índice for inválido -->
+    if (showKeywordView.value || currentIndex.value < 0 || !pages.value || pages.value.length === 0) {
       return null;
     }
     const clampedIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
@@ -369,13 +388,14 @@ function handlePageClick(event: MouseEvent) {
 
 function nextPage() {
   if (currentIndex.value < pages.value.length - 1) {
+    showKeywordView.value = false; // <-- MODIFICADO: Garante que a KeywordView seja ocultada
     currentIndex.value++;
-    activeClickedItemId.value = null; 
+    activeClickedItemId.value = null;
     nextTick(() => {
         if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
         if (pages.value[currentIndex.value]?.section) {
             const newSectionTitle = pages.value[currentIndex.value].section;
-            openGroups.value = [newSectionTitle]; 
+            openGroups.value = [newSectionTitle];
             const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
             if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
         }
@@ -385,6 +405,7 @@ function nextPage() {
 
 function prevPage() {
   if (currentIndex.value > 0) {
+    showKeywordView.value = false; // <-- MODIFICADO: Garante que a KeywordView seja ocultada
     currentIndex.value--;
     activeClickedItemId.value = null;
      nextTick(() => {
@@ -412,12 +433,12 @@ function prevPage() {
   color: #191919 !important;
   margin-bottom: 1.5rem;
 }
-.body-text p strong { 
-    font-style: normal; 
-    font-weight: bold; 
+.body-text p strong {
+    font-style: normal;
+    font-weight: bold;
 }
-.body-text div[style*="color: Black"] { 
-    text-indent: 0em !important; 
+.body-text div[style*="color: Black"] {
+    text-indent: 0em !important;
 }
 .setup-placeholder {
   text-align: center;
@@ -427,10 +448,10 @@ function prevPage() {
   border: 2px dashed #ccc;
   background-color: #f9f9f9;
   font-size: 1.1em;
-  font-style: normal !important; 
+  font-style: normal !important;
 }
 .setup-placeholder strong {
-    font-style: normal !important; 
+    font-style: normal !important;
 }
 
 .book-dialog {
@@ -454,25 +475,25 @@ function prevPage() {
 }
 
 .header-banner {
-  background-image: url('@/assets/booktop.png'); 
+  background-image: url('@/assets/booktop.png');
   background-size: cover;
   background-repeat: no-repeat;
   background-position: top center;
-  padding: 2px 14px 10px; 
+  padding: 2px 14px 10px;
   position: relative;
   z-index: 1;
-  color: #212121; 
-  border-top-left-radius: 6px; 
+  color: #212121;
+  border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }
-.header-banner .d-flex { 
-  cursor: move; 
+.header-banner .d-flex {
+  cursor: move;
 }
 
 .section-title {
   font-size: 0.7rem;
   color: white;
-  padding: 23px 44px 5px; 
+  padding: 23px 44px 5px;
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
@@ -480,14 +501,14 @@ function prevPage() {
 
 .chapter-title-banner {
   font-family: "Cinzel Decorative", cursive;
-  font-size: 1.8rem; 
-  color: white; 
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); 
-  margin-top: 5px; 
-  margin-bottom: 10px; 
-  padding-left: 44px; 
+  font-size: 1.8rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  margin-top: 5px;
+  margin-bottom: 10px;
+  padding-left: 44px;
   padding-right: 44px;
-  text-align: left; 
+  text-align: left;
 }
 
 .close-btn {
@@ -508,13 +529,13 @@ function prevPage() {
   color: #1a120f !important;
   box-shadow: 3px 3px 0px #212121;
   padding: 16px;
-  margin-top: 1rem; 
+  margin-top: 1rem;
 }
 
-.instruction-card ul { 
+.instruction-card ul {
   list-style-position: inside;
-  padding-left: 0; 
-  list-style-type: disc; 
+  padding-left: 0;
+  list-style-type: disc;
 }
 .instruction-card li {
   margin-bottom: 0.5em;
@@ -539,74 +560,76 @@ function prevPage() {
   color: #f0e6d2;
   font-size: 0.8rem !important;
   line-height: 1.2;
-  white-space: normal !important; 
+  white-space: normal !important;
 }
 .nav-drawer .v-list-subheader {
-  color: #e6c68a !important; 
+  color: #e6c68a !important;
   font-size: 0.9rem;
   font-family: "Cinzel Decorative", cursive;
-  padding-left: 16px; 
+  padding-left: 16px;
   line-height: normal;
   height: auto;
   padding-top: 8px;
   padding-bottom: 8px;
 }
 .drawer-section-header .v-list-item-title {
- font-weight: bold;
- font-size: 0.85rem !important;
- color: #f5e1a9 !important; 
+  font-weight: bold;
+  font-size: 0.85rem !important;
+  color: #f5e1a9 !important;
 }
 .drawer-item-index .v-list-item-title {
-  font-size: 0.75rem !important; 
+  font-size: 0.75rem !important;
   font-family: "EB Garamond", serif;
   color: #d4be94 !important;
   margin-left: 8px; /* Espaço padrão ao lado do avatar */
 }
 
 .drawer-item-index.v-list-item--active-book-index {
-  background-color: rgba(201, 170, 113, 0.2) !important; 
+  background-color: rgba(201, 170, 113, 0.2) !important;
 }
+
+/* MODIFICADO: Aplica o hover e active também ao item de Keyword (que agora usa .drawer-section-header) */
 .drawer-item-index.v-list-item--active-book-index .v-list-item-title,
-.drawer-item-index:hover .v-list-item-title { 
+.drawer-item-index:hover .v-list-item-title,
+.drawer-section-header.v-list-item--active-book-index .v-list-item-title,
+.drawer-section-header:hover .v-list-item-title {
   color: #ffffff !important;
   font-weight: bold;
 }
-.drawer-item-index.v-list-item--active-book-index .numbered-avatar span { 
+.drawer-item-index.v-list-item--active-book-index .numbered-avatar span {
     color: white !important;
 }
 
-/* === INÍCIO DOS AJUSTES DE CSS PARA ALINHAMENTO DOS NÚMEROS === */
-.drawer-section-header.v-list-item {
-  padding-inline-start: 16px !important; /* Padrão para itens de topo com ícone */
-}
-.drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
-  margin-inline-end: 16px !important; /* Espaço entre ícone da wing e título da wing */
-}
-
+/* === INÍCIO DOS AJUSTES DE CSS PARA ALINHAMENTO DOS NÚMEROS E ÍCONES === */
+/* Aplica o padding e margem tanto aos headers quanto aos itens numerados */
+.drawer-section-header.v-list-item,
 .drawer-item-index.v-list-item {
-  /* Força o mesmo padding dos itens de topo para alinhar os slots prepend */
-  padding-inline-start: 16px !important; 
+  padding-inline-start: 16px !important;
 }
 
+/* Ícone do Header */
+.drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
+  margin-inline-end: 16px !important; /* Espaço entre ícone e título */
+}
+
+/* Prepend dos itens numerados (avatar) */
 .drawer-item-index.v-list-item .v-list-item__prepend {
-  /* Faz o slot prepend se comportar de forma que o avatar fique alinhado com o ícone da wing */
-  min-width: 24px !important; /* Largura aproximada do ícone da wing */
-  max-width: 24px !important; /* Evita que o prepend se estique demais */
-  margin-right: 16px !important; /* Espaçamento entre o avatar e o título do capítulo */
+  min-width: 24px !important;
+  max-width: 24px !important;
+  margin-right: 16px !important; /* Espaço entre avatar e título */
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .drawer-item-index .numbered-avatar {
-  /* O avatar deve preencher o espaço do prepend, sem margens próprias que o desloquem */
-  margin: 0 !important; 
+  margin: 0 !important;
   flex-shrink: 0;
   font-weight: bold;
 }
 .drawer-item-index .numbered-avatar .text-caption {
   font-size: 0.75rem !important;
-  line-height: 1; 
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -615,30 +638,25 @@ function prevPage() {
 }
 
 /* Modo Rail (Drawer minimizado e NÃO sob hover) */
-/* Quando o drawer está efetivamente no modo "rail" (estreito) */
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .v-list-item__prepend {
-    /* Força o ícone/avatar a ocupar o centro da pequena área do item no modo rail */
-    width: auto !important; /* Permite que o ícone/avatar defina a largura */
+    width: auto !important;
     margin-left: auto !important;
     margin-right: auto !important;
     justify-content: center !important;
 }
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
-    margin: 0 !important; /* Remove margens do ícone da wing no rail */
+    margin: 0 !important;
 }
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-item-index.v-list-item .v-list-item__prepend .numbered-avatar {
-    margin: 0 !important; /* Remove margens do avatar no rail */
+    margin: 0 !important;
 }
 
-/* Esconde o título do capítulo no modo RAIL (quando não está em hover),
-   mas o v-avatar no prepend deve continuar visível */
-.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .drawer-item-index .v-list-item__content {
+/* Esconde o título no modo RAIL */
+.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .v-list-item__content {
   display: none !important;
 }
-.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .drawer-section-header .v-list-item__content {
-  display: none !important; /* Esconde também o título da wing no rail */
-}
-/* === FIM DOS AJUSTES DE CSS PARA ALINHAMENTO DOS NÚMEROS === */
+
+/* === FIM DOS AJUSTES DE CSS === */
 
 
 .nav-drawer:hover .v-list-item-title {
@@ -654,7 +672,7 @@ function prevPage() {
 }
 
 .v-navigation-drawer--rail:hover {
-  width: 270px !important; 
+  width: 270px !important;
 }
 
 .main-content {
@@ -662,45 +680,45 @@ function prevPage() {
 }
 
 .v-navigation-drawer--rail:hover ~ .main-content {
-   margin-left: 270px !important; 
+   margin-left: 270px !important;
 }
 .v-navigation-drawer:not(.v-navigation-drawer--rail) ~ .main-content {
-  margin-left: 270px !important; 
+  margin-left: 270px !important;
 }
 
 
 .scrollable-content {
   overflow-y: auto;
-  max-height: calc(100vh - 60px); 
+  max-height: calc(100vh - 60px);
 }
 
 .content-block {
-  background-color: #fff; 
-  border: 1px solid #dedede; 
-  border-radius: 6px; 
-  padding: 0 0 16px 0; 
+  background-color: #fff;
+  border: 1px solid #dedede;
+  border-radius: 6px;
+  padding: 0 0 16px 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.content-block .header-banner { 
+.content-block .header-banner {
   padding-left: 16px;
   padding-right: 16px;
 }
 
 .content-block:not(:last-child) {
-  margin-bottom: 24px; 
+  margin-bottom: 24px;
 }
 .content-block:last-child {
-  margin-bottom: 16px; 
+  margin-bottom: 16px;
 }
 
-.body-text.mt-3 { 
-    margin-top: 1rem !important; 
-    padding: 0 16px; 
+.body-text.mt-3 {
+    margin-top: 1rem !important;
+    padding: 0 16px;
 }
 .instruction-card {
     margin-left: 16px;
     margin-right: 16px;
-    width: calc(100% - 32px); 
+    width: calc(100% - 32px);
 }
 
 @media (max-width: 960px) {
@@ -716,7 +734,7 @@ function prevPage() {
   .book-dialog { width: 96vw !important; max-height: 90vh !important; }
   .scrollable-content { max-height: calc(90vh - 70px); }
   .d-flex.justify-end { position: sticky; bottom: 0; background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%); padding: 16px 0; z-index: 100; }
-  
+
   .nav-drawer { width: 48px !important; }
   .nav-drawer:hover, .v-navigation-drawer--rail:hover  { width: 220px !important; }
   .v-navigation-drawer--rail:hover ~ .main-content { margin-left: 220px !important; }
@@ -738,7 +756,7 @@ function prevPage() {
   .v-btn { width: 100% !important; justify-content: center; }
   .book-dialog { width: 98vw !important; max-height: 95vh !important; margin: auto; }
   .scrollable-content { max-height: calc(95vh - 60px); }
-  .header-banner { margin-bottom: 0; } 
+  .header-banner { margin-bottom: 0; }
   .section-title { padding: 10px 8px 2px 8px !important; font-size: 0.55rem !important; }
   .chapter-title-banner { font-size: 1.3rem !important; padding-left: 8px !important; padding-right: 8px !important; margin-bottom: 5px;}
 }
