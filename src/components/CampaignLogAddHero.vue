@@ -5,7 +5,7 @@ import BaseListItem from "@/components/BaseListItem.vue";
 import { EnabledHeroes } from "@/repository/EnabledHeroes";
 import { RandomizeHero } from "@/service/RandomizeHero";
 import { useToast } from "primevue/usetoast";
-import RandomImage from "@/assets/hero/avatar/RandomAvatar.webp";
+import RandomImage from "@/assets/hero/trackerimage/RandomAvatar.png";
 import * as _ from "lodash-es";
 import { HeroStore } from "@/store/HeroStore";
 import { Hero } from "@/store/Hero";
@@ -80,10 +80,12 @@ function addRandomHeroToCampaign() {
           <v-list-item
             id="party-random-hero"
             @click="addRandomHeroToCampaign"
-            title="Random hero"
-            :prepend-avatar="RandomImage.toString()"
-            height="60px"
-          ></v-list-item>
+          >
+             <v-img
+    :src="RandomImage" 
+  /></v-list-item>
+     
+          
           <v-list-item
   v-for="hero in filteredHeroes"
   :key="hero.id"
