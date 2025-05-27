@@ -141,7 +141,7 @@ const buttons = ref([
 
 <template>
   <!-- MOBILE -->
-  <v-container class="d-md-none pa-4">
+  <v-container class="d-sm-none pa-4">
   <v-card
     color="primary"
     rounded="lg"
@@ -181,7 +181,7 @@ const buttons = ref([
 
 
 <!-- DESKTOP -->
-<v-container max-width="800" style="min-width: 360px;" class="d-none d-md-flex">
+<v-container max-width="800" style="min-width: 360px;" class="d-none d-sm-flex">
   <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center">
     <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
       <template v-for="(button, i) in buttons" :key="button.value">
