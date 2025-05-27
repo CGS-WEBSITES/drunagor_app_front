@@ -13,8 +13,7 @@
           width="270"
           class="nav-drawer"
           :floating="false"
-          absolute
-        >
+          >
           <v-list density="compact" nav v-model:opened="openGroups">
 
             <v-list-group
@@ -67,18 +66,21 @@
               :active="'keywords' === activeClickedItemId"
               active-class="v-list-item--active-book-index"
               density="compact"
-              class="drawer-section-header" >
+              class="drawer-section-header"
+            >
               <template v-slot:prepend>
-                <v-icon :color="'keywords' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-book-search-outline</v-icon> </template>
+                <v-icon :color="'keywords' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-book-search-outline</v-icon>
+              </template>
               <v-tooltip activator="parent" location="end">Keywords</v-tooltip>
             </v-list-item>
             </v-list>
         </v-navigation-drawer>
 
-        <v-main class="main-content">
-          <v-card-text class="pa-0 scrollable-content" ref="scrollableContentRef">
+        <v-main class="main-content"> <v-card-text class="pa-0 scrollable-content" ref="scrollableContentRef">
 
-            <KeywordView v-if="showKeywordView" /> <template v-else>
+            <KeywordView v-if="showKeywordView" />
+
+            <template v-else>
               <v-sheet
                 v-if="currentPage"
                 :key="currentIndex"
@@ -99,9 +101,7 @@
                         <div class="header-banner">
                           <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDragHeader">
                             <h4 class="section-title">{{ currentPage.section }}</h4>
-                            <v-btn icon class="close-btn" @click="hideCard = true">
-                              <v-icon>mdi-close</v-icon>
-                            </v-btn>
+
                           </div>
                           <h2 v-if="item.title" class="chapter-title-banner">
                             {{ item.title }}
@@ -139,7 +139,7 @@
 
 <script setup lang="ts">
 import { ref, computed, CSSProperties, nextTick } from "vue";
-import KeywordView from '@/components/KeywordView.vue'; // <-- ADICIONADO: Importe o KeywordView (ajuste o caminho se necessário)
+import KeywordView from '@/components/KeywordView.vue';
 
 const dialog = ref(false);
 const hideCard = ref(false);
@@ -148,9 +148,8 @@ const dragX = ref(20);
 const dragY = ref(20);
 const startX = ref(0);
 const startY = ref(0);
-const showKeywordView = ref(false); // <-- ADICIONADO: Ref para controlar a exibição
+const showKeywordView = ref(false);
 
-// SEUS DADOS COMPLETOS DA ARRAY `pages` ESTÃO AQUI
 const pages = ref([
   {
     section: "WING 1 - TUTORIAL",
@@ -279,7 +278,6 @@ const getSectionIcon = (_sectionName: string) => {
   return 'mdi-book-open-page-variant';
 };
 
-// <-- ADICIONADO: Função para mostrar a KeywordView -->
 const showKeywords = () => {
   showKeywordView.value = true;
   currentIndex.value = -1;
@@ -288,7 +286,7 @@ const showKeywords = () => {
 };
 
 const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: string, sectionTitle: string) => {
-  showKeywordView.value = false; // <-- MODIFICADO: Garante que a KeywordView seja ocultada
+  showKeywordView.value = false;
   console.log(`[Nav] Clicked. Target GlobalSectionIdx: ${sectionGlobalIndex}, ElementID: ${contentBlockId}, SectionTitle: ${sectionTitle}`);
 
   if (sectionGlobalIndex < 0 || sectionGlobalIndex >= pages.value.length) {
@@ -348,7 +346,6 @@ const stopDrag = () => {
 
 const currentIndex = ref(0);
 const currentPage = computed(() => {
-    // <-- MODIFICADO: Retorna null se estiver mostrando KeywordView ou se o índice for inválido -->
     if (showKeywordView.value || currentIndex.value < 0 || !pages.value || pages.value.length === 0) {
       return null;
     }
@@ -388,7 +385,7 @@ function handlePageClick(event: MouseEvent) {
 
 function nextPage() {
   if (currentIndex.value < pages.value.length - 1) {
-    showKeywordView.value = false; // <-- MODIFICADO: Garante que a KeywordView seja ocultada
+    showKeywordView.value = false;
     currentIndex.value++;
     activeClickedItemId.value = null;
     nextTick(() => {
@@ -405,7 +402,7 @@ function nextPage() {
 
 function prevPage() {
   if (currentIndex.value > 0) {
-    showKeywordView.value = false; // <-- MODIFICADO: Garante que a KeywordView seja ocultada
+    showKeywordView.value = false;
     currentIndex.value--;
     activeClickedItemId.value = null;
      nextTick(() => {
@@ -455,6 +452,7 @@ function prevPage() {
 }
 
 .book-dialog {
+  position: relative; /* Garante que 'absolute' dentro dele funcione bem */
   width: 1000px;
   box-shadow:
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
@@ -552,16 +550,40 @@ function prevPage() {
   border-right: 2px solid #212121 !important;
   z-index: 1001;
   height: 100%;
-  position: absolute !important;
+  /* REMOVIDO: position: absolute !important; */
   transition: width 0.3s ease !important;
 }
 
-.nav-drawer .v-list-item-title {
+.nav-drawer :deep(.v-list-item__title) {
   color: #f0e6d2;
   font-size: 0.8rem !important;
-  line-height: 1.2;
+  line-height: 1.3 !important;
   white-space: normal !important;
+  height: auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
 }
+
+.drawer-section-header :deep(.v-list-item__title) {
+  font-weight: bold;
+  font-size: 0.85rem !important;
+  color: #f5e1a9 !important;
+}
+
+.drawer-item-index :deep(.v-list-item__title) {
+  font-size: 0.75rem !important;
+  font-family: "EB Garamond", serif;
+  color: #d4be94 !important;
+  margin-left: 8px;
+}
+
+.nav-drawer :deep(.v-list-item) {
+    height: auto !important;
+    min-height: 40px;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
 .nav-drawer .v-list-subheader {
   color: #e6c68a !important;
   font-size: 0.9rem;
@@ -572,27 +594,15 @@ function prevPage() {
   padding-top: 8px;
   padding-bottom: 8px;
 }
-.drawer-section-header .v-list-item-title {
-  font-weight: bold;
-  font-size: 0.85rem !important;
-  color: #f5e1a9 !important;
-}
-.drawer-item-index .v-list-item-title {
-  font-size: 0.75rem !important;
-  font-family: "EB Garamond", serif;
-  color: #d4be94 !important;
-  margin-left: 8px; /* Espaço padrão ao lado do avatar */
-}
 
 .drawer-item-index.v-list-item--active-book-index {
   background-color: rgba(201, 170, 113, 0.2) !important;
 }
 
-/* MODIFICADO: Aplica o hover e active também ao item de Keyword (que agora usa .drawer-section-header) */
 .drawer-item-index.v-list-item--active-book-index .v-list-item-title,
 .drawer-item-index:hover .v-list-item-title,
-.drawer-section-header.v-list-item--active-book-index .v-list-item-title,
-.drawer-section-header:hover .v-list-item-title {
+.drawer-section-header.v-list-item--active-book-index :deep(.v-list-item__title),
+.drawer-section-header:hover :deep(.v-list-item__title) {
   color: #ffffff !important;
   font-weight: bold;
 }
@@ -600,23 +610,19 @@ function prevPage() {
     color: white !important;
 }
 
-/* === INÍCIO DOS AJUSTES DE CSS PARA ALINHAMENTO DOS NÚMEROS E ÍCONES === */
-/* Aplica o padding e margem tanto aos headers quanto aos itens numerados */
 .drawer-section-header.v-list-item,
 .drawer-item-index.v-list-item {
-  padding-inline-start: 16px !important;
+  padding-inline-start: 12px !important;
 }
 
-/* Ícone do Header */
 .drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
-  margin-inline-end: 16px !important; /* Espaço entre ícone e título */
+  margin-inline-end: px !important;
 }
 
-/* Prepend dos itens numerados (avatar) */
 .drawer-item-index.v-list-item .v-list-item__prepend {
   min-width: 24px !important;
   max-width: 24px !important;
-  margin-right: 16px !important; /* Espaço entre avatar e título */
+  margin-right: 16px !important;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -637,7 +643,6 @@ function prevPage() {
   height: 100%;
 }
 
-/* Modo Rail (Drawer minimizado e NÃO sob hover) */
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .v-list-item__prepend {
     width: auto !important;
     margin-left: auto !important;
@@ -651,13 +656,9 @@ function prevPage() {
     margin: 0 !important;
 }
 
-/* Esconde o título no modo RAIL */
 .v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .v-list-item__content {
   display: none !important;
 }
-
-/* === FIM DOS AJUSTES DE CSS === */
-
 
 .nav-drawer:hover .v-list-item-title {
   opacity: 1;
@@ -668,24 +669,20 @@ function prevPage() {
 }
 
 .v-navigation-drawer--rail {
-  width: 72px !important;
+  width: 66px !important;
 }
 
 .v-navigation-drawer--rail:hover {
   width: 270px !important;
 }
 
+/* ## REMOVIDO: Regras de margin-left para .main-content ## */
 .main-content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  /* Se o v-main não se ajustar automaticamente, pode ser necessário usar
+     as classes de layout do Vuetify ou voltar às margens,
+     mas idealmente ele deve se ajustar agora. */
 }
-
-.v-navigation-drawer--rail:hover ~ .main-content {
-   margin-left: 270px !important;
-}
-.v-navigation-drawer:not(.v-navigation-drawer--rail) ~ .main-content {
-  margin-left: 270px !important;
-}
-
 
 .scrollable-content {
   overflow-y: auto;
@@ -731,14 +728,23 @@ function prevPage() {
 }
 
 @media (max-width: 600px) {
-  .book-dialog { width: 96vw !important; max-height: 90vh !important; }
+  .book-dialog {
+      width: 96vw !important;
+      max-height: 90vh !important;
+      overflow: hidden; /* Adicionado para evitar que o card vaze, mas pode ser 'visible' se necessário */
+  }
   .scrollable-content { max-height: calc(90vh - 70px); }
   .d-flex.justify-end { position: sticky; bottom: 0; background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%); padding: 16px 0; z-index: 100; }
 
-  .nav-drawer { width: 48px !important; }
+  .nav-drawer {
+      width: 48px !important;
+      /* Se ainda cortar, pode ser necessário forçar position: sticky ou relative aqui */
+  }
+
+  .v-navigation-drawer--rail {
+  width: 62px !important;
+}
   .nav-drawer:hover, .v-navigation-drawer--rail:hover  { width: 220px !important; }
-  .v-navigation-drawer--rail:hover ~ .main-content { margin-left: 220px !important; }
-  .v-navigation-drawer:not(.v-navigation-drawer--rail) ~ .main-content { margin-left: 220px !important; }
 
   .header-banner { padding-left: 8px; padding-right: 8px; }
   .section-title { font-size: 0.6rem !important; padding: 15px 10px 5px 10px !important; }
