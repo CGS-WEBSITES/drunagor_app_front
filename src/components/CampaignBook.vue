@@ -324,8 +324,8 @@ const interactionConfigs: Record<string, InteractionConfig> = {
       `Against all odds, there is a subterranean reservoir beneath Blackriver’s fortress.` +
       `Did the population know about these dungeons? Did the Count? The purpose of this dam is unclear, ` +
       `but the ropes coming out of the stone and wrapping around a wheel-like mechanism clearly indicate that it controls the water level.`,
-    background: WeaponsTableImg,
-    items: InteractionWeaponsTable,
+    background: BarricadeImg,
+    items: InteractionTheStoneGuardian,
   },
   "https://qr1.be/0R": {
     title: `INTERACTION – TREASURES OF A FORGOTTEN AGE`,
@@ -333,8 +333,8 @@ const interactionConfigs: Record<string, InteractionConfig> = {
       `Weapons that seem to have been crafted by the most skilled hands you’ve ever seen` +
       `armor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in time` +
       `hidden in darkness. Does the Count even know that his fortress sits atop a trove like this?`,
-    background: WeaponsTableImg,
-    items: InteractionWeaponsTable,
+    background: ArmorImg,
+    items: InteractionTheReservoir,
   },
   "https://qr1.be/0": {
     title: `INTERACTION – THE STONE GUARDIAN`,
@@ -344,7 +344,7 @@ const interactionConfigs: Record<string, InteractionConfig> = {
       `These details, however, are not the strangest things you find: a skull-shaped handle juts from the stone, ` +
       `and the monster holds a scroll in its mouth.`,
     background: WeaponsTableImg,
-    items: InteractionWeaponsTable,
+    items: InteractionTreasuresOfAForgottenAge,
   }
 };
 
