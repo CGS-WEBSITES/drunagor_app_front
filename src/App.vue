@@ -110,10 +110,9 @@
             </v-hover>
           </div>
 
-          <v-menu open-on-hover offset-y>
+          <v-menu open-on-click offset-y>
             <template v-slot:activator="{ props }">
               <v-btn
-                @click="$router.push({ name: 'PerfilHome' })"
                 v-bind="props"
                 text
                 class="px-3"
@@ -250,12 +249,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed, onMounted } from "vue";
+import { ref, inject, computed, onMounted, onBeforeMount } from "vue";
+import { setToken } from "@/service/AccessToken";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import themeIcon from "@/assets/theme.png";
 
+const axios: any = inject("axios");
 const openLink = (url) => {
   window.open(url, "_blank");
 };
@@ -392,6 +393,18 @@ onMounted(() => {
     useUserStore().setUser(userObject);
   }
 });
+
+onBeforeMount(() => {
+  const token = localStorage.getItem('accessToken');
+
+  if (token) {
+    setToken(token);
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+});
+
+
 </script>
 
 <style>

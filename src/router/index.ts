@@ -84,8 +84,19 @@ const router = createRouter({
       },
       children: [
         {
-          path: "/campaign-tracker",
-          name: "CampaignTracker",
+          path: "/campaign-tracker/",
+          name: "Campaign Overview",
+          component: () => import("@/components/CampaignOverviewView.vue"),
+          /* beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          }, */
+        },
+        {
+          path: "/campaign-tracker/randomizer",
+          name: "Randomizer",
           component: () => import("@/components/RandomizerView.vue"),
           beforeEnter(to, from, next) {
             if (isSignedIn()) {
@@ -139,17 +150,6 @@ const router = createRouter({
               return
             }
           },
-        },
-        {
-          path: "/campaign-tracker/campaign",
-          name: "Campaign Overview",
-          component: () => import("@/components/CampaignOverviewView.vue"),
-          /* beforeEnter(to, from, next) {
-            if (isSignedIn()) {
-              next()
-              return
-            }
-          }, */
         },
         {
           path: "/campaign-tracker/keyword",
