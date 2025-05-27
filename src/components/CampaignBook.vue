@@ -268,9 +268,14 @@ import {
 import { BrowserMultiFormatReader } from "@zxing/library";
 import BarricadeImg from "@/assets/Interaction_01_The Barricade.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor.png";
+import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable.png";
 import Player from "@/assets/json/Player.json";
 import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
 import InteractionTheShiningArmor from "@/assets/json/InteractionTheShiningArmor.json";
+import InteractionWeaponsTable from "@/assets/json/InteractionWeaponsTable.json";
+import InteractionTheStoneGuardian from "@/assets/json/InteractionTheStoneGuardian.json";
+import InteractionTheReservoir from "@/assets/json/InteractionTheReservoir.json";
+import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasuresOfAForgottenAge.json";
 
 interface InteractionItem {
   id: string;
@@ -303,6 +308,44 @@ const interactionConfigs: Record<string, InteractionConfig> = {
     background: ArmorImg,
     items: InteractionTheShiningArmor,
   },
+  "https://qr1.be/0RLM": {
+    title: `INTERACTION – THE WEAPONS TABLE`,
+    subtitle:
+      `Equipment of all kinds lies scattered across the table. Apparently, Blackriver didn't go down without a fight.` +
+      `He just didn't have enough time to prepare the soldiers for the Earl's service. However, ` +
+      `even if they were unable to resist the incursion, their efforts may not have been in vain: ` +
+      `the weapons they gathered may yet serve other warriors in this battle…`,
+    background: WeaponsTableImg,
+    items: InteractionWeaponsTable,
+  },
+  "https://qr1.be/0RL": {
+    title: `INTERACTION – THE RESERVOIR`,
+    subtitle:
+      `Against all odds, there is a subterranean reservoir beneath Blackriver’s fortress.` +
+      `Did the population know about these dungeons? Did the Count? The purpose of this dam is unclear, ` +
+      `but the ropes coming out of the stone and wrapping around a wheel-like mechanism clearly indicate that it controls the water level.`,
+    background: WeaponsTableImg,
+    items: InteractionWeaponsTable,
+  },
+  "https://qr1.be/0R": {
+    title: `INTERACTION – TREASURES OF A FORGOTTEN AGE`,
+    subtitle:
+      `Weapons that seem to have been crafted by the most skilled hands you’ve ever seen` +
+      `armor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in time` +
+      `hidden in darkness. Does the Count even know that his fortress sits atop a trove like this?`,
+    background: WeaponsTableImg,
+    items: InteractionWeaponsTable,
+  },
+  "https://qr1.be/0": {
+    title: `INTERACTION – THE STONE GUARDIAN`,
+    subtitle:
+      `The hall is empty, save for a gargoyle with two large, gleaming rubies for eyes, perched atop a stone column` +
+      `Two torches light the statue with mysterious blue flames` +
+      `These details, however, are not the strangest things you find: a skull-shaped handle juts from the stone, ` +
+      `and the monster holds a scroll in its mouth.`,
+    background: WeaponsTableImg,
+    items: InteractionWeaponsTable,
+  }
 };
 
 const dialog = ref(false);
