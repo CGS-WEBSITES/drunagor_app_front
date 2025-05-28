@@ -216,6 +216,7 @@
                           v-else-if="item.campaign === 'underkeep'"
                           src="@/assets/underkeep.png"
                           cover
+                          max-height="307"
                         ></v-img>
 
                         <v-card-title class="text-uppercase" v-if="item.name">
@@ -343,23 +344,29 @@
                       <v-img
                         v-if="item.campaign === 'core'"
                         src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
-                        max-height="200"
+                        max-height="260"
                         cover
                       ></v-img>
 
                       <v-img
                         v-else-if="item.campaign === 'apocalypse'"
                         src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
-                        max-height="200"
+                        max-height="260"
                         cover
                       ></v-img>
 
                       <v-img
                         v-else-if="item.campaign === 'awakenings'"
                         src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
-                        max-height="200"
+                        max-height="260"
                         cover
                       ></v-img>
+                      <v-img
+                          v-else-if="item.campaign === 'underkeep'"
+                          src="@/assets/underkeep.png"
+                          cover
+                          max-height="260"
+                        ></v-img>
                       <v-card-subtitle
                         class="text-uppercase mt-3"
                         v-if="item.name"
