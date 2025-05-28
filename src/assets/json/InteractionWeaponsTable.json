@@ -1,0 +1,76 @@
+[
+  {
+    "id": "interaction-1.1",
+    "title": "1.1 – TAKE THE AXE",
+    "body": [
+      "Although the Dwarves are the undisputed masters of axe-making, this human-crafted piece is truly impressive. The blackened handle may deceive the untrained eye, for Blackwood—the rarest wood in the Irallian Forest—bears a striking resemblance to a rotten log. With a grip like that, the blade matters little compared to the weapon’s head. It will strike with the force of a dragon’s claw.<br><br>",
+      "Take the Lumberjack's Axe Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.2",
+    "title": "1.2 – TAKE THE SHIELD",
+    "body": [
+      "Only two types of shields hang on the wall: those untouched by battle and those that have endured countless wars. This kite shield bears the symbol of the Earl's family, and the marks of impact leave no doubt that it is one of the last of its kind. A weapon wielded during the emancipation of the Kingdom of Elan—suzerain state of Blackriver—from the Empire of Amira. A weapon you have just pulled from a well-deserved retirement…<br><br>",
+      "Take the Earl's Shield Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.3",
+    "title": "1.3 – PICK UP THE CROSSBOW",
+    "body": [
+      "No people have mastered the art of archery like the Elves. For them, archery is more than a sport or an art of war—it is a philosophy of life. Humans, however, lack such longevity, and their natural ingenuity led them to create a less elegant but far more effective weapon. The crossbow will serve you well…<br><br>",
+      "Take the Elanian Crossbow Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.4",
+    "title": "1.4 – PICK UP THE LIGHT SWORD",
+    "body": [
+      "Your eyes can hardly believe it—this light blade was not forged by ordinary means. It was not even forged in a crucible, but sculpted. Deep within Khai-Udun, the ancient Dwarven kingdom, Stoneshapers have labored for decades to create a single masterpiece like this. A treasure that now belongs to you, though it is likely far older than you…<br><br>",
+      "Take the Stone GladiusRapier Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.5",
+    "title": "1.5 – SEARCH THE LOCKED DRAWER",
+    "body": [
+      "Nothing sparks curiosity more than a locked door. A piece of iron crafted to guard a secret from prying eyes. You place your hand on the padlock and test its resistance, a mischievous smile playing on your lips. Maybe you can force it open...<br><br>",
+      "If you have the Rusty Key Status on the Party Campaign Log, proceed to resolution 1.8. Otherwise, continue reading below.<br><br>",
+      "…surely, a key would do the job better, but that is a treasure you do not possess. Left with no choice, you grab the piece and prepare yourself. Is it a matter of sheer strength or dexterous skill?<br><br>",
+      "If you follow the Path of Strength or the Path of Devotion (check your Hero board), proceed to resolution 1.8. Otherwise, proceed to resolution 1.9."
+    ]
+  },
+  {
+    "id": "interaction-1.6",
+    "title": "1.6 – SEARCH THE OPEN DRAWER",
+    "body": [
+      "In this open, cluttered drawer, parchments lay abandoned as if mere scribbles on a page. A lapse that reveals the fortress soldiers were unprepared for the attack. The discovery alone is cause for celebration, but there’s more—a key that seems to fit perfectly into the padlock on the other drawer...<br><br>",
+      "Write down the Rusty Key Status on the Party Campaign Log.<br>Draw 2 Chest cards. You can give as many of them as you want to other players if your Bag is full.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.7",
+    "title": "1.7 – LUCKILY, YOU HAVE THE KEY",
+    "body": [
+      "...or perhaps you don’t need to, because while rummaging through the parchments in the neighboring drawer, you found the key! The satisfying 'click' echoes through the deserted hall, and then the drawer opens, as if presenting a gift fit for a king. You pick up the blued iron locket, adorned with carvings of a lion—a jewel that holds something even more precious: magic.<br><br>",
+      "Take the Locket of Safeguard Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.8",
+    "title": "1.8 – IT WAS JUST A MATTER OF STRENGTH",
+    "body": [
+      "…and no amount of rust can withstand stubbornness or brute force. The sound of the lock engaging, followed by the sharp 'click' of the mechanism breaking, echoes through the deserted room. Then, the drawer opens as if presenting a gift fit for a king. You pick up the blued iron locket, adorned with carvings of a lion—a jewel that holds something even more precious: magic.<br><br>",
+      "Take the Locket of Safeguard Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  },
+  {
+    "id": "interaction-1.9",
+    "title": "1.9 – YOU DON’T HAVE WHAT IT TAKES",
+    "body": [
+      "…however, you are neither stubborn nor strong enough to overcome the rusty mechanism. The sound of the lock clicking echoes awkwardly through the deserted hall, but the padlock remains firmly in place. Just like the secrets in that drawer that may never be revealed to you…<br><br>",
+      "This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
+    ]
+  }
+]
