@@ -1,9 +1,7 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
-      >
+      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
         EVENTS
       </h1>
     </v-col>
@@ -13,13 +11,7 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs
-            class="EventsTabs mb-3"
-            v-model="activeTab"
-            fixed-tabs
-            align-tabs="center"
-            color="white"
-          >
+          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -28,24 +20,11 @@
 
       <div v-if="activeTab === 1">
         <v-row>
-          <v-col
-            class="py-2 pl-1 pr-1"
-            cols="12"
-            md="6"
-            v-for="(event, index) in sortedEvents"
-            :key="index"
-          >
-            <v-card
-              color="terciary"
-              class="pt-0 event-card"
-              @click="openDialog(event)"
-            >
+          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
+            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div
-                    class="text-center ml-3"
-                    style="width: 70px; color: black"
-                  >
+                  <div class="text-center ml-3" style="width: 70px; color: black">
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
                         new Date(event.event_date)
@@ -55,10 +34,7 @@
                           .toUpperCase()
                       }}
                     </p>
-                    <p
-                      color="primary"
-                      class="cinzel-text text-h3 font-weight-bold"
-                    >
+                    <p color="primary" class="cinzel-text text-h3 font-weight-bold">
                       {{ String(event.event_date).split("T")[0].split("-")[2] }}
                     </p>
                     <p class="text-caption font-weight-bold">
@@ -74,9 +50,7 @@
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black"
-                      >mdi-chess-rook</v-icon
-                    >{{ event.store_name }}
+                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
                     <v-icon color="red">mdi-map-marker</v-icon>
@@ -87,25 +61,12 @@
                     {{ event.scenario }}
                   </p>
 
-                  <p
-                    class="text-caption ml-3"
-                    v-if="event.rewards && event.rewards.length"
-                  >
+                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
                     <v-row class="d-flex align-center rewards-container">
                       <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
                       Rewards:
-                      <v-col
-                        cols="auto"
-                        v-for="(reward, index) in event.rewards"
-                        :key="index"
-                      >
-                        <v-img
-                          :src="reward.image"
-                          height="20"
-                          width="20"
-                          contain
-                          class="reward-icon"
-                        ></v-img>
+                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
+                        <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
                       </v-col>
                     </v-row>
                   </p>
@@ -121,32 +82,32 @@
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
 
-                      <!-- Diálogo (Popup) para mostrar o link -->
-                      <v-dialog v-model="showDialog" width="400">
-                        <v-card>
-                          <v-card-title class="text-h6">Share Event</v-card-title>
-                          <v-card-text>
-                            <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                              hide-details></v-text-field>
-                          </v-card-text>
-                          <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="success" size="small" @click="copyLink(sharedLink)">
-                              Copy Link
-                            </v-btn>
-                            <v-btn color="grey" size="small" @click="showDialog = false">
-                              Close
-                            </v-btn>
-                          </v-card-actions>
-                        </v-card>
-                      </v-dialog>
+            <!-- Diálogo (Popup) para mostrar o link -->
+            <v-dialog v-model="showDialog" width="400">
+              <v-card>
+                <v-card-title class="text-h6">Share Event</v-card-title>
+                <v-card-text>
+                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
+                    hide-details></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">
+                    Copy Link
+                  </v-btn>
+                  <v-btn color="grey" size="small" @click="showDialog = false">
+                    Close
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
             <v-card-text>
               <p></p>
               <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                        @click="shareEvent(selectedEvent?.events_pk)">
-                        <v-icon start>mdi-share-variant</v-icon>
-                        Share Event
-                      </v-btn>
+                @click="shareEvent(selectedEvent?.events_pk)">
+                <v-icon start>mdi-share-variant</v-icon>
+                Share Event
+              </v-btn>
               <br />
               <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
               <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
@@ -168,14 +129,10 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
+                  <v-img :src="selectedEvent?.picture_hash
+                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -190,69 +147,45 @@
               </v-row>
             </v-card>
             <v-card-text v-if="eventRewards.length">
-  <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-  <v-row
-    v-for="(reward, index) in eventRewards"
-    :key="index"
-    class="align-center my-2"
-  >
-    <v-col cols="3" md="2">
-      <v-avatar size="60">
-        <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
-      </v-avatar>
-    </v-col>
-    <v-col cols="9" md="10">
-      <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
-      <p class="text-body-2">{{ reward.description }}</p>
-    </v-col>
-  </v-row>
-</v-card-text>
+              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
+              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
+                <v-col cols="3" md="2">
+                  <v-avatar size="60">
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                  </v-avatar>
+                </v-col>
+                <v-col cols="9" md="10">
+                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+                  <p class="text-body-2">{{ reward.description }}</p>
+                </v-col>
+              </v-row>
+            </v-card-text>
             <v-row class="mt-2 ml-0">
-              <v-col cols="6" class="pa-0">
-                <v-btn
-                  block
-                  color="#907041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                  >Maybe I’ll Go</v-btn
-                >
-              </v-col>
-              <v-col cols="6" class="pa-0">
-                <v-btn
-                  block
-                  color="#539041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                  >Count me in</v-btn
-                >
+              <v-col cols="12" class="mb-2">
+                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
+                  Count me in
+                </v-btn>
+
+                <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
+                  @click:close="showSuccessAlert = false">
+                  You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.
+                </v-alert>
+                
               </v-col>
             </v-row>
           </v-card>
         </v-dialog>
-        
+
       </div>
 
       <div v-else-if="activeTab === 2">
         <v-row>
-          <v-col
-            class="py-2 pl-1 pr-1"
-            cols="12"
-            md="6"
-            v-for="(evt, idx) in myEvents"
-            :key="evt.events_pk"
-          >
-            <v-card
-              color="terciary"
-              class="pt-0 event-card"
-              @click="openMyEventsDialog(evt)"
-            >
+          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(evt, idx) in myEvents" :key="evt.events_pk">
+            <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
               <v-row no-gutters>
                 <!-- Date -->
                 <v-col cols="4" sm="2">
-                  <div
-                    class="text-center ml-3"
-                    style="width: 70px; color: black"
-                  >
+                  <div class="text-center ml-3" style="width: 70px; color: black">
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
                         new Date(evt.event_date)
@@ -278,9 +211,7 @@
                 <!-- Details -->
                 <v-col cols="8" sm="10" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black"
-                      >mdi-chess-rook</v-icon
-                    >
+                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                     {{ evt.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
@@ -300,49 +231,43 @@
           </v-col>
         </v-row>
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
-  <v-card color="surface" class="pa-6">
-  <!-- Linha com Título à esquerda e o X à direita -->
-<div class="d-flex align-center justify-space-between  pl-8">
-  <v-card-title class="text-h6 font-weight-bold pa-0">
-    {{ selectedMyEvent?.store_name }}
-  </v-card-title>
-  <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer;">
-    mdi-close
-  </v-icon>
-</div>
+          <v-card color="surface" class="pa-6">
+            <!-- Linha com Título à esquerda e o X à direita -->
+            <div class="d-flex align-center justify-space-between  pl-8">
+              <v-card-title class="text-h6 font-weight-bold pa-0">
+                {{ selectedMyEvent?.store_name }}
+              </v-card-title>
+              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer;">
+                mdi-close
+              </v-icon>
+            </div>
 
-<div class="mt-1 pl-6" style="display: inline-block;">
-  <p class="text-caption scheduled-box ma-0 ml-">
-    Scheduled for:
-    {{
-      new Date(selectedMyEvent?.event_date).toLocaleString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-    }}
-  </p>
-</div>
+            <div class="mt-1 pl-6" style="display: inline-block;">
+              <p class="text-caption scheduled-box ma-0 ml-">
+                Scheduled for:
+                {{
+                  new Date(selectedMyEvent?.event_date).toLocaleString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                hour12: true,
+                })
+                }}
+              </p>
+            </div>
 
-    <!-- QR + Botões lado a lado -->
-    <v-row class="" align="center" justify="space-between">
-  <!-- QR code com fundo branco e texto "COMING SOON" cruzado -->
-  <v-col cols="12" md="6" class="text-center pt-8 ml-3">
-  <div
-    style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;"
-  >
-    <v-img
-      src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
-      width="180"
-      height="180"
-      class="rounded"
-      style="opacity: 0.3; filter: grayscale(1);"
-    />
-    <div
-      style="
+            <!-- QR + Botões lado a lado -->
+            <v-row class="" align="center" justify="space-between">
+              <!-- QR code com fundo branco e texto "COMING SOON" cruzado -->
+              <v-col cols="12" md="6" class="text-center pt-8 ml-3">
+                <div
+                  style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;">
+                  <v-img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
+                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
+                  <div style="
         position: absolute;
         top: 50%;
         left: 50%;
@@ -355,50 +280,35 @@
         border-radius: 4px;
         text-transform: uppercase;
         letter-spacing: 1px;
-      "
-    >
-      Coming Soon
-    </div>
-  </div>
-</v-col>
+      ">
+                    Coming Soon
+                  </div>
+                </div>
+              </v-col>
 
-  <!-- Status centralizado acima dos botões -->
-  <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
-    <p class="text-subtitle-2 font-weight-medium mb-2">
-      Status: {{ selectedMyEvent?.status }}
-    </p>
-    <v-btn
-      class="mb-4"
-      block
-      color="green"
-      @click="createdCompanion()"
-      :disabled="selectedMyEvent?.status !== 'Joined the Quest'"
-    >
-      Join Campaign
-    </v-btn>
-    <v-btn
-    class="mb-8"
-      block
-      color="red"
-      @click="quitEvent()"
-    >
-      Quit Event
-    </v-btn>
-  </v-col>
-</v-row>
+              <!-- Status centralizado acima dos botões -->
+              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
+                <p class="text-subtitle-2 font-weight-medium mb-2">
+                  Status: {{ selectedMyEvent?.status }}
+                </p>
+                <v-btn class="mb-4" block color="green" @click="createdCompanion()"
+                  :disabled="selectedMyEvent?.status !== 'Joined the Quest'">
+                  Join Campaign
+                </v-btn>
+                <v-btn class="mb-8" block color="red" @click="quitEvent()">
+                  Quit Event
+                </v-btn>
+              </v-col>
+            </v-row>
 
-    <!-- Card de evento -->
-    <v-card color="primary" min-height="130px" class="mr-4 event-card">
+            <!-- Card de evento -->
+            <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selecteMydEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
+                  <v-img :src="selecteMydEvent?.picture_hash
+                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -412,8 +322,8 @@
                 <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
-  </v-card>
-</v-dialog>
+          </v-card>
+        </v-dialog>
       </div>
     </v-card>
   </v-col>
@@ -626,6 +536,8 @@ const openDialog = async (event) => {
   }
 };
 
+const showSuccessAlert = ref(false);
+
 const joinEvent = async () => {
   const userId = userStore.user?.users_pk;
 
@@ -636,19 +548,20 @@ const joinEvent = async () => {
 
   try {
     await axios.post('/rl_events_users/cadastro', {
-  users_fk: userStore.user?.users_pk,
-  events_fk: selectedEvent.value.events_pk,
-  status: 1,
-}, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-  },
-});
+      users_fk: userStore.user?.users_pk,
+      events_fk: selectedEvent.value.events_pk,
+      status: 1,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
 
-joinedEventPk.value = selectedEvent.value.events_pk;
+    joinedEventPk.value = selectedEvent.value.events_pk;
 
-// Atualiza lista de eventos
-await fetchMyEvents();
+
+    // Atualiza lista de eventos
+    await fetchMyEvents();
 
 
     showSuccessAlert.value = true;
@@ -693,7 +606,7 @@ const heroStore = HeroStore();
 // }
 
 async function createdCompanion() {
-  const token = 
+  const token =
     "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJZHMiOltdLCJvdXRjb21lSWRzIjpbXSwiZm9sbG93ZXJJZHMiOltdLCJ1bmZvbGRpbmdJZHMiOltdLCJiYWNrZ3JvdW5kQW5kVHJhaXRJZHMiOltdLCJsZWdhY3lUcmFpbCI6eyJwZXJzZXZlcmFuY2UiOjAsInRyYWdlZHkiOjAsImRvb20iOjAsImhlcm9pc20iOjB9LCJpc1NlcXVlbnRpYWxBZHZlbnR1cmUiOmZhbHNlLCJzZXF1ZW50aWFsQWR2ZW50dXJlUnVuZXMiOjB9LCJoZXJvZXMiOltdfQ==";
   try {
     const { data: resp } = await axios.post("/campaigns/cadastro", {
@@ -1082,7 +995,6 @@ const openMyEventsDialog = (event) => {
   myDialog.value = true;
 };
 
-const showSuccessAlert = ref(false);
 
 showSuccessAlert.value = true;
 
@@ -1124,6 +1036,12 @@ const copyLink = async (link) => {
     console.error("Erro ao copiar o link:", error);
   }
 };
+
+watch(dialog, (val) => {
+  if (!val) {
+    showSuccessAlert.value = false;
+  }
+});
 
 
 

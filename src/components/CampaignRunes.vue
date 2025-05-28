@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { CampaignStore } from "@/store/CampaignStore";
 import { useI18n } from "vue-i18n";
-import { VNumberInput } from 'vuetify/labs/VNumberInput'
 
 const campaignStore = CampaignStore();
 

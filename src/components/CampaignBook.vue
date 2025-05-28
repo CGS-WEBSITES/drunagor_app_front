@@ -1,105 +1,81 @@
 <template>
   <div>
-    <v-card
-      class="book-dialog pa-0"
-      @mousedown="startDrag"
-      v-if="!hideCard"
-    >
+    <v-card class="book-dialog pa-0" @mousedown="startDrag" v-if="!hideCard">
       <v-layout>
-        <v-navigation-drawer
-          expand-on-hover
-          rail
-          permanent
-          width="270"
-          class="nav-drawer"
-          :floating="false"
-          >
+        <v-navigation-drawer expand-on-hover rail permanent width="270" class="nav-drawer" :floating="false">
           <v-list density="compact" nav v-model:opened="openGroups">
 
-            <v-list-group
-              v-for="(sectionItems, sectionName) in groupedNavigationItems"
-              :key="sectionName.toString()"
-              :value="sectionName.toString()"
-            >
+            <v-list-group v-for="(sectionItems, sectionName) in groupedNavigationItems" :key="sectionName.toString()"
+              :value="sectionName.toString()">
               <template v-slot:activator="{ props: activatorPropsInternal, isOpen }">
-                <v-list-item
-                  v-bind="activatorPropsInternal"
-                  :title="sectionName.toString()"
-                  class="drawer-section-header"
-                >
+                <v-list-item @click="currentView = 'player'" v-bind="activatorPropsInternal"
+                  :title="sectionName.toString()" class="drawer-section-header">
                   <template v-slot:prepend>
-                    <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString()) }}</v-icon>
+                    <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString())
+                    }}</v-icon>
                   </template>
                 </v-list-item>
               </template>
 
-              <v-list-item
-                v-for="(navItem, itemIndex) in sectionItems"
-                :key="navItem.id"
-                :title="navItem.title"
-                :value="navItem.id"
-                @click="navigateToContent(navItem.sectionIndex, navItem.id, navItem.sectionTitle)"
-                class="drawer-item-index"
-                :active="navItem.id === activeClickedItemId"
-                active-class="v-list-item--active-book-index"
-                density="compact"
-              >
+              <v-list-item v-for="(navItem, itemIndex) in sectionItems" :key="navItem.id" :title="navItem.title"
+                :value="navItem.id" @click="navigateToContent(navItem.sectionIndex, navItem.id, navItem.sectionTitle)"
+                class="drawer-item-index" :active="navItem.id === activeClickedItemId"
+                active-class="v-list-item--active-book-index" density="compact">
                 <template v-slot:prepend>
-                  <v-avatar
-                    :color="navItem.id === activeClickedItemId ? 'amber-darken-2' : 'grey-darken-1'"
-                    size="24"
-                    class="numbered-avatar"
-                  >
-                    <span class="text-caption font-weight-bold" :style="{ color: navItem.id === activeClickedItemId ? 'white' : '#f0e6d2' }">
+                  <v-avatar :color="navItem.id === activeClickedItemId ? 'amber-darken-2' : 'grey-darken-1'" size="24"
+                    class="numbered-avatar">
+                    <span class="text-caption font-weight-bold"
+                      :style="{ color: navItem.id === activeClickedItemId ? 'white' : '#f0e6d2' }">
                       {{ itemIndex + 1 }}
                     </span>
                   </v-avatar>
                 </template>
                 <v-tooltip activator="parent" location="end">{{ navItem.title }}</v-tooltip>
               </v-list-item>
+
+
             </v-list-group>
             <v-divider v-if="Object.keys(groupedNavigationItems).length > 0"></v-divider>
-            <v-list-item
-              title="Keywords"
-              value="keywords"
-              @click="showKeywords"
-              :active="'keywords' === activeClickedItemId"
-              active-class="v-list-item--active-book-index"
-              density="compact"
-              class="drawer-section-header"
-            >
+
+            <v-list-item title="Book Interactions" value="interactions" @click="currentView = 'interactions'" :class="{
+              'drawer-item--active': currentView === 'interactions',
+            }" :active="'interactions' === activeClickedItemId" active-class="v-list-item--active-book-index"
+              density="compact" class="drawer-section-header">
               <template v-slot:prepend>
-                <v-icon :color="'keywords' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-book-search-outline</v-icon>
+                <v-icon :color="'interactions' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-eye</v-icon>
+              </template>
+              <v-tooltip activator="parent" location="end">Book Interactions</v-tooltip>
+            </v-list-item>
+
+            <v-divider v-if="Object.keys(groupedNavigationItems).length > 0"></v-divider>
+
+            <v-list-item title="Keywords" value="keywords" @click="currentView = 'keywords'"
+              :active="'keywords' === activeClickedItemId" active-class="v-list-item--active-book-index"
+              density="compact" class="drawer-section-header">
+              <template v-slot:prepend>
+                <v-icon
+                  :color="'keywords' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-book-search-outline</v-icon>
               </template>
               <v-tooltip activator="parent" location="end">Keywords</v-tooltip>
             </v-list-item>
-            </v-list>
+          </v-list>
         </v-navigation-drawer>
 
         <v-main class="main-content"> <v-card-text class="pa-0 scrollable-content" ref="scrollableContentRef">
 
-            <KeywordView v-if="showKeywordView" />
 
-            <template v-else>
-              <v-sheet
-                v-if="currentPage"
-                :key="currentIndex"
-                :style="backgroundStyle as CSSProperties"
-                class="book-page"
-                elevation="0"
-                rounded
-                @click="handlePageClick"
-              >
+            <div v-if="currentView === 'player'">
+              <v-sheet v-if="currentPage" :key="currentIndex" :style="backgroundStyle as CSSProperties"
+                class="book-page" elevation="0" rounded @click="handlePageClick">
                 <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
                 <v-container class="pa-3 ml-2">
                   <v-row>
                     <v-col cols="12">
                       <div v-for="(item, contentLoopIndex) in currentPage.content"
-                           :key="`content-${currentIndex}-${contentLoopIndex}`"
-                           :id="`content-block-${currentIndex}-${contentLoopIndex}`"
-                           class="content-block">
+                        :key="`content-${currentIndex}-${contentLoopIndex}`"
+                        :id="`content-block-${currentIndex}-${contentLoopIndex}`" class="content-block">
                         <div class="header-banner">
-                          <div class="d-flex align-center justify-space-between pa-0 pb-0" @mousedown.stop="startDragHeader">
+                          <div class="d-flex align-center justify-space-between pa-0 pb-0">
                             <h4 class="section-title">{{ currentPage.section }}</h4>
 
                           </div>
@@ -129,8 +105,81 @@
               <div v-else class="text-center pa-5 fill-height d-flex align-center justify-center">
                 <div>Selecione um capítulo ou Keyword no índice.</div>
               </div>
-            </template>
-            </v-card-text>
+            </div>
+
+            <KeywordView v-else-if="currentView === 'keywords'" />
+
+            <div v-else-if="currentView === 'interactions'">
+              <v-container class="py-2 px-4" style="flex: 1; display: flex; flex-direction: column">
+                <v-row class="d-flex align-center justify-space-between mb-2 mt-2" style="flex-shrink: 0">
+                  <template v-if="interPage === 'scan' && !scanned">
+                    <h3 class="dialog-title">Scan QR Code</h3>
+                  </template>
+
+                  <template v-else-if="interPage === 'titles'">
+                    <div class="interaction-header">
+                      <div class="d-flex justify-space-between">
+                        <h2 class="interaction-main-title">
+                          {{ currentInteractionConfig?.title }}
+                        </h2>
+                        <v-btn icon @click="resetScan" class="close-btn header-close">
+                          <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                      </div>
+                      <p class="interaction-subtitle">
+                        {{ currentInteractionConfig?.subtitle }}
+                      </p>
+                    </div>
+                  </template>
+
+                  <template v-else>
+                    <v-btn class="back-btn text-white mt-4" color="grey darken-2" @click="interPage = 'titles'">
+                      <v-icon left>mdi-arrow-left</v-icon>
+                      Back to Options
+                    </v-btn>
+                    <v-btn icon @click="resetScan" class="close-btn">
+                      <v-icon>mdi-close</v-icon>
+                    </v-btn>
+                  </template>
+                </v-row>
+
+                <div v-if="interPage === 'scan' && !scanned"
+                  class="scan-page d-flex flex-column align-center justify-center">
+                  <video id="qr-video" class="qr-video mb-4" autoplay muted playsinline></video>
+                  <p class="mt-4 text-white">
+                    Aponte a câmera para o QR Code
+                  </p>
+                </div>
+
+                <div v-else-if="interPage === 'titles'" class="titles-background" :style="{
+                  backgroundImage: `url(${currentInteractionConfig?.background})`,
+                }">
+                  <div class="buttons-overlay">
+                    <v-row dense>
+                      <v-col v-for="item in interactions" :key="item.id" cols="12" class="py-1">
+                        <v-btn class="interaction-btn" block @click="showContent(item.id)">
+                          {{ item.title }}
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </div>
+                </div>
+
+                <div v-else class="content-page-interactions">
+                  <div class="content-wrapper-interactions" ref="contentWrapper">
+                    <div v-for="item in interactions" :key="item.id" :id="item.id" class="interaction-detail pa-4">
+                      <h2 class="chapter-title-interactions mb-4">
+                        {{ item.title }}
+                      </h2>
+                      <div class="body-text-interactions">
+                        <p v-for="(p, i) in item.body" :key="i" v-html="p"></p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </v-container>
+            </div>
+          </v-card-text>
         </v-main>
       </v-layout>
     </v-card>
@@ -138,18 +187,104 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, CSSProperties, nextTick } from "vue";
 import KeywordView from '@/components/KeywordView.vue';
+import {
+  ref,
+  computed,
+  nextTick,
+  watch,
+  onBeforeUnmount,
+  CSSProperties,
+} from "vue";
+import { BrowserMultiFormatReader } from "@zxing/library";
+import BarricadeImg from "@/assets/Interaction_01_The Barricade.png";
+import ArmorImg from "@/assets/Interaction_03_ShinningArmor.png";
+import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable.png";
+import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
+import InteractionTheShiningArmor from "@/assets/json/InteractionTheShiningArmor.json";
+import InteractionWeaponsTable from "@/assets/json/InteractionWeaponsTable.json";
+import InteractionTheStoneGuardian from "@/assets/json/InteractionTheStoneGuardian.json";
+import InteractionTheReservoir from "@/assets/json/InteractionTheReservoir.json";
+import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasuresOfAForgottenAge.json";
 
-const dialog = ref(false);
-const hideCard = ref(false);
-const drag = ref(false);
-const dragX = ref(20);
-const dragY = ref(20);
-const startX = ref(0);
-const startY = ref(0);
-const showKeywordView = ref(false);
+interface InteractionItem {
+  id: string;
+  title: string;
+  body: string[];
+}
 
+interface InteractionConfig {
+  title: string;
+  subtitle: string;
+  background: string;
+  items: InteractionItem[];
+}
+
+interface NavigationItem {
+  sectionTitle: string;
+  title: string;
+  sectionIndex: number;
+  contentIndex: number;
+  id: string;
+}
+
+const interactionConfigs: Record<string, InteractionConfig> = {
+  "https://qr1.be/FNMI": {
+    title: `INTERACTION – THE VILLAGERS’ BARRICADE`,
+    subtitle:
+      `Wary of the fortress, the villagers improvised barricades using old planks, broken furniture, and any junk they could get their hands on to stop the night raids. ` +
+      `But the structure is unstable, and pushing it to the other side may be the safest thing for you to do, but the sounds of battle and indistinguishable screams that echo from the other side reveal that you are not alone…`,
+    background: BarricadeImg,
+    items: InteractionBarricade,
+  },
+  "https://qr1.be/Y4ZP": {
+    title: `INTERACTION – THE SHINING ARMOR`,
+    subtitle:
+      `An impressive suit of armor is displayed as a trophy. The golden carvings that delicately adorn the mirrored silver surface leave no doubt: ` +
+      `if this work of art was not forged by the Elves of Valarai, at least it was designed by one. Such a piece can only belong to the Earl ` +
+      `and should not be here, but on his chest. A displacement that comes in handy for you.`,
+    background: ArmorImg,
+    items: InteractionTheShiningArmor,
+  },
+  "https://qr1.be/0RLM": {
+    title: `INTERACTION – THE WEAPONS TABLE`,
+    subtitle:
+      `Equipment of all kinds lies scattered across the table. Apparently, Blackriver didn't go down without a fight.` +
+      `He just didn't have enough time to prepare the soldiers for the Earl's service. However, ` +
+      `even if they were unable to resist the incursion, their efforts may not have been in vain: ` +
+      `the weapons they gathered may yet serve other warriors in this battle…`,
+    background: WeaponsTableImg,
+    items: InteractionWeaponsTable,
+  },
+  "https://qr1.be/0RL": {
+    title: `INTERACTION – THE RESERVOIR`,
+    subtitle:
+      `Against all odds, there is a subterranean reservoir beneath Blackriver’s fortress.` +
+      `Did the population know about these dungeons? Did the Count? The purpose of this dam is unclear, ` +
+      `but the ropes coming out of the stone and wrapping around a wheel-like mechanism clearly indicate that it controls the water level.`,
+    background: BarricadeImg,
+    items: InteractionTheStoneGuardian,
+  },
+  "https://qr1.be/0R": {
+    title: `INTERACTION – TREASURES OF A FORGOTTEN AGE`,
+    subtitle:
+      `Weapons that seem to have been crafted by the most skilled hands you’ve ever seen` +
+      `armor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in time` +
+      `hidden in darkness. Does the Count even know that his fortress sits atop a trove like this?`,
+    background: ArmorImg,
+    items: InteractionTheReservoir,
+  },
+  "https://qr1.be/0": {
+    title: `INTERACTION – THE STONE GUARDIAN`,
+    subtitle:
+      `The hall is empty, save for a gargoyle with two large, gleaming rubies for eyes, perched atop a stone column` +
+      `Two torches light the statue with mysterious blue flames` +
+      `These details, however, are not the strangest things you find: a skull-shaped handle juts from the stone, ` +
+      `and the monster holds a scroll in its mouth.`,
+    background: WeaponsTableImg,
+    items: InteractionTreasuresOfAForgottenAge,
+  }
+};
 const pages = ref([
   {
     section: "WING 1 - TUTORIAL",
@@ -243,20 +378,21 @@ const pages = ref([
     background: "url('/img/bg-apoc.png')",
   }
 ]);
-
-
+const dialog = ref(false);
+const scanned = ref(false);
+const interactions = ref<InteractionItem[]>([]);
+const currentView = ref<"player" | "interactions">("player");
 const scrollableContentRef = ref<HTMLElement | null>(null);
 const activeClickedItemId = ref<string | null>(null);
 const openGroups = ref<string[]>([]);
+const currentIndex = ref(0);
+const currentInteractionConfig = ref<InteractionConfig | null>(null);
+const contentWrapper = ref<HTMLElement | null>(null);
+const interPage = ref<"scan" | "titles" | "content">("scan");
 
 
-interface NavigationItem {
-  sectionTitle: string;
-  title: string;
-  sectionIndex: number;
-  contentIndex: number;
-  id: string;
-}
+const codeReader = new BrowserMultiFormatReader();
+
 
 const navigationItems = computed<NavigationItem[]>(() => {
   const items: NavigationItem[] = [];
@@ -289,83 +425,12 @@ const groupedNavigationItems = computed(() => {
   return groups;
 });
 
-const getSectionIcon = (_sectionName: string) => {
-  return 'mdi-book-open-page-variant';
-};
-
-const showKeywords = () => {
-  showKeywordView.value = true;
-  currentIndex.value = -1;
-  activeClickedItemId.value = 'keywords';
-  openGroups.value = [];
-};
-
-const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: string, sectionTitle: string) => {
-  showKeywordView.value = false;
-  console.log(`[Nav] Clicked. Target GlobalSectionIdx: ${sectionGlobalIndex}, ElementID: ${contentBlockId}, SectionTitle: ${sectionTitle}`);
-
-  if (sectionGlobalIndex < 0 || sectionGlobalIndex >= pages.value.length) {
-    console.error(`[Nav] Invalid global sectionIndex: ${sectionGlobalIndex}.`);
-    return;
-  }
-
-  currentIndex.value = sectionGlobalIndex;
-  activeClickedItemId.value = contentBlockId;
-
-  if (!openGroups.value.includes(sectionTitle)) {
-    openGroups.value = [sectionTitle];
-  }
-
-  await nextTick();
-
-  const element = document.getElementById(contentBlockId);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    if (scrollableContentRef.value) {
-        scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-};
-
-const startDragHeader = (e: MouseEvent) => {
-  drag.value = true;
-  startX.value = e.clientX - dragX.value;
-  startY.value = e.clientY - dragY.value;
-  document.addEventListener("mousemove", onDrag);
-  document.addEventListener("mouseup", stopDrag);
-};
-const startDrag = (e: MouseEvent) => {
-  const target = e.target as HTMLElement;
-  if (target.closest('button, a, input, textarea, .v-navigation-drawer, .header-banner .d-flex')) {
-    return;
-  }
-  drag.value = true;
-  startX.value = e.clientX - dragX.value;
-  startY.value = e.clientY - dragY.value;
-  document.addEventListener("mousemove", onDrag);
-  document.addEventListener("mouseup", stopDrag);
-};
-
-const onDrag = (e: MouseEvent) => {
-  if (!drag.value) return;
-  dragX.value = e.clientX - startX.value;
-  dragY.value = e.clientY - startY.value;
-};
-
-const stopDrag = () => {
-  drag.value = false;
-  document.removeEventListener("mousemove", onDrag);
-  document.removeEventListener("mouseup", stopDrag);
-};
-
-const currentIndex = ref(0);
 const currentPage = computed(() => {
-    if (showKeywordView.value || currentIndex.value < 0 || !pages.value || pages.value.length === 0) {
-      return null;
-    }
-    const clampedIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
-    return pages.value[clampedIndex];
+  if (currentIndex.value < 0 || !pages.value || pages.value.length === 0) {
+    return null;
+  }
+  const clampedIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
+  return pages.value[clampedIndex];
 });
 
 const isFullScreenWithBackground = computed(() => {
@@ -393,6 +458,38 @@ const backgroundStyle = computed<CSSProperties>(() => {
   return s;
 });
 
+
+const getSectionIcon = (_sectionName: string) => {
+  return 'mdi-book-open-page-variant';
+};
+
+const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: string, sectionTitle: string) => {
+  console.log(`[Nav] Clicked. Target GlobalSectionIdx: ${sectionGlobalIndex}, ElementID: ${contentBlockId}, SectionTitle: ${sectionTitle}`);
+
+  if (sectionGlobalIndex < 0 || sectionGlobalIndex >= pages.value.length) {
+    console.error(`[Nav] Invalid global sectionIndex: ${sectionGlobalIndex}.`);
+    return;
+  }
+
+  currentIndex.value = sectionGlobalIndex;
+  activeClickedItemId.value = contentBlockId;
+
+  if (!openGroups.value.includes(sectionTitle)) {
+    openGroups.value = [sectionTitle];
+  }
+
+  await nextTick();
+
+  const element = document.getElementById(contentBlockId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    if (scrollableContentRef.value) {
+      scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+};
+
 function handlePageClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
   if (target.closest('button, a, .v-card, .v-btn, .header-banner, .v-navigation-drawer')) { return; }
@@ -400,43 +497,126 @@ function handlePageClick(event: MouseEvent) {
 
 function nextPage() {
   if (currentIndex.value < pages.value.length - 1) {
-    showKeywordView.value = false;
     currentIndex.value++;
     activeClickedItemId.value = null;
     nextTick(() => {
-        if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
-        if (pages.value[currentIndex.value]?.section) {
-            const newSectionTitle = pages.value[currentIndex.value].section;
-            openGroups.value = [newSectionTitle];
-            const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
-            if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
-        }
+      if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
+      if (pages.value[currentIndex.value]?.section) {
+        const newSectionTitle = pages.value[currentIndex.value].section;
+        openGroups.value = [newSectionTitle];
+        const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
+        if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
+      }
     });
   }
 }
 
+async function startScanner() {
+  try {
+    const devices = await codeReader.listVideoInputDevices();
+    if (!devices.length) throw new Error("No cameras found");
+    const deviceId = devices[0].deviceId;
+
+    codeReader.decodeFromVideoDevice(deviceId, "qr-video", (result, err) => {
+      if (result) {
+        const raw = result.getText().trim();
+        let normalized: string;
+
+        try {
+          const u = new URL(raw);
+          const path = u.pathname.replace(/\/$/, "");
+
+          normalized = `${u.origin}${path}`;
+        } catch {
+          normalized = raw.replace(/\/$/, "");
+        }
+
+        console.log("📱 QR Code normalizado:", normalized);
+
+        const cfg = interactionConfigs[normalized];
+
+        if (cfg) {
+          currentInteractionConfig.value = cfg;
+          interactions.value = cfg.items;
+          scanned.value = true;
+          interPage.value = "titles";
+          codeReader.reset();
+        } else {
+          console.warn("Unknown QR after normalization:", normalized);
+        }
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function resetScan() {
+  interPage.value = "scan";
+  scanned.value = false;
+  startScanner();
+}
+
+
 function prevPage() {
   if (currentIndex.value > 0) {
-    showKeywordView.value = false;
     currentIndex.value--;
     activeClickedItemId.value = null;
-     nextTick(() => {
-        if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
-         if (pages.value[currentIndex.value]?.section) {
-            const newSectionTitle = pages.value[currentIndex.value].section;
-            openGroups.value = [newSectionTitle];
-            const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
-            if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
-        }
+    nextTick(() => {
+      if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
+      if (pages.value[currentIndex.value]?.section) {
+        const newSectionTitle = pages.value[currentIndex.value].section;
+        openGroups.value = [newSectionTitle];
+        const firstItemOfNewPage = navigationItems.value.find(item => item.sectionIndex === currentIndex.value && item.contentIndex === 0);
+        if (firstItemOfNewPage) activeClickedItemId.value = firstItemOfNewPage.id;
+      }
     });
   }
 }
+
+function showContent(id: string) {
+  interPage.value = "content";
+  nextTick(() => {
+    const el = document.getElementById(id);
+    const c = contentWrapper.value;
+    if (el && c) {
+      c.scrollTo({ top: el.offsetTop - 20, behavior: "smooth" });
+    }
+  });
+}
+
+
+watch(currentView, (v) => {
+  if (v === "interactions") {
+    interPage.value = "scan";
+    startScanner();
+  } else if (v === "keywords") {
+    currentIndex.value = -1;
+    activeClickedItemId.value = 'keywords';
+    openGroups.value = [];
+    codeReader.reset();
+    scanned.value = false;
+  } else {
+
+    activeClickedItemId.value = 'player';
+    codeReader.reset();
+    scanned.value = false;
+  }
+});
+
+
+onBeforeUnmount(() => {
+  currentView.value = "player";
+  resetScan
+})
+
 </script>
 
 <style scoped>
 .body-text {
   font-style: italic;
 }
+
 .body-text p {
   font-family: "EB Garamond", serif;
   font-size: 1.1rem;
@@ -445,13 +625,16 @@ function prevPage() {
   color: #191919 !important;
   margin-bottom: 1.5rem;
 }
+
 .body-text p strong {
-    font-style: normal;
-    font-weight: bold;
+  font-style: normal;
+  font-weight: bold;
 }
+
 .body-text div[style*="color: Black"] {
-    text-indent: 0em !important;
+  text-indent: 0em !important;
 }
+
 .setup-placeholder {
   text-align: center;
   margin-top: 1.5rem;
@@ -462,12 +645,14 @@ function prevPage() {
   font-size: 1.1em;
   font-style: normal !important;
 }
+
 .setup-placeholder strong {
-    font-style: normal !important;
+  font-style: normal !important;
 }
 
 .book-dialog {
-  position: relative; /* Garante que 'absolute' dentro dele funcione bem */
+  position: relative;
+  /* Garante que 'absolute' dentro dele funcione bem */
   width: 1000px;
   box-shadow:
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
@@ -499,6 +684,7 @@ function prevPage() {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
 }
+
 .header-banner .d-flex {
   cursor: move;
 }
@@ -550,6 +736,7 @@ function prevPage() {
   padding-left: 0;
   list-style-type: disc;
 }
+
 .instruction-card li {
   margin-bottom: 0.5em;
 }
@@ -593,10 +780,10 @@ function prevPage() {
 }
 
 .nav-drawer :deep(.v-list-item) {
-    height: auto !important;
-    min-height: 40px;
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
+  height: auto !important;
+  min-height: 40px;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
 }
 
 .nav-drawer .v-list-subheader {
@@ -621,8 +808,9 @@ function prevPage() {
   color: #ffffff !important;
   font-weight: bold;
 }
+
 .drawer-item-index.v-list-item--active-book-index .numbered-avatar span {
-    color: white !important;
+  color: white !important;
 }
 
 .drawer-section-header.v-list-item,
@@ -648,6 +836,7 @@ function prevPage() {
   flex-shrink: 0;
   font-weight: bold;
 }
+
 .drawer-item-index .numbered-avatar .text-caption {
   font-size: 0.75rem !important;
   line-height: 1;
@@ -659,16 +848,18 @@ function prevPage() {
 }
 
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .v-list-item__prepend {
-    width: auto !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    justify-content: center !important;
+  width: auto !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  justify-content: center !important;
 }
+
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
-    margin: 0 !important;
+  margin: 0 !important;
 }
+
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-item-index.v-list-item .v-list-item__prepend .numbered-avatar {
-    margin: 0 !important;
+  margin: 0 !important;
 }
 
 .v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .v-list-item__content {
@@ -697,6 +888,8 @@ function prevPage() {
   /* Se o v-main não se ajustar automaticamente, pode ser necessário usar
      as classes de layout do Vuetify ou voltar às margens,
      mas idealmente ele deve se ajustar agora. */
+  
+     min-height: 500px;
 }
 
 .scrollable-content {
@@ -709,8 +902,9 @@ function prevPage() {
   border: 1px solid #dedede;
   border-radius: 6px;
   padding: 0 0 16px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
+
 .content-block .header-banner {
   padding-left: 16px;
   padding-right: 16px;
@@ -719,66 +913,177 @@ function prevPage() {
 .content-block:not(:last-child) {
   margin-bottom: 24px;
 }
+
 .content-block:last-child {
   margin-bottom: 16px;
 }
 
 .body-text.mt-3 {
-    margin-top: 1rem !important;
-    padding: 0 16px;
+  margin-top: 1rem !important;
+  padding: 0 16px;
 }
+
 .instruction-card {
-    margin-left: 16px;
-    margin-right: 16px;
-    width: calc(100% - 32px);
+  margin-left: 16px;
+  margin-right: 16px;
+  width: calc(100% - 32px);
 }
 
 @media (max-width: 960px) {
-  .book-dialog { width: 90vw !important; max-height: 85vh !important; }
-  .scrollable-content { max-height: calc(85vh - 80px); }
-  .chapter-title-banner { font-size: 1.6rem !important; }
-  .body-text p { font-size: 1rem !important; line-height: 1.5; }
-  .content-block .header-banner, .body-text.mt-3 { padding-left: 12px; padding-right: 12px; }
-  .instruction-card { margin-left: 12px; margin-right: 12px; width: calc(100% - 24px); }
+  .book-dialog {
+    width: 90vw !important;
+    max-height: 85vh !important;
+  }
+
+  .scrollable-content {
+    max-height: calc(85vh - 80px);
+  }
+
+  .chapter-title-banner {
+    font-size: 1.6rem !important;
+  }
+
+  .body-text p {
+    font-size: 1rem !important;
+    line-height: 1.5;
+  }
+
+  .content-block .header-banner,
+  .body-text.mt-3 {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .instruction-card {
+    margin-left: 12px;
+    margin-right: 12px;
+    width: calc(100% - 24px);
+  }
 }
 
 @media (max-width: 600px) {
   .book-dialog {
-      width: 96vw !important;
-      max-height: 90vh !important;
-      overflow: hidden; /* Adicionado para evitar que o card vaze, mas pode ser 'visible' se necessário */
+    width: 96vw !important;
+    max-height: 90vh !important;
+    overflow: hidden;
+    /* Adicionado para evitar que o card vaze, mas pode ser 'visible' se necessário */
   }
-  .scrollable-content { max-height: calc(90vh - 70px); }
-  .d-flex.justify-end { position: sticky; bottom: 0; background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%); padding: 16px 0; z-index: 100; }
+
+  .scrollable-content {
+    max-height: calc(90vh - 70px);
+  }
+
+  .d-flex.justify-end {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%);
+    padding: 16px 0;
+    z-index: 100;
+  }
 
   .nav-drawer {
-      width: 48px !important;
-      /* Se ainda cortar, pode ser necessário forçar position: sticky ou relative aqui */
+    width: 48px !important;
+    /* Se ainda cortar, pode ser necessário forçar position: sticky ou relative aqui */
   }
 
   .v-navigation-drawer--rail {
-  width: 62px !important;
-}
-  .nav-drawer:hover, .v-navigation-drawer--rail:hover  { width: 220px !important; }
+    width: 62px !important;
+  }
 
-  .header-banner { padding-left: 8px; padding-right: 8px; }
-  .section-title { font-size: 0.6rem !important; padding: 15px 10px 5px 10px !important; }
-  .chapter-title-banner { font-size: 1.4rem !important; padding-left: 10px !important; padding-right: 10px !important; margin-top: 2px; margin-bottom: 8px; }
-  .body-text p { font-size: 0.9rem !important; text-indent: 1em; line-height: 1.4; }
-  .v-btn { font-size: 0.8rem !important; padding: 8px 10px !important; margin: 4px !important; }
-  .book-page { margin: 10px !important; min-height: unset; }
-  .content-block .header-banner, .body-text.mt-3 { padding-left: 8px; padding-right: 8px; }
-  .instruction-card { font-size: 0.85rem !important; padding: 12px !important; margin-left: 8px; margin-right: 8px; width: calc(100% - 16px); }
-  .content-block:not(:last-child) { margin-bottom: 16px; }
+  .nav-drawer:hover,
+  .v-navigation-drawer--rail:hover {
+    width: 220px !important;
+  }
+
+  .header-banner {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .section-title {
+    font-size: 0.6rem !important;
+    padding: 15px 10px 5px 10px !important;
+  }
+
+  .chapter-title-banner {
+    font-size: 1.4rem !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-top: 2px;
+    margin-bottom: 8px;
+  }
+
+  .body-text p {
+    font-size: 0.9rem !important;
+    text-indent: 1em;
+    line-height: 1.4;
+  }
+
+  .v-btn {
+    font-size: 0.8rem !important;
+    padding: 8px 10px !important;
+    margin: 4px !important;
+  }
+
+  .book-page {
+    margin: 10px !important;
+    min-height: unset;
+  }
+
+  .content-block .header-banner,
+  .body-text.mt-3 {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .instruction-card {
+    font-size: 0.85rem !important;
+    padding: 12px !important;
+    margin-left: 8px;
+    margin-right: 8px;
+    width: calc(100% - 16px);
+  }
+
+  .content-block:not(:last-child) {
+    margin-bottom: 16px;
+  }
 }
 
 @media (max-width: 400px) {
-  .d-flex.justify-end { flex-direction: column; gap: 8px; }
-  .v-btn { width: 100% !important; justify-content: center; }
-  .book-dialog { width: 98vw !important; max-height: 95vh !important; margin: auto; }
-  .scrollable-content { max-height: calc(95vh - 60px); }
-  .header-banner { margin-bottom: 0; }
-  .section-title { padding: 10px 8px 2px 8px !important; font-size: 0.55rem !important; }
-  .chapter-title-banner { font-size: 1.3rem !important; padding-left: 8px !important; padding-right: 8px !important; margin-bottom: 5px;}
+  .d-flex.justify-end {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .v-btn {
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  .book-dialog {
+    width: 98vw !important;
+    max-height: 95vh !important;
+    margin: auto;
+  }
+
+  .scrollable-content {
+    max-height: calc(95vh - 60px);
+  }
+
+  .header-banner {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    padding: 10px 8px 2px 8px !important;
+    font-size: 0.55rem !important;
+  }
+
+  .chapter-title-banner {
+    font-size: 1.3rem !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    margin-bottom: 5px;
+  }
 }
 </style>
