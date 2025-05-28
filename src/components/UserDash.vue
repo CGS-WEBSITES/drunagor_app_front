@@ -211,6 +211,13 @@
                           src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
                           cover
                         ></v-img>
+
+                          <v-img
+                          v-else-if="item.campaign === 'underkeep'"
+                          src="@/assets/underkeep.png"
+                          cover
+                        ></v-img>
+
                         <v-card-title class="text-uppercase" v-if="item.name">
                           {{ item.name }}
                         </v-card-title>
