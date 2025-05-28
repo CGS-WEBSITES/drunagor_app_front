@@ -6,7 +6,6 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { useRoute } from "vue-router";
 import type { HeroData } from "@/data/repository/HeroData";
 import { useI18n } from "vue-i18n";
-import { VNumberInput } from "vuetify/labs/VNumberInput";
 
 const resourceDefinitions = [
   { id: "focus", translation_key: "label.focus" },
