@@ -67,10 +67,7 @@ function onSequentialAdventure() {
           <v-card-actions class="d-flex justify-space-between">
             <v-row no-gutters>
               <v-card class="mb-2" style="width: 100%;">
-                <v-card-text>
-                  <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
-                    :type="alertType"></v-alert>
-                </v-card-text>
+                
                 <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
                   <CampaignRemove :campaign-id="campaignId" class="mx-2" />
                   <CampaignExport :campaign-id="campaignId" class="mx-2" />
@@ -80,12 +77,15 @@ function onSequentialAdventure() {
                   <CampaignSavePut :campaign-id="campaignId" class="mx-2"
                     @success="setAllert('mdi-check', 200, 'The campaign was successfully saved!', 'success')" 
                     @fail="setAllert('mdi-alert-circle', 500, 'The campaign was not successfully saved', 'error')"/>
-                  <CampaignBook :campaign-id="campaignId" class="mx-2" />
                 </v-card-actions>
               </v-card>
             </v-row>
           </v-card-actions>
         </v-card>
+        <v-card-text>
+                  <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
+                    :type="alertType"></v-alert>
+                </v-card-text>
       </v-row>
     </v-col>
   </v-row>
@@ -101,6 +101,17 @@ function onSequentialAdventure() {
       <SelectDoor :campaign-id="campaignId" />
     </v-col>
   </v-row>
+
+
+    <v-row no-gutters class="d-flex justify-center" v-if="campaign.campaign == 'underkeep'">
+    <v-sheet rounded >
+      <v-col cols="10">
+       <CampaignBook :campaign-id="campaignId"  />
+      </v-col>
+    </v-sheet>
+  </v-row>
+
+
 
 
 

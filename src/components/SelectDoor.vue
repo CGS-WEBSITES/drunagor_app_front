@@ -21,14 +21,17 @@ const campaignOptions = [
 
 // Lista completa de portas
 const allDoorOptions = [
+  "FIRST SETUP",
   "DOOR 1 - THE BARRICADED PATH",
   "DOOR 2 - THE KEEP'S COURTYARD",
   "DOOR 3 - THE ENTRY HALL",
   "DOOR 4 - THE GREAT HALL",
+  "FIRST SETUP",
   "DOOR 1 - THE BARRICADED PATH",
   "DOOR 2 - THE KEEP'S COURTYARD",
   "DOOR 3 - THE ENTRY HALL",
   "DOOR 4 - THE GREAT HALL",
+  "FIRST SETUP",
   "DOOR 1 - THE GREAT CISTERN",
   "DOOR 2 - THE DUNGEONS OF OBLIVION",
   "DOOR 3 - THE ALCHEMY LAB",
@@ -43,11 +46,11 @@ const selectedDoor = ref(campaign.door || "");
 const filteredDoors = computed(() => {
   switch (selectedWing.value) {
     case "Wing 1 - Tutorial":
-      return allDoorOptions.slice(0, 4);
+      return allDoorOptions.slice(0, 5);
     case "Wing 1 - Advanced":
-      return allDoorOptions.slice(4, 8);
+      return allDoorOptions.slice(5, 10);
     case "Wing 2 - Advanced":
-      return allDoorOptions.slice(8, 13);
+      return allDoorOptions.slice(10, 15);
     default:
       return [];
   }
