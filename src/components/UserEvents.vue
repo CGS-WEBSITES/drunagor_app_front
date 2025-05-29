@@ -1,7 +1,9 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+      <h1
+        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+      >
         EVENTS
       </h1>
     </v-col>
@@ -11,7 +13,13 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -20,11 +28,24 @@
 
       <div v-if="activeTab === 1">
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(event, index) in sortedEvents"
+            :key="index"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openDialog(event)"
+            >
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black">
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
                         new Date(event.event_date)
@@ -34,7 +55,10 @@
                           .toUpperCase()
                       }}
                     </p>
-                    <p color="primary" class="cinzel-text text-h3 font-weight-bold">
+                    <p
+                      color="primary"
+                      class="cinzel-text text-h3 font-weight-bold"
+                    >
                       {{ String(event.event_date).split("T")[0].split("-")[2] }}
                     </p>
                     <p class="text-caption font-weight-bold">
@@ -50,7 +74,9 @@
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >{{ event.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
                     <v-icon color="red">mdi-map-marker</v-icon>
@@ -61,12 +87,25 @@
                     {{ event.scenario }}
                   </p>
 
-                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+                  <p
+                    class="text-caption ml-3"
+                    v-if="event.rewards && event.rewards.length"
+                  >
                     <v-row class="d-flex align-center rewards-container">
                       <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
                       Rewards:
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
+                      <v-col
+                        cols="auto"
+                        v-for="(reward, index) in event.rewards"
+                        :key="index"
+                      >
+                        <v-img
+                          :src="reward.image"
+                          height="20"
+                          width="20"
+                          contain
+                          class="reward-icon"
+                        ></v-img>
                       </v-col>
                     </v-row>
                   </p>
@@ -87,12 +126,21 @@
               <v-card>
                 <v-card-title class="text-h6">Share Event</v-card-title>
                 <v-card-text>
-                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                    hide-details></v-text-field>
+                  <v-text-field
+                    v-model="sharedLink"
+                    label="Event Link"
+                    readonly
+                    density="compact"
+                    hide-details
+                  ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">
+                  <v-btn
+                    color="success"
+                    size="small"
+                    @click="copyLink(sharedLink)"
+                  >
                     Copy Link
                   </v-btn>
                   <v-btn color="grey" size="small" @click="showDialog = false">
@@ -103,14 +151,26 @@
             </v-dialog>
             <v-card-text>
               <p></p>
-              <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                @click="shareEvent(selectedEvent?.events_pk)">
+              <v-btn
+                block
+                color="blue"
+                size="small"
+                variant="flat"
+                class="mt-2"
+                @click="shareEvent(selectedEvent?.events_pk)"
+              >
                 <v-icon start>mdi-share-variant</v-icon>
                 Share Event
               </v-btn>
               <br />
-              <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
-              <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
+              <p>
+                <v-icon>mdi-seat</v-icon> Disponible Seats:
+                {{ selectedEvent?.seats_number }}
+              </p>
+              <p>
+                <v-icon>mdi-sword-cross</v-icon> Scenario:
+                {{ selectedEvent?.scenario }}
+              </p>
               <br />
               <p class="text-end scheduled-box">
                 Scheduled for:
@@ -129,10 +189,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -148,44 +212,76 @@
             </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
+              <v-row
+                v-for="(reward, index) in eventRewards"
+                :key="index"
+                class="align-center my-2"
+              >
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                    <v-img
+                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                    />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+                  <h4 class="text-subtitle-1 font-weight-bold">
+                    {{ reward.name }}
+                  </h4>
                   <p class="text-body-2">{{ reward.description }}</p>
                 </v-col>
               </v-row>
             </v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="12" class="mb-2">
-                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
+                <v-btn
+                  block
+                  color="#539041"
+                  class="rounded-0"
+                  @click="joinEvent"
+                >
                   Count me in
                 </v-btn>
 
-                <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
-                  @click:close="showSuccessAlert = false">
-                  You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.
+                <v-alert
+                  v-if="showSuccessAlert"
+                  type="success"
+                  class="mt-4"
+                  border="start"
+                  variant="tonal"
+                  closable
+                  @click:close="showSuccessAlert = false"
+                >
+                  You’ve successfully joined this event! Visit the
+                  <strong>My Events</strong> page to view it.
                 </v-alert>
-                
               </v-col>
             </v-row>
           </v-card>
         </v-dialog>
-
       </div>
 
       <div v-else-if="activeTab === 2">
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(evt, idx) in myEvents" :key="evt.events_pk">
-            <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(evt, idx) in myEvents"
+            :key="evt.events_pk"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openMyEventsDialog(evt)"
+            >
               <v-row no-gutters>
                 <!-- Date -->
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black">
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
                         new Date(evt.event_date)
@@ -211,7 +307,9 @@
                 <!-- Details -->
                 <v-col cols="8" sm="10" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >
                     {{ evt.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
@@ -233,27 +331,35 @@
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6">
             <!-- Linha com Título à esquerda e o X à direita -->
-            <div class="d-flex align-center justify-space-between  pl-8">
+            <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
               </v-card-title>
-              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer;">
+              <v-icon
+                color="red"
+                @click="myDialog = false"
+                class="mr-2"
+                style="cursor: pointer"
+              >
                 mdi-close
               </v-icon>
             </div>
 
-            <div class="mt-1 pl-6" style="display: inline-block;">
+            <div class="mt-1 pl-6" style="display: inline-block">
               <p class="text-caption scheduled-box ma-0 ml-">
                 Scheduled for:
                 {{
-                  new Date(selectedMyEvent?.event_date).toLocaleString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                hour12: true,
-                })
+                  new Date(selectedMyEvent?.event_date).toLocaleString(
+                    "en-US",
+                    {
+                      month: "2-digit",
+                      day: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    },
+                  )
                 }}
               </p>
             </div>
@@ -263,36 +369,58 @@
               <!-- QR code com fundo branco e texto "COMING SOON" cruzado -->
               <v-col cols="12" md="6" class="text-center pt-8 ml-3">
                 <div
-                  style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;">
+                  style="
+                    position: relative;
+                    display: inline-block;
+                    background: white;
+                    padding: 8px;
+                    border-radius: 8px;
+                  "
+                >
                   <v-img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
-                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
-                  <div style="
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-10deg);
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #999;
-        background-color: rgba(255, 255, 255, 0.7);
-        padding: 4px 10px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      ">
+                    width="180"
+                    height="180"
+                    class="rounded"
+                    style="opacity: 0.3; filter: grayscale(1)"
+                  />
+                  <div
+                    style="
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%) rotate(-10deg);
+                      font-weight: 600;
+                      font-size: 0.9rem;
+                      color: #999;
+                      background-color: rgba(255, 255, 255, 0.7);
+                      padding: 4px 10px;
+                      border-radius: 4px;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                    "
+                  >
                     Coming Soon
                   </div>
                 </div>
               </v-col>
 
               <!-- Status centralizado acima dos botões -->
-              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
+              <v-col
+                cols="12"
+                md="5"
+                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
+              >
                 <p class="text-subtitle-2 font-weight-medium mb-2">
                   Status: {{ selectedMyEvent?.status }}
                 </p>
-                <v-btn class="mb-4" block color="green" @click="createdCompanion()"
-                  :disabled="selectedMyEvent?.status !== 'Joined the Quest'">
+                <v-btn
+                  class="mb-4"
+                  block
+                  color="green"
+                  @click="handleNewCampaign('core')"
+                  :disabled="selectedMyEvent?.status !== 'Joined the Quest'"
+                >
                   Join Campaign
                 </v-btn>
                 <v-btn class="mb-8" block color="red" @click="quitEvent()">
@@ -305,10 +433,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selecteMydEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selecteMydEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -339,6 +471,16 @@ import { HeroStore } from "@/store/HeroStore";
 import { useRouter, useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
+import { Campaign } from "@/store/Campaign";
+
+const router = useRouter();
+const toast = useToast();
+const { t } = useI18n();
+const userStore = useUserStore();
+const campaignStore = CampaignStore();
+const heroStore = HeroStore();
+const user = computed(() => userStore.user);
+const loading = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
@@ -500,8 +642,6 @@ const handleTimeInput = (event) => {
   }
 };
 
-const user = computed(() => useUserStore().user);
-
 const selectedRewards = ref([]);
 
 const toggleReward = (reward) => {
@@ -538,118 +678,66 @@ const openDialog = async (event) => {
 
 const showSuccessAlert = ref(false);
 
-const joinEvent = async () => {
-  const userId = userStore.user?.users_pk;
-
-  if (!userId || !selectedEvent.value) {
-    console.warn("Usuário ou evento não disponível");
-    return;
-  }
-
+async function handleNewCampaign(type) {
+  loading.value = true;
   try {
-    await axios.post('/rl_events_users/cadastro', {
-      users_fk: userStore.user?.users_pk,
-      events_fk: selectedEvent.value.events_pk,
-      status: 1,
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      },
+    // 1) buscar SKUs do usuário
+    const usersPk = userStore.user?.users_pk;
+    const { data } = await axios.get("/skus/search", {
+      params: { users_fk: usersPk },
     });
-
-    joinedEventPk.value = selectedEvent.value.events_pk;
-
-
-    // Atualiza lista de eventos
-    await fetchMyEvents();
-
-
-    showSuccessAlert.value = true;
-  } catch (err) {
-    console.error(
-      "Erro ao registrar participação:",
-      err.response?.data || err.message
+    const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data.skus);
+    const nameMap = {
+      core: "Corebox",
+      apocalypse: "Apocalypse",
+      awakenings: "Awakenings",
+      underkeep: "underkeep",
+    };
+    const selectedSku = skuList.find((s) =>
+      s.name?.toLowerCase() === nameMap[type].toLowerCase()
     );
-  }
-};
+    if (!selectedSku) throw new Error("SKU não encontrado");
 
-const toast = useToast();
-const { t } = useI18n();
-const router = useRouter();
-const route = useRoute();
-const boxSku = computed(() => route.query.sku || "");
-const campaignStore = CampaignStore();
-const heroStore = HeroStore();
-
-// async function saveCampaign() {
-//   const response = await axios.post("/campaigns/cadastro", {
-//     tracker_hash: token.value,
-//     conclusion_percentage: 0,
-//     box: boxSku.value,
-//   });
-//   // notificação de sucesso
-//   toast.add({
-//     severity: "success",
-//     summary: t("label.success"),
-//     detail: "Campaign saved successfully.",
-//     life: 3000,
-//   });
-//   // cria relação usuário↔campanha
-//   const { campaigns_pk, box } = response.data.campaign;
-//   const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
-//   await axios.post("rl_campaigns_users/cadastro", {
-//     users_fk: users_pk,
-//     campaigns_fk: campaigns_pk,
-//     party_roles_fk: 1,
-//     skus_fk: parseInt(box, 10),
-//   });
-// }
-
-async function createdCompanion() {
-  const token =
-    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJZHMiOltdLCJvdXRjb21lSWRzIjpbXSwiZm9sbG93ZXJJZHMiOltdLCJ1bmZvbGRpbmdJZHMiOltdLCJiYWNrZ3JvdW5kQW5kVHJhaXRJZHMiOltdLCJsZWdhY3lUcmFpbCI6eyJwZXJzZXZlcmFuY2UiOjAsInRyYWdlZHkiOjAsImRvb20iOjAsImhlcm9pc20iOjB9LCJpc1NlcXVlbnRpYWxBZHZlbnR1cmUiOmZhbHNlLCJzZXF1ZW50aWFsQWR2ZW50dXJlUnVuZXMiOjB9LCJoZXJvZXMiOltdfQ==";
-  try {
-    const { data: resp } = await axios.post("/campaigns/cadastro", {
-      tracker_hash: token,
+    // 2) POST /campaigns/cadastro
+    const campaignRes = await axios.post("/campaigns/cadastro", {
+      tracker_hash: "",
       conclusion_percentage: 0,
-      box: 22,
+      box: selectedSku.skus_pk,
     });
+    console.log("campaignRes:", campaignRes.data)
+    const campaignFk = campaignRes.data.campaign.campaigns_pk;
+    // opcional: guardar no store local
+    const newCamp = new Campaign(String(campaignFk), type);
+    campaignStore.add(newCamp);
 
+    // 3) POST /rl_campaigns_users/cadastro
+    const teste = await axios.post("/rl_campaigns_users/cadastro", {
+      users_fk: usersPk,
+      campaigns_fk: campaignFk,
+      party_roles_fk: 1,
+      skus_fk: selectedSku.skus_pk,
+    });
+    console.log("teste:", teste)
     toast.add({
       severity: "success",
       summary: t("label.success"),
-      detail: "Campaign saved successfully.",
-      life: 3000,
+      detail: "Campanha criada com sucesso!"
     });
 
-    // 3) Cria relacionamento usuário↔campanha
-    const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
-    await axios.post("rl_campaigns_users/cadastro", {
-      users_fk: users_pk,
-      campaigns_fk: resp.campaign.campaigns_pk,
-      party_roles_fk: 1,
-      skus_fk: parseInt(resp.campaign.box, 10),
-    }).then((response) => {
-      console.log("Relação usuário↔campanha criada com sucesso.", response.data);
-    }).catch((error) => {
-      console.error("Erro ao criar relação usuário↔campanha:", error);
-      toast.add({
-        severity: "error",
-        summary: t("label.error"),
-        detail: "Error creating campaign-user relationship.",
-        life: 3000,
-      });
+    // 4) redireciona
+    router.push({
+      path: `/campaign-tracker/campaign/${campaignFk}`,
+      query: { sku: String(selectedSku.skus_pk) },
     });
-    // 4) Redireciona
-    router.push({ path: "/campaign-tracker/" });
   } catch (err) {
-    console.error("Erro no fluxo de salvar campanha:", err);
+    console.error("Erro no fluxo de criação:", err);
     toast.add({
       severity: "error",
       summary: t("label.error"),
-      detail: "Failed to save campaign.",
-      life: 3000,
+      detail: err.message || "Falha ao criar campanha."
     });
+  } finally {
+    loading.value = false;
   }
 }
 
@@ -844,8 +932,6 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const userStore = useUserStore();
-
 const userCreatedEvents = ref([]);
 
 const fetchUserCreatedEvents = async () => {
@@ -995,21 +1081,19 @@ const openMyEventsDialog = (event) => {
   myDialog.value = true;
 };
 
-
 showSuccessAlert.value = true;
 
 const joinedEventPk = ref(null); // armazena o ID do evento confirmado
-
 
 const handleShareEvent = (eventId) => {
   const shareLink = generateShareEventLink(eventId);
   if (shareLink) {
     sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
-    showCard.value = true;         // e que showCard controle exibir o card
+    showCard.value = true; // e que showCard controle exibir o card
   }
 };
 
-const sharedLink = ref('');
+const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
 
@@ -1031,7 +1115,7 @@ const copyLink = async (link) => {
   try {
     await navigator.clipboard.writeText(link);
     showDialog.value = false; // Fecha o popup
-    showAlert.value = true;   // Mostra o alerta
+    showAlert.value = true; // Mostra o alerta
   } catch (error) {
     console.error("Erro ao copiar o link:", error);
   }
@@ -1042,9 +1126,6 @@ watch(dialog, (val) => {
     showSuccessAlert.value = false;
   }
 });
-
-
-
 </script>
 
 <style scoped>
