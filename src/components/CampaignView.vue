@@ -140,14 +140,19 @@ function onSequentialAdventure() {
       </v-sheet>
     </v-col>
   </v-row>
-
-  <v-row no-gutters class="justify-center pa-6">
-    <v-col cols="12" sm="12" md="6" lg="4" class="d-flex flex-row justify-space-around px-0">
+<v-row no-gutters class="justify-center pa-6">
+  <v-col cols="12" sm="12" md="6" lg="4">
+    <!-- Mobile: quebra em 2 linhas | Tablet/Desktop: linha única -->
+    <div
+      class="d-flex align-center justify-center flex-wrap flex-sm-nowrap"
+      style="gap: 12px;"
+    >
       <CampaignLogAddHero :campaign-id="campaignId" />
       <CampaignLogImportHero :campaign-id="campaignId" />
       <CampaignLogRemoveHero :campaign-id="campaignId" />
-    </v-col>
-  </v-row>
+    </div>
+  </v-col>
+</v-row>
 
   <v-row no-gutters class="d-flex justify-center">
     <v-sheet rounded border="md" class="text-white" width="1150px">
