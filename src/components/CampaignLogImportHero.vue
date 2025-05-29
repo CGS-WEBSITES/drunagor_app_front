@@ -3,12 +3,20 @@ import { ref, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import * as _ from "lodash-es";
+
+// Stores
 import { HeroStore } from "@/store/HeroStore";
 import { CampaignStore } from "@/store/CampaignStore";
 import type { Hero } from "@/store/Hero";
 import type { Campaign } from "@/store/Campaign";
+
+// Repositório de Heróis Habilitados
 import { EnabledHeroes } from "@/repository/EnabledHeroes";
 import type { HeroData } from "@/data/repository/HeroData";
+
+// Importa a imagem local para a campanha 'underkeep'
+// Certifique-se que este caminho para underkeep.png está correto
+import UnderkeepCampaignImage from "@/assets/logo/underkeep.png";
 
 
 const props = defineProps<{
@@ -39,7 +47,9 @@ function getStaticHeroData(heroId: string): HeroData | undefined {
 const selectedSourceCampaignId = ref<string | null>(null);
 
 const availableSourceCampaigns = computed(() => {
-  return campaignStore.findAll().filter(campaign => campaign.campaignId !== props.campaignId);
+  const allCampaigns = campaignStore.findAll();
+  const filteredCampaigns = allCampaigns.filter(campaign => campaign.campaignId !== props.campaignId);
+  return filteredCampaigns;
 });
 
 function selectSourceCampaign(campaignId: string) {
@@ -100,7 +110,7 @@ function goBackToCampaignSelection() {
     {{ t("IMPORT HERO") }}
   </v-btn>
 
-  <v-dialog v-model="visible" max-width="500" persistent>
+  <v-dialog v-model="visible" max-width="500">
     <v-card>
       <v-card-title class="text-center">
         <span v-if="!selectedSourceCampaignId">{{ t("Select Source Campaign") }}</span>
@@ -109,18 +119,44 @@ function goBackToCampaignSelection() {
 
       <v-card-text>
         <div v-if="!selectedSourceCampaignId">
-          <v-list lines="one" v-if="availableSourceCampaigns.length > 0">
-            <v-list-item
-              v-for="campaign in availableSourceCampaigns"
-              :key="campaign.campaignId"
-              :title="campaign.name"
-              @click="selectSourceCampaign(campaign.campaignId)"
-            >
-              <template v-slot:prepend>
-                <v-icon>mdi-folder-open-outline</v-icon>
-              </template>
-            </v-list-item>
-          </v-list>
+          
+          <template v-if="availableSourceCampaigns.length > 0">
+            <v-list lines="one">
+              <v-list-item
+                v-for="campaign_item in availableSourceCampaigns" :key="campaign_item.campaignId"
+                @click="selectSourceCampaign(campaign_item.campaignId)"
+              >
+                <template v-slot:prepend>
+                  <div class="d-flex align-center" style="min-width: 60px; height: 36px;"> <v-img v-if="campaign_item.campaign === 'core'"
+                           class="campaign-list-logo"
+                           src="@/assets/logo/core.webp"
+                           :alt="campaign_item.name + ' - Core'"
+                           max-height="36" max-width="60" contain />
+                    <v-img v-else-if="campaign_item.campaign === 'apocalypse'"
+                           class="campaign-list-logo"
+                           src="@/assets/logo/apocalypse.webp"
+                           :alt="campaign_item.name + ' - Apocalypse'"
+                           max-height="36" max-width="60" contain />
+                    <v-img v-else-if="campaign_item.campaign === 'awakenings'"
+                           class="campaign-list-logo"
+                           src="@/assets/logo/awakenings.webp"
+                           :alt="campaign_item.name + ' - Awakenings'"
+                           max-height="36" max-width="60" contain />
+                    <v-img v-else-if="campaign_item.campaign === 'underkeep'"
+                           class="campaign-list-logo"
+                           :src="UnderkeepCampaignImage"
+                           :alt="campaign_item.name + ' - Underkeep'"
+                           max-height="36" max-width="60" contain />
+                    <v-icon v-else class="mx-auto">mdi-help-rhombus-outline</v-icon> </div>
+                </template>
+                
+                <v-list-item-title class="pl-2">
+                  {{ campaign_item.name }} 
+                </v-list-item-title>
+
+              </v-list-item>
+            </v-list>
+          </template>
           <p v-else class="text-center">{{ t("No other campaigns available to import from.") }}</p>
         </div>
 
@@ -131,22 +167,27 @@ function goBackToCampaignSelection() {
           </v-btn>
           
           <template v-if="heroesInSelectedSourceCampaign.length > 0">
-            <v-list lines="one"> <v-list-item
+            <v-list lines="one"> 
+              <v-list-item
                 v-for="heroInstance in heroesInSelectedSourceCampaign"
                 :key="heroInstance.heroId"
                 @click="importHeroToCurrentCampaign(heroInstance)"
-                class="pa-0" >
+                class="pa-0" 
+              >
                 <v-img
                   v-if="getStaticHeroData(heroInstance.heroId)?.images?.trackerimage"
                   :src="getStaticHeroData(heroInstance.heroId)?.images.trackerimage"
                   :alt="getStaticHeroData(heroInstance.heroId)?.name || heroInstance.heroId"
                   style="display: block; width: 100%; border-radius: 4px;" 
-                  height="auto" ></v-img>
+                  height="auto" 
+                  max-height="82px"
+                ></v-img>
                 <v-sheet
                   v-else
                   color="grey-darken-3"
                   width="100%"
-                  height="80px" class="d-flex align-center justify-center"
+                  height="80px" 
+                  class="d-flex align-center justify-center"
                   style="border-radius: 4px;"
                 >
                   <div class="text-center">
@@ -166,7 +207,7 @@ function goBackToCampaignSelection() {
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="grey-darken-1" variant="text" @click="closeModal">
+        <v-btn color="red" variant="text" @click="closeModal">
           {{ t("Close") }}
         </v-btn>
       </v-card-actions>
@@ -175,18 +216,27 @@ function goBackToCampaignSelection() {
 </template>
 
 <style scoped>
-.hero-image-list.v-list { 
-  padding: 0 !important;
+.v-dialog .v-list {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
   background-color: transparent !important;
 }
 
-.hero-image-list .v-list-item,
 .v-dialog .v-list-item { 
   margin-bottom: 8px; 
 }
 
-.hero-image-list .v-list-item:last-child,
 .v-dialog .v-list-item:last-child {
   margin-bottom: 0;
+}
+
+.v-list-item--one-line .v-list-item-title {
+  align-self: center;
+}
+
+.campaign-list-logo {
+  border-radius: 3px;
 }
 </style>
