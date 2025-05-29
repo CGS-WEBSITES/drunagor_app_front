@@ -3,11 +3,13 @@ import { ref, computed } from "vue";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import * as _ from "lodash-es";
-
 import { HeroStore } from "@/store/HeroStore";
 import { CampaignStore } from "@/store/CampaignStore";
 import type { Hero } from "@/store/Hero";
 import type { Campaign } from "@/store/Campaign";
+import { EnabledHeroes } from "@/repository/EnabledHeroes";
+import type { HeroData } from "@/data/repository/HeroData";
+
 
 const props = defineProps<{
   campaignId: string;
@@ -27,6 +29,12 @@ function closeModal() {
 
 const heroStore = HeroStore();
 const campaignStore = CampaignStore();
+
+const allEnabledHeroesList = new EnabledHeroes().findAll();
+
+function getStaticHeroData(heroId: string): HeroData | undefined {
+  return allEnabledHeroesList.find(h => h.id === heroId);
+}
 
 const selectedSourceCampaignId = ref<string | null>(null);
 
@@ -121,19 +129,38 @@ function goBackToCampaignSelection() {
             <v-icon start>mdi-arrow-left</v-icon>
             {{ t("Back to Campaigns") }}
           </v-btn>
-          <v-list lines="one" v-if="heroesInSelectedSourceCampaign.length > 0">
-            <v-list-item
-              v-for="hero in heroesInSelectedSourceCampaign"
-              :key="hero.heroId"
-              @click="importHeroToCurrentCampaign(hero)"
-            >
-              <v-list-item-title>
-                {{ hero.heroId }} </v-list-item-title>
-              <template v-slot:prepend>
-                <v-icon>mdi-account</v-icon> </template>
-            </v-list-item>
-          </v-list>
-          <p v-else class="text-center">{{ t("No new heroes to import from this campaign.") }}</p>
+          
+          <template v-if="heroesInSelectedSourceCampaign.length > 0">
+            <v-list lines="one"> <v-list-item
+                v-for="heroInstance in heroesInSelectedSourceCampaign"
+                :key="heroInstance.heroId"
+                @click="importHeroToCurrentCampaign(heroInstance)"
+                class="pa-0" >
+                <v-img
+                  v-if="getStaticHeroData(heroInstance.heroId)?.images?.trackerimage"
+                  :src="getStaticHeroData(heroInstance.heroId)?.images.trackerimage"
+                  :alt="getStaticHeroData(heroInstance.heroId)?.name || heroInstance.heroId"
+                  style="display: block; width: 100%; border-radius: 4px;" 
+                  height="auto" ></v-img>
+                <v-sheet
+                  v-else
+                  color="grey-darken-3"
+                  width="100%"
+                  height="80px" class="d-flex align-center justify-center"
+                  style="border-radius: 4px;"
+                >
+                  <div class="text-center">
+                    <v-icon size="large" color="grey-lighten-1">mdi-image-off-outline</v-icon>
+                    <div class="text-caption text-grey-lighten-1">{{ heroInstance.heroId }}</div>
+                  </div>
+                </v-sheet>
+              </v-list-item>
+            </v-list>
+          </template>
+          <template v-else>
+            <p class="text-center mt-4">{{ t("No new heroes to import from this campaign.") }}</p>
+          </template>
+
         </div>
       </v-card-text>
 
@@ -148,5 +175,18 @@ function goBackToCampaignSelection() {
 </template>
 
 <style scoped>
+.hero-image-list.v-list { 
+  padding: 0 !important;
+  background-color: transparent !important;
+}
 
+.hero-image-list .v-list-item,
+.v-dialog .v-list-item { 
+  margin-bottom: 8px; 
+}
+
+.hero-image-list .v-list-item:last-child,
+.v-dialog .v-list-item:last-child {
+  margin-bottom: 0;
+}
 </style>
