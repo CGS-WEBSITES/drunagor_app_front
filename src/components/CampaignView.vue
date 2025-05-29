@@ -144,6 +144,7 @@ function onSequentialAdventure() {
   <v-row no-gutters class="justify-center pa-6">
     <v-col cols="12" sm="12" md="6" lg="4" class="d-flex flex-row justify-space-around px-0">
       <CampaignLogAddHero :campaign-id="campaignId" />
+      <CampaignLogImportHero :campaign-id="campaignId" />
       <CampaignLogRemoveHero :campaign-id="campaignId" />
     </v-col>
   </v-row>
