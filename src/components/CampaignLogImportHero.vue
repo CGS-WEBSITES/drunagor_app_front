@@ -105,16 +105,24 @@ function goBackToCampaignSelection() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-import-hero-from-campaign" rounded @click="openModal">
-    <v-icon start>mdi-import</v-icon>
-    {{ t("IMPORT HERO") }}
-  </v-btn>
+  <div class="d-flex align-center" style="gap: 8px;">
+    <v-btn variant="elevated" id="campaign-import-hero-from-campaign" rounded @click="openModal">
+      <v-icon start>mdi-import</v-icon>
+      {{ t("IMPORT HERO") }}
+    </v-btn>
+  </div>
 
   <v-dialog v-model="visible" max-width="500">
     <v-card>
       <v-card-title class="text-center">
         <span v-if="!selectedSourceCampaignId">{{ t("Select Source Campaign") }}</span>
         <span v-else>{{ t("Select Hero to Import") }}</span>
+        <v-tooltip location="top">
+      <template  v-slot:activator="{ props: tooltipActivatorProps }">
+        <v-icon class="pl-3" v-bind="tooltipActivatorProps" size="small" color="grey-darken-1" style="cursor: help;">mdi-information-outline</v-icon>
+      </template>
+      <span>Importing heroes from different content may cause errors.</span>
+    </v-tooltip>
       </v-card-title>
 
       <v-card-text>
@@ -128,25 +136,25 @@ function goBackToCampaignSelection() {
               >
                 <template v-slot:prepend>
                   <div class="d-flex align-center" style="min-width: 60px; height: 36px;"> <v-img v-if="campaign_item.campaign === 'core'"
-                           class="campaign-list-logo"
-                           src="@/assets/logo/core.webp"
-                           :alt="campaign_item.name + ' - Core'"
-                           max-height="36" max-width="60" contain />
+                          class="campaign-list-logo"
+                          src="@/assets/logo/core.webp"
+                          :alt="campaign_item.name + ' - Core'"
+                          max-height="36" max-width="60" contain />
                     <v-img v-else-if="campaign_item.campaign === 'apocalypse'"
-                           class="campaign-list-logo"
-                           src="@/assets/logo/apocalypse.webp"
-                           :alt="campaign_item.name + ' - Apocalypse'"
-                           max-height="36" max-width="60" contain />
+                          class="campaign-list-logo"
+                          src="@/assets/logo/apocalypse.webp"
+                          :alt="campaign_item.name + ' - Apocalypse'"
+                          max-height="36" max-width="60" contain />
                     <v-img v-else-if="campaign_item.campaign === 'awakenings'"
-                           class="campaign-list-logo"
-                           src="@/assets/logo/awakenings.webp"
-                           :alt="campaign_item.name + ' - Awakenings'"
-                           max-height="36" max-width="60" contain />
+                          class="campaign-list-logo"
+                          src="@/assets/logo/awakenings.webp"
+                          :alt="campaign_item.name + ' - Awakenings'"
+                          max-height="36" max-width="60" contain />
                     <v-img v-else-if="campaign_item.campaign === 'underkeep'"
-                           class="campaign-list-logo"
-                           :src="UnderkeepCampaignImage"
-                           :alt="campaign_item.name + ' - Underkeep'"
-                           max-height="36" max-width="60" contain />
+                          class="campaign-list-logo"
+                          :src="UnderkeepCampaignImage"
+                          :alt="campaign_item.name + ' - Underkeep'"
+                          max-height="36" max-width="60" contain />
                     <v-icon v-else class="mx-auto">mdi-help-rhombus-outline</v-icon> </div>
                 </template>
                 
