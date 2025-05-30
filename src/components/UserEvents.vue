@@ -329,7 +329,16 @@
           </v-col>
         </v-row>
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
-          <v-card color="surface" class="pa-6">
+          <v-card color="surface" class="pa-6" style="position: relative;">
+
+            <div v-if="loading" class="dialog-overlay">
+              <v-progress-circular
+                indeterminate
+                :size="80"
+                :width="7"
+                color="primary"
+              ></v-progress-circular>
+            </div>
             <!-- Linha com Título à esquerda e o X à direita -->
             <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
@@ -586,7 +595,7 @@ const updatePlayerStatus = (player, newStatus) => {
 
   axios
     .post("/rl_events_users/cadastro", {
-      users_fk: 425,
+      users_fk: appUser,
       events_fk: 31,
       status: newStatus,
     })
@@ -669,7 +678,6 @@ const openDialog = async (event) => {
     });
 
     eventRewards.value = rewardsRes.data.rewards || [];
-    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
   } catch (err) {
     console.error("❌ Erro ao buscar rewards:", err);
     eventRewards.value = [];
@@ -686,42 +694,45 @@ async function handleNewCampaign(type) {
     const { data } = await axios.get("/skus/search", {
       params: { users_fk: usersPk },
     });
-    const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data.skus);
+    const skuList = Array.isArray(data.skus)
+      ? data.skus
+      : Object.values(data.skus);
     const nameMap = {
       core: "Corebox",
-      apocalypse: "Apocalypse",
+      /* apocalypse: "Apocalypse",
       awakenings: "Awakenings",
-      underkeep: "underkeep",
+      underkeep: "underkeep", */
     };
-    const selectedSku = skuList.find((s) =>
-      s.name?.toLowerCase() === nameMap[type].toLowerCase()
+    const selectedSku = skuList.find(
+      (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
     );
     if (!selectedSku) throw new Error("SKU não encontrado");
 
     // 2) POST /campaigns/cadastro
     const campaignRes = await axios.post("/campaigns/cadastro", {
-      tracker_hash: "",
+      tracker_hash:
+        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJkb29yIjoiIiwid2luZyI6IiIsInN0YXR1c0lkcyI6W10sIm91dGNvbWVJZHMiOltdLCJmb2xsb3dlcklkcyI6W10sInVuZm9sZGluZ0lkcyI6W10sImJhY2tncm91bmRBbmRUcmFpdElkcyI6W10sImxlZ2FjeVRyYWlsIjp7InBlcnNldmVyYW5jZSI6MCwidHJhZ2VkeSI6MCwiZG9vbSI6MCwiaGVyb2lzbSI6MH0sImlzU2VxdWVudGlhbEFkdmVudHVyZSI6ZmFsc2UsInNlcXVlbnRpYWxBZHZlbnR1cmVSdW5lcyI6MH0sImhlcm9lcyI6W119",
       conclusion_percentage: 0,
       box: selectedSku.skus_pk,
     });
-    console.log("campaignRes:", campaignRes.data)
+
     const campaignFk = campaignRes.data.campaign.campaigns_pk;
     // opcional: guardar no store local
     const newCamp = new Campaign(String(campaignFk), type);
     campaignStore.add(newCamp);
 
     // 3) POST /rl_campaigns_users/cadastro
-    const teste = await axios.post("/rl_campaigns_users/cadastro", {
+    await axios.post("/rl_campaigns_users/cadastro", {
       users_fk: usersPk,
       campaigns_fk: campaignFk,
       party_roles_fk: 1,
       skus_fk: selectedSku.skus_pk,
     });
-    console.log("teste:", teste)
+
     toast.add({
       severity: "success",
       summary: t("label.success"),
-      detail: "Campanha criada com sucesso!"
+      detail: "Campanha criada com sucesso!",
     });
 
     // 4) redireciona
@@ -734,7 +745,7 @@ async function handleNewCampaign(type) {
     toast.add({
       severity: "error",
       summary: t("label.error"),
-      detail: err.message || "Falha ao criar campanha."
+      detail: err.message || "Falha ao criar campanha.",
     });
   } finally {
     loading.value = false;
@@ -1102,7 +1113,6 @@ const shareEvent = (eventId) => {
     if (!eventId) throw new Error("ID do evento não encontrado!");
 
     const encodedId = btoa(eventId.toString());
-    console.log("ID codificado:", encodedId);
 
     sharedLink.value = `${window.location.origin}/event/${encodedId}`;
     showDialog.value = true; // Abre o popup
@@ -1281,5 +1291,18 @@ watch(dialog, (val) => {
   transform: translateX(10px);
   width: 80px;
   height: 160px;
+}
+
+.dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
 }
 </style>
