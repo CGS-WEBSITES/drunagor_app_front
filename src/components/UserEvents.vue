@@ -428,7 +428,7 @@
                   block
                   color="green"
                   @click="handleNewCampaign('core')"
-                  :disabled="selectedMyEvent?.status !== 'Joined the Quest'"
+                  :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
                 >
                   Join Campaign
                 </v-btn>
@@ -498,6 +498,7 @@ if (!axios) {
 
 const activeTab = ref(1);
 const events = ref([]);
+const eventPk = ref(null);
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -514,8 +515,9 @@ const openEditDialog = (event, editable = false) => {
   isEditable.value = editable;
   editEventDialog.value = true;
   if (!editable) {
-    fetchPlayers();
+    fetchPlayers(event.events_pk);
     fetchStatuses();
+    updatePlayerStatus(player, newStatus, editableEvent.value.events_pk)
   }
 };
 
@@ -566,10 +568,22 @@ const fetchStatuses = () => {
     });
 };
 
-const fetchPlayers = () => {
+const appUserPk = computed(() => {
+  const raw = localStorage.getItem("app_user");
+
+  return raw ? JSON.parse(raw).users_pk : null;
+});
+
+const currentPlayer = computed(() => {
+  if (!appUserPk.value) return null;
+  
+  return players.value.find(p => p.users_pk === appUserPk.value) || null;
+});
+
+const fetchPlayers = (eventPk) => {
   axios
     .get("/rl_events_users/list_players", {
-      params: { events_fk: 31 },
+      params: { events_fk: eventPk },
     })
     .then((response) => {
       players.value = response.data.players;
@@ -584,19 +598,22 @@ onMounted(() => {
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
   fetchStatuses();
-  fetchPlayers();
+
+  if (events.value.length) {
+    fetchPlayers(events.value[0].events_pk);
+  }
 
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 });
 
-const updatePlayerStatus = (player, newStatus) => {
+const updatePlayerStatus = (player, newStatus, eventPk) => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
   axios
     .post("/rl_events_users/cadastro", {
       users_fk: appUser,
-      events_fk: 31,
+      events_fk: eventPk,
       status: newStatus,
     })
     .then((response) => {
@@ -669,6 +686,8 @@ const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
 
+  fetchPlayers(event.events_pk);
+
   try {
     const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
       params: { events_fk: event.events_pk },
@@ -721,6 +740,11 @@ async function handleNewCampaign(type) {
     const newCamp = new Campaign(String(campaignFk), type);
     campaignStore.add(newCamp);
 
+    await axios.put(`/campaigns/alter/${campaignFk}`, {
+      tracker_hash: "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJkb29yIjoiIiwid2luZyI6IiIsInN0YXR1c0lkcyI6W10sIm91dGNvbWVJZHMiOltdLCJmb2xsb3dlcklkcyI6W10sInVuZm9sZGluZ0lkcyI6W10sImJhY2tncm91bmRBbmRUcmFpdElkcyI6W10sImxlZ2FjeVRyYWlsIjp7InBlcnNldmVyYW5jZSI6MCwidHJhZ2VkeSI6MCwiZG9vbSI6MCwiaGVyb2lzbSI6MH0sImlzU2VxdWVudGlhbEFkdmVudHVyZSI6ZmFsc2UsInNlcXVlbnRpYWxBZHZlbnR1cmVSdW5lcyI6MH0sImhlcm9lcyI6W119",
+      party_name: "",
+    });
+
     // 3) POST /rl_campaigns_users/cadastro
     await axios.post("/rl_campaigns_users/cadastro", {
       users_fk: usersPk,
@@ -751,6 +775,27 @@ async function handleNewCampaign(type) {
     loading.value = false;
   }
 }
+
+const quitEvent = async () => {
+  if (!currentPlayer.value) {
+    console.error("❌ Não há registro de participação para esse usuário neste evento.");
+    return;
+  }
+
+  const rlPk = currentPlayer.value.rl_events_users_pk;
+  try {
+    await axios.put(`/rl_events_users/alter/${rlPk}`, {
+      status: 3
+    });
+
+    /* currentPlayer.value.event_status = "Quit";  */
+    if (eventPk.value) {
+      fetchPlayers(eventPk.value);
+    }
+  } catch (err) {
+    console.error("Erro ao executar quitEvent:", err);
+  }
+};
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
@@ -1069,26 +1114,13 @@ const toggleEditReward = (reward) => {
   }
 };
 
-const getPlayersForEvent = async (event_fk) => {
-  await axios
-    .get("/rl_events_users/list_players", {
-      params: {
-        events_fk: event_fk,
-      },
-    })
-    .then((response) => {
-      console.log("Players:", response.data);
-    })
-    .catch((error) => {
-      console.error("Erro ao buscar jogadores:", error);
-    });
-};
-
 const myDialog = ref(false);
 const selectedMyEvent = ref(null);
 
 const openMyEventsDialog = (event) => {
   selectedMyEvent.value = event;
+  eventPk.value = event.events_pk;
+  fetchPlayers(event.events_pk);
   myDialog.value = true;
 };
 
