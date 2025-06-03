@@ -28,50 +28,40 @@ const loading = ref(true)
 
 const allowedCampaignIds = ref<number[]>([]);
 
-function importCampaign(token: string) {
-
+function importCampaign(token: string, overrideId?: string) {
   const data = JSON.parse(atob(token));
-  let campaign: Campaign;
-
-  if ("campaignData" in data) {
-    campaign = data.campaignData;
-  } else {
-    console.log("Not importing campaign data")
+  if (!("campaignData" in data)) {
+    console.warn("Payload invalid:", token);
     return;
   }
 
-  campaignStore.add(campaign);
+  const campaignObj = data.campaignData as any;
+  if (overrideId) {
+    campaignObj.campaignId = overrideId;
+  }
 
-  const heroes = data.heroes as Hero[];
-  heroes.forEach((h) => {
-    h.campaignId = campaign.campaignId;
+  campaignStore.add(campaignObj);
 
-    if (typeof h.equipment === "undefined") {
-      h.equipment = new HeroEquipment();
-    }
-
-    if (typeof h.sequentialAdventureState === "undefined") {
-      h.sequentialAdventureState = null;
-    }
-
+  data.heroes.forEach((h: any) => {
+    h.campaignId = overrideId ?? h.campaignId;
     heroStore.add(h);
   });
-
 }
 
 onBeforeMount(async () => {
-  campaignStore.reset()
-  heroStore.reset()
+  campaignStore.reset();
+  heroStore.reset();
 
-  await axios.get('/rl_campaigns_users/search', {
-    params: { users_fk: user.users_pk }
-  }).then((res) => {
-    res.data.campaigns.forEach(element => {
-      importCampaign(element.tracker_hash)
-    });
-
-    loading.value = false
+  const res = await axios.get("/rl_campaigns_users/search", {
+    params: { users_fk: useUserStore().user!.users_pk },
   });
+
+  res.data.campaigns.forEach((element: any) => {
+    const idStr = String(element.campaigns_pk);
+    importCampaign(element.tracker_hash, idStr);
+  });
+
+  loading.value = false;
 });
 
 //backwards compatibility
@@ -92,13 +82,11 @@ if (legacyCampaign.length > 0) {
 const heroDataRepository = new HeroDataRepository();
 
 function findHeroes(campaignId: string): HeroData[] {
-
   return heroStore
     .findAllInCampaign(campaignId)
     .map(h => heroDataRepository.find(h.heroId))
     .filter((h): h is HeroData => !!h);
-
-}
+  }
 </script>
 
 <template>
