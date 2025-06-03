@@ -1,0 +1,38 @@
+{
+  "https://qr1.be/FNMI": {
+    "title": "INTERACTION – THE VILLAGERS’ BARRICADE",
+    "subtitle": "Wary of the fortress, the villagers improvised barricades using old planks, broken furniture, and any junk they could get their hands on to stop the night raids. But the structure is unstable, and pushing it to the other side may be the safest thing for you to do, but the sounds of battle and indistinguishable screams that echo from the other side reveal that you are not alone…",
+    "backgroundImportName": "BarricadeImg",
+    "itemsImportName": "InteractionBarricade"
+  },
+  "https://qr1.be/Y4ZP": {
+    "title": "INTERACTION – THE SHINING ARMOR",
+    "subtitle": "An impressive suit of armor is displayed as a trophy. The golden carvings that delicately adorn the mirrored silver surface leave no doubt: if this work of art was not forged by the Elves of Valarai, at least it was designed by one. Such a piece can only belong to the Earl and should not be here, but on his chest. A displacement that comes in handy for you.",
+    "backgroundImportName": "ArmorImg",
+    "itemsImportName": "InteractionTheShiningArmor"
+  },
+  "https://qr1.be/0RLM": {
+    "title": "INTERACTION – THE WEAPONS TABLE",
+    "subtitle": "Equipment of all kinds lies scattered across the table. Apparently, Blackriver didn't go down without a fight.He just didn't have enough time to prepare the soldiers for the Earl's service. However, even if they were unable to resist the incursion, their efforts may not have been in vain: the weapons they gathered may yet serve other warriors in this battle…",
+    "backgroundImportName": "WeaponsTableImg",
+    "itemsImportName": "InteractionWeaponsTable"
+  },
+  "https://qr1.be/0RL": {
+    "title": "INTERACTION – THE RESERVOIR",
+    "subtitle": "Against all odds, there is a subterranean reservoir beneath Blackriver’s fortress.Did the population know about these dungeons? Did the Count? The purpose of this dam is unclear, but the ropes coming out of the stone and wrapping around a wheel-like mechanism clearly indicate that it controls the water level.",
+    "backgroundImportName": "BarricadeImg",
+    "itemsImportName": "InteractionTheStoneGuardian"
+  },
+  "https://qr1.be/0R": {
+    "title": "INTERACTION – TREASURES OF A FORGOTTEN AGE",
+    "subtitle": "Weapons that seem to have been crafted by the most skilled hands you’ve ever seenarmor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in timehidden in darkness. Does the Count even know that his fortress sits atop a trove like this?",
+    "backgroundImportName": "ArmorImg",
+    "itemsImportName": "InteractionTheReservoir"
+  },
+  "https://qr1.be/0": {
+    "title": "INTERACTION – THE STONE GUARDIAN",
+    "subtitle": "The hall is empty, save for a gargoyle with two large, gleaming rubies for eyes, perched atop a stone columntwo torches light the statue with mysterious blue flamesThese details, however, are not the strangest things you find: a skull-shaped handle juts from the stone, and the monster holds a scroll in its mouth.",
+    "backgroundImportName": "WeaponsTableImg",
+    "itemsImportName": "InteractionTreasuresOfAForgottenAge"
+  }
+}
