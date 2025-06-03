@@ -120,6 +120,7 @@
                         <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
                           <v-card-text v-html="item.instruction" />
                         </v-card>
+                        <v-card-text v-html="item.setup" />
                         <div class="pt-5 px-16">
                           <v-img src="@/assets/Barra.png"></v-img>
                         </div>
