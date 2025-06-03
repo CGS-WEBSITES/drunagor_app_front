@@ -2,23 +2,26 @@
   <div>
     <v-card class="book-dialog pa-0" @mousedown="startDrag" v-if="!hideCard">
       <v-layout>
-        <v-navigation-drawer expand-on-hover rail permanent width="270" class="nav-drawer" :floating="false">
+        <v-navigation-drawer
+          expand-on-hover
+          rail
+          permanent rail-width="72" class="nav-drawer"
+          :floating="false"
+        >
           <v-list density="compact" nav v-model:opened="openGroups">
 
-            <v-list-group v-for="(sectionItems, sectionName) in groupedNavigationItems" :key="sectionName.toString()"
+            <v-list-group v-for="(sectionItems, sectionName) in wingGroups" :key="sectionName.toString()"
               :value="sectionName.toString()">
               <template v-slot:activator="{ props: activatorPropsInternal, isOpen }">
                 <v-list-item @click="currentView = 'player'" v-bind="activatorPropsInternal"
                   :title="sectionName.toString()" class="drawer-section-header">
                   <template v-slot:prepend>
-                    <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString())
-                    }}</v-icon>
+                    <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString()) }}</v-icon>
                   </template>
                 </v-list-item>
               </template>
-
               <v-list-item v-for="(navItem, itemIndex) in sectionItems" :key="navItem.id" :title="navItem.title"
-                :value="navItem.id" @click="navigateToContent(navItem.sectionIndex, navItem.id, navItem.sectionTitle)"
+                :value="navItem.id" @click="navigateToSection(navItem)"
                 class="drawer-item-index" :active="navItem.id === activeClickedItemId"
                 active-class="v-list-item--active-book-index" density="compact">
                 <template v-slot:prepend>
@@ -34,7 +37,7 @@
               </v-list-item>
             </v-list-group>
 
-            <v-divider v-if="Object.keys(groupedNavigationItems).length > 0"></v-divider>
+            <v-divider v-if="Object.keys(wingGroups).length > 0"></v-divider>
 
             <v-list-item title="Book Interactions" value="interactions" @click="setView('interactions')"
               :active="'interactions' === activeClickedItemId" active-class="v-list-item--active-book-index"
@@ -45,7 +48,7 @@
               <v-tooltip activator="parent" location="end">Book Interactions</v-tooltip>
             </v-list-item>
 
-            <v-divider v-if="Object.keys(groupedNavigationItems).length > 0"></v-divider>
+            <v-divider></v-divider>
 
             <v-list-item title="Keywords" value="keywords" @click="setView('keywords')"
               :active="'keywords' === activeClickedItemId" active-class="v-list-item--active-book-index"
@@ -57,40 +60,34 @@
               <v-tooltip activator="parent" location="end">Keywords</v-tooltip>
             </v-list-item>
 
-            <v-list-item title="Tutorial" value="tutorial" @click="setView('tutorial')"
-              :active="'tutorial' === activeClickedItemId" active-class="v-list-item--active-book-index"
-              density="compact" class="drawer-section-header">
-              <template v-slot:prepend>
-                <v-icon :color="'tutorial' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-school-outline</v-icon>
+            <v-divider v-if="Object.keys(otherBookGroups).length > 0"></v-divider>
+            
+            <v-list-group v-for="(sectionItems, sectionName) in otherBookGroups" :key="sectionName.toString()"
+              :value="sectionName.toString()">
+              <template v-slot:activator="{ props: activatorPropsInternal, isOpen }">
+                <v-list-item v-bind="activatorPropsInternal"
+                  :title="sectionName.toString()" class="drawer-section-header">
+                  <template v-slot:prepend>
+                    <v-icon :color="isOpen ? '#FFFFFF' : '#f0e6d2'">{{ getSectionIcon(sectionName.toString()) }}</v-icon>
+                  </template>
+                </v-list-item>
               </template>
-              <v-tooltip activator="parent" location="end">Tutorial</v-tooltip>
-            </v-list-item>
-            <v-list-item title="Game Mechanics" value="combatGuide" @click="setView('combatGuide')"
-              :active="'combatGuide' === activeClickedItemId" active-class="v-list-item--active-book-index"
-              density="compact" class="drawer-section-header">
-              <template v-slot:prepend>
-                <v-icon :color="'combatGuide' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-sword-cross</v-icon>
-              </template>
-              <v-tooltip activator="parent" location="end">Game Mechanics</v-tooltip>
-            </v-list-item>
-
-            <v-list-item title="1st Encounter Clarifications" value="explorationTips" @click="setView('explorationTips')"
-              :active="'explorationTips' === activeClickedItemId" active-class="v-list-item--active-book-index"
-              density="compact" class="drawer-section-header">
-              <template v-slot:prepend>
-                <v-icon :color="'explorationTips' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-numeric-1-box-outline</v-icon>
-              </template>
-              <v-tooltip activator="parent" location="end">1st Encounter Clarifications</v-tooltip>
-            </v-list-item>
-
-            <v-list-item title="2nd Encounter Clarifications" value="charProgression" @click="setView('charProgression')"
-              :active="'charProgression' === activeClickedItemId" active-class="v-list-item--active-book-index"
-              density="compact" class="drawer-section-header">
-              <template v-slot:prepend>
-                <v-icon :color="'charProgression' === activeClickedItemId ? '#FFFFFF' : '#f0e6d2'">mdi-numeric-2-box-outline</v-icon>
-              </template>
-              <v-tooltip activator="parent" location="end">2nd Encounter Clarifications</v-tooltip>
-            </v-list-item>
+              <v-list-item v-for="(navItem, itemIndex) in sectionItems" :key="navItem.id" :title="navItem.title"
+                :value="navItem.id" @click="navigateToSection(navItem)"
+                class="drawer-item-index" :active="navItem.id === activeClickedItemId"
+                active-class="v-list-item--active-book-index" density="compact">
+                <template v-slot:prepend>
+                  <v-avatar :color="navItem.id === activeClickedItemId ? 'amber-darken-2' : 'grey-darken-1'" size="24"
+                    class="numbered-avatar">
+                    <span class="text-caption font-weight-bold"
+                      :style="{ color: navItem.id === activeClickedItemId ? 'white' : '#f0e6d2' }">
+                      {{ itemIndex + 1 }}
+                    </span>
+                  </v-avatar>
+                </template>
+                <v-tooltip activator="parent" location="end">{{ navItem.title }}</v-tooltip>
+              </v-list-item>
+            </v-list-group>
 
           </v-list>
         </v-navigation-drawer>
@@ -138,35 +135,36 @@
 
             <KeywordView v-else-if="currentView === 'keywords'" />
 
-            <div v-else-if="currentView === 'tutorial'" 
+            <div v-else-if="currentView === 'tutorial'"
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-                <v-container fluid class="pa-3">
-                    <v-row>
-                        <v-col cols="12">
-                            <template v-for="(tutorialSectionItem, index) in playerTutorials.tutorials" :key="tutorialSectionItem.title">
-                                <div class="ml-4 content-block" :class="{ 'mb-6': index < playerTutorials.tutorials.length - 1 }">
-                                    <div class="header-banner">
-                                        <div class="d-flex align-center justify-space-between pa-0 pb-0">
-                                            <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
-                                        </div>
-                                        <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2>
-                                    </div>
-                                    <div class="body-text-mechanics pa-4 mt-3">
-                                        <section class="mb-4">
-                                            <h3 class="tutorial-section-title">{{ tutorialSectionItem.title }}</h3>
-                                            <div v-html="tutorialSectionItem.bodyHTML"></div>
-                                        </section>
-                                        <div class="pt-5 px-16"> 
-                                            <v-img src="@/assets/Barra.png"></v-img>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </v-col>
-                    </v-row>
-                </v-container>
+              <v-container fluid class="pa-3">
+                <v-row>
+                  <v-col cols="12">
+                    <template v-for="(tutorialSectionItem, index) in playerTutorials.tutorials" :key="tutorialSectionItem.title">
+                      <div :id="`tutorial-section-${index}`" class="ml-4 content-block" :class="{ 'mb-6': index < playerTutorials.tutorials.length - 1 }">
+                        <div class="header-banner">
+                          <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                            <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
+                          </div>
+                          <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2>
+                        </div>
+                        <div class="body-text-mechanics pa-4 mt-3">
+                          <section class="mb-4">
+                            <h3 class="tutorial-section-title">{{ tutorialSectionItem.title }}</h3>
+                            <div v-html="tutorialSectionItem.bodyHTML"></div>
+                          </section>
+                          <div class="pt-5 px-16" v-if="index < playerTutorials.tutorials.length -1">
+                            <v-img src="@/assets/Barra.png"></v-img>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </v-col>
+                </v-row>
+              </v-container>
             </div>
+
             <div v-else-if="currentView === 'combatGuide'"
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
@@ -182,7 +180,7 @@
                       </div>
                       <div class="body-text-mechanics pa-4 mt-3">
                         <template v-for="(mechanic, index) in gameMechanicsBook.mechanics" :key="mechanic.title">
-                          <section class="mb-4">
+                          <section :id="`mechanic-item-${index}`" class="mb-4">
                             <h3 class="mechanic-title">{{ mechanic.title }}</h3>
                             <div v-html="mechanic.bodyHTML"></div>
                           </section>
@@ -190,9 +188,6 @@
                             <v-img src="@/assets/Barra.png"></v-img>
                           </div>
                         </template>
-                        <div class="pt-5 px-16" v-if="gameMechanicsBook.mechanics && gameMechanicsBook.mechanics.length > 0">
-                            <v-img src="@/assets/Barra.png"></v-img>
-                        </div>
                       </div>
                     </div>
                   </v-col>
@@ -203,72 +198,67 @@
             <div v-else-if="currentView === 'explorationTips'"
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-                <v-container class="pa-3">
-                    <v-row>
-                        <v-col cols="12">
-                            <template v-for="(chapter, chapterIdx) in firstEncounterClarifications.chapters" :key="chapter.chapterTitle">
-                                <div class="content-block ml-4" :class="{ 'mb-6': chapterIdx < firstEncounterClarifications.chapters.length - 1 }">
-                                    <div class="header-banner">
-                                        <div class="d-flex align-center justify-space-between pa-0 pb-0">
-                                            <h4 class="section-title">{{ firstEncounterClarifications.pageTitle }}</h4>
-                                        </div>
-                                        <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
-                                    </div>
-                                    <div class="body-text-mechanics pa-4 mt-3">
-                                        <template v-for="(section, sectionIdx) in chapter.sections" :key="section.title">
-                                            <section class="mb-4">
-                                                <h3 class="tutorial-section-title">{{ section.title }}</h3>
-                                                <div v-html="section.bodyHTML"></div>
-                                            </section>
-                                            <div class="pt-5 px-16" v-if="sectionIdx < chapter.sections.length - 1">
-                                                <v-img src="@/assets/Barra.png"></v-img>
-                                            </div>
-                                        </template>
-                                        <div class="pt-5 px-16" v-if="chapter.sections && chapter.sections.length > 0">
-                                             <v-img src="@/assets/Barra.png"></v-img>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </v-col>
-                    </v-row>
-                </v-container>
+              <v-container class="pa-3">
+                <v-row>
+                  <v-col cols="12">
+                    <template v-for="(chapter, chapterIdx) in firstEncounterClarifications.chapters" :key="chapter.chapterTitle">
+                      <div class="content-block ml-4" :class="{ 'mb-6': chapterIdx < firstEncounterClarifications.chapters.length - 1 }">
+                        <div class="header-banner">
+                          <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                            <h4 class="section-title">{{ firstEncounterClarifications.pageTitle }}</h4>
+                          </div>
+                          <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
+                        </div>
+                        <div class="body-text-mechanics pa-4 mt-3">
+                          <template v-for="(section, sectionIdx) in chapter.sections" :key="section.title">
+                            <section :id="`1st-enc-section-${chapterIdx}-${sectionIdx}`" class="mb-4">
+                              <h3 class="tutorial-section-title">{{ section.title }}</h3>
+                              <div v-html="section.bodyHTML"></div>
+                            </section>
+                            <div class="pt-5 px-16" v-if="sectionIdx < chapter.sections.length - 1">
+                              <v-img src="@/assets/Barra.png"></v-img>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </v-col>
+                </v-row>
+              </v-container>
             </div>
             
             <div v-else-if="currentView === 'charProgression'"
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-                <v-container class="pa-3">
-                    <v-row>
-                        <v-col cols="12">
-                            <template v-for="(chapter, chapterIdx) in secondEncounterClarifications.chapters" :key="chapter.chapterTitle">
-                                <div class="content-block ml-4" :class="{ 'mb-6': chapterIdx < secondEncounterClarifications.chapters.length - 1 }">
-                                    <div class="header-banner">
-                                        <div class="d-flex align-center justify-space-between pa-0 pb-0">
-                                            <h4 class="section-title">{{ secondEncounterClarifications.pageTitle }}</h4>
-                                        </div>
-                                        <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
-                                    </div>
-                                    <div class="body-text-mechanics pa-4 mt-3">
-                                        <template v-for="(section, sectionIdx) in chapter.sections" :key="section.title">
-                                            <section class="mb-4">
-                                                <h3 class="tutorial-section-title">{{ section.title }}</h3>
-                                                <div v-html="section.bodyHTML"></div>
-                                            </section>
-                                            <div class="pt-5 px-16" v-if="sectionIdx < chapter.sections.length - 1">
-                                                <v-img src="@/assets/Barra.png"></v-img>
-                                            </div>
-                                        </template>
-                                        <div class="pt-5 px-16" v-if="chapter.sections && chapter.sections.length > 0">
-                                            <v-img src="@/assets/Barra.png"></v-img>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </v-col>
-                    </v-row>
-                </v-container>
+              <v-container class="pa-3">
+                <v-row>
+                  <v-col cols="12">
+                    <template v-for="(chapter, chapterIdx) in secondEncounterClarifications.chapters" :key="chapter.chapterTitle">
+                      <div class="content-block ml-4" :class="{ 'mb-6': chapterIdx < secondEncounterClarifications.chapters.length - 1 }">
+                        <div class="header-banner">
+                          <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                            <h4 class="section-title">{{ secondEncounterClarifications.pageTitle }}</h4>
+                          </div>
+                          <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
+                        </div>
+                        <div class="body-text-mechanics pa-4 mt-3">
+                          <template v-for="(section, sectionIdx) in chapter.sections" :key="section.title">
+                            <section :id="`2nd-enc-section-${chapterIdx}-${sectionIdx}`" class="mb-4">
+                              <h3 class="tutorial-section-title">{{ section.title }}</h3>
+                              <div v-html="section.bodyHTML"></div>
+                            </section>
+                            <div class="pt-5 px-16" v-if="sectionIdx < chapter.sections.length - 1">
+                              <v-img src="@/assets/Barra.png"></v-img>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </v-col>
+                </v-row>
+              </v-container>
             </div>
+
             <div v-else-if="currentView === 'interactions'">
               <v-container class="py-2 px-4" style="flex: 1; display: flex; flex-direction: column">
                 <v-row class="d-flex align-center justify-space-between mb-2 mt-2" style="flex-shrink: 0">
@@ -371,7 +361,7 @@ import rawInteractionConfigsData from '@/data/book/interactionConfigurations.jso
 import gameMechanicsData from '@/data/book/gameMechanicsRulebook.json';
 import playerTutorialsData from '@/data/book/playerTutorials.json';
 import firstEncounterClarificationsData from '@/data/book/firstEncounterClarifications.json';
-import secondEncounterClarificationsData from '@/data/book/secondEncounterClarifications.json'; // **** IMPORTAÇÃO DO NOVO JSON ****
+import secondEncounterClarificationsData from '@/data/book/secondEncounterClarifications.json'; 
 
 // --- INTERFACES ---
 interface InteractionItem {
@@ -394,19 +384,22 @@ interface PageContentItem {
 }
 
 interface PageSection {
-  section: string;
+  section: string; 
   content: PageContentItem[];
   layout: string;
   background: string;
 }
 
-interface NavigationItem {
-  sectionTitle: string;
-  title: string;
-  sectionIndex: number;
-  contentIndex: number;
-  id: string;
+interface NavigationItemExtended {
+  sectionTitle: string; 
+  title: string;        
+  id: string;           
+  viewType: 'player' | 'tutorial' | 'combatGuide' | 'explorationTips' | 'charProgression' | 'keywords' | 'interactions'; 
+  sectionIndex?: number;  
+  originalId?: string;    
+  targetId?: string;      
 }
+
 
 interface GameMechanic {
   title: string;
@@ -440,10 +433,11 @@ interface ClarificationChapter {
   sections: ClarificationSection[];
 }
 
-interface FirstEncounterClarifications { // Reutilizável para SecondEncounter também
+interface EncounterClarificationsBook { 
   pageTitle: string;
   chapters: ClarificationChapter[];
 }
+
 
 // --- REFS ---
 const hideCard = ref(false);
@@ -452,7 +446,7 @@ const interactions = ref<InteractionItem[]>([]);
 const scrollableContentRef = ref<HTMLElement | null>(null);
 const activeClickedItemId = ref<string | null>(null);
 const openGroups = ref<string[]>([]);
-const currentIndex = ref(0);
+const currentIndex = ref(-1); 
 const currentInteractionConfig = ref<InteractionConfig | null>(null);
 const contentWrapper = ref<HTMLElement | null>(null);
 const interPage = ref<"scan" | "titles" | "content">("scan");
@@ -510,32 +504,92 @@ initializeInteractionConfigs();
 
 const gameMechanicsBook = ref<GameMechanicsBook>(gameMechanicsData as GameMechanicsBook);
 const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as PlayerTutorials);
-const firstEncounterClarifications = ref<FirstEncounterClarifications>(firstEncounterClarificationsData as FirstEncounterClarifications);
-const secondEncounterClarifications = ref<FirstEncounterClarifications>(secondEncounterClarificationsData as FirstEncounterClarifications); // **** NOVA REF ****
+const firstEncounterClarifications = ref<EncounterClarificationsBook>(firstEncounterClarificationsData as EncounterClarificationsBook);
+const secondEncounterClarifications = ref<EncounterClarificationsBook>(secondEncounterClarificationsData as EncounterClarificationsBook);
 
 // --- PROPRIEDADES COMPUTADAS ---
-const navigationItems = computed<NavigationItem[]>(() => {
-  const items: NavigationItem[] = [];
+
+const navigationItems = computed<NavigationItemExtended[]>(() => {
+  const items: NavigationItemExtended[] = [];
+
   pages.value.forEach((section, sectionGlobalIdx) => {
     if (section.content && section.content.length > 0) {
       section.content.forEach((contentItem, contentIdx) => {
         if (contentItem.title) {
           items.push({
-            sectionTitle: section.section,
+            sectionTitle: section.section, 
             title: contentItem.title,
+            id: `nav-player-${sectionGlobalIdx}-${contentIdx}`, 
+            originalId: `content-block-${sectionGlobalIdx}-${contentIdx}`, 
+            viewType: 'player',
             sectionIndex: sectionGlobalIdx,
-            contentIndex: contentIdx,
-            id: `content-block-${sectionGlobalIdx}-${contentIdx}`
           });
         }
       });
     }
   });
+
+  if (playerTutorials.value && playerTutorials.value.tutorials) {
+    const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials"; // Changed default to "Tutorials" for clarity
+    playerTutorials.value.tutorials.forEach((tutorial, index) => {
+      items.push({
+        sectionTitle: sectionGroupTitle,
+        title: tutorial.title,
+        id: `nav-tutorial-${index}`,
+        viewType: 'tutorial',
+        targetId: `tutorial-section-${index}`
+      });
+    });
+  }
+
+  if (gameMechanicsBook.value && gameMechanicsBook.value.mechanics) {
+    const sectionGroupTitle = gameMechanicsBook.value.pageTitle || "Game Mechanics";
+    gameMechanicsBook.value.mechanics.forEach((mechanic, index) => {
+      items.push({
+        sectionTitle: sectionGroupTitle,
+        title: mechanic.title,
+        id: `nav-mechanic-${index}`,
+        viewType: 'combatGuide',
+        targetId: `mechanic-item-${index}`
+      });
+    });
+  }
+
+  if (firstEncounterClarifications.value && firstEncounterClarifications.value.chapters) {
+    const sectionGroupTitle = firstEncounterClarifications.value.pageTitle || "1st Encounter Clarifications";
+    firstEncounterClarifications.value.chapters.forEach((chapter, chapterIdx) => {
+      chapter.sections.forEach((section, sectionIdx) => {
+        items.push({
+          sectionTitle: sectionGroupTitle,
+          title: section.title, 
+          id: `nav-1st-enc-chap${chapterIdx}-sec${sectionIdx}`,
+          viewType: 'explorationTips',
+          targetId: `1st-enc-section-${chapterIdx}-${sectionIdx}`
+        });
+      });
+    });
+  }
+
+  if (secondEncounterClarifications.value && secondEncounterClarifications.value.chapters) {
+    const sectionGroupTitle = secondEncounterClarifications.value.pageTitle || "2nd Encounter Clarifications";
+    secondEncounterClarifications.value.chapters.forEach((chapter, chapterIdx) => {
+      chapter.sections.forEach((section, sectionIdx) => {
+        items.push({
+          sectionTitle: sectionGroupTitle,
+          title: section.title, 
+          id: `nav-2nd-enc-chap${chapterIdx}-sec${sectionIdx}`,
+          viewType: 'charProgression',
+          targetId: `2nd-enc-section-${chapterIdx}-${sectionIdx}`
+        });
+      });
+    });
+  }
   return items;
 });
 
+
 const groupedNavigationItems = computed(() => {
-  const groups: { [key: string]: NavigationItem[] } = {};
+  const groups: { [key: string]: NavigationItemExtended[] } = {}; 
   navigationItems.value.forEach(item => {
     if (!groups[item.sectionTitle]) {
       groups[item.sectionTitle] = [];
@@ -545,8 +599,43 @@ const groupedNavigationItems = computed(() => {
   return groups;
 });
 
+// For splitting groups in the template
+const wingGroups = computed(() => {
+  const result: { [key: string]: NavigationItemExtended[] } = {};
+  const wingTitles = pages.value.map(p => p.section); 
+  wingTitles.forEach(title => {
+    if (groupedNavigationItems.value[title]) {
+      result[title] = groupedNavigationItems.value[title];
+    }
+  });
+  return result;
+});
+
+const tutorialSectionTitle = computed(() => playerTutorials.value.pageTitle || "Tutorials");
+const gameMechanicsSectionTitle = computed(() => gameMechanicsBook.value.pageTitle || "Game Mechanics");
+const firstEncounterSectionTitle = computed(() => firstEncounterClarifications.value.pageTitle || "1st Encounter Clarifications");
+const secondEncounterSectionTitle = computed(() => secondEncounterClarifications.value.pageTitle || "2nd Encounter Clarifications");
+
+const otherBookGroupTitlesInOrder = computed(() => [
+  tutorialSectionTitle.value,
+  gameMechanicsSectionTitle.value,
+  firstEncounterSectionTitle.value,
+  secondEncounterSectionTitle.value,
+]);
+
+const otherBookGroups = computed(() => {
+  const result: { [key: string]: NavigationItemExtended[] } = {};
+   otherBookGroupTitlesInOrder.value.forEach(title => {
+    if (groupedNavigationItems.value[title]) {
+      result[title] = groupedNavigationItems.value[title];
+    }
+  });
+  return result;
+});
+
+
 const currentPage = computed(() => {
-  if (currentIndex.value < 0 || !pages.value || pages.value.length === 0) {
+  if (currentView.value !== 'player' || currentIndex.value < 0 || !pages.value || pages.value.length === 0) {
     return null;
   }
   const clampedIndex = Math.max(0, Math.min(currentIndex.value, pages.value.length - 1));
@@ -576,30 +665,58 @@ const backgroundStyle = computed<CSSProperties>(() => {
 });
 
 // --- MÉTODOS ---
-const getSectionIcon = (_sectionName: string) => 'mdi-book-open-page-variant';
+const getSectionIcon = (sectionName: string) => {
+    if (sectionName === tutorialSectionTitle.value) return 'mdi-school-outline';
+    if (sectionName === gameMechanicsSectionTitle.value) return 'mdi-sword-cross';
+    if (sectionName === firstEncounterSectionTitle.value) return 'mdi-numeric-1-box-outline';
+    if (sectionName === secondEncounterSectionTitle.value) return 'mdi-numeric-2-box-outline';
+    if (sectionName.toLowerCase().includes('wing')) return 'mdi-book-open-page-variant'; 
+    return 'mdi-book-open-variant'; 
+};
 
 function startDrag(event: MouseEvent) {
-  console.log("startDrag called", event);
+  // console.log("startDrag called", event); 
 }
 
-const navigateToContent = async (sectionGlobalIndex: number, contentBlockId: string, sectionTitle: string) => {
-  if (sectionGlobalIndex < 0 || sectionGlobalIndex >= pages.value.length) {
-    console.error(`[BookScript] Índice de seção inválido: ${sectionGlobalIndex}. Total de páginas: ${pages.value.length}`);
-    return;
-  }
-  currentView.value = 'player';
-  currentIndex.value = sectionGlobalIndex;
-  activeClickedItemId.value = contentBlockId;
-  openGroups.value = [sectionTitle];
-  await nextTick();
-  const element = document.getElementById(contentBlockId);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+const navigateToSection = async (item: NavigationItemExtended) => {
+  currentView.value = item.viewType;
+  activeClickedItemId.value = item.id;
+  openGroups.value = [item.sectionTitle];
+
+  if (item.viewType === 'player') {
+    if (typeof item.sectionIndex === 'number' && item.sectionIndex >= 0) {
+      currentIndex.value = item.sectionIndex;
+      await nextTick();
+      if (item.originalId) {
+        const element = document.getElementById(item.originalId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          console.warn(`[BookScript] Player content element with ID ${item.originalId} not found.`);
+          scrollableContentRef.value?.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+    } else {
+        console.warn(`[BookScript] Invalid sectionIndex for player view item:`, item);
+        currentIndex.value = -1; 
+    }
+  } else if (item.targetId) {
+    await nextTick(); 
+    const elementToScroll = document.getElementById(item.targetId);
+    if (elementToScroll && scrollableContentRef.value) {
+      elementToScroll.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (scrollableContentRef.value) {
+      console.warn(`[BookScript] Element with targetId ${item.targetId} not found for view ${item.viewType}. Scrolling to top of view.`);
+      scrollableContentRef.value.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        console.warn(`[BookScript] Element or scrollable ref not found for targetId ${item.targetId}`);
+    }
   } else {
-    console.warn(`[BookScript] Elemento com ID ${contentBlockId} não encontrado para scroll.`);
+    await nextTick();
     scrollableContentRef.value?.scrollTo({ top: 0, behavior: 'smooth' });
   }
 };
+
 
 function handlePageClick(event: MouseEvent) {
   const target = event.target as HTMLElement;
@@ -620,15 +737,15 @@ async function startScanner() {
       console.error("[BookScript] Nenhuma câmera encontrada.");
       return;
     }
-    const deviceId = devices[0].deviceId;
+    const deviceId = devices[0].deviceId; 
     codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
       if (result) {
         const raw = result.getText().trim();
         let normalized: string;
         try {
-          const u = new URL(raw);
+          const u = new URL(raw); 
           normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
-        } catch {
+        } catch { 
           normalized = raw.replace(/\/$/, "");
         }
         console.log("📱 QR Code normalizado:", normalized);
@@ -638,13 +755,12 @@ async function startScanner() {
           interactions.value = cfg.items;
           scanned.value = true;
           interPage.value = "titles";
-          codeReader.reset?.();
+          codeReader.reset?.(); 
         } else {
           console.warn("[BookScript] QR Code desconhecido após normalização:", normalized);
         }
       }
-      if (err && !(err.name === 'NotFoundException' || err.name === 'FormatException')) {
-        // console.error("QR Scan Error:", err); 
+      if (err && !(err.name === 'NotFoundException' || err.name === 'FormatException' || err.name === 'ChecksumException')) {
       }
     });
   } catch (e) {
@@ -659,8 +775,8 @@ function resetScan() {
   interactions.value = [];
   if (currentView.value === 'interactions') {
     nextTick(() => {
-      codeReader.reset?.();
-      startScanner();
+      codeReader.reset?.(); 
+      startScanner(); 
     });
   }
 }
@@ -671,7 +787,10 @@ function showContent(id: string) {
     const el = document.getElementById(id);
     const cWrapper = contentWrapper.value;
     if (el && cWrapper) {
-      cWrapper.scrollTo({ top: el.offsetTop - (cWrapper.offsetTop > 20 ? 20 : cWrapper.offsetTop) , behavior: "smooth" });
+      const wrapperTop = cWrapper.getBoundingClientRect().top;
+      const elementTop = el.getBoundingClientRect().top;
+      const scrollTop = cWrapper.scrollTop + (elementTop - wrapperTop) - 20; 
+      cWrapper.scrollTo({ top: scrollTop , behavior: "smooth" });
     } else {
         console.warn(`[BookScript] Elemento de conteúdo '${id}' ou wrapper não encontrado para scroll.`);
     }
@@ -680,29 +799,40 @@ function showContent(id: string) {
 
 function setView(viewName: typeof currentView.value) {
   currentView.value = viewName;
-  activeClickedItemId.value = viewName;
+  activeClickedItemId.value = viewName; 
+  if (viewName !== 'player') {
+    currentIndex.value = -1; 
+  }
+  openGroups.value = [];
+  if (viewName === 'interactions') {
+    resetScan();
+  } else if (currentView.value !== 'interactions' && scanned.value) { 
+     codeReader.reset?.();
+     scanned.value = false;
+  }
 }
 
 // --- WATCHERS ---
 watch(currentView, (newView, oldView) => {
-  if (['keywords', 'tutorial', 'combatGuide', 'explorationTips', 'charProgression', 'interactions'].includes(newView)) {
+  if (newView !== 'player') {
     currentIndex.value = -1;
-    if (openGroups.value.length > 0) openGroups.value = [];
   }
 
   if (newView === "interactions") {
     if (oldView !== 'interactions' || !scanned.value) {
-      resetScan();
+      resetScan(); 
     }
   } else {
-    codeReader.reset?.();
-    scanned.value = false;
+    if (oldView === 'interactions') {
+        codeReader.reset?.();
+        scanned.value = false; 
+    }
   }
 });
 
 // --- LIFECYCLE HOOKS ---
 onBeforeUnmount(() => {
-  codeReader.reset?.();
+  codeReader.reset?.(); 
   scanned.value = false;
 });
 
@@ -982,15 +1112,12 @@ onBeforeUnmount(() => {
   margin-left: 0; 
   transition:
     opacity 0.3s ease 0.1s,
-    margin-left 0.3s ease;  
+    margin-left 0.3s ease;   
 }
 
-.v-navigation-drawer--rail {
-  width: 66px !important;
-}
-
+/* Width for expanded state on hover is now controlled by 'width' prop and this :hover rule */
 .v-navigation-drawer--rail:hover {
-  width: 270px !important;
+  width: 300px !important; /* Matches the 'width' prop on v-navigation-drawer */
 }
 
 .main-content {
@@ -1126,9 +1253,7 @@ onBeforeUnmount(() => {
     font-family: "Uncial Antiqua", cursive !important; 
 }
 
-/* STYLES FOR GAME MECHANICS & TUTORIALS (BOOK STYLE) - ATUALIZADO COM :deep() */
 .body-text-mechanics { 
-  /* Estilos base para o container, se necessário. */
 }
 
 .body-text-mechanics :deep(p) {
@@ -1141,7 +1266,6 @@ onBeforeUnmount(() => {
 }
 
 .body-text-mechanics :deep(p:first-of-type) {
-  /* text-indent: 0; */ 
 }
 
 .body-text-mechanics :deep(ul) {
@@ -1171,7 +1295,6 @@ onBeforeUnmount(() => {
 }
 
 .body-text-mechanics :deep(li.custom-bullet) {
-  /* Se precisar de algo específico para .custom-bullet que não seja o ::before */
 }
 
 .body-text-mechanics :deep(li.custom-bullet::before) {
@@ -1189,7 +1312,6 @@ onBeforeUnmount(() => {
 .body-text-mechanics :deep(li.custom-bullet.open::before) {
   content: '○';
 }
-/* FIM DOS ESTILOS ATUALIZADOS */
 
 .mechanic-title { 
   font-family: "EB Garamond", serif; 
@@ -1223,7 +1345,7 @@ onBeforeUnmount(() => {
   text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
 }
 
-.clarification-chapter-title {
+.clarification-chapter-title { 
   font-family: "Cinzel Decorative", cursive;
   font-size: 1.6rem; 
   color: #191919; 
@@ -1248,7 +1370,7 @@ onBeforeUnmount(() => {
   .book-page {
     min-height: unset; 
     height: auto; 
-    margin: 16px; /* ma-4 */
+    margin: 16px; 
   }
 
   .chapter-title-banner {
@@ -1281,7 +1403,7 @@ onBeforeUnmount(() => {
   }
   .clarification-chapter-title { font-size: 1.4rem; } 
   .mechanic-title {
-     padding-left: 1.5em;
+      padding-left: 1.5em;
   }
   .mechanic-title::before {
     left: 0.4em;
@@ -1308,17 +1430,9 @@ onBeforeUnmount(() => {
     z-index: 100;
   }
 
-  .nav-drawer {
-    width: 48px !important;
-  }
-
-  .v-navigation-drawer--rail {
-    width: 62px !important; 
-  }
-
-  .nav-drawer:hover,
   .v-navigation-drawer--rail:hover {
-    width: 220px !important;
+    /* Ensure this matches the 'width' prop for consistency */
+    width: 300px !important; 
   }
 
   .header-banner {
@@ -1360,7 +1474,7 @@ onBeforeUnmount(() => {
   }
 
   .book-page {
-    margin: 10px !important; /* ma-2.5 */
+    margin: 10px !important; 
     min-height: unset; 
   }
 
@@ -1392,8 +1506,8 @@ onBeforeUnmount(() => {
     font-size: 1.2rem;
   }
   .clarification-chapter-title { font-size: 1.3rem; }
-   .mechanic-title {
-     padding-left: 1.4em;
+    .mechanic-title {
+      padding-left: 1.4em;
   }
   .mechanic-title::before {
     left: 0.3em;
@@ -1418,7 +1532,7 @@ onBeforeUnmount(() => {
     margin: auto; 
   }
 
- .main-content, .scrollable-content {
+  .main-content, .scrollable-content {
     height: calc(95vh - 60px); 
   }
 
@@ -1442,7 +1556,7 @@ onBeforeUnmount(() => {
   }
   .clarification-chapter-title { font-size: 1.2rem; }
   .mechanic-title {
-     padding-left: 1.3em;
+      padding-left: 1.3em;
   }
   .mechanic-title::before {
     left: 0.2em;
