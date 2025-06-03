@@ -138,16 +138,41 @@
 
             <KeywordView v-else-if="currentView === 'keywords'" />
 
-            <div v-else-if="currentView === 'tutorial'" class="fill-height d-flex align-center justify-center pa-3">
-              <v-container class="text-center">
-                <h2 class="mb-3">Tutorial</h2>
-                <p>Welcome to the tutorial! Information and guides will be available here soon.</p>
-                <v-icon size="x-large" class="mt-4" color="grey-lighten-1">mdi-school-outline</v-icon>
-              </v-container>
+            <div v-else-if="currentView === 'tutorial'"
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                <v-container fluid class="pa-0">
+                    <v-row>
+                        <v-col cols="12">
+                            <div class="ml-6 mt-2 content-block">
+                                <div class="header-banner">
+                                    <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                                        <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
+                                    </div>
+                                    <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2>
+                                </div>
+                                <div class="body-text-mechanics pa-4 mt-3">
+                                    <template v-for="(tutorialSection, index) in playerTutorials.tutorials" :key="tutorialSection.title">
+                                        <section class="mb-4">
+                                            <h3 class="tutorial-section-title">{{ tutorialSection.title }}</h3>
+                                            <div v-html="tutorialSection.bodyHTML"></div>
+                                        </section>
+                                        <div class="pt-5 px-16" v-if="index < playerTutorials.tutorials.length - 1">
+                                            <v-img src="@/assets/Barra.png"></v-img>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="pt-5 px-16" v-if="playerTutorials.tutorials && playerTutorials.tutorials.length > 0">
+                                    <v-img src="@/assets/Barra.png"></v-img>
+                                </div>
+                            </div>
+                        </v-col>
+                    </v-row>
+                </v-container>
             </div>
             <div v-else-if="currentView === 'combatGuide'"
-                  class="book-page ma-5"
-                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container fluid class="pa-0">
                 <v-row>
                   <v-col cols="12">
@@ -294,6 +319,7 @@ import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasu
 import bookPagesData from '@/data/book/bookPages.json';
 import rawInteractionConfigsData from '@/data/book/interactionConfigurations.json';
 import gameMechanicsData from '@/data/book/gameMechanicsRulebook.json';
+import playerTutorialsData from '@/data/book/playerTutorials.json';
 
 // --- INTERFACES ---
 interface InteractionItem {
@@ -341,6 +367,18 @@ interface GameMechanicsBook {
   mechanics: GameMechanic[];
 }
 
+interface PlayerTutorialSection {
+  title: string;
+  bodyHTML: string;
+}
+
+interface PlayerTutorials {
+  pageTitle: string;
+  chapterTitle: string;
+  tutorials: PlayerTutorialSection[];
+}
+
+
 // --- REFS ---
 const hideCard = ref(false);
 const scanned = ref(false);
@@ -353,7 +391,6 @@ const currentInteractionConfig = ref<InteractionConfig | null>(null);
 const contentWrapper = ref<HTMLElement | null>(null);
 const interPage = ref<"scan" | "titles" | "content">("scan");
 const codeReader = new BrowserMultiFormatReader();
-// **** MODIFIED currentView TYPE ****
 const currentView = ref<"player" | "interactions" | "keywords" | "tutorial" | "combatGuide" | "explorationTips" | "charProgression">("player");
 
 
@@ -406,6 +443,7 @@ const initializeInteractionConfigs = () => {
 initializeInteractionConfigs();
 
 const gameMechanicsBook = ref<GameMechanicsBook>(gameMechanicsData as GameMechanicsBook);
+const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as PlayerTutorials);
 
 // --- PROPRIEDADES COMPUTADAS ---
 const navigationItems = computed<NavigationItem[]>(() => {
@@ -538,7 +576,7 @@ async function startScanner() {
         }
       }
       if (err && !(err.name === 'NotFoundException' || err.name === 'FormatException')) {
-        // console.error("QR Scan Error:", err);
+        // console.error("QR Scan Error:", err); 
       }
     });
   } catch (e) {
@@ -572,7 +610,6 @@ function showContent(id: string) {
   });
 }
 
-// **** MODIFIED setView function parameter type ****
 function setView(viewName: typeof currentView.value) {
   currentView.value = viewName;
   activeClickedItemId.value = viewName;
@@ -580,7 +617,6 @@ function setView(viewName: typeof currentView.value) {
 
 // --- WATCHERS ---
 watch(currentView, (newView, oldView) => {
-  // **** MODIFIED currentView watcher ****
   if (['keywords', 'tutorial', 'combatGuide', 'explorationTips', 'charProgression', 'interactions'].includes(newView)) {
     currentIndex.value = -1;
     if (openGroups.value.length > 0) openGroups.value = [];
@@ -650,7 +686,7 @@ onBeforeUnmount(() => {
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
-  margin: 5vh auto;
+  margin: 5vh auto; 
 }
 
 .book-page {
@@ -678,8 +714,8 @@ onBeforeUnmount(() => {
   border-top-right-radius: 6px;
 }
 
-  .header-banner .d-flex {
-  cursor: move;
+  .header-banner .d-flex { 
+  cursor: move; 
 }
 
 
@@ -711,11 +747,11 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
-.header-close {
+.header-close { 
     position: absolute;
     top: 10px;
     right: 10px;
-    z-index: 2;
+    z-index: 2; 
 }
 
 
@@ -772,7 +808,7 @@ onBeforeUnmount(() => {
   color: #f5e1a9 !important;
 }
 
-.drawer-section-header.v-list-item--active-book-index .v-icon {
+.drawer-section-header.v-list-item--active-book-index .v-icon { 
     color: #FFFFFF !important;
 }
 
@@ -803,7 +839,7 @@ onBeforeUnmount(() => {
 }
 
 .drawer-item-index.v-list-item--active-book-index,
-.drawer-section-header.v-list-item--active-book-index {
+.drawer-section-header.v-list-item--active-book-index { 
   background-color: rgba(201, 170, 113, 0.2) !important;
 }
 
@@ -875,10 +911,10 @@ onBeforeUnmount(() => {
 
 .nav-drawer:hover .v-list-item-title {
   opacity: 1;
-  margin-left: 0;
+  margin-left: 0; 
   transition:
     opacity 0.3s ease 0.1s,
-    margin-left 0.3s ease;
+    margin-left 0.3s ease;  
 }
 
 .v-navigation-drawer--rail {
@@ -892,9 +928,9 @@ onBeforeUnmount(() => {
 .main-content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-height: 500px;
-  height: calc(90vh - 40px);
-  display: flex;
-  flex-direction: column;
+  height: calc(90vh - 40px); 
+  display: flex; 
+  flex-direction: column; 
 }
 
 .scrollable-content {
@@ -903,7 +939,7 @@ onBeforeUnmount(() => {
 }
 
 .content-block {
-  background-color: #fff;
+  background-color: #fff; 
   border: 1px solid #dedede;
   border-radius: 6px;
   padding: 0 0 16px 0;
@@ -920,10 +956,10 @@ onBeforeUnmount(() => {
 }
 
 .content-block:last-child {
-  margin-bottom: 16px;
+  margin-bottom: 16px; 
 }
 
-.body-text.mt-3 {
+.body-text.mt-3 { 
   margin-top: 1rem !important;
   padding: 0 16px;
 }
@@ -937,22 +973,22 @@ onBeforeUnmount(() => {
 .dialog-title {
     text-align: center;
     width: 100%;
-    color: #f0e6d2;
+    color: #f0e6d2; 
     font-family: "Cinzel Decorative", cursive;
     font-size: 1.5rem;
 }
 .interaction-header {
     width: 100%;
     color: #f0e6d2;
-    padding: 0 10px;
+    padding: 0 10px; 
     position: relative;
 }
 .interaction-main-title {
     font-family: "Cinzel Decorative", cursive;
-    font-size: 1.3rem;
+    font-size: 1.3rem; 
     margin-bottom: 8px;
     line-height: 1.2;
-    padding-right: 40px;
+    padding-right: 40px; 
 }
 .interaction-subtitle {
     font-family: "EB Garamond", serif;
@@ -962,7 +998,7 @@ onBeforeUnmount(() => {
     margin-bottom: 16px;
 }
 .scan-page {
-    flex-grow: 1;
+    flex-grow: 1; 
 }
 .qr-video {
     width: 80%;
@@ -979,52 +1015,53 @@ onBeforeUnmount(() => {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    border-radius: 8px;
-    position: relative;
+    border-radius: 8px; 
+    position: relative; 
 }
 .buttons-overlay {
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0,0,0,0.6); 
     padding: 20px;
     border-radius: 8px;
     width: 100%;
-    max-width: 400px;
+    max-width: 400px; 
 }
 .interaction-btn {
-    background-color: #3a2e29 !important;
+    background-color: #3a2e29 !important; 
     color: #f0e6d2 !important;
     border-color: #5c4a42 !important;
-    margin-bottom: 8px;
-    text-transform: none !important;
-    font-family: "EB Garamond", serif !important;
+    margin-bottom: 8px; 
+    text-transform: none !important; 
+    font-family: "EB Garamond", serif !important; 
     font-size: 1rem !important;
 }
 .content-page-interactions {
     flex-grow: 1;
-    overflow-y: auto;
-    color: #f0e6d2;
+    overflow-y: auto; 
+    color: #f0e6d2; 
 }
 .content-wrapper-interactions {
-    padding: 10px;
+    padding: 10px; 
 }
 .chapter-title-interactions {
     font-family: "Cinzel Decorative", cursive;
     font-size: 1.5rem;
-    color: #f5e1a9;
+    color: #f5e1a9; 
 }
 .body-text-interactions p {
     font-family: "EB Garamond", serif;
     font-size: 1rem;
     line-height: 1.5;
-    color: #d4be94;
+    color: #d4be94; 
     margin-bottom: 1em;
 }
 .back-btn {
-    font-family: "Uncial Antiqua", cursive !important;
+    font-family: "Uncial Antiqua", cursive !important; 
 }
 
 /* STYLES FOR GAME MECHANICS PAGE (BOOK STYLE) - ATUALIZADO COM :deep() */
-.body-text-mechanics { /* Regra para o container, não precisa de :deep() aqui */
-  /* font-family, color, etc., serão herdados ou definidos especificamente pelos filhos com :deep() */
+.body-text-mechanics { 
+  /* Estilos base para o container, se necessário. */
+  /* A maioria dos estilos de texto virá dos filhos com :deep() */
 }
 
 .body-text-mechanics :deep(p) {
@@ -1037,27 +1074,32 @@ onBeforeUnmount(() => {
 }
 
 .body-text-mechanics :deep(p:first-of-type) {
-  /* text-indent: 0; */ /* Descomente se não quiser indentação no primeiro parágrafo */
+  /* text-indent: 0; */ 
 }
 
 .body-text-mechanics :deep(ul) {
   list-style: none;
-  padding-left: 2.5em;
+  padding-left: 2.5em; /* Ajuste conforme a necessidade da "bolinha" */
   margin-top: 0.5em;
   margin-bottom: 1em;
 }
 
-.body-text-mechanics :deep(li.custom-bullet) {
+.body-text-mechanics :deep(li) { /* Estilo base para todos os LIs dentro de body-text-mechanics */
+    margin-bottom: 0.5em; /* Espaçamento entre itens da lista */
+    color: #191919 !important; /* Cor do texto do LI, se não for herdada corretamente */
+    padding-left: 0; /* Reset, se necessário, o padding é controlado pelo UL e pelo ::before */
+}
+
+
+.body-text-mechanics :deep(li.custom-bullet) { /* Se você ainda usar .custom-bullet */
   position: relative;
-  margin-bottom: 0.5em;
-  padding-left: 0px;
-  color: #191919 !important;
+  /* padding-left já é tratado pelo ul e pelo ::before, mas pode ajustar aqui se necessário */
 }
 
 .body-text-mechanics :deep(li.custom-bullet::before) {
   position: absolute;
-  left: -1.5em;
-  top: 0.1em;
+  left: -1.5em; /* Posição da bolinha */
+  top: 0.1em;   /* Alinhamento vertical da bolinha */
   font-size: 1.2em;
   color: #212121;
 }
@@ -1071,39 +1113,53 @@ onBeforeUnmount(() => {
 }
 /* FIM DOS ESTILOS ATUALIZADOS PARA GAME MECHANICS */
 
-.mechanic-title { /* Regra para H3 no template, não precisa de :deep() */
-  font-family: "EB Garamond", serif;
+.mechanic-title { 
+  font-family: "EB Garamond", serif; 
   font-size: 1.5rem;
   margin-top: 1.5rem;
   margin-bottom: 0.75rem;
   text-align: left;
-  position: relative;
-  padding-left: 1.6em;
+  position: relative; 
+  padding-left: 1.6em; 
   text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
+  color: #191919; /* Adicionado para consistência */
 }
 
-.mechanic-title::before { /* Regra para H3 no template, não precisa de :deep() */
+.mechanic-title::before { 
   content: '->';
   position: absolute;
-  left: 0.5em;
-  top: 0;
-  font-size: 1em;
+  left: 0.5em; 
+  top: 0; 
+  font-size: 1em; 
+  color: #191919; /* Adicionado para consistência */
+}
+
+/* NOVA CLASSE PARA TÍTULOS DE TUTORIAL */
+.tutorial-section-title {
+  font-family: "EB Garamond", serif; 
+  font-size: 1.5rem; 
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  text-align: left;
+  color: #191919; 
+  font-weight: bold; 
+  text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
 }
 
 
 @media (max-width: 960px) {
   .book-dialog {
     width: 90vw !important;
-    max-height: 85vh !important;
-    margin: 2.5vh auto;
+    max-height: 85vh !important; 
+    margin: 2.5vh auto; 
   }
 
   .main-content, .scrollable-content {
-    height: calc(85vh - 40px);
+    height: calc(85vh - 40px); 
   }
   .book-page {
-    min-height: unset;
-    height: auto;
+    min-height: unset; 
+    height: auto; 
     margin: 16px; /* ma-4 */
   }
 
@@ -1115,11 +1171,9 @@ onBeforeUnmount(() => {
     font-size: 1rem !important;
     line-height: 1.5;
   }
-  /* Abaixo, os estilos para .body-text-mechanics já estão com :deep() se necessário para os filhos.
-      A classe .pa-4 em .body-text-mechanics é do Vuetify e não precisa de :deep(). */
   .content-block .header-banner,
   .body-text.mt-3,
-  .body-text-mechanics.pa-4 {
+  .body-text-mechanics.pa-4 { 
     padding-left: 12px !important;
     padding-right: 12px !important;
   }
@@ -1134,9 +1188,11 @@ onBeforeUnmount(() => {
     margin-right: 12px;
     width: calc(100% - 24px);
   }
-  .mechanic-title {
+  .mechanic-title, .tutorial-section-title { 
     font-size: 1.3rem;
-    padding-left: 1.5em;
+  }
+  .mechanic-title {
+     padding-left: 1.5em;
   }
   .mechanic-title::before {
     left: 0.4em;
@@ -1146,16 +1202,16 @@ onBeforeUnmount(() => {
 @media (max-width: 600px) {
   .book-dialog {
     width: 96vw !important;
-    max-height: 90vh !important;
+    max-height: 90vh !important; 
     overflow: hidden;
     margin: 2vh auto;
   }
 
   .main-content, .scrollable-content {
-    height: calc(90vh - 70px);
+    height: calc(90vh - 70px); 
   }
 
-  .d-flex.justify-end {
+  .d-flex.justify-end { 
     position: sticky;
     bottom: 0;
     background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%);
@@ -1168,7 +1224,7 @@ onBeforeUnmount(() => {
   }
 
   .v-navigation-drawer--rail {
-    width: 62px !important;
+    width: 62px !important; 
   }
 
   .nav-drawer:hover,
@@ -1180,8 +1236,8 @@ onBeforeUnmount(() => {
     padding-left: 8px;
     padding-right: 8px;
   }
-    .header-banner .d-flex {
-    cursor: default;
+    .header-banner .d-flex { 
+    cursor: default; 
   }
 
 
@@ -1203,26 +1259,25 @@ onBeforeUnmount(() => {
     text-indent: 1em;
     line-height: 1.4;
   }
-  /* Os estilos :deep() para .body-text-mechanics p já cobrem isso */
 
 
-  .v-btn {
+  .v-btn { 
     font-size: 0.8rem !important;
     padding: 8px 10px !important;
-    margin: 4px !important;
+    margin: 4px !important; 
   }
-    .interaction-btn {
+    .interaction-btn { 
     font-size: 0.9rem !important;
   }
 
   .book-page {
     margin: 10px !important; /* ma-2.5 */
-    min-height: unset;
+    min-height: unset; 
   }
 
   .content-block .header-banner,
   .body-text.mt-3,
-  .body-text-mechanics.pa-4 {
+  .body-text-mechanics.pa-4 { 
     padding-left: 8px !important;
     padding-right: 8px !important;
   }
@@ -1244,36 +1299,37 @@ onBeforeUnmount(() => {
     margin-bottom: 16px;
   }
 
-  .mechanic-title {
+  .mechanic-title, .tutorial-section-title { 
     font-size: 1.2rem;
-    padding-left: 1.4em;
+  }
+   .mechanic-title {
+     padding-left: 1.4em;
   }
   .mechanic-title::before {
     left: 0.3em;
   }
-  /* Os estilos :deep() para .body-text-mechanics ul/li já cobrem isso */
 
 }
 
 @media (max-width: 400px) {
-  .d-flex.justify-end {
+  .d-flex.justify-end { 
     flex-direction: column;
     gap: 8px;
   }
 
-  .v-btn {
+  .v-btn { 
     width: 100% !important;
     justify-content: center;
   }
 
   .book-dialog {
     width: 98vw !important;
-    max-height: 95vh !important;
-    margin: auto;
+    max-height: 95vh !important; 
+    margin: auto; 
   }
 
  .main-content, .scrollable-content {
-    height: calc(95vh - 60px);
+    height: calc(95vh - 60px); 
   }
 
   .header-banner {
@@ -1291,9 +1347,11 @@ onBeforeUnmount(() => {
     padding-right: 8px !important;
     margin-bottom: 5px;
   }
-  .mechanic-title {
+  .mechanic-title, .tutorial-section-title { 
     font-size: 1.1rem;
-    padding-left: 1.3em;
+  }
+  .mechanic-title {
+     padding-left: 1.3em;
   }
   .mechanic-title::before {
     left: 0.2em;
