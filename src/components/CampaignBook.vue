@@ -129,7 +129,7 @@
                 </v-container>
               </v-sheet>
               <div v-else class="text-center pa-5 fill-height d-flex align-center justify-center">
-                <div>Selecione um capítulo no índice para começar.</div>
+                <div>Select a chapter from the table of contents to begin.</div>
               </div>
             </div>
 
