@@ -705,6 +705,12 @@ const openDialog = async (event) => {
 
 const showSuccessAlert = ref(false);
 
+function compressCampaign(campaignId) {
+  const campaignCopy = JSON.parse(
+    JSON.stringify(campaignStore.find(campaignId))
+  );
+}
+
 async function handleNewCampaign(type) {
   loading.value = true;
   try {
@@ -717,7 +723,7 @@ async function handleNewCampaign(type) {
       ? data.skus
       : Object.values(data.skus);
     const nameMap = {
-      core: "Corebox",
+      core: "underkeep",
       /* apocalypse: "Apocalypse",
       awakenings: "Awakenings",
       underkeep: "underkeep", */
@@ -730,7 +736,7 @@ async function handleNewCampaign(type) {
     // 2) POST /campaigns/cadastro
     const campaignRes = await axios.post("/campaigns/cadastro", {
       tracker_hash:
-        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJkb29yIjoiIiwid2luZyI6IiIsInN0YXR1c0lkcyI6W10sIm91dGNvbWVJZHMiOltdLCJmb2xsb3dlcklkcyI6W10sInVuZm9sZGluZ0lkcyI6W10sImJhY2tncm91bmRBbmRUcmFpdElkcyI6W10sImxlZ2FjeVRyYWlsIjp7InBlcnNldmVyYW5jZSI6MCwidHJhZ2VkeSI6MCwiZG9vbSI6MCwiaGVyb2lzbSI6MH0sImlzU2VxdWVudGlhbEFkdmVudHVyZSI6ZmFsc2UsInNlcXVlbnRpYWxBZHZlbnR1cmVSdW5lcyI6MH0sImhlcm9lcyI6W119",
+        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
       conclusion_percentage: 0,
       box: selectedSku.skus_pk,
     });
@@ -741,7 +747,7 @@ async function handleNewCampaign(type) {
     campaignStore.add(newCamp);
 
     await axios.put(`/campaigns/alter/${campaignFk}`, {
-      tracker_hash: "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJkb29yIjoiIiwid2luZyI6IiIsInN0YXR1c0lkcyI6W10sIm91dGNvbWVJZHMiOltdLCJmb2xsb3dlcklkcyI6W10sInVuZm9sZGluZ0lkcyI6W10sImJhY2tncm91bmRBbmRUcmFpdElkcyI6W10sImxlZ2FjeVRyYWlsIjp7InBlcnNldmVyYW5jZSI6MCwidHJhZ2VkeSI6MCwiZG9vbSI6MCwiaGVyb2lzbSI6MH0sImlzU2VxdWVudGlhbEFkdmVudHVyZSI6ZmFsc2UsInNlcXVlbnRpYWxBZHZlbnR1cmVSdW5lcyI6MH0sImhlcm9lcyI6W119",
+      tracker_hash: "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
       party_name: "",
     });
 
@@ -752,6 +758,8 @@ async function handleNewCampaign(type) {
       party_roles_fk: 1,
       skus_fk: selectedSku.skus_pk,
     });
+
+    compressCampaign(String(campaignFk));
 
     toast.add({
       severity: "success",
