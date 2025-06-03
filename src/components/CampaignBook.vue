@@ -102,7 +102,7 @@
               <v-sheet v-if="currentPage" :key="currentIndex" :style="backgroundStyle as CSSProperties"
                 class="book-page" elevation="0" rounded @click="handlePageClick">
                 <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
-                <v-container class="pa-3 ml-2">
+                <v-container class="pa-3 ml-3">
                   <v-row>
                     <v-col cols="12">
                       <div v-for="(item, contentLoopIndex) in currentPage.content"
@@ -138,34 +138,30 @@
 
             <KeywordView v-else-if="currentView === 'keywords'" />
 
-            <div v-else-if="currentView === 'tutorial'"
+            <div v-else-if="currentView === 'tutorial'" 
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-                <v-container fluid class="pa-0">
-                    <v-row>
+                <v-container fluid class="pa-3"> <v-row>
                         <v-col cols="12">
-                            <div class="ml-6 mt-2 content-block">
-                                <div class="header-banner">
-                                    <div class="d-flex align-center justify-space-between pa-0 pb-0">
-                                        <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
-                                    </div>
-                                    <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2>
-                                </div>
-                                <div class="body-text-mechanics pa-4 mt-3">
-                                    <template v-for="(tutorialSection, index) in playerTutorials.tutorials" :key="tutorialSection.title">
+                            <template v-for="(tutorialSection, index) in playerTutorials.tutorials" :key="tutorialSection.title">
+                                <div class="content-block ml-4" :class="{ 'mb-6': index < playerTutorials.tutorials.length - 1 }">
+                                    <div class="header-banner">
+                                        <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                                            <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
+                                        </div>
+                                        <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2> 
+                                        </div>
+                                    <div class="body-text-mechanics pa-4 mt-3">
                                         <section class="mb-4">
                                             <h3 class="tutorial-section-title">{{ tutorialSection.title }}</h3>
                                             <div v-html="tutorialSection.bodyHTML"></div>
                                         </section>
-                                        <div class="pt-5 px-16" v-if="index < playerTutorials.tutorials.length - 1">
+                                        <div class="pt-5 px-16"> 
                                             <v-img src="@/assets/Barra.png"></v-img>
                                         </div>
-                                    </template>
+                                    </div>
                                 </div>
-                                <div class="pt-5 px-16" v-if="playerTutorials.tutorials && playerTutorials.tutorials.length > 0">
-                                    <v-img src="@/assets/Barra.png"></v-img>
-                                </div>
-                            </div>
+                            </template>
                         </v-col>
                     </v-row>
                 </v-container>
@@ -173,11 +169,9 @@
             <div v-else-if="currentView === 'combatGuide'"
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-              <v-container fluid class="pa-0">
-                <v-row>
+              <v-container fluid class="pa-3"> <v-row>
                   <v-col cols="12">
-                    <div class="ml-6 mt-2 content-block">
-                      <div class="header-banner">
+                    <div class="content-block ml-4"> <div class="header-banner">
                         <div class="d-flex align-center justify-space-between pa-0 pb-0">
                           <h4 class="section-title">{{ gameMechanicsBook.pageTitle }}</h4>
                         </div>
@@ -193,9 +187,9 @@
                             <v-img src="@/assets/Barra.png"></v-img>
                           </div>
                         </template>
-                      </div>
-                      <div class="pt-5 px-16" v-if="gameMechanicsBook.mechanics && gameMechanicsBook.mechanics.length > 0">
-                        <v-img src="@/assets/Barra.png"></v-img>
+                        <div class="pt-5 px-16" v-if="gameMechanicsBook.mechanics && gameMechanicsBook.mechanics.length > 0">
+                            <v-img src="@/assets/Barra.png"></v-img>
+                        </div>
                       </div>
                     </div>
                   </v-col>
@@ -203,14 +197,40 @@
               </v-container>
             </div>
 
-            <div v-else-if="currentView === 'explorationTips'" class="fill-height d-flex align-center justify-center pa-3">
-              <v-container class="text-center">
-                <h2 class="mb-3">Exploration Tips</h2>
-                <p>Helpful tips and tricks for exploring the world will be available here soon.</p>
-                <v-icon size="x-large" class="mt-4" color="grey-lighten-1">mdi-map-search-outline</v-icon>
-              </v-container>
+            <div v-else-if="currentView === 'explorationTips'"
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                <v-container class="pa-3">
+                    <v-row>
+                        <v-col cols="12">
+                            <template v-for="(chapter, chapterIdx) in firstEncounterClarifications.chapters" :key="chapter.chapterTitle">
+                                <div class="content-block ml-4" :class="{ 'mb-6': chapterIdx < firstEncounterClarifications.chapters.length - 1 }">
+                                    <div class="header-banner">
+                                        <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                                            <h4 class="section-title">{{ firstEncounterClarifications.pageTitle }}</h4>
+                                        </div>
+                                        <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
+                                    </div>
+                                    <div class="body-text-mechanics pa-4 mt-3">
+                                        <template v-for="(section, sectionIdx) in chapter.sections" :key="section.title">
+                                            <section class="mb-4">
+                                                <h3 class="tutorial-section-title">{{ section.title }}</h3>
+                                                <div v-html="section.bodyHTML"></div>
+                                            </section>
+                                            <div class="pt-5 px-16" v-if="sectionIdx < chapter.sections.length - 1">
+                                                <v-img src="@/assets/Barra.png"></v-img>
+                                            </div>
+                                        </template>
+                                        <div class="pt-5 px-16" v-if="chapter.sections && chapter.sections.length > 0">
+                                            <v-img src="@/assets/Barra.png"></v-img>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </v-col>
+                    </v-row>
+                </v-container>
             </div>
-
             <div v-else-if="currentView === 'charProgression'" class="fill-height d-flex align-center justify-center pa-3">
               <v-container class="text-center">
                 <h2 class="mb-3">Character Progression</h2>
@@ -320,6 +340,7 @@ import bookPagesData from '@/data/book/bookPages.json';
 import rawInteractionConfigsData from '@/data/book/interactionConfigurations.json';
 import gameMechanicsData from '@/data/book/gameMechanicsRulebook.json';
 import playerTutorialsData from '@/data/book/playerTutorials.json';
+import firstEncounterClarificationsData from '@/data/book/firstEncounterClarifications.json';
 
 // --- INTERFACES ---
 interface InteractionItem {
@@ -378,6 +399,20 @@ interface PlayerTutorials {
   tutorials: PlayerTutorialSection[];
 }
 
+interface ClarificationSection {
+  title: string;
+  bodyHTML: string;
+}
+
+interface ClarificationChapter {
+  chapterTitle: string;
+  sections: ClarificationSection[];
+}
+
+interface FirstEncounterClarifications {
+  pageTitle: string;
+  chapters: ClarificationChapter[];
+}
 
 // --- REFS ---
 const hideCard = ref(false);
@@ -444,6 +479,7 @@ initializeInteractionConfigs();
 
 const gameMechanicsBook = ref<GameMechanicsBook>(gameMechanicsData as GameMechanicsBook);
 const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as PlayerTutorials);
+const firstEncounterClarifications = ref<FirstEncounterClarifications>(firstEncounterClarificationsData as FirstEncounterClarifications);
 
 // --- PROPRIEDADES COMPUTADAS ---
 const navigationItems = computed<NavigationItem[]>(() => {
@@ -1058,10 +1094,9 @@ onBeforeUnmount(() => {
     font-family: "Uncial Antiqua", cursive !important; 
 }
 
-/* STYLES FOR GAME MECHANICS PAGE (BOOK STYLE) - ATUALIZADO COM :deep() */
+/* STYLES FOR GAME MECHANICS & TUTORIALS (BOOK STYLE) - ATUALIZADO COM :deep() */
 .body-text-mechanics { 
   /* Estilos base para o container, se necessário. */
-  /* A maioria dos estilos de texto virá dos filhos com :deep() */
 }
 
 .body-text-mechanics :deep(p) {
@@ -1078,28 +1113,39 @@ onBeforeUnmount(() => {
 }
 
 .body-text-mechanics :deep(ul) {
-  list-style: none;
-  padding-left: 2.5em; /* Ajuste conforme a necessidade da "bolinha" */
+  padding-left: 0; 
+  list-style: none; 
   margin-top: 0.5em;
   margin-bottom: 1em;
 }
 
-.body-text-mechanics :deep(li) { /* Estilo base para todos os LIs dentro de body-text-mechanics */
-    margin-bottom: 0.5em; /* Espaçamento entre itens da lista */
-    color: #191919 !important; /* Cor do texto do LI, se não for herdada corretamente */
-    padding-left: 0; /* Reset, se necessário, o padding é controlado pelo UL e pelo ::before */
+.body-text-mechanics :deep(li) {
+  padding-left: 1.8em; 
+  position: relative;
+  margin-bottom: 0.5em;
+  color: #191919 !important;
+  font-family: "EB Garamond", serif; 
+  font-size: 1rem; 
+  line-height: 1.6; 
 }
 
+.body-text-mechanics :deep(li:not(.custom-bullet)::before) {
+  content: '•'; 
+  position: absolute;
+  left: 0.5em; 
+  top: 0.1em; 
+  color: #212121;
+  font-size: 1.2em; 
+}
 
-.body-text-mechanics :deep(li.custom-bullet) { /* Se você ainda usar .custom-bullet */
-  position: relative;
-  /* padding-left já é tratado pelo ul e pelo ::before, mas pode ajustar aqui se necessário */
+.body-text-mechanics :deep(li.custom-bullet) {
+  /* Se precisar de algo específico para .custom-bullet que não seja o ::before */
 }
 
 .body-text-mechanics :deep(li.custom-bullet::before) {
   position: absolute;
-  left: -1.5em; /* Posição da bolinha */
-  top: 0.1em;   /* Alinhamento vertical da bolinha */
+  left: 0.5em; 
+  top: 0.1em;
   font-size: 1.2em;
   color: #212121;
 }
@@ -1111,7 +1157,7 @@ onBeforeUnmount(() => {
 .body-text-mechanics :deep(li.custom-bullet.open::before) {
   content: '○';
 }
-/* FIM DOS ESTILOS ATUALIZADOS PARA GAME MECHANICS */
+/* FIM DOS ESTILOS ATUALIZADOS */
 
 .mechanic-title { 
   font-family: "EB Garamond", serif; 
@@ -1122,7 +1168,7 @@ onBeforeUnmount(() => {
   position: relative; 
   padding-left: 1.6em; 
   text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
-  color: #191919; /* Adicionado para consistência */
+  color: #191919; 
 }
 
 .mechanic-title::before { 
@@ -1131,10 +1177,9 @@ onBeforeUnmount(() => {
   left: 0.5em; 
   top: 0; 
   font-size: 1em; 
-  color: #191919; /* Adicionado para consistência */
+  color: #191919; 
 }
 
-/* NOVA CLASSE PARA TÍTULOS DE TUTORIAL */
 .tutorial-section-title {
   font-family: "EB Garamond", serif; 
   font-size: 1.5rem; 
@@ -1144,6 +1189,17 @@ onBeforeUnmount(() => {
   color: #191919; 
   font-weight: bold; 
   text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
+}
+
+.clarification-chapter-title {
+  font-family: "Cinzel Decorative", cursive;
+  font-size: 1.6rem; 
+  color: #191919; 
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 0; 
+  text-align: left;
 }
 
 
@@ -1191,6 +1247,7 @@ onBeforeUnmount(() => {
   .mechanic-title, .tutorial-section-title { 
     font-size: 1.3rem;
   }
+  .clarification-chapter-title { font-size: 1.4rem; } 
   .mechanic-title {
      padding-left: 1.5em;
   }
@@ -1302,6 +1359,7 @@ onBeforeUnmount(() => {
   .mechanic-title, .tutorial-section-title { 
     font-size: 1.2rem;
   }
+  .clarification-chapter-title { font-size: 1.3rem; }
    .mechanic-title {
      padding-left: 1.4em;
   }
@@ -1350,6 +1408,7 @@ onBeforeUnmount(() => {
   .mechanic-title, .tutorial-section-title { 
     font-size: 1.1rem;
   }
+  .clarification-chapter-title { font-size: 1.2rem; }
   .mechanic-title {
      padding-left: 1.3em;
   }
