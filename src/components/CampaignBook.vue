@@ -102,7 +102,7 @@
               <v-sheet v-if="currentPage" :key="currentIndex" :style="backgroundStyle as CSSProperties"
                 class="book-page" elevation="0" rounded @click="handlePageClick">
                 <div v-if="isFullScreenWithBackground" class="background-overlay"></div>
-                <v-container class="pa-3 ml-3">
+                <v-container class="pa-3 ml-2">
                   <v-row>
                     <v-col cols="12">
                       <div v-for="(item, contentLoopIndex) in currentPage.content"
@@ -141,20 +141,21 @@
             <div v-else-if="currentView === 'tutorial'" 
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-                <v-container fluid class="pa-3"> <v-row>
+                <v-container fluid class="pa-3">
+                    <v-row>
                         <v-col cols="12">
-                            <template v-for="(tutorialSection, index) in playerTutorials.tutorials" :key="tutorialSection.title">
-                                <div class="content-block ml-4" :class="{ 'mb-6': index < playerTutorials.tutorials.length - 1 }">
+                            <template v-for="(tutorialSectionItem, index) in playerTutorials.tutorials" :key="tutorialSectionItem.title">
+                                <div class="ml-4 content-block" :class="{ 'mb-6': index < playerTutorials.tutorials.length - 1 }">
                                     <div class="header-banner">
                                         <div class="d-flex align-center justify-space-between pa-0 pb-0">
                                             <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
                                         </div>
-                                        <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2> 
-                                        </div>
+                                        <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2>
+                                    </div>
                                     <div class="body-text-mechanics pa-4 mt-3">
                                         <section class="mb-4">
-                                            <h3 class="tutorial-section-title">{{ tutorialSection.title }}</h3>
-                                            <div v-html="tutorialSection.bodyHTML"></div>
+                                            <h3 class="tutorial-section-title">{{ tutorialSectionItem.title }}</h3>
+                                            <div v-html="tutorialSectionItem.bodyHTML"></div>
                                         </section>
                                         <div class="pt-5 px-16"> 
                                             <v-img src="@/assets/Barra.png"></v-img>
@@ -169,9 +170,11 @@
             <div v-else-if="currentView === 'combatGuide'"
                  class="book-page ma-5"
                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
-              <v-container fluid class="pa-3"> <v-row>
+              <v-container fluid class="pa-3">
+                <v-row>
                   <v-col cols="12">
-                    <div class="content-block ml-4"> <div class="header-banner">
+                    <div class="content-block ml-4">
+                      <div class="header-banner">
                         <div class="d-flex align-center justify-space-between pa-0 pb-0">
                           <h4 class="section-title">{{ gameMechanicsBook.pageTitle }}</h4>
                         </div>
@@ -222,6 +225,41 @@
                                             </div>
                                         </template>
                                         <div class="pt-5 px-16" v-if="chapter.sections && chapter.sections.length > 0">
+                                             <v-img src="@/assets/Barra.png"></v-img>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </div>
+            
+            <div v-else-if="currentView === 'charProgression'"
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                <v-container class="pa-3">
+                    <v-row>
+                        <v-col cols="12">
+                            <template v-for="(chapter, chapterIdx) in secondEncounterClarifications.chapters" :key="chapter.chapterTitle">
+                                <div class="content-block ml-4" :class="{ 'mb-6': chapterIdx < secondEncounterClarifications.chapters.length - 1 }">
+                                    <div class="header-banner">
+                                        <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                                            <h4 class="section-title">{{ secondEncounterClarifications.pageTitle }}</h4>
+                                        </div>
+                                        <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
+                                    </div>
+                                    <div class="body-text-mechanics pa-4 mt-3">
+                                        <template v-for="(section, sectionIdx) in chapter.sections" :key="section.title">
+                                            <section class="mb-4">
+                                                <h3 class="tutorial-section-title">{{ section.title }}</h3>
+                                                <div v-html="section.bodyHTML"></div>
+                                            </section>
+                                            <div class="pt-5 px-16" v-if="sectionIdx < chapter.sections.length - 1">
+                                                <v-img src="@/assets/Barra.png"></v-img>
+                                            </div>
+                                        </template>
+                                        <div class="pt-5 px-16" v-if="chapter.sections && chapter.sections.length > 0">
                                             <v-img src="@/assets/Barra.png"></v-img>
                                         </div>
                                     </div>
@@ -231,14 +269,6 @@
                     </v-row>
                 </v-container>
             </div>
-            <div v-else-if="currentView === 'charProgression'" class="fill-height d-flex align-center justify-center pa-3">
-              <v-container class="text-center">
-                <h2 class="mb-3">Character Progression</h2>
-                <p>Information on how to develop your characters will be available here soon.</p>
-                  <v-icon size="x-large" class="mt-4" color="grey-lighten-1">mdi-account-arrow-up</v-icon>
-              </v-container>
-            </div>
-
             <div v-else-if="currentView === 'interactions'">
               <v-container class="py-2 px-4" style="flex: 1; display: flex; flex-direction: column">
                 <v-row class="d-flex align-center justify-space-between mb-2 mt-2" style="flex-shrink: 0">
@@ -341,6 +371,7 @@ import rawInteractionConfigsData from '@/data/book/interactionConfigurations.jso
 import gameMechanicsData from '@/data/book/gameMechanicsRulebook.json';
 import playerTutorialsData from '@/data/book/playerTutorials.json';
 import firstEncounterClarificationsData from '@/data/book/firstEncounterClarifications.json';
+import secondEncounterClarificationsData from '@/data/book/secondEncounterClarifications.json'; // **** IMPORTAÇÃO DO NOVO JSON ****
 
 // --- INTERFACES ---
 interface InteractionItem {
@@ -409,7 +440,7 @@ interface ClarificationChapter {
   sections: ClarificationSection[];
 }
 
-interface FirstEncounterClarifications {
+interface FirstEncounterClarifications { // Reutilizável para SecondEncounter também
   pageTitle: string;
   chapters: ClarificationChapter[];
 }
@@ -480,6 +511,7 @@ initializeInteractionConfigs();
 const gameMechanicsBook = ref<GameMechanicsBook>(gameMechanicsData as GameMechanicsBook);
 const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as PlayerTutorials);
 const firstEncounterClarifications = ref<FirstEncounterClarifications>(firstEncounterClarificationsData as FirstEncounterClarifications);
+const secondEncounterClarifications = ref<FirstEncounterClarifications>(secondEncounterClarificationsData as FirstEncounterClarifications); // **** NOVA REF ****
 
 // --- PROPRIEDADES COMPUTADAS ---
 const navigationItems = computed<NavigationItem[]>(() => {

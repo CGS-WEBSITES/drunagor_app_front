@@ -1,0 +1,42 @@
+{
+  "pageTitle": "SECOND ENCOUNTER CLARIFICATIONS",
+  "chapters": [
+    {
+      "chapterTitle": "SECOND ENCOUNTER",
+      "sections": [
+        {
+          "title": "UNDEAD KING’S MONSTER CARD",
+          "bodyHTML": "<p>When the Initiative Marker reaches the Undead King’s Monster card, he acts as a Large Monster. The Attack on this card gains bonus damage if the Undead King is standing on Darkness. If the Undead King ends his movement in an area with a Pile of Runes, UNRAVEL the Pile: Return the Runes to the Initiative Track and the Undead King receives HEAL equal to the number of Runes removed this way times the number of Heroes (P). Example: If there are 3 Runes in the Pile and 3 Heroes in the Party, he would recover 9 Health (3x3 = 9).</p>"
+        },
+        {
+          "title": "WILL-O-WISP",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. The color of the drawn Rune determines the Target Hero for the next attack, according to the Realm of Chaos instructions. The second effect deals damage equal to the number of orange Runes on the Initiative Track to the Target Hero and applies BURN 4 if they lose Health from this attack. Then, place a Special Event token in the square that Hero occupies, SHOVING them out of it. Finally, the third effect flips this card to its other side.</p>"
+        },
+        {
+          "title": "ACCELERATE TIME",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. The color of the drawn Rune determines the Target Hero for the next attack, according to the Realm of Chaos instructions. The second effect applies FATIGUE equal to the number of orange Runes on the Initiative Track to the Target Hero. That Hero suffers 1 non-preventable damage for each Action Cube they cannot discard. Then, place a Special Event token in the square that Hero occupies, SHOVING them out of it. Finally, the third effect flips this card to its other side. Example: If there are 6 orange Runes on the Initiative Track and the Hero has 4 available Action Cubes, discard the 4 Cubes and apply 2 non-preventable damage.</p>"
+        },
+        {
+          "title": "BONE SHROUD",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. There is no LOCK-ON effect, so the Rune only affects the Adventure timer. The second effect grants SHIELD to the Undead King equal to the number of Runes still in the bag while also dealing that same amount of damage to each Hero at Any Range. This SHIELD must still obey the 4-token limit. Finally, the third effect flips this card to its other side.</p>"
+        },
+        {
+          "title": "BONE SPEAR",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. The color of the drawn Rune determines the Target Hero for the next attack, according to the Realm of Chaos instructions. The second effect deals damage equal to twice the number of Small Darkness tiles on the board to the Target Hero. Finally, the third effect flips this card to its other side. Example: If there are 6 Small Darkness tiles on the board, this attack deals 12 damage (2×6 = 12).</p>"
+        },
+        {
+          "title": "DEATH RAY",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. The color of the drawn Rune determines the Target Hero for the next attack, according to the Realm of Chaos instructions. The second effect deals damage equal to twice the number of green Runes on the Initiative Track to the Target Hero. The third effect repositions the Undead King’s model back to his initial position for this encounter. Each Character in that area is SHOVED. Finally, the fourth effect flips this card to its other side.</p>"
+        },
+        {
+          "title": "SHAMBLE",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. The color of the drawn Rune determines the Target Hero for the next attack, according to the Realm of Chaos instructions. The second effect ACTIVATES all Minions, one by one. If no Hero is attacked by any Minion—either because there are none on the board or they could not reach a Hero—the Undead King heals Health equal to twice the number of green Runes on the Initiative Track. Finally, the third effect flips this card to its other side.</p>"
+        },
+        {
+          "title": "BLOOD FOR BLOOD",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but the Party does not spawn a Darkness tile as there is no active Darkness Hunting mechanic. There is no LOCK-ON effect, so the Rune only affects the Adventure timer. The second effect deals damage equal to the number of red Runes on the Initiative Track to each Hero at Any Range and places a Small Darkness Tile under each Hero who loses Health due to this attack. These Heroes are not immediately affected by the Darkness nor take damage from it, but do so normally in later turns. Finally, the third effect creates a Pile of Runes where the Special Event token from the Will-O-Wisp attack was placed.</p>"
+        }
+      ]
+    }
+  ]
+}
