@@ -1,0 +1,51 @@
+{
+  "pageTitle": "1ST ENCOUNTER CLARIFICATIONS",
+  "chapters": [
+    {
+      "chapterTitle": "STAGE 1",
+      "sections": [
+        {
+          "title": "UNDEAD KING’S MONSTER CARD",
+          "bodyHTML": "<p>When the Initiative Marker reaches the Undead King’s Monster card, he acts as a Large Monster. The Attack on this card gains bonus damage if the Undead King is standing on Darkness. If the Undead King ends his movement in an area with a Pile of Runes, UNRAVEL the Pile: Return the Runes to the Initiative Track and the Undead King receives HEAL equal to the number of Runes removed this way times the number of Heroes (P). Example: If there are 3 Runes in the Pile and 3 Heroes in the Party, he would recover 9 Health (3x3 = 9).</p>"
+        },
+        {
+          "title": "DEATH RATTLE",
+          "bodyHTML": "<p>The first effect draws 2 Runes. The second deals damage equal to the number of orange Runes on the Initiative Track to each Hero anywhere on the board (including GRAPPLED Heroes). Each Curse Cube those Heroes have reduces the damage taken by 1. Example: If there are 5 orange Runes on the Initiative Track, this attack deals 2 damage to a Hero with 3 Curse Cubes (5 – 3 = 2).</p>"
+        },
+        {
+          "title": "NECROTIC BOLT",
+          "bodyHTML": "<p>This attack deals damage equal to twice the number of Heroes in the Party to the Target Hero. The number of gray Runes on the Initiative Track has no effect. Example: If there are 3 Heroes in the Party, this attack always deals 6 damage (2 × 3 = 6).</p>"
+        },
+        {
+          "title": "SHADOW WEAVE",
+          "bodyHTML": "<p>The first effect creates a Pile of Runes in place of a Special Event token. The second causes each Pile of Runes to deal damage equal to the number of green Runes on the Initiative Track to each Hero within Range 1 of that Pile of Runes.</p>"
+        },
+        {
+          "title": "GRAVE GRASP",
+          "bodyHTML": "<p>The first effect repositions the Undead King’s model to the area the Strongest Hero is in. Remove that Hero from the board, along with any other Heroes in the same area. This attack deals damage equal to the number of red Runes on the Initiative Track to each Hero removed this way. The second effect imposes a Special Condition: GRAPPLED. While GRAPPLED, Heroes are subject to the following rules:</p><ul><li class=\"custom-bullet filled\">They are considered Engaged in Combat.</li><li class=\"custom-bullet filled\">They cannot use Reactions (³), but can be targeted by them.</li><li class=\"custom-bullet filled\">They cannot move, but may be targeted by SWAP effects.</li><li class=\"custom-bullet filled\">They occupy the same square as the Undead King for Skill Range purposes (both targeting and being targeted). Whenever the Undead King moves, the Hero is carried along.</li><li class=\"custom-bullet filled\">When released, the Hero is repositioned to a square adjacent to the Undead King.</li><li class=\"custom-bullet filled\">GRAPPLED is a Special Condition that bypasses any Immunity to Conditions.</li></ul><p>When the Undead King GRAPPLES a Hero, place a Curse Cube on the Undead King’s Health value at which they will be released: his current HP minus 15 (e.g., if he GRAPPLES at 36 HP, he releases at 21). If he GRAPPLES another Hero later, update the Curse Cube accordingly, applying the new value to all GRAPPLED Heroes. The Undead King always releases all GRAPPLED Heroes at the same time.</p>"
+        }
+      ]
+    },
+    {
+      "chapterTitle": "STAGE 2",
+      "sections": [
+        {
+          "title": "ENERVATE",
+          "bodyHTML": "<p>This attack deals damage equal to the number of orange Runes on the Initiative Track to the Strongest Hero at Any Range. Apply INTIMIDATE 4 to the target if they lose Health from this attack.</p>"
+        },
+        {
+          "title": "SHADOW JAUNT",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but no Darkness tile is spawned. The second effect repositions the Undead King’s model to the area where the Most Distant Hero is located. Each Character in that area is SHOVED, but only Heroes among them take damage. This attack deals damage equal to the number of gray Runes on the Initiative Track.</p>"
+        },
+        {
+          "title": "DEATH MATCH",
+          "bodyHTML": "<p>The first effect creates a Pile of Runes in the space the Most Corrupted Hero is in, SHOVING them out of it. The second effect causes each Pile of Runes to deal damage equal to the number of green Runes on the Initiative Track to each Hero within Range 1 of that Pile of Runes. If a Hero loses Health due to this effect, they also receive CURSE 1. A Hero may be affected by multiple Piles in this way. Resolve each instance separately.</p>"
+        },
+        {
+          "title": "CORRUPT",
+          "bodyHTML": "<p>The first effect draws 1 Rune, but no Darkness tile is spawned. The second effect repositions the Undead King’s model to the area the Strongest Hero is in. Each Character in that area is SHOVED, but only Heroes among them take damage. This attack deals damage equal to the number of red Runes on the Initiative Track.</p>"
+        }
+      ]
+    }
+  ]
+}
