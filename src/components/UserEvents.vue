@@ -1073,7 +1073,7 @@ const getEventStatusInfo = (status) => {
       };
     case 'Turned Away': // Assuming "Turned Away" is the string from your API
       return {
-        icon: 'mdi-close-circle', // Refused icon
+        icon: 'mdi-cancel', // Refused icon
         color: 'error', // Red color
         tooltip: 'Retailer refused your entry or you left the event.',
       };
