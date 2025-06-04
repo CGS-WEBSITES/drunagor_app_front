@@ -205,7 +205,7 @@
                   </div>
                 </v-col>
 
-                <v-col cols="8" sm="10" class="pt-2">
+                <v-col cols="8" sm="9" class="pt-2">
                   <h3 class="pb-1">
                     <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                     {{ evt.store_name }}
@@ -221,6 +221,16 @@
                   <p class="text-caption">
                     Seats: {{ evt.seats_number }} | Season: {{ evt.seasons_fk }}
                   </p>
+                </v-col>
+
+                <v-col cols="0" sm="1" class="d-flex align-center justify-end pr-2">
+                  <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
+                        {{ getEventStatusInfo(evt.status).icon }}
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
                 </v-col>
               </v-row>
             </v-card>
@@ -401,7 +411,7 @@ const fetchStatuses = () => {
       )?.event_status_pk;
     })
     .catch((error) => {
-      console.error("Erro ao buscar status:", error);
+      // Handle error fetching statuses
     });
 };
 
@@ -414,7 +424,7 @@ const fetchPlayers = () => {
       players.value = response.data.players;
     })
     .catch((error) => {
-      console.error("Erro ao buscar jogadores:", error);
+      // Handle error fetching players
     });
 };
 
@@ -442,7 +452,7 @@ const updatePlayerStatus = (player, newStatus) => {
       player.status = newStatus;
     })
     .catch((error) => {
-      console.error("Erro ao atualizar status:", error);
+      // Handle error updating status
     });
 };
 
@@ -520,7 +530,6 @@ const openDialog = async (event) => {
 
     eventRewards.value = rewardsRes.data.rewards || [];
   } catch (err) {
-    console.error("Error fetching rewards:", err);
     eventRewards.value = [];
   }
 };
@@ -533,7 +542,6 @@ const joinEvent = async () => {
   const userId = userStore.user?.users_pk;
 
   if (!userId || !selectedEvent.value) {
-    console.warn("User or event not available");
     return;
   }
 
@@ -554,10 +562,7 @@ const joinEvent = async () => {
 
     showSuccessAlert.value = true;
   } catch (err) {
-    console.error(
-      "Error registering participation:",
-      err.response?.data || err.message
-    );
+    // Handle error registering participation
   }
 };
 
@@ -571,7 +576,7 @@ const heroStore = HeroStore();
 
 async function createdCompanion() {
   const token =
-    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJZHMiOltdLCJvdXRjb21lSWRzIjpbXSwiZm9sbG93ZXJJZHMiOltdLCJ1bmZvbGRpbmdJZHMiOltdLCJiYWNrZ3JvdW5kQW5kVHJhaXRJZHMiOltdLCJsZWdhY3lUcmFpbCI6eyJwZXJzZXZlcmFuY2UiOjAsInRyYWdlZHkiOjAsImRvb20iOjAsImhlcm9pc20iOjB9LCJpc1NlcXVlbnRpYWxBZHZlbnR1cmUiOmZhbHNlLCJzZXF1ZW50aWFsQWR2ZW50dXJlUnVuZXMiOjB9LCJoZXJvZXMiOltdfQ==";
+    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJdsdsIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZ,SIc2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=";
   try {
     const { data: resp } = await axios.post("/campaigns/cadastro", {
       tracker_hash: token,
@@ -594,7 +599,6 @@ async function createdCompanion() {
       skus_fk: parseInt(resp.campaign.box, 10),
     }).then((response) => {
     }).catch((error) => {
-      console.error("Error creating campaign-user relationship:", error);
       toast.add({
         severity: "error",
         summary: t("label.error"),
@@ -604,7 +608,6 @@ async function createdCompanion() {
     });
     router.push({ path: "/campaign-tracker/" });
   } catch (err) {
-    console.error("Error in campaign save flow:", err);
     toast.add({
       severity: "error",
       summary: t("label.error"),
@@ -636,7 +639,6 @@ const fetchPlayerEvents = async () => {
     const player_fk = userStore.user?.users_pk;
 
     if (!player_fk) {
-      console.error("Error: player_fk (users_pk) is undefined.");
       return;
     }
 
@@ -649,10 +651,7 @@ const fetchPlayerEvents = async () => {
 
     events.value = response.data.events || [];
   } catch (error) {
-    console.error(
-      "Error fetching player events:",
-      error.response?.data || error.message,
-    );
+    // Handle error fetching player events
   }
 };
 
@@ -684,10 +683,7 @@ const fetchSceneries = async () => {
       sceneries.value = response.data.sceneries || [];
     })
     .catch((error) => {
-      console.error(
-        "Error fetching scenarios:",
-        error.response?.data || error.message,
-      );
+      // Handle error fetching scenarios
     });
 };
 
@@ -707,7 +703,6 @@ const addEvent = async () => {
     !newEvent.value.scenario ||
     !userId
   ) {
-    console.error("Insufficient data to create the event.");
     return;
   }
 
@@ -732,16 +727,11 @@ const addEvent = async () => {
     );
 
     if (!selectedStore) {
-      console.error("Store not found in API.");
       return;
     }
 
     storesFk = selectedStore.stores_pk;
   } catch (error) {
-    console.error(
-      "Error fetching stores from API:",
-      error.response?.data || error.message,
-    );
     return;
   }
 
@@ -779,10 +769,7 @@ const addEvent = async () => {
     selectedRewards.value = [];
     createEventDialog.value = false;
   } catch (error) {
-    console.error(
-      "Error registering event:",
-      error.response?.data || error.message,
-    );
+    // Handle error registering event
   }
 };
 
@@ -797,10 +784,7 @@ const deleteEvent = async (events_pk) => {
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
-    console.error(
-      "Error deleting event:",
-      error.response?.data || error.message,
-    );
+    // Handle error deleting event
   }
 };
 
@@ -813,7 +797,6 @@ const fetchUserCreatedEvents = async () => {
     const retailer_fk = userStore.user?.users_pk;
 
     if (!retailer_fk) {
-      console.error("Error: retailer_fk (users_pk) is undefined.");
       return;
     }
 
@@ -826,10 +809,7 @@ const fetchUserCreatedEvents = async () => {
 
     userCreatedEvents.value = response.data.events || [];
   } catch (error) {
-    console.error(
-      "Error fetching user created events:",
-      error.response?.data || error.message,
-    );
+    // Handle error fetching user created events
   }
 };
 
@@ -890,10 +870,7 @@ onMounted(async () => {
 
     stores.value = response.data.stores || [];
   } catch (error) {
-    console.error(
-      "Error fetching stores:",
-      error.response?.data || error.message,
-    );
+    // Handle error fetching stores
   }
 });
 
@@ -942,7 +919,7 @@ const getPlayersForEvent = async (event_fk) => {
     .then((response) => {
     })
     .catch((error) => {
-      console.error("Error fetching players:", error);
+      // Handle error fetching players
     });
 };
 
@@ -1058,7 +1035,7 @@ const shareEvent = (eventId) => {
     sharedLink.value = `${window.location.origin}/event/${encodedId}`;
     showDialog.value = true;
   } catch (error) {
-    console.error("Error generating link:", error);
+    // Handle error generating link
   }
 };
 
@@ -1068,7 +1045,7 @@ const copyLink = async (link) => {
     showDialog.value = false;
     showAlert.value = true;
   } catch (error) {
-    console.error("Error copying link:", error);
+    // Handle error copying link
   }
 };
 
@@ -1077,6 +1054,43 @@ watch(dialog, (val) => {
     showSuccessAlert.value = false;
   }
 });
+
+
+// Function to get icon and tooltip text based on event status
+const getEventStatusInfo = (status) => {
+  switch (status) {
+    case 'Seeks Entry': // Assuming "Seeks Entry" is the string from your API
+      return {
+        icon: 'mdi-timer-sand', // Waiting icon
+        color: 'orange',
+        tooltip: 'Waiting for the retailer to accept your entry.',
+      };
+    case 'Granted Passage': // Assuming "Granted Passage" is the string from your API
+      return {
+        icon: 'mdi-check-circle', // Accepted icon
+        color: 'success', // Green color
+        tooltip: 'Retailer accepted your passage to the event.',
+      };
+    case 'Turned Away': // Assuming "Turned Away" is the string from your API
+      return {
+        icon: 'mdi-close-circle', // Refused icon
+        color: 'error', // Red color
+        tooltip: 'Retailer refused your entry or you left the event.',
+      };
+    case 'Joined the Quest': // Assuming "Joined the Quest" is the string from your API
+      return {
+        icon: 'mdi-sword', // Quest available icon
+        color: 'purple', // Or another suitable color
+        tooltip: 'Your campaign is available and you can play now.',
+      };
+    default:
+      return {
+        icon: 'mdi-help-circle', // Default icon for unknown status
+        color: 'grey',
+        tooltip: 'Unknown event status.',
+      };
+  }
+};
 </script>
 
 <style scoped>
