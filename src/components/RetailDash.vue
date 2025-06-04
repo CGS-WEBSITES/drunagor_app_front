@@ -176,13 +176,63 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, inject } from "vue";
+import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
+import { Campaign } from "@/store/Campaign";
+import { Hero } from "@/store/Hero";
+import { HeroEquipment } from "@/store/Hero";
+import axios from 'axios';
+
+function importCampaign(token: string) {
+
+  const data = JSON.parse(atob(token));
+  let campaign: Campaign;
+
+  if ("campaignData" in data) {
+    campaign = data.campaignData;
+  } else {
+    console.log("Not importing campaign data")
+    return;
+  }
+
+  campaignStore.add(campaign);
+
+  const heroes = data.heroes as Hero[];
+  heroes.forEach((h) => {
+    h.campaignId = campaign.campaignId;
+
+    if (typeof h.equipment === "undefined") {
+      h.equipment = new HeroEquipment();
+    }
+
+    if (typeof h.sequentialAdventureState === "undefined") {
+      h.sequentialAdventureState = null;
+    }
+
+    heroStore.add(h);
+  });
+
+}
+
+onBeforeMount(async () => {
+  campaignStore.reset()
+  heroStore.reset()
+
+  await axios.get('/rl_campaigns_users/search', {
+    params: { users_fk: user.users_pk }
+  }).then((res) => {
+    res.data.campaigns.forEach(element => {
+      importCampaign(element.tracker_hash)
+    });
+
+    loading.value = false
+  });
+});
 
 
 

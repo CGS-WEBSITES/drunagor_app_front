@@ -211,6 +211,14 @@
                           src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
                           cover
                         ></v-img>
+
+                          <v-img
+                          v-else-if="item.campaign === 'underkeep'"
+                          src="@/assets/underkeep.png"
+                          cover
+                          max-height="307"
+                        ></v-img>
+
                         <v-card-title class="text-uppercase" v-if="item.name">
                           {{ item.name }}
                         </v-card-title>
@@ -336,23 +344,29 @@
                       <v-img
                         v-if="item.campaign === 'core'"
                         src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
-                        max-height="200"
+                        max-height="260"
                         cover
                       ></v-img>
 
                       <v-img
                         v-else-if="item.campaign === 'apocalypse'"
                         src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
-                        max-height="200"
+                        max-height="260"
                         cover
                       ></v-img>
 
                       <v-img
                         v-else-if="item.campaign === 'awakenings'"
                         src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
-                        max-height="200"
+                        max-height="260"
                         cover
                       ></v-img>
+                      <v-img
+                          v-else-if="item.campaign === 'underkeep'"
+                          src="@/assets/underkeep.png"
+                          cover
+                          max-height="260"
+                        ></v-img>
                       <v-card-subtitle
                         class="text-uppercase mt-3"
                         v-if="item.name"
@@ -730,13 +744,66 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, inject } from "vue";
+import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
+import { Campaign } from "@/store/Campaign";
+import { Hero } from "@/store/Hero";
+import { HeroEquipment } from "@/store/Hero";
+import axios from 'axios';
+
+function importCampaign(token: string) {
+
+  const data = JSON.parse(atob(token));
+  let campaign: Campaign;
+
+  if ("campaignData" in data) {
+    campaign = data.campaignData;
+  } else {
+    console.log("Not importing campaign data")
+    return;
+  }
+
+  campaignStore.add(campaign);
+
+  const heroes = data.heroes as Hero[];
+  heroes.forEach((h) => {
+    h.campaignId = campaign.campaignId;
+
+    if (typeof h.equipment === "undefined") {
+      h.equipment = new HeroEquipment();
+    }
+
+    if (typeof h.sequentialAdventureState === "undefined") {
+      h.sequentialAdventureState = null;
+    }
+
+    heroStore.add(h);
+  });
+
+}
+
+onBeforeMount(async () => {
+  campaignStore.reset()
+  heroStore.reset()
+
+  await axios.get('/rl_campaigns_users/search', {
+    params: { users_fk: user.users_pk }
+  }).then((res) => {
+    res.data.campaigns.forEach(element => {
+      importCampaign(element.tracker_hash)
+    });
+
+    loading.value = false
+  });
+});
+
+
+
 
 const campaignStore = CampaignStore();
 
