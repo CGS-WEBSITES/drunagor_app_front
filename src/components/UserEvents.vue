@@ -959,11 +959,8 @@ const openMyEventsDialog = async (event) => {
   const userId = parseInt(userStore.user?.users_pk, 10);
 
   if (isNaN(userId)) {
-    console.warn("Invalid user ID. Cannot fetch rl_events_users_pk.");
     return;
   }
-
-  console.log("Current User ID:", userId); // Add this line
 
   try {
     const response = await axios.get("/rl_events_users/list_players", {
@@ -976,7 +973,6 @@ const openMyEventsDialog = async (event) => {
     });
 
     const playersForEvent = response.data.players;
-    console.log("Players for event:", playersForEvent); // Add this line
 
     const currentUserEntry = playersForEvent.find(
       (player) => player.users_pk === userId
@@ -984,17 +980,10 @@ const openMyEventsDialog = async (event) => {
 
     if (currentUserEntry) {
       rlEventsUsersPkToQuit.value = currentUserEntry.rl_events_users_pk;
-      console.log("Found rlEventsUsersPkToQuit:", rlEventsUsersPkToQuit.value); // Add this line
     } else {
       rlEventsUsersPkToQuit.value = null;
-      console.warn("Current user not found in players for this event."); // Add this line
     }
-
   } catch (error) {
-    console.error(
-      "Error fetching players for the event:",
-      error.response?.data || error.message
-    );
     rlEventsUsersPkToQuit.value = null;
   }
 };
@@ -1003,7 +992,6 @@ const quitEvent = () => {
   if (rlEventsUsersPkToQuit.value) {
     showQuitConfirmDialog.value = true;
   } else {
-    console.warn("Could not find the relationship ID to quit this event.");
     toast.add({
       severity: "warn",
       summary: "Warning",
@@ -1017,16 +1005,25 @@ const confirmQuitEvent = async () => {
   showQuitConfirmDialog.value = false;
 
   if (!rlEventsUsersPkToQuit.value) {
-    console.error("No rl_events_users_pk to delete.");
+    toast.add({
+      severity: "error",
+      summary: t("label.error"),
+      detail: "Failed to quit the event. Relationship ID not found.",
+      life: 3000,
+    });
     return;
   }
 
   try {
-    await axios.delete(`/rl_events_users/${rlEventsUsersPkToQuit.value}/delete/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+    await axios.put(
+      `/rl_events_users/alter/${rlEventsUsersPkToQuit.value}`,
+      { status: 3 },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
 
     toast.add({
       severity: "success",
@@ -1039,10 +1036,6 @@ const confirmQuitEvent = async () => {
     await fetchMyEvents();
     rlEventsUsersPkToQuit.value = null;
   } catch (error) {
-    console.error(
-      "Error quitting event:",
-      error.response?.data || error.message
-    );
     toast.add({
       severity: "error",
       summary: t("label.error"),
