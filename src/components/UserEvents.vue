@@ -75,14 +75,12 @@
             </v-card>
           </v-col>
         </v-row>
-        <!-- Diálogo para visualização do evento -->
         <v-dialog v-model="dialog" max-width="600" min-height="431">
           <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
 
-            <!-- Diálogo (Popup) para mostrar o link -->
             <v-dialog v-model="showDialog" width="400">
               <v-card>
                 <v-card-title class="text-h6">Share Event</v-card-title>
@@ -170,7 +168,7 @@
                   @click:close="showSuccessAlert = false">
                   You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.
                 </v-alert>
-                
+
               </v-col>
             </v-row>
           </v-card>
@@ -183,7 +181,6 @@
           <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(evt, idx) in myEvents" :key="evt.events_pk">
             <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
               <v-row no-gutters>
-                <!-- Date -->
                 <v-col cols="4" sm="2">
                   <div class="text-center ml-3" style="width: 70px; color: black">
                     <p class="pt-3 text-caption font-weight-bold">
@@ -208,8 +205,7 @@
                   </div>
                 </v-col>
 
-                <!-- Details -->
-                <v-col cols="8" sm="10" class="pt-2">
+                <v-col cols="8" sm="9" class="pt-2">
                   <h3 class="pb-1">
                     <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                     {{ evt.store_name }}
@@ -226,14 +222,23 @@
                     Seats: {{ evt.seats_number }} | Season: {{ evt.seasons_fk }}
                   </p>
                 </v-col>
+
+                <v-col cols="0" sm="1" class="d-flex align-center justify-end pr-2">
+                  <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
+                        {{ getEventStatusInfo(evt.status).icon }}
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
+                </v-col>
               </v-row>
             </v-card>
           </v-col>
         </v-row>
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6">
-            <!-- Linha com Título à esquerda e o X à direita -->
-            <div class="d-flex align-center justify-space-between  pl-8">
+            <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
               </v-card-title>
@@ -252,15 +257,13 @@
                     year: "numeric",
                     hour: "2-digit",
                     minute: "2-digit",
-                hour12: true,
-                })
+                    hour12: true,
+                  })
                 }}
               </p>
             </div>
 
-            <!-- QR + Botões lado a lado -->
             <v-row class="" align="center" justify="space-between">
-              <!-- QR code com fundo branco e texto "COMING SOON" cruzado -->
               <v-col cols="12" md="6" class="text-center pt-8 ml-3">
                 <div
                   style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;">
@@ -268,25 +271,24 @@
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
                     width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
                   <div style="
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-10deg);
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #999;
-        background-color: rgba(255, 255, 255, 0.7);
-        padding: 4px 10px;
-        border-radius: 4px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      ">
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%) rotate(-10deg);
+                      font-weight: 600;
+                      font-size: 0.9rem;
+                      color: #999;
+                      background-color: rgba(255, 255, 255, 0.7);
+                      padding: 4px 10px;
+                      border-radius: 4px;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                    ">
                     Coming Soon
                   </div>
                 </div>
               </v-col>
 
-              <!-- Status centralizado acima dos botões -->
               <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
                 <p class="text-subtitle-2 font-weight-medium mb-2">
                   Status: {{ selectedMyEvent?.status }}
@@ -301,11 +303,10 @@
               </v-col>
             </v-row>
 
-            <!-- Card de evento -->
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selecteMydEvent?.picture_hash
+                  <v-img :src="selectedMyEvent?.picture_hash
                       ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
                       : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     " class="event-img" />
@@ -324,6 +325,21 @@
             </v-card>
           </v-card>
         </v-dialog>
+
+        <v-dialog v-model="showQuitConfirmDialog" max-width="400">
+          <v-card>
+            <v-card-title class="text-h6">Confirm Exit</v-card-title>
+            <v-card-text>
+              Are you sure you want to quit this event? This action cannot be undone.
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="grey" text @click="showQuitConfirmDialog = false">Cancel</v-btn>
+              <v-btn color="red-darken-2" text @click="confirmQuitEvent">Quit Event</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
       </div>
     </v-card>
   </v-col>
@@ -333,7 +349,6 @@
 import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
-// import router from "@/router";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useRouter, useRoute } from "vue-router";
@@ -368,19 +383,6 @@ const openEditDialog = (event, editable = false) => {
   }
 };
 
-// Lista de players de exemplo para simular a resposta da API
-// const samplePlayers = ref([
-//   { id: 1, name: "Player One", status: "Seeks Entry" },
-//   { id: 2, name: "Player Two", status: "Seeks Entry" },
-//   { id: 3, name: "Player Three", status: "Seeks Entry" },
-//   { id: 4, name: "Player Four", status: "Seeks Entry" },
-//   { id: 5, name: "Player Five", status: "Seeks Entry" },
-//   { id: 6, name: "Player Six", status: "Seeks Entry" },
-//   { id: 7, name: "Player Seven", status: "Seeks Entry" },
-//   { id: 8, name: "Player Eight", status: "Seeks Entry" },
-//   { id: 9, name: "Player Nine", status: "Seeks Entry" }
-// ]);
-
 const players = ref([]);
 const currentPage = ref(1);
 const pageSize = 5;
@@ -392,8 +394,6 @@ const paginatedPlayers = computed(() => {
 
 const statuses = ref([]);
 
-// O status predefinido é "Seeks Entry", e os botões usam os seguintes status:
-// "Granted Passage" e "Turned Away"
 const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 
@@ -411,7 +411,7 @@ const fetchStatuses = () => {
       )?.event_status_pk;
     })
     .catch((error) => {
-      console.error("Erro ao buscar status:", error);
+      // Handle error fetching statuses
     });
 };
 
@@ -424,7 +424,7 @@ const fetchPlayers = () => {
       players.value = response.data.players;
     })
     .catch((error) => {
-      console.error("Erro ao buscar jogadores:", error);
+      // Handle error fetching players
     });
 };
 
@@ -452,7 +452,7 @@ const updatePlayerStatus = (player, newStatus) => {
       player.status = newStatus;
     })
     .catch((error) => {
-      console.error("Erro ao atualizar status:", error);
+      // Handle error updating status
     });
 };
 
@@ -529,20 +529,19 @@ const openDialog = async (event) => {
     });
 
     eventRewards.value = rewardsRes.data.rewards || [];
-    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
   } catch (err) {
-    console.error("❌ Erro ao buscar rewards:", err);
     eventRewards.value = [];
   }
 };
 
 const showSuccessAlert = ref(false);
 
+const joinedEventPk = ref(null);
+
 const joinEvent = async () => {
   const userId = userStore.user?.users_pk;
 
   if (!userId || !selectedEvent.value) {
-    console.warn("Usuário ou evento não disponível");
     return;
   }
 
@@ -559,17 +558,11 @@ const joinEvent = async () => {
 
     joinedEventPk.value = selectedEvent.value.events_pk;
 
-
-    // Atualiza lista de eventos
     await fetchMyEvents();
-
 
     showSuccessAlert.value = true;
   } catch (err) {
-    console.error(
-      "Erro ao registrar participação:",
-      err.response?.data || err.message
-    );
+    // Handle error registering participation
   }
 };
 
@@ -581,33 +574,9 @@ const boxSku = computed(() => route.query.sku || "");
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 
-// async function saveCampaign() {
-//   const response = await axios.post("/campaigns/cadastro", {
-//     tracker_hash: token.value,
-//     conclusion_percentage: 0,
-//     box: boxSku.value,
-//   });
-//   // notificação de sucesso
-//   toast.add({
-//     severity: "success",
-//     summary: t("label.success"),
-//     detail: "Campaign saved successfully.",
-//     life: 3000,
-//   });
-//   // cria relação usuário↔campanha
-//   const { campaigns_pk, box } = response.data.campaign;
-//   const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
-//   await axios.post("rl_campaigns_users/cadastro", {
-//     users_fk: users_pk,
-//     campaigns_fk: campaigns_pk,
-//     party_roles_fk: 1,
-//     skus_fk: parseInt(box, 10),
-//   });
-// }
-
 async function createdCompanion() {
   const token =
-    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJZHMiOltdLCJvdXRjb21lSWRzIjpbXSwiZm9sbG93ZXJJZHMiOltdLCJ1bmZvbGRpbmdJZHMiOltdLCJiYWNrZ3JvdW5kQW5kVHJhaXRJZHMiOltdLCJsZWdhY3lUcmFpbCI6eyJwZXJzZXZlcmFuY2UiOjAsInRyYWdlZHkiOjAsImRvb20iOjAsImhlcm9pc20iOjB9LCJpc1NlcXVlbnRpYWxBZHZlbnR1cmUiOmZhbHNlLCJzZXF1ZW50aWFsQWR2ZW50dXJlUnVuZXMiOjB9LCJoZXJvZXMiOltdfQ==";
+    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJdsdsIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZ,SIc2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=";
   try {
     const { data: resp } = await axios.post("/campaigns/cadastro", {
       tracker_hash: token,
@@ -622,7 +591,6 @@ async function createdCompanion() {
       life: 3000,
     });
 
-    // 3) Cria relacionamento usuário↔campanha
     const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
     await axios.post("rl_campaigns_users/cadastro", {
       users_fk: users_pk,
@@ -630,9 +598,7 @@ async function createdCompanion() {
       party_roles_fk: 1,
       skus_fk: parseInt(resp.campaign.box, 10),
     }).then((response) => {
-      console.log("Relação usuário↔campanha criada com sucesso.", response.data);
     }).catch((error) => {
-      console.error("Erro ao criar relação usuário↔campanha:", error);
       toast.add({
         severity: "error",
         summary: t("label.error"),
@@ -640,10 +606,8 @@ async function createdCompanion() {
         life: 3000,
       });
     });
-    // 4) Redireciona
     router.push({ path: "/campaign-tracker/" });
   } catch (err) {
-    console.error("Erro no fluxo de salvar campanha:", err);
     toast.add({
       severity: "error",
       summary: t("label.error"),
@@ -668,7 +632,6 @@ const selectedStore = computed(() => {
   );
 });
 
-// Sample Events Data
 const sortBy = ref("date");
 
 const fetchPlayerEvents = async () => {
@@ -676,7 +639,6 @@ const fetchPlayerEvents = async () => {
     const player_fk = userStore.user?.users_pk;
 
     if (!player_fk) {
-      console.error("❌ Erro: player_fk (users_pk) não definido.");
       return;
     }
 
@@ -689,10 +651,7 @@ const fetchPlayerEvents = async () => {
 
     events.value = response.data.events || [];
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar eventos do jogador:",
-      error.response?.data || error.message,
-    );
+    // Handle error fetching player events
   }
 };
 
@@ -724,10 +683,7 @@ const fetchSceneries = async () => {
       sceneries.value = response.data.sceneries || [];
     })
     .catch((error) => {
-      console.error(
-        "❌ Erro ao buscar cenários:",
-        error.response?.data || error.message,
-      );
+      // Handle error fetching scenarios
     });
 };
 
@@ -747,7 +703,6 @@ const addEvent = async () => {
     !newEvent.value.scenario ||
     !userId
   ) {
-    console.error("❌ Dados insuficientes para criar o evento.");
     return;
   }
 
@@ -772,16 +727,11 @@ const addEvent = async () => {
     );
 
     if (!selectedStore) {
-      console.error("❌ Store não encontrada na API.");
       return;
     }
 
     storesFk = selectedStore.stores_pk;
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar stores na API:",
-      error.response?.data || error.message,
-    );
     return;
   }
 
@@ -819,10 +769,7 @@ const addEvent = async () => {
     selectedRewards.value = [];
     createEventDialog.value = false;
   } catch (error) {
-    console.error(
-      "❌ Erro ao cadastrar evento:",
-      error.response?.data || error.message,
-    );
+    // Handle error registering event
   }
 };
 
@@ -837,10 +784,7 @@ const deleteEvent = async (events_pk) => {
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
-    console.error(
-      "❌ Erro ao excluir o evento:",
-      error.response?.data || error.message,
-    );
+    // Handle error deleting event
   }
 };
 
@@ -853,7 +797,6 @@ const fetchUserCreatedEvents = async () => {
     const retailer_fk = userStore.user?.users_pk;
 
     if (!retailer_fk) {
-      console.error("❌ Erro: retailer_fk (users_pk) não definido.");
       return;
     }
 
@@ -866,10 +809,7 @@ const fetchUserCreatedEvents = async () => {
 
     userCreatedEvents.value = response.data.events || [];
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar eventos criados pelo usuário:",
-      error.response?.data || error.message,
-    );
+    // Handle error fetching user created events
   }
 };
 
@@ -930,10 +870,7 @@ onMounted(async () => {
 
     stores.value = response.data.stores || [];
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      error.response?.data || error.message,
-    );
+    // Handle error fetching stores
   }
 });
 
@@ -980,32 +917,108 @@ const getPlayersForEvent = async (event_fk) => {
       },
     })
     .then((response) => {
-      console.log("Players:", response.data);
     })
     .catch((error) => {
-      console.error("Erro ao buscar jogadores:", error);
+      // Handle error fetching players
     });
 };
 
 const myDialog = ref(false);
 const selectedMyEvent = ref(null);
+const showQuitConfirmDialog = ref(false);
+const rlEventsUsersPkToQuit = ref(null);
 
-const openMyEventsDialog = (event) => {
+const openMyEventsDialog = async (event) => {
   selectedMyEvent.value = event;
   myDialog.value = true;
+
+  const userStore = useUserStore();
+  const userId = parseInt(userStore.user?.users_pk, 10);
+
+  if (isNaN(userId)) {
+    return;
+  }
+
+  try {
+    const response = await axios.get("/rl_events_users/list_players", {
+      params: {
+        events_fk: event.events_pk,
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const playersForEvent = response.data.players;
+
+    const currentUserEntry = playersForEvent.find(
+      (player) => player.users_pk === userId
+    );
+
+    if (currentUserEntry) {
+      rlEventsUsersPkToQuit.value = currentUserEntry.rl_events_users_pk;
+    } else {
+      rlEventsUsersPkToQuit.value = null;
+    }
+  } catch (error) {
+    rlEventsUsersPkToQuit.value = null;
+  }
 };
 
+const quitEvent = () => {
+  if (rlEventsUsersPkToQuit.value) {
+    showQuitConfirmDialog.value = true;
+  } else {
+    toast.add({
+      severity: "warn",
+      summary: "Warning",
+      detail: "Cannot quit event. Relationship ID not found.",
+      life: 3000,
+    });
+  }
+};
 
-showSuccessAlert.value = true;
+const confirmQuitEvent = async () => {
+  showQuitConfirmDialog.value = false;
 
-const joinedEventPk = ref(null); // armazena o ID do evento confirmado
+  if (!rlEventsUsersPkToQuit.value) {
+    toast.add({
+      severity: "error",
+      summary: t("label.error"),
+      detail: "Failed to quit the event. Relationship ID not found.",
+      life: 3000,
+    });
+    return;
+  }
 
+  try {
+    await axios.put(
+      `/rl_events_users/alter/${rlEventsUsersPkToQuit.value}`,
+      { status: 3 },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
+    );
 
-const handleShareEvent = (eventId) => {
-  const shareLink = generateShareEventLink(eventId);
-  if (shareLink) {
-    sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
-    showCard.value = true;         // e que showCard controle exibir o card
+    toast.add({
+      severity: "success",
+      summary: t("label.success"),
+      detail: "You have successfully quit the event.",
+      life: 3000,
+    });
+
+    myDialog.value = false;
+    await fetchMyEvents();
+    rlEventsUsersPkToQuit.value = null;
+  } catch (error) {
+    toast.add({
+      severity: "error",
+      summary: t("label.error"),
+      detail: "Failed to quit the event.",
+      life: 3000,
+    });
   }
 };
 
@@ -1015,25 +1028,24 @@ const showAlert = ref(false);
 
 const shareEvent = (eventId) => {
   try {
-    if (!eventId) throw new Error("ID do evento não encontrado!");
+    if (!eventId) throw new Error("Event ID not found!");
 
     const encodedId = btoa(eventId.toString());
-    console.log("ID codificado:", encodedId);
 
     sharedLink.value = `${window.location.origin}/event/${encodedId}`;
-    showDialog.value = true; // Abre o popup
+    showDialog.value = true;
   } catch (error) {
-    console.error("Erro ao gerar link:", error);
+    // Handle error generating link
   }
 };
 
 const copyLink = async (link) => {
   try {
     await navigator.clipboard.writeText(link);
-    showDialog.value = false; // Fecha o popup
-    showAlert.value = true;   // Mostra o alerta
+    showDialog.value = false;
+    showAlert.value = true;
   } catch (error) {
-    console.error("Erro ao copiar o link:", error);
+    // Handle error copying link
   }
 };
 
@@ -1044,11 +1056,44 @@ watch(dialog, (val) => {
 });
 
 
-
+// Function to get icon and tooltip text based on event status
+const getEventStatusInfo = (status) => {
+  switch (status) {
+    case 'Seeks Entry': // Assuming "Seeks Entry" is the string from your API
+      return {
+        icon: 'mdi-timer-sand', // Waiting icon
+        color: 'orange',
+        tooltip: 'Waiting for the retailer to accept your entry.',
+      };
+    case 'Granted Passage': // Assuming "Granted Passage" is the string from your API
+      return {
+        icon: 'mdi-check-circle', // Accepted icon
+        color: 'success', // Green color
+        tooltip: 'Retailer accepted your passage to the event.',
+      };
+    case 'Turned Away': // Assuming "Turned Away" is the string from your API
+      return {
+        icon: 'mdi-cancel', // Refused icon
+        color: 'error', // Red color
+        tooltip: 'Retailer refused your entry or you left the event.',
+      };
+    case 'Joined the Quest': // Assuming "Joined the Quest" is the string from your API
+      return {
+        icon: 'mdi-sword', // Quest available icon
+        color: 'purple', // Or another suitable color
+        tooltip: 'Your campaign is available and you can play now.',
+      };
+    default:
+      return {
+        icon: 'mdi-help-circle', // Default icon for unknown status
+        color: 'grey',
+        tooltip: 'Unknown event status.',
+      };
+  }
+};
 </script>
 
 <style scoped>
-/* Event Card */
 .event-card {
   display: flex;
   align-items: center;
@@ -1058,14 +1103,12 @@ watch(dialog, (val) => {
   background-color: #292929;
 }
 
-/* Event Image */
 .event-img {
   width: 110px;
   height: 110px;
   border-radius: 4px;
 }
 
-/* Sort Buttons */
 .sort-btn {
   font-weight: bold;
   text-transform: uppercase;
@@ -1078,26 +1121,17 @@ watch(dialog, (val) => {
 
 .scheduled-box {
   display: inline-block;
-  /* Faz o fundo se ajustar ao tamanho do conteúdo */
   background-color: white;
-  /* Fundo branco */
   padding: 6px 12px;
-  /* Espaçamento interno */
   border-radius: 20px;
-  /* Bordas arredondadas */
   font-size: 14px;
-  /* Tamanho do texto */
   font-weight: 500;
-  /* Peso do texto */
   color: black;
-  /* Cor do texto */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Sombra leve para destacar */
 }
 
 .scheduled-box strong {
   font-weight: bold;
-  /* Deixa "SCHEDULED FOR:" em negrito */
 }
 </style>
 
