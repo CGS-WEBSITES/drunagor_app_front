@@ -104,17 +104,8 @@ watch(campaign, (newCampaign) => {
     <template v-if="campaign.campaign === 'underkeep'">
       <v-row class=" ml-0 justify-center">
         <v-col cols="12" md="12" lg="12" xl="8">
-          <v-tabs 
-            v-model="currentTab" 
-            centered 
-            grow 
-            bg-color="surface" 
-            density="compact" 
-            class="mb-2" 
-            style="border-radius: 4px;"
-            active-class="custom-active-tab"  
-            slider-color="white" 
-          >
+          <v-tabs v-model="currentTab" centered grow bg-color="surface" density="compact" class="mb-2"
+            style="border-radius: 4px;" active-class="custom-active-tab" slider-color="white">
             <v-tab value="normal" prepend-icon="mdi-clipboard-text-outline">
               Campaign Log
             </v-tab>
@@ -125,7 +116,7 @@ watch(campaign, (newCampaign) => {
           <v-window v-model="currentTab">
             <v-window-item value="normal" class="pa-3">
               <CampaignName :campaign-id="campaignId" class="mb-4" />
-              
+
               <v-row no-gutters class="d-flex justify-center mb-4">
                 <v-col cols="12">
                   <SelectDoor :campaign-id="campaignId" />
@@ -138,10 +129,13 @@ watch(campaign, (newCampaign) => {
                 </v-col>
               </v-row>
 
-              <v-row no-gutters class="justify-center pa-2 mb-4">
-                <v-col cols="12" sm="12" md="8" lg="6" class="d-flex flex-row justify-space-around">
-                  <CampaignLogAddHero :campaign-id="campaignId" />
-                  <CampaignLogRemoveHero :campaign-id="campaignId" />
+              <v-row no-gutters class="justify-center pa-6">
+                <v-col cols="12" sm="12" md="6" lg="4">
+                  <div class="d-flex align-center justify-center flex-wrap flex-sm-nowrap" style="gap: 12px;">
+                    <CampaignLogAddHero :campaign-id="campaignId" />
+                    <CampaignLogImportHero :campaign-id="campaignId" />
+                    <CampaignLogRemoveHero :campaign-id="campaignId" />
+                  </div>
                 </v-col>
               </v-row>
 
@@ -150,7 +144,8 @@ watch(campaign, (newCampaign) => {
                   <div v-if="heroStore.findAllInCampaign(campaignId).length === 0" class="text-center pa-4">
                     No heroes added to this campaign yet.
                   </div>
-                  <v-col cols="12" v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId" class="pa-1">
+                  <v-col cols="12" v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId"
+                    class="pa-1">
                     <CampaignLog :campaign-id="campaignId" :hero-id="hero.heroId"
                       :is-sequential-adventure="isSequentialAdventure" />
                   </v-col>
@@ -159,7 +154,7 @@ watch(campaign, (newCampaign) => {
             </v-window-item>
 
             <v-window-item value="book" class="pa-0">
-                <CampaignBook :campaign-id="campaignId" />
+              <CampaignBook :campaign-id="campaignId" />
             </v-window-item>
           </v-window>
         </v-col>
@@ -187,7 +182,8 @@ watch(campaign, (newCampaign) => {
           <v-row no-gutters class="d-flex justify-center mb-4" v-if="campaign.campaign === 'apocalypse'">
             <v-col cols="12">
               <v-sheet rounded border="md" class="pa-4 text-white">
-                <p class="text-center">Apocalypse campaign specific content (e.g., Legacy Trail, Background & Trait) would appear here.</p>
+                <p class="text-center">Apocalypse campaign specific content (e.g., Legacy Trail, Background & Trait)
+                  would appear here.</p>
               </v-sheet>
             </v-col>
           </v-row>
@@ -230,6 +226,7 @@ watch(campaign, (newCampaign) => {
   margin-left: 4px !important;
   margin-right: 4px !important;
 }
+
 .my-1 {
   margin-top: 4px !important;
   margin-bottom: 4px !important;
@@ -237,16 +234,19 @@ watch(campaign, (newCampaign) => {
 
 /* ESTILO PARA A ABA ATIVA PERSONALIZADA */
 .v-tabs .custom-active-tab {
-  background-color: rgb(var(--v-theme-secondary)) !important; /* Usa a cor 'secondary' do seu tema Vuetify */
-  color: white !important; /* Garante que o texto seja branco ou outra cor de alto contraste */
+  background-color: rgb(var(--v-theme-secondary)) !important;
+  /* Usa a cor 'secondary' do seu tema Vuetify */
+  color: white !important;
+  /* Garante que o texto seja branco ou outra cor de alto contraste */
   /* Você pode adicionar outros estilos aqui, como: */
   /* font-weight: bold; */
 }
 
 /* Opcional: Ajustar a cor do texto das abas não selecionadas se necessário */
 /* .v-tabs .v-tab:not(.custom-active-tab) { */
-  /* color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity)); */ /* Exemplo para texto em tema claro */
-  /* color: rgba(var(--v-theme-on-surface), 0.6); */ /* Ajuste a opacidade ou cor conforme necessário */
+/* color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity)); */
+/* Exemplo para texto em tema claro */
+/* color: rgba(var(--v-theme-on-surface), 0.6); */
+/* Ajuste a opacidade ou cor conforme necessário */
 /* } */
-
 </style>

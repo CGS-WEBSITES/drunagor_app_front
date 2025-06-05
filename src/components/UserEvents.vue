@@ -238,6 +238,14 @@
         </v-row>
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6">
+            <div v-if="loading" class="dialog-overlay">
+              <v-progress-circular
+                indeterminate
+                :size="80"
+                :width="7"
+                color="primary"
+              ></v-progress-circular>
+            </div>
             <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
@@ -293,8 +301,13 @@
                 <p class="text-subtitle-2 font-weight-medium mb-2">
                   Status: {{ selectedMyEvent?.status }}
                 </p>
-                <v-btn class="mb-4" block color="green" @click="createdCompanion()"
-                  :disabled="selectedMyEvent?.status !== 'Joined the Quest'">
+                <v-btn
+                  class="mb-4"
+                  block
+                  color="green"
+                  @click="handleNewCampaign('underkeep')"
+                  :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
+                >
                   Join Campaign
                 </v-btn>
                 <v-btn class="mb-8" block color="red" @click="quitEvent()">
@@ -354,6 +367,16 @@ import { HeroStore } from "@/store/HeroStore";
 import { useRouter, useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
+import { Campaign } from "@/store/Campaign";
+
+const router = useRouter();
+const toast = useToast();
+const { t } = useI18n();
+const userStore = useUserStore();
+const campaignStore = CampaignStore();
+const heroStore = HeroStore();
+const user = computed(() => userStore.user);
+const loading = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
@@ -362,6 +385,7 @@ if (!axios) {
 
 const activeTab = ref(1);
 const events = ref([]);
+const eventPk = ref(null);
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -378,8 +402,9 @@ const openEditDialog = (event, editable = false) => {
   isEditable.value = editable;
   editEventDialog.value = true;
   if (!editable) {
-    fetchPlayers();
+    fetchPlayers(event.events_pk);
     fetchStatuses();
+    updatePlayerStatus(player, newStatus, editableEvent.value.events_pk)
   }
 };
 
@@ -415,10 +440,19 @@ const fetchStatuses = () => {
     });
 };
 
-const fetchPlayers = () => {
+const appUserPk = computed(() => {
+  const raw = localStorage.getItem("app_user");
+  return raw ? JSON.parse(raw).users_pk : null;
+});
+const currentPlayer = computed(() => {
+  if (!appUserPk.value) return null;
+  
+  return players.value.find(p => p.users_pk === appUserPk.value) || null;
+});
+const fetchPlayers = (eventPk) => {
   axios
     .get("/rl_events_users/list_players", {
-      params: { events_fk: 31 },
+      params: { events_fk: eventPk },
     })
     .then((response) => {
       players.value = response.data.players;
@@ -433,19 +467,20 @@ onMounted(() => {
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
   fetchStatuses();
-  fetchPlayers();
+  if (events.value.length) {
+    fetchPlayers(events.value[0].events_pk);
+  }
 
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 });
 
-const updatePlayerStatus = (player, newStatus) => {
+const updatePlayerStatus = (player, newStatus, eventPk) => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-
   axios
     .post("/rl_events_users/cadastro", {
-      users_fk: 425,
-      events_fk: 31,
+      users_fk: appUser,
+      events_fk: eventPk,
       status: newStatus,
     })
     .then((response) => {
@@ -500,7 +535,6 @@ const handleTimeInput = (event) => {
   }
 };
 
-const user = computed(() => useUserStore().user);
 
 const selectedRewards = ref([]);
 
@@ -520,6 +554,8 @@ const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
 
+  fetchPlayers(event.events_pk);
+
   try {
     const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
       params: { events_fk: event.events_pk },
@@ -536,43 +572,86 @@ const openDialog = async (event) => {
 
 const showSuccessAlert = ref(false);
 
+function compressCampaign(campaignId) {
+  const campaignCopy = JSON.parse(
+    JSON.stringify(campaignStore.find(campaignId))
+  );
+}
+
+
+
+
 const joinedEventPk = ref(null);
 
-const joinEvent = async () => {
-  const userId = userStore.user?.users_pk;
-
-  if (!userId || !selectedEvent.value) {
-    return;
-  }
-
+async function handleNewCampaign(type) {
+  loading.value = true;
   try {
-    await axios.post('/rl_events_users/cadastro', {
-      users_fk: userStore.user?.users_pk,
-      events_fk: selectedEvent.value.events_pk,
-      status: 1,
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
-      },
+    // 1) buscar SKUs do usuário
+    const usersPk = userStore.user?.users_pk;
+    const { data } = await axios.get("/skus/search", {
+      params: { users_fk: usersPk },
     });
-
-    joinedEventPk.value = selectedEvent.value.events_pk;
-
-    await fetchMyEvents();
-
-    showSuccessAlert.value = true;
+    const skuList = Array.isArray(data.skus)
+      ? data.skus
+      : Object.values(data.skus);
+    const nameMap = {
+      underkeep: "underkeep",
+      /* core: "core",
+      apocalypse: "Apocalypse",
+      awakenings: "Awakenings", */
+    };
+    const selectedSku = skuList.find(
+      (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
+    );
+    if (!selectedSku) throw new Error("SKU não encontrado");
+    // 2) POST /campaigns/cadastro
+    const campaignRes = await axios.post("/campaigns/cadastro", {
+      tracker_hash:
+        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
+      conclusion_percentage: 0,
+      box: selectedSku.skus_pk,
+    });
+    const campaignFk = campaignRes.data.campaign.campaigns_pk;
+    // opcional: guardar no store local
+    const newCamp = new Campaign(String(campaignFk), type);
+    campaignStore.add(newCamp);
+    await axios.put(`/campaigns/alter/${campaignFk}`, {
+      tracker_hash: "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
+      party_name: "",
+    });
+    // 3) POST /rl_campaigns_users/cadastro
+    await axios.post("/rl_campaigns_users/cadastro", {
+      users_fk: usersPk,
+      campaigns_fk: campaignFk,
+      party_roles_fk: 1,
+      skus_fk: selectedSku.skus_pk,
+    });
+    compressCampaign(String(campaignFk));
+    toast.add({
+      severity: "success",
+      summary: t("label.success"),
+      detail: "Campanha criada com sucesso!",
+    });
+    // 4) redireciona
+    router.push({
+      path: `/campaign-tracker/campaign/${campaignFk}`,
+      query: { sku: String(selectedSku.skus_pk) },
+    });
   } catch (err) {
-    // Handle error registering participation
+    console.error("Erro no fluxo de criação:", err);
+    toast.add({
+      severity: "error",
+      summary: t("label.error"),
+      detail: err.message || "Falha ao criar campanha.",
+    });
+  } finally {
+    loading.value = false;
   }
-};
+}
 
-const toast = useToast();
-const { t } = useI18n();
-const router = useRouter();
+
 const route = useRoute();
 const boxSku = computed(() => route.query.sku || "");
-const campaignStore = CampaignStore();
-const heroStore = HeroStore();
 
 async function createdCompanion() {
   const token =
@@ -788,7 +867,6 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const userStore = useUserStore();
 
 const userCreatedEvents = ref([]);
 
@@ -930,6 +1008,8 @@ const rlEventsUsersPkToQuit = ref(null);
 
 const openMyEventsDialog = async (event) => {
   selectedMyEvent.value = event;
+  eventPk.value = event.events_pk;
+  fetchPlayers(event.events_pk);
   myDialog.value = true;
 
   const userStore = useUserStore();
@@ -1235,4 +1315,20 @@ const getEventStatusInfo = (status) => {
   width: 80px;
   height: 160px;
 }
+
+dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+
+
 </style>
