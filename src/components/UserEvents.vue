@@ -305,7 +305,7 @@
                   class="mb-4"
                   block
                   color="green"
-                  @click="handleNewCampaign('core')"
+                  @click="handleNewCampaign('underkeep')"
                   :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
                 >
                   Join Campaign
@@ -595,10 +595,10 @@ async function handleNewCampaign(type) {
       ? data.skus
       : Object.values(data.skus);
     const nameMap = {
-      core: "underkeep",
-      /* apocalypse: "Apocalypse",
-      awakenings: "Awakenings",
-      underkeep: "underkeep", */
+      underkeep: "underkeep",
+      /* core: "core",
+      apocalypse: "Apocalypse",
+      awakenings: "Awakenings", */
     };
     const selectedSku = skuList.find(
       (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
