@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid class="pa-0" :style="contentStyle">
     <v-row no-gutters class=" cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
       COMPANION</v-row
     >

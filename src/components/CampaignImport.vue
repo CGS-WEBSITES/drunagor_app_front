@@ -25,8 +25,8 @@ function importCampaign() {
   try {
     const data = JSON.parse(atob(token.value));
     const campaignId = nanoid();
-
     let campaign: Campaign;
+
     if ("campaign" in data || "name" in data) {
       // This means that it's a legacy token
       campaign = new Campaign(campaignId, data.campaign);

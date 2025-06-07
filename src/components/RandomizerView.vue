@@ -94,16 +94,16 @@ function getRandomCommander() {
         :backImage="backImage" />
     </v-col>
 
-    <v-col cols="12" class="d-flex justify-center pa-0">
+    <v-col cols="12" class="d-flex justify-center pb-0 pt-0">
       <v-checkbox
         :label="$t('randomizer.exclude-current-monster')" v-model="excludeCurrentCharacter">
       </v-checkbox>
     </v-col>
 
 
-    <v-container max-width="680" class="d-none d-md-flex">
+    <v-container max-width="680" class="d-none d-md-flex pt-0">
     <v-col cols="12" >
-      <v-card rounded="" class="d-flex justify-center pa-3 elevation-0"> 
+      <v-card color="primary" rounded="" class="d-flex justify-center pa-3 elevation-0"> 
   <v-btn
     class="mx-1"
     variant="elevated"

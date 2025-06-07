@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/JaheenAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/JaheenAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/JaheenINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,5 +25,6 @@ export class Jaheen implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }

@@ -1,14 +1,24 @@
 <template>
-  <v-container class="pa-0 mt-16">
-    <v-row justify="center">
-      <v-col cols="12" class="text-center mb-4">
-        <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
-          LIBRARY
-        </h1>
-      </v-col>
-    </v-row>
+  <v-container class="pa-0 mt-16" >
+    <!-- LIBRARY (Somente no Mobile) -->
+<v-row justify="center" class="d-md-none">
+  <v-col cols="12" class="text-center mb-4">
+    <h1 class="cinzel-text font-weight-black pt-0 pb-4 justify-center text-center text-h2">
+      LIBRARY
+    </h1>
+  </v-col>
+</v-row>
 
-    <v-card min-height="220px" class="pa-2">
+<!-- LIBRARY (Somente em Desktop e Tablets grandes) -->
+<v-row justify="center" class="d-none d-md-flex">
+  <v-col cols="12" class="text-center mb-4">
+    <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2">
+      LIBRARY
+    </h1>
+  </v-col>
+</v-row>
+
+    <v-card color="primary" min-height="220px" class="pa-2">
       <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
         <v-tab :value="1">All Products</v-tab>
         <v-tab :value="2">Wishlist</v-tab>

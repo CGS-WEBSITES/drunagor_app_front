@@ -19,6 +19,7 @@
             </v-avatar>
             
             <v-card-title class="user_name text-h3">{{ user.user_name }}</v-card-title>
+            <v-card-title class="retail_name">(Retailer)</v-card-title>
           </v-col>
         </v-row>
       </v-col>
@@ -41,7 +42,8 @@
                 background-color: black;
               " />
             </v-avatar>
-            <v-card-title class="user_name2 text-h5">{{ user.user_name }}</v-card-title>
+            <v-card-title class="user_name2 text-h5">{{ user.user_name }} (retailer)</v-card-title>
+
           </v-col>
         </v-row>
       </v-col>
@@ -53,7 +55,7 @@
         <v-card color="primary" height="116px" class="move_topo pt-12"></v-card>
         <v-card color="secundary" class="move_topo pt-12">
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
-            <v-col cols="12" sm="12" md="12" class="px-6 pt-12">
+            <v-col cols="12" sm="12" md="12" class="ml-5 pt-12">
               <!-- Primeiro Carrossel para dispositivos móveis -->
               <v-carousel :height="isMobile ? '400px' : 'auto'" hide-delimiters v-if="isMobile">
                 <v-carousel-item v-for="(item, index) in carouselItems" :key="index">
@@ -92,20 +94,7 @@
                       :disabled="index > 3 ? true : false" @click="router.push(item.route)">
                       <v-img :src="item.img" height with cover :gradient="index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                         " />
-                      <v-card-actions >
-                        <v-row class="d-flex justify-center">
-                          <v-btn class="text-center">{{ item.label }}</v-btn>
-                        </v-row>
-                      </v-card-actions>
-                      <div v-if="index > 3" style="
-                    height: 0px;
-                    width: 100%;
-                    position: relative;
-                    left: 0;
-                    bottom: 200px;
-                  " class="text-center">
-                        <coming-soon></coming-soon>
-                      </div>
+                      
                     </v-card>
                   </v-hover>
                 </v-col>
@@ -158,20 +147,6 @@
                 :disabled="index > 3 ? true : false" @click="router.push(item.route)">
                 <v-img :src="item.img" height with cover :gradient="index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
                   " />
-                <v-card-actions>
-                  <v-row class="d-flex justify-center">
-                    <v-btn class="text-center">{{ item.label }}</v-btn>
-                  </v-row>
-                </v-card-actions>
-                <div v-if="index > 3" style="
-                    height: 0px;
-                    width: 100%;
-                    position: relative;
-                    left: 0;
-                    bottom: 200px;
-                  " class="text-center">
-                  <coming-soon></coming-soon>
-                </div>
               </v-card>
             </v-hover>
           </v-col>
@@ -201,13 +176,63 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, computed, inject } from "vue";
+import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
+import { Campaign } from "@/store/Campaign";
+import { Hero } from "@/store/Hero";
+import { HeroEquipment } from "@/store/Hero";
+import axios from 'axios';
+
+function importCampaign(token: string) {
+
+  const data = JSON.parse(atob(token));
+  let campaign: Campaign;
+
+  if ("campaignData" in data) {
+    campaign = data.campaignData;
+  } else {
+    console.log("Not importing campaign data")
+    return;
+  }
+
+  campaignStore.add(campaign);
+
+  const heroes = data.heroes as Hero[];
+  heroes.forEach((h) => {
+    h.campaignId = campaign.campaignId;
+
+    if (typeof h.equipment === "undefined") {
+      h.equipment = new HeroEquipment();
+    }
+
+    if (typeof h.sequentialAdventureState === "undefined") {
+      h.sequentialAdventureState = null;
+    }
+
+    heroStore.add(h);
+  });
+
+}
+
+onBeforeMount(async () => {
+  campaignStore.reset()
+  heroStore.reset()
+
+  await axios.get('/rl_campaigns_users/search', {
+    params: { users_fk: user.users_pk }
+  }).then((res) => {
+    res.data.campaigns.forEach(element => {
+      importCampaign(element.tracker_hash)
+    });
+
+    loading.value = false
+  });
+});
 
 
 
@@ -258,25 +283,24 @@ const isMobile = computed(() => {
 // Dados do carrossel
 const carouselItems = ref([
 {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-campaigns2.png",
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-campaignmanager.png",
     label: "CAMPAIGN MANAGER",
-    route: { name: "CampaignTracker" },
+    route: { name: "Campaign Overview" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library2.png",
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-skusmannager.png",
     label: "SKUS MANAGER",
     route: { name: "Library" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile2.png",
-    label: "PROFILE",
-    route: { name: "PerfilHome" },
-  },
-
-  {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events2.png",
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-events3.png",
     label: "EVENTS",
     route: { name: "Events" },
+  },
+  {
+    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-profile3.png",
+    label: "PROFILE",
+    route: { name: "PerfilHome" },
   },
 ]);
 
@@ -371,9 +395,16 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .user_name {
   position: relative;
-  transform: translateY(-155px) translateX(234px);
+  transform: translateY(-185px) translateX(234px);
   z-index: 2;
 }
+
+.retail_name {
+  position: relative;
+  transform: translateY(-200px) translateX(234px);
+  z-index: 2;
+}
+
 
 .user_name2 {
   position: relative;
@@ -383,7 +414,7 @@ function findHeroes(campaignId: string): HeroData[] {
 
 .move_topo {
   position: relative;
-  transform: translateY(-280px);
+  transform: translateY(-330px);
 }
 
 .move_topo2 {

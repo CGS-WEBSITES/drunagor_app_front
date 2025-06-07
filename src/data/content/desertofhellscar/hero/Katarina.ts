@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/KatarinaAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/KatarinaAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/KatarinaINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,5 +25,6 @@ export class Katarina implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }
