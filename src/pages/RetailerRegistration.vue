@@ -25,7 +25,7 @@
                                         </v-col>
                                         <v-col cols="12">
                                             <h1 class="display-2 font-weight-bold pl-3">
-                                                Create a Retailer Account
+                                                Create an User Account
                                             </h1>
                                         </v-col>
                                     </v-row>

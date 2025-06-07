@@ -40,7 +40,7 @@ export async function registerPlugins(app: App, env: string) {
   let apiUrl: string;
 
   if (env === 'local') {
-    apiUrl = 'http://localhost:5002/';
+    apiUrl = 'http://localhost/test/system/';
   } else {
     if (env === 'prod') {
       apiUrl = '';

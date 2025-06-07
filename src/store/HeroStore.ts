@@ -1,7 +1,7 @@
 import { useStorage } from "@vueuse/core";
 import * as _ from "lodash-es";
 import { defineStore } from "pinia";
-import type { Hero } from "./Hero"; 
+import type { Hero } from "./Hero";
 
 export const HeroStore = defineStore("hero", () => {
   const heroes = useStorage("HeroStore.heroes", [] as Hero[]);
@@ -11,7 +11,10 @@ export const HeroStore = defineStore("hero", () => {
       heroId: heroId,
       campaignId: campaignId,
     });
-    return inCampaign !== undefined;
+    if (inCampaign == undefined) {
+      return false;
+    }
+    return true;
   }
 
   function findInCampaign(heroId: string, campaignId: string): Hero {
@@ -20,50 +23,31 @@ export const HeroStore = defineStore("hero", () => {
       campaignId: campaignId,
     });
     if (hero == undefined) {
-      throw new Error(`Hero with id '${heroId}' could not be found in campaign '${campaignId}'.`);
+      throw new Error("Hero could not be found: " + campaignId + " " + heroId);
     }
     return hero;
   }
 
   function findAllInCampaign(campaignId: string): Hero[] {
-    return _.filter(heroes.value, (hero: Hero) => hero.campaignId === campaignId);
+    return _.filter(heroes.value, (hero: Hero) => {
+      if (hero.campaignId === campaignId) {
+        return true;
+      }
+      return false;
+    });
   }
 
-  /**
-   * @param {Hero} hero 
-   */
-  function add(hero: Hero): void {
-    if (hasInCampaign(hero.heroId, hero.campaignId)) {
-      return;
-    }
+  function add(hero: Hero) {
     heroes.value.push(hero);
   }
 
-  /**
-   * @param {Hero} heroToClone 
-   * @param {string} targetCampaignId 
-   * @returns {boolean} 
-   */
-  function importAndCloneHeroToCampaign(heroToClone: Hero, targetCampaignId: string): boolean {
-    if (hasInCampaign(heroToClone.heroId, targetCampaignId)) {
-      return false; 
-    }
-
-    const newHeroInstance = _.cloneDeep(heroToClone);
-    newHeroInstance.campaignId = targetCampaignId;
-
-    heroes.value.push(newHeroInstance);
-    return true; 
-  }
-
-  function removeFromCampaign(heroId: string, campaignId: string): void {
+  function removeFromCampaign(heroId: string, campaignId: string) {
     heroes.value = heroes.value.filter((hero: Hero) => {
-      return !(hero.campaignId === campaignId && hero.heroId === heroId);
+      if (hero.campaignId === campaignId && hero.heroId === heroId) {
+        return false;
+      }
+      return true;
     });
-  }
-  
-  function reset(): void {
-    heroes.value = [];
   }
 
   return {
@@ -72,8 +56,6 @@ export const HeroStore = defineStore("hero", () => {
     findInCampaign,
     findAllInCampaign,
     add,
-    importAndCloneHeroToCampaign,
     removeFromCampaign,
-    reset,
   };
 });

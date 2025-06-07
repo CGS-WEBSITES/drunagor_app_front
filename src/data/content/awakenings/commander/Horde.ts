@@ -1,4 +1,4 @@
-import ImageUrl from "@/assets/monster/big/HordeBig.webp";
+import ImageUrl from "@/assets/monster/big/GremlinHordeBig.webp";
 import type { CommanderData } from "@/data/store/CommanderData";
 import type { ContentId } from "@/data/type/ContentId";
 

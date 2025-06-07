@@ -1,9 +1,7 @@
 export class Campaign {
   public campaignId: string;
-  public campaign: "core" | "apocalypse" | "awakenings" | "underkeep";
+  public campaign: "core" | "apocalypse" | "awakenings";
   public name: string = "";
-  public door: string = "";
-  public wing: string = "";
   public statusIds: string[] = [];
   public outcomeIds: string[] = [];
   public followerIds: string[] = [];
@@ -25,11 +23,9 @@ export class Campaign {
 
   constructor(
     campaignId: string,
-    campaign: "core" | "apocalypse" | "awakenings" | "underkeep",
+    campaign: "core" | "apocalypse" | "awakenings",
   ) {
     this.campaignId = campaignId;
-    if (campaign) {
-      this.campaign = campaign;
-    }
+    this.campaign = campaign;
   }
 }

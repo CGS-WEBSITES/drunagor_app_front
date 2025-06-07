@@ -1,6 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/AndreasAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/AndreasAvatar.png";
-import TrackerInfoUrl from "@/assets/hero/trackerinfo/AndreasINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -25,6 +24,5 @@ export class AndreasCleric implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
-    trackerInfo: TrackerInfoUrl
   };
 }

@@ -40,16 +40,6 @@ const router = createRouter({
       component: () => import("@/pages/Events.vue"),
     },
     {
-      path: "/user/:id",
-      name: "User",
-      component: () => import("@/pages/User.vue"),
-    },
-    {
-      path: "/event/:id",
-      name: "ShareEvent",
-      component: () => import("@/pages/ShareEvent.vue"),
-    },
-    {
       path: "/library",
       name: "Library",
       component: () => import("@/pages/Library.vue"),
@@ -84,19 +74,8 @@ const router = createRouter({
       },
       children: [
         {
-          path: "/campaign-tracker/",
-          name: "Campaign Overview",
-          component: () => import("@/components/CampaignOverviewView.vue"),
-          /* beforeEnter(to, from, next) {
-            if (isSignedIn()) {
-              next()
-              return
-            }
-          }, */
-        },
-        {
-          path: "/campaign-tracker/randomizer",
-          name: "Randomizer",
+          path: "/campaign-tracker",
+          name: "CampaignTracker",
           component: () => import("@/components/RandomizerView.vue"),
           beforeEnter(to, from, next) {
             if (isSignedIn()) {
@@ -144,6 +123,17 @@ const router = createRouter({
           name: "HeroSequentialState",
           component: () =>
             import("@/components/CampaignHeroSequentialAdventure.vue"),
+          beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          },
+        },
+        {
+          path: "/campaign-tracker/campaign",
+          name: "Campaign Overview",
+          component: () => import("@/components/CampaignOverviewView.vue"),
           beforeEnter(to, from, next) {
             if (isSignedIn()) {
               next()

@@ -12,7 +12,6 @@ import { FallenSisters } from "@/data/content/fallensisters/overlord/FallenSiste
 import { DemonLord } from "@/data/content/monsterpack1/overlord/DemonLord";
 import { Thern } from "@/data/content/spoilsofwar/commander/Thern";
 import { Twin } from "@/data/content/spoilsofwar/commander/Twin";
-import { Wermuggdir } from "@/data/content/desertofhellscar/monster/Wermuggdir";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
 import * as _ from "lodash-es";
 import { defineStore } from "pinia";
@@ -36,7 +35,6 @@ export const CommanderDataStore = defineStore("data-commander", () => {
     new Witch(),
     new Thern(),
     new Twin(),
-    new Wermuggdir(),
   ];
 
   function find(commanderId: string): CommanderData {

@@ -1,7 +1,8 @@
+---
 randomizer:
   random-monster: Random monster
   exclude-current-monster: Exclude current drawn character
-  enabled-content: Enabled content
+  enabled-content: Enabled variant / content
   white: White
   gray: Gray
   black: Black
@@ -15,7 +16,6 @@ label:
   remove-campaign: Remove campaign
   new-campaign: New campaign
   export-campaign: Export campaign
-  save-campaign-put: Save campaign
   copy-to-clipboard: Copy to clipboard
   import-campaign: " Import campaign"
   sequential-adventure: Sequential Adventure
@@ -114,7 +114,6 @@ text:
   campaign-imported: Campaign imported
   campaign-removed: Campaign removed
 monster:
-  wermuggdir: Wermuggdir
   abomination: Abomination
   archon: Archon
   bane: Bane

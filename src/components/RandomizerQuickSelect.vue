@@ -7,9 +7,9 @@ import ConfigurationVariant from "./ConfigurationVariant.vue";
   <v-container max-width="660">
   <v-expansion-panels >
     <v-expansion-panel
-    color="primary"
+      dark
       :title="$t('randomizer.enabled-content')"
-      class="px-"
+      class="px-4"
     >
       <v-expansion-panel-text>
         <ConfigurationContentMonster />

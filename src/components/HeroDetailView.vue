@@ -8,7 +8,6 @@ import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
 import { ref } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
-import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
 import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
@@ -30,9 +29,7 @@ if (campaign.campaign === "core") {
   repository = new ApocalypseItemDataRepository();
 } else if (campaign.campaign === "awakenings") {
   repository = new AwakeningsItemDataRepository();
-} else if (campaign.campaign === "underkeep") {
-  repository = new UnderKeepItemDataRepository();
-}else {
+} else {
   throw new Error("Unknown campaign");
 }
 
@@ -45,36 +42,43 @@ function onStash() {
 </script>
 
 <template>
- <v-row no-gutters class="pt-6">
-  <v-col cols="12" class="d-flex justify-center pb-4">
-    <v-btn
-      variant="elevated"
-      @click="$router.go(-1)"
-
-    >
-      {{ t("label.back") }}
-    </v-btn>
-  </v-col>
-</v-row>
-  <v-row no-gutters>
-    <v-col cols="12" class="d-flex align-center justify-center">
-      
+  <v-row no-gutters class="py-6"
+    ><v-col cols="12">
+      <v-btn variant="elevated" @click="$router.go(-1)">{{
+        t("label.back")
+      }}</v-btn>
+    </v-col></v-row
+  >
+  <v-row no-gutters
+    ><v-col cols="12">
       <v-card
         elevation="16"
         rounded
         style="background-color: #1f2937"
-        width="800px"
-        class="hero-list-item rounded-t-xl"
+        width="100%"
+        class="hero-list-item"
       >
-
-
-      
-            <v-img
-    :src="hero.images.trackerInfo"
-    class="rounded-0"
-    contain
-  />
-            
+        <v-card-title class="text-h5 px-2">
+          {{ hero.name }}
+          <v-divider></v-divider>
+        </v-card-title>
+        <v-card-text class="px-2">
+          <v-row no-gutters>
+            <v-col cols="2">
+              <v-avatar :image="hero.images.avatar" size="65" />
+            </v-col>
+            <v-col cols="10">
+              <p>
+                {{ t("label." + hero.race.toLowerCase()) }}
+                {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
+              </p>
+              <p>
+                {{ t("text.path-of") }}
+                {{ t("label." + hero.path.toLowerCase()) }}
+              </p>
+            </v-col>
+          </v-row>
+        </v-card-text>
         <v-card-actions>
           <v-row no-gutters class="px-6"
             ><v-col cols="12">

@@ -1,6 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/LordwrathAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/LordwrathAvatar.png";
-import TrackerInfoUrl from "@/assets/hero/trackerinfo/LordwrathINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,7 +23,6 @@ export class Lordwrath implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
-    trackerimage: TrackerImageUrl,
-    trackerInfo: TrackerInfoUrl
+    trackerimage: TrackerImageUrl
   };
 }

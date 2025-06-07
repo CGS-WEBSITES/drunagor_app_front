@@ -1,6 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/WillowAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/WillowAvatar.png";
-import TrackerInfoUrl from "@/assets/hero/trackerinfo/WillowINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,7 +23,6 @@ export class Willow implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
-    trackerimage: TrackerImageUrl,
-    trackerInfo: TrackerInfoUrl
+    trackerimage: TrackerImageUrl
   };
 }

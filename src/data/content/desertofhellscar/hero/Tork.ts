@@ -1,6 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/TorkAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/TorkAvatar.png";
-import TrackerInfoUrl from "@/assets/hero/trackerinfo/TorkINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -25,6 +24,5 @@ export class Tork implements HeroData {
   images = {
     avatar: AvatarImageUrl,
     trackerimage: TrackerImageUrl,
-    trackerInfo: TrackerInfoUrl
   };
 }

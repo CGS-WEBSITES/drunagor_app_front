@@ -546,13 +546,6 @@ auras:
           RANGE. Then, you may continue to play the Adventure
     storyrecord: []
 statuses:
-  underkeep:
-    campaign:
-      - id: blackriver-survivors
-        name: Blackriver Survivors
-      - id: blackriver-monsters
-        name: Blackriver Monsters
-  
   core:
     campaign:
       - id: a-cooperative-approach

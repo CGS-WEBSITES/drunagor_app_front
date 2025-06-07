@@ -31,10 +31,8 @@ function startSequentialAdventure() {
     variant="elevated"
     id="sequential-adventure-btn"
     rounded
-    class="px-6 my-2"
     @click="startSequentialAdventure"
-    >
-    <v-icon start>mdi-map-marker-path</v-icon>{{ t("label.sequential-adventure") }}</v-btn
+    >{{ t("label.sequential-adventure") }}</v-btn
   >
 </template>
 

@@ -6,7 +6,7 @@ import BaseListSearch from "@/components/BaseListSearch.vue";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
 import { useI18n } from "vue-i18n";
 
-const getImageUrl = (path) => new URL(`@/${path}`, import.meta.url).href
+
 const { t } = useI18n();
 const route = useRoute();
 const keywordDataRepository = new KeywordDataRepository();
@@ -39,7 +39,7 @@ query.value = preselectedKeyword;
 <template>
   <div class="grid place-items-center w-full">
     <v-container max-width="680">
-    <v-card color="primary" class="pa-1">
+    <v-card class="pa-1">
       <v-card-title> {{ t("menu.keyword") }} </v-card-title>
       <v-card-actions>
         <BaseListSearch
@@ -49,42 +49,17 @@ query.value = preselectedKeyword;
         />
       </v-card-actions>
       <v-card-text>
-        <v-expansion-panels >
-  <v-expansion-panel
-    v-for="keyword in filteredKeyword"
-    :key="keyword.id"
-    color="background"
-    class="my-2"
-  >
-    <template #title>
-      <div class="d-flex align-center gap-2">
-        <img
-      v-if="keyword.icon"
-      :src="keyword.icon"
-      alt="icon"
-      style="width: 30px; height: 30px; margin-right: 10px;"
-    />
-        {{ keyword.keyword }}
-      </div>
-    </template>
-
-    <template #text>
-  {{ keyword.description }}
-
-  <div
-    v-if="keyword.icon"
-    class="d-flex justify-center align-center mt-2"
-  >
-    <img
-      :src="keyword.icon"
-      alt="icon"
-      style="width: 80px; height: 80px;"
-    />
-  </div>
-</template>
-  </v-expansion-panel>
-</v-expansion-panels>
-
+        <v-expansion-panels color="blue-darken-4" >
+          <v-expansion-panel
+          color="#172A2C"
+          class="my-2"
+            v-for="keyword in filteredKeyword"
+            :key="keyword.id"
+            :title="keyword.keyword"
+            :text="keyword.description"
+          >
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-card-text>
     </v-card>
   </v-container>

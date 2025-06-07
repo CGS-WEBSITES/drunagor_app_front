@@ -22,7 +22,6 @@
     "@mdi/font": "7.4.47",
     "@types/marked": "^4.0.8",
     "@vueuse/core": "^9.9.0",
-    "@zxing/library": "^0.21.3",
     "axios": "^1.7.9",
     "core-js": "^3.37.1",
     "d3": "^7.9.0",

@@ -4,11 +4,8 @@ import { useToast } from "primevue/usetoast";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
-// import { useRoute } from "vue-router";
-// import axios from "axios";
 
 const toast = useToast();
-// const route = useRoute();
 
 const props = defineProps<{
   campaignId: string;
@@ -16,12 +13,9 @@ const props = defineProps<{
 
 const visible = ref(false);
 const campaignStore = CampaignStore();
-const successDialogVisible = ref(false);
 const heroStore = HeroStore();
 const token = ref("");
 const { t } = useI18n();
-
-// const boxSku = computed(() => route.query.sku || "");
 
 function openModal() {
   const campaignCopy = JSON.parse(
@@ -61,8 +55,7 @@ function closeModal() {
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-export" class="px-6 my-2" rounded  @click="openModal">
-    <v-icon start>mdi-export</v-icon>
+  <v-btn variant="elevated" id="campaign-export" rounded  @click="openModal">
     {{ t("label.export-campaign") }}
   </v-btn>
   <v-dialog v-model="visible">
@@ -74,27 +67,12 @@ function closeModal() {
       </v-card-text>
     </v-card>
     <v-card>
-      <!-- <v-btn variant="elevated" @click="saveCampaign">{{
-        t("save")
-      }}</v-btn> -->
       <v-btn variant="elevated" @click="copyToClipboard">{{
         t("label.copy-to-clipboard")
       }}</v-btn>
       <v-btn variant="elevated" @click="closeModal">{{
         t("label.cancel")
       }}</v-btn>
-    </v-card>
-  </v-dialog>
-
-  <v-dialog v-model="successDialogVisible">
-    <v-card>
-      <v-card-title>{{ t("label.success") }}</v-card-title>
-      <v-card-text>
-        {{ t("Campaign created successfully") }}
-      </v-card-text>
-      <v-btn variant="elevated" @click="successDialogVisible = false">
-        {{ t("label.close") }}
-      </v-btn>
     </v-card>
   </v-dialog>
 </template>

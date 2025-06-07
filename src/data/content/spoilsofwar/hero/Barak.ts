@@ -1,6 +1,5 @@
 import AvatarImageUrl from "@/assets/hero/avatar/BarakAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/BarakAvatar.png";
-import TrackerInfoUrl from "@/assets/hero/trackerinfo/BarakINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -24,7 +23,6 @@ export class Barak implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
-    trackerimage: TrackerImageUrl,
-    trackerInfo: TrackerInfoUrl
+    trackerimage: TrackerImageUrl
   };
 }

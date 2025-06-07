@@ -5,9 +5,6 @@ import { useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
 import { useToast } from "primevue/usetoast";
-import axios from "axios";
-
-
 
 const toast = useToast();
 
@@ -29,21 +26,10 @@ const props = defineProps<{
 }>();
 
 function removeCampaign() {
-  const campaigns_pk = props.campaignId;
-  axios
-    .delete(`/rl_campaigns_users/${campaigns_pk}/delete`)
-    .then((response) => {
-      console.log("Campaign removed successfully", response.data);
-    })
-    .catch((error) => {
-      console.error("Error removing campaign:", error);
-    });
-  campaignStore.remove(campaigns_pk);
-  heroStore
-    .findAllInCampaign(campaigns_pk)
-    .forEach((hero) => {
-      heroStore.removeFromCampaign(hero.heroId, campaigns_pk);
-    });
+  campaignStore.remove(props.campaignId);
+  heroStore.findAllInCampaign(props.campaignId).forEach((hero) => {
+    heroStore.removeFromCampaign(hero.heroId, props.campaignId);
+  });
   toast.add({
     severity: "success",
     summary: t("label.success"),
@@ -51,14 +37,12 @@ function removeCampaign() {
     life: 3000,
   });
   closeModal();
-  router.push("/campaign-tracker/");
+  router.push("/campaign-tracker/campaign");
 }
 </script>
 
 <template>
-  <v-btn variant="elevated" id="campaign-remove" class="px-6 my-2" rounded @click="openModal">
-    <v-icon start>mdi-delete</v-icon>
-    {{
+  <v-btn variant="elevated" id="campaign-remove" rounded @click="openModal">{{
     t("label.remove-campaign")
   }}</v-btn>
   <v-dialog v-model="visible">

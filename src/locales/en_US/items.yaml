@@ -1,24 +1,5 @@
 ---
 weapon:
-  underkeep:
-    tools-of-the-trade: Tools of The Trade
-    amiran-hammer: Amiran Hammer
-    magicians-staff: Magician's Staff
-    robins-crossbow: Robin's Crossbow
-    dwarven-warhammer: Dwarven Warhammer
-    masterwork-sword: Masterwork Sword
-    lumberjacks-axe: Lumberjack's Axe
-    elanian-crossbow: Elanian Crossbow
-    elven-speellblade: ELven Spellblade
-    stone-gladius: Stone Gladius
-    lost-claymore: Lost Claymore  
-    lost-claymore-gem: Lost Claymore (Cosmic Gem)
-    draconian-scimitar: Draconian Scimitar
-    draconian-scimitar-gem: Draconian Scimitar (Cosmic Gem)
-    lorelanian-longbow: Lorelanian Longbow  
-    lorelanian-longbow-gem: Lorelanian Longbow (Cosmic Gem)
-    redwood-staff: Redwood Staff
-    redwood-staff-gem: Redwood Staff (Cosmic Gem)
   core:
     amiran-crossbow: Amiran Crossbow
     amiran-halberd: Amiran Halberd
@@ -119,17 +100,6 @@ weapon:
     ultimate-arcabalest: Ultimate Arcabalest
     war-bow: War Bow
 trinket:
-  underkeep: 
-    locket-of-safeguard: Locket Of Safeguard
-    silver-helmet: Silver Helmet
-    living-torch: Living Torch
-    gravity-boots: Gravity Boots
-    gravity-boots-gem: Gravity Boots (Cosmic Gem)
-    ring-of-mastery: Ring of Mastery (Gift)
-    bracers-of-endurance: Bracers of Endurance (Gift)
-    bauble-of-power: Bauble of Power (Gift)
-    boots-of-haste: Boots of Haste (Gift)
-    heroic-heart: Heroic Heart (Gift)
   core:
     amulet-of-power: Amulet Of Power
     amulet-of-rewinding: Amulet Of Rewinding
@@ -225,19 +195,6 @@ trinket:
     ultimate-cornucopia: Ultimate Cornucopia
     ultimate-grimoire: Ultimate Grimoire
 armor:
-  underkeep:
-    smugglers-vest: Smuggler's Vest
-    clerics-mail: Cleric's Mail
-    elvensilk-robe: Elvensilk Robe
-    hunters-cuirass: Hunter's Cuirass
-    dwarven-plate: Dwarven Plate
-    mirror-plate: Mirror Plate
-    astralsilk-robe: Astralsilk Robe
-    astralsilk-robe-gem: Astralsilk Robe (Cosmic Gem)
-    dragonhide-cuirass: Dragonhide Cuirass
-    dragonhide-cuirass-gem: Dragonhide Cuirass (Cosmic Gem)
-    quicksilver-breastplate: Quicksilver Breastplate
-    quicksilver-breastplate-gem: Quicksilver Breastplate (Cosmic Gem)
   core:
     breastplate: Breastplate
     cloth-armor: Cloth Armor
@@ -304,13 +261,6 @@ armor:
     ultimate-exquisite-mail: Ultimate Exquisite Mail
     ultimate-quilted-doublet: Ultimate Quilted Doublet
 consumable:
-  underkeep:
-    cosmic-ruby: Cosmic Ruby
-    scroll-of-incinerate: Scroll of Incinerate
-    potion-of-rejuvenation: Potion of Rejuvenation
-    scroll-of-winter: Scroll of Winter
-    potion-of-strength: Potion of Strength
-    potion-of-concentration: Potion of Concentration
   core:
     cosmic-gemstone: Cosmic Gemstone
     cosmic-gemstone-chest: Cosmic Gemstone (Chest)
@@ -347,15 +297,6 @@ consumable:
     scroll-of-protection: Scroll of Protection
     treasure-trove: Treasure Trove (Hero)
 offhand:
-  underkeep:
-    ebony-chair: Ebony Chair
-    masterwork-sword: Masterwork Sword
-    earls-shield: Earl's Shield
-    arcane-bulwark: Arcane Bulwark
-    ritual-dagger: Ritual Dagger
-    bulwark-shield: Bulward Shield (Gift)
-    hallowed-symbol: Hallowed Symbol (Gift)
-    weakening-dagger: Weakening Dagger (Gift)
   core:
     deadly-backstabber: Deadly Backstabber
     deft-stilleto: Deft Stilleto

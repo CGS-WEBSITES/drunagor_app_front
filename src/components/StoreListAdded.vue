@@ -1,12 +1,13 @@
 <template>
   <v-container max-width="776" class="pa-4">
-    <v-card color="primary" rounded="lg" elevation="6" class="pa-4">
+    <!-- Caixa por trás -->
+    <v-card rounded="lg" elevation="6" class="pa-4">
       <!-- Seleção de Abas -->
       <v-col cols="12" class="d-flex justify-center pa-0">
-        <v-tabs v-model="activeTab" class="mb-4">
-          <v-tab :value="'friends'" class="text-h5 text-bold">Friends</v-tab>
-          <v-tab :value="'requests'" class="text-h5 text-bold">Requests</v-tab>
-        </v-tabs>
+      <v-tabs v-model="activeTab" class="mb-4">
+        <v-tab :value="'friends'" class="text-h5 text-bold">Friends</v-tab>
+        <v-tab :value="'requests'" class="text-h5 text-bold">Requests</v-tab>
+      </v-tabs>
       </v-col>
 
       <!-- Barra de Busca -->
@@ -23,40 +24,18 @@
           <v-menu offset-y>
             <template #activator="{ props }">
               <v-card
-                class="pa-1 mb-3 cursor-pointer"
+                class="pa-1 mb-3"
                 rounded="lg"
                 elevation="10"
                 v-bind="props"
-                @click="navigateToUser(item.friends_id)"
+                @click="setSelectedItem(item)"
               >
-                <div
-                  class="background-overlay"
-                  :style="{
-                    backgroundImage: item.background_hash
-                      ? `url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${item.background_hash})`
-                      : 'url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '8px',
-                    zIndex: 0,
-                  }"
-                ></div>
                 <v-row>
                   <!-- Imagem -->
-                  <v-col
-                    cols="4"
-                    lg="2"
-                    class="d-flex align-center justify-center"
-                  >
+                  <v-col cols="4" lg="2" class="d-flex align-center justify-center">
                     <v-img
                       :src="item.image"
-                      alt="User Image"
+                      alt="Item Image"
                       max-width="90"
                       max-height="90"
                       class="rounded-lg"
@@ -65,34 +44,29 @@
 
                   <!-- Informações -->
                   <v-col cols="6">
-                    <p class="font-weight-bold text-truncate">
-                      {{ item.user_name }}
-                    </p>
+                    <p class="font-weight-bold text-truncate">{{ item.name }}</p>
+                    <p class="text-body-2 grey--text">{{ item.details }}</p>
                   </v-col>
+                  <v-btn v-if="item.friend === false" class="ma-2 mt-6" color="green"> ACCEPT </v-btn>
+                  <v-btn v-if="item.friend === false" class="ma-2 mt-6" color="red"> DECLINE </v-btn>
 
-                  <!-- Botões de Aceitar/Recusar Amizade -->
-                  <v-col
-                    v-if="!item.accepted"
-                    cols="2"
-                    md="4"
-                    class="d-flex justify-end align-center"
-                  >
-                    <v-btn
-                      class="ma-2"
-                      color="green"
-                      @click.stop="acceptFriend(item.friends_pk)"
-                      >ACCEPT</v-btn
-                    >
-                    <v-btn
-                      class="ma-2"
-                      color="red"
-                      @click.stop="declineFriend(item.friends_pk)"
-                      >DECLINE</v-btn
-                    >
-                  </v-col>
+                  <!-- Pontuação -->
+                  <!-- <v-col cols="1" class="d-flex align-self-end justify-center">
+                    <p class="text-body-2 text-bold">{{ item.points }}</p>
+                  </v-col> -->
                 </v-row>
               </v-card>
             </template>
+
+            <!-- Conteúdo do menu -->
+            <!-- <v-card class="pa-4">
+              <p class="text-h6 text-bold mb-2">{{ selectedItem?.name }}</p>
+              <p class="text-body-2">{{ selectedItem?.details }}</p>
+              <p class="text-body-2">Points: {{ selectedItem?.points }}</p>
+              <v-btn text color="primary" class="mt-2" @click="closeMenu">
+                Fechar
+              </v-btn>
+            </v-card> -->
           </v-menu>
         </template>
       </v-virtual-scroll>
@@ -100,191 +74,69 @@
   </v-container>
 </template>
 
-<script setup>
-import { ref, computed, onMounted, inject } from "vue";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/UserStore";
+<script lang="ts" setup>
+import { ref, computed } from 'vue';
 
+// Dados simulados
+const friends = ref([
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-lorien-mage.png',
+    name: 'Lorien',
+    details: 'Generic Information',
+    points: '946338°',
+    friend: true
+  },
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-vorn-warrior.png',
+    name: 'Vorn Store',
+    details: 'Generic Location, USA 00000-0000',
+    points: '946338°',
+    friend: true,
+  },
+]);
 
+const requests = ref([
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-flavian-bard.png',
+    name: 'Flavian Store',
+    details: 'Pending Approval',
+    points: '--',
+    friend: false,
+  },
+  {
+    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/CampaignTracker/hero-katarina-barbarian.png',
+    name: 'Katarina',
+    details: 'Pending Approval',
+    points: '--',
+   friend: false,    
+  },
+]);
 
-const axios = inject("axios");
-const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
-const userStore = useUserStore();
-const userId = userStore.user.users_pk;
-const router = useRouter();
+// Abas ativas
+const activeTab = ref('friends');
 
-// **Estados**
-const activeTab = ref("friends");
-const searchQuery = ref("");
-const friends = ref([]);
-const requests = ref([]);
+// Campo de busca
+const searchQuery = ref('');
 
-const navigateToUser = (userId) => {
-  try {
-    if (!userId) throw new Error("ID do usuário não encontrado!");
-    
-    const encodedId = btoa(userId.toString());
-    console.log("Navegando para ID codificado:", encodedId);
-
-    router.push({ name: "User", params: { id: encodedId } });
-  } catch (error) {
-    console.error("Erro ao navegar:", error.message);
-  }
-};
-
-const fetchFriends = async () => {
-  try {
-    const userStore = useUserStore();
-    const userId = userStore.user?.users_pk; // Obtém o ID do usuário logado
-
-    if (!userId) {
-      console.error("❌ Erro: Usuário não identificado.");
-      return;
-    }
-
-    const response = await axios.get(`${apiUrl}/friends/list_friends`, {
-      params: { invite_users_fk: userId, accepted: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const friendData = response.data.friends;
-
-    console.log("🔍 Dados dos amigos recebidos:", friendData);
-
-    // Processa os amigos e define `friends_id` corretamente
-    friends.value = friendData.map((friend) => ({
-      friends_pk: friend.friends_pk,
-      user_name: friend.user_name,
-      friends_id:
-        friend.invite_users_fk === userId
-          ? friend.recipient_users_fk // Se o usuário logado foi quem enviou o pedido, pega o recebedor
-          : friend.invite_users_fk, // Caso contrário, pega quem enviou
-      image: friend.picture_hash
-        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
-        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
-      background_hash: friend.background_hash,
-      accepted: true,
-    }));
-  } catch (error) {
-    console.error("❌ Erro ao buscar amigos:", error.response?.data || error.message);
-  }
-};
-
-const fetchRequests = async () => {
-  try {
-    const response = await axios.get(`${apiUrl}/friends/list_requests`, {
-      params: { recipient_users_fk: userId, accepted: false, active: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const friendRequests = response.data.friends || [];
-
-    requests.value = friendRequests.map((friend) => ({
-      friends_pk: friend.friends_pk,
-      user_name: friend.user_name,
-      friends_id: friend.invite_users_fk,
-      image: friend.picture_hash
-        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
-        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
-      background_hash: friend.background_hash,
-      accepted: false,
-    }));
-  } catch (error) {}
-};
-
-const acceptFriend = async (friends_pk) => {
-  if (!friends_pk) {
-    console.error(
-      "❌ Erro: O ID do pedido de amizade (friends_pk) não foi fornecido."
-    );
-    return;
-  }
-
-  try {
-    // Fazendo o PUT na API para aceitar a amizade
-    await axios.put(
-      `${apiUrl}/friends/accept/${friends_pk}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }
-    );
-
-    // 🔄 Atualiza a lista após aceitar
-    await fetchFriends();
-    await fetchRequests();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao aceitar amizade:",
-      error.response?.data || error.message
-    );
-  }
-};
-
-// **Recusar amizade após buscar friends_pk**
-const declineFriend = async (recipientId) => {
-  try {
-    // 1️⃣ Busca o `friends_pk` com base no recipient_users_fk
-    const response = await axios.get(`${apiUrl}/friends/list`, {
-      params: { invite_users_fk: userId, accepted: false },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const request = response.data.friends.find(
-      (friend) => friend.invite_users_fk === recipientId
-    );
-
-    if (!request) {
-      console.error(
-        "❌ Nenhuma solicitação de amizade encontrada para este usuário."
-      );
-      return;
-    }
-
-    const friends_pk = request.friends_pk; // Obtém o ID do pedido
-
-    // 2️⃣ Recusa a amizade passando o `friends_pk`
-    await axios.delete(`${apiUrl}/friends/${friends_pk}/delete`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    // 🔄 Atualiza a lista após recusar
-    await fetchRequests();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao recusar amizade:",
-      error.response?.data || error.message
-    );
-  }
-};
-
-// **Lista filtrada**
+// Lista filtrada com base na aba ativa
 const filteredList = computed(() => {
-  const list = activeTab.value === "friends" ? friends.value : requests.value;
+  const list = activeTab.value === 'friends' ? friends.value : requests.value;
   if (!searchQuery.value) return list;
   return list.filter((item) =>
-    item.user_name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 
-watch(activeTab, (newTab) => {
-  if (newTab === "friends") {
-    fetchFriends();
-  } else if (newTab === "requests") {
-    fetchRequests();
-  }
-});
+// Estado para o item selecionado
+const selectedItem = ref(null);
 
-onMounted(fetchRequests);
-onMounted(fetchFriends);
+// Define o item selecionado
+const setSelectedItem = (item) => {
+  selectedItem.value = item;
+};
+
+// Fecha o menu (limpa a seleção)
+const closeMenu = () => {
+  selectedItem.value = null;
+};
 </script>

@@ -44,10 +44,6 @@ export const CampaignStore = defineStore("campaign", () => {
     campaign.name = newName;
   }
 
-  function reset() {
-    campaigns.value = [];
-  }
-
   return {
     campaigns,
     has,
@@ -56,6 +52,5 @@ export const CampaignStore = defineStore("campaign", () => {
     add,
     remove,
     rename,
-    reset,
   };
 });
