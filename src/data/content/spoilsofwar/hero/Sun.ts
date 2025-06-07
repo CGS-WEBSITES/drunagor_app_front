@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/SunAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/SunAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/SunINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -23,6 +24,7 @@ export class Sun implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
-    trackerimage: TrackerImageUrl
+    trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }

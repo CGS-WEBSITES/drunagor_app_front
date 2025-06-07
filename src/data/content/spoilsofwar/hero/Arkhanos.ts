@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/ArkhanosAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/ArkhanosAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/ArkanosINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -23,6 +24,7 @@ export class Arkhanos implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
-    trackerimage: TrackerImageUrl
+    trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }

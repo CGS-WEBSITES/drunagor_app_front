@@ -61,12 +61,35 @@ const activeButton = ref<string | null>(null);
 
 // Grupos de botões (divididos em 3 grupos)
 const buttons = ref([
-  { icon: 'mdi-help', value: 'CampaignTracker', route: '/campaign-tracker', text: "Randomize"},
-  { icon: 'mdi-account-group', value: 'CampaignOverview', route: '/campaign-tracker/campaign', text: "Campaign" },
-  { icon: 'mdi-magnify', value: 'Keyword', route: '/campaign-tracker/keyword', text: "Keywords" },
-  { icon: 'mdi-cog-outline', value: 'settings', route: '/campaign-tracker/configuration', text: "Settings" },
+  {
+    iconType: 'image',
+    icon: new URL('@/assets/randomiicon.png', import.meta.url).href,
+    value: 'Campaign Overview',
+    route: '/campaign-tracker/randomizer',
+    text: "Randomize"
+  },
+  {
+    iconType: 'mdi',
+    icon: 'mdi-sword',
+    value: 'Campaign Overview',
+    route: '/campaign-tracker/',
+    text: "Campaign"
+  },
+  {
+    iconType: 'mdi',
+    icon: 'mdi-book-search-outline',
+    value: 'Keyword',
+    route: '/campaign-tracker/keyword',
+    text: "Keywords"
+  },
+  {
+    iconType: 'mdi',
+    icon: 'mdi-cog-outline',
+    value: 'settings',
+    route: '/campaign-tracker/configuration',
+    text: "Settings"
+  }
 ]);
-
 
 
 
@@ -117,33 +140,63 @@ const buttons = ref([
 
 
 <template>
-  <v-container class="d-md-none pa-4">
-    <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center">
-      <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
-        <!-- Grupo 1: Profile e Edit -->
-        <template v-for="(button, i) in buttons" :key="button.value">
-          <v-btn :icon="button.icon" @click="navigateTo(button.route)">
-          </v-btn>
+  <!-- MOBILE -->
+  <v-container class="d-sm-none pa-4">
+  <v-card
+    color="primary"
+    rounded="lg"
+    elevation="3"
+    class="mx-auto py-4 px-6 d-flex justify-center"
+  >
+    <v-row
+      justify="space-between"
+      align="center"
+      class="py-2"
+      style="max-width: 800px;"
+    >
+      <template v-for="(button, i) in buttons" :key="button.value">
+        <v-btn
+  icon
+  @click="navigateTo(button.route)"
+  class="mx-1"
+  width="56"
+  height="56"
+>
+  <template v-if="button.iconType === 'image'">
+    <v-img
+      :src="button.icon"
+      width="32"
+      height="32"
+      style="object-fit: contain;"
+    />
+  </template>
+  <template v-else>
+    <v-icon size="32">{{ button.icon }}</v-icon>
+  </template>
+</v-btn>
+      </template>
+    </v-row>
+  </v-card>
+</v-container>
 
-        </template>
 
-      </v-row>
-    </v-card>
-  </v-container>
-
-  <v-container max-width="800" style="min-width: 360px;" class="d-none d-md-flex">
-    <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center ">
-      <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
-        <!-- Grupo 1: Profile e Edit -->
-        <template v-for="(button,) in buttons" :key="button.value">
-          <v-btn class="mx-1" rounded @click="navigateTo(button.route)">
-            <v-icon style="font-size: 24px;">{{ button.icon }}</v-icon>
-            <span> {{ button.text }} </span>
-          </v-btn>
-        </template>
-
-      </v-row>
-    </v-card>
-  </v-container>
+<!-- DESKTOP -->
+<v-container max-width="800" style="min-width: 360px;" class="d-none d-sm-flex">
+  <v-card color="primary" rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center">
+    <v-row justify="space-between" align="center" class="py-2" style="max-width: 800px;">
+      <template v-for="(button, i) in buttons" :key="button.value">
+        <v-btn class="mx-1" rounded @click="navigateTo(button.route)">
+          <template v-if="button.iconType === 'image'">
+            <v-img :src="button.icon" width="24" height="24" class="mr-2" style="object-fit: contain;" />
+          </template>
+          <template v-else>
+            <v-icon class="mr-2" style="font-size: 24px;">{{ button.icon }}</v-icon>
+          </template>
+          <span> {{ button.text }} </span>
+        </v-btn>
+      </template>
+    </v-row>
+  </v-card>
+</v-container>
 </template>
 

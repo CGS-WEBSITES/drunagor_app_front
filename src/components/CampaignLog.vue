@@ -3,6 +3,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
 import CampaignLogCore from "./CampaignLogCore.vue";
+import CampaignLogUnderKeep from "./CampaignLogUnderKeep.vue"
 import CampaignLogAwakenings from "./CampaignLogAwakenings.vue";
 import CampaignLogApocalypse from "./CampaignLogApocalypse.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
@@ -23,40 +24,15 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 </script>
 
 <template>
-  <v-card elevation="16" rounded style="background-color: #1f2937" width="100%" class="hero-list-item">
-    <v-card-title class="text-h5 px-2">
-      {{ hero.name }}
-      <v-divider></v-divider>
-    </v-card-title>
-    <v-card-text class="px-2">
+  <v-card elevation="16" rounded style="background-color: #1f2937" width="100%">
+  <v-card-text class="px-0 pt-0">
       <v-row no-gutters>
-        <v-col cols="2">
-          <v-avatar :image="hero.images.avatar" size="65" />
-        </v-col>
-        <v-col cols="10" class="pl-8 d-md-none">
-          <p class>
-            {{ t("label." + hero.race.toLowerCase()) }}
-            {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
-          </p>
-          <p>
-            {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
-          </p>
-        </v-col>
-
-        <v-col cols="12" class="pt-3 d-none d-md-flex">
-          <p class>
-            {{ t("label." + hero.race.toLowerCase()) }}
-            {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
-          </p>
-        </v-col>
-          <p class="d-none d-md-flex">
-            {{ t("text.path-of") }} {{ t("label." + hero.path.toLowerCase()) }}
-          </p>
-
-  
-        
-
-        
+        <v-col cols="12">
+  <v-img
+    :src="hero.images.trackerInfo"
+    contain
+  />
+</v-col>
       </v-row>
     </v-card-text>
     <v-card-actions>
@@ -88,6 +64,14 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
         <v-col cols="12">
           <CampaignLogApocalypse
             v-if="campaign.campaign == 'apocalypse'"
+            :campaign-id="props.campaignId"
+            :hero-id="props.heroId"
+          />
+        </v-col>
+
+        <v-col cols="12">
+          <CampaignLogUnderKeep
+            v-if="campaign.campaign == 'underkeep'"
             :campaign-id="props.campaignId"
             :hero-id="props.heroId"
           />

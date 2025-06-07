@@ -1,5 +1,6 @@
 import AvatarImageUrl from "@/assets/hero/avatar/DrixxAvatar.webp";
 import TrackerImageUrl from "@/assets/hero/trackerimage/DrixxAvatar.png";
+import TrackerInfoUrl from "@/assets/hero/trackerinfo/DrixxINFO.png";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ArmorType } from "@/data/type/ArmorType";
 import type { ContentId } from "@/data/type/ContentId";
@@ -23,6 +24,7 @@ export class Drixx implements HeroData {
   };
   images = {
     avatar: AvatarImageUrl,
-    trackerimage: TrackerImageUrl
+    trackerimage: TrackerImageUrl,
+    trackerInfo: TrackerInfoUrl
   };
 }
