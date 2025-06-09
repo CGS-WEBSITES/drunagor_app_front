@@ -1,7 +1,9 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+      <h1
+        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+      >
         EVENTS
       </h1>
     </v-col>
@@ -11,7 +13,13 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -20,11 +28,24 @@
 
       <div v-if="activeTab === 1">
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(event, index) in sortedEvents"
+            :key="index"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openDialog(event)"
+            >
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black">
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
                         new Date(event.event_date)
@@ -34,7 +55,10 @@
                           .toUpperCase()
                       }}
                     </p>
-                    <p color="primary" class="cinzel-text text-h3 font-weight-bold">
+                    <p
+                      color="primary"
+                      class="cinzel-text text-h3 font-weight-bold"
+                    >
                       {{ String(event.event_date).split("T")[0].split("-")[2] }}
                     </p>
                     <p class="text-caption font-weight-bold">
@@ -50,7 +74,9 @@
                 </v-col>
                 <v-col cols="8" sm="10" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >{{ event.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
                     <v-icon color="red">mdi-map-marker</v-icon>
@@ -61,12 +87,25 @@
                     {{ event.scenario }}
                   </p>
 
-                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+                  <p
+                    class="text-caption ml-3"
+                    v-if="event.rewards && event.rewards.length"
+                  >
                     <v-row class="d-flex align-center rewards-container">
                       <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
                       Rewards:
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
+                      <v-col
+                        cols="auto"
+                        v-for="(reward, index) in event.rewards"
+                        :key="index"
+                      >
+                        <v-img
+                          :src="reward.image"
+                          height="20"
+                          width="20"
+                          contain
+                          class="reward-icon"
+                        ></v-img>
                       </v-col>
                     </v-row>
                   </p>
@@ -85,12 +124,21 @@
               <v-card>
                 <v-card-title class="text-h6">Share Event</v-card-title>
                 <v-card-text>
-                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                    hide-details></v-text-field>
+                  <v-text-field
+                    v-model="sharedLink"
+                    label="Event Link"
+                    readonly
+                    density="compact"
+                    hide-details
+                  ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">
+                  <v-btn
+                    color="success"
+                    size="small"
+                    @click="copyLink(sharedLink)"
+                  >
                     Copy Link
                   </v-btn>
                   <v-btn color="grey" size="small" @click="showDialog = false">
@@ -101,14 +149,26 @@
             </v-dialog>
             <v-card-text>
               <p></p>
-              <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                @click="shareEvent(selectedEvent?.events_pk)">
+              <v-btn
+                block
+                color="blue"
+                size="small"
+                variant="flat"
+                class="mt-2"
+                @click="shareEvent(selectedEvent?.events_pk)"
+              >
                 <v-icon start>mdi-share-variant</v-icon>
                 Share Event
               </v-btn>
               <br />
-              <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
-              <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
+              <p>
+                <v-icon>mdi-seat</v-icon> Disponible Seats:
+                {{ selectedEvent?.seats_number }}
+              </p>
+              <p>
+                <v-icon>mdi-sword-cross</v-icon> Scenario:
+                {{ selectedEvent?.scenario }}
+              </p>
               <br />
               <p class="text-end scheduled-box">
                 Scheduled for:
@@ -127,10 +187,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -146,43 +210,75 @@
             </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
+              <v-row
+                v-for="(reward, index) in eventRewards"
+                :key="index"
+                class="align-center my-2"
+              >
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                    <v-img
+                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                    />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
+                  <h4 class="text-subtitle-1 font-weight-bold">
+                    {{ reward.name }}
+                  </h4>
                   <p class="text-body-2">{{ reward.description }}</p>
                 </v-col>
               </v-row>
             </v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="12" class="mb-2">
-                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
+                <v-btn
+                  block
+                  color="#539041"
+                  class="rounded-0"
+                  @click="joinEvent"
+                >
                   Count me in
                 </v-btn>
 
-                <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
-                  @click:close="showSuccessAlert = false">
-                  You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.
+                <v-alert
+                  v-if="showSuccessAlert"
+                  type="success"
+                  class="mt-4"
+                  border="start"
+                  variant="tonal"
+                  closable
+                  @click:close="showSuccessAlert = false"
+                >
+                  You’ve successfully joined this event! Visit the
+                  <strong>My Events</strong> page to view it.
                 </v-alert>
-
               </v-col>
             </v-row>
           </v-card>
         </v-dialog>
-
       </div>
 
       <div v-else-if="activeTab === 2">
         <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(evt, idx) in myEvents" :key="evt.events_pk">
-            <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
+          <v-col
+            class="py-2 pl-1 pr-1"
+            cols="12"
+            md="6"
+            v-for="(evt, idx) in myEvents"
+            :key="evt.events_pk"
+          >
+            <v-card
+              color="terciary"
+              class="pt-0 event-card"
+              @click="openMyEventsDialog(evt)"
+            >
               <v-row no-gutters>
                 <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black">
+                  <div
+                    class="text-center ml-3"
+                    style="width: 70px; color: black"
+                  >
                     <p class="pt-3 text-caption font-weight-bold">
                       {{
                         new Date(evt.event_date)
@@ -207,7 +303,9 @@
 
                 <v-col cols="8" sm="9" class="pt-2">
                   <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                    <v-icon class="pr-1" size="small" color="black"
+                      >mdi-chess-rook</v-icon
+                    >
                     {{ evt.store_name }}
                   </h3>
                   <p class="text-caption text-truncate">
@@ -223,10 +321,21 @@
                   </p>
                 </v-col>
 
-                <v-col cols="0" sm="1" class="d-flex align-center justify-end pr-2">
-                  <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
+                <v-col
+                  cols="0"
+                  sm="1"
+                  class="d-flex align-center justify-end pr-2"
+                >
+                  <v-tooltip
+                    :text="getEventStatusInfo(evt.status).tooltip"
+                    location="top"
+                  >
                     <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
+                      <v-icon
+                        v-bind="props"
+                        :color="getEventStatusInfo(evt.status).color"
+                        size="large"
+                      >
                         {{ getEventStatusInfo(evt.status).icon }}
                       </v-icon>
                     </template>
@@ -250,23 +359,31 @@
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
               </v-card-title>
-              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer;">
+              <v-icon
+                color="red"
+                @click="myDialog = false"
+                class="mr-2"
+                style="cursor: pointer"
+              >
                 mdi-close
               </v-icon>
             </div>
 
-            <div class="mt-1 pl-6" style="display: inline-block;">
+            <div class="mt-1 pl-6" style="display: inline-block">
               <p class="text-caption scheduled-box ma-0 ml-">
                 Scheduled for:
                 {{
-                  new Date(selectedMyEvent?.event_date).toLocaleString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
+                  new Date(selectedMyEvent?.event_date).toLocaleString(
+                    "en-US",
+                    {
+                      month: "2-digit",
+                      day: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    },
+                  )
                 }}
               </p>
             </div>
@@ -274,11 +391,19 @@
             <v-row class="" align="center" justify="space-between">
               <v-col cols="12" md="6" class="text-center pt-8 ml-3">
                 <div
-                  style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;">
-                  <v-img
+                  style="
+                    position: relative;
+                    display: inline-block;
+                    background: white;
+                    padding: 8px;
+                    border-radius: 8px;
+                  "
+                >
+                  <!-- <v-img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
-                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
-                  <div style="
+                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" /> -->
+                  <div
+                    style="
                       position: absolute;
                       top: 50%;
                       left: 50%;
@@ -291,13 +416,18 @@
                       border-radius: 4px;
                       text-transform: uppercase;
                       letter-spacing: 1px;
-                    ">
+                    "
+                  >
                     Coming Soon
                   </div>
                 </div>
               </v-col>
 
-              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
+              <v-col
+                cols="12"
+                md="5"
+                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
+              >
                 <p class="text-subtitle-2 font-weight-medium mb-2">
                   Status: {{ selectedMyEvent?.status }}
                 </p>
@@ -306,7 +436,10 @@
                   block
                   color="green"
                   @click="handleNewCampaign('underkeep')"
-                  :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
+                  :disabled="
+                    !currentPlayer ||
+                    currentPlayer.event_status !== 'Joined the Quest'
+                  "
                 >
                   Join Campaign
                 </v-btn>
@@ -319,10 +452,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedMyEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selectedMyEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -343,16 +480,20 @@
           <v-card>
             <v-card-title class="text-h6">Confirm Exit</v-card-title>
             <v-card-text>
-              Are you sure you want to quit this event? This action cannot be undone.
+              Are you sure you want to quit this event? This action cannot be
+              undone.
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="grey" text @click="showQuitConfirmDialog = false">Cancel</v-btn>
-              <v-btn color="red-darken-2" text @click="confirmQuitEvent">Quit Event</v-btn>
+              <v-btn color="grey" text @click="showQuitConfirmDialog = false"
+                >Cancel</v-btn
+              >
+              <v-btn color="red-darken-2" text @click="confirmQuitEvent"
+                >Quit Event</v-btn
+              >
             </v-card-actions>
           </v-card>
         </v-dialog>
-
       </div>
     </v-card>
   </v-col>
@@ -404,7 +545,7 @@ const openEditDialog = (event, editable = false) => {
   if (!editable) {
     fetchPlayers(event.events_pk);
     fetchStatuses();
-    updatePlayerStatus(player, newStatus, editableEvent.value.events_pk)
+    updatePlayerStatus(player, newStatus, editableEvent.value.events_pk);
   }
 };
 
@@ -446,8 +587,8 @@ const appUserPk = computed(() => {
 });
 const currentPlayer = computed(() => {
   if (!appUserPk.value) return null;
-  
-  return players.value.find(p => p.users_pk === appUserPk.value) || null;
+
+  return players.value.find((p) => p.users_pk === appUserPk.value) || null;
 });
 const fetchPlayers = (eventPk) => {
   axios
@@ -463,6 +604,7 @@ const fetchPlayers = (eventPk) => {
 };
 
 onMounted(() => {
+  console.log("📦 User Store:", userStore.user);
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
@@ -535,7 +677,6 @@ const handleTimeInput = (event) => {
   }
 };
 
-
 const selectedRewards = ref([]);
 
 const toggleReward = (reward) => {
@@ -574,12 +715,9 @@ const showSuccessAlert = ref(false);
 
 function compressCampaign(campaignId) {
   const campaignCopy = JSON.parse(
-    JSON.stringify(campaignStore.find(campaignId))
+    JSON.stringify(campaignStore.find(campaignId)),
   );
 }
-
-
-
 
 const joinedEventPk = ref(null);
 
@@ -616,7 +754,8 @@ async function handleNewCampaign(type) {
     const newCamp = new Campaign(String(campaignFk), type);
     campaignStore.add(newCamp);
     await axios.put(`/campaigns/alter/${campaignFk}`, {
-      tracker_hash: "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
+      tracker_hash:
+        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
       party_name: "",
     });
     // 3) POST /rl_campaigns_users/cadastro
@@ -649,7 +788,6 @@ async function handleNewCampaign(type) {
   }
 }
 
-
 const route = useRoute();
 const boxSku = computed(() => route.query.sku || "");
 
@@ -671,20 +809,22 @@ async function createdCompanion() {
     });
 
     const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
-    await axios.post("rl_campaigns_users/cadastro", {
-      users_fk: users_pk,
-      campaigns_fk: resp.campaign.campaigns_pk,
-      party_roles_fk: 1,
-      skus_fk: parseInt(resp.campaign.box, 10),
-    }).then((response) => {
-    }).catch((error) => {
-      toast.add({
-        severity: "error",
-        summary: t("label.error"),
-        detail: "Error creating campaign-user relationship.",
-        life: 3000,
+    await axios
+      .post("rl_campaigns_users/cadastro", {
+        users_fk: users_pk,
+        campaigns_fk: resp.campaign.campaigns_pk,
+        party_roles_fk: 1,
+        skus_fk: parseInt(resp.campaign.box, 10),
+      })
+      .then((response) => {})
+      .catch((error) => {
+        toast.add({
+          severity: "error",
+          summary: t("label.error"),
+          detail: "Error creating campaign-user relationship.",
+          life: 3000,
+        });
       });
-    });
     router.push({ path: "/campaign-tracker/" });
   } catch (err) {
     toast.add({
@@ -842,7 +982,6 @@ const addEvent = async () => {
       },
     });
 
-    await fetchUserCreatedEvents();
     await fetchPlayerEvents();
 
     selectedRewards.value = [];
@@ -860,38 +999,11 @@ const deleteEvent = async (events_pk) => {
       },
     });
 
-    await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
     // Handle error deleting event
   }
 };
-
-
-const userCreatedEvents = ref([]);
-
-const fetchUserCreatedEvents = async () => {
-  try {
-    const retailer_fk = userStore.user?.users_pk;
-
-    if (!retailer_fk) {
-      return;
-    }
-
-    const response = await axios.get("/events/my_events/retailer", {
-      params: { retailer_fk, active: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    userCreatedEvents.value = response.data.events || [];
-  } catch (error) {
-    // Handle error fetching user created events
-  }
-};
-
-onMounted(fetchUserCreatedEvents);
 
 const availableRewards = ref([
   {
@@ -994,8 +1106,7 @@ const getPlayersForEvent = async (event_fk) => {
         events_fk: event_fk,
       },
     })
-    .then((response) => {
-    })
+    .then((response) => {})
     .catch((error) => {
       // Handle error fetching players
     });
@@ -1032,7 +1143,7 @@ const openMyEventsDialog = async (event) => {
     const playersForEvent = response.data.players;
 
     const currentUserEntry = playersForEvent.find(
-      (player) => player.users_pk === userId
+      (player) => player.users_pk === userId,
     );
 
     if (currentUserEntry) {
@@ -1079,7 +1190,7 @@ const confirmQuitEvent = async () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     );
 
     toast.add({
@@ -1102,7 +1213,7 @@ const confirmQuitEvent = async () => {
   }
 };
 
-const sharedLink = ref('');
+const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
 
@@ -1130,44 +1241,44 @@ const copyLink = async (link) => {
 };
 
 watch(dialog, (val) => {
+  a;
   if (!val) {
     showSuccessAlert.value = false;
   }
 });
 
-
 // Function to get icon and tooltip text based on event status
 const getEventStatusInfo = (status) => {
   switch (status) {
-    case 'Seeks Entry': // Assuming "Seeks Entry" is the string from your API
+    case "Seeks Entry": // Assuming "Seeks Entry" is the string from your API
       return {
-        icon: 'mdi-timer-sand', // Waiting icon
-        color: 'orange',
-        tooltip: 'Waiting for the retailer to accept your entry.',
+        icon: "mdi-timer-sand", // Waiting icon
+        color: "orange",
+        tooltip: "Waiting for the retailer to accept your entry.",
       };
-    case 'Granted Passage': // Assuming "Granted Passage" is the string from your API
+    case "Granted Passage": // Assuming "Granted Passage" is the string from your API
       return {
-        icon: 'mdi-check-circle', // Accepted icon
-        color: 'success', // Green color
-        tooltip: 'Retailer accepted your passage to the event.',
+        icon: "mdi-check-circle", // Accepted icon
+        color: "success", // Green color
+        tooltip: "Retailer accepted your passage to the event.",
       };
-    case 'Turned Away': // Assuming "Turned Away" is the string from your API
+    case "Turned Away": // Assuming "Turned Away" is the string from your API
       return {
-        icon: 'mdi-cancel', // Refused icon
-        color: 'error', // Red color
-        tooltip: 'Retailer refused your entry or you left the event.',
+        icon: "mdi-cancel", // Refused icon
+        color: "error", // Red color
+        tooltip: "Retailer refused your entry or you left the event.",
       };
-    case 'Joined the Quest': // Assuming "Joined the Quest" is the string from your API
+    case "Joined the Quest": // Assuming "Joined the Quest" is the string from your API
       return {
-        icon: 'mdi-sword', // Quest available icon
-        color: 'purple', // Or another suitable color
-        tooltip: 'Your campaign is available and you can play now.',
+        icon: "mdi-sword", // Quest available icon
+        color: "purple", // Or another suitable color
+        tooltip: "Your campaign is available and you can play now.",
       };
     default:
       return {
-        icon: 'mdi-help-circle', // Default icon for unknown status
-        color: 'grey',
-        tooltip: 'Unknown event status.',
+        icon: "mdi-help-circle", // Default icon for unknown status
+        color: "grey",
+        tooltip: "Unknown event status.",
       };
   }
 };
@@ -1328,7 +1439,4 @@ dialog-overlay {
   align-items: center;
   z-index: 10;
 }
-
-
-
 </style>
