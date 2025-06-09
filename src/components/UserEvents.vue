@@ -128,8 +128,8 @@
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img :src="selectedEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
@@ -279,28 +279,39 @@
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
                     width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
                   <div style="
-                      position: absolute;
-                      top: 50%;
-                      left: 50%;
-                      transform: translate(-50%, -50%) rotate(-10deg);
-                      font-weight: 600;
-                      font-size: 0.9rem;
-                      color: #999;
-                      background-color: rgba(255, 255, 255, 0.7);
-                      padding: 4px 10px;
-                      border-radius: 4px;
-                      text-transform: uppercase;
-                      letter-spacing: 1px;
-                    ">
+                          position: absolute;
+                          top: 50%;
+                          left: 50%;
+                          transform: translate(-50%, -50%) rotate(-10deg);
+                          font-weight: 600;
+                          font-size: 0.9rem;
+                          color: #999;
+                          background-color: rgba(255, 255, 255, 0.7);
+                          padding: 4px 10px;
+                          border-radius: 4px;
+                          text-transform: uppercase;
+                          letter-spacing: 1px;
+                        ">
                     Coming Soon
                   </div>
                 </div>
               </v-col>
 
               <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
-                <p class="text-subtitle-2 font-weight-medium mb-2">
-                  Status: {{ selectedMyEvent?.status }}
-                </p>
+                <div class="d-flex align-center justify-center mb-2">
+                  <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
+                    Status: {{ selectedMyEvent?.status }}
+                  </p>
+                  <v-btn
+                    
+                    icon="mdi-refresh"
+                    variant="text"
+                    size="small"
+                    :loading="isRefreshingStatus"
+                    :disabled="isRefreshingStatus"
+                    @click="refreshEventStatus(); refreshEventStatus();" 
+                  ></v-btn>
+                </div>
                 <v-btn
                   class="mb-4"
                   block
@@ -320,8 +331,8 @@
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img :src="selectedMyEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
@@ -446,7 +457,7 @@ const appUserPk = computed(() => {
 });
 const currentPlayer = computed(() => {
   if (!appUserPk.value) return null;
-  
+
   return players.value.find(p => p.users_pk === appUserPk.value) || null;
 });
 const fetchPlayers = (eventPk) => {
@@ -1006,10 +1017,13 @@ const selectedMyEvent = ref(null);
 const showQuitConfirmDialog = ref(false);
 const rlEventsUsersPkToQuit = ref(null);
 
+const isRefreshingStatus = ref(false);
+
 const openMyEventsDialog = async (event) => {
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
+  fetchStatuses();
   myDialog.value = true;
 
   const userStore = useUserStore();
@@ -1042,6 +1056,40 @@ const openMyEventsDialog = async (event) => {
     }
   } catch (error) {
     rlEventsUsersPkToQuit.value = null;
+  }
+};
+
+const refreshEventStatus = async () => {
+  if (!selectedMyEvent.value?.events_pk) {
+    console.warn("Nenhum evento selecionado para atualizar.");
+    return;
+  }
+
+  isRefreshingStatus.value = true;
+  try {
+    await fetchPlayers(selectedMyEvent.value.events_pk);
+
+    if (currentPlayer.value) {
+      selectedMyEvent.value.status = currentPlayer.value.event_status;
+      
+      toast.add({
+        severity: "info",
+        summary: "Status Atualizado",
+        detail: `O novo status é: ${currentPlayer.value.event_status}`,
+        life: 3000,
+      });
+    }
+
+  } catch (error) {
+    console.error("Falha ao atualizar o status do evento:", error);
+    toast.add({
+        severity: "error",
+        summary: "Erro",
+        detail: "Não foi possível atualizar o status.",
+        life: 3000,
+    });
+  } finally {
+    isRefreshingStatus.value = false;
   }
 };
 
@@ -1171,6 +1219,7 @@ const getEventStatusInfo = (status) => {
       };
   }
 };
+
 </script>
 
 <style scoped>
@@ -1328,7 +1377,4 @@ dialog-overlay {
   align-items: center;
   z-index: 10;
 }
-
-
-
 </style>
