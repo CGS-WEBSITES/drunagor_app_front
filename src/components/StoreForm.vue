@@ -17,7 +17,6 @@
     color="warning"
     class="my-4"
     icon="mdi-alert-octagram-outline"
-    text
   >
     Your store is under review and cannot create events yet. The verification
     process may take up to 3 business days.
@@ -64,13 +63,13 @@
               :rules="[(v) => !!v || 'Store name is required']"
             ></v-text-field>
             <v-text-field
-  label="Street Number"
-  variant="outlined"
-  v-model="form.streetNumber"
-  :rules="[(v) => !!v || 'Street Number is required']"
-  type="text"
-  @keypress="onlyAllowNumbers"
-/>
+              label="Street Number"
+              variant="outlined"
+              v-model="form.streetNumber"
+              :rules="[(v) => !!v || 'Street Number is required']"
+              type="text"
+              @keypress="onlyAllowAlphanumeric"
+            />
             <v-text-field
               label="Street Name"
               variant="outlined"
@@ -191,23 +190,28 @@
                   </p>
                 </v-col>
                 <v-col
-  cols="2"
-  lg="1"
-  class="d-flex flex-column align-center justify-center gap-2"
->
-  <v-btn
-    color="terciary"
-    icon
-    class="mb-4"
-    size="small"
-    @click="openEditDialog(store, index)"
-  >
-    <v-icon>mdi-pencil</v-icon>
-  </v-btn>
-  <v-btn color="red" size="small" icon @click="removeStore(store.stores_pk)">
-    <v-icon>mdi-delete</v-icon>
-  </v-btn>
-</v-col>
+                  cols="2"
+                  lg="1"
+                  class="d-flex flex-column align-center justify-center gap-2"
+                >
+                  <v-btn
+                    color="terciary"
+                    icon
+                    class="mb-4"
+                    size="small"
+                    @click="openEditDialog(store, index)"
+                  >
+                    <v-icon>mdi-pencil</v-icon>
+                  </v-btn>
+                  <v-btn
+                    color="red"
+                    size="small"
+                    icon
+                    @click="removeStore(store.stores_pk)"
+                  >
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-col>
               </v-row>
             </v-card>
           </v-col>
@@ -234,7 +238,7 @@
                 label="Street Number"
                 outlined
                 v-model="editableStore.streetNumber"
-                @keypress="onlyAllowNumbers"
+                @keypress="onlyAllowAlphanumeric"
               ></v-text-field>
               <v-text-field
                 label="Street Name"
@@ -280,7 +284,7 @@
               <v-file-input
                 label="Upload Store Image"
                 accept="image/*"
-                @change="handleEditImageUpload"
+                @change="handleImageUpload"
               ></v-file-input>
               <v-img
                 v-if="editableStore.storeImage"
@@ -436,7 +440,10 @@ const fetchStores = async () => {
     });
     stores.value = [...response.data.stores];
   } catch (error) {
-    console.error("❌ Erro ao buscar lojas:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao buscar lojas:",
+      (error as any)?.response?.data || (error as any)?.message,
+    );
     stores.value = [];
   }
 };
@@ -449,9 +456,10 @@ import { useUserStore } from "@/store/UserStore";
 
 const storeForm = ref(null);
 
-const onlyAllowNumbers = (event: KeyboardEvent) => {
-  const char = String.fromCharCode(event.keyCode);
-  if (!/^[0-9]$/.test(char)) {
+const onlyAllowAlphanumeric = (event: KeyboardEvent) => {
+  const char = event.key;
+  // permite apenas letras e números
+  if (!/^[a-zA-Z0-9]$/.test(char)) {
     event.preventDefault();
   }
 };
@@ -461,7 +469,7 @@ const showVerificationMessage = ref(false); // Adicione isso no seu <script setu
 
 const getCountryNameFromId = (id: string | null): string => {
   const match = countriesList.value.find((c) => c.countries_pk === id);
-  return match?.name || '';
+  return match?.name || "";
 };
 
 const saveStore = async () => {
@@ -473,7 +481,6 @@ const saveStore = async () => {
   }
 
   const store = form.value;
-  
 
   const countryName = getCountryNameFromId(store.country);
   const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
@@ -486,7 +493,7 @@ const saveStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
-    merchant_id: store.MerchantID
+    merchant_id: store.MerchantID,
   };
 
   try {
@@ -495,7 +502,6 @@ const saveStore = async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
 
     form.value = {
       storename: "",
@@ -524,7 +530,7 @@ const saveStore = async () => {
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar a loja:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -598,7 +604,7 @@ const openEditDialog = (store: any, index: number) => {
     complement: complement || "",
     address: address || "",
     streetNumber: streetNumber || "",
-    MerchantID: store.MerchantID || store.merchant_id ,
+    MerchantID: store.MerchantID || store.merchant_id,
     storeImage: store.picture_hash || store.storeImage,
   };
 
@@ -643,7 +649,7 @@ const saveEditedStore = async () => {
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
     picture_hash: form.value.storeImage,
-    merchant_id: store.MerchantID
+    merchant_id: store.MerchantID,
   };
 
   try {
@@ -653,7 +659,6 @@ const saveEditedStore = async () => {
       },
     });
 
-
     // Atualiza localmente a lista, se necessário
     await fetchStores();
 
@@ -661,7 +666,7 @@ const saveEditedStore = async () => {
   } catch (error) {
     console.error(
       "❌ Erro ao atualizar a loja:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -670,24 +675,19 @@ const removeStore = async (stores_pk) => {
   try {
     const token = localStorage.getItem("accessToken");
 
-    await axios.delete(
-      `/stores/${stores_pk}/delete/`,
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-
+    await axios.delete(`/stores/${stores_pk}/delete/`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     // Atualiza a lista após excluir
     await fetchStores();
   } catch (error) {
     console.error(
       "❌ Erro ao excluir a loja:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -710,7 +710,7 @@ const getMerchantAccount = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     )
     .then((response: any) => {
       console.log("Dados da conta:", response.data);
