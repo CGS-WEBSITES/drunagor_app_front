@@ -526,7 +526,7 @@ const saveStore = async () => {
 
     setTimeout(() => {
       showVerificationMessage.value = false; // Esconde após 5s
-    }, 5000);
+    }, 1500);
   } catch (error) {
     console.error(
       "❌ Erro ao cadastrar a loja:",
