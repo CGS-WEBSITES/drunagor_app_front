@@ -275,9 +275,9 @@
               <v-col cols="12" md="6" class="text-center pt-8 ml-3">
                 <div
                   style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;">
-                  <v-img
+                  <!-- <v-img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
-                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
+                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" /> -->
                   <div style="
                       position: absolute;
                       top: 50%;
