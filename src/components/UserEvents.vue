@@ -9,354 +9,197 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
+      <!-- Tabs -->
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
         </v-col>
       </v-row>
 
+      <!-- ALL EVENTS -->
       <div v-if="activeTab === 1">
-        <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-            <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
-              <v-row no-gutters>
-                <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black">
-                    <p class="pt-3 text-caption font-weight-bold">
-                      {{
-                        new Date(event.event_date)
-                          .toLocaleDateString("en-US", {
-                            month: "short",
+        <!-- Loading spinner -->
+        <div v-if="loading" class="d-flex justify-center my-8">
+          <v-progress-circular indeterminate size="48" color="primary" />
+        </div>
+        <!-- Event list -->
+        <div v-else class="list-container">
+          <v-row>
+            <v-col
+              v-for="(event, index) in sortedEvents"
+              :key="index"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
+            >
+              <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+                <v-row no-gutters>
+                  <v-col cols="4" sm="2">
+                    <div class="text-center ml-3" style="width: 70px; color: black">
+                      <p class="pt-3 text-caption font-weight-bold">
+                        {{
+                          new Date(event.event_date)
+                            .toLocaleDateString("en-US", { month: "short" })
+                            .toUpperCase()
+                        }}
+                      </p>
+                      <p class="cinzel-text text-h3 font-weight-bold">
+                        {{ String(event.event_date).split("T")[0].split("-")[2] }}
+                      </p>
+                      <p class="text-caption font-weight-bold">
+                        {{
+                          new Date(event.event_date).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
                           })
-                          .toUpperCase()
-                      }}
+                        }}
+                      </p>
+                    </div>
+                  </v-col>
+                  <v-col cols="8" sm="10" class="pt-2">
+                    <h3 class="pb-1">
+                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                      {{ event.store_name }}
+                    </h3>
+                    <p class="text-caption text-truncate">
+                      <v-icon color="red">mdi-map-marker</v-icon>
+                      {{ event.address }}
                     </p>
-                    <p color="primary" class="cinzel-text text-h3 font-weight-bold">
-                      {{ String(event.event_date).split("T")[0].split("-")[2] }}
+                    <p class="text-caption">
+                      <v-icon color="red">mdi-sword-cross</v-icon>
+                      {{ event.scenario }}
                     </p>
-                    <p class="text-caption font-weight-bold">
-                      {{
-                        new Date(event.event_date).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      }}
+                    <p
+                      class="text-caption ml-3"
+                      v-if="event.rewards?.length"
+                    >
+                      <v-row class="d-flex align-center rewards-container">
+                        <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                        Rewards:
+                        <v-col
+                          v-for="(reward, i) in event.rewards"
+                          :key="i"
+                          cols="auto"
+                        >
+                          <v-img
+                            :src="reward.image"
+                            height="20"
+                            width="20"
+                            contain
+                            class="reward-icon"
+                          />
+                        </v-col>
+                      </v-row>
                     </p>
-                  </div>
-                </v-col>
-                <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>{{ event.store_name }}
-                  </h3>
-                  <p class="text-caption text-truncate">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ event.address }}
-                  </p>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-sword-cross</v-icon>
-                    {{ event.scenario }}
-                  </p>
-
-                  <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-                      Rewards:
-                      <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                        <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
-                      </v-col>
-                    </v-row>
-                  </p>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-dialog v-model="dialog" max-width="600" min-height="431">
-          <v-card color="surface">
-            <v-card-actions class="d-flex justify-left">
-              <v-btn color="red" @click="dialog = false">X</v-btn>
-            </v-card-actions>
-
-            <v-dialog v-model="showDialog" width="400">
-              <v-card>
-                <v-card-title class="text-h6">Share Event</v-card-title>
-                <v-card-text>
-                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                    hide-details></v-text-field>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">
-                    Copy Link
-                  </v-btn>
-                  <v-btn color="grey" size="small" @click="showDialog = false">
-                    Close
-                  </v-btn>
-                </v-card-actions>
+                  </v-col>
+                </v-row>
               </v-card>
-            </v-dialog>
-            <v-card-text>
-              <p></p>
-              <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                @click="shareEvent(selectedEvent?.events_pk)">
-                <v-icon start>mdi-share-variant</v-icon>
-                Share Event
-              </v-btn>
-              <br />
-              <p><v-icon>mdi-seat</v-icon> Disponible Seats: {{ selectedEvent?.seats_number }}</p>
-              <p><v-icon>mdi-sword-cross</v-icon> Scenario: {{ selectedEvent?.scenario }}</p>
-              <br />
-              <p class="text-end scheduled-box">
-                Scheduled for:
-                {{
-                  new Date(selectedEvent?.event_date).toLocaleString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
-                }}
-              </p>
-            </v-card-text>
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
-              <v-row no-gutters>
-                <v-col cols="3" lg="3">
-                  <v-img :src="selectedEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
-                </v-col>
-                <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedEvent?.store_name }}
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedEvent?.address }}
-                  </p>
-                </v-col>
-                <v-col cols="2" class="text-right pa-0"></v-col>
-              </v-row>
-            </v-card>
-            <v-card-text v-if="eventRewards.length">
-              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
-                <v-col cols="3" md="2">
-                  <v-avatar size="60">
-                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
-                  </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">{{ reward.name }}</h4>
-                  <p class="text-body-2">{{ reward.description }}</p>
-                </v-col>
-              </v-row>
-            </v-card-text>
-            <v-row class="mt-2 ml-0">
-              <v-col cols="12" class="mb-2">
-                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
-                  Count me in
-                </v-btn>
-
-                <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
-                  @click:close="showSuccessAlert = false">
-                  You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.
-                </v-alert>
-
-              </v-col>
-            </v-row>
-          </v-card>
-        </v-dialog>
-
+            </v-col>
+          </v-row>
+        </div>
       </div>
 
+      <!-- MY EVENTS -->
       <div v-else-if="activeTab === 2">
-        <v-row>
-          <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(evt, idx) in myEvents" :key="evt.events_pk">
-            <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
-              <v-row no-gutters>
-                <v-col cols="4" sm="2">
-                  <div class="text-center ml-3" style="width: 70px; color: black">
-                    <p class="pt-3 text-caption font-weight-bold">
-                      {{
-                        new Date(evt.event_date)
-                          .toLocaleDateString("en-US", { month: "short" })
-                          .toUpperCase()
-                      }}
+        <!-- Loading spinner -->
+        <div v-if="loading" class="d-flex justify-center my-8">
+          <v-progress-circular indeterminate size="48" color="primary" />
+        </div>
+        <!-- My events list -->
+        <div v-else class="list-container">
+          <v-row>
+            <v-col
+              v-for="(evt, idx) in myEvents"
+              :key="evt.events_pk"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
+            >
+              <v-card
+                color="terciary"
+                class="pt-0 event-card"
+                @click="openMyEventsDialog(evt)"
+              >
+                <v-row no-gutters>
+                  <v-col cols="4" sm="2">
+                    <div class="text-center ml-3" style="width: 70px; color: black">
+                      <p class="pt-3 text-caption font-weight-bold">
+                        {{
+                          new Date(evt.event_date)
+                            .toLocaleDateString("en-US", { month: "short" })
+                            .toUpperCase()
+                        }}
+                      </p>
+                      <p class="cinzel-text text-h3 font-weight-bold">
+                        {{ String(evt.event_date).split("T")[0].split("-")[2] }}
+                      </p>
+                      <p class="text-caption font-weight-bold">
+                        {{
+                          new Date(evt.event_date).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                        }}
+                      </p>
+                    </div>
+                  </v-col>
+                  <v-col cols="8" sm="9" class="pt-2">
+                    <h3 class="pb-1">
+                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                      {{ evt.store_name }}
+                    </h3>
+                    <p class="text-caption text-truncate">
+                      <v-icon color="red">mdi-map-marker</v-icon>
+                      {{ evt.address }}
                     </p>
-                    <p class="cinzel-text text-h3 font-weight-bold">
-                      {{ String(evt.event_date).split("T")[0].split("-")[2] }}
+                    <p class="text-caption">
+                      <v-icon color="red">mdi-sword-cross</v-icon>
+                      {{ evt.scenario }}
                     </p>
-                    <p class="text-caption font-weight-bold">
-                      {{
-                        new Date(evt.event_date).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      }}
+                    <p class="text-caption">
+                      Seats: {{ evt.seats_number }} | Season: {{ evt.seasons_fk }}
                     </p>
-                  </div>
-                </v-col>
-
-                <v-col cols="8" sm="9" class="pt-2">
-                  <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
-                    {{ evt.store_name }}
-                  </h3>
-                  <p class="text-caption text-truncate">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ evt.address }}
-                  </p>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-sword-cross</v-icon>
-                    {{ evt.scenario }}
-                  </p>
-                  <p class="text-caption">
-                    Seats: {{ evt.seats_number }} | Season: {{ evt.seasons_fk }}
-                  </p>
-                </v-col>
-
-                <v-col cols="0" sm="1" class="d-flex align-center justify-end pr-2">
-                  <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
-                    <template v-slot:activator="{ props }">
-                      <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
-                        {{ getEventStatusInfo(evt.status).icon }}
-                      </v-icon>
-                    </template>
-                  </v-tooltip>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-dialog v-model="myDialog" max-width="700" min-height="500">
-          <v-card color="surface" class="pa-6">
-            <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                :size="80"
-                :width="7"
-                color="primary"
-              ></v-progress-circular>
-            </div>
-            <div class="d-flex align-center justify-space-between pl-8">
-              <v-card-title class="text-h6 font-weight-bold pa-0">
-                {{ selectedMyEvent?.store_name }}
-              </v-card-title>
-              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer;">
-                mdi-close
-              </v-icon>
-            </div>
-
-            <div class="mt-1 pl-6" style="display: inline-block;">
-              <p class="text-caption scheduled-box ma-0 ml-">
-                Scheduled for:
-                {{
-                  new Date(selectedMyEvent?.event_date).toLocaleString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
-                }}
-              </p>
-            </div>
-
-            <v-row class="" align="center" justify="space-between">
-              <v-col cols="12" md="6" class="text-center pt-8 ml-3">
-                <div
-                  style="position: relative; display: inline-block; background: white; padding: 8px; border-radius: 8px;">
-                  <v-img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
-                    width="180" height="180" class="rounded" style="opacity: 0.3; filter: grayscale(1);" />
-                  <div style="
-                      position: absolute;
-                      top: 50%;
-                      left: 50%;
-                      transform: translate(-50%, -50%) rotate(-10deg);
-                      font-weight: 600;
-                      font-size: 0.9rem;
-                      color: #999;
-                      background-color: rgba(255, 255, 255, 0.7);
-                      padding: 4px 10px;
-                      border-radius: 4px;
-                      text-transform: uppercase;
-                      letter-spacing: 1px;
-                    ">
-                    Coming Soon
-                  </div>
-                </div>
-              </v-col>
-
-              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
-                <p class="text-subtitle-2 font-weight-medium mb-2">
-                  Status: {{ selectedMyEvent?.status }}
-                </p>
-                <v-btn
-                  class="mb-4"
-                  block
-                  color="green"
-                  @click="handleNewCampaign('underkeep')"
-                  :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
-                >
-                  Join Campaign
-                </v-btn>
-                <v-btn class="mb-8" block color="red" @click="quitEvent()">
-                  Quit Event
-                </v-btn>
-              </v-col>
-            </v-row>
-
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
-              <v-row no-gutters>
-                <v-col cols="3" lg="3">
-                  <v-img :src="selectedMyEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
-                </v-col>
-                <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedMyEvent?.store_name }}
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedMyEvent?.address }}
-                  </p>
-                </v-col>
-                <v-col cols="2" class="text-right pa-0"></v-col>
-              </v-row>
-            </v-card>
-          </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showQuitConfirmDialog" max-width="400">
-          <v-card>
-            <v-card-title class="text-h6">Confirm Exit</v-card-title>
-            <v-card-text>
-              Are you sure you want to quit this event? This action cannot be undone.
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="grey" text @click="showQuitConfirmDialog = false">Cancel</v-btn>
-              <v-btn color="red-darken-2" text @click="confirmQuitEvent">Quit Event</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-
+                  </v-col>
+                  <v-col cols="1" class="d-flex align-center justify-end pr-2">
+                    <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :color="getEventStatusInfo(evt.status).color"
+                          size="large"
+                        >
+                          {{ getEventStatusInfo(evt.status).icon }}
+                        </v-icon>
+                      </template>
+                    </v-tooltip>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
+          </v-row>
+        </div>
       </div>
     </v-card>
   </v-col>
 </template>
+
+<style scoped>
+.list-container {
+  min-height: 400px; /* evita encolhimento */
+}
+</style>
+
 
 <script setup>
 import { ref, computed, watch, onMounted, inject } from "vue";
@@ -744,6 +587,20 @@ const fetchMyEvents = async () => {
   });
   myEvents.value = res.data.events || [];
 };
+
+async function loadTabData() {
+  loading.value = true
+  if (activeTab.value === 1) {
+    await fetchPlayerEvents()
+  } else {
+    await fetchMyEvents()
+  }
+  loading.value = false
+}
+
+watch(activeTab, () => {
+  loadTabData()
+}, { immediate: true })
 
 onMounted(async () => {
   await Promise.all([fetchPlayerEvents(), fetchMyEvents()]);
@@ -1174,6 +1031,9 @@ const getEventStatusInfo = (status) => {
 </script>
 
 <style scoped>
+.list-container {
+  min-height: 400px;
+}
 .event-card {
   display: flex;
   align-items: center;
