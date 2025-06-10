@@ -426,7 +426,6 @@
                   </div>
                 </div>
               </v-col>
-
               <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
                 <div class="d-flex align-center justify-center mb-2">
                   <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
@@ -616,6 +615,7 @@ const fetchPlayers = (eventPk) => {
 };
 
 onMounted(() => {
+  console.log("📦 User Store:", userStore.user);
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
@@ -993,7 +993,6 @@ const addEvent = async () => {
       },
     });
 
-    await fetchUserCreatedEvents();
     await fetchPlayerEvents();
 
     selectedRewards.value = [];
@@ -1011,37 +1010,11 @@ const deleteEvent = async (events_pk) => {
       },
     });
 
-    await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
     // Handle error deleting event
   }
 };
-
-const userCreatedEvents = ref([]);
-
-const fetchUserCreatedEvents = async () => {
-  try {
-    const retailer_fk = userStore.user?.users_pk;
-
-    if (!retailer_fk) {
-      return;
-    }
-
-    const response = await axios.get("/events/my_events/retailer", {
-      params: { retailer_fk, active: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    userCreatedEvents.value = response.data.events || [];
-  } catch (error) {
-    // Handle error fetching user created events
-  }
-};
-
-onMounted(fetchUserCreatedEvents);
 
 const availableRewards = ref([
   {
@@ -1316,6 +1289,7 @@ const copyLink = async (link) => {
 };
 
 watch(dialog, (val) => {
+  a;
   if (!val) {
     setTimeout(() => {
       showSuccessAlert.value = false;
