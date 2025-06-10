@@ -946,7 +946,6 @@ const openEditDialog = async (event, editable = false) => {
     sceneries_fk: initialFk,
     rewards: event.rewards || [],
   };
-  console.log("🟢 Evento selecionado para edição:", editableEvent.value);
   selectedEvent.value = event;
   isEditable.value = editable;
   editEventDialog.value = true;
@@ -958,19 +957,18 @@ const openEditDialog = async (event, editable = false) => {
 
   if (editable) {
     try {
-      const { data } = await axios.get('/rl_events_rewards/list_rewards', {
-        params: { events_fk: event.events_pk }
+      const { data } = await axios.get("/rl_events_rewards/list_rewards", {
+        params: { events_fk: event.events_pk },
       });
       existingRewards.value = data.rewards || [];
     } catch (err) {
-      console.error('Erro ao buscar rewards existentes:', err);
+      console.error("Erro ao buscar rewards existentes:", err);
       existingRewards.value = [];
     }
   }
 
   await fetchAllRewards();
-
-  console.log("🟢 Rewards sincronizados:", editableEvent.value.rewards);
+  await fetchUserCreatedEvents();
 };
 
 const players = ref([]);
@@ -1175,7 +1173,6 @@ const openDialog = async (event) => {
     });
 
     eventRewards.value = rewardsRes.data.rewards || [];
-    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
   } catch (err) {
     console.error("❌ Erro ao buscar rewards:", err);
     eventRewards.value = [];
@@ -1225,7 +1222,6 @@ const fetchPlayerEvents = async () => {
     });
 
     events.value = response.data.events || [];
-    console.log("📦 Eventos carregados:", events.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -1481,7 +1477,6 @@ onMounted(async () => {
 });
 
 const createEvent = () => {
-  console.log("Event Created:", newEvent.value);
   createEventDialog.value = false;
 };
 
@@ -1529,11 +1524,11 @@ const saveEditedEvent = async () => {
     try {
       const { data: relRes } = await axios.get(
         "/rl_events_rewards/list_rewards",
-        { params: { events_fk: eventPk } }
+        { params: { events_fk: eventPk } },
       );
 
       currentIds = Array.isArray(relRes.rewards)
-        ? relRes.rewards.map(r => r.rewards_pk)
+        ? relRes.rewards.map((r) => r.rewards_pk)
         : [];
     } catch (err) {
       if (err.response?.status === 404) {
@@ -1544,8 +1539,8 @@ const saveEditedEvent = async () => {
     }
 
     const updatedIds = editableEvent.value.rewards_pk || [];
-    const toAdd    = updatedIds.filter(id => !currentIds.includes(id));
-    const toRemove = currentIds.filter(id => !updatedIds.includes(id));
+    const toAdd = updatedIds.filter((id) => !currentIds.includes(id));
+    const toRemove = currentIds.filter((id) => !updatedIds.includes(id));
 
     for (const rewards_fk of toAdd) {
       await axios.post("/rl_events_rewards/cadastro", {
@@ -1567,13 +1562,13 @@ const saveEditedEvent = async () => {
     setTimeout(async () => {
       showSuccessAlert.value = false;
       editEventDialog.value = false;
-      await fetchMyEvents();
-    }, 1500);
 
+      window.location.reload()
+    }, 1500);
   } catch (error) {
     console.error(
       "❌ Erro ao salvar edição do evento:",
-      error.response?.data || error.message
+      error.response?.data || error.message,
     );
   }
 };
@@ -1620,8 +1615,6 @@ const toggleEditReward = async (reward) => {
 
       editableEvent.value.rewards.push(reward);
     }
-
-    console.log("✅ Rewards atualizados:", editableEvent.value.rewards);
   } catch (error) {
     console.error(
       "❌ Erro ao atualizar rewards:",
@@ -1652,7 +1645,6 @@ const fetchAllRewards = async () => {
     });
 
     allRewards.value = res.data.rewards || [];
-    console.log("📦 Todos os rewards carregados:", allRewards.value);
   } catch (err) {
     console.error("❌ Erro ao buscar todos os rewards:", err);
   }
@@ -1710,7 +1702,6 @@ const shareEvent = (eventId) => {
     if (!eventId) throw new Error("ID do evento não encontrado!");
 
     const encodedId = btoa(eventId.toString());
-    console.log("ID codificado:", encodedId);
 
     sharedLink.value = `${window.location.origin}/event/${encodedId}`;
     showDialog.value = true; // Abre o popup
