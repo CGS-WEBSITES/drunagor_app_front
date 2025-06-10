@@ -31,7 +31,7 @@ const alertTitle = ref("");
 const alertType = ref("");
 const showAlert = ref(false);
 
-const currentTab = ref('normal');
+const currentTab = ref("normal");
 
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
@@ -40,7 +40,12 @@ onMounted(() => {
     isSequentialAdventure.value = foundCampaign.isSequentialAdventure ?? false;
   } else {
     console.error(`Campaign with ID ${campaignId} not found.`);
-    setAlert('mdi-alert-circle', 'Error', `Campaign with ID ${campaignId} not found.`, 'error');
+    setAlert(
+      "mdi-alert-circle",
+      "Error",
+      `Campaign with ID ${campaignId} not found.`,
+      "error",
+    );
   }
 });
 
@@ -50,6 +55,10 @@ const setAlert = (icon: string, title: string, text: string, type: string) => {
   alertText.value = text;
   showAlert.value = true;
   alertType.value = type;
+
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 1500);
 };
 
 function onCampPhase() {
@@ -60,41 +69,79 @@ function onSequentialAdventure() {
   isSequentialAdventure.value = true;
 }
 
-watch(campaign, (newCampaign) => {
-  if (newCampaign) {
-    isSequentialAdventure.value = newCampaign.isSequentialAdventure ?? false;
-    if (newCampaign.campaign !== 'underkeep') {
-      currentTab.value = 'normal';
+watch(
+  campaign,
+  (newCampaign) => {
+    if (newCampaign) {
+      isSequentialAdventure.value = newCampaign.isSequentialAdventure ?? false;
+      if (newCampaign.campaign !== "underkeep") {
+        currentTab.value = "normal";
+      }
     }
-  }
-}, { deep: true });
-
+  },
+  { deep: true },
+);
 </script>
 
 <template>
-  <v-row class=" ml-0 justify-center">
+  <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="12" xl="8">
-      <v-card class="mb-2 pa-1" color="primary" style="width: 100%;">
+      <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
-            <v-card style="width: 100%;">
-              <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
+            <v-card style="width: 100%">
+              <v-card-actions
+                class="d-flex flex-wrap justify-space-around pa-2"
+              >
                 <CampaignRemove :campaign-id="campaignId" class="mx-1 my-1" />
                 <CampaignExport :campaign-id="campaignId" class="mx-1 my-1" />
-                <SequentialAdventureButton :campaign-id="campaignId" @sequential-adventure="onSequentialAdventure"
-                  :disabled="isSequentialAdventure" class="mx-1 my-1" />
-                <CampaignCampPhase :campaign-id="campaignId" @camp-phase="onCampPhase" class="mx-1 my-1"
-                  :disabled="!isSequentialAdventure" />
-                <CampaignSavePut :campaign-id="campaignId" class="mx-1 my-1"
-                  @success="setAlert('mdi-check', 'Success', 'The campaign was saved successfully!', 'success')"
-                  @fail="setAlert('mdi-alert-circle', 'Error', 'The campaign could not be saved.', 'error')" />
+                <SequentialAdventureButton
+                  :campaign-id="campaignId"
+                  @sequential-adventure="onSequentialAdventure"
+                  :disabled="isSequentialAdventure"
+                  class="mx-1 my-1"
+                />
+                <CampaignCampPhase
+                  :campaign-id="campaignId"
+                  @camp-phase="onCampPhase"
+                  class="mx-1 my-1"
+                  :disabled="!isSequentialAdventure"
+                />
+                <CampaignSavePut
+                  :campaign-id="campaignId"
+                  class="mx-1 my-1"
+                  @success="
+                    setAlert(
+                      'mdi-check',
+                      'Success',
+                      'The campaign was saved successfully!',
+                      'success',
+                    )
+                  "
+                  @fail="
+                    setAlert(
+                      'mdi-alert-circle',
+                      'Error',
+                      'The campaign could not be saved.',
+                      'error',
+                    )
+                  "
+                />
               </v-card-actions>
             </v-card>
           </v-row>
         </v-card-actions>
         <v-card-text v-if="showAlert" class="pa-0">
-          <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
-            :type="alertType" density="compact" class="ma-2"></v-alert>
+          <v-alert
+            closable
+            v-model="showAlert"
+            :icon="alertIcon"
+            :title="alertTitle"
+            :text="alertText"
+            :type="alertType"
+            density="compact"
+            class="ma-2"
+          ></v-alert>
         </v-card-text>
       </v-card>
     </v-col>
@@ -102,10 +149,19 @@ watch(campaign, (newCampaign) => {
 
   <template v-if="campaign">
     <template v-if="campaign.campaign === 'underkeep'">
-      <v-row class=" ml-0 justify-center">
+      <v-row class="ml-0 justify-center">
         <v-col cols="12" md="12" lg="12" xl="8">
-          <v-tabs v-model="currentTab" centered grow bg-color="surface" density="compact" class="mb-2"
-            style="border-radius: 4px;" active-class="custom-active-tab" slider-color="white">
+          <v-tabs
+            v-model="currentTab"
+            centered
+            grow
+            bg-color="surface"
+            density="compact"
+            class="mb-2"
+            style="border-radius: 4px"
+            active-class="custom-active-tab"
+            slider-color="white"
+          >
             <v-tab value="normal" prepend-icon="mdi-clipboard-text-outline">
               Campaign Log
             </v-tab>
@@ -123,7 +179,11 @@ watch(campaign, (newCampaign) => {
                 </v-col>
               </v-row>
 
-              <v-row v-if="isSequentialAdventure" no-gutters class="d-flex justify-center mb-4">
+              <v-row
+                v-if="isSequentialAdventure"
+                no-gutters
+                class="d-flex justify-center mb-4"
+              >
                 <v-col cols="12">
                   <CampaignRunes :campaign-id="campaignId" />
                 </v-col>
@@ -131,7 +191,10 @@ watch(campaign, (newCampaign) => {
 
               <v-row no-gutters class="justify-center pa-6">
                 <v-col cols="12" sm="12" md="6" lg="4">
-                  <div class="d-flex align-center justify-center flex-wrap flex-sm-nowrap" style="gap: 12px;">
+                  <div
+                    class="d-flex align-center justify-center flex-wrap flex-sm-nowrap"
+                    style="gap: 12px"
+                  >
                     <CampaignLogAddHero :campaign-id="campaignId" />
                     <CampaignLogImportHero :campaign-id="campaignId" />
                     <CampaignLogRemoveHero :campaign-id="campaignId" />
@@ -140,14 +203,29 @@ watch(campaign, (newCampaign) => {
               </v-row>
 
               <v-row no-gutters class="d-flex justify-center">
-                <v-sheet rounded border="md" class="text-white pa-2" width="100%">
-                  <div v-if="heroStore.findAllInCampaign(campaignId).length === 0" class="text-center pa-4">
+                <v-sheet
+                  rounded
+                  border="md"
+                  class="text-white pa-2"
+                  width="100%"
+                >
+                  <div
+                    v-if="heroStore.findAllInCampaign(campaignId).length === 0"
+                    class="text-center pa-4"
+                  >
                     No heroes added to this campaign yet.
                   </div>
-                  <v-col cols="12" v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId"
-                    class="pa-1">
-                    <CampaignLog :campaign-id="campaignId" :hero-id="hero.heroId"
-                      :is-sequential-adventure="isSequentialAdventure" />
+                  <v-col
+                    cols="12"
+                    v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                    :key="hero.heroId"
+                    class="pa-1"
+                  >
+                    <CampaignLog
+                      :campaign-id="campaignId"
+                      :hero-id="hero.heroId"
+                      :is-sequential-adventure="isSequentialAdventure"
+                    />
                   </v-col>
                 </v-sheet>
               </v-row>
@@ -162,34 +240,56 @@ watch(campaign, (newCampaign) => {
     </template>
 
     <template v-else>
-      <v-row class=" ml-0 justify-center">
+      <v-row class="ml-0 justify-center">
         <v-col cols="12" md="12" lg="12" xl="8" class="pa-3">
           <CampaignName :campaign-id="campaignId" class="mb-4" />
 
-          <v-row v-if="isSequentialAdventure" no-gutters class="d-flex justify-center mb-4">
+          <v-row
+            v-if="isSequentialAdventure"
+            no-gutters
+            class="d-flex justify-center mb-4"
+          >
             <v-col cols="12">
               <CampaignRunes :campaign-id="campaignId" />
             </v-col>
           </v-row>
 
-          <v-row no-gutters class="d-flex justify-center mb-4"
-            v-if="campaign.campaign === 'awakenings' || campaign.campaign === 'apocalypse'">
+          <v-row
+            no-gutters
+            class="d-flex justify-center mb-4"
+            v-if="
+              campaign.campaign === 'awakenings' ||
+              campaign.campaign === 'apocalypse'
+            "
+          >
             <v-col cols="12">
               <StoryRecord :campaign-id="campaignId" />
             </v-col>
           </v-row>
 
-          <v-row no-gutters class="d-flex justify-center mb-4" v-if="campaign.campaign === 'apocalypse'">
+          <v-row
+            no-gutters
+            class="d-flex justify-center mb-4"
+            v-if="campaign.campaign === 'apocalypse'"
+          >
             <v-col cols="12">
               <v-sheet rounded border="md" class="pa-4 text-white">
-                <p class="text-center">Apocalypse campaign specific content (e.g., Legacy Trail, Background & Trait)
-                  would appear here.</p>
+                <p class="text-center">
+                  Apocalypse campaign specific content (e.g., Legacy Trail,
+                  Background & Trait) would appear here.
+                </p>
               </v-sheet>
             </v-col>
           </v-row>
 
           <v-row no-gutters class="justify-center pa-2 mb-4">
-            <v-col cols="12" sm="12" md="8" lg="6" class="d-flex flex-row justify-space-around">
+            <v-col
+              cols="12"
+              sm="12"
+              md="8"
+              lg="6"
+              class="d-flex flex-row justify-space-around"
+            >
               <CampaignLogAddHero :campaign-id="campaignId" />
               <CampaignLogRemoveHero :campaign-id="campaignId" />
             </v-col>
@@ -197,12 +297,23 @@ watch(campaign, (newCampaign) => {
 
           <v-row no-gutters class="d-flex justify-center">
             <v-sheet rounded border="md" class="text-white pa-2" width="100%">
-              <div v-if="heroStore.findAllInCampaign(campaignId).length === 0" class="text-center pa-4">
+              <div
+                v-if="heroStore.findAllInCampaign(campaignId).length === 0"
+                class="text-center pa-4"
+              >
                 No heroes added to this campaign yet.
               </div>
-              <v-col cols="12" v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId" class="pa-1">
-                <CampaignLog :campaign-id="campaignId" :hero-id="hero.heroId"
-                  :is-sequential-adventure="isSequentialAdventure" />
+              <v-col
+                cols="12"
+                v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                :key="hero.heroId"
+                class="pa-1"
+              >
+                <CampaignLog
+                  :campaign-id="campaignId"
+                  :hero-id="hero.heroId"
+                  :is-sequential-adventure="isSequentialAdventure"
+                />
               </v-col>
             </v-sheet>
           </v-row>
@@ -215,7 +326,11 @@ watch(campaign, (newCampaign) => {
     <v-row class="justify-center">
       <v-col cols="12" md="8" class="text-center pa-5">
         <p>Loading campaign data...</p>
-        <v-progress-circular indeterminate color="primary" class="mt-4"></v-progress-circular>
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          class="mt-4"
+        ></v-progress-circular>
       </v-col>
     </v-row>
   </template>
