@@ -536,6 +536,17 @@
                     :rules="dateRules"
                   ></v-text-field>
                 </v-col>
+                <div v-if="existingRewards.length" class="mt-4">
+                  <p class="pb-2 font-weight-bold">Current Rewards:</p>
+                  <v-chip
+                    v-for="reward in existingRewards"
+                    :key="reward.rewards_pk"
+                    class="ma-1"
+                    label
+                  >
+                    {{ reward.name }}
+                  </v-chip>
+                </div>
                 <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete
@@ -945,7 +956,18 @@ const openEditDialog = async (event, editable = false) => {
     fetchStatuses();
   }
 
-  // 🔄 Carrega e sincroniza rewards
+  if (editable) {
+    try {
+      const { data } = await axios.get('/rl_events_rewards/list_rewards', {
+        params: { events_fk: event.events_pk }
+      });
+      existingRewards.value = data.rewards || [];
+    } catch (err) {
+      console.error('Erro ao buscar rewards existentes:', err);
+      existingRewards.value = [];
+    }
+  }
+
   await fetchAllRewards();
 
   console.log("🟢 Rewards sincronizados:", editableEvent.value.rewards);
@@ -1479,6 +1501,8 @@ const editableEvent = ref({ rewards_pk: [] });
 
 const showSuccessAlert = ref(false);
 
+const existingRewards = ref([]);
+
 const saveEditedEvent = async () => {
   try {
     const eventPk = editableEvent.value.events_pk;
@@ -1507,7 +1531,7 @@ const saveEditedEvent = async () => {
         "/rl_events_rewards/list_rewards",
         { params: { events_fk: eventPk } }
       );
-      
+
       currentIds = Array.isArray(relRes.rewards)
         ? relRes.rewards.map(r => r.rewards_pk)
         : [];
