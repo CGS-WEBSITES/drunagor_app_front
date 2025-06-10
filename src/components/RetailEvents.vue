@@ -1491,8 +1491,6 @@ const fetchUserCreatedEvents = async () => {
         retailer_fk, 
         active: true,
         past_events: showPastMyEvents.value.toString(),
-        limit: 30,
-        offset: 0
       },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
