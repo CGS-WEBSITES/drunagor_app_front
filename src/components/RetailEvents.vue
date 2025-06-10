@@ -476,6 +476,16 @@
           max-width="800"
         >
           <v-card class="dark-background">
+            <v-alert
+              v-if="showSuccessAlert"
+              type="success"
+              class="mb-4"
+              border="start"
+              variant="tonal"
+              dense
+            >
+              Event changed successfully
+            </v-alert>
             <v-card-text>
               <v-row>
                 <v-col cols="6" md="6" v-if="isEditable">
@@ -517,7 +527,7 @@
                 </v-col>
                 <v-col
                   cols="12"
-                  md="2"
+                  md="4"
                   class="d-flex align-center"
                   v-if="isEditable"
                 >
@@ -922,7 +932,7 @@ const openEditDialog = async (event, editable = false) => {
     ampm,
     seats_number: event.seats_number,
     sceneries_fk: event.sceneries_fk || event.scenario,
-    rewards: [], 
+    rewards: [],
   };
   console.log("🟢 Evento selecionado para edição:", editableEvent.value);
   selectedEvent.value = event;
@@ -1471,6 +1481,8 @@ const handleImageUpload = (event) => {
 const editEventDialog = ref(false);
 const editableEvent = ref({ rewards: [] });
 
+const showSuccessAlert = ref(false);
+
 const saveEditedEvent = async () => {
   try {
     const eventPk = editableEvent.value.events_pk;
@@ -1579,6 +1591,14 @@ const saveEditedEvent = async () => {
 
     editEventDialog.value = false;
     await fetchUserCreatedEvents();
+
+    showSuccessAlert.value = true;
+
+    setTimeout(async () => {
+      showSuccessAlert.value = false;
+      editEventDialog.value = false;
+      await fetchMyEvents();
+    }, 1500);
   } catch (error) {
     console.error(
       "Erro ao alterar o evento:",
