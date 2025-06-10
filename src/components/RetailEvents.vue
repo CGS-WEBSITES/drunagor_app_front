@@ -364,7 +364,7 @@
             </v-col>
           </v-row>
         </div>
-        
+
         <v-dialog v-model="createEventDialog" max-width="1280">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
@@ -490,6 +490,7 @@
             </v-card-text>
           </v-card>
         </v-dialog>
+
         <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
         <v-dialog
           v-model="editEventDialog"
@@ -497,6 +498,9 @@
           max-width="800"
         >
           <v-card class="dark-background">
+            <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
+              Event changed successfully
+            </v-alert>
             <v-card-text>
               <v-row>
                 <v-col cols="6" md="6" v-if="isEditable">
@@ -509,13 +513,14 @@
                 </v-col>
                 <v-col cols="6" md="6" v-if="isEditable">
                   <v-select
-                    v-model="editableEvent.sceneries"
+                    v-model="editableEvent.sceneries_fk"
                     :items="sceneries"
                     item-title="name"
                     item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
                     :key="sceneries.length"
+                    clearable
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
@@ -538,7 +543,7 @@
                 </v-col>
                 <v-col
                   cols="12"
-                  md="2"
+                  md="4"
                   class="d-flex align-center"
                   v-if="isEditable"
                 >
@@ -553,17 +558,28 @@
                     :rules="dateRules"
                   ></v-text-field>
                 </v-col>
+                <div v-if="existingRewards.length" class="mt-4">
+                  <p class="pb-2 font-weight-bold">Current Rewards:</p>
+                  <v-chip
+                    v-for="reward in existingRewards"
+                    :key="reward.rewards_pk"
+                    class="ma-1"
+                    label
+                  >
+                    {{ reward.name }}
+                  </v-chip>
+                </div>
                 <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete
-                    v-model="editableEvent.rewards"
-                    :items="availableRewards"
+                    v-model="editableEvent.rewards_pk"
+                    :items="allRewards"
                     item-title="name"
                     item-value="rewards_pk"
                     label="Select Rewards"
                     multiple
                     chips
-                    return-object="{false}"
+                    clearable
                   ></v-autocomplete>
                 </v-col>
                 <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
@@ -947,16 +963,22 @@ const openEditDialog = async (event, editable = false) => {
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? "PM" : "AM";
 
+  if (!sceneries.value.length) {
+    await fetchSceneries();
+  }
+
+  const found = sceneries.value.find((s) => s.name === event.scenario);
+  const initialFk = found ? found.sceneries_pk : null;
+
   editableEvent.value = {
     events_pk: event.events_pk,
     date: datePart,
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries: event.scenario,
-    rewards: [], // será preenchido depois
+    sceneries_fk: initialFk,
+    rewards: event.rewards || [],
   };
-
   selectedEvent.value = event;
   isEditable.value = editable;
   editEventDialog.value = true;
@@ -966,15 +988,20 @@ const openEditDialog = async (event, editable = false) => {
     fetchStatuses();
   }
 
-  // 🔄 Carrega e sincroniza rewards
+  if (editable) {
+    try {
+      const { data } = await axios.get("/rl_events_rewards/list_rewards", {
+        params: { events_fk: event.events_pk },
+      });
+      existingRewards.value = data.rewards || [];
+    } catch (err) {
+      console.error("Erro ao buscar rewards existentes:", err);
+      existingRewards.value = [];
+    }
+  }
+
   await fetchAllRewards();
-  eventRewards.value = await fetchEventRewards(event.events_pk);
-
-  editableEvent.value.rewards = availableRewards.value.filter((ar) =>
-    rewardsFromRelation.some((rr) => rr.rewards_pk === ar.rewards_pk),
-  );
-
-  console.log("🟢 Rewards sincronizados:", editableEvent.value.rewards);
+  await fetchUserCreatedEvents();
 };
 
 const players = ref([]);
@@ -1179,7 +1206,6 @@ const openDialog = async (event) => {
     });
 
     eventRewards.value = rewardsRes.data.rewards || [];
-    console.log("🎁 Rewards para evento", event.events_pk, eventRewards.value);
   } catch (err) {
     console.error("❌ Erro ao buscar rewards:", err);
     eventRewards.value = [];
@@ -1229,7 +1255,6 @@ const fetchPlayerEvents = async () => {
     });
 
     events.value = response.data.events || [];
-    console.log("📦 Eventos carregados:", events.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -1501,7 +1526,6 @@ onMounted(async () => {
 });
 
 const createEvent = () => {
-  console.log("Event Created:", newEvent.value);
   createEventDialog.value = false;
 };
 
@@ -1517,7 +1541,11 @@ const handleImageUpload = (event) => {
 };
 
 const editEventDialog = ref(false);
-const editableEvent = ref({ rewards: [] });
+const editableEvent = ref({ rewards_pk: [] });
+
+const showSuccessAlert = ref(false);
+
+const existingRewards = ref([]);
 
 const saveEditedEvent = async () => {
   try {
@@ -1527,12 +1555,10 @@ const saveEditedEvent = async () => {
       return;
     }
 
-    // Formata a data e hora
-    const hourValue = editableEvent.value.hour?.trim() || "12:00";
-    const ampmValue = editableEvent.value.ampm?.trim() || "PM";
+    const hourValue = (editableEvent.value.hour || "12:00").trim();
+    const ampmValue = editableEvent.value.ampm || "PM";
     const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
 
-    // Atualiza os dados do evento
     const payload = {
       seats_number: editableEvent.value.seats_number,
       sceneries_fk: editableEvent.value.sceneries_fk,
@@ -1541,95 +1567,56 @@ const saveEditedEvent = async () => {
 
     await axios.put("/events/alter", payload, {
       params: { events_pk: eventPk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
     });
 
-    // 🔄 Pega os rewards já salvos na relação para este evento
-    const existingRelationsRes = await axios.get(
-      "/rl_events_rewards/list_rewards",
-      {
-        params: { events_fk: eventPk },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
-    );
+    let currentIds = [];
+    try {
+      const { data: relRes } = await axios.get(
+        "/rl_events_rewards/list_rewards",
+        { params: { events_fk: eventPk } },
+      );
 
-    const currentRelations = existingRelationsRes.data.rewards || [];
-    const currentIds = currentRelations.map((r) => r.rewards_pk);
-    const updatedIds = editableEvent.value.rewards.map((r) => r.rewards_pk);
+      currentIds = Array.isArray(relRes.rewards)
+        ? relRes.rewards.map((r) => r.rewards_pk)
+        : [];
+    } catch (err) {
+      if (err.response?.status === 404) {
+        currentIds = [];
+      } else {
+        throw err;
+      }
+    }
 
-    // ➕ Adicionar novos rewards
+    const updatedIds = editableEvent.value.rewards_pk || [];
     const toAdd = updatedIds.filter((id) => !currentIds.includes(id));
+    const toRemove = currentIds.filter((id) => !updatedIds.includes(id));
+
     for (const rewards_fk of toAdd) {
-      console.log("🔼 Tentando adicionar reward:", {
+      await axios.post("/rl_events_rewards/cadastro", {
         events_fk: eventPk,
         rewards_fk,
+        active: true,
       });
-      try {
-        await axios.post(
-          "/rl_events_rewards/cadastro",
-          {
-            events_fk: eventPk,
-            rewards_fk,
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
-        );
-        console.log("✅ Reward adicionado com sucesso:", rewards_fk);
-      } catch (err) {
-        console.error(
-          "❌ Erro ao adicionar reward:",
-          rewards_fk,
-          err.response?.data || err.message,
-        );
-      }
     }
 
-    // ❌ Remover (inativar) os desmarcados
-    const toRemove = currentIds.filter((id) => !updatedIds.includes(id));
     for (const rewards_fk of toRemove) {
-      try {
-        await axios.post(
-          "/rl_events_rewards/cadastro",
-          {
-            events_fk: eventPk,
-            rewards_fk,
-            active: false,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
-        );
-        console.log("🗑️ Reward inativado com sucesso:", rewards_fk);
-      } catch (err) {
-        console.error(
-          "❌ Erro ao inativar reward:",
-          rewards_fk,
-          err.response?.data || err.message,
-        );
-      }
+      await axios.post("/rl_events_rewards/cadastro", {
+        events_fk: eventPk,
+        rewards_fk,
+        active: false,
+      });
     }
 
-    // Atualiza localmente
-    const index = events.value.findIndex((e) => e.events_pk === eventPk);
-    if (index !== -1) {
-      events.value[index] = { ...editableEvent.value };
-    }
+    showSuccessAlert.value = true;
+    setTimeout(async () => {
+      showSuccessAlert.value = false;
+      editEventDialog.value = false;
 
-    editEventDialog.value = false;
-    await fetchUserCreatedEvents();
+      window.location.reload()
+    }, 1500);
   } catch (error) {
     console.error(
-      "Erro ao alterar o evento:",
+      "❌ Erro ao salvar edição do evento:",
       error.response?.data || error.message,
     );
   }
@@ -1677,8 +1664,6 @@ const toggleEditReward = async (reward) => {
 
       editableEvent.value.rewards.push(reward);
     }
-
-    console.log("✅ Rewards atualizados:", editableEvent.value.rewards);
   } catch (error) {
     console.error(
       "❌ Erro ao atualizar rewards:",
@@ -1766,7 +1751,6 @@ const shareEvent = (eventId) => {
     if (!eventId) throw new Error("ID do evento não encontrado!");
 
     const encodedId = btoa(eventId.toString());
-    console.log("ID codificado:", encodedId);
 
     sharedLink.value = `${window.location.origin}/event/${encodedId}`;
     showDialog.value = true; // Abre o popup
