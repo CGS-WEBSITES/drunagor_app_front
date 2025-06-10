@@ -557,6 +557,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { Campaign } from "@/store/Campaign";
+import { useDebounceFn } from "@vueuse/core";
 
 const router = useRouter();
 const toast = useToast();
@@ -900,19 +901,25 @@ const selectedStore = computed(() => {
 
 const sortBy = ref("date");
 
+const playerFk = ref(null);
+
+onMounted(() => {
+  const rawUser = localStorage.getItem("app_user");
+  playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
+});
+
 const showPastEvents = ref(false)
 
 const fetchPlayerEvents = async () => {
   loading.value = true;
 
   try {
-    const player_fk = userStore.user?.users_pk;
-
+    const params = {
+      player_fk: playerFk.value,
+      past_events: showPastEvents.value.toString(),
+    };
     const response = await axios.get("/events/list_events/", {
-      params: { 
-        player_fk,
-        past_events: showPastEvents.value.toString(),
-      },
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -938,23 +945,24 @@ const myEvents = ref([]);
 const showPastMyEvents = ref(false)
 
 const fetchMyEvents = async () => {
-  loading.value = true;
+  if (!playerFk.value) {
+    console.warn("❌ playerFk indefinido, abortando requisição.");
+    return;
+  }
 
   try {
-    const player_fk = userStore.user?.users_pk;
-    console.log("Fetching my events for player_fk:", player_fk);
-    const res = await axios.get("/events/my_events/player", {
-      params: {
-        player_fk,
-        past_events: showPastMyEvents.value.toString(),
-        limit: 30,
-        offset: 0
-      },
+    const params = {
+      player_fk: playerFk.value,
+      past_events: showPastMyEvents.value.toString(),
+    };
+    console.log("🔁 Fetching my events:", params);
+    const response = await axios.get("system/events/my_events/player", {
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    myEvents.value = res.data.events || [];
+    myEvents.value = response.data.events || [];
   } catch (error) {
     console.error("Error fetching my events:", error);
     myEvents.value = [];
@@ -963,11 +971,17 @@ const fetchMyEvents = async () => {
   }
 };
 
-watch(showPastMyEvents, () => {
+const fetchMyEventsDebounced = useDebounceFn(() => {
+  if (!playerFk.value) return;
+  fetchMyEvents();
+}, 300); // aguarda 300ms para evitar chamadas em sequência
+
+watch(showPastMyEvents, (val) => {
   if (activeTab.value === 2) {
-    fetchMyEvents()
+    console.log("✅ Checkbox mudou para:", val);
+    fetchMyEventsDebounced();
   }
-})
+});
 
 async function loadTabData() {
   loading.value = true
@@ -979,24 +993,29 @@ async function loadTabData() {
   loading.value = false
 }
 
-watch(activeTab, async (newTab, oldTab) => {
-  showPastEvents.value   = false
-  showPastMyEvents.value = false
+watch(activeTab, async (newTab) => {
+  showPastEvents.value = false;
+  showPastMyEvents.value = false;
 
-  loading.value = true
+  loading.value = true;
   if (newTab === 1) {
-    await fetchPlayerEvents()
-  } else {
-    await fetchMyEvents()
+    await fetchPlayerEvents();
+  } else if (newTab === 2) {
+    await fetchMyEvents();
   }
-  loading.value = false
-}, { immediate: true })
+  loading.value = false;
+}, { immediate: true });
 
 watch(activeTab, loadTabData, { immediate: true })
 
 onMounted(async () => {
-  await Promise.all([fetchPlayerEvents(), fetchMyEvents()]);
+  if (activeTab.value === 1) {
+    await fetchPlayerEvents();
+  } else {
+    await fetchMyEvents();
+  }
 });
+
 const sceneries = ref([]);
 
 const fetchSceneries = async () => {
