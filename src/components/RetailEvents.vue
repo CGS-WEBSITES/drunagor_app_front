@@ -31,6 +31,16 @@
           <v-progress-circular indeterminate size="48" color="primary" />
         </div>
         <div v-else class="list-container">
+          <v-row class="mb-4" align="center">
+            <v-col cols="12" sm="6">
+              <v-checkbox
+                v-model="showPastEvents"
+                label="Past events"
+                hide-details
+                color="primary"
+              />
+            </v-col>
+          </v-row>
           <v-row>
             <v-col
               class="py-2 pl-1 pr-1"
@@ -236,7 +246,16 @@
               <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
             </v-col>
           </v-row>
-
+          <v-row class="mb-4" align="center">
+            <v-col cols="12" sm="6">
+              <v-checkbox
+                v-model="showPastMyEvents"
+                label="Past events"
+                hide-details
+                color="primary"
+              />
+            </v-col>
+          </v-row>
           <v-row>
             <v-col
               class="py-2 pl-1 pr-1"
@@ -1237,6 +1256,8 @@ const activeTab = ref("events");
 const sortBy = ref("date");
 const events = ref([]);
 
+const showPastEvents = ref(false)
+
 const fetchPlayerEvents = async () => {
   try {
     const player_fk = userStore.user?.users_pk;
@@ -1248,13 +1269,17 @@ const fetchPlayerEvents = async () => {
 
     // Buscar eventos do jogador
     const response = await axios.get("/events/list_events/", {
-      params: { player_fk },
+      params: { 
+        player_fk,
+        past_events: showPastEvents.value.toString(),
+      },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
     events.value = response.data.events || [];
+    console.log("📦 Eventos carregados:", events.value);
   } catch (error) {
     console.error(
       "❌ Erro ao buscar eventos do jogador:",
@@ -1262,6 +1287,12 @@ const fetchPlayerEvents = async () => {
     );
   }
 };
+
+watch(showPastEvents, () => {
+  if (activeTab.value === 1) {
+    fetchPlayerEvents()
+  }
+})
 
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
@@ -1444,6 +1475,8 @@ const userStore = useUserStore();
 
 const userCreatedEvents = ref([]);
 
+const showPastMyEvents = ref(false)
+
 const fetchUserCreatedEvents = async () => {
   try {
     const retailer_fk = userStore.user?.users_pk;
@@ -1454,7 +1487,13 @@ const fetchUserCreatedEvents = async () => {
     }
 
     const response = await axios.get("/events/my_events/retailer", {
-      params: { retailer_fk, active: true },
+      params: { 
+        retailer_fk, 
+        active: true,
+        past_events: showPastMyEvents.value.toString(),
+        limit: 30,
+        offset: 0
+      },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -1468,6 +1507,12 @@ const fetchUserCreatedEvents = async () => {
     );
   }
 };
+
+watch(showPastMyEvents, () => {
+  if (activeTab.value === 2) {
+    fetchUserCreatedEvents()
+  }
+})
 
 onMounted(fetchUserCreatedEvents);
 
@@ -1483,7 +1528,20 @@ async function loadList() {
   loading.value = false;
 }
 
-watch(activeTab, loadList);
+watch(activeTab, async (newTab, oldTab) => {
+  showPastEvents.value   = false
+  showPastMyEvents.value = false
+
+  loading.value = true
+  if (newTab === 1) {
+    await fetchPlayerEvents()
+  } else {
+    await fetchUserCreatedEvents()
+  }
+  loading.value = false
+}, { immediate: true })
+
+watch(activeTab, loadList, { immediate: true })
 
 onMounted(loadList);
 

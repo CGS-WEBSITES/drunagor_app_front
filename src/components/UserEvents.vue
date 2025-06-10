@@ -35,6 +35,16 @@
         </div>
         <!-- Event list -->
         <div v-else class="list-container">
+          <v-row class="mb-4" align="center">
+            <v-col cols="12" sm="6">
+              <v-checkbox
+                v-model="showPastEvents"
+                label="Past events"
+                hide-details
+                color="primary"
+              />
+            </v-col>
+          </v-row>
           <v-row>
             <v-col
               v-for="(event, index) in sortedEvents"
@@ -275,6 +285,16 @@
         </div>
         <!-- My events list -->
         <div v-else class="list-container">
+          <v-row class="mb-4" align="center">
+            <v-col cols="12" sm="6">
+              <v-checkbox
+                v-model="showPastMyEvents"
+                label="Past events"
+                hide-details
+                color="primary"
+              />
+            </v-col>
+          </v-row>
           <v-row>
             <v-col
               v-for="(evt, idx) in myEvents"
@@ -880,16 +900,19 @@ const selectedStore = computed(() => {
 
 const sortBy = ref("date");
 
+const showPastEvents = ref(false)
+
 const fetchPlayerEvents = async () => {
+  loading.value = true;
+
   try {
     const player_fk = userStore.user?.users_pk;
 
-    if (!player_fk) {
-      return;
-    }
-
     const response = await axios.get("/events/list_events/", {
-      params: { player_fk },
+      params: { 
+        player_fk,
+        past_events: showPastEvents.value.toString(),
+      },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -897,38 +920,79 @@ const fetchPlayerEvents = async () => {
 
     events.value = response.data.events || [];
   } catch (error) {
-    // Handle error fetching player events
+    console.error("Error fetching player events:", error);
+    events.value = [];
+  } finally {
+    loading.value = false;
   }
 };
+
+watch(showPastEvents, () => {
+  if (activeTab.value === 1) {
+    fetchPlayerEvents()
+  }
+})
 
 const myEvents = ref([]);
 
+const showPastMyEvents = ref(false)
+
 const fetchMyEvents = async () => {
-  const userData = JSON.parse(localStorage.getItem("app_user"));
-  if (!userData?.users_pk) return;
-  const res = await axios.get("/events/my_events/player", {
-    params: { player_fk: userData.users_pk },
-  });
-  myEvents.value = res.data.events || [];
+  loading.value = true;
+
+  try {
+    const player_fk = userStore.user?.users_pk;
+    console.log("Fetching my events for player_fk:", player_fk);
+    const res = await axios.get("/events/my_events/player", {
+      params: {
+        player_fk,
+        past_events: showPastMyEvents.value.toString(),
+        limit: 30,
+        offset: 0
+      },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    myEvents.value = res.data.events || [];
+  } catch (error) {
+    console.error("Error fetching my events:", error);
+    myEvents.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
 
-async function loadTabData() {
-  loading.value = true;
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchMyEvents();
+watch(showPastMyEvents, () => {
+  if (activeTab.value === 2) {
+    fetchMyEvents()
   }
-  loading.value = false;
+})
+
+async function loadTabData() {
+  loading.value = true
+  if (activeTab.value === 1) {
+    await fetchPlayerEvents()
+  } else {
+    await fetchMyEvents()
+  }
+  loading.value = false
 }
 
-watch(
-  activeTab,
-  () => {
-    loadTabData();
-  },
-  { immediate: true },
-);
+watch(activeTab, async (newTab, oldTab) => {
+  showPastEvents.value   = false
+  showPastMyEvents.value = false
+
+  loading.value = true
+  if (newTab === 1) {
+    await fetchPlayerEvents()
+  } else {
+    await fetchMyEvents()
+  }
+  loading.value = false
+}, { immediate: true })
+
+watch(activeTab, loadTabData, { immediate: true })
 
 onMounted(async () => {
   await Promise.all([fetchPlayerEvents(), fetchMyEvents()]);
