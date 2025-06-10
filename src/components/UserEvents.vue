@@ -1477,14 +1477,24 @@ const joinEvent = async () => {
     );
 
     joinedEventPk.value = selectedEvent.value.events_pk;
-
     await fetchMyEvents();
 
     showSuccessAlert.value = true;
+
+    setTimeout(() => {
+      showSuccessAlert.value = false;
+    }, 1500);
+
+    setTimeout(() => {
+      dialog.value = false;
+    }, 2000);
+
   } catch (error) {
     console.error("Erro ao entrar no evento:", error);
   }
 };
+
+
 </script>
 
 <style scoped>
