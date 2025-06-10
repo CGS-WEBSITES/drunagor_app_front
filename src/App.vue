@@ -1,5 +1,6 @@
 <template>
   <v-app :theme="theme">
+    <!--
     <v-btn
       v-if="route.name === 'Dashboard'"
       @click="switchTheme"
@@ -18,6 +19,7 @@
     >
       <v-img :src="themeIcon" width="32" height="32" cover></v-img>
     </v-btn>
+  -->
     <Toast />
 
     <!-- Barra de Navegação Superior -->
@@ -85,6 +87,7 @@
         </v-btn>
 
         <div class="d-flex w-100 align-center justify-space-between" v-else>
+          <!--
           <v-btn @click="switchTheme" icon>
             <v-img
               src="@/assets/theme.png"
@@ -93,6 +96,8 @@
               cover
             ></v-img>
           </v-btn>
+        -->
+          
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">

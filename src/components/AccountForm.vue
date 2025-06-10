@@ -14,20 +14,36 @@
 
           <v-icon>{{
             isExpanded ? "mdi-chevron-up" : "mdi-chevron-down"
-            }}</v-icon>
+          }}</v-icon>
         </v-card-title>
 
         <!-- Conteúdo do formulário (visível apenas se expandido) -->
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
-            <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
-              :type="alertType"></v-alert>
+            <v-alert
+              closable
+              v-model="showAlert"
+              :icon="alertIcon"
+              :title="alertTitle"
+              :text="alertText"
+              :type="alertType"
+            ></v-alert>
             <v-form ref="userForm">
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Name</p>
-              <v-text-field label="" variant="solo-filled" v-model="form.name" class="mb-0"></v-text-field>
+              <v-text-field
+                label=""
+                variant="solo-filled"
+                v-model="form.name"
+                class="mb-0"
+              ></v-text-field>
 
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Username</p>
-              <v-text-field label="" variant="solo-filled" v-model="form.user_name" class="mb-0"></v-text-field>
+              <v-text-field
+                label=""
+                variant="solo-filled"
+                v-model="form.user_name"
+                class="mb-0"
+              ></v-text-field>
 
               <!-- Email -->
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Email</p>
@@ -97,14 +113,15 @@
               <!-- CEP -->
               <p
                 v-if="form.country === 'US'"
-                class="text-h6 font-weight-medium pl-3 pb-3 pt-0">
+                class="text-h6 font-weight-medium pl-3 pb-3 pt-0"
+              >
                 Zipcode
               </p>
-              <v-text-field 
+              <v-text-field
                 v-if="form.country === 'US'"
-                label="" 
-                variant="solo-filled" 
-                v-model="form.zip_code" 
+                label=""
+                variant="solo-filled"
+                v-model="form.zip_code"
                 class="mb-0"
               ></v-text-field>
 
@@ -225,9 +242,7 @@ const rules = {
   min: (v: string) => v.length === 0 || v.length >= 8 || "Min 8 characters",
   matchPasswords: (v: string) =>
     v === form.new_password || "The passwords must match",
-  matchEmails: (v: string) =>
-    v === form.new_email || "The Emails must match",
-
+  matchEmails: (v: string) => v === form.new_email || "The Emails must match",
 };
 const alertIcon = ref("");
 const alertText = ref("");
@@ -255,6 +270,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertText.value = text;
   showAlert.value = true;
   alertType.value = type;
+
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 1500);
 };
 
 const valReg = async () => {
@@ -278,11 +297,13 @@ const saveForm = async () => {
           email: changeEmail.value ? form.confirm_email : user.email,
           receive_email: form.email_updates,
           password: changePassword.value ? form.confirm_password : undefined,
-          countries_fk: countriesList.value.find(country => country.name === form.country)?.countries_pk,
+          countries_fk: countriesList.value.find(
+            (country) => country.name === form.country,
+          )?.countries_pk,
         },
         {
           headers: getToken(),
-        }
+        },
       )
       .then((response: any) => {
         console.log("API Response:", response);
@@ -290,7 +311,12 @@ const saveForm = async () => {
         const dbUser = response.data.data;
         userStore.setUser({ ...user, ...dbUser });
 
-        setAllert("mdi-check", response.status, response.data.message, "success");
+        setAllert(
+          "mdi-check",
+          response.status,
+          response.data.message,
+          "success",
+        );
       })
       .catch((error: any) => {
         console.error("Erro ao salvar usuário:", error);
@@ -298,14 +324,15 @@ const saveForm = async () => {
           "mdi-alert-circle",
           error.response?.status || 500,
           error.response?.data?.message || "Erro de rede.",
-          "error"
+          "error",
         );
       });
   }
 };
 
 const fetchCountries = () => {
-  axios.get("countries/search")
+  axios
+    .get("countries/search")
     .then((response: any) => {
       countriesList.value = response.data.countries.map((country: any) => ({
         countries_pk: country.countries_pk,
@@ -314,7 +341,7 @@ const fetchCountries = () => {
       }));
 
       const userCountry = countriesList.value.find(
-        (country) => country.countries_pk === form.country
+        (country) => country.countries_pk === form.country,
       );
 
       form.country = userCountry ? userCountry.name : "";

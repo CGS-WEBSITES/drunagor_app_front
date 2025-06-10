@@ -193,6 +193,9 @@ const handleCountMeIn = async () => {
 
         console.log("Participação registrada com sucesso!");
         showSuccessAlert.value = true;
+        setTimeout(() => {
+            showSuccessAlert.value = false;
+        }, 1500);
     } catch (err) {
         console.error("Erro ao registrar participação:", err.response?.data || err.message);
     }

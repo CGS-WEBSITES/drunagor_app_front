@@ -1,143 +1,146 @@
 <template>
-    <v-dialog activator="parent" max-width="800">
-      <template v-slot:default="{ isActive }">
-        <v-card
-          :class="{ 'on-hover': isHovering }"
-          :elevation="isHovering ? 12 : 2"
-          v-bind="props"
-          min-height="380"
-        >
-          <v-card-title class="d-flex justify-space-betwenn">
-            <div>Choose your Background</div>
-            <v-btn
-              icon="mdi-close"
-              class="ml-auto"
-              text="Close"
-              @click="isActive.value = false"
-              variant="plain"
-            ></v-btn>
-          </v-card-title>
-  
-          <v-card-text>
-            <v-row no-gutters class="pa-2">
-              <v-alert
-                closable
-                v-model="showAlert"
-                :icon="alertIcon"
-                :title="alertTitle"
-                :text="alertText"
-                :type="alertType"
-              ></v-alert>
-            </v-row>
-            <v-row>
-              <v-col
-                cols="12"
-                sm="12"
-                md="6"
-                class="pa-2"
-                v-for="(item, index) in availbleBackground"
-                :key="index"
+  <v-dialog activator="parent" max-width="800">
+    <template v-slot:default="{ isActive }">
+      <v-card
+        :class="{ 'on-hover': isHovering }"
+        :elevation="isHovering ? 12 : 2"
+        v-bind="props"
+        min-height="380"
+      >
+        <v-card-title class="d-flex justify-space-betwenn">
+          <div>Choose your Background</div>
+          <v-btn
+            icon="mdi-close"
+            class="ml-auto"
+            text="Close"
+            @click="isActive.value = false"
+            variant="plain"
+          ></v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-row no-gutters class="pa-2">
+            <v-alert
+              closable
+              v-model="showAlert"
+              :icon="alertIcon"
+              :title="alertTitle"
+              :text="alertText"
+              :type="alertType"
+            ></v-alert>
+          </v-row>
+          <v-row>
+            <v-col
+              cols="12"
+              sm="12"
+              md="6"
+              class="pa-2"
+              v-for="(item, index) in availbleBackground"
+              :key="index"
+            >
+              <v-hover v-slot="{ isHovering, props }">
+                <v-card
+                  :class="{
+                    'on-hover': isHovering,
+                    'pa-0 d-flex justify-center': true,
+                  }"
+                  :elevation="
+                    isHovering ||
+                    (selectedBackground.hash &&
+                      selectedBackground.hash === item.hash)
+                      ? 18
+                      : 0
+                  "
+                  v-bind="props"
+                  class="pa-0"
+                  :disabled="
+                    selectedBackground.hash &&
+                    selectedBackground.hash != item.hash
+                  "
+                  :key="reloadKey"
+                  @click="selectedBackground.hash = item.hash"
+                >
+                  <v-img
+                    :src="assets + '/Profile/' + item.hash"
+                    :alt="item.hash"
+                    :max-width="518"
+                    style="
+                      border: 0.5px solid gold;
+                      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+                      background-color: black;
+                    "
+                  >
+                  </v-img>
+                </v-card>
+              </v-hover>
+              <div
+                class="d-flex justify-end"
+                style="
+                  width: 100%;
+                  height: 0px;
+                  position: relative;
+                  bottom: 105%;
+                  left: 5%;
+                "
               >
-                <v-hover v-slot="{ isHovering, props }">
-                  <v-card
-                    :class="{
-                      'on-hover': isHovering,
-                      'pa-0 d-flex justify-center': true,
-                    }"
-                    :elevation="
-                      isHovering ||
-                      (selectedBackground.hash && selectedBackground.hash === item.hash)
-                        ? 18
-                        : 0
-                    "
-                    v-bind="props"
-                    class="pa-0"
-                    :disabled="
-                      selectedBackground.hash && selectedBackground.hash != item.hash
-                    "
-                    :key="reloadKey"
-                    @click="selectedBackground.hash = item.hash"
-                  >
-                    <v-img
-                      :src="assets + '/Profile/' + item.hash"
-                      :alt="item.hash"
-                      :max-width="518"
-                      style="
-                        border: 0.5px solid gold;
-                        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-                        background-color: black;
-                      "
-                    >
-                    </v-img>
-                  </v-card>
-                </v-hover>
-                <div
-                  class="d-flex justify-end"
-                  style="
-                    width: 100%;
-                    height: 0px;
-                    position: relative;
-                    bottom: 105%;
-                    left: 5%;
+                <v-btn
+                  v-if="
+                    selectedBackground.hash &&
+                    selectedBackground.hash === item.hash
                   "
-                >
-                  <v-btn
-                    v-if="
-                      selectedBackground.hash && selectedBackground.hash === item.hash
-                    "
-                    icon
-                    color="error"
-                    elevation="3"
-                    rounded="xl"
-                    size="x-small"
-                    @click="clearBack()"
-                  >
-                    <v-icon>mdi-close</v-icon>
-                  </v-btn>
-                </div>
-              </v-col>
-            </v-row>
-          </v-card-text>
-  
-          <v-card-actions class="pa-0">
-            <v-row no-gutters>
-              <v-col cols="6">
-                <v-btn
-                  height="52"
-                  block
-                  color="success"
-                  variant="flat"
-                  @click="saveBG()"
-                  :disabled="!selectedBackground.hash"
-                >
-                  Save
-                </v-btn>
-              </v-col>
-              <v-col cols="6">
-                <v-btn
-                  height="52"
-                  block
+                  icon
                   color="error"
-                  variant="flat"
-                  @click="
-                    () => {
-                      isActive.value = false;
-                      clearBack();
-                    }
-                  "
+                  elevation="3"
+                  rounded="xl"
+                  size="x-small"
+                  @click="clearBack()"
                 >
-                  Cancel
+                  <v-icon>mdi-close</v-icon>
                 </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-actions>
-        </v-card>
-      </template>
-    </v-dialog>
-  </template>
-    
-    <script lang="ts" setup>
- import { ref, inject, watch, nextTick } from "vue";
+              </div>
+            </v-col>
+          </v-row>
+        </v-card-text>
+
+        <v-card-actions class="pa-0">
+          <v-row no-gutters>
+            <v-col cols="6">
+              <v-btn
+                height="52"
+                block
+                color="success"
+                variant="flat"
+                @click="saveBG()"
+                :disabled="!selectedBackground.hash"
+              >
+                Save
+              </v-btn>
+            </v-col>
+            <v-col cols="6">
+              <v-btn
+                height="52"
+                block
+                color="error"
+                variant="flat"
+                @click="
+                  () => {
+                    isActive.value = false;
+                    clearBack();
+                  }
+                "
+              >
+                Cancel
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </template>
+  </v-dialog>
+</template>
+
+<script lang="ts" setup>
+import { ref, inject, watch, nextTick } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { getToken } from "@/service/AccessToken";
 
@@ -165,10 +168,13 @@ const alertType = ref("");
 const showAlert = ref(false);
 
 // **WATCH** para atualizar a interface quando o background mudar
-watch(() => UserStore.user.background_hash, () => {
-  selectedBackground.value.hash = UserStore.user.background_hash;
-  reloadKey.value += 1; // Força atualização do Vue
-});
+watch(
+  () => UserStore.user.background_hash,
+  () => {
+    selectedBackground.value.hash = UserStore.user.background_hash;
+    reloadKey.value += 1; // Força atualização do Vue
+  },
+);
 
 const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertIcon.value = icon;
@@ -176,6 +182,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertText.value = text;
   showAlert.value = true;
   alertType.value = type;
+
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 1500);
 };
 
 const saveBG = async () => {
@@ -190,7 +200,7 @@ const saveBG = async () => {
       },
       {
         headers: getToken(),
-      }
+      },
     );
 
     console.log("✅ API Response:", response);
@@ -212,7 +222,7 @@ const saveBG = async () => {
       "mdi-alert-circle",
       "Error",
       error.response?.data?.message || "A network error occurred.",
-      "error"
+      "error",
     );
   }
 };
@@ -221,6 +231,4 @@ const clearBack = () => {
   selectedBackground.value.hash = null;
   console.log("🗑️ Background reset:", selectedBackground.value);
 };
-
-  </script>
-    
+</script>
