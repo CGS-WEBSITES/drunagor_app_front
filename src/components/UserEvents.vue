@@ -11,6 +11,7 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
+      <!-- Tabs -->
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -26,94 +27,101 @@
         </v-col>
       </v-row>
 
+      <!-- ALL EVENTS -->
       <div v-if="activeTab === 1">
-        <v-row>
-          <v-col
-            class="py-2 pl-1 pr-1"
-            cols="12"
-            md="6"
-            v-for="(event, index) in sortedEvents"
-            :key="index"
-          >
-            <v-card
-              color="terciary"
-              class="pt-0 event-card"
-              @click="openDialog(event)"
+        <!-- Loading spinner -->
+        <div v-if="loading" class="d-flex justify-center my-8">
+          <v-progress-circular indeterminate size="48" color="primary" />
+        </div>
+        <!-- Event list -->
+        <div v-else class="list-container">
+          <v-row>
+            <v-col
+              v-for="(event, index) in sortedEvents"
+              :key="index"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
             >
-              <v-row no-gutters>
-                <v-col cols="4" sm="2">
-                  <div
-                    class="text-center ml-3"
-                    style="width: 70px; color: black"
-                  >
-                    <p class="pt-3 text-caption font-weight-bold">
-                      {{
-                        new Date(event.event_date)
-                          .toLocaleDateString("en-US", {
-                            month: "short",
-                          })
-                          .toUpperCase()
-                      }}
-                    </p>
-                    <p
-                      color="primary"
-                      class="cinzel-text text-h3 font-weight-bold"
+              <v-card
+                color="terciary"
+                class="pt-0 event-card"
+                @click="openDialog(event)"
+              >
+                <v-row no-gutters>
+                  <v-col cols="4" sm="2">
+                    <div
+                      class="text-center ml-3"
+                      style="width: 70px; color: black"
                     >
-                      {{ String(event.event_date).split("T")[0].split("-")[2] }}
-                    </p>
-                    <p class="text-caption font-weight-bold">
-                      {{
-                        new Date(event.event_date).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      }}
-                    </p>
-                  </div>
-                </v-col>
-                <v-col cols="8" sm="10" class="pt-2">
-                  <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black"
-                      >mdi-chess-rook</v-icon
-                    >{{ event.store_name }}
-                  </h3>
-                  <p class="text-caption text-truncate">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ event.address }}
-                  </p>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-sword-cross</v-icon>
-                    {{ event.scenario }}
-                  </p>
-
-                  <p
-                    class="text-caption ml-3"
-                    v-if="event.rewards && event.rewards.length"
-                  >
-                    <v-row class="d-flex align-center rewards-container">
-                      <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
-                      Rewards:
-                      <v-col
-                        cols="auto"
-                        v-for="(reward, index) in event.rewards"
-                        :key="index"
+                      <p class="pt-3 text-caption font-weight-bold">
+                        {{
+                          new Date(event.event_date)
+                            .toLocaleDateString("en-US", { month: "short" })
+                            .toUpperCase()
+                        }}
+                      </p>
+                      <p class="cinzel-text text-h3 font-weight-bold">
+                        {{
+                          String(event.event_date).split("T")[0].split("-")[2]
+                        }}
+                      </p>
+                      <p class="text-caption font-weight-bold">
+                        {{
+                          new Date(event.event_date).toLocaleTimeString(
+                            "en-US",
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: true,
+                            },
+                          )
+                        }}
+                      </p>
+                    </div>
+                  </v-col>
+                  <v-col cols="8" sm="10" class="pt-2">
+                    <h3 class="pb-1">
+                      <v-icon class="pr-1" size="small" color="black"
+                        >mdi-chess-rook</v-icon
                       >
-                        <v-img
-                          :src="reward.image"
-                          height="20"
-                          width="20"
-                          contain
-                          class="reward-icon"
-                        ></v-img>
-                      </v-col>
-                    </v-row>
-                  </p>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
+                      {{ event.store_name }}
+                    </h3>
+                    <p class="text-caption text-truncate">
+                      <v-icon color="red">mdi-map-marker</v-icon>
+                      {{ event.address }}
+                    </p>
+                    <p class="text-caption">
+                      <v-icon color="red">mdi-sword-cross</v-icon>
+                      {{ event.scenario }}
+                    </p>
+                    <p class="text-caption ml-3" v-if="event.rewards?.length">
+                      <v-row class="d-flex align-center rewards-container">
+                        <v-icon class="mr-1" color="red"
+                          >mdi-star-circle</v-icon
+                        >
+                        Rewards:
+                        <v-col
+                          v-for="(reward, i) in event.rewards"
+                          :key="i"
+                          cols="auto"
+                        >
+                          <v-img
+                            :src="reward.image"
+                            height="20"
+                            width="20"
+                            contain
+                            class="reward-icon"
+                          />
+                        </v-col>
+                      </v-row>
+                    </p>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
+          </v-row>
+        </div>
         <v-dialog v-model="dialog" max-width="600" min-height="431">
           <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
@@ -259,92 +267,96 @@
         </v-dialog>
       </div>
 
+      <!-- MY EVENTS -->
       <div v-else-if="activeTab === 2">
-        <v-row>
-          <v-col
-            class="py-2 pl-1 pr-1"
-            cols="12"
-            md="6"
-            v-for="(evt, idx) in myEvents"
-            :key="evt.events_pk"
-          >
-            <v-card
-              color="terciary"
-              class="pt-0 event-card"
-              @click="openMyEventsDialog(evt)"
+        <!-- Loading spinner -->
+        <div v-if="loading" class="d-flex justify-center my-8">
+          <v-progress-circular indeterminate size="48" color="primary" />
+        </div>
+        <!-- My events list -->
+        <div v-else class="list-container">
+          <v-row>
+            <v-col
+              v-for="(evt, idx) in myEvents"
+              :key="evt.events_pk"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
             >
-              <v-row no-gutters>
-                <v-col cols="4" sm="2">
-                  <div
-                    class="text-center ml-3"
-                    style="width: 70px; color: black"
-                  >
-                    <p class="pt-3 text-caption font-weight-bold">
-                      {{
-                        new Date(evt.event_date)
-                          .toLocaleDateString("en-US", { month: "short" })
-                          .toUpperCase()
-                      }}
-                    </p>
-                    <p class="cinzel-text text-h3 font-weight-bold">
-                      {{ String(evt.event_date).split("T")[0].split("-")[2] }}
-                    </p>
-                    <p class="text-caption font-weight-bold">
-                      {{
-                        new Date(evt.event_date).toLocaleTimeString("en-US", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: true,
-                        })
-                      }}
-                    </p>
-                  </div>
-                </v-col>
-
-                <v-col cols="8" sm="9" class="pt-2">
-                  <h3 class="pb-1">
-                    <v-icon class="pr-1" size="small" color="black"
-                      >mdi-chess-rook</v-icon
+              <v-card
+                color="terciary"
+                class="pt-0 event-card"
+                @click="openMyEventsDialog(evt)"
+              >
+                <v-row no-gutters>
+                  <v-col cols="4" sm="2">
+                    <div
+                      class="text-center ml-3"
+                      style="width: 70px; color: black"
                     >
-                    {{ evt.store_name }}
-                  </h3>
-                  <p class="text-caption text-truncate">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ evt.address }}
-                  </p>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-sword-cross</v-icon>
-                    {{ evt.scenario }}
-                  </p>
-                  <p class="text-caption">
-                    Seats: {{ evt.seats_number }} | Season: {{ evt.seasons_fk }}
-                  </p>
-                </v-col>
-
-                <v-col
-                  cols="0"
-                  sm="1"
-                  class="d-flex align-center justify-end pr-2"
-                >
-                  <v-tooltip
-                    :text="getEventStatusInfo(evt.status).tooltip"
-                    location="top"
-                  >
-                    <template v-slot:activator="{ props }">
-                      <v-icon
-                        v-bind="props"
-                        :color="getEventStatusInfo(evt.status).color"
-                        size="large"
+                      <p class="pt-3 text-caption font-weight-bold">
+                        {{
+                          new Date(evt.event_date)
+                            .toLocaleDateString("en-US", { month: "short" })
+                            .toUpperCase()
+                        }}
+                      </p>
+                      <p class="cinzel-text text-h3 font-weight-bold">
+                        {{ String(evt.event_date).split("T")[0].split("-")[2] }}
+                      </p>
+                      <p class="text-caption font-weight-bold">
+                        {{
+                          new Date(evt.event_date).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true,
+                          })
+                        }}
+                      </p>
+                    </div>
+                  </v-col>
+                  <v-col cols="8" sm="9" class="pt-2">
+                    <h3 class="pb-1">
+                      <v-icon class="pr-1" size="small" color="black"
+                        >mdi-chess-rook</v-icon
                       >
-                        {{ getEventStatusInfo(evt.status).icon }}
-                      </v-icon>
-                    </template>
-                  </v-tooltip>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
+                      {{ evt.store_name }}
+                    </h3>
+                    <p class="text-caption text-truncate">
+                      <v-icon color="red">mdi-map-marker</v-icon>
+                      {{ evt.address }}
+                    </p>
+                    <p class="text-caption">
+                      <v-icon color="red">mdi-sword-cross</v-icon>
+                      {{ evt.scenario }}
+                    </p>
+                    <p class="text-caption">
+                      Seats: {{ evt.seats_number }} | Season:
+                      {{ evt.seasons_fk }}
+                    </p>
+                  </v-col>
+                  <v-col cols="1" class="d-flex align-center justify-end pr-2">
+                    <v-tooltip
+                      :text="getEventStatusInfo(evt.status).tooltip"
+                      location="top"
+                    >
+                      <template #activator="{ props }">
+                        <v-icon
+                          v-bind="props"
+                          :color="getEventStatusInfo(evt.status).color"
+                          size="large"
+                        >
+                          {{ getEventStatusInfo(evt.status).icon }}
+                        </v-icon>
+                      </template>
+                    </v-tooltip>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
+          </v-row>
+        </div>
+
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6">
             <div v-if="loading" class="dialog-overlay">
@@ -426,19 +438,24 @@
                   </div>
                 </div>
               </v-col>
-              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
+              <v-col
+                cols="12"
+                md="5"
+                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
+              >
                 <div class="d-flex align-center justify-center mb-2">
                   <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
                     Status: {{ selectedMyEvent?.status }}
                   </p>
                   <v-btn
-                    
                     icon="mdi-refresh"
                     variant="text"
                     size="small"
                     :loading="isRefreshingStatus"
                     :disabled="isRefreshingStatus"
-                    @click="refreshEventStatus(); refreshEventStatus();" 
+                    @click="
+                      refreshEventStatus();
+                    "
                   ></v-btn>
                 </div>
 
@@ -615,7 +632,6 @@ const fetchPlayers = (eventPk) => {
 };
 
 onMounted(() => {
-  console.log("📦 User Store:", userStore.user);
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
@@ -896,6 +912,24 @@ const fetchMyEvents = async () => {
   myEvents.value = res.data.events || [];
 };
 
+async function loadTabData() {
+  loading.value = true;
+  if (activeTab.value === 1) {
+    await fetchPlayerEvents();
+  } else {
+    await fetchMyEvents();
+  }
+  loading.value = false;
+}
+
+watch(
+  activeTab,
+  () => {
+    loadTabData();
+  },
+  { immediate: true },
+);
+
 onMounted(async () => {
   await Promise.all([fetchPlayerEvents(), fetchMyEvents()]);
 });
@@ -993,6 +1027,7 @@ const addEvent = async () => {
       },
     });
 
+    await fetchUserCreatedEvents();
     await fetchPlayerEvents();
 
     selectedRewards.value = [];
@@ -1010,11 +1045,37 @@ const deleteEvent = async (events_pk) => {
       },
     });
 
+    await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
     // Handle error deleting event
   }
 };
+
+const userCreatedEvents = ref([]);
+
+const fetchUserCreatedEvents = async () => {
+  try {
+    const retailer_fk = userStore.user?.users_pk;
+
+    if (!retailer_fk) {
+      return;
+    }
+
+    const response = await axios.get("/events/my_events/retailer", {
+      params: { retailer_fk, active: true },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    userCreatedEvents.value = response.data.events || [];
+  } catch (error) {
+    // Handle error fetching user created events
+  }
+};
+
+onMounted(fetchUserCreatedEvents);
 
 const availableRewards = ref([
   {
@@ -1134,7 +1195,6 @@ const openMyEventsDialog = async (event) => {
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
-  fetchStatuses();
   myDialog.value = true;
 
   const userStore = useUserStore();
@@ -1182,7 +1242,7 @@ const refreshEventStatus = async () => {
 
     if (currentPlayer.value) {
       selectedMyEvent.value.status = currentPlayer.value.event_status;
-      
+
       toast.add({
         severity: "info",
         summary: "Status Atualizado",
@@ -1190,14 +1250,13 @@ const refreshEventStatus = async () => {
         life: 3000,
       });
     }
-
   } catch (error) {
     console.error("Falha ao atualizar o status do evento:", error);
     toast.add({
-        severity: "error",
-        summary: "Erro",
-        detail: "Não foi possível atualizar o status.",
-        life: 3000,
+      severity: "error",
+      summary: "Erro",
+      detail: "Não foi possível atualizar o status.",
+      life: 3000,
     });
   } finally {
     isRefreshingStatus.value = false;
@@ -1289,7 +1348,6 @@ const copyLink = async (link) => {
 };
 
 watch(dialog, (val) => {
-  a;
   if (!val) {
     setTimeout(() => {
       showSuccessAlert.value = false;
@@ -1333,8 +1391,6 @@ const getEventStatusInfo = (status) => {
   }
 };
 
-
-
 const joinEvent = async () => {
   const userId = userStore.user?.users_pk;
   if (!userId || !selectedEvent.value) {
@@ -1342,30 +1398,35 @@ const joinEvent = async () => {
   }
 
   try {
-    await axios.post('/rl_events_users/cadastro', {
-      users_fk: userStore.user?.users_pk,
-      events_fk: selectedEvent.value.events_pk,
-      status: 1,
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+    await axios.post(
+      "/rl_events_users/cadastro",
+      {
+        users_fk: userStore.user?.users_pk,
+        events_fk: selectedEvent.value.events_pk,
+        status: 1,
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    );
 
     joinedEventPk.value = selectedEvent.value.events_pk;
 
     await fetchMyEvents();
 
     showSuccessAlert.value = true;
-
-  } catch (error) { 
+  } catch (error) {
     console.error("Erro ao entrar no evento:", error);
   }
 };
-
 </script>
 
 <style scoped>
+.list-container {
+  min-height: 400px;
+}
 .event-card {
   display: flex;
   align-items: center;
