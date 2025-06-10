@@ -11,7 +11,6 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
-      <!-- Tabs -->
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -27,13 +26,10 @@
         </v-col>
       </v-row>
 
-      <!-- ALL EVENTS -->
       <div v-if="activeTab === 1">
-        <!-- Loading spinner -->
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="48" color="primary" />
         </div>
-        <!-- Event list -->
         <div v-else class="list-container">
           <v-row class="mb-4" align="center">
             <v-col cols="12" sm="6">
@@ -277,13 +273,10 @@
         </v-dialog>
       </div>
 
-      <!-- MY EVENTS -->
       <div v-else-if="activeTab === 2">
-        <!-- Loading spinner -->
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="48" color="primary" />
         </div>
-        <!-- My events list -->
         <div v-else class="list-container">
           <v-row class="mb-4" align="center">
             <v-col cols="12" sm="6">
@@ -494,6 +487,31 @@
                 <v-btn class="mb-8" block color="red" @click="quitEvent()">
                   Quit Event
                 </v-btn>
+                
+                <v-alert
+                  v-if="showQuitSuccessAlert"
+                  type="success"
+                  title="Success"
+                  class="mb-4"
+                  variant="tonal"
+                  closable
+                  @click:close="showQuitSuccessAlert = false"
+                >
+                  You have successfully left the event. It will no longer appear in your list.
+                </v-alert>
+
+                <v-alert
+                  v-if="showQuitErrorAlert"
+                  type="error"
+                  title="Failed to Leave Event"
+                  class="mb-4"
+                  variant="tonal"
+                  closable
+                  @click:close="showQuitErrorAlert = false"
+                >
+                  {{ quitErrorMessage }}
+                </v-alert>
+
               </v-col>
             </v-row>
 
@@ -583,7 +601,6 @@ const sortedEvents = computed(() => {
 });
 
 const eventStore = useEventStore();
-
 const isEditable = ref(false);
 
 const openEditDialog = (event, editable = false) => {
@@ -607,7 +624,6 @@ const paginatedPlayers = computed(() => {
 });
 
 const statuses = ref([]);
-
 const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 
@@ -616,7 +632,6 @@ const fetchStatuses = () => {
     .get("/event_status/search")
     .then((response) => {
       statuses.value = response.data.event_status;
-
       grantedStatus.value = statuses.value.find(
         (s) => s.name === "Granted Passage",
       )?.event_status_pk;
@@ -633,11 +648,12 @@ const appUserPk = computed(() => {
   const raw = localStorage.getItem("app_user");
   return raw ? JSON.parse(raw).users_pk : null;
 });
+
 const currentPlayer = computed(() => {
   if (!appUserPk.value) return null;
-
   return players.value.find((p) => p.users_pk === appUserPk.value) || null;
 });
+
 const fetchPlayers = (eventPk) => {
   axios
     .get("/rl_events_users/list_players", {
@@ -654,12 +670,10 @@ const fetchPlayers = (eventPk) => {
 onMounted(() => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-
   fetchStatuses();
   if (events.value.length) {
     fetchPlayers(events.value[0].events_pk);
   }
-
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 });
 
@@ -683,20 +697,16 @@ const updatePlayerStatus = (player, newStatus, eventPk) => {
 const dateRules = [
   (value) => {
     if (!value) return "Date is required.";
-
     const inputDate = new Date(value);
     if (inputDate < today) return "Date cannot be in the past.";
-
     if (inputDate > oneYearFromToday)
       return "Date cannot be more than 1 year from today.";
-
     return true;
   },
 ];
 
 const today = new Date();
 const todayISO = today.toISOString().split("T")[0];
-
 const oneYearFromToday = new Date();
 oneYearFromToday.setFullYear(today.getFullYear() + 1);
 const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
@@ -725,7 +735,6 @@ const handleTimeInput = (event) => {
 };
 
 const selectedRewards = ref([]);
-
 const toggleReward = (reward) => {
   if (selectedRewards.value.includes(reward)) {
     selectedRewards.value = selectedRewards.value.filter((r) => r !== reward);
@@ -741,9 +750,7 @@ const eventRewards = ref([]);
 const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
-
   fetchPlayers(event.events_pk);
-
   try {
     const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
       params: { events_fk: event.events_pk },
@@ -751,7 +758,6 @@ const openDialog = async (event) => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     eventRewards.value = rewardsRes.data.rewards || [];
   } catch (err) {
     eventRewards.value = [];
@@ -771,7 +777,6 @@ const joinedEventPk = ref(null);
 async function handleNewCampaign(type) {
   loading.value = true;
   try {
-    // 1) buscar SKUs do usuário
     const usersPk = userStore.user?.users_pk;
     const { data } = await axios.get("/skus/search", {
       params: { users_fk: usersPk },
@@ -781,15 +786,11 @@ async function handleNewCampaign(type) {
       : Object.values(data.skus);
     const nameMap = {
       underkeep: "underkeep",
-      /* core: "core",
-      apocalypse: "Apocalypse",
-      awakenings: "Awakenings", */
     };
     const selectedSku = skuList.find(
       (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
     );
     if (!selectedSku) throw new Error("SKU não encontrado");
-    // 2) POST /campaigns/cadastro
     const campaignRes = await axios.post("/campaigns/cadastro", {
       tracker_hash:
         "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
@@ -797,7 +798,6 @@ async function handleNewCampaign(type) {
       box: selectedSku.skus_pk,
     });
     const campaignFk = campaignRes.data.campaign.campaigns_pk;
-    // opcional: guardar no store local
     const newCamp = new Campaign(String(campaignFk), type);
     campaignStore.add(newCamp);
     await axios.put(`/campaigns/alter/${campaignFk}`, {
@@ -805,7 +805,6 @@ async function handleNewCampaign(type) {
         "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
       party_name: "",
     });
-    // 3) POST /rl_campaigns_users/cadastro
     await axios.post("/rl_campaigns_users/cadastro", {
       users_fk: usersPk,
       campaigns_fk: campaignFk,
@@ -818,7 +817,6 @@ async function handleNewCampaign(type) {
       summary: t("label.success"),
       detail: "Campanha criada com sucesso!",
     });
-    // 4) redireciona
     router.push({
       path: `/campaign-tracker/campaign/${campaignFk}`,
       query: { sku: String(selectedSku.skus_pk) },
@@ -847,14 +845,12 @@ async function createdCompanion() {
       conclusion_percentage: 0,
       box: 22,
     });
-
     toast.add({
       severity: "success",
       summary: t("label.success"),
       detail: "Campaign saved successfully.",
       life: 3000,
     });
-
     const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
     await axios
       .post("rl_campaigns_users/cadastro", {
@@ -899,17 +895,14 @@ const selectedStore = computed(() => {
 });
 
 const sortBy = ref("date");
-
-const showPastEvents = ref(false)
+const showPastEvents = ref(false);
 
 const fetchPlayerEvents = async () => {
   loading.value = true;
-
   try {
     const player_fk = userStore.user?.users_pk;
-
     const response = await axios.get("/events/list_events/", {
-      params: { 
+      params: {
         player_fk,
         past_events: showPastEvents.value.toString(),
       },
@@ -917,7 +910,6 @@ const fetchPlayerEvents = async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     events.value = response.data.events || [];
   } catch (error) {
     console.error("Error fetching player events:", error);
@@ -929,26 +921,23 @@ const fetchPlayerEvents = async () => {
 
 watch(showPastEvents, () => {
   if (activeTab.value === 1) {
-    fetchPlayerEvents()
+    fetchPlayerEvents();
   }
-})
+});
 
 const myEvents = ref([]);
-
-const showPastMyEvents = ref(false)
+const showPastMyEvents = ref(false);
 
 const fetchMyEvents = async () => {
   loading.value = true;
-
   try {
     const player_fk = userStore.user?.users_pk;
-    console.log("Fetching my events for player_fk:", player_fk);
     const res = await axios.get("/events/my_events/player", {
       params: {
         player_fk,
         past_events: showPastMyEvents.value.toString(),
         limit: 30,
-        offset: 0
+        offset: 0,
       },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -965,40 +954,41 @@ const fetchMyEvents = async () => {
 
 watch(showPastMyEvents, () => {
   if (activeTab.value === 2) {
-    fetchMyEvents()
+    fetchMyEvents();
   }
-})
+});
 
 async function loadTabData() {
-  loading.value = true
+  loading.value = true;
   if (activeTab.value === 1) {
-    await fetchPlayerEvents()
+    await fetchPlayerEvents();
   } else {
-    await fetchMyEvents()
+    await fetchMyEvents();
   }
-  loading.value = false
+  loading.value = false;
 }
 
-watch(activeTab, async (newTab, oldTab) => {
-  showPastEvents.value   = false
-  showPastMyEvents.value = false
-
-  loading.value = true
-  if (newTab === 1) {
-    await fetchPlayerEvents()
-  } else {
-    await fetchMyEvents()
-  }
-  loading.value = false
-}, { immediate: true })
-
-watch(activeTab, loadTabData, { immediate: true })
+watch(
+  activeTab,
+  async (newTab, oldTab) => {
+    showPastEvents.value = false;
+    showPastMyEvents.value = false;
+    loading.value = true;
+    if (newTab === 1) {
+      await fetchPlayerEvents();
+    } else {
+      await fetchMyEvents();
+    }
+    loading.value = false;
+  },
+  { immediate: true },
+);
 
 onMounted(async () => {
   await Promise.all([fetchPlayerEvents(), fetchMyEvents()]);
 });
-const sceneries = ref([]);
 
+const sceneries = ref([]);
 const fetchSceneries = async () => {
   await axios
     .get("/sceneries/search", {
@@ -1022,7 +1012,6 @@ onMounted(async () => {
 const addEvent = async () => {
   const userStore = useUserStore();
   const userId = userStore.user?.users_pk;
-
   if (
     !newEvent.value.date ||
     !newEvent.value.hour ||
@@ -1033,10 +1022,8 @@ const addEvent = async () => {
   ) {
     return;
   }
-
   let selectedStore = null;
   let storesFk = null;
-
   try {
     const response = await axios.get("/stores/list", {
       params: {
@@ -1046,23 +1033,19 @@ const addEvent = async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     const allStores = response.data.stores || [];
     selectedStore = allStores.find(
       (store) =>
         store.name?.toLowerCase().trim() ===
         newEvent.value.store?.toLowerCase().trim(),
     );
-
     if (!selectedStore) {
       return;
     }
-
     storesFk = selectedStore.stores_pk;
   } catch (error) {
     return;
   }
-
   try {
     const formattedDate = new Date(
       `${newEvent.value.date}T${newEvent.value.hour}`,
@@ -1074,7 +1057,6 @@ const addEvent = async () => {
       hour12: true,
     });
     const eventDateFormatted = `${dateString}; ${timeString}`;
-
     const payload = {
       seats_number: newEvent.value.seats,
       seasons_fk: 2,
@@ -1084,16 +1066,13 @@ const addEvent = async () => {
       users_fk: userId,
       active: true,
     };
-
     const response = await axios.post("/events/cadastro", payload, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
-
     selectedRewards.value = [];
     createEventDialog.value = false;
   } catch (error) {
@@ -1108,7 +1087,6 @@ const deleteEvent = async (events_pk) => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     await fetchUserCreatedEvents();
     await fetchPlayerEvents();
   } catch (error) {
@@ -1117,22 +1095,18 @@ const deleteEvent = async (events_pk) => {
 };
 
 const userCreatedEvents = ref([]);
-
 const fetchUserCreatedEvents = async () => {
   try {
     const retailer_fk = userStore.user?.users_pk;
-
     if (!retailer_fk) {
       return;
     }
-
     const response = await axios.get("/events/my_events/retailer", {
       params: { retailer_fk, active: true },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     userCreatedEvents.value = response.data.events || [];
   } catch (error) {
     // Handle error fetching user created events
@@ -1167,7 +1141,6 @@ const availableRewards = ref([
 
 const createEventDialog = ref(false);
 const newEvent = ref({});
-
 const stores = ref([]);
 
 watch(
@@ -1193,7 +1166,6 @@ onMounted(async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     stores.value = response.data.stores || [];
   } catch (error) {
     // Handle error fetching stores
@@ -1252,22 +1224,25 @@ const myDialog = ref(false);
 const selectedMyEvent = ref(null);
 const showQuitConfirmDialog = ref(false);
 const rlEventsUsersPkToQuit = ref(null);
-
 const isRefreshingStatus = ref(false);
 
+const showQuitSuccessAlert = ref(false);
+const showQuitErrorAlert = ref(false);
+const quitErrorMessage = ref('');
+
 const openMyEventsDialog = async (event) => {
+  showQuitSuccessAlert.value = false;
+  showQuitErrorAlert.value = false;
+  
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
   myDialog.value = true;
-
   const userStore = useUserStore();
   const userId = parseInt(userStore.user?.users_pk, 10);
-
   if (isNaN(userId)) {
     return;
   }
-
   try {
     const response = await axios.get("/rl_events_users/list_players", {
       params: {
@@ -1277,13 +1252,10 @@ const openMyEventsDialog = async (event) => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-
     const playersForEvent = response.data.players;
-
     const currentUserEntry = playersForEvent.find(
       (player) => player.users_pk === userId,
     );
-
     if (currentUserEntry) {
       rlEventsUsersPkToQuit.value = currentUserEntry.rl_events_users_pk;
     } else {
@@ -1299,14 +1271,11 @@ const refreshEventStatus = async () => {
     console.warn("Nenhum evento selecionado para atualizar.");
     return;
   }
-
   isRefreshingStatus.value = true;
   try {
     await fetchPlayers(selectedMyEvent.value.events_pk);
-
     if (currentPlayer.value) {
       selectedMyEvent.value.status = currentPlayer.value.event_status;
-
       toast.add({
         severity: "info",
         summary: "Status Atualizado",
@@ -1342,17 +1311,11 @@ const quitEvent = () => {
 
 const confirmQuitEvent = async () => {
   showQuitConfirmDialog.value = false;
-
   if (!rlEventsUsersPkToQuit.value) {
-    toast.add({
-      severity: "error",
-      summary: t("label.error"),
-      detail: "Failed to quit the event. Relationship ID not found.",
-      life: 3000,
-    });
+    quitErrorMessage.value = "Cannot quit event. Relationship ID not found.";
+    showQuitErrorAlert.value = true;
     return;
   }
-
   try {
     await axios.put(
       `/rl_events_users/alter/${rlEventsUsersPkToQuit.value}`,
@@ -1363,24 +1326,17 @@ const confirmQuitEvent = async () => {
         },
       },
     );
-
-    toast.add({
-      severity: "success",
-      summary: t("label.success"),
-      detail: "You have successfully quit the event.",
-      life: 3000,
-    });
-
-    myDialog.value = false;
+    showQuitSuccessAlert.value = true;
+    showQuitErrorAlert.value = false;
     await fetchMyEvents();
-    rlEventsUsersPkToQuit.value = null;
+    setTimeout(() => {
+      myDialog.value = false;
+    }, 2500);
   } catch (error) {
-    toast.add({
-      severity: "error",
-      summary: t("label.error"),
-      detail: "Failed to quit the event.",
-      life: 3000,
-    });
+    console.error("Failed to quit event:", error);
+    quitErrorMessage.value = "An unexpected error occurred. Please try again later.";
+    showQuitErrorAlert.value = true;
+    showQuitSuccessAlert.value = false;
   }
 };
 
@@ -1391,9 +1347,7 @@ const showAlert = ref(false);
 const shareEvent = (eventId) => {
   try {
     if (!eventId) throw new Error("Event ID not found!");
-
     const encodedId = btoa(eventId.toString());
-
     sharedLink.value = `${window.location.origin}/event/${encodedId}`;
     showDialog.value = true;
   } catch (error) {
@@ -1411,44 +1365,35 @@ const copyLink = async (link) => {
   }
 };
 
-watch(dialog, (val) => {
-  if (!val) {
-    setTimeout(() => {
-      showSuccessAlert.value = false;
-    }, 1500);
-  }
-});
-
-// Function to get icon and tooltip text based on event status
 const getEventStatusInfo = (status) => {
   switch (status) {
-    case "Seeks Entry": // Assuming "Seeks Entry" is the string from your API
+    case "Seeks Entry":
       return {
-        icon: "mdi-timer-sand", // Waiting icon
+        icon: "mdi-timer-sand",
         color: "orange",
         tooltip: "Waiting for the retailer to accept your entry.",
       };
-    case "Granted Passage": // Assuming "Granted Passage" is the string from your API
+    case "Granted Passage":
       return {
-        icon: "mdi-check-circle", // Accepted icon
-        color: "success", // Green color
+        icon: "mdi-check-circle",
+        color: "success",
         tooltip: "Retailer accepted your passage to the event.",
       };
-    case "Turned Away": // Assuming "Turned Away" is the string from your API
+    case "Turned Away":
       return {
-        icon: "mdi-cancel", // Refused icon
-        color: "error", // Red color
+        icon: "mdi-cancel",
+        color: "error",
         tooltip: "Retailer refused your entry or you left the event.",
       };
-    case "Joined the Quest": // Assuming "Joined the Quest" is the string from your API
+    case "Joined the Quest":
       return {
-        icon: "mdi-sword", // Quest available icon
-        color: "purple", // Or another suitable color
+        icon: "mdi-sword",
+        color: "purple",
         tooltip: "Your campaign is available and you can play now.",
       };
     default:
       return {
-        icon: "mdi-help-circle", // Default icon for unknown status
+        icon: "mdi-help-circle",
         color: "grey",
         tooltip: "Unknown event status.",
       };
@@ -1460,7 +1405,6 @@ const joinEvent = async () => {
   if (!userId || !selectedEvent.value) {
     return;
   }
-
   try {
     await axios.post(
       "/rl_events_users/cadastro",
@@ -1475,26 +1419,19 @@ const joinEvent = async () => {
         },
       },
     );
-
     joinedEventPk.value = selectedEvent.value.events_pk;
     await fetchMyEvents();
-
     showSuccessAlert.value = true;
-
     setTimeout(() => {
       showSuccessAlert.value = false;
     }, 1500);
-
     setTimeout(() => {
       dialog.value = false;
     }, 2000);
-
   } catch (error) {
     console.error("Erro ao entrar no evento:", error);
   }
 };
-
-
 </script>
 
 <style scoped>
@@ -1509,23 +1446,19 @@ const joinEvent = async () => {
   margin-left: 18px;
   background-color: #292929;
 }
-
 .event-img {
   width: 110px;
   height: 110px;
   border-radius: 4px;
 }
-
 .sort-btn {
   font-weight: bold;
   text-transform: uppercase;
   color: white;
 }
-
 .sort-btn.active {
   text-decoration: underline;
 }
-
 .scheduled-box {
   display: inline-block;
   background-color: white;
@@ -1536,7 +1469,6 @@ const joinEvent = async () => {
   color: black;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .scheduled-box strong {
   font-weight: bold;
 }
@@ -1546,73 +1478,59 @@ const joinEvent = async () => {
 .cinzel-text {
   font-family: "Cinzel", serif;
 }
-
 .EventsTabs {
   background: #424242;
   transform: translateY(-8px);
   position: relative;
 }
-
 .CreateNew {
   position: relative;
   transform: translateY(-8px) translateX(12px);
   background-color: #484848;
 }
-
 .SortBy {
   position: relative;
   transform: translateY(-8px) translateX(12px);
   background-color: #292929;
 }
-
 .event-card {
   cursor: pointer;
   transition: 0.2s ease-in-out;
 }
-
 .event-card:hover {
   transform: scale(1.02);
 }
-
 .event-dialog-img {
   border-radius: 8px;
 }
-
 .rewards-container {
   gap: -40px;
 }
-
 .dark-background {
   background-color: #121212;
   color: white;
 }
-
 .date-input {
   max-width: 190px;
 }
-
 .hour-input {
   max-width: 110px;
   margin-left: 10px;
 }
-
 .launch-btn {
   background-color: white;
   color: black;
   font-weight: bold;
 }
-
 .selected-reward {
   opacity: 1;
   transition: all 0.2s ease-in-out;
 }
-
 .unselected-reward {
   filter: grayscale(100%);
   opacity: 0.5;
   transition: all 0.2s ease-in-out;
 }
-
 .check-icon {
   position: absolute;
   top: -5px;
@@ -1620,7 +1538,6 @@ const joinEvent = async () => {
   background: white;
   border-radius: 50%;
 }
-
 .close-btn {
   position: absolute;
   top: 16px;
@@ -1628,21 +1545,18 @@ const joinEvent = async () => {
   z-index: 10;
   color: red;
 }
-
 .redbutton {
   background: #691d1d;
   transform: translateY(px) translateX(-0px);
   width: 80px;
   height: 160px;
 }
-
 .editbutton {
   background: gray;
   transform: translateX(10px);
   width: 80px;
   height: 160px;
 }
-
 dialog-overlay {
   position: absolute;
   top: 0;
