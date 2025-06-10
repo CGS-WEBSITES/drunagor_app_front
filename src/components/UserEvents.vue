@@ -1220,6 +1220,36 @@ const getEventStatusInfo = (status) => {
   }
 };
 
+
+
+const joinEvent = async () => {
+  const userId = userStore.user?.users_pk;
+  if (!userId || !selectedEvent.value) {
+    return;
+  }
+
+  try {
+    await axios.post('/rl_events_users/cadastro', {
+      users_fk: userStore.user?.users_pk,
+      events_fk: selectedEvent.value.events_pk,
+      status: 1,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
+
+    joinedEventPk.value = selectedEvent.value.events_pk;
+
+    await fetchMyEvents();
+
+    showSuccessAlert.value = true;
+
+  } catch (error) { 
+    console.error("Erro ao entrar no evento:", error);
+  }
+};
+
 </script>
 
 <style scoped>
