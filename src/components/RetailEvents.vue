@@ -505,6 +505,7 @@
                     label="SCENARIO"
                     variant="outlined"
                     :key="sceneries.length"
+                    clearable
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
@@ -925,13 +926,22 @@ const openEditDialog = async (event, editable = false) => {
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? "PM" : "AM";
 
+  if (!sceneries.value.length) {
+    await fetchSceneries()
+  }
+
+  const found = sceneries.value.find(s => s.name === event.scenario)
+  const initialFk = found
+    ? found.sceneries_pk
+    : null
+
   editableEvent.value = {
     events_pk: event.events_pk,
     date: datePart,
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries_fk: event.sceneries_fk || event.scenario,
+    sceneries_fk: initialFk,
     rewards: [],
   };
   console.log("🟢 Evento selecionado para edição:", editableEvent.value);
