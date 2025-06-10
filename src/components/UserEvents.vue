@@ -214,13 +214,6 @@
   </v-col>
 </template>
 
-<style scoped>
-.list-container {
-  min-height: 400px; /* evita encolhimento */
-}
-</style>
-
-
 <script setup>
 import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
