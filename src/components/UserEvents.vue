@@ -427,14 +427,22 @@
                 </div>
               </v-col>
 
-              <v-col
-                cols="12"
-                md="5"
-                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
-              >
-                <p class="text-subtitle-2 font-weight-medium mb-2">
-                  Status: {{ selectedMyEvent?.status }}
-                </p>
+              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
+                <div class="d-flex align-center justify-center mb-2">
+                  <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
+                    Status: {{ selectedMyEvent?.status }}
+                  </p>
+                  <v-btn
+                    
+                    icon="mdi-refresh"
+                    variant="text"
+                    size="small"
+                    :loading="isRefreshingStatus"
+                    :disabled="isRefreshingStatus"
+                    @click="refreshEventStatus(); refreshEventStatus();" 
+                  ></v-btn>
+                </div>
+
                 <v-btn
                   class="mb-4"
                   block
@@ -1147,10 +1155,13 @@ const selectedMyEvent = ref(null);
 const showQuitConfirmDialog = ref(false);
 const rlEventsUsersPkToQuit = ref(null);
 
+const isRefreshingStatus = ref(false);
+
 const openMyEventsDialog = async (event) => {
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
+  fetchStatuses();
   myDialog.value = true;
 
   const userStore = useUserStore();
@@ -1183,6 +1194,40 @@ const openMyEventsDialog = async (event) => {
     }
   } catch (error) {
     rlEventsUsersPkToQuit.value = null;
+  }
+};
+
+const refreshEventStatus = async () => {
+  if (!selectedMyEvent.value?.events_pk) {
+    console.warn("Nenhum evento selecionado para atualizar.");
+    return;
+  }
+
+  isRefreshingStatus.value = true;
+  try {
+    await fetchPlayers(selectedMyEvent.value.events_pk);
+
+    if (currentPlayer.value) {
+      selectedMyEvent.value.status = currentPlayer.value.event_status;
+      
+      toast.add({
+        severity: "info",
+        summary: "Status Atualizado",
+        detail: `O novo status é: ${currentPlayer.value.event_status}`,
+        life: 3000,
+      });
+    }
+
+  } catch (error) {
+    console.error("Falha ao atualizar o status do evento:", error);
+    toast.add({
+        severity: "error",
+        summary: "Erro",
+        detail: "Não foi possível atualizar o status.",
+        life: 3000,
+    });
+  } finally {
+    isRefreshingStatus.value = false;
   }
 };
 
@@ -1313,6 +1358,37 @@ const getEventStatusInfo = (status) => {
       };
   }
 };
+
+
+
+const joinEvent = async () => {
+  const userId = userStore.user?.users_pk;
+  if (!userId || !selectedEvent.value) {
+    return;
+  }
+
+  try {
+    await axios.post('/rl_events_users/cadastro', {
+      users_fk: userStore.user?.users_pk,
+      events_fk: selectedEvent.value.events_pk,
+      status: 1,
+    }, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+      },
+    });
+
+    joinedEventPk.value = selectedEvent.value.events_pk;
+
+    await fetchMyEvents();
+
+    showSuccessAlert.value = true;
+
+  } catch (error) { 
+    console.error("Erro ao entrar no evento:", error);
+  }
+};
+
 </script>
 
 <style scoped>
