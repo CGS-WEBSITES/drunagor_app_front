@@ -1,168 +1,106 @@
 <template>
-  <v-card
-    color="primary"
-     class="profile-card mx-auto py-0"
-     rounded="0"
-     elevation="3"
-     style="
-       overflow: visible;
-       position: relative;
-       text-align: center;
-       width: 100%;
-     "
-   >
-   <div class="position-relative">
-     <v-img
-   :src="
-     user.background_hash
-       ? assets + '/Profile/' + user.background_hash
-       : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
-   "
-   alt="Background Image"
-   max-height="529px"
-   max-width="100%"
-   cover
-   style="position: relative;"
- >
- 
- <v-btn
-     icon="mdi-arrow-left"
-     class="position-absolute top-0 left-0 ma-2"
-     color="rgba(0, 0, 0, 0.6)"
-     elevation="3"
-     @click="$router.go(-1)"
-   ></v-btn>
- 
- 
-   <v-menu v-if="isFriend" open-on-hover >
-     <template v-slot:activator="{ props }">
-       <v-btn
-         v-bind="props"
-         icon="mdi-account-check"
-         class="position-absolute top-0 right-0 ma-2"
-         color="rgba(0, 0, 0, 0.6)"
-         elevation="3"
-       ></v-btn>
-     </template>
-     <!-- <v-list class="ma-2">
-       <v-list-item @click="removeFriend">
-         <v-list-item-icon>
-           <v-icon>mdi-account-remove</v-icon>
-         </v-list-item-icon>
-       </v-list-item>
-     </v-list> -->
-   </v-menu>
- 
-   <v-btn
-     v-else
-     icon="mdi-account-plus"
-     class="position-absolute top-0 right-0 ma-2"
-     color="rgba(0, 0, 0, 0.6)"
-     elevation="3"
-     @click="addFriend"
-   ></v-btn>
- 
- 
-   <p 
-     class="user-join-date" 
-     style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
-   >
-     Joined: {{ formattedJoinDate }}
-   </p>
- </v-img>
-     </div>
- 
-     <v-img
-       :key="reloadKey"
-       :src="
-         user.picture_hash
-           ? assets + '/Profile/' + user.picture_hash
-           : assets + '/Profile/user.png'
-       "
-       :alt="user.picture_hash"
-       max-width="118"
-       style="
-         top: -30px;
-         left: 50%;
-         transform: translate(-50%, -50%);
-         border: 0.5px solid white;
-         box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-         background-color: black;
-       "
-     >
-     </v-img>
-     
- 
- 
-     
-     <v-card-text>
-       <div class="user-info" style="margin-top: -80px ">
-         <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
-           {{ user.user_name }}
- 
-           <div class="d-none d-md-inline justify-center align-center">
-         <v-menu v-if="isFriend" open-on-hover>
-     <template v-slot:activator="{ props }">
-       <v-btn
-         v-bind="props"
-         icon="mdi-account-check"
-         color="rgba(0, 0, 0, 0.0)"
-         elevation="0"
-         size="small"
-       ></v-btn>
-     </template>
-     <!-- <v-list>
-       <v-list-item @click="removeFriend">
-         <v-list-item-icon>
-           <v-icon >mdi-account-remove</v-icon>
-         </v-list-item-icon>
-         <v-list-item-title>Remove Friend</v-list-item-title>
-       </v-list-item>
-     </v-list> -->
-   </v-menu>
- 
-   <v-btn
-     v-else
-     icon="mdi-account-plus"
-     color="rgba(0, 0, 0, 0.6)"
-     elevation="3"
-     size="small"
-     @click="addFriend"
-   ></v-btn>
-   </div>
- 
-   <v-alert
-     v-if="showAlert"
-     type="success"
-     class="custom-alert"
-     text
-   >
-     Friend request sent!
-   </v-alert>
+  <v-card color="primary" class="profile-card mx-auto py-0" rounded="0" elevation="3" style="
+    overflow: visible;
+    position: relative;
+    text-align: center;
+    width: 100%;
+  ">
+    <div class="position-relative">
+      <v-img :src="user.background_hash
+          ? assets + '/Profile/' + user.background_hash
+          : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
+        " alt="Background Image" max-height="529px" max-width="100%" cover style="position: relative;">
 
-   <v-alert
-      v-if="showErrorAlert"
-      type="error"
-      class="custom-alert"
-    >
-      {{ errorMessage }}
-    </v-alert>
-           
-           
-         </p>  
-         </div>
-       </v-card-text>
-       
-     </v-card>
- 
- <BadgesUser/>
- 
- <favorite-campaign-card/>
- 
- 
- 
- </template>
- 
+        <v-btn icon="mdi-arrow-left" class="position-absolute top-0 left-0 ma-2" color="rgba(0, 0, 0, 0.6)"
+          elevation="3" @click="$router.go(-1)"></v-btn>
+
+
+        <v-menu v-if="isFriend" open-on-hover>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" icon="mdi-account-check" class="position-absolute top-0 right-0 ma-2"
+              color="rgba(0, 0, 0, 0.6)" elevation="3"></v-btn>
+          </template>
+          <!-- <v-list class="ma-2">
+            <v-list-item @click="removeFriend">
+              <v-list-item-icon>
+                <v-icon>mdi-account-remove</v-icon>
+              </v-list-item-icon>
+            </v-list-item>
+          </v-list> -->
+        </v-menu>
+
+        <v-btn v-else icon="mdi-account-plus" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)"
+          elevation="3" @click="addFriend"></v-btn>
+
+
+        <p class="user-join-date"
+          style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0;">
+          Joined: {{ formattedJoinDate }}
+        </p>
+      </v-img>
+    </div>
+
+    <v-img :key="reloadKey" :src="user.picture_hash
+        ? assets + '/Profile/' + user.picture_hash
+        : assets + '/Profile/user.png'
+      " :alt="user.picture_hash" max-width="118" style="
+          top: -30px;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border: 0.5px solid white;
+          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+          background-color: black;
+      ">
+    </v-img>
+
+    <v-card-text>
+      <div class="user-info" style="margin-top: -80px ">
+        <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
+          {{ user.user_name }}
+
+        <div class="d-none d-md-inline justify-center align-center">
+          <v-menu v-if="isFriend" open-on-hover>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon="mdi-account-check" color="rgba(0, 0, 0, 0.0)" elevation="0"
+                size="small"></v-btn>
+            </template>
+            <!-- <v-list>
+            <v-list-item @click="removeFriend">
+              <v-list-item-icon>
+                <v-icon >mdi-account-remove</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Remove Friend</v-list-item-title>
+            </v-list-item>
+          </v-list> -->
+          </v-menu>
+
+          <v-btn v-else icon="mdi-account-plus" color="rgba(0, 0, 0, 0.6)" elevation="3" size="small"
+            @click="addFriend"></v-btn>
+        </div>
+
+        <v-alert v-if="showAlert" type="success" class="custom-alert" text>
+          Friend request sent!
+        </v-alert>
+
+        <v-alert v-if="showErrorAlert" type="error" class="custom-alert">
+          {{ errorMessage }}
+        </v-alert>
+
+
+        </p>
+      </div>
+    </v-card-text>
+
+  </v-card>
+
+  <BadgesUser />
+
+  <favorite-campaign-card />
+
+
+
+</template>
+
 <script lang="ts" setup>
 import { inject, computed, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -234,12 +172,12 @@ const addFriend = async () => {
     showAlert.value = true;
     setTimeout(() => {
       showAlert.value = false;
-    }, 3000);
+    }, 1500);
   } catch (error) {
     showErrorAlert.value = true;
     errorMessage.value =
       error.response?.data?.message || "Erro ao enviar o pedido de amizade.";
-    setTimeout(() => (showErrorAlert.value = false), 3000);
+    setTimeout(() => (showErrorAlert.value = false), 1500);
   }
 };
 
@@ -276,8 +214,8 @@ const checkFriendStatus = async () => {
 
 checkFriendStatus();
 </script>
- 
- <style scoped>
+
+<style scoped>
 .user-info {
   margin-top: 50px;
 }
@@ -302,12 +240,13 @@ checkFriendStatus();
 .custom-alert {
   top: 50%;
   left: 50%;
-  transform: translate(-50%, 10%); /* Centraliza na tela */
-  width: 300px; /* Defina um tamanho adequado */
+  transform: translate(-50%, 10%);
+  /* Centraliza na tela */
+  width: 300px;
+  /* Defina um tamanho adequado */
   height: 44px;
   z-index: 9999;
   padding: 10px;
   transition: opacity 0.5s ease-in-out;
 }
 </style>
- 
