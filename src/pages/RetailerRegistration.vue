@@ -15,8 +15,8 @@
                         <v-tab-item :value="0">
                             <v-card-text v-if="activeTab === 0">
                                 <v-btn color="primary" @click="navigateTo('/login')">
-              <v-icon> mdi-keyboard-backspace </v-icon>
-            </v-btn>
+                                    <v-icon> mdi-keyboard-backspace </v-icon>
+                                </v-btn>
                                 <v-container class="d-flex justify-center align-center">
                                     <v-row justify="center">
                                         <v-col cols="12" md="6" class="text-center">
@@ -161,7 +161,8 @@ const rules = {
     required: (value: string) => !!value || "Required.",
     email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
     min: (v: string) => v.length >= 8 || "Min 8 characters",
-    matchPasswords: (v: string) => v === signupPassword.value || "The passwords must match",
+    matchPasswords: (v: string) =>
+        v === signupPassword.value || "The passwords must match",
 };
 
 const axios: any = inject("axios");
@@ -173,6 +174,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
     alertText.value = text;
     showAlert.value = true;
     alertType.value = type;
+
+    setTimeout(() => {
+        showAlert.value = false;
+    }, 1500);
 };
 
 function convertDecimalToDMS(coordinate: number, isLatitude: boolean): string {
@@ -182,8 +187,12 @@ function convertDecimalToDMS(coordinate: number, isLatitude: boolean): string {
     const seconds = ((absolute - degrees) * 60 - minutes) * 60;
     const secondsRounded = Math.round(seconds * 10) / 10;
     const direction = isLatitude
-        ? coordinate >= 0 ? "N" : "S"
-        : coordinate >= 0 ? "E" : "W";
+        ? coordinate >= 0
+            ? "N"
+            : "S"
+        : coordinate >= 0
+            ? "E"
+            : "W";
     return `${degrees}°${minutes}'${secondsRounded}"${direction}`;
 }
 
@@ -193,16 +202,18 @@ function convertCoordinatesToDMS(coords: { lat: number; lon: number }): string {
     return `${latDMS} ${lonDMS}`;
 }
 
-const getCoordinates = async (address: string): Promise<{ lat: number; lon: number } | null> => {
+const getCoordinates = async (
+    address: string,
+): Promise<{ lat: number; lon: number } | null> => {
     try {
         const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
         );
         const data = await response.json();
         if (data && data.length > 0) {
             return {
                 lat: parseFloat(data[0].lat),
-                lon: parseFloat(data[0].lon)
+                lon: parseFloat(data[0].lon),
             };
         } else {
             console.error("Endereço não encontrado.");
@@ -261,7 +272,12 @@ const submitForm = async () => {
             .then((response: any) => {
                 console.log(response);
 
-                setAllert("mdi-check", response.status, response.data.message, "success");
+                setAllert(
+                    "mdi-check",
+                    response.status,
+                    response.data.message,
+                    "success",
+                );
                 activeTab.value = 0;
 
                 successDialog.value = true;
@@ -272,7 +288,7 @@ const submitForm = async () => {
                     "mdi-alert-circle",
                     response.status,
                     response.response.data.message,
-                    "error"
+                    "error",
                 );
             });
     }

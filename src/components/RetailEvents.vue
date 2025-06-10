@@ -683,7 +683,18 @@
                     </v-card>
                   </v-col>
                   <v-col>
-                    <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
+                    <p class="pb-3 font-weight-bold">PLAYERS INTERESTED 
+                      <v-btn
+                      icon
+                      size="medium"
+                      variant="text"
+                      @click="refreshInterestedPlayers(selectedEvent)"
+                  >
+                      <v-icon class="mb-1" color="white">mdi-refresh</v-icon>
+                  </v-btn>
+                    </p>
+                    
+                    
                   </v-col>
                   <v-row>
                     <v-col
@@ -1740,6 +1751,32 @@ const copyLink = async (link) => {
 onMounted(() => {
   fetchAllRewards();
 });
+
+const refreshInterestedPlayers = async (event) => {
+  if (!event || !event.events_pk) {
+    console.error("Refresh failed: Event data is missing.");
+    return;
+  }
+
+  try {
+
+    selectedEvent.value = event;
+
+    await fetchPlayersForEvent(event.events_pk);
+    fetchStatuses();
+    await fetchAllRewards();
+    const rewardsFromRelation = await fetchEventRewards(event.events_pk);
+    eventRewards.value = rewardsFromRelation;
+    if (editableEvent.value) {
+        editableEvent.value.rewards = availableRewards.value.filter(ar =>
+            rewardsFromRelation.some(rr => rr.rewards_pk === ar.rewards_pk)
+        );
+    }
+
+  } catch (error) {
+    console.error("An error occurred while refreshing event data:", error);
+  }
+};
 </script>
 
 <style scoped>

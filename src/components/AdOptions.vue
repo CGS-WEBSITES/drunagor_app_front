@@ -4,19 +4,36 @@
       <!-- Card com funcionalidade de colapsar -->
       <v-card color="primary" elevation="2" rounded="lg">
         <!-- Cabeçalho com título e seta -->
-        <v-card-title class="d-flex justify-space-between align-center" @click="toggleOptions">
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase">ADDITIONAL OPTIONS</span>
+        <v-card-title
+          class="d-flex justify-space-between align-center"
+          @click="toggleOptions"
+        >
+          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase"
+            >ADDITIONAL OPTIONS</span
+          >
           <v-icon>{{
             isExpanded ? "mdi-chevron-up" : "mdi-chevron-down"
-            }}</v-icon>
+          }}</v-icon>
         </v-card-title>
 
         <!-- Conteúdo do formulário (visível apenas se expandido) -->
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
-            <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle" :text="alertText"
-              :type="alertType" class="mb-6"></v-alert>
-            <v-btn block color="#A02C2C" class="text-white text-body-1 font-weight-bold mb-3" @click="deleteUser(user_pk)">
+            <v-alert
+              closable
+              v-model="showAlert"
+              :icon="alertIcon"
+              :title="alertTitle"
+              :text="alertText"
+              :type="alertType"
+              class="mb-6"
+            ></v-alert>
+            <v-btn
+              block
+              color="#A02C2C"
+              class="text-white text-body-1 font-weight-bold mb-3"
+              @click="deleteUser(user_pk)"
+            >
               DELETE
             </v-btn>
 
@@ -42,20 +59,44 @@
       </v-card>
 
       <!-- Alerta de Exclusão -->
-      <v-alert v-if="alertDelete" type="error" class="mt-3" text color="#A02C2C" title="Account Deletion"
-        @click:close="alertDelete = false" closeable>
+      <v-alert
+        v-if="alertDelete"
+        type="error"
+        class="mt-3"
+        text
+        color="#A02C2C"
+        title="Account Deletion"
+        @click:close="alertDelete = false"
+        closeable
+      >
         Your account deletion request has been processed!
       </v-alert>
 
       <!-- Alerta de Feedback -->
-      <v-alert v-if="alertFeedback" type="info" class="mt-3" color="#C7A738" text title="Feedback"
-        @click:close="alertFeedback = false" closeable>
+      <v-alert
+        v-if="alertFeedback"
+        type="info"
+        class="mt-3"
+        color="#C7A738"
+        text
+        title="Feedback"
+        @click:close="alertFeedback = false"
+        closeable
+      >
         Feedback form has been opened for you to fill out!
       </v-alert>
 
       <!-- Alerta de Atualização -->
-      <v-alert v-if="alertUpdate" type="success" class="mt-3" text color="#550096" title="Account Update"
-        @click:close="alertUpdate = false" closeable>
+      <v-alert
+        v-if="alertUpdate"
+        type="success"
+        class="mt-3"
+        text
+        color="#550096"
+        title="Account Update"
+        @click:close="alertUpdate = false"
+        closeable
+      >
         Your account update to retailer has been requested!
       </v-alert>
     </v-container>
@@ -91,6 +132,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertText.value = text;
   showAlert.value = true;
   alertType.value = type;
+
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 1500);
 };
 
 const userStore = useUserStore();
@@ -103,12 +148,9 @@ const deleteUser = async () => {
       return;
     }
 
-    const response = await axios.delete(
-      `/users/${user_pk}/delete/`,
-      {
-        headers: getToken(),
-      }
-    );
+    const response = await axios.delete(`/users/${user_pk}/delete/`, {
+      headers: getToken(),
+    });
 
     setAllert("mdi-check", response.status, response.data.message, "success");
     logOut();
@@ -118,7 +160,7 @@ const deleteUser = async () => {
       "mdi-alert-circle",
       error.response?.status || 500,
       error.response?.data?.message || "A network error occurred.",
-      "error"
+      "error",
     );
   }
 };
