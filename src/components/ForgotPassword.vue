@@ -121,6 +121,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertText.value = text;
   showAlert.value = true;
   alertType.value = type;
+
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 1500);
 };
 
 // Função de login
@@ -150,7 +154,7 @@ const loginUser = async () => {
         "mdi-alert-circle",
         error.response?.status || 500,
         error.response?.data?.message || "A network error occurred.",
-        "error"
+        "error",
       );
     });
 };
