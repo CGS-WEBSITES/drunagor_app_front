@@ -1116,27 +1116,6 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const userCreatedEvents = ref([]);
-const fetchUserCreatedEvents = async () => {
-  try {
-    const retailer_fk = userStore.user?.users_pk;
-    if (!retailer_fk) {
-      return;
-    }
-    const response = await axios.get("/events/my_events/retailer", {
-      params: { retailer_fk, active: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    userCreatedEvents.value = response.data.events || [];
-  } catch (error) {
-    // Handle error fetching user created events
-  }
-};
-
-onMounted(fetchUserCreatedEvents);
-
 const availableRewards = ref([
   {
     name: "Vorn Armor",
