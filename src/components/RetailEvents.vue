@@ -26,21 +26,22 @@
         </v-col>
       </v-row>
 
+      <v-row class="mb-4" align="center">
+        <v-col cols="12" sm="6">
+          <v-checkbox
+            v-model="showPast"
+            label="Past events"
+            hide-details
+            color="primary"
+          />
+        </v-col>
+      </v-row>
+
       <div v-if="activeTab === 1">
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="48" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row class="mb-4" align="center">
-            <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="showPastEvents"
-                label="Past events"
-                hide-details
-                color="primary"
-              />
-            </v-col>
-          </v-row>
           <v-row>
             <v-col
               class="py-2 pl-1 pr-1"
@@ -244,16 +245,6 @@
             </v-col>
             <v-col cols="3">
               <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
-            </v-col>
-          </v-row>
-          <v-row class="mb-4" align="center">
-            <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="showPastMyEvents"
-                label="Past events"
-                hide-details
-                color="primary"
-              />
             </v-col>
           </v-row>
           <v-row>
@@ -967,9 +958,8 @@ const activeTab = ref("events");
 const sortBy = ref("date");
 const events = ref([]);
 const sceneries = ref([]);
-const showPastEvents = ref(false);
+const showPast = ref(false);
 const userCreatedEvents = ref([]);
-const showPastMyEvents = ref(false);
 const loading = ref(false);
 const createEventDialog = ref(false);
 const newEvent = ref({});
@@ -1028,8 +1018,6 @@ const sortedEvents = computed(() => {
   }
   return events.value;
 });
-
-
 
 const validateTime = () => {
   const value = editableEvent.value.hour;
@@ -1162,7 +1150,6 @@ const updatePlayerStatus = async (player, statusPk) => {
     player.event_status = response.data.event_status || player.event_status;
     fetchPlayersForEvent(eventFk);
 
-    // ✅ Usa o eventRewards aqui
     if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
       for (const reward of eventRewards.value) {
         await axios.post(
@@ -1267,7 +1254,9 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const fetchPlayerEvents = async () => {
+const fetchPlayerEvents = async (past) => {
+  loading.value = true;
+
   try {
     const player_fk = userStore.user?.users_pk;
 
@@ -1280,7 +1269,7 @@ const fetchPlayerEvents = async () => {
     const response = await axios.get("/events/list_events/", {
       params: { 
         player_fk,
-        past_events: showPastEvents.value.toString(),
+        past_events: past.toString(),
       },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1457,7 +1446,7 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const fetchUserCreatedEvents = async () => {
+const fetchUserCreatedEvents = async (past) => {
   try {
     const retailer_fk = userStore.user?.users_pk;
 
@@ -1469,8 +1458,9 @@ const fetchUserCreatedEvents = async () => {
     const response = await axios.get("/events/my_events/retailer", {
       params: { 
         retailer_fk, 
-        active: true,
-        past_events: showPastMyEvents.value.toString(),
+        past_events: past.toString(),
+        limit: 30,
+      offset: 0,
       },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1484,16 +1474,6 @@ const fetchUserCreatedEvents = async () => {
       error.response?.data || error.message,
     );
   }
-};
-
-const loadList = async () => {
-  loading.value = true;
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchUserCreatedEvents();
-  }
-  loading.value = false;
 };
 
 const createEvent = () => {
@@ -1751,8 +1731,6 @@ const refreshInterestedPlayers = async (event) => {
   }
 };
 
-
-
 onMounted(async () => {
   try {
     const response = await axios.get("/stores/list", {
@@ -1776,40 +1754,27 @@ onMounted(async () => {
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 
   fetchStatuses();
-  fetchPlayerEvents();
   await fetchSceneries();
   fetchAllRewards();
+  
+  loading.value = true;
+  try {
+    await Promise.all([
+      fetchPlayerEvents(showPast.value),
+      fetchUserCreatedEvents(showPast.value),
+    ]);
+  } finally {
+    loading.value = false;
+  }
 });
 
-onMounted(fetchUserCreatedEvents);
-onMounted(loadList);
-
-watch(showPastEvents, () => {
-  if (activeTab.value === 1) {
-    fetchPlayerEvents()
-  }
-})
-
-watch(showPastMyEvents, () => {
-  if (activeTab.value === 2) {
-    fetchUserCreatedEvents()
-  }
-})
-
-watch(activeTab, async (newTab, oldTab) => {
-  showPastEvents.value   = false
-  showPastMyEvents.value = false
-
-  loading.value = true
-  if (newTab === 1) {
-    await fetchPlayerEvents()
-  } else {
-    await fetchUserCreatedEvents()
-  }
-  loading.value = false
-}, { immediate: true })
-
-watch(activeTab, loadList, { immediate: true })
+watch(showPast, async (novo) => {
+  console.log("▶️ showPast:", novo);
+  loading.value = true;
+  await fetchPlayerEvents(novo);
+  await fetchUserCreatedEvents(novo);
+  loading.value = false;
+});
 
 watch(
   () => newEvent.value.store,

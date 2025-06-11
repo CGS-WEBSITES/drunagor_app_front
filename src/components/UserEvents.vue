@@ -1,14 +1,4 @@
 <template>
-  <v-row class="mb-4" align="center">
-    <v-col cols="12" sm="6">
-      <v-checkbox
-        v-model="showPast"
-        label="Past events"
-        hide-details
-        color="primary"
-      />
-    </v-col>
-  </v-row>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
@@ -33,6 +23,17 @@
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
+        </v-col>
+      </v-row>
+
+      <v-row class="mb-4" align="center">
+        <v-col cols="12" sm="6">
+          <v-checkbox
+            v-model="showPast"
+            label="Past events"
+            hide-details
+            color="primary"
+          />
         </v-col>
       </v-row>
 
@@ -913,8 +914,9 @@ const createdCompanion = async () => {
   }
 };
 
-const fetchPlayerEvents = async (past = false) => {
+const fetchPlayerEvents = async (past) => {
   loading.value = true;
+  
   try {
     const params = {
       player_fk: playerFk.value,
@@ -935,19 +937,18 @@ const fetchPlayerEvents = async (past = false) => {
   }
 };
 
-const fetchMyEvents = async (past = false) => {
-  if (!playerFk.value) {
-    console.warn("❌ playerFk indefinido, abortando requisição.");
-    return;
-  }
+const fetchMyEvents = async (past) => {
+  loading.value = true;
 
   try {
     const params = {
       player_fk: playerFk.value,
       past_events: past.toString(),
+      limit: 30,
+      offset: 0,
     };
     console.log("🔁 Fetching my events:", params);
-    const response = await axios.get("system/events/my_events/player", {
+    const response = await axios.get("/events/my_events/player", {
       params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -966,16 +967,6 @@ const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!playerFk.value) return;
   fetchMyEvents();
 }, 300);
-
-const loadTabData = async () => {
-  loading.value = true;
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchMyEvents();
-  }
-  loading.value = false;
-};
 
 const fetchSceneries = async () => {
   await axios
@@ -1349,19 +1340,22 @@ onMounted(async () => {
 
   await fetchSceneries();
 
-  await Promise.all([
-    fetchPlayerEvents(false),
-    fetchMyEvents(false),
-  ]);
+  loading.value = true;
+  try {
+    await Promise.all([
+      fetchPlayerEvents(showPast.value),
+      fetchMyEvents(showPast.value),
+    ]);
+  } finally {
+    loading.value = false;
+  }
 });
 
-watch(showPast, async (val) => {
+watch(showPast, async (novo) => {
+  console.log("▶️ showPast:", novo);
   loading.value = true;
-  
-  await Promise.all([
-    fetchPlayerEvents(val),
-    fetchMyEvents(val)
-  ]);
+  await fetchPlayerEvents(novo);
+  await fetchMyEvents(novo);
   loading.value = false;
 });
 
