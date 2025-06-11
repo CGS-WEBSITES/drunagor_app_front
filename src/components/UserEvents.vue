@@ -1255,7 +1255,8 @@ const quitErrorMessage = ref('');
 const openMyEventsDialog = async (event) => {
   showQuitSuccessAlert.value = false;
   showQuitErrorAlert.value = false;
-  
+  rlEventsUsersPkToQuit.value = event.rl_events_users_pk;
+
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
@@ -1339,8 +1340,8 @@ const confirmQuitEvent = async () => {
     return;
   }
   try {
-    await axios.put(
-      `/rl_events_users/alter/${rlEventsUsersPkToQuit.value}`,
+    await axios.delete(
+      `/rl_events_users/${rlEventsUsersPkToQuit.value}/delete/`,
       { status: 3 },
       {
         headers: {
