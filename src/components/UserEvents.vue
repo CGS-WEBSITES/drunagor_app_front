@@ -466,9 +466,7 @@
                     size="small"
                     :loading="isRefreshingStatus"
                     :disabled="isRefreshingStatus"
-                    @click="
-                      refreshEventStatus();
-                    "
+                    @click="refreshEventStatus()"
                   ></v-btn>
                 </div>
 
@@ -487,7 +485,7 @@
                 <v-btn class="mb-8" block color="red" @click="quitEvent()">
                   Quit Event
                 </v-btn>
-                
+
                 <v-alert
                   v-if="showQuitSuccessAlert"
                   type="success"
@@ -497,7 +495,8 @@
                   closable
                   @click:close="showQuitSuccessAlert = false"
                 >
-                  You have successfully left the event. It will no longer appear in your list.
+                  You have successfully left the event. It will no longer appear
+                  in your list.
                 </v-alert>
 
                 <v-alert
@@ -511,7 +510,6 @@
                 >
                   {{ quitErrorMessage }}
                 </v-alert>
-
               </v-col>
             </v-row>
 
@@ -583,17 +581,79 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
-const user = computed(() => userStore.user);
+const eventStore = useEventStore();
+const route = useRoute();
+
 const loading = ref(false);
+const activeTab = ref(1);
+const events = ref([]);
+const eventPk = ref(null);
+const isEditable = ref(false);
+const players = ref([]);
+const currentPage = ref(1);
+const statuses = ref([]);
+const grantedStatus = ref(null);
+const turnedAwayStatus = ref(null);
+const selectedRewards = ref([]);
+const dialog = ref(false);
+const selectedEvent = ref(null);
+const eventRewards = ref([]);
+const showSuccessAlert = ref(false);
+const joinedEventPk = ref(null);
+const sortBy = ref("date");
+const playerFk = ref(null);
+const showPastEvents = ref(false);
+const myEvents = ref([]);
+const showPastMyEvents = ref(false);
+const sceneries = ref([]);
+const availableRewards = ref([
+  {
+    name: "Vorn Armor",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
+    description:
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+  },
+  {
+    name: "Jaheen Shield",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
+    description:
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+  },
+  {
+    name: "Lorelai Kiss",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
+    description:
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
+  },
+]);
+const createEventDialog = ref(false);
+const newEvent = ref({});
+const stores = ref([]);
+const editEventDialog = ref(false);
+const editableEvent = ref({});
+const myDialog = ref(false);
+const selectedMyEvent = ref(null);
+const showQuitConfirmDialog = ref(false);
+const rlEventsUsersPkToQuit = ref(null);
+const isRefreshingStatus = ref(false);
+const showQuitSuccessAlert = ref(false);
+const showQuitErrorAlert = ref(false);
+const quitErrorMessage = ref("");
+const sharedLink = ref("");
+const showDialog = ref(false);
+const showAlert = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-const activeTab = ref(1);
-const events = ref([]);
-const eventPk = ref(null);
+const user = computed(() => userStore.user);
+const boxSku = computed(() => route.query.sku || "");
+
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -601,8 +661,37 @@ const sortedEvents = computed(() => {
   return events.value;
 });
 
-const eventStore = useEventStore();
-const isEditable = ref(false);
+const pageSize = 5;
+const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
+const paginatedPlayers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return players.value.slice(start, start + pageSize);
+});
+
+const appUserPk = computed(() => {
+  const raw = localStorage.getItem("app_user");
+  return raw ? JSON.parse(raw).users_pk : null;
+});
+
+const currentPlayer = computed(() => {
+  if (!appUserPk.value) return null;
+  return players.value.find((p) => p.users_pk === appUserPk.value) || null;
+});
+
+const selectedStoreImage = computed(() => {
+  const store = stores.value.find(
+    (s) => s.storename === selectedEvent.value?.store,
+  );
+  return store?.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : "https://via.placeholder.com/150";
+});
+
+const selectedStore = computed(() => {
+  return (
+    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
+  );
+});
 
 const openEditDialog = (event, editable = false) => {
   editableEvent.value = { ...event };
@@ -614,19 +703,6 @@ const openEditDialog = (event, editable = false) => {
     updatePlayerStatus(player, newStatus, editableEvent.value.events_pk);
   }
 };
-
-const players = ref([]);
-const currentPage = ref(1);
-const pageSize = 5;
-const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
-const paginatedPlayers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  return players.value.slice(start, start + pageSize);
-});
-
-const statuses = ref([]);
-const grantedStatus = ref(null);
-const turnedAwayStatus = ref(null);
 
 const fetchStatuses = () => {
   axios
@@ -645,16 +721,6 @@ const fetchStatuses = () => {
     });
 };
 
-const appUserPk = computed(() => {
-  const raw = localStorage.getItem("app_user");
-  return raw ? JSON.parse(raw).users_pk : null;
-});
-
-const currentPlayer = computed(() => {
-  if (!appUserPk.value) return null;
-  return players.value.find((p) => p.users_pk === appUserPk.value) || null;
-});
-
 const fetchPlayers = (eventPk) => {
   axios
     .get("/rl_events_users/list_players", {
@@ -667,16 +733,6 @@ const fetchPlayers = (eventPk) => {
       // Handle error fetching players
     });
 };
-
-onMounted(() => {
-  const usersPk = localStorage.getItem("app_user");
-  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-  fetchStatuses();
-  if (events.value.length) {
-    fetchPlayers(events.value[0].events_pk);
-  }
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
-});
 
 const updatePlayerStatus = (player, newStatus, eventPk) => {
   const usersPk = localStorage.getItem("app_user");
@@ -735,7 +791,6 @@ const handleTimeInput = (event) => {
   }
 };
 
-const selectedRewards = ref([]);
 const toggleReward = (reward) => {
   if (selectedRewards.value.includes(reward)) {
     selectedRewards.value = selectedRewards.value.filter((r) => r !== reward);
@@ -743,10 +798,6 @@ const toggleReward = (reward) => {
     selectedRewards.value.push(reward);
   }
 };
-
-const dialog = ref(false);
-const selectedEvent = ref(null);
-const eventRewards = ref([]);
 
 const openDialog = async (event) => {
   selectedEvent.value = event;
@@ -765,17 +816,13 @@ const openDialog = async (event) => {
   }
 };
 
-const showSuccessAlert = ref(false);
-
-function compressCampaign(campaignId) {
+const compressCampaign = (campaignId) => {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(campaignId)),
   );
-}
+};
 
-const joinedEventPk = ref(null);
-
-async function handleNewCampaign(type) {
+const handleNewCampaign = async (type) => {
   loading.value = true;
   try {
     const usersPk = userStore.user?.users_pk;
@@ -832,12 +879,9 @@ async function handleNewCampaign(type) {
   } finally {
     loading.value = false;
   }
-}
+};
 
-const route = useRoute();
-const boxSku = computed(() => route.query.sku || "");
-
-async function createdCompanion() {
+const createdCompanion = async () => {
   const token =
     "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJdsdsIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZ,SIc2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=";
   try {
@@ -878,33 +922,7 @@ async function createdCompanion() {
       life: 3000,
     });
   }
-}
-
-const selectedStoreImage = computed(() => {
-  const store = stores.value.find(
-    (s) => s.storename === selectedEvent.value?.store,
-  );
-  return store?.picture_hash
-    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
-    : "https://via.placeholder.com/150";
-});
-
-const selectedStore = computed(() => {
-  return (
-    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
-  );
-});
-
-const sortBy = ref("date");
-
-const playerFk = ref(null);
-
-onMounted(() => {
-  const rawUser = localStorage.getItem("app_user");
-  playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
-});
-
-const showPastEvents = ref(false)
+};
 
 const fetchPlayerEvents = async () => {
   loading.value = true;
@@ -927,15 +945,6 @@ const fetchPlayerEvents = async () => {
     loading.value = false;
   }
 };
-
-watch(showPastEvents, () => {
-  if (activeTab.value === 1) {
-    fetchPlayerEvents();
-  }
-});
-
-const myEvents = ref([]);
-const showPastMyEvents = ref(false);
 
 const fetchMyEvents = async () => {
   if (!playerFk.value) {
@@ -967,16 +976,9 @@ const fetchMyEvents = async () => {
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!playerFk.value) return;
   fetchMyEvents();
-}, 300); // aguarda 300ms para evitar chamadas em sequência
+}, 300);
 
-watch(showPastMyEvents, (val) => {
-  if (activeTab.value === 2) {
-    console.log("✅ Checkbox mudou para:", val);
-    fetchMyEventsDebounced();
-  }
-});
-
-async function loadTabData() {
+const loadTabData = async () => {
   loading.value = true;
   if (activeTab.value === 1) {
     await fetchPlayerEvents();
@@ -984,32 +986,7 @@ async function loadTabData() {
     await fetchMyEvents();
   }
   loading.value = false;
-}
-
-watch(activeTab, async (newTab) => {
-  showPastEvents.value = false;
-  showPastMyEvents.value = false;
-
-  loading.value = true;
-  if (newTab === 1) {
-    await fetchPlayerEvents();
-  } else if (newTab === 2) {
-    await fetchMyEvents();
-  }
-  loading.value = false;
-}, { immediate: true });
-
-watch(activeTab, loadTabData, { immediate: true })
-
-onMounted(async () => {
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchMyEvents();
-  }
-});
-
-const sceneries = ref([]);
+};
 
 const fetchSceneries = async () => {
   await axios
@@ -1026,10 +1003,6 @@ const fetchSceneries = async () => {
       // Handle error fetching scenarios
     });
 };
-
-onMounted(async () => {
-  await fetchSceneries();
-});
 
 const addEvent = async () => {
   const userStore = useUserStore();
@@ -1116,63 +1089,6 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const availableRewards = ref([
-  {
-    name: "Vorn Armor",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Jaheen Shield",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Lorelai Kiss",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
-  },
-]);
-
-const createEventDialog = ref(false);
-const newEvent = ref({});
-const stores = ref([]);
-
-watch(
-  () => newEvent.value.store,
-  (selectedStoreName) => {
-    const selectedStore = stores.value.find(
-      (store) => store.storename === selectedStoreName,
-    );
-    if (selectedStore) {
-      const { address, streetNumber, complement, city, state } = selectedStore;
-      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
-    } else {
-      newEvent.value.address = "";
-    }
-  },
-);
-
-onMounted(async () => {
-  try {
-    const response = await axios.get("/stores/list", {
-      params: { users_fk: userStore.user?.users_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    stores.value = response.data.stores || [];
-  } catch (error) {
-    // Handle error fetching stores
-  }
-});
-
 const createEvent = () => {
   createEventDialog.value = false;
 };
@@ -1187,9 +1103,6 @@ const handleImageUpload = (event) => {
     newEvent.value.image = URL.createObjectURL(file);
   }
 };
-
-const editEventDialog = ref(false);
-const editableEvent = ref({});
 
 const saveEditedEvent = () => {
   const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
@@ -1221,20 +1134,10 @@ const getPlayersForEvent = async (event_fk) => {
     });
 };
 
-const myDialog = ref(false);
-const selectedMyEvent = ref(null);
-const showQuitConfirmDialog = ref(false);
-const rlEventsUsersPkToQuit = ref(null);
-const isRefreshingStatus = ref(false);
-
-const showQuitSuccessAlert = ref(false);
-const showQuitErrorAlert = ref(false);
-const quitErrorMessage = ref('');
-
 const openMyEventsDialog = async (event) => {
   showQuitSuccessAlert.value = false;
   showQuitErrorAlert.value = false;
-  
+
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
@@ -1335,15 +1238,12 @@ const confirmQuitEvent = async () => {
     }, 2500);
   } catch (error) {
     console.error("Failed to quit event:", error);
-    quitErrorMessage.value = "An unexpected error occurred. Please try again later.";
+    quitErrorMessage.value =
+      "An unexpected error occurred. Please try again later.";
     showQuitErrorAlert.value = true;
     showQuitSuccessAlert.value = false;
   }
 };
-
-const sharedLink = ref("");
-const showDialog = ref(false);
-const showAlert = ref(false);
 
 const shareEvent = (eventId) => {
   try {
@@ -1433,6 +1333,86 @@ const joinEvent = async () => {
     console.error("Erro ao entrar no evento:", error);
   }
 };
+
+onMounted(async () => {
+  try {
+    const response = await axios.get("/stores/list", {
+      params: { users_fk: userStore.user?.users_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    stores.value = response.data.stores || [];
+  } catch (error) {
+    // Handle error fetching stores
+  }
+
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+  fetchStatuses();
+  if (events.value.length) {
+    fetchPlayers(events.value[0].events_pk);
+  }
+  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+
+  const rawUser = localStorage.getItem("app_user");
+  playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
+
+  await fetchSceneries();
+
+  if (activeTab.value === 1) {
+    await fetchPlayerEvents();
+  } else {
+    await fetchMyEvents();
+  }
+});
+
+watch(showPastEvents, () => {
+  if (activeTab.value === 1) {
+    fetchPlayerEvents();
+  }
+});
+
+watch(showPastMyEvents, (val) => {
+  if (activeTab.value === 2) {
+    console.log("✅ Checkbox mudou para:", val);
+    fetchMyEventsDebounced();
+  }
+});
+
+watch(
+  activeTab,
+  async (newTab) => {
+    showPastEvents.value = false;
+    showPastMyEvents.value = false;
+
+    loading.value = true;
+    if (newTab === 1) {
+      await fetchPlayerEvents();
+    } else if (newTab === 2) {
+      await fetchMyEvents();
+    }
+    loading.value = false;
+  },
+  { immediate: true },
+);
+
+watch(activeTab, loadTabData, { immediate: true });
+
+watch(
+  () => newEvent.value.store,
+  (selectedStoreName) => {
+    const selectedStore = stores.value.find(
+      (store) => store.storename === selectedStoreName,
+    );
+    if (selectedStore) {
+      const { address, streetNumber, complement, city, state } = selectedStore;
+      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
+    } else {
+      newEvent.value.address = "";
+    }
+  },
+);
 </script>
 
 <style scoped>

@@ -948,14 +948,88 @@ import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 
+const eventStore = useEventStore();
+const userStore = useUserStore();
+
+const isEditable = ref(false);
+const availableRewards = ref([]);
+const players = ref([]);
+const currentPage = ref(1);
+const statuses = ref([]);
+const grantedStatus = ref(null);
+const turnedAwayStatus = ref(null);
+const JoinedtheQuest = ref(null);
+const playersByEvent = ref({});
+const selectedRewards = ref([]);
+const dialog = ref(false);
+const selectedEvent = ref(null);
+const activeTab = ref("events");
+const sortBy = ref("date");
+const events = ref([]);
+const sceneries = ref([]);
+const showPastEvents = ref(false);
+const userCreatedEvents = ref([]);
+const showPastMyEvents = ref(false);
+const loading = ref(false);
+const createEventDialog = ref(false);
+const newEvent = ref({});
+const stores = ref([]);
+const editEventDialog = ref(false);
+const editableEvent = ref({ rewards_pk: [] });
+const showSuccessAlert = ref(false);
+const existingRewards = ref([]);
+const allRewards = ref([]);
+const eventRewards = ref([]);
+const sharedLink = ref("");
+const showDialog = ref(false);
+const showAlert = ref(false);
+
 const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-const eventStore = useEventStore();
+const pageSize = 5;
+const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
 
-const isEditable = ref(false);
+const paginatedPlayers = computed(() => {
+  const eventFk = selectedEvent.value?.events_pk
+    ? Number(selectedEvent.value.events_pk)
+    : null;
+  const allPlayers =
+    eventFk && playersByEvent.value[eventFk]
+      ? playersByEvent.value[eventFk]
+      : [];
+  const start = (currentPage.value - 1) * pageSize;
+
+  return allPlayers.slice(start, start + pageSize);
+});
+
+const user = computed(() => useUserStore().user);
+
+const selectedStoreImage = computed(() => {
+  const store = stores.value.find(
+    (s) => s.storename === selectedEvent.value?.store,
+  );
+  return store?.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : "https://via.placeholder.com/150";
+});
+
+const selectedStore = computed(() => {
+  return (
+    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
+  );
+});
+
+const sortedEvents = computed(() => {
+  if (sortBy.value === "date") {
+    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
+  return events.value;
+});
+
+
 
 const validateTime = () => {
   const value = editableEvent.value.hour;
@@ -971,8 +1045,6 @@ const validateTime = () => {
     .toString()
     .padStart(2, "0")}`;
 };
-
-const availableRewards = ref([]);
 
 const openEditDialog = async (event, editable = false) => {
   const [datePart, timePart] = event.event_date.split("T");
@@ -1023,30 +1095,6 @@ const openEditDialog = async (event, editable = false) => {
   await fetchUserCreatedEvents();
 };
 
-const players = ref([]);
-const currentPage = ref(1);
-const pageSize = 5;
-const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
-
-const paginatedPlayers = computed(() => {
-  const eventFk = selectedEvent.value?.events_pk
-    ? Number(selectedEvent.value.events_pk)
-    : null;
-  const allPlayers =
-    eventFk && playersByEvent.value[eventFk]
-      ? playersByEvent.value[eventFk]
-      : [];
-  const start = (currentPage.value - 1) * pageSize;
-
-  return allPlayers.slice(start, start + pageSize);
-});
-
-const statuses = ref([]);
-
-const grantedStatus = ref(null);
-const turnedAwayStatus = ref(null);
-const JoinedtheQuest = ref(null);
-
 const fetchStatuses = () => {
   axios
     .get("/event_status/search")
@@ -1068,8 +1116,6 @@ const fetchStatuses = () => {
     });
 };
 
-const playersByEvent = ref({});
-
 const fetchPlayersForEvent = async (eventFk) => {
   try {
     const response = await axios.get("/rl_events_users/list_players", {
@@ -1089,14 +1135,6 @@ const fetchPlayersForEvent = async (eventFk) => {
     }
   }
 };
-
-onMounted(() => {
-  const usersPk = localStorage.getItem("app_user");
-  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-
-  fetchStatuses();
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
-});
 
 const updatePlayerStatus = async (player, statusPk) => {
   try {
@@ -1197,10 +1235,6 @@ const handleTimeInput = (event) => {
   }
 };
 
-const user = computed(() => useUserStore().user);
-
-const selectedRewards = ref([]);
-
 const toggleReward = (reward) => {
   if (selectedRewards.value.includes(reward)) {
     selectedRewards.value = selectedRewards.value.filter((r) => r !== reward);
@@ -1208,9 +1242,6 @@ const toggleReward = (reward) => {
     selectedRewards.value.push(reward);
   }
 };
-
-const dialog = ref(false);
-const selectedEvent = ref(null);
 
 const openDialog = async (event) => {
   selectedEvent.value = event;
@@ -1235,28 +1266,6 @@ const joinEvent = () => {
   alert(`You have joined the event: ${selectedEvent.value.name}`);
   dialog.value = false;
 };
-
-const selectedStoreImage = computed(() => {
-  const store = stores.value.find(
-    (s) => s.storename === selectedEvent.value?.store,
-  );
-  return store?.picture_hash
-    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
-    : "https://via.placeholder.com/150";
-});
-
-const selectedStore = computed(() => {
-  return (
-    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
-  );
-});
-
-// Sample Events Data
-const activeTab = ref("events");
-const sortBy = ref("date");
-const events = ref([]);
-
-const showPastEvents = ref(false)
 
 const fetchPlayerEvents = async () => {
   try {
@@ -1288,25 +1297,6 @@ const fetchPlayerEvents = async () => {
   }
 };
 
-watch(showPastEvents, () => {
-  if (activeTab.value === 1) {
-    fetchPlayerEvents()
-  }
-})
-
-const sortedEvents = computed(() => {
-  if (sortBy.value === "date") {
-    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
-  return events.value;
-});
-
-onMounted(() => {
-  fetchPlayerEvents();
-});
-
-const sceneries = ref([]);
-
 const fetchSceneries = async () => {
   await axios
     .get("/sceneries/search", {
@@ -1325,10 +1315,6 @@ const fetchSceneries = async () => {
       );
     });
 };
-
-onMounted(async () => {
-  await fetchSceneries();
-});
 
 const addEvent = async () => {
   const userStore = useUserStore();
@@ -1471,12 +1457,6 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const userStore = useUserStore();
-
-const userCreatedEvents = ref([]);
-
-const showPastMyEvents = ref(false)
-
 const fetchUserCreatedEvents = async () => {
   try {
     const retailer_fk = userStore.user?.users_pk;
@@ -1506,17 +1486,7 @@ const fetchUserCreatedEvents = async () => {
   }
 };
 
-watch(showPastMyEvents, () => {
-  if (activeTab.value === 2) {
-    fetchUserCreatedEvents()
-  }
-})
-
-onMounted(fetchUserCreatedEvents);
-
-const loading = ref(false);
-
-async function loadList() {
+const loadList = async () => {
   loading.value = true;
   if (activeTab.value === 1) {
     await fetchPlayerEvents();
@@ -1524,62 +1494,7 @@ async function loadList() {
     await fetchUserCreatedEvents();
   }
   loading.value = false;
-}
-
-watch(activeTab, async (newTab, oldTab) => {
-  showPastEvents.value   = false
-  showPastMyEvents.value = false
-
-  loading.value = true
-  if (newTab === 1) {
-    await fetchPlayerEvents()
-  } else {
-    await fetchUserCreatedEvents()
-  }
-  loading.value = false
-}, { immediate: true })
-
-watch(activeTab, loadList, { immediate: true })
-
-onMounted(loadList);
-
-const createEventDialog = ref(false);
-const newEvent = ref({});
-
-const stores = ref([]);
-
-watch(
-  () => newEvent.value.store,
-  (selectedStoreName) => {
-    const selectedStore = stores.value.find(
-      (store) => store.storename === selectedStoreName,
-    );
-    if (selectedStore) {
-      const { address, streetNumber, complement, city, state } = selectedStore;
-      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
-    } else {
-      newEvent.value.address = "";
-    }
-  },
-);
-
-onMounted(async () => {
-  try {
-    const response = await axios.get("/stores/list", {
-      params: { users_fk: userStore.user?.users_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    stores.value = response.data.stores || [];
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      error.response?.data || error.message,
-    );
-  }
-});
+};
 
 const createEvent = () => {
   createEventDialog.value = false;
@@ -1595,13 +1510,6 @@ const handleImageUpload = (event) => {
     newEvent.value.image = URL.createObjectURL(file);
   }
 };
-
-const editEventDialog = ref(false);
-const editableEvent = ref({ rewards_pk: [] });
-
-const showSuccessAlert = ref(false);
-
-const existingRewards = ref([]);
 
 const saveEditedEvent = async () => {
   try {
@@ -1739,8 +1647,6 @@ const handleEditImageUpload = (event) => {
   }
 };
 
-const allRewards = ref([]);
-
 const fetchAllRewards = async () => {
   try {
     const res = await axios.get("/rewards/search", {
@@ -1754,8 +1660,6 @@ const fetchAllRewards = async () => {
     console.error("❌ Erro ao buscar todos os rewards:", err);
   }
 };
-
-const eventRewards = ref([]);
 
 const fetchEventRewards = async (eventId) => {
   try {
@@ -1798,10 +1702,6 @@ const handleShareEvent = (eventId) => {
   }
 };
 
-const sharedLink = ref("");
-const showDialog = ref(false);
-const showAlert = ref(false);
-
 const shareEvent = (eventId) => {
   try {
     if (!eventId) throw new Error("ID do evento não encontrado!");
@@ -1818,16 +1718,12 @@ const shareEvent = (eventId) => {
 const copyLink = async (link) => {
   try {
     await navigator.clipboard.writeText(link);
-    showDialog.value = false; // Fecha o popup
-    showAlert.value = true; // Mostra o alerta
+    showDialog.value = false;
+    showAlert.value = true;
   } catch (error) {
     console.error("Erro ao copiar o link:", error);
   }
 };
-
-onMounted(() => {
-  fetchAllRewards();
-});
 
 const refreshInterestedPlayers = async (event) => {
   if (!event || !event.events_pk) {
@@ -1854,6 +1750,81 @@ const refreshInterestedPlayers = async (event) => {
     console.error("An error occurred while refreshing event data:", error);
   }
 };
+
+
+
+onMounted(async () => {
+  try {
+    const response = await axios.get("/stores/list", {
+      params: { users_fk: userStore.user?.users_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    stores.value = response.data.stores || [];
+  } catch (error) {
+    console.error(
+      "❌ Erro ao buscar lojas:",
+      error.response?.data || error.message,
+    );
+  }
+
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+
+  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+
+  fetchStatuses();
+  fetchPlayerEvents();
+  await fetchSceneries();
+  fetchAllRewards();
+});
+
+onMounted(fetchUserCreatedEvents);
+onMounted(loadList);
+
+watch(showPastEvents, () => {
+  if (activeTab.value === 1) {
+    fetchPlayerEvents()
+  }
+})
+
+watch(showPastMyEvents, () => {
+  if (activeTab.value === 2) {
+    fetchUserCreatedEvents()
+  }
+})
+
+watch(activeTab, async (newTab, oldTab) => {
+  showPastEvents.value   = false
+  showPastMyEvents.value = false
+
+  loading.value = true
+  if (newTab === 1) {
+    await fetchPlayerEvents()
+  } else {
+    await fetchUserCreatedEvents()
+  }
+  loading.value = false
+}, { immediate: true })
+
+watch(activeTab, loadList, { immediate: true })
+
+watch(
+  () => newEvent.value.store,
+  (selectedStoreName) => {
+    const selectedStore = stores.value.find(
+      (store) => store.storename === selectedStoreName,
+    );
+    if (selectedStore) {
+      const { address, streetNumber, complement, city, state } = selectedStore;
+      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
+    } else {
+      newEvent.value.address = "";
+    }
+  },
+);
 </script>
 
 <style scoped>
