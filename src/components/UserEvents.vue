@@ -1202,8 +1202,8 @@ const confirmQuitEvent = async () => {
     return;
   }
   try {
-    await axios.put(
-      `/rl_events_users/alter/${rlEventsUsersPkToQuit.value}`,
+    await axios.delete(
+      `/rl_events_users/${rlEventsUsersPkToQuit.value}/delete/`,
       { status: 3 },
       {
         headers: {
