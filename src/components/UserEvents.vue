@@ -1,4 +1,14 @@
 <template>
+  <v-row class="mb-4" align="center">
+    <v-col cols="12" sm="6">
+      <v-checkbox
+        v-model="showPast"
+        label="Past events"
+        hide-details
+        color="primary"
+      />
+    </v-col>
+  </v-row>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
@@ -31,16 +41,6 @@
           <v-progress-circular indeterminate size="48" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row class="mb-4" align="center">
-            <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="showPastEvents"
-                label="Past events"
-                hide-details
-                color="primary"
-              />
-            </v-col>
-          </v-row>
           <v-row>
             <v-col
               v-for="(event, index) in sortedEvents"
@@ -278,16 +278,6 @@
           <v-progress-circular indeterminate size="48" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row class="mb-4" align="center">
-            <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="showPastMyEvents"
-                label="Past events"
-                hide-details
-                color="primary"
-              />
-            </v-col>
-          </v-row>
           <v-row>
             <v-col
               v-for="(evt, idx) in myEvents"
@@ -602,9 +592,8 @@ const showSuccessAlert = ref(false);
 const joinedEventPk = ref(null);
 const sortBy = ref("date");
 const playerFk = ref(null);
-const showPastEvents = ref(false);
+const showPast = ref(false);
 const myEvents = ref([]);
-const showPastMyEvents = ref(false);
 const sceneries = ref([]);
 const availableRewards = ref([
   {
@@ -924,12 +913,12 @@ const createdCompanion = async () => {
   }
 };
 
-const fetchPlayerEvents = async () => {
+const fetchPlayerEvents = async (past = false) => {
   loading.value = true;
   try {
     const params = {
       player_fk: playerFk.value,
-      past_events: showPastEvents.value.toString(),
+      past_events: past.toString(),
     };
     const response = await axios.get("/events/list_events/", {
       params,
@@ -946,7 +935,7 @@ const fetchPlayerEvents = async () => {
   }
 };
 
-const fetchMyEvents = async () => {
+const fetchMyEvents = async (past = false) => {
   if (!playerFk.value) {
     console.warn("❌ playerFk indefinido, abortando requisição.");
     return;
@@ -955,7 +944,7 @@ const fetchMyEvents = async () => {
   try {
     const params = {
       player_fk: playerFk.value,
-      past_events: showPastMyEvents.value.toString(),
+      past_events: past.toString(),
     };
     console.log("🔁 Fetching my events:", params);
     const response = await axios.get("system/events/my_events/player", {
@@ -1360,44 +1349,21 @@ onMounted(async () => {
 
   await fetchSceneries();
 
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchMyEvents();
-  }
+  await Promise.all([
+    fetchPlayerEvents(false),
+    fetchMyEvents(false),
+  ]);
 });
 
-watch(showPastEvents, () => {
-  if (activeTab.value === 1) {
-    fetchPlayerEvents();
-  }
+watch(showPast, async (val) => {
+  loading.value = true;
+  
+  await Promise.all([
+    fetchPlayerEvents(val),
+    fetchMyEvents(val)
+  ]);
+  loading.value = false;
 });
-
-watch(showPastMyEvents, (val) => {
-  if (activeTab.value === 2) {
-    console.log("✅ Checkbox mudou para:", val);
-    fetchMyEventsDebounced();
-  }
-});
-
-watch(
-  activeTab,
-  async (newTab) => {
-    showPastEvents.value = false;
-    showPastMyEvents.value = false;
-
-    loading.value = true;
-    if (newTab === 1) {
-      await fetchPlayerEvents();
-    } else if (newTab === 2) {
-      await fetchMyEvents();
-    }
-    loading.value = false;
-  },
-  { immediate: true },
-);
-
-watch(activeTab, loadTabData, { immediate: true });
 
 watch(
   () => newEvent.value.store,
