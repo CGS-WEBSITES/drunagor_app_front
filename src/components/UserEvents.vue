@@ -424,13 +424,13 @@
                     border-radius: 8px;
                   "
                 >
-                  <v-img
+                  <!-- <v-img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
                     width="180"
                     height="180"
                     class="rounded"
                     style="opacity: 0.3; filter: grayscale(1)"
-                  />
+                  /> -->
                   <div
                     style="
                       position: absolute;
