@@ -16,17 +16,37 @@ import { ref, computed, onMounted, onBeforeMount } from 'vue';
 import axios from 'axios';
 
 const router = useRouter();
-
 const partyStore = PartyStore();
 const legacyCampaign = partyStore.findAll();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const nanoid = customAlphabet("1234567890", 5);
-const user = useUserStore().user
-const loading = ref(true)
+const user = useUserStore().user;
+const loading = ref(true);
+const loadingErrors = ref<{ id: number; text: string }[]>([]);
 
+function getBoxName(boxId: number): string {
+  switch (boxId) {
+    case 22:
+      return "Corebox";
+    case 23:
+      return "Apocalypse";
+    case 34:
+      return "Awakenings";
+    case 38:
+      return "Underkeep Drunagor Nights";
+    default:
+      return `Unknown Box (ID: ${boxId})`;
+  }
+}
 
-const allowedCampaignIds = ref<number[]>([]);
+function addLoadingError(message: string) {
+  const newError = { id: Date.now(), text: message };
+  loadingErrors.value.push(newError);
+  setTimeout(() => {
+    loadingErrors.value = loadingErrors.value.filter(e => e.id !== newError.id);
+  }, 5000);
+}
 
 function importCampaign(token: string, overrideId?: string) {
   const data = JSON.parse(atob(token));
@@ -51,20 +71,33 @@ function importCampaign(token: string, overrideId?: string) {
 onBeforeMount(async () => {
   campaignStore.reset();
   heroStore.reset();
+  loadingErrors.value = [];
 
-  const res = await axios.get("/rl_campaigns_users/search", {
-    params: { users_fk: useUserStore().user!.users_pk },
-  });
+  try {
+    const res = await axios.get("/rl_campaigns_users/search", {
+      params: { users_fk: useUserStore().user!.users_pk },
+    });
 
-  res.data.campaigns.forEach((element: any) => {
-    const idStr = String(element.campaigns_pk);
-    importCampaign(element.tracker_hash, idStr);
-  });
+    res.data.campaigns.forEach((element: any) => {
+      try {
+        const idStr = String(element.campaigns_pk);
+        importCampaign(element.tracker_hash, idStr);
+      } catch (e) {
+        console.error(`Failed to import campaign ID: ${element.campaigns_pk}`, e);
+        const boxName = getBoxName(element.box);
+        const partyName = element.party_name || "Unnamed Party";
+        const errorMessage = `Could not load the campaign "${partyName}" from the "${boxName}". The data seems to be corrupted. Please contact support if the issue persists.`;
+        addLoadingError(errorMessage);
+      }
+    });
+  } catch (apiError) {
+    console.error("Failed to fetch campaigns from the API", apiError);
+    addLoadingError("An error occurred while fetching your campaigns from the server. Please try again later.");
+  }
 
   loading.value = false;
 });
 
-//backwards compatibility
 if (legacyCampaign.length > 0) {
   let campaignId = nanoid();
   campaignStore.add(new Campaign(campaignId, "core"));
@@ -73,7 +106,6 @@ if (legacyCampaign.length > 0) {
     newHero.auraId = hero.auraId;
     newHero.outcomeIds = hero.outcomeIds;
     newHero.statusIds = hero.statusIds;
-
     heroStore.add(newHero);
     partyStore.removeMember(hero.heroId);
   });
@@ -86,11 +118,25 @@ function findHeroes(campaignId: string): HeroData[] {
     .findAllInCampaign(campaignId)
     .map(h => heroDataRepository.find(h.heroId))
     .filter((h): h is HeroData => !!h);
-  }
+}
 </script>
 
 <template>
   <v-container max-width="680">
+    <div v-if="loadingErrors.length > 0" class="mb-4">
+      <v-alert
+        v-for="(error, index) in loadingErrors"
+        :key="error.id"
+        type="error"
+        title="Loading Error"
+        :text="error.text"
+        variant="elevated"
+        closable
+        @click:close="loadingErrors.splice(index, 1)"
+        class="mb-3"
+      ></v-alert>
+    </div>
+
     <v-card color="primary" class="d-none d-md-flex justify-center pa-3 elevation-0">
       <v-card-actions>
         <CampaignNew />
@@ -107,7 +153,6 @@ function findHeroes(campaignId: string): HeroData[] {
       </v-card-actions>
     </v-card>
 
-    
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
       <v-row v-if="loading" class="justify-center" no-gutters>
         <v-card width="100%" class="d-flex justify-center pa-16">
@@ -122,8 +167,7 @@ function findHeroes(campaignId: string): HeroData[] {
               name: 'Campaign',
               params: { id: campaign.campaignId },
             })
-            ">
-            <!-- Definição direta da imagem com v-if e v-else-if -->
+          ">
             <v-img v-if="campaign.campaign === 'core'"
               src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" max-height="200" cover></v-img>
 
