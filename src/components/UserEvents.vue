@@ -1117,8 +1117,6 @@ const getPlayersForEvent = async (event_fk) => {
 const openMyEventsDialog = async (event) => {
   showQuitSuccessAlert.value = false;
   showQuitErrorAlert.value = false;
-  
-  rlEventsUsersPkToQuit.value = event.rl_events_users_pk;
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
