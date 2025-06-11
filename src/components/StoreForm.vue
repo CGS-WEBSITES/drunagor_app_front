@@ -636,39 +636,40 @@ const handleImageUpload = async (event: Event) => {
 };
 
 const saveEditedStore = async () => {
-  const store = editableStore.value;
+  const store = editableStore.value;
 
-  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${store.country}`;
+  const countryName = getCountryNameFromId(store.country);
 
-  const payload = {
-    stores_pk: store.stores_pk,
-    name: store.storename,
-    web_site: store.site,
-    zip_code: store.zipcode,
-    countries_fk: store.country,
-    users_fk: userStore.user?.users_pk,
-    address: fullAddress,
-    picture_hash: form.value.storeImage,
-    merchant_id: store.MerchantID,
-  };
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
 
-  try {
-    await axios.put(`/stores/alter`, payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+  const payload = {
+    stores_pk: store.stores_pk,
+    name: store.storename,
+    web_site: store.site,
+    zip_code: store.zipcode,
+    countries_fk: store.country, 
+    users_fk: userStore.user?.users_pk,
+    address: fullAddress, 
+    picture_hash: store.storeImage, 
+    merchant_id: store.MerchantID,
+  };
 
-    // Atualiza localmente a lista, se necessário
-    await fetchStores();
+  try {
+    await axios.put(`/stores/alter`, payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
 
-    editDialog.value = false;
-  } catch (error) {
-    console.error(
-      "❌ Erro ao atualizar a loja:",
-      error.response?.data || error.message,
-    );
-  }
+    await fetchStores();
+
+    editDialog.value = false;
+  } catch (error) {
+    console.error(
+      "❌ Erro ao atualizar a loja:",
+      error.response?.data || error.message,
+    );
+  }
 };
 
 const removeStore = async (stores_pk) => {
