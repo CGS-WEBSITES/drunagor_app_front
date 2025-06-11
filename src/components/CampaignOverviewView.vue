@@ -52,16 +52,24 @@ onBeforeMount(async () => {
   campaignStore.reset();
   heroStore.reset();
 
-  const res = await axios.get("/rl_campaigns_users/search", {
-    params: { users_fk: useUserStore().user!.users_pk },
-  });
+  try {
+    const res = await axios.get("/rl_campaigns_users/search", {
+      params: { users_fk: useUserStore().user!.users_pk },
+    });
 
-  res.data.campaigns.forEach((element: any) => {
-    const idStr = String(element.campaigns_pk);
-    importCampaign(element.tracker_hash, idStr);
-  });
+    res.data.campaigns.forEach((element: any) => {
+      try { 
+        const idStr = String(element.campaigns_pk);
+        importCampaign(element.tracker_hash, idStr);
+      } catch (e) { 
+        console.error(`Falha ao importar campanha ID: ${element.campaigns_pk}`, e);
+      }
+    });
+  } catch (apiError) {
+    console.error("Falha ao buscar campanhas da API", apiError);
+  }
 
-  loading.value = false;
+  loading.value = false; 
 });
 
 //backwards compatibility
