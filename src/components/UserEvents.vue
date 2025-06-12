@@ -184,26 +184,18 @@
                   <p class="text-body-2">{{ reward.description }}</p>
                 </v-col>
               </v-row>
-
-              <v-alert
-                  v-if="showAlert"
-                  :type="alertType"
-                  class="mt-4"
-                  border="start"
-                  variant="tonal"
-                  closable
-                  @click:close="showAlert = false"
-                >
-                  <span v-html="alertMessage"></span>
-                </v-alert>
-
-
             </v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="12" class="mb-2">
                 <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
                   Count me in
                 </v-btn>
+
+                <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
+                  @click:close="showSuccessAlert = false">
+                  You’ve successfully joined this event! Visit the
+                  <strong>My Events</strong> page to view it.
+                </v-alert>
               </v-col>
             </v-row>
           </v-card>
@@ -455,8 +447,7 @@ const selectedRewards = ref([]);
 const dialog = ref(false);
 const selectedEvent = ref(null);
 const eventRewards = ref([]);
-const alertType = ref('success'); 
-const alertMessage = ref('');
+const showSuccessAlert = ref(false);
 const joinedEventPk = ref(null);
 const sortBy = ref("date");
 const playerFk = ref(null);
@@ -1145,10 +1136,9 @@ const getEventStatusInfo = (status) => {
 
 const joinEvent = async () => {
   const userId = userStore.user?.users_pk;
-  if (!userId || !selectedEvent.value) return;
-
-  showAlert.value = false;
-
+  if (!userId || !selectedEvent.value) {
+    return;
+  }
   try {
     await axios.post(
       "/rl_events_users/cadastro",
@@ -1161,28 +1151,19 @@ const joinEvent = async () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     );
-    alertType.value = 'success';
-    alertMessage.value = 'You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.';
-    showAlert.value = true;
-    setTimeout(() => { showAlert.value = false; }, 3000);
-    setTimeout(() => { dialog.value = false; }, 3500);
-    try {
-      await fetchMyEvents();
-    } catch (refreshError) {
-      console.error("A inscrição no evento foi bem-sucedida, mas a atualização da lista 'My Events' falhou.", refreshError);
-    }
-
+    joinedEventPk.value = selectedEvent.value.events_pk;
+    await fetchMyEvents();
+    showSuccessAlert.value = true;
+    setTimeout(() => {
+      showSuccessAlert.value = false;
+    }, 1500);
+    setTimeout(() => {
+      dialog.value = false;
+    }, 2000);
   } catch (error) {
-    const apiMessage = error.response?.data?.message;
-    if (apiMessage) {
-      alertMessage.value = apiMessage;
-      if (apiMessage.includes("already signed up")) {
-      alertType.value = 'error';
-      console.error("Erro ao tentar entrar no evento:", error);
-    }
-    showAlert.value = true;
+    console.error("Erro ao entrar no evento:", error);
   }
 };
 
