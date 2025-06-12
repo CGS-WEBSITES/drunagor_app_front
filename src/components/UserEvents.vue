@@ -1,9 +1,7 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
-      >
+      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
         EVENTS
       </h1>
     </v-col>
@@ -13,53 +11,30 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs
-            class="EventsTabs mb-3"
-            v-model="activeTab"
-            fixed-tabs
-            align-tabs="center"
-            color="white"
-          >
+          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
         </v-col>
       </v-row>
 
+      <v-row class="mb-4" align="center">
+        <v-col cols="12" sm="6">
+          <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
+        </v-col>
+      </v-row>
+
       <div v-if="activeTab === 1">
         <div v-if="loading" class="d-flex justify-center my-8">
-          <v-progress-circular indeterminate size="48" color="primary" />
+          <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row class="mb-4" align="center">
-            <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="showPastEvents"
-                label="Past events"
-                hide-details
-                color="primary"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              v-for="(event, index) in sortedEvents"
-              :key="index"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
-            >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openDialog(event)"
-              >
+          <v-row v-if="events.length > 0">
+            <v-col v-for="(event, index) in sortedEvents" :key="index" class="py-2 pl-1 pr-1" cols="12" md="6">
+              <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
+                    <div class="text-center ml-3" style="width: 70px; color: black">
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(event.event_date)
@@ -88,9 +63,7 @@
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
+                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                       {{ event.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -103,28 +76,21 @@
                     </p>
                     <p class="text-caption ml-3" v-if="event.rewards?.length">
                       <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red"
-                          >mdi-star-circle</v-icon
-                        >
+                        <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
                         Rewards:
-                        <v-col
-                          v-for="(reward, i) in event.rewards"
-                          :key="i"
-                          cols="auto"
-                        >
-                          <v-img
-                            :src="reward.image"
-                            height="20"
-                            width="20"
-                            contain
-                            class="reward-icon"
-                          />
+                        <v-col v-for="(reward, i) in event.rewards" :key="i" cols="auto">
+                          <v-img :src="reward.image" height="20" width="20" contain class="reward-icon" />
                         </v-col>
                       </v-row>
                     </p>
                   </v-col>
                 </v-row>
               </v-card>
+            </v-col>
+          </v-row>
+          <v-row v-else>
+            <v-col>
+              No events match the selected filters.
             </v-col>
           </v-row>
         </div>
@@ -138,21 +104,12 @@
               <v-card>
                 <v-card-title class="text-h6">Share Event</v-card-title>
                 <v-card-text>
-                  <v-text-field
-                    v-model="sharedLink"
-                    label="Event Link"
-                    readonly
-                    density="compact"
-                    hide-details
-                  ></v-text-field>
+                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
+                    hide-details></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="success"
-                    size="small"
-                    @click="copyLink(sharedLink)"
-                  >
+                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">
                     Copy Link
                   </v-btn>
                   <v-btn color="grey" size="small" @click="showDialog = false">
@@ -163,14 +120,8 @@
             </v-dialog>
             <v-card-text>
               <p></p>
-              <v-btn
-                block
-                color="blue"
-                size="small"
-                variant="flat"
-                class="mt-2"
-                @click="shareEvent(selectedEvent?.events_pk)"
-              >
+              <v-btn block color="blue" size="small" variant="flat" class="mt-2"
+                @click="shareEvent(selectedEvent?.events_pk)">
                 <v-icon start>mdi-share-variant</v-icon>
                 Share Event
               </v-btn>
@@ -201,14 +152,10 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
+                  <v-img :src="selectedEvent?.picture_hash
+                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -224,16 +171,10 @@
             </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-for="(reward, index) in eventRewards"
-                :key="index"
-                class="align-center my-2"
-              >
+              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img
-                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
-                    />
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
@@ -246,24 +187,12 @@
             </v-card-text>
             <v-row class="mt-2 ml-0">
               <v-col cols="12" class="mb-2">
-                <v-btn
-                  block
-                  color="#539041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                >
+                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
                   Count me in
                 </v-btn>
 
-                <v-alert
-                  v-if="showSuccessAlert"
-                  type="success"
-                  class="mt-4"
-                  border="start"
-                  variant="tonal"
-                  closable
-                  @click:close="showSuccessAlert = false"
-                >
+                <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
+                  @click:close="showSuccessAlert = false">
                   You’ve successfully joined this event! Visit the
                   <strong>My Events</strong> page to view it.
                 </v-alert>
@@ -275,38 +204,15 @@
 
       <div v-else-if="activeTab === 2">
         <div v-if="loading" class="d-flex justify-center my-8">
-          <v-progress-circular indeterminate size="48" color="primary" />
+          <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row class="mb-4" align="center">
-            <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="showPastMyEvents"
-                label="Past events"
-                hide-details
-                color="primary"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col
-              v-for="(evt, idx) in myEvents"
-              :key="evt.events_pk"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
-            >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openMyEventsDialog(evt)"
-              >
+          <v-row v-if="myEvents.length > 0">
+            <v-col v-for="(evt, idx) in myEvents" :key="evt.events_pk" class="py-2 pl-1 pr-1" cols="12" md="6">
+              <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
+                    <div class="text-center ml-3" style="width: 70px; color: black">
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(evt.event_date)
@@ -330,9 +236,7 @@
                   </v-col>
                   <v-col cols="8" sm="9" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
+                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                       {{ evt.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -349,16 +253,9 @@
                     </p>
                   </v-col>
                   <v-col cols="1" class="d-flex align-center justify-end pr-2">
-                    <v-tooltip
-                      :text="getEventStatusInfo(evt.status).tooltip"
-                      location="top"
-                    >
+                    <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
                       <template #activator="{ props }">
-                        <v-icon
-                          v-bind="props"
-                          :color="getEventStatusInfo(evt.status).color"
-                          size="large"
-                        >
+                        <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
                           {{ getEventStatusInfo(evt.status).icon }}
                         </v-icon>
                       </template>
@@ -368,28 +265,23 @@
               </v-card>
             </v-col>
           </v-row>
+          <v-row v-else>
+            <v-col class="text-center">
+              No events match the selected filters.
+            </v-col>
+          </v-row>
         </div>
 
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                :size="80"
-                :width="7"
-                color="primary"
-              ></v-progress-circular>
+              <v-progress-circular indeterminate :size="80" :width="7" color="primary"></v-progress-circular>
             </div>
             <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
               </v-card-title>
-              <v-icon
-                color="red"
-                @click="myDialog = false"
-                class="mr-2"
-                style="cursor: pointer"
-              >
+              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer">
                 mdi-close
               </v-icon>
             </div>
@@ -415,15 +307,13 @@
 
             <v-row class="" align="center" justify="space-between">
               <v-col cols="12" md="6" class="text-center pt-8 ml-3">
-                <div
-                  style="
+                <div style="
                     position: relative;
                     display: inline-block;
                     background: white;
                     padding: 8px;
                     border-radius: 8px;
-                  "
-                >
+                  ">
                   <!-- <v-img
                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
                     width="180"
@@ -431,8 +321,7 @@
                     class="rounded"
                     style="opacity: 0.3; filter: grayscale(1)"
                   /> -->
-                  <div
-                    style="
+                  <div style="
                       position: absolute;
                       top: 50%;
                       left: 50%;
@@ -445,87 +334,49 @@
                       border-radius: 4px;
                       text-transform: uppercase;
                       letter-spacing: 1px;
-                    "
-                  >
+                    ">
                     Coming Soon
                   </div>
                 </div>
               </v-col>
-              <v-col
-                cols="12"
-                md="5"
-                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
-              >
+              <v-col cols="12" md="5" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
                 <div class="d-flex align-center justify-center mb-2">
                   <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
                     Status: {{ selectedMyEvent?.status }}
                   </p>
-                  <v-btn
-                    icon="mdi-refresh"
-                    variant="text"
-                    size="small"
-                    :loading="isRefreshingStatus"
-                    :disabled="isRefreshingStatus"
-                    @click="
-                      refreshEventStatus();
-                    "
-                  ></v-btn>
+                  <v-btn icon="mdi-refresh" variant="text" size="small" :loading="isRefreshingStatus"
+                    :disabled="isRefreshingStatus" @click="refreshEventStatus()"></v-btn>
                 </div>
 
-                <v-btn
-                  class="mb-4"
-                  block
-                  color="green"
-                  @click="handleNewCampaign('underkeep')"
-                  :disabled="
-                    !currentPlayer ||
-                    currentPlayer.event_status !== 'Joined the Quest'
-                  "
-                >
+                <v-btn class="mb-4" block color="green" @click="handleNewCampaign('underkeep')" :disabled="!currentPlayer ||
+                  currentPlayer.event_status !== 'Joined the Quest'
+                  ">
                   Join Campaign
                 </v-btn>
                 <v-btn class="mb-8" block color="red" @click="quitEvent()">
                   Quit Event
                 </v-btn>
-                
-                <v-alert
-                  v-if="showQuitSuccessAlert"
-                  type="success"
-                  title="Success"
-                  class="mb-4"
-                  variant="tonal"
-                  closable
-                  @click:close="showQuitSuccessAlert = false"
-                >
-                  You have successfully left the event. It will no longer appear in your list.
+
+                <v-alert v-if="showQuitSuccessAlert" type="success" title="Success" class="mb-4" variant="tonal"
+                  closable @click:close="showQuitSuccessAlert = false">
+                  You have successfully left the event. It will no longer appear
+                  in your list.
                 </v-alert>
 
-                <v-alert
-                  v-if="showQuitErrorAlert"
-                  type="error"
-                  title="Failed to Leave Event"
-                  class="mb-4"
-                  variant="tonal"
-                  closable
-                  @click:close="showQuitErrorAlert = false"
-                >
+                <v-alert v-if="showQuitErrorAlert" type="error" title="Failed to Leave Event" class="mb-4"
+                  variant="tonal" closable @click:close="showQuitErrorAlert = false">
                   {{ quitErrorMessage }}
                 </v-alert>
-
               </v-col>
             </v-row>
 
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedMyEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
+                  <v-img :src="selectedMyEvent?.picture_hash
+                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -551,12 +402,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="grey" text @click="showQuitConfirmDialog = false"
-                >Cancel</v-btn
-              >
-              <v-btn color="red-darken-2" text @click="confirmQuitEvent"
-                >Quit Event</v-btn
-              >
+              <v-btn color="grey" text @click="showQuitConfirmDialog = false">Cancel</v-btn>
+              <v-btn color="red-darken-2" text @click="confirmQuitEvent">Quit Event</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -583,17 +430,78 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
-const user = computed(() => userStore.user);
-const loading = ref(false);
+const eventStore = useEventStore();
+const route = useRoute();
+
+const loading = ref(true);
+const activeTab = ref(1);
+const events = ref([]);
+const eventPk = ref(null);
+const isEditable = ref(false);
+const players = ref([]);
+const currentPage = ref(1);
+const statuses = ref([]);
+const grantedStatus = ref(null);
+const turnedAwayStatus = ref(null);
+const selectedRewards = ref([]);
+const dialog = ref(false);
+const selectedEvent = ref(null);
+const eventRewards = ref([]);
+const showSuccessAlert = ref(false);
+const joinedEventPk = ref(null);
+const sortBy = ref("date");
+const playerFk = ref(null);
+const showPast = ref(false);
+const myEvents = ref([]);
+const sceneries = ref([]);
+const availableRewards = ref([
+  {
+    name: "Vorn Armor",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
+    description:
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+  },
+  {
+    name: "Jaheen Shield",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
+    description:
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+  },
+  {
+    name: "Lorelai Kiss",
+    image:
+      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
+    description:
+      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
+  },
+]);
+const createEventDialog = ref(false);
+const newEvent = ref({});
+const stores = ref([]);
+const editEventDialog = ref(false);
+const editableEvent = ref({});
+const myDialog = ref(false);
+const selectedMyEvent = ref(null);
+const showQuitConfirmDialog = ref(false);
+const rlEventsUsersPkToQuit = ref(null);
+const isRefreshingStatus = ref(false);
+const showQuitSuccessAlert = ref(false);
+const showQuitErrorAlert = ref(false);
+const quitErrorMessage = ref("");
+const sharedLink = ref("");
+const showDialog = ref(false);
+const showAlert = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-const activeTab = ref(1);
-const events = ref([]);
-const eventPk = ref(null);
+const user = computed(() => userStore.user);
+const boxSku = computed(() => route.query.sku || "");
+
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -601,8 +509,37 @@ const sortedEvents = computed(() => {
   return events.value;
 });
 
-const eventStore = useEventStore();
-const isEditable = ref(false);
+const pageSize = 5;
+const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
+const paginatedPlayers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return players.value.slice(start, start + pageSize);
+});
+
+const appUserPk = computed(() => {
+  const raw = localStorage.getItem("app_user");
+  return raw ? JSON.parse(raw).users_pk : null;
+});
+
+const currentPlayer = computed(() => {
+  if (!appUserPk.value) return null;
+  return players.value.find((p) => p.users_pk === appUserPk.value) || null;
+});
+
+const selectedStoreImage = computed(() => {
+  const store = stores.value.find(
+    (s) => s.storename === selectedEvent.value?.store,
+  );
+  return store?.picture_hash
+    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    : "https://via.placeholder.com/150";
+});
+
+const selectedStore = computed(() => {
+  return (
+    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
+  );
+});
 
 const openEditDialog = (event, editable = false) => {
   editableEvent.value = { ...event };
@@ -614,19 +551,6 @@ const openEditDialog = (event, editable = false) => {
     updatePlayerStatus(player, newStatus, editableEvent.value.events_pk);
   }
 };
-
-const players = ref([]);
-const currentPage = ref(1);
-const pageSize = 5;
-const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
-const paginatedPlayers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize;
-  return players.value.slice(start, start + pageSize);
-});
-
-const statuses = ref([]);
-const grantedStatus = ref(null);
-const turnedAwayStatus = ref(null);
 
 const fetchStatuses = () => {
   axios
@@ -645,16 +569,6 @@ const fetchStatuses = () => {
     });
 };
 
-const appUserPk = computed(() => {
-  const raw = localStorage.getItem("app_user");
-  return raw ? JSON.parse(raw).users_pk : null;
-});
-
-const currentPlayer = computed(() => {
-  if (!appUserPk.value) return null;
-  return players.value.find((p) => p.users_pk === appUserPk.value) || null;
-});
-
 const fetchPlayers = (eventPk) => {
   axios
     .get("/rl_events_users/list_players", {
@@ -667,16 +581,6 @@ const fetchPlayers = (eventPk) => {
       // Handle error fetching players
     });
 };
-
-onMounted(() => {
-  const usersPk = localStorage.getItem("app_user");
-  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-  fetchStatuses();
-  if (events.value.length) {
-    fetchPlayers(events.value[0].events_pk);
-  }
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
-});
 
 const updatePlayerStatus = (player, newStatus, eventPk) => {
   const usersPk = localStorage.getItem("app_user");
@@ -735,7 +639,6 @@ const handleTimeInput = (event) => {
   }
 };
 
-const selectedRewards = ref([]);
 const toggleReward = (reward) => {
   if (selectedRewards.value.includes(reward)) {
     selectedRewards.value = selectedRewards.value.filter((r) => r !== reward);
@@ -743,10 +646,6 @@ const toggleReward = (reward) => {
     selectedRewards.value.push(reward);
   }
 };
-
-const dialog = ref(false);
-const selectedEvent = ref(null);
-const eventRewards = ref([]);
 
 const openDialog = async (event) => {
   selectedEvent.value = event;
@@ -765,17 +664,13 @@ const openDialog = async (event) => {
   }
 };
 
-const showSuccessAlert = ref(false);
-
-function compressCampaign(campaignId) {
+const compressCampaign = (campaignId) => {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(campaignId)),
   );
-}
+};
 
-const joinedEventPk = ref(null);
-
-async function handleNewCampaign(type) {
+const handleNewCampaign = async (type) => {
   loading.value = true;
   try {
     const usersPk = userStore.user?.users_pk;
@@ -832,12 +727,9 @@ async function handleNewCampaign(type) {
   } finally {
     loading.value = false;
   }
-}
+};
 
-const route = useRoute();
-const boxSku = computed(() => route.query.sku || "");
-
-async function createdCompanion() {
+const createdCompanion = async () => {
   const token =
     "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJdsdsIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZ,SIc2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=";
   try {
@@ -860,7 +752,7 @@ async function createdCompanion() {
         party_roles_fk: 1,
         skus_fk: parseInt(resp.campaign.box, 10),
       })
-      .then((response) => {})
+      .then((response) => { })
       .catch((error) => {
         toast.add({
           severity: "error",
@@ -878,138 +770,57 @@ async function createdCompanion() {
       life: 3000,
     });
   }
-}
-
-const selectedStoreImage = computed(() => {
-  const store = stores.value.find(
-    (s) => s.storename === selectedEvent.value?.store,
-  );
-  return store?.picture_hash
-    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
-    : "https://via.placeholder.com/150";
-});
-
-const selectedStore = computed(() => {
-  return (
-    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
-  );
-});
-
-const sortBy = ref("date");
-
-const playerFk = ref(null);
-
-onMounted(() => {
-  const rawUser = localStorage.getItem("app_user");
-  playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
-});
-
-const showPastEvents = ref(false)
-
-const fetchPlayerEvents = async () => {
-  loading.value = true;
-  try {
-    const params = {
-      player_fk: playerFk.value,
-      past_events: showPastEvents.value.toString(),
-    };
-    const response = await axios.get("/events/list_events/", {
-      params,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    events.value = response.data.events || [];
-  } catch (error) {
-    console.error("Error fetching player events:", error);
-    events.value = [];
-  } finally {
-    loading.value = false;
-  }
 };
 
-watch(showPastEvents, () => {
-  if (activeTab.value === 1) {
-    fetchPlayerEvents();
-  }
-});
+const fetchPlayerEvents = async (past) => {
+  loading.value = true;
+  const params = {
+    player_fk: playerFk.value,
+    past_events: past.toString(),
+  };
+  await axios.get("/events/list_events/", {
+    params,
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    },
+  }).then((response) => {
+    events.value = response.data.events || [];
+  }).catch((error) => {
+    console.error("Error fetching player events:", error);
+    events.value = [];
+  }).finally(() => {
+    loading.value = false;
+  })
+};
 
-const myEvents = ref([]);
-const showPastMyEvents = ref(false);
+const fetchMyEvents = async (past) => {
+  loading.value = true;
 
-const fetchMyEvents = async () => {
-  if (!playerFk.value) {
-    console.warn("❌ playerFk indefinido, abortando requisição.");
-    return;
-  }
-
-  try {
-    const params = {
-      player_fk: playerFk.value,
-      past_events: showPastMyEvents.value.toString(),
-    };
-    console.log("🔁 Fetching my events:", params);
-    const response = await axios.get("system/events/my_events/player", {
-      params,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+  const params = {
+    player_fk: playerFk.value,
+    past_events: past.toString(),
+    limit: 30,
+    offset: 0,
+  };
+  await axios.get("/events/my_events/player", {
+    params,
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    },
+  }).then((response) => {
     myEvents.value = response.data.events || [];
-  } catch (error) {
+  }).catch((error) => {
     console.error("Error fetching my events:", error);
     myEvents.value = [];
-  } finally {
+  }).finally(() => {
     loading.value = false;
-  }
+  })
 };
 
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!playerFk.value) return;
   fetchMyEvents();
-}, 300); // aguarda 300ms para evitar chamadas em sequência
-
-watch(showPastMyEvents, (val) => {
-  if (activeTab.value === 2) {
-    console.log("✅ Checkbox mudou para:", val);
-    fetchMyEventsDebounced();
-  }
-});
-
-async function loadTabData() {
-  loading.value = true;
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchMyEvents();
-  }
-  loading.value = false;
-}
-
-watch(activeTab, async (newTab) => {
-  showPastEvents.value = false;
-  showPastMyEvents.value = false;
-
-  loading.value = true;
-  if (newTab === 1) {
-    await fetchPlayerEvents();
-  } else if (newTab === 2) {
-    await fetchMyEvents();
-  }
-  loading.value = false;
-}, { immediate: true });
-
-watch(activeTab, loadTabData, { immediate: true })
-
-onMounted(async () => {
-  if (activeTab.value === 1) {
-    await fetchPlayerEvents();
-  } else {
-    await fetchMyEvents();
-  }
-});
-
-const sceneries = ref([]);
+}, 300);
 
 const fetchSceneries = async () => {
   await axios
@@ -1026,10 +837,6 @@ const fetchSceneries = async () => {
       // Handle error fetching scenarios
     });
 };
-
-onMounted(async () => {
-  await fetchSceneries();
-});
 
 const addEvent = async () => {
   const userStore = useUserStore();
@@ -1116,63 +923,6 @@ const deleteEvent = async (events_pk) => {
   }
 };
 
-const availableRewards = ref([
-  {
-    name: "Vorn Armor",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/vorn.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Jaheen Shield",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/jaheen.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
-  },
-  {
-    name: "Lorelai Kiss",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/lorelai.png",
-    description:
-      "REWARD DESCRIPTION Lorem Ipsum is simply dummy text of the printing and typesetting industrsy.",
-  },
-]);
-
-const createEventDialog = ref(false);
-const newEvent = ref({});
-const stores = ref([]);
-
-watch(
-  () => newEvent.value.store,
-  (selectedStoreName) => {
-    const selectedStore = stores.value.find(
-      (store) => store.storename === selectedStoreName,
-    );
-    if (selectedStore) {
-      const { address, streetNumber, complement, city, state } = selectedStore;
-      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
-    } else {
-      newEvent.value.address = "";
-    }
-  },
-);
-
-onMounted(async () => {
-  try {
-    const response = await axios.get("/stores/list", {
-      params: { users_fk: userStore.user?.users_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    stores.value = response.data.stores || [];
-  } catch (error) {
-    // Handle error fetching stores
-  }
-});
-
 const createEvent = () => {
   createEventDialog.value = false;
 };
@@ -1187,9 +937,6 @@ const handleImageUpload = (event) => {
     newEvent.value.image = URL.createObjectURL(file);
   }
 };
-
-const editEventDialog = ref(false);
-const editableEvent = ref({});
 
 const saveEditedEvent = () => {
   const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
@@ -1215,27 +962,15 @@ const getPlayersForEvent = async (event_fk) => {
         events_fk: event_fk,
       },
     })
-    .then((response) => {})
+    .then((response) => { })
     .catch((error) => {
       // Handle error fetching players
     });
 };
 
-const myDialog = ref(false);
-const selectedMyEvent = ref(null);
-const showQuitConfirmDialog = ref(false);
-const rlEventsUsersPkToQuit = ref(null);
-const isRefreshingStatus = ref(false);
-
-const showQuitSuccessAlert = ref(false);
-const showQuitErrorAlert = ref(false);
-const quitErrorMessage = ref('');
-
 const openMyEventsDialog = async (event) => {
   showQuitSuccessAlert.value = false;
   showQuitErrorAlert.value = false;
-  rlEventsUsersPkToQuit.value = event.rl_events_users_pk;
-
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
@@ -1336,15 +1071,12 @@ const confirmQuitEvent = async () => {
     }, 2500);
   } catch (error) {
     console.error("Failed to quit event:", error);
-    quitErrorMessage.value = "An unexpected error occurred. Please try again later.";
+    quitErrorMessage.value =
+      "An unexpected error occurred. Please try again later.";
     showQuitErrorAlert.value = true;
     showQuitSuccessAlert.value = false;
   }
 };
-
-const sharedLink = ref("");
-const showDialog = ref(false);
-const showAlert = ref(false);
 
 const shareEvent = (eventId) => {
   try {
@@ -1434,12 +1166,72 @@ const joinEvent = async () => {
     console.error("Erro ao entrar no evento:", error);
   }
 };
+
+onMounted(async () => {
+  try {
+    const response = await axios.get("/stores/list", {
+      params: { users_fk: userStore.user?.users_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    stores.value = response.data.stores || [];
+  } catch (error) {
+    // Handle error fetching stores
+  }
+
+  const usersPk = localStorage.getItem("app_user");
+  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+  fetchStatuses();
+  if (events.value.length) {
+    fetchPlayers(events.value[0].events_pk);
+  }
+  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+
+  const rawUser = localStorage.getItem("app_user");
+  playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
+
+  await fetchSceneries();
+
+  loading.value = true;
+  try {
+    await Promise.all([
+      fetchPlayerEvents(showPast.value),
+      fetchMyEvents(showPast.value),
+    ]);
+  } finally {
+    loading.value = false;
+  }
+});
+
+watch(showPast, async (novo) => {
+  loading.value = true;
+  await fetchPlayerEvents(novo);
+  await fetchMyEvents(novo);
+  loading.value = false;
+});
+
+watch(
+  () => newEvent.value.store,
+  (selectedStoreName) => {
+    const selectedStore = stores.value.find(
+      (store) => store.storename === selectedStoreName,
+    );
+    if (selectedStore) {
+      const { address, streetNumber, complement, city, state } = selectedStore;
+      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
+    } else {
+      newEvent.value.address = "";
+    }
+  },
+);
 </script>
 
 <style scoped>
 .list-container {
   min-height: 400px;
 }
+
 .event-card {
   display: flex;
   align-items: center;
@@ -1448,19 +1240,23 @@ const joinEvent = async () => {
   margin-left: 18px;
   background-color: #292929;
 }
+
 .event-img {
   width: 110px;
   height: 110px;
   border-radius: 4px;
 }
+
 .sort-btn {
   font-weight: bold;
   text-transform: uppercase;
   color: white;
 }
+
 .sort-btn.active {
   text-decoration: underline;
 }
+
 .scheduled-box {
   display: inline-block;
   background-color: white;
@@ -1471,68 +1267,81 @@ const joinEvent = async () => {
   color: black;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .scheduled-box strong {
   font-weight: bold;
 }
-</style>
 
-<style>
 .cinzel-text {
   font-family: "Cinzel", serif;
 }
+
 .EventsTabs {
   background: #424242;
   transform: translateY(-8px);
   position: relative;
 }
+
 .CreateNew {
   position: relative;
   transform: translateY(-8px) translateX(12px);
   background-color: #484848;
 }
+
 .SortBy {
   position: relative;
   transform: translateY(-8px) translateX(12px);
   background-color: #292929;
 }
+
 .event-card {
   cursor: pointer;
   transition: 0.2s ease-in-out;
 }
+
 .event-card:hover {
   transform: scale(1.02);
 }
+
 .event-dialog-img {
   border-radius: 8px;
 }
+
 .rewards-container {
   gap: -40px;
 }
+
 .dark-background {
   background-color: #121212;
   color: white;
 }
+
 .date-input {
   max-width: 190px;
 }
+
 .hour-input {
   max-width: 110px;
   margin-left: 10px;
 }
+
 .launch-btn {
   background-color: white;
   color: black;
   font-weight: bold;
 }
+
 .selected-reward {
   opacity: 1;
   transition: all 0.2s ease-in-out;
 }
+
 .unselected-reward {
   filter: grayscale(100%);
   opacity: 0.5;
   transition: all 0.2s ease-in-out;
 }
+
 .check-icon {
   position: absolute;
   top: -5px;
@@ -1540,6 +1349,7 @@ const joinEvent = async () => {
   background: white;
   border-radius: 50%;
 }
+
 .close-btn {
   position: absolute;
   top: 16px;
@@ -1547,18 +1357,21 @@ const joinEvent = async () => {
   z-index: 10;
   color: red;
 }
+
 .redbutton {
   background: #691d1d;
   transform: translateY(px) translateX(-0px);
   width: 80px;
   height: 160px;
 }
+
 .editbutton {
   background: gray;
   transform: translateX(10px);
   width: 80px;
   height: 160px;
 }
+
 dialog-overlay {
   position: absolute;
   top: 0;
