@@ -1437,8 +1437,6 @@ onMounted(async () => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
 
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
-
   fetchStatuses();
   await fetchSceneries();
   fetchAllRewards();
