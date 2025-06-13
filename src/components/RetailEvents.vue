@@ -1,4 +1,18 @@
 <template>
+
+<v-snackbar
+    v-model="showSuccessSnackbar"
+    :timeout="2500"
+    color="success"
+    location="top right"
+    variant="tonal"
+  >
+    <v-icon start>mdi-check-circle</v-icon>
+    <strong>{{ successSnackbarText }}</strong>
+  </v-snackbar>
+
+
+
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
@@ -18,7 +32,7 @@
         </v-col>
       </v-row>
 
-      <v-row class="mb-4" align="center">
+      <v-row class="m" align="center">
         <v-col cols="12" sm="6">
           <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
         </v-col>
@@ -172,31 +186,37 @@
         </v-dialog>
       </div>
 
-      <div v-if="activeTab === 2">
-        <div v-if="loading" class="d-flex justify-center my-8">
-          <v-progress-circular indeterminate size="80" color="primary" />
-        </div>
-        <div v-else class="list-container">
-          <v-row v-if="userCreatedEvents.length > 0" class="CreateNew align-center bg-gray text-white">
-            <v-col cols="2"></v-col>
-            <v-col cols="3">
-              <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
-                <v-icon>mdi-plus-box-outline</v-icon>
-                Create New
-              </v-btn>
-            </v-col>
-            <!-- <v-col cols="4">
-              <v-btn variant="text" class="sort-btn" @click="">PAST</v-btn>
-            </v-col>
-            <v-col cols="3">
-              <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
-            </v-col> -->
-          </v-row>
-          <v-row v-else>
-            <v-col class="text-center">
-              No events match the selected filters.
-            </v-col>
-          </v-row>
+     <div v-if="activeTab === 2">
+  <div v-if="loading" class="d-flex justify-center my-8">
+    <v-progress-circular indeterminate size="80" color="primary" />
+  </div>
+  <div v-else class="list-container">
+    <v-row class="CreateNew align-center bg-gray text-white">
+      <v-col cols="2"></v-col>
+      <v-col cols="3">
+        <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
+          <v-icon>mdi-plus-box-outline</v-icon>
+          Create New
+        </v-btn>
+      </v-col>
+      </v-row>
+
+    <div v-if="userCreatedEvents.length > 0">
+      <v-row>
+        <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
+          <v-card color="white" max-height="120" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
+            </v-card>
+        </v-col>
+      </v-row>
+    </div>
+
+    <div v-else>
+      <v-row>
+        <v-col class="text-center pa-10">
+          No events found. Click "Create New" to add your first one!
+        </v-col>
+      </v-row>
+    </div>
           <v-row>
             <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
               <v-card color="white" max-height="120" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
@@ -287,6 +307,19 @@
           </v-btn>
           <v-card class="pa-6 dark-background">
             <v-card-text>
+
+              <v-alert
+      v-model="showErrorAlert"
+      type="error"
+      variant="tonal"
+      closable
+      class="mb-5"
+      title="Error"
+    >
+      {{ errorAlertText }}
+    </v-alert>
+
+
               <v-row>
                 <v-col cols="12" md="12">
                   <v-select v-model="newEvent.store" :items="stores.map((store) => store.name)" label="STORE"
@@ -653,6 +686,10 @@ const eventRewards = ref([]);
 const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
+const showErrorAlert = ref(false);
+const errorAlertText = ref("");
+const showSuccessSnackbar = ref(false);
+const successSnackbarText = ref("Event created successfully!");
 
 const axios = inject("axios");
 if (!axios) {
@@ -986,9 +1023,10 @@ const fetchSceneries = async () => {
 };
 
 const addEvent = async () => {
+  showErrorAlert.value = false;
+
   const userStore = useUserStore();
   const userId = userStore.user?.users_pk;
-
   if (
     !newEvent.value.date ||
     !newEvent.value.hour ||
@@ -997,130 +1035,74 @@ const addEvent = async () => {
     !newEvent.value.scenario ||
     !userId
   ) {
+    errorAlertText.value = "Missing or invalid fields. Please check all inputs."; 
+    showErrorAlert.value = true;
     console.error("❌ Dados insuficientes para criar o evento.");
     return;
   }
 
-  let selectedStore = null;
-  let storesFk = null;
-
   try {
-    const response = await axios.get("/stores/list", {
-      params: {
-        users_fk: userId,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const allStores = response.data.stores || [];
     const selectedStore = stores.value.find(
-      (store) =>
-        store.name?.toLowerCase().trim() ===
-        newEvent.value.store?.toLowerCase().trim(),
+      (store) => store.name === newEvent.value.store,
     );
     if (!selectedStore) {
-      console.error("❌ Store não encontrada na API.");
-      return;
+      throw new Error("Selected store not found.");
     }
 
-    storesFk = selectedStore.stores_pk;
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar stores na API:",
-      error.response?.data || error.message,
-    );
-    return;
-  }
-
-  try {
     let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
     let ampm = newEvent.value.ampm || "AM";
-    const hour12 = String(hours).padStart(2, "0");
-    const minute = String(minutes).padStart(2, "0");
-    const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
+    const eventDateFormatted = `${newEvent.value.date}; ${String(
+      hours,
+    ).padStart(2, "0")}:${String(minutes).padStart(2, "0")} ${ampm}`;
 
     const payload = {
       seats_number: newEvent.value.seats,
-      seasons_fk: 2,
+      seasons_fk: 2, 
       sceneries_fk: newEvent.value.scenario,
       date: eventDateFormatted,
-      stores_fk: storesFk,
+      stores_fk: selectedStore.stores_pk,
       users_fk: userId,
       active: true,
     };
 
-    const response = await axios.post("/events/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
+    const response = await axios.post("/events/cadastro", payload);
     const newEventId = response.data?.event?.events_pk;
 
     if (!newEventId) {
-      console.error("❌ Não foi possível extrair o ID do novo evento.");
-      return;
+      throw new Error("Falha ao obter o ID do novo evento da resposta da API.");
     }
 
-    // ✅ Adiciona rewards ao evento
     for (const reward of selectedRewards.value) {
-      try {
-        await axios.post(
-          "/rl_events_rewards/cadastro",
-          {
-            events_fk: newEventId,
-            rewards_fk: reward.rewards_pk,
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
-        );
-      } catch (err) {
-        console.error("❌ Erro ao associar reward ao evento:", err);
-      }
+      await axios.post("/rl_events_rewards/cadastro", {
+        events_fk: newEventId,
+        rewards_fk: reward.rewards_pk,
+        active: true,
+      });
     }
 
     createEventDialog.value = false;
-    await fetchUserCreatedEvents();
+    showSuccessSnackbar.value = true;
+    await fetchUserCreatedEvents(); 
+    newEvent.value = {
+      date: "",
+      hour: "",
+      ampm: "AM",
+      store: "",
+      seats: "",
+      scenario: "",
+    };
+    selectedRewards.value = [];
+
   } catch (error) {
+    if (error.response?.data?.message) {
+      errorAlertText.value = `API Error: ${error.response.data.message}`;
+    } else {
+      errorAlertText.value = "An unexpected error occurred. Please try again.";
+    }
+    showErrorAlert.value = true;
+
     console.error(
-      "❌ Erro ao cadastrar evento ou associar rewards:",
-      error.response?.data || error.message,
-    );
-  }
-
-  newEvent.value = {
-    date: "",
-    hour: "",
-    ampm: "AM",
-    store: "",
-    seats: "",
-    scenario: "",
-  };
-
-  selectedRewards.value = [];
-
-  createEventDialog.value = false;
-};
-
-const deleteEvent = async (events_pk) => {
-  try {
-    await axios.delete(`/events/${events_pk}/delete/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    await fetchUserCreatedEvents();
-    await fetchPlayerEvents();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao excluir o evento:",
+      "❌ Erro ao criar o evento:",
       error.response?.data || error.message,
     );
   }
@@ -1430,8 +1412,6 @@ onMounted(async () => {
 
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 
   fetchStatuses();
   await fetchSceneries();
