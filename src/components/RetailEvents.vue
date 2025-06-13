@@ -18,7 +18,7 @@
         </v-col>
       </v-row>
 
-      <v-row class="mb-4" align="center">
+      <v-row class="m" align="center">
         <v-col cols="12" sm="6">
           <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
         </v-col>
@@ -172,31 +172,37 @@
         </v-dialog>
       </div>
 
-      <div v-if="activeTab === 2">
-        <div v-if="loading" class="d-flex justify-center my-8">
-          <v-progress-circular indeterminate size="80" color="primary" />
-        </div>
-        <div v-else class="list-container">
-          <v-row v-if="userCreatedEvents.length > 0" class="CreateNew align-center bg-gray text-white">
-            <v-col cols="2"></v-col>
-            <v-col cols="3">
-              <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
-                <v-icon>mdi-plus-box-outline</v-icon>
-                Create New
-              </v-btn>
-            </v-col>
-            <!-- <v-col cols="4">
-              <v-btn variant="text" class="sort-btn" @click="">PAST</v-btn>
-            </v-col>
-            <v-col cols="3">
-              <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
-            </v-col> -->
-          </v-row>
-          <v-row v-else>
-            <v-col class="text-center">
-              No events match the selected filters.
-            </v-col>
-          </v-row>
+     <div v-if="activeTab === 2">
+  <div v-if="loading" class="d-flex justify-center my-8">
+    <v-progress-circular indeterminate size="80" color="primary" />
+  </div>
+  <div v-else class="list-container">
+    <v-row class="CreateNew align-center bg-gray text-white">
+      <v-col cols="2"></v-col>
+      <v-col cols="3">
+        <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
+          <v-icon>mdi-plus-box-outline</v-icon>
+          Create New
+        </v-btn>
+      </v-col>
+      </v-row>
+
+    <div v-if="userCreatedEvents.length > 0">
+      <v-row>
+        <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
+          <v-card color="white" max-height="120" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
+            </v-card>
+        </v-col>
+      </v-row>
+    </div>
+
+    <div v-else>
+      <v-row>
+        <v-col class="text-center pa-10">
+          No events found. Click "Create New" to add your first one!
+        </v-col>
+      </v-row>
+    </div>
           <v-row>
             <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
               <v-card color="white" max-height="120" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
