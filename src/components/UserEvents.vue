@@ -185,17 +185,10 @@
                 </v-col>
               </v-row>
 
-              <v-alert
-                  v-if="showAlert"
-                  :type="alertType"
-                  class="mt-4"
-                  border="start"
-                  variant="tonal"
-                  closable
-                  @click:close="showAlert = false"
-                >
-                  <span v-html="alertMessage"></span>
-                </v-alert>
+              <v-alert v-if="showAlert" :type="alertType" class="mt-4" border="start" variant="tonal" closable
+                @click:close="showAlert = false">
+                <span v-html="alertMessage"></span>
+              </v-alert>
 
 
             </v-card-text>
@@ -455,7 +448,7 @@ const selectedRewards = ref([]);
 const dialog = ref(false);
 const selectedEvent = ref(null);
 const eventRewards = ref([]);
-const alertType = ref('success'); 
+const alertType = ref('success');
 const alertMessage = ref('');
 const joinedEventPk = ref(null);
 const sortBy = ref("date");
@@ -1143,6 +1136,7 @@ const getEventStatusInfo = (status) => {
   }
 };
 
+
 const joinEvent = async () => {
   const userId = userStore.user?.users_pk;
   if (!userId || !selectedEvent.value) return;
@@ -1179,12 +1173,13 @@ const joinEvent = async () => {
     if (apiMessage) {
       alertMessage.value = apiMessage;
       if (apiMessage.includes("already signed up")) {
-      alertType.value = 'error';
-      console.error("Erro ao tentar entrar no evento:", error);
+        alertType.value = 'error';
+        console.error("Erro ao tentar entrar no evento:", error);
+      }
+      showAlert.value = true;
     }
-    showAlert.value = true;
   }
-};
+}
 
 onMounted(async () => {
   try {
@@ -1244,6 +1239,7 @@ watch(
     }
   },
 );
+
 </script>
 
 <style scoped>
