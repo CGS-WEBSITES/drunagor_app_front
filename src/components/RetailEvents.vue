@@ -1289,14 +1289,14 @@ const joinEvent = () => {
 const fetchPlayerEvents = (past) => {
   loadingAll.value = true;
 
-  const player_fk = userStore.user?.users_pk;
+  const params = {
+    player_fk: retailerFk.value,
+    past_events: past.toString(),
+  }
 
   axios
     .get("/events/list_events/", {
-      params: { 
-        player_fk: player_fk, 
-        past_events: past.toString(),
-      },
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -1320,10 +1320,12 @@ const fetchUserCreatedEvents = async (past) => {
 
   const params = {
     retailer_fk: retailerFk.value,
+    active: "true", 
     past_events: past.toString(),
     limit: 30, 
     offset: 0,
   };
+  console.log("Fetching user created events with params:", params);
   await axios
     .get("/events/my_events/retailer", {
       params,
@@ -1336,9 +1338,7 @@ const fetchUserCreatedEvents = async (past) => {
     })
     .catch((error) => {
       console.error(
-        "❌ Error fetching my events:",
-        error.response?.data || error.message,
-      );
+        "Error fetching my events:", error);
       userCreatedEvents.value = [];
     })
     .finally(() => {
