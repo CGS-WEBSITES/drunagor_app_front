@@ -1,7 +1,9 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+      <h1
+        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+      >
         EVENTS
       </h1>
     </v-col>
@@ -11,7 +13,13 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -20,21 +28,39 @@
 
       <v-row class="mb-4" align="center">
         <v-col cols="12" sm="6">
-          <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
+          <v-checkbox
+            v-model="showPast"
+            label="Past events"
+            hide-details
+            color="primary"
+          />
         </v-col>
       </v-row>
 
       <div v-if="activeTab === 1">
-        <div v-if="loading" class="d-flex justify-center my-8">
+        <div v-if="loadingAll" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
           <v-row v-if="events.length > 0">
-            <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in sortedEvents" :key="index">
-              <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+            <v-col
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
+              v-for="(event, index) in sortedEvents"
+              :key="index"
+            >
+              <v-card
+                color="terciary"
+                class="pt-0 event-card"
+                @click="openDialog(event)"
+              >
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div class="text-center ml-3" style="width: 70px; color: black">
+                    <div
+                      class="text-center ml-3"
+                      style="width: 70px; color: black"
+                    >
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(event.event_date)
@@ -44,7 +70,10 @@
                             .toUpperCase()
                         }}
                       </p>
-                      <p color="primary" class="cinzel-text text-h3 font-weight-bold">
+                      <p
+                        color="primary"
+                        class="cinzel-text text-h3 font-weight-bold"
+                      >
                         {{
                           String(event.event_date).split("T")[0].split("-")[2]
                         }}
@@ -65,7 +94,9 @@
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                      <v-icon class="pr-1" size="small" color="black"
+                        >mdi-chess-rook</v-icon
+                      >
                       {{ event.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -76,12 +107,27 @@
                       <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
                       {{ event.scenario }}
                     </p>
-                    <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+                    <p
+                      class="text-caption ml-3"
+                      v-if="event.rewards && event.rewards.length"
+                    >
                       <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                        <v-icon class="mr-1" color="red"
+                          >mdi-star-circle</v-icon
+                        >
                         Rewards:
-                        <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                          <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
+                        <v-col
+                          cols="auto"
+                          v-for="(reward, index) in event.rewards"
+                          :key="index"
+                        >
+                          <v-img
+                            :src="reward.image"
+                            height="20"
+                            width="20"
+                            contain
+                            class="reward-icon"
+                          ></v-img>
                         </v-col>
                       </v-row>
                     </p>
@@ -129,10 +175,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedEvent?.picture_hash
-                      ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -149,11 +199,17 @@
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
 
-              <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
-                class="align-center my-2">
+              <v-row
+                v-if="eventRewards.length"
+                v-for="(reward, index) in eventRewards"
+                :key="index"
+                class="align-center my-2"
+              >
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                    <v-img
+                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                    />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
@@ -173,14 +229,21 @@
       </div>
 
       <div v-if="activeTab === 2">
-        <div v-if="loading" class="d-flex justify-center my-8">
+        <div v-if="loadingMine" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row v-if="userCreatedEvents.length > 0" class="CreateNew align-center bg-gray text-white">
+          <v-row
+            v-if="userCreatedEvents.length > 0"
+            class="CreateNew align-center bg-gray text-white"
+          >
             <v-col cols="2"></v-col>
             <v-col cols="3">
-              <v-btn variant="text" class="sort-btn" @click="openCreateEventDialog">
+              <v-btn
+                variant="text"
+                class="sort-btn"
+                @click="openCreateEventDialog"
+              >
                 <v-icon>mdi-plus-box-outline</v-icon>
                 Create New
               </v-btn>
@@ -198,18 +261,37 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col class="py-2 pl-1 pr-1" cols="12" md="6" v-for="(event, index) in userCreatedEvents" :key="index">
-              <v-card color="white" max-height="120" class="pt-0 pl-0 pb-0 event-card" @click="openEditDialog(event)">
+            <v-col
+              v-for="(event, index) in userCreatedEvents"
+              :key="event.events_pk"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
+            >
+              <v-card
+                color="white"
+                max-height="120"
+                class="pt-0 pl-0 pb-0 event-card"
+                @click="openEditDialog(event)"
+              >
                 <v-row no-gutters>
                   <v-col cols="auto" class="redbutton pt-13 pl-3">
-                    <v-btn color="#AB2929" icon class="delete-btn" @click.stop="deleteEvent(event.events_pk)">
+                    <v-btn
+                      color="#AB2929"
+                      icon
+                      class="delete-btn"
+                      @click.stop="deleteEvent(event.events_pk)"
+                    >
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-col>
                   <v-col cols="8" class="pt-6 pr-3">
                     <v-row no-gutters>
                       <v-col cols="4" sm="2">
-                        <div class="text-center ml-2 pr-3" style="width: 74px; color: black">
+                        <div
+                          class="text-center ml-2 pr-3"
+                          style="width: 74px; color: black"
+                        >
                           <p class="pt-3 text-caption font-weight-bold">
                             {{
                               new Date(event.event_date)
@@ -219,7 +301,10 @@
                                 .toUpperCase()
                             }}
                           </p>
-                          <p color="primary" class="cinzel-text text-h3 font-weight-bold">
+                          <p
+                            color="primary"
+                            class="cinzel-text text-h3 font-weight-bold"
+                          >
                             {{
                               String(event.event_date)
                                 .split("T")[0]
@@ -244,7 +329,9 @@
 
                       <v-col cols="8" sm="10" class="pt-2 pl-5">
                         <h3 class="pb-1 text-truncate">
-                          <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                          <v-icon class="pr-1" size="small" color="black"
+                            >mdi-chess-rook</v-icon
+                          >
                           {{ event.store_name }}
                         </h3>
 
@@ -258,12 +345,27 @@
                           Scenario: {{ event.scenario }}
                         </p>
 
-                        <p class="text-caption ml-3" v-if="event.rewards && event.rewards.length">
+                        <p
+                          class="text-caption ml-3"
+                          v-if="event.rewards && event.rewards.length"
+                        >
                           <v-row class="d-flex align-center rewards-container">
-                            <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                            <v-icon class="mr-1" color="red"
+                              >mdi-star-circle</v-icon
+                            >
                             Rewards:
-                            <v-col cols="auto" v-for="(reward, index) in event.rewards" :key="index">
-                              <v-img :src="reward.image" height="20" width="20" contain class="reward-icon"></v-img>
+                            <v-col
+                              cols="auto"
+                              v-for="(reward, index) in event.rewards"
+                              :key="index"
+                            >
+                              <v-img
+                                :src="reward.image"
+                                height="20"
+                                width="20"
+                                contain
+                                class="reward-icon"
+                              ></v-img>
                             </v-col>
                           </v-row>
                         </p>
@@ -272,7 +374,12 @@
                   </v-col>
                 </v-row>
                 <v-col cols="auto" class="editbutton pt-13 pl-3">
-                  <v-btn color="white" icon class="delete-btn" @click.stop="openEditDialog(event, true)">
+                  <v-btn
+                    color="white"
+                    icon
+                    class="delete-btn"
+                    @click.stop="openEditDialog(event, true)"
+                  >
                     <v-icon>mdi mdi-pencil</v-icon>
                   </v-btn>
                 </v-col>
@@ -289,8 +396,12 @@
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="12">
-                  <v-select v-model="newEvent.store" :items="stores.map((store) => store.name)" label="STORE"
-                    variant="outlined" />
+                  <v-select
+                    v-model="newEvent.store"
+                    :items="stores.map((store) => store.name)"
+                    label="STORE"
+                    variant="outlined"
+                  />
                 </v-col>
                 <!-- Descrição -->
                 <!-- <v-col cols="12">
@@ -299,33 +410,72 @@
                 </v-col> -->
                 <!-- Assentos + Data/Hora -->
                 <v-col cols="12" md="6">
-                  <v-select v-model="newEvent.seats" :items="[1, 2, 3, 4]" label="SEATS" variant="outlined"></v-select>
+                  <v-select
+                    v-model="newEvent.seats"
+                    :items="[1, 2, 3, 4]"
+                    label="SEATS"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
                 <v-col cols="6" md="6">
-                  <v-select v-model="newEvent.scenario" :items="sceneries" item-title="name" item-value="sceneries_pk"
-                    label="SCENARIO" variant="outlined"></v-select>
+                  <v-select
+                    v-model="newEvent.scenario"
+                    :items="sceneries"
+                    item-title="name"
+                    item-value="sceneries_pk"
+                    label="SCENARIO"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
                 <v-col cols="6" md="3">
-                  <v-text-field v-model="newEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
-                    maxlength="5" @input="handleTimeInput"></v-text-field>
+                  <v-text-field
+                    v-model="newEvent.hour"
+                    label="TIME"
+                    variant="outlined"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                    @input="handleTimeInput"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="6" md="2">
-                  <v-select v-model="newEvent.ampm" :items="['AM', 'PM']" label="AM/PM" variant="outlined"></v-select>
+                  <v-select
+                    v-model="newEvent.ampm"
+                    :items="['AM', 'PM']"
+                    label="AM/PM"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
                 <v-col cols="12" md="2" class="d-flex align-center">
-                  <v-text-field v-model="newEvent.date" label="DATE" type="date" variant="outlined" class="date-input"
-                    :min="today" :max="oneYearFromTodayISO" :rules="dateRules"></v-text-field>
+                  <v-text-field
+                    v-model="newEvent.date"
+                    label="DATE"
+                    type="date"
+                    variant="outlined"
+                    class="date-input"
+                    :min="today"
+                    :max="oneYearFromTodayISO"
+                    :rules="dateRules"
+                  ></v-text-field>
                 </v-col>
                 <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
-                  <v-autocomplete v-model="selectedRewards" :items="allRewards" item-title="name"
-                    item-value="rewards_pk" label="Select Rewards" multiple return-object>
+                  <v-autocomplete
+                    v-model="selectedRewards"
+                    :items="allRewards"
+                    item-title="name"
+                    item-value="rewards_pk"
+                    label="Select Rewards"
+                    multiple
+                    return-object
+                  >
                     <template #item="{ item, props }">
                       <v-list-item v-bind="props">
                         <template #prepend>
                           <v-avatar size="32">
-                            <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`" />
+                            <v-img
+                              :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`"
+                            />
                           </v-avatar>
                         </template>
                         <v-list-item-title>{{
@@ -334,9 +484,16 @@
                       </v-list-item>
                     </template>
                     <template #selection="{ item, index }">
-                      <v-chip size="small" class="ma-1" closable @click:close="selectedRewards.splice(index, 1)">
+                      <v-chip
+                        size="small"
+                        class="ma-1"
+                        closable
+                        @click:close="selectedRewards.splice(index, 1)"
+                      >
                         <v-avatar start size="24">
-                          <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`" />
+                          <v-img
+                            :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`"
+                          />
                         </v-avatar>
                         {{ item.raw.name }}
                       </v-chip>
@@ -344,7 +501,13 @@
                   </v-autocomplete>
                 </v-col>
                 <v-col cols="12">
-                  <v-btn block color="secundary" class="launch-btn mt-12" @click="addEvent">LAUNCH EVENT</v-btn>
+                  <v-btn
+                    block
+                    color="secundary"
+                    class="launch-btn mt-12"
+                    @click="addEvent"
+                    >LAUNCH EVENT</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-card-text>
@@ -352,7 +515,11 @@
         </v-dialog>
 
         <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
-        <v-dialog v-model="editEventDialog" scroll-target="#app" max-width="800">
+        <v-dialog
+          v-model="editEventDialog"
+          scroll-target="#app"
+          max-width="800"
+        >
           <v-card class="dark-background">
             <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
               Event changed successfully
@@ -360,39 +527,90 @@
             <v-card-text>
               <v-row>
                 <v-col cols="6" md="6" v-if="isEditable">
-                  <v-select v-model="editableEvent.seats_number" :items="[1, 2, 3, 4]" label="SEATS"
-                    variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.seats_number"
+                    :items="[1, 2, 3, 4]"
+                    label="SEATS"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
                 <v-col cols="6" md="6" v-if="isEditable">
-                  <v-select v-model="editableEvent.sceneries_fk" :items="sceneries" item-title="name"
-                    item-value="sceneries_pk" label="SCENARIO" variant="outlined" :key="sceneries.length"
-                    clearable></v-select>
+                  <v-select
+                    v-model="editableEvent.sceneries_fk"
+                    :items="sceneries"
+                    item-title="name"
+                    item-value="sceneries_pk"
+                    label="SCENARIO"
+                    variant="outlined"
+                    :key="sceneries.length"
+                    clearable
+                  ></v-select>
                 </v-col>
                 <v-col cols="6" md="3" v-if="isEditable">
-                  <v-text-field v-model="editableEvent.hour" label="TIME" variant="outlined" placeholder="HH:MM"
-                    maxlength="5" @blur="validateTime"></v-text-field>
+                  <v-text-field
+                    v-model="editableEvent.hour"
+                    label="TIME"
+                    variant="outlined"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                    @blur="validateTime"
+                  ></v-text-field>
                 </v-col>
                 <v-col cols="6" md="2" v-if="isEditable">
-                  <v-select v-model="editableEvent.ampm" :items="['AM', 'PM']" label="AM/PM"
-                    variant="outlined"></v-select>
+                  <v-select
+                    v-model="editableEvent.ampm"
+                    :items="['AM', 'PM']"
+                    label="AM/PM"
+                    variant="outlined"
+                  ></v-select>
                 </v-col>
-                <v-col cols="12" md="4" class="d-flex align-center" v-if="isEditable">
-                  <v-text-field v-model="editableEvent.date" label="DATE" type="date" variant="outlined"
-                    class="date-input" :min="today" :max="oneYearFromTodayISO" :rules="dateRules"></v-text-field>
+                <v-col
+                  cols="12"
+                  md="4"
+                  class="d-flex align-center"
+                  v-if="isEditable"
+                >
+                  <v-text-field
+                    v-model="editableEvent.date"
+                    label="DATE"
+                    type="date"
+                    variant="outlined"
+                    class="date-input"
+                    :min="today"
+                    :max="oneYearFromTodayISO"
+                    :rules="dateRules"
+                  ></v-text-field>
                 </v-col>
                 <div v-if="existingRewards.length" class="mt-4">
                   <p class="pb-2 font-weight-bold">Current Rewards:</p>
-                  <v-chip v-for="reward in existingRewards" :key="reward.rewards_pk" class="ma-1" label>
+                  <v-chip
+                    v-for="reward in existingRewards"
+                    :key="reward.rewards_pk"
+                    class="ma-1"
+                    label
+                  >
                     {{ reward.name }}
                   </v-chip>
                 </div>
                 <v-col cols="12" v-if="isEditable">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
-                  <v-autocomplete v-model="editableEvent.rewards_pk" :items="allRewards" item-title="name"
-                    item-value="rewards_pk" label="Select Rewards" multiple chips clearable></v-autocomplete>
+                  <v-autocomplete
+                    v-model="editableEvent.rewards_pk"
+                    :items="allRewards"
+                    item-title="name"
+                    item-value="rewards_pk"
+                    label="Select Rewards"
+                    multiple
+                    chips
+                    clearable
+                  ></v-autocomplete>
                 </v-col>
                 <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
-                <v-col cols="12" class="d-flex align-end flex-column" v-if="!isEditable">
+                <v-col
+                  cols="12"
+                  class="d-flex align-end flex-column"
+                  v-if="!isEditable"
+                >
                   <v-col class="d-flex align-center flex-column">
                     <v-card color="surface" class="ml-5">
                       <v-card-text>
@@ -421,13 +639,21 @@
                           }}
                         </p>
                       </v-card-text>
-                      <v-card color="primary" min-height="130px" class="mr-4 event-card">
+                      <v-card
+                        color="primary"
+                        min-height="130px"
+                        class="mr-4 event-card"
+                      >
                         <v-row no-gutters>
                           <v-col cols="3" lg="3">
-                            <v-img :src="selectedEvent?.picture_hash
-                                ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                                : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                              " class="event-img" />
+                            <v-img
+                              :src="
+                                selectedEvent?.picture_hash
+                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                              "
+                              class="event-img"
+                            />
                           </v-col>
                           <v-col cols="9" class="pa-2">
                             <h3 class="text-subtitle-1 font-weight-bold">
@@ -444,11 +670,17 @@
                       <v-card-text>
                         <h3 class="text-h6 font-weight-bold mb-1">REWARDS:</h3>
 
-                        <v-row v-if="eventRewards.length" v-for="(reward, index) in eventRewards" :key="index"
-                          class="align-center">
+                        <v-row
+                          v-if="eventRewards.length"
+                          v-for="(reward, index) in eventRewards"
+                          :key="index"
+                          class="align-center"
+                        >
                           <v-col cols="3" md="2">
                             <v-avatar>
-                              <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                              <v-img
+                                :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                              />
                             </v-avatar>
                           </v-col>
                           <v-col cols="9" md="10">
@@ -463,25 +695,46 @@
                         </p>
                       </v-card-text>
                       <br />
-                      <v-btn block color="blue" size="small" variant="flat" class="mt-2"
-                        @click="shareEvent(selectedEvent?.events_pk)">
+                      <v-btn
+                        block
+                        color="blue"
+                        size="small"
+                        variant="flat"
+                        class="mt-2"
+                        @click="shareEvent(selectedEvent?.events_pk)"
+                      >
                         <v-icon start>mdi-share-variant</v-icon>
                         Share Event
                       </v-btn>
 
                       <v-dialog v-model="showDialog" width="400">
                         <v-card>
-                          <v-card-title class="text-h6">Share Event</v-card-title>
+                          <v-card-title class="text-h6"
+                            >Share Event</v-card-title
+                          >
                           <v-card-text>
-                            <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact"
-                              hide-details></v-text-field>
+                            <v-text-field
+                              v-model="sharedLink"
+                              label="Event Link"
+                              readonly
+                              density="compact"
+                              hide-details
+                            ></v-text-field>
                           </v-card-text>
                           <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="success" size="small" @click="copyLink(sharedLink)">
+                            <v-btn
+                              color="success"
+                              size="small"
+                              @click="copyLink(sharedLink)"
+                            >
                               Copy Link
                             </v-btn>
-                            <v-btn color="grey" size="small" @click="showDialog = false">
+                            <v-btn
+                              color="grey"
+                              size="small"
+                              @click="showDialog = false"
+                            >
                               Close
                             </v-btn>
                           </v-card-actions>
@@ -490,36 +743,58 @@
                     </v-card>
                   </v-col>
                   <v-col>
-                    <p class="pb-3 font-weight-bold">PLAYERS INTERESTED
-                      <v-btn icon size="medium" variant="text" @click="refreshInterestedPlayers(selectedEvent)">
+                    <p class="pb-3 font-weight-bold">
+                      PLAYERS INTERESTED
+                      <v-btn
+                        icon
+                        size="medium"
+                        variant="text"
+                        @click="refreshInterestedPlayers(selectedEvent)"
+                      >
                         <v-icon class="mb-1" color="white">mdi-refresh</v-icon>
                       </v-btn>
                     </p>
-
-
                   </v-col>
                   <v-row>
-                    <v-col cols="12" v-for="(player, index) in paginatedPlayers" :key="player.users_pk" class="pa-1">
+                    <v-col
+                      cols="12"
+                      v-for="(player, index) in paginatedPlayers"
+                      :key="player.users_pk"
+                      class="pa-1"
+                    >
                       <v-card class="pa-1 mb-3" rounded="lg" elevation="10">
                         <v-row no-gutters>
                           <!-- remove espaço interno entre colunas -->
                           <!-- Imagem do jogador -->
                           <v-col cols="4" lg="1" class="d-flex">
-                            <v-img :src="player.picture_hash
-                                ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
-                                : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
-                              " alt="Player Image" max-width="90" max-height="90" class="rounded-lg"></v-img>
+                            <v-img
+                              :src="
+                                player.picture_hash
+                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
+                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
+                              "
+                              alt="Player Image"
+                              max-width="90"
+                              max-height="90"
+                              class="rounded-lg"
+                            ></v-img>
                           </v-col>
 
                           <!-- Informações -->
-                          <v-col cols="8" class="pl-3 d-flex flex-column justify-center">
+                          <v-col
+                            cols="8"
+                            class="pl-3 d-flex flex-column justify-center"
+                          >
                             <p class="font-weight-bold text-truncate">
                               {{ player.user_name }}
                             </p>
                             <p class="text-caption">
                               Status: {{ player.event_status }}
                             </p>
-                            <p v-if="player.status_date" class="text-caption grey--text">
+                            <p
+                              v-if="player.status_date"
+                              class="text-caption grey--text"
+                            >
                               Received:
                               {{
                                 new Date(player.status_date).toLocaleString(
@@ -539,28 +814,54 @@
                           <!-- Botões -->
                           <v-col cols="12" md="3" class="d-flex flex-column">
                             <!-- Ícone de Granted Passage, centralizado -->
-                            <template v-if="player.event_status === 'Granted Passage'">
-                              <v-btn color="deep-purple" size="x-small" class="mt-2 mt-md-0 pa-0" block @click="
-                                updatePlayerStatus(player, JoinedtheQuest)
-                                ">
+                            <template
+                              v-if="player.event_status === 'Granted Passage'"
+                            >
+                              <v-btn
+                                color="deep-purple"
+                                size="x-small"
+                                class="mt-2 mt-md-0 pa-0"
+                                block
+                                @click="
+                                  updatePlayerStatus(player, JoinedtheQuest)
+                                "
+                              >
                                 <v-icon start>mdi-flag-checkered</v-icon>
                                 Start Event
                               </v-btn>
 
-                              <v-btn color="red" size="x-small" class="mt-2" block @click="
-                                updatePlayerStatus(player, turnedAwayStatus)
-                                ">
+                              <v-btn
+                                color="red"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="
+                                  updatePlayerStatus(player, turnedAwayStatus)
+                                "
+                              >
                                 <v-icon start>mdi-close-circle-outline</v-icon>
                                 Turned Away
                               </v-btn>
                             </template>
 
                             <!-- Se o jogador está participando ativamente -->
-                            <template v-else-if="
-                              player.event_status === 'Joined the Quest'
-                            ">
-                              <v-row no-gutters class="fill-height" align="center" justify="center">
-                                <v-chip color="yellow" text-color="white" class="ma-1" label>
+                            <template
+                              v-else-if="
+                                player.event_status === 'Joined the Quest'
+                              "
+                            >
+                              <v-row
+                                no-gutters
+                                class="fill-height"
+                                align="center"
+                                justify="center"
+                              >
+                                <v-chip
+                                  color="yellow"
+                                  text-color="white"
+                                  class="ma-1"
+                                  label
+                                >
                                   <v-icon left>mdi-sword-cross</v-icon>
                                   Playing
                                 </v-chip>
@@ -568,25 +869,46 @@
                             </template>
 
                             <!-- Ícone de Turned Away, centralizado -->
-                            <template v-else-if="player.event_status === 'Turned Away'">
-                              <v-row no-gutters class="fill-height" align="center" justify="center">
+                            <template
+                              v-else-if="player.event_status === 'Turned Away'"
+                            >
+                              <v-row
+                                no-gutters
+                                class="fill-height"
+                                align="center"
+                                justify="center"
+                              >
                                 <v-btn icon disabled class="ma-0 pa-0">
-                                  <v-icon color="red" size="24">mdi-close-circle</v-icon>
+                                  <v-icon color="red" size="24"
+                                    >mdi-close-circle</v-icon
+                                  >
                                 </v-btn>
                               </v-row>
                             </template>
 
                             <!-- Botões de ação originais, alinhados um abaixo do outro -->
                             <template v-else>
-                              <v-btn color="green" size="x-small" class="mt-2" block @click="
-                                updatePlayerStatus(player, grantedStatus)
-                                ">
+                              <v-btn
+                                color="green"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="
+                                  updatePlayerStatus(player, grantedStatus)
+                                "
+                              >
                                 <v-icon start>mdi-check-circle-outline</v-icon>
                                 Granted Passage
                               </v-btn>
-                              <v-btn color="red" size="x-small" class="mt-2" block @click="
-                                updatePlayerStatus(player, turnedAwayStatus)
-                                ">
+                              <v-btn
+                                color="red"
+                                size="x-small"
+                                class="mt-2"
+                                block
+                                @click="
+                                  updatePlayerStatus(player, turnedAwayStatus)
+                                "
+                              >
                                 <v-icon start>mdi-close-circle-outline</v-icon>
                                 Turned Away
                               </v-btn>
@@ -596,14 +918,24 @@
                       </v-card>
                     </v-col>
                     <v-col cols="12" class="d-flex justify-center">
-                      <v-pagination v-model="currentPage" :length="totalPages"></v-pagination>
+                      <v-pagination
+                        v-model="currentPage"
+                        :length="totalPages"
+                      ></v-pagination>
                     </v-col>
                   </v-row>
                 </v-col>
                 <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
-                  <v-btn color="red" @click="editEventDialog = false">Close</v-btn>
-                  <v-btn v-if="isEditable" color="green" @click="saveEditedEvent">Save Changes</v-btn>
+                  <v-btn color="red" @click="editEventDialog = false"
+                    >Close</v-btn
+                  >
+                  <v-btn
+                    v-if="isEditable"
+                    color="green"
+                    @click="saveEditedEvent"
+                    >Save Changes</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-card-text>
@@ -618,6 +950,7 @@
 import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
+import { useDebounceFn } from "@vueuse/core";
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
@@ -634,7 +967,7 @@ const playersByEvent = ref({});
 const selectedRewards = ref([]);
 const dialog = ref(false);
 const selectedEvent = ref(null);
-const activeTab = ref("events");
+const activeTab = ref(1);
 const sortBy = ref("date");
 const events = ref([]);
 const sceneries = ref([]);
@@ -653,11 +986,23 @@ const eventRewards = ref([]);
 const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
+const loadingAll = ref(false);
+const loadingMine = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
+
+const user = computed(() => useUserStore().user);
+const retailerFk = computed(() => userStore.user?.users_pk || null);
+
+const sortedEvents = computed(() => {
+  if (sortBy.value === "date") {
+    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
+  return events.value;
+});
 
 const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
@@ -675,8 +1020,6 @@ const paginatedPlayers = computed(() => {
   return allPlayers.slice(start, start + pageSize);
 });
 
-const user = computed(() => useUserStore().user);
-
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
     (s) => s.storename === selectedEvent.value?.store,
@@ -690,13 +1033,6 @@ const selectedStore = computed(() => {
   return (
     stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
   );
-});
-
-const sortedEvents = computed(() => {
-  if (sortBy.value === "date") {
-    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
-  return events.value;
 });
 
 const validateTime = () => {
@@ -714,7 +1050,7 @@ const validateTime = () => {
     .padStart(2, "0")}`;
 };
 
-const openEditDialog = async (event, editable = false) => {
+const openEditDialog = (event, editable = false) => {
   const [datePart, timePart] = event.event_date.split("T");
   const [hoursStr, minutesStr] = timePart.split(":");
   const hours24 = parseInt(hoursStr, 10);
@@ -722,45 +1058,61 @@ const openEditDialog = async (event, editable = false) => {
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? "PM" : "AM";
 
-  if (!sceneries.value.length) {
-    await fetchSceneries();
-  }
-
-  const found = sceneries.value.find((s) => s.name === event.scenario);
-  const initialFk = found ? found.sceneries_pk : null;
-
   editableEvent.value = {
     events_pk: event.events_pk,
     date: datePart,
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries_fk: initialFk,
+    sceneries_fk: null,     
     rewards: event.rewards || [],
   };
+
   selectedEvent.value = event;
   isEditable.value = editable;
   editEventDialog.value = true;
 
+  let chain = Promise.resolve();
+
+  if (!sceneries.value.length) {
+    chain = chain.then(() => fetchSceneries());
+  }
+
+  chain = chain.then(() => {
+    const found = sceneries.value.find(s => s.name === event.scenario);
+    editableEvent.value.sceneries_fk = found ? found.sceneries_pk : null;
+  });
+
   if (!editable) {
-    fetchPlayersForEvent(event.events_pk);
-    fetchStatuses();
+    chain = chain.then(() => {
+      fetchPlayersForEvent(event.events_pk);
+      fetchStatuses();
+    });
   }
 
   if (editable) {
-    try {
-      const { data } = await axios.get("/rl_events_rewards/list_rewards", {
-        params: { events_fk: event.events_pk },
+    chain = chain
+      .then(() =>
+        axios.get("/rl_events_rewards/list_rewards", {
+          params: { events_fk: event.events_pk },
+        })
+      )
+      .then(({ data }) => {
+        existingRewards.value = data.rewards || [];
+      })
+      .catch(err => {
+        console.error("Erro ao buscar rewards existentes:", err);
+        existingRewards.value = [];
       });
-      existingRewards.value = data.rewards || [];
-    } catch (err) {
-      console.error("Erro ao buscar rewards existentes:", err);
-      existingRewards.value = [];
-    }
   }
 
-  await fetchAllRewards();
-  await fetchUserCreatedEvents();
+  chain = chain
+    .then(() => fetchAllRewards())
+    .catch(err => {
+      console.error("Erro ao buscar all rewards:", err);
+    });
+
+  return chain;
 };
 
 const fetchStatuses = () => {
@@ -784,75 +1136,75 @@ const fetchStatuses = () => {
     });
 };
 
-const fetchPlayersForEvent = async (eventFk) => {
-  try {
-    const response = await axios.get("/rl_events_users/list_players", {
+const fetchPlayersForEvent = (eventFk) => {
+  axios
+    .get("/rl_events_users/list_players", {
       params: { events_fk: eventFk },
-    });
-    const key = Number(eventFk);
-    playersByEvent.value[key] = response.data.players ?? [];
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      playersByEvent.value[Number(eventFk)] = [];
-    } else {
+    })
+    .then((response) => {
+      playersByEvent.value = response.data.players;
+    })
+    .catch((error) => {
       console.error(
-        `Erro ao buscar jogadores para o evento ${eventFk}:`,
+        "Error fetching players:",
         error.response?.data || error.message,
       );
       playersByEvent.value[Number(eventFk)] = [];
-    }
-  }
+    });
 };
 
-const updatePlayerStatus = async (player, statusPk) => {
-  try {
-    const userData = JSON.parse(localStorage.getItem("app_user"));
-    const eventFk = selectedEvent.value?.events_pk;
+const updatePlayerStatus = (player, statusPk) => {
+  const userData = JSON.parse(localStorage.getItem("app_user"));
+  const eventFk = selectedEvent.value?.events_pk;
 
-    if (!userData?.users_pk || !eventFk) {
-      console.error("Missing required user or event data");
-      return;
-    }
+  if (!userData?.users_pk || !eventFk) {
+    console.error("Missing required user or event data");
+    return Promise.resolve();
+  }
 
-    const payload = {
-      users_fk: player.users_pk,
-      events_fk: eventFk,
-      status: statusPk,
-      active: true,
-    };
+  const payload = {
+    users_fk: player.users_pk,
+    events_fk: eventFk,
+    status: statusPk,
+    active: true,
+  };
 
-    const response = await axios.post("/rl_events_users/cadastro", payload, {
+  return axios
+    .post("/rl_events_users/cadastro", payload, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    });
+    })
+    .then(({ data }) => {
+      player.event_status = data.event_status || player.event_status;
+      fetchPlayersForEvent(eventFk);
 
-    player.event_status = response.data.event_status || player.event_status;
-    fetchPlayersForEvent(eventFk);
-
-    if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
-      for (const reward of eventRewards.value) {
-        await axios.post(
-          "/rl_users_rewards/cadastro",
-          {
-            users_fk: player.users_pk,
-            rewards_fk: reward.rewards_pk,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
+      if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
+        return Promise.all(
+          eventRewards.value.map(reward =>
+            axios.post(
+              "/rl_users_rewards/cadastro",
+              {
+                users_fk: player.users_pk,
+                rewards_fk: reward.rewards_pk,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              }
+            )
+          )
         );
       }
-    }
-  } catch (error) {
-    console.error("Error updating player status:", {
-      request: error.config?.data,
-      response: error.response?.data,
-      message: error.message,
+    })
+    .catch(error => {
+      console.error("Error updating player status:", {
+        request: error.config?.data,
+        response: error.response?.data,
+        message: error.message,
+      });
     });
-  }
 };
 
 const dateRules = [
@@ -871,7 +1223,6 @@ const dateRules = [
 
 const today = new Date();
 const todayISO = today.toISOString().split("T")[0];
-
 const oneYearFromToday = new Date();
 oneYearFromToday.setFullYear(today.getFullYear() + 1);
 const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
@@ -910,23 +1261,24 @@ const toggleReward = (reward) => {
   }
 };
 
-const openDialog = async (event) => {
+const openDialog = (event) => {
   selectedEvent.value = event;
   dialog.value = true;
+  fetchPlayersForEvent(event.events_pk);
 
-  try {
-    const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+  axios
+    .get("/rl_events_rewards/list_rewards", {
       params: { events_fk: event.events_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then((res) => {
+      eventRewards.value = res.data.rewards || [];
+    })
+    .catch(() => {
+      eventRewards.value = [];
     });
-
-    eventRewards.value = rewardsRes.data.rewards || [];
-  } catch (err) {
-    console.error("❌ Erro ao buscar rewards:", err);
-    eventRewards.value = [];
-  }
 };
 
 const joinEvent = () => {
@@ -934,37 +1286,70 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const fetchPlayerEvents = async (past) => {
-  loading.value = true;
+const fetchPlayerEvents = (past) => {
+  loadingAll.value = true;
 
-  try {
-    const player_fk = userStore.user?.users_pk;
+  const player_fk = userStore.user?.users_pk;
 
-    if (!player_fk) {
-      console.error("❌ Erro: player_fk (users_pk) não definido.");
-      return;
-    }
-
-    // Buscar eventos do jogador
-    const response = await axios.get("/events/list_events/", {
-      params: {
-        player_fk,
+  axios
+    .get("/events/list_events/", {
+      params: { 
+        player_fk: player_fk, 
         past_events: past.toString(),
       },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then((response) => {
+      events.value = response.data.events || [];
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Error fetching player events:",
+        error.response?.data || error.message,
+      );
+    })
+    .finally(() => {
+      loadingAll.value = false;
     });
-
-    events.value = response.data.events || [];
-    console.log("📦 Eventos carregados:", events.value);
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar eventos do jogador:",
-      error.response?.data || error.message,
-    );
-  }
 };
+
+const fetchUserCreatedEvents = async (past) => {
+  loadingMine.value = true;
+
+  const params = {
+    retailer_fk: retailerFk.value,
+    past_events: past.toString(),
+    limit: 30, 
+    offset: 0,
+  };
+  await axios
+    .get("/events/my_events/retailer", {
+      params,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then((response) => {
+      userCreatedEvents.value = response.data.events || [];
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Error fetching my events:",
+        error.response?.data || error.message,
+      );
+      userCreatedEvents.value = [];
+    })
+    .finally(() => {
+      loadingMine.value = false;
+    });
+};
+
+const fetchMyEventsDebounced = useDebounceFn(() => {
+  if (!retailerFk.value) return;
+  fetchUserCreatedEvents();
+}, 300);
 
 const fetchSceneries = async () => {
   await axios
@@ -985,7 +1370,7 @@ const fetchSceneries = async () => {
     });
 };
 
-const addEvent = async () => {
+const addEvent = () => {
   const userStore = useUserStore();
   const userId = userStore.user?.users_pk;
 
@@ -1001,73 +1386,61 @@ const addEvent = async () => {
     return;
   }
 
-  let selectedStore = null;
-  let storesFk = null;
-
-  try {
-    const response = await axios.get("/stores/list", {
-      params: {
-        users_fk: userId,
-      },
+  axios
+    .get("/stores/list", {
+      params: { users_fk: userId },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    });
+    })
+    .then((response) => {
+      const allStores = response.data.stores || [];
+      const found = allStores.find(
+        (s) =>
+          s.name?.toLowerCase().trim() ===
+          newEvent.value.store?.toLowerCase().trim()
+      );
+      if (!found) {
+        console.error("❌ Store não encontrada na API.");
+        throw new Error("StoreNotFound");
+      }
+      return found.stores_pk;
+    })
+    .then((storesFk) => {
+      const [h, m] = newEvent.value.hour.split(":").map(Number);
+      const ampm = newEvent.value.ampm || "AM";
+      const hour12 = String(h).padStart(2, "0");
+      const minute = String(m).padStart(2, "0");
+      const formattedDate = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
 
-    const allStores = response.data.stores || [];
-    const selectedStore = stores.value.find(
-      (store) =>
-        store.name?.toLowerCase().trim() ===
-        newEvent.value.store?.toLowerCase().trim(),
-    );
-    if (!selectedStore) {
-      console.error("❌ Store não encontrada na API.");
-      return;
-    }
+      return axios.post(
+        "/events/cadastro",
+        {
+          seats_number: newEvent.value.seats,
+          seasons_fk: 2,
+          sceneries_fk: newEvent.value.scenario,
+          date: formattedDate,
+          stores_fk: storesFk,
+          users_fk: userId,
+          active: true,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+    })
+    .then(async (res) => {
+      const newEventId = res.data?.event?.events_pk;
 
-    storesFk = selectedStore.stores_pk;
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar stores na API:",
-      error.response?.data || error.message,
-    );
-    return;
-  }
+      if (!newEventId) {
+        console.error("❌ Não foi possível extrair o ID do novo evento.");
+        throw new Error("EventCreationFailed");
+      }
 
-  try {
-    let [hours, minutes] = newEvent.value.hour.split(":").map(Number);
-    let ampm = newEvent.value.ampm || "AM";
-    const hour12 = String(hours).padStart(2, "0");
-    const minute = String(minutes).padStart(2, "0");
-    const eventDateFormatted = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
-
-    const payload = {
-      seats_number: newEvent.value.seats,
-      seasons_fk: 2,
-      sceneries_fk: newEvent.value.scenario,
-      date: eventDateFormatted,
-      stores_fk: storesFk,
-      users_fk: userId,
-      active: true,
-    };
-
-    const response = await axios.post("/events/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const newEventId = response.data?.event?.events_pk;
-
-    if (!newEventId) {
-      console.error("❌ Não foi possível extrair o ID do novo evento.");
-      return;
-    }
-
-    // ✅ Adiciona rewards ao evento
-    for (const reward of selectedRewards.value) {
-      try {
-        await axios.post(
+      const rewardPromises = selectedRewards.value.map((reward) =>
+        axios.post(
           "/rl_events_rewards/cadastro",
           {
             events_fk: newEventId,
@@ -1078,82 +1451,55 @@ const addEvent = async () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-          },
+          }
+        ).catch((err) => {
+          console.error("❌ Erro ao associar reward ao evento:", err);
+        })
+      );
+      return Promise.all(rewardPromises).then(() => newEventId);
+    })
+    .then(() => {
+      createEventDialog.value = false;
+      fetchUserCreatedEvents();
+      fetchPlayerEvents();
+      newEvent.value = {
+        date: "",
+        hour: "",
+        ampm: "AM",
+        store: "",
+        seats: "",
+        scenario: "",
+      };
+      selectedRewards.value = [];
+    })
+    .catch((err) => {
+      if (err.message === "StoreNotFound" || err.message === "EventCreationFailed") {
+      } else {
+        console.error(
+          "❌ Erro ao cadastrar evento ou associar rewards:",
+          err.response?.data || err.message
         );
-      } catch (err) {
-        console.error("❌ Erro ao associar reward ao evento:", err);
       }
-    }
-
-    createEventDialog.value = false;
-    await fetchUserCreatedEvents();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao cadastrar evento ou associar rewards:",
-      error.response?.data || error.message,
-    );
-  }
-
-  newEvent.value = {
-    date: "",
-    hour: "",
-    ampm: "AM",
-    store: "",
-    seats: "",
-    scenario: "",
-  };
-
-  selectedRewards.value = [];
-
-  createEventDialog.value = false;
+    });
 };
 
-const deleteEvent = async (events_pk) => {
-  try {
-    await axios.delete(`/events/${events_pk}/delete/`, {
+const deleteEvent = (events_pk) => {
+  axios
+    .delete(`/events/${events_pk}/delete/`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then(() => {
+      fetchUserCreatedEvents();
+      fetchPlayerEvents();
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Erro ao excluir o evento:",
+        error.response?.data || error.message
+      );
     });
-
-    await fetchUserCreatedEvents();
-    await fetchPlayerEvents();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao excluir o evento:",
-      error.response?.data || error.message,
-    );
-  }
-};
-
-const fetchUserCreatedEvents = async (past) => {
-  try {
-    const retailer_fk = userStore.user?.users_pk;
-
-    if (!retailer_fk) {
-      console.error("❌ Erro: retailer_fk (users_pk) não definido.");
-      return;
-    }
-
-    const response = await axios.get("/events/my_events/retailer", {
-      params: {
-        retailer_fk,
-        past_events: past.toString(),
-        limit: 30,
-        offset: 0,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    userCreatedEvents.value = response.data.events || [];
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar eventos criados pelo usuário:",
-      error.response?.data || error.message,
-    );
-  }
 };
 
 const createEvent = () => {
@@ -1171,129 +1517,105 @@ const handleImageUpload = (event) => {
   }
 };
 
-const saveEditedEvent = async () => {
-  try {
-    const eventPk = editableEvent.value.events_pk;
-    if (!eventPk) {
-      console.error("❌ Evento sem events_pk definido");
-      return;
-    }
+const saveEditedEvent = () => {
+  const eventPk = editableEvent.value.events_pk;
+  if (!eventPk) {
+    console.error("❌ Evento sem events_pk definido");
+    return;
+  }
 
-    const hourValue = (editableEvent.value.hour || "12:00").trim();
-    const ampmValue = editableEvent.value.ampm || "PM";
-    const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
+  const hourValue = (editableEvent.value.hour || "12:00").trim();
+  const ampmValue = editableEvent.value.ampm || "PM";
+  const eventDateFormatted = `${editableEvent.value.date}; ${hourValue} ${ampmValue}`;
 
-    const payload = {
-      seats_number: editableEvent.value.seats_number,
-      sceneries_fk: editableEvent.value.sceneries_fk,
-      date: eventDateFormatted,
-    };
+  const payload = {
+    seats_number: editableEvent.value.seats_number,
+    sceneries_fk: editableEvent.value.sceneries_fk,
+    date: eventDateFormatted,
+  };
 
-    await axios.put("/events/alter", payload, {
+  axios
+    .put("/events/alter", payload, {
       params: { events_pk: eventPk },
-    });
-
-    let currentIds = [];
-    try {
-      const { data: relRes } = await axios.get(
-        "/rl_events_rewards/list_rewards",
-        { params: { events_fk: eventPk } },
-      );
-
-      currentIds = Array.isArray(relRes.rewards)
+    })
+    .then(() =>
+      axios.get("/rl_events_rewards/list_rewards", {
+        params: { events_fk: eventPk },
+      })
+    )
+    .then(({ data: relRes }) => {
+      const currentIds = Array.isArray(relRes.rewards)
         ? relRes.rewards.map((r) => r.rewards_pk)
         : [];
-    } catch (err) {
-      if (err.response?.status === 404) {
-        currentIds = [];
-      } else {
-        throw err;
-      }
-    }
+      const updatedIds = editableEvent.value.rewards_pk || [];
+      const toAdd = updatedIds.filter((id) => !currentIds.includes(id));
+      const toRemove = currentIds.filter((id) => !updatedIds.includes(id));
 
-    const updatedIds = editableEvent.value.rewards_pk || [];
-    const toAdd = updatedIds.filter((id) => !currentIds.includes(id));
-    const toRemove = currentIds.filter((id) => !updatedIds.includes(id));
-
-    for (const rewards_fk of toAdd) {
-      await axios.post("/rl_events_rewards/cadastro", {
-        events_fk: eventPk,
-        rewards_fk,
-        active: true,
-      });
-    }
-
-    for (const rewards_fk of toRemove) {
-      await axios.post("/rl_events_rewards/cadastro", {
-        events_fk: eventPk,
-        rewards_fk,
-        active: false,
-      });
-    }
-
-    showSuccessAlert.value = true;
-    setTimeout(async () => {
-      showSuccessAlert.value = false;
-      editEventDialog.value = false;
-
-      window.location.reload()
-    }, 1500);
-  } catch (error) {
-    console.error(
-      "❌ Erro ao salvar edição do evento:",
-      error.response?.data || error.message,
-    );
-  }
+      const addPromises = toAdd.map((rewards_fk) =>
+        axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk,
+          active: true,
+        })
+      );
+      const removePromises = toRemove.map((rewards_fk) =>
+        axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk,
+          active: false,
+        })
+      );
+      return Promise.all([...addPromises, ...removePromises]);
+    })
+    .then(() => {
+      showSuccessAlert.value = true;
+      setTimeout(() => {
+        showSuccessAlert.value = false;
+        editEventDialog.value = false;
+        window.location.reload();
+      }, 1500);
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Erro ao salvar edição do evento:",
+        error.response?.data || error.message
+      );
+    });
 };
 
-const toggleEditReward = async (reward) => {
+const toggleEditReward = (reward) => {
   const eventId = editableEvent.value.events_pk;
   const alreadySelected = editableEvent.value.rewards.some(
     (r) => r.rewards_pk === reward.rewards_pk,
   );
 
-  try {
-    if (alreadySelected) {
-      await axios.post(
-        "/rl_events_rewards/cadastro",
-        {
-          events_fk: eventId,
-          rewards_fk: reward.rewards_pk,
-          active: false,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
-      );
+  const payload = {
+    events_fk: eventId,
+    rewards_fk: reward.rewards_pk,
+    active: !alreadySelected,
+  };
 
-      editableEvent.value.rewards = editableEvent.value.rewards.filter(
-        (r) => r.rewards_pk !== reward.rewards_pk,
+  axios
+    .post("/rl_events_rewards/cadastro", payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then(() => {
+      if (alreadySelected) {
+        editableEvent.value.rewards = editableEvent.value.rewards.filter(
+          (r) => r.rewards_pk !== reward.rewards_pk,
+        );
+      } else {
+        editableEvent.value.rewards.push(reward);
+      }
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Erro ao atualizar rewards:",
+        error.response?.data || error.message,
       );
-    } else {
-      await axios.post(
-        "/rl_events_rewards/cadastro",
-        {
-          events_fk: eventId,
-          rewards_fk: reward.rewards_pk,
-          active: true,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
-      );
-
-      editableEvent.value.rewards.push(reward);
-    }
-  } catch (error) {
-    console.error(
-      "❌ Erro ao atualizar rewards:",
-      error.response?.data || error.message,
-    );
-  }
+    });
 };
 
 const handleEditImageUpload = (event) => {
@@ -1307,51 +1629,50 @@ const handleEditImageUpload = (event) => {
   }
 };
 
-const fetchAllRewards = async () => {
-  try {
-    const res = await axios.get("/rewards/search", {
+const fetchAllRewards = () => {
+  axios
+    .get("/rewards/search", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then((res) => {
+      allRewards.value = res.data.rewards || [];
+    })
+    .catch((err) => {
+      console.error("❌ Erro ao buscar todos os rewards:", err);
     });
-
-    allRewards.value = res.data.rewards || [];
-  } catch (err) {
-    console.error("❌ Erro ao buscar todos os rewards:", err);
-  }
 };
 
-const fetchEventRewards = async (eventId) => {
-  try {
-    const response = await axios.get("/rl_events_rewards/list_rewards", {
+const fetchEventRewards = (eventId) => {
+  return axios
+    .get("/rl_events_rewards/list_rewards", {
       params: { events_fk: eventId },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then((response) => {
+      const relations = response.data.rewards || [];
+      return Promise.all(
+        relations.map((rel) =>
+          axios
+            .get(`/rewards/${rel.rewards_pk}`, {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            })
+            .then((rewardRes) => rewardRes.data)
+            .catch(() => null)
+        )
+      ).then((fullRewards) => {
+        return fullRewards.filter(Boolean);
+      });
+    })
+    .catch((err) => {
+      console.error("❌ Erro ao buscar rewards do evento:", err);
+      return [];
     });
-
-    const relations = response.data.rewards || [];
-
-    const fullRewards = await Promise.all(
-      relations.map(async (rel) => {
-        try {
-          const rewardRes = await axios.get(`/rewards/${rel.rewards_pk}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          });
-          return rewardRes.data;
-        } catch (err) {
-          return null;
-        }
-      }),
-    );
-
-    return fullRewards.filter(Boolean); // 🔁 Aqui retorna a lista válida
-  } catch (err) {
-    console.error("❌ Erro ao buscar rewards do evento:", err);
-    return [];
-  }
 };
 
 const handleShareEvent = (eventId) => {
@@ -1363,26 +1684,29 @@ const handleShareEvent = (eventId) => {
 };
 
 const shareEvent = (eventId) => {
-  try {
-    if (!eventId) throw new Error("ID do evento não encontrado!");
-
-    const encodedId = btoa(eventId.toString());
-
-    sharedLink.value = `${window.location.origin}/event/${encodedId}`;
-    showDialog.value = true; // Abre o popup
-  } catch (error) {
-    console.error("Erro ao gerar link:", error);
-  }
+  Promise.resolve(eventId)
+    .then((id) => {
+      if (!id) {
+        throw new Error("ID do evento não encontrado!");
+      }
+      const encodedId = btoa(id.toString());
+      sharedLink.value = `${window.location.origin}/event/${encodedId}`;
+      showDialog.value = true; 
+    })
+    .catch((error) => {
+      console.error("Erro ao gerar link:", error);
+    });
 };
 
-const copyLink = async (link) => {
-  try {
-    await navigator.clipboard.writeText(link);
-    showDialog.value = false;
-    showAlert.value = true;
-  } catch (error) {
-    console.error("Erro ao copiar o link:", error);
-  }
+const copyLink = (link) => {
+  navigator.clipboard.writeText(link)
+    .then(() => {
+      showDialog.value = false;
+      showAlert.value = true;
+    })
+    .catch((error) => {
+      console.error("Erro ao copiar o link:", error);
+    });
 };
 
 const refreshInterestedPlayers = async (event) => {
@@ -1392,7 +1716,6 @@ const refreshInterestedPlayers = async (event) => {
   }
 
   try {
-
     selectedEvent.value = event;
 
     await fetchPlayersForEvent(event.events_pk);
@@ -1401,58 +1724,62 @@ const refreshInterestedPlayers = async (event) => {
     const rewardsFromRelation = await fetchEventRewards(event.events_pk);
     eventRewards.value = rewardsFromRelation;
     if (editableEvent.value) {
-      editableEvent.value.rewards = availableRewards.value.filter(ar =>
-        rewardsFromRelation.some(rr => rr.rewards_pk === ar.rewards_pk)
+      editableEvent.value.rewards = availableRewards.value.filter((ar) =>
+        rewardsFromRelation.some((rr) => rr.rewards_pk === ar.rewards_pk),
       );
     }
-
   } catch (error) {
     console.error("An error occurred while refreshing event data:", error);
   }
 };
 
-onMounted(async () => {
-  try {
-    const response = await axios.get("/stores/list", {
+onMounted(() => {
+  axios
+    .get("/stores/list", {
       params: { users_fk: userStore.user?.users_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then((response) => {
+      stores.value = response.data.stores || [];
+    })
+    .catch((error) => {
+      console.error(
+        "❌ Erro ao buscar lojas:",
+        error.response?.data || error.message
+      );
     });
-
-    stores.value = response.data.stores || [];
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      error.response?.data || error.message,
-    );
-  }
 
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 
+  const rawUser = localStorage.getItem("app_user");
+  retailerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
+
   fetchStatuses();
-  await fetchSceneries();
+  fetchSceneries();
   fetchAllRewards();
 
   loading.value = true;
-  try {
-    await Promise.all([
-      fetchPlayerEvents(showPast.value),
-      fetchUserCreatedEvents(showPast.value),
-    ]);
-  } finally {
-    loading.value = false;
-  }
+  Promise.all([
+    fetchPlayerEvents(showPast.value),
+    fetchUserCreatedEvents(showPast.value),
+  ])
+    .catch((err) => {
+      console.error("❌ Erro em fetchPrincipal:", err);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 });
 
-watch(showPast, async (novo) => {
-  console.log("▶️ showPast:", novo);
+
+watch(showPast, (novo) => {
   loading.value = true;
-  await fetchPlayerEvents(novo);
-  await fetchUserCreatedEvents(novo);
+  fetchPlayerEvents(novo);
+  fetchUserCreatedEvents(novo);
   loading.value = false;
 });
 
