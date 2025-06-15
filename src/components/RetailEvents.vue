@@ -988,6 +988,7 @@ const showDialog = ref(false);
 const showAlert = ref(false);
 const loadingAll = ref(false);
 const loadingMine = ref(false);
+const TIMEOUT_MS = 300000;
 
 const axios = inject("axios");
 if (!axios) {
@@ -1332,6 +1333,7 @@ const fetchUserCreatedEvents = async (past) => {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+      timeout: 300000,
     })
     .then((response) => {
       userCreatedEvents.value = response.data.events || [];
@@ -1349,7 +1351,7 @@ const fetchUserCreatedEvents = async (past) => {
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!retailerFk.value) return;
   fetchUserCreatedEvents();
-}, 300);
+}, 300000);
 
 const fetchSceneries = async () => {
   await axios
@@ -1765,7 +1767,6 @@ onMounted(() => {
   loading.value = true;
   Promise.all([
     fetchPlayerEvents(showPast.value),
-    fetchUserCreatedEvents(showPast.value),
   ])
     .catch((err) => {
       console.error("❌ Erro em fetchPrincipal:", err);
@@ -1775,12 +1776,34 @@ onMounted(() => {
     });
 });
 
+const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
-watch(showPast, (novo) => {
-  loading.value = true;
-  fetchPlayerEvents(novo);
-  fetchUserCreatedEvents(novo);
-  loading.value = false;
+const loadAll = async () => {
+  loadingAll.value = true;
+  await Promise.all([
+    fetchPlayerEvents(showPast.value),
+    sleep(TIMEOUT_MS)
+  ]);
+  loadingAll.value = false;
+}
+
+const loadMine = async () => {
+  loadingMine.value = true;
+  await Promise.all([
+    fetchUserCreatedEvents(showPast.value),
+    sleep(TIMEOUT_MS)
+  ]);
+  loadingMine.value = false;
+}
+
+watch(activeTab, tab => {
+  if (tab === 1) loadAll();
+  else loadMine();
+}, { immediate: true });
+
+watch(showPast, () => {
+  if (activeTab.value === 1) loadAll();
+  else loadMine();
 });
 
 watch(
