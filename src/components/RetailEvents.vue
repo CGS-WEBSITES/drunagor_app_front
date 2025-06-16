@@ -11,15 +11,27 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
-      <v-snackbar
-        v-model="snackbar.show"
-        :color="snackbar.color"
-        timeout="5000"
-        top
-      >
-        {{ snackbar.message }}
-      </v-snackbar>
-      
+      <v-dialog v-model="errorDialog.show" max-width="400">
+        <v-card>
+          <v-card-title class="headline">Error</v-card-title>
+          <v-card-text>{{ errorDialog.message }}</v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn
+              text
+              @click="
+                () => {
+                  errorDialog.show = false;
+                  createEventDialog = false;
+                }
+              "
+            >
+              Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -1382,7 +1394,7 @@ const fetchSceneries = async () => {
     });
 };
 
-const addEvent = () => {
+const addEvent = async () => {
   const userStore = useUserStore();
   const userId = userStore.user?.users_pk;
 
@@ -1394,82 +1406,84 @@ const addEvent = () => {
     !newEvent.value.scenario ||
     !userId
   ) {
-    snackbar.value = {
+    errorDialog.value = {
       show: true,
       message: "Preencha todos os campos antes de criar o evento.",
-      color: "warning",
     };
     return;
   }
 
-  axios
-    .get("/stores/list", {
+  try {
+    const { data } = await axios.get("/stores/list", {
       params: { users_fk: userId },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    })
-    .then(({ data }) => {
-      const allStores = data.stores || [];
-      const found = allStores.find(
-        (s) =>
-          s.name?.toLowerCase().trim() ===
-          newEvent.value.store.toLowerCase().trim(),
-      );
-      if (!found) {
-        throw new Error("StoreNotFound");
-      }
-      if (!found.active) {
-        // store inativa
-        snackbar.value = {
-          show: true,
-          message: "This store is inactive.",
-          color: "error",
-        };
-        throw new Error("StoreInactive");
-      }
-      if (!found.verified) {
-        // store não verificada
-        snackbar.value = {
-          show: true,
-          message: "Unverified stores cannot create events.",
-          color: "error",
-        };
-        throw new Error("StoreUnverified");
-      }
-      return found.stores_pk;
-    })
-    .then((storesFk) => {
-      const [h, m] = newEvent.value.hour.split(":").map(Number);
-      const ampm = newEvent.value.ampm || "AM";
-      const hour12 = String(h).padStart(2, "0");
-      const minute = String(m).padStart(2, "0");
-      const formattedDate = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
+    });
 
-      return axios.post(
-        "/events/cadastro",
-        {
-          seats_number: newEvent.value.seats,
-          seasons_fk: 2,
-          sceneries_fk: newEvent.value.scenario,
-          date: formattedDate,
-          stores_fk: storesFk,
-          users_fk: userId,
-          active: true,
+    const allStores = data.stores || [];
+    const found = allStores.find(
+      (s) =>
+        s.name?.toLowerCase().trim() ===
+        newEvent.value.store.toLowerCase().trim(),
+    );
+
+    if (!found) {
+      errorDialog.value = {
+        show: true,
+        message: "Store not found.",
+      };
+      return;
+    }
+
+    if (!found.active) {
+      errorDialog.value = {
+        show: true,
+        message: "This store is inactive.",
+      };
+      return;
+    }
+
+    if (!found.verified) {
+      errorDialog.value = {
+        show: true,
+        message: "Unverified stores cannot create events.",
+      };
+      return;
+    }
+
+    const storesFk = found.stores_pk;
+    const [h, m] = newEvent.value.hour.split(":").map(Number);
+    const ampm = newEvent.value.ampm || "AM";
+    const hour12 = String(h).padStart(2, "0");
+    const minute = String(m).padStart(2, "0");
+    const formattedDate = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
+
+    const res = await axios.post(
+      "/events/cadastro",
+      {
+        seats_number: newEvent.value.seats,
+        seasons_fk: 2,
+        sceneries_fk: newEvent.value.scenario,
+        date: formattedDate,
+        stores_fk: storesFk,
+        users_fk: userId,
+        active: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
-      );
-    })
-    .then(async (res) => {
-      const newEventId = res.data?.event?.events_pk;
-      if (!newEventId) {
-        throw new Error("EventCreationFailed");
-      }
-      const rewardPromises = selectedRewards.value.map((reward) =>
+      },
+    );
+
+    const newEventId = res.data?.event?.events_pk;
+    if (!newEventId) {
+      throw new Error("EventCreationFailed");
+    }
+
+    await Promise.all(
+      selectedRewards.value.map((reward) =>
         axios.post(
           "/rl_events_rewards/cadastro",
           {
@@ -1483,46 +1497,39 @@ const addEvent = () => {
             },
           },
         ),
-      );
-      await Promise.all(rewardPromises);
-      snackbar.value = {
-        show: true,
-        message: "Event created successfully!",
-        color: "success",
-      };
-      // limpa e recarrega
-      createEventDialog.value = false;
-      fetchUserCreatedEvents();
-      fetchPlayerEvents();
-      newEvent.value = {
-        date: "",
-        hour: "",
-        ampm: "AM",
-        store: "",
-        seats: "",
-        scenario: "",
-      };
-      selectedRewards.value = [];
-    })
-    .catch((err) => {
-      if (
-        ["StoreNotFound", "StoreInactive", "StoreUnverified"].includes(
-          err.message,
-        )
-      ) {
-        // já tratei acima via snackbar
-        return;
-      }
-      console.error(
-        "❌ Erro ao cadastrar evento ou associar rewards:",
-        err.response?.data || err.message,
-      );
-      snackbar.value = {
+      ),
+    );
+    errorDialog.value = {
+      show: true,
+      message: "Event created successfully!",
+    };
+    createEventDialog.value = false;
+    fetchUserCreatedEvents();
+    fetchPlayerEvents();
+
+    newEvent.value = {
+      date: "",
+      hour: "",
+      ampm: "AM",
+      store: "",
+      seats: "",
+      scenario: "",
+    };
+    selectedRewards.value = [];
+  } catch (err) {
+    if (["EventCreationFailed"].includes(err.message)) {
+      errorDialog.value = {
         show: true,
         message: "Error creating event. Please try again.",
-        color: "error",
       };
-    });
+      return;
+    }
+    console.error("❌ Erro ao cadastrar evento:", err);
+    errorDialog.value = {
+      show: true,
+      message: "Error creating event. Please try again.",
+    };
+  }
 };
 
 const deleteEvent = (events_pk) => {
