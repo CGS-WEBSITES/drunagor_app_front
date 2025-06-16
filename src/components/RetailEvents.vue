@@ -38,7 +38,7 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-        <div v-if="loadingAll" class="d-flex justify-center my-8">
+        <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
@@ -229,7 +229,7 @@
       </div>
 
       <div v-if="activeTab === 2">
-        <div v-if="loadingMine" class="d-flex justify-center my-8">
+        <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
@@ -951,6 +951,7 @@ import { ref, computed, watch, onMounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
+import { set } from "lodash-es";
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
@@ -971,9 +972,7 @@ const activeTab = ref(1);
 const sortBy = ref("date");
 const events = ref([]);
 const sceneries = ref([]);
-const showPast = ref(false);
 const userCreatedEvents = ref([]);
-const loading = ref(true);
 const createEventDialog = ref(false);
 const newEvent = ref({});
 const stores = ref([]);
@@ -986,9 +985,11 @@ const eventRewards = ref([]);
 const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
-const loadingAll = ref(false);
-const loadingMine = ref(false);
-const TIMEOUT_MS = 500000;
+const showPast = ref(false);
+const loading = ref(false);
+const timer = ref();
+const lastFetchPastAll = ref(false);
+const lastFetchPastMine = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
@@ -1036,6 +1037,16 @@ const selectedStore = computed(() => {
   );
 });
 
+const currentShowPast = computed({
+  get() {
+    return activeTab.value === 1 ? showPast.value : showPast.value;
+  },
+  set(val) {
+    if (activeTab.value === 1) showPast.value = val;
+    else showPast.value = val;
+  },
+});
+
 const validateTime = () => {
   const value = editableEvent.value.hour;
   if (!value || value.length !== 5 || !value.includes(":")) return;
@@ -1065,7 +1076,7 @@ const openEditDialog = (event, editable = false) => {
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries_fk: null,     
+    sceneries_fk: null,
     rewards: event.rewards || [],
   };
 
@@ -1080,7 +1091,7 @@ const openEditDialog = (event, editable = false) => {
   }
 
   chain = chain.then(() => {
-    const found = sceneries.value.find(s => s.name === event.scenario);
+    const found = sceneries.value.find((s) => s.name === event.scenario);
     editableEvent.value.sceneries_fk = found ? found.sceneries_pk : null;
   });
 
@@ -1096,12 +1107,12 @@ const openEditDialog = (event, editable = false) => {
       .then(() =>
         axios.get("/rl_events_rewards/list_rewards", {
           params: { events_fk: event.events_pk },
-        })
+        }),
       )
       .then(({ data }) => {
         existingRewards.value = data.rewards || [];
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Erro ao buscar rewards existentes:", err);
         existingRewards.value = [];
       });
@@ -1109,7 +1120,7 @@ const openEditDialog = (event, editable = false) => {
 
   chain = chain
     .then(() => fetchAllRewards())
-    .catch(err => {
+    .catch((err) => {
       console.error("Erro ao buscar all rewards:", err);
     });
 
@@ -1182,7 +1193,7 @@ const updatePlayerStatus = (player, statusPk) => {
 
       if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
         return Promise.all(
-          eventRewards.value.map(reward =>
+          eventRewards.value.map((reward) =>
             axios.post(
               "/rl_users_rewards/cadastro",
               {
@@ -1193,13 +1204,13 @@ const updatePlayerStatus = (player, statusPk) => {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
-              }
-            )
-          )
+              },
+            ),
+          ),
         );
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Error updating player status:", {
         request: error.config?.data,
         response: error.response?.data,
@@ -1288,70 +1299,59 @@ const joinEvent = () => {
 };
 
 const fetchPlayerEvents = (past) => {
-  loadingAll.value = true;
-
-  const params = {
-    player_fk: retailerFk.value,
-    past_events: past.toString(),
-  }
-
+  loading.value = true;
+  lastFetchPastAll.value = past;
   axios
     .get("/events/list_events/", {
-      params,
+      params: { player_fk: retailerFk.value, past_events: past.toString() },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     })
-    .then((response) => {
-      events.value = response.data.events || [];
+    .then(({ data }) => {
+      events.value = data.events || [];
     })
-    .catch((error) => {
-      console.error(
-        "❌ Error fetching player events:",
-        error.response?.data || error.message,
-      );
+    .catch((err) => {
+      console.error("❌ Error fetching player events:", err);
+      events.value = [];
     })
     .finally(() => {
-      loadingAll.value = false;
+      loading.value = false;
     });
 };
 
 const fetchUserCreatedEvents = async (past) => {
-  loadingMine.value = true;
+  loading.value = true;
+  lastFetchPastMine.value = past;
 
-  const params = {
-    retailer_fk: retailerFk.value,
-    active: "true", 
-    past_events: past.toString(),
-    limit: 30, 
-    offset: 0,
-  };
-  console.log("Fetching user created events with params:", params);
-  await axios
-    .get("/events/my_events/retailer", {
+  try {
+    const params = {
+      retailer_fk: retailerFk.value,
+      active: "true",
+      past_events: past.toString(),
+      limit: 30,
+      offset: 0,
+    };
+    const { data } = await axios.get("/events/my_events/retailer", {
       params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-      timeout: 500000,
-    })
-    .then((response) => {
-      userCreatedEvents.value = response.data.events || [];
-    })
-    .catch((error) => {
-      console.error(
-        "Error fetching my events:", error);
-      userCreatedEvents.value = [];
-    })
-    .finally(() => {
-      loadingMine.value = false;
     });
+
+    userCreatedEvents.value = data.events || [];
+  } catch (error) {
+    console.error("Error fetching my events:", error);
+    userCreatedEvents.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
 
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!retailerFk.value) return;
   fetchUserCreatedEvents();
-}, 500000);
+}, 3000);
 
 const fetchSceneries = async () => {
   await axios
@@ -1400,7 +1400,7 @@ const addEvent = () => {
       const found = allStores.find(
         (s) =>
           s.name?.toLowerCase().trim() ===
-          newEvent.value.store?.toLowerCase().trim()
+          newEvent.value.store?.toLowerCase().trim(),
       );
       if (!found) {
         console.error("❌ Store não encontrada na API.");
@@ -1430,7 +1430,7 @@ const addEvent = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        }
+        },
       );
     })
     .then(async (res) => {
@@ -1442,21 +1442,23 @@ const addEvent = () => {
       }
 
       const rewardPromises = selectedRewards.value.map((reward) =>
-        axios.post(
-          "/rl_events_rewards/cadastro",
-          {
-            events_fk: newEventId,
-            rewards_fk: reward.rewards_pk,
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        axios
+          .post(
+            "/rl_events_rewards/cadastro",
+            {
+              events_fk: newEventId,
+              rewards_fk: reward.rewards_pk,
+              active: true,
             },
-          }
-        ).catch((err) => {
-          console.error("❌ Erro ao associar reward ao evento:", err);
-        })
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          )
+          .catch((err) => {
+            console.error("❌ Erro ao associar reward ao evento:", err);
+          }),
       );
       return Promise.all(rewardPromises).then(() => newEventId);
     })
@@ -1475,11 +1477,14 @@ const addEvent = () => {
       selectedRewards.value = [];
     })
     .catch((err) => {
-      if (err.message === "StoreNotFound" || err.message === "EventCreationFailed") {
+      if (
+        err.message === "StoreNotFound" ||
+        err.message === "EventCreationFailed"
+      ) {
       } else {
         console.error(
           "❌ Erro ao cadastrar evento ou associar rewards:",
-          err.response?.data || err.message
+          err.response?.data || err.message,
         );
       }
     });
@@ -1499,7 +1504,7 @@ const deleteEvent = (events_pk) => {
     .catch((error) => {
       console.error(
         "❌ Erro ao excluir o evento:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
     });
 };
@@ -1543,7 +1548,7 @@ const saveEditedEvent = () => {
     .then(() =>
       axios.get("/rl_events_rewards/list_rewards", {
         params: { events_fk: eventPk },
-      })
+      }),
     )
     .then(({ data: relRes }) => {
       const currentIds = Array.isArray(relRes.rewards)
@@ -1558,14 +1563,14 @@ const saveEditedEvent = () => {
           events_fk: eventPk,
           rewards_fk,
           active: true,
-        })
+        }),
       );
       const removePromises = toRemove.map((rewards_fk) =>
         axios.post("/rl_events_rewards/cadastro", {
           events_fk: eventPk,
           rewards_fk,
           active: false,
-        })
+        }),
       );
       return Promise.all([...addPromises, ...removePromises]);
     })
@@ -1580,7 +1585,7 @@ const saveEditedEvent = () => {
     .catch((error) => {
       console.error(
         "❌ Erro ao salvar edição do evento:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
     });
 };
@@ -1665,8 +1670,8 @@ const fetchEventRewards = (eventId) => {
               },
             })
             .then((rewardRes) => rewardRes.data)
-            .catch(() => null)
-        )
+            .catch(() => null),
+        ),
       ).then((fullRewards) => {
         return fullRewards.filter(Boolean);
       });
@@ -1693,7 +1698,7 @@ const shareEvent = (eventId) => {
       }
       const encodedId = btoa(id.toString());
       sharedLink.value = `${window.location.origin}/event/${encodedId}`;
-      showDialog.value = true; 
+      showDialog.value = true;
     })
     .catch((error) => {
       console.error("Erro ao gerar link:", error);
@@ -1701,7 +1706,8 @@ const shareEvent = (eventId) => {
 };
 
 const copyLink = (link) => {
-  navigator.clipboard.writeText(link)
+  navigator.clipboard
+    .writeText(link)
     .then(() => {
       showDialog.value = false;
       showAlert.value = true;
@@ -1735,6 +1741,21 @@ const refreshInterestedPlayers = async (event) => {
   }
 };
 
+const scheduleFetch = () => {
+  if (timer.value) {
+    clearTimeout(timer.value);
+  }
+  loading.value = true;
+
+  timer.value = window.setTimeout(() => {
+    if (activeTab.value === 1) {
+      loadAll();
+    } else {
+      loadMine();
+    }
+  }, 3000);
+};
+
 onMounted(() => {
   axios
     .get("/stores/list", {
@@ -1749,7 +1770,7 @@ onMounted(() => {
     .catch((error) => {
       console.error(
         "❌ Erro ao buscar lojas:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
     });
 
@@ -1763,11 +1784,10 @@ onMounted(() => {
   fetchStatuses();
   fetchSceneries();
   fetchAllRewards();
+  scheduleFetch();
 
   loading.value = true;
-  Promise.all([
-    fetchPlayerEvents(showPast.value),
-  ])
+  Promise.all([fetchPlayerEvents(showPast.value)])
     .catch((err) => {
       console.error("❌ Erro em fetchPrincipal:", err);
     })
@@ -1776,35 +1796,24 @@ onMounted(() => {
     });
 });
 
-const sleep = (ms) => new Promise(res => setTimeout(res, ms));
-
 const loadAll = async () => {
-  loadingAll.value = true;
+  loading.value = true;
   await Promise.all([
     fetchPlayerEvents(showPast.value),
-    sleep(TIMEOUT_MS)
   ]);
-  loadingAll.value = false;
-}
+  loading.value = false;
+};
 
 const loadMine = async () => {
-  loadingMine.value = true;
+  loading.value = true;
   await Promise.all([
     fetchUserCreatedEvents(showPast.value),
-    sleep(TIMEOUT_MS)
   ]);
-  loadingMine.value = false;
-}
+  loading.value = false;
+};
 
-watch(activeTab, tab => {
-  if (tab === 1) loadAll();
-  else loadMine();
-}, { immediate: true });
-
-watch(showPast, () => {
-  if (activeTab.value === 1) loadAll();
-  else loadMine();
-});
+watch(activeTab, () => scheduleFetch());
+watch(showPast, () => scheduleFetch());
 
 watch(
   () => newEvent.value.store,
