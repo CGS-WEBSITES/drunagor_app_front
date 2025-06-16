@@ -309,56 +309,56 @@
 import { ref, onMounted, computed, inject } from "vue";
 
 const StateList = ref([
-  { name: "Alabama" },
-  { name: "Alaska" },
-  { name: "Arizona" },
-  { name: "Arkansas" },
-  { name: "California" },
-  { name: "Colorado" },
-  { name: "Connecticut" },
-  { name: "Delaware" },
-  { name: "Florida" },
-  { name: "Georgia" },
-  { name: "Hawaii" },
-  { name: "Idaho" },
-  { name: "Illinois" },
-  { name: "Indiana" },
-  { name: "Iowa" },
-  { name: "Kansas" },
-  { name: "Kentucky" },
-  { name: "Louisiana" },
-  { name: "Maine" },
-  { name: "Maryland" },
-  { name: "Massachusetts" },
-  { name: "Michigan" },
-  { name: "Minnesota" },
-  { name: "Mississippi" },
-  { name: "Missouri" },
-  { name: "Montana" },
-  { name: "Nebraska" },
-  { name: "Nevada" },
-  { name: "New Hampshire" },
-  { name: "New Jersey" },
-  { name: "New Mexico" },
-  { name: "New York" },
-  { name: "North Carolina" },
-  { name: "North Dakota" },
-  { name: "Ohio" },
-  { name: "Oklahoma" },
-  { name: "Oregon" },
-  { name: "Pennsylvania" },
-  { name: "Rhode Island" },
-  { name: "South Carolina" },
-  { name: "South Dakota" },
-  { name: "Tennessee" },
-  { name: "Texas" },
-  { name: "Utah" },
-  { name: "Vermont" },
-  { name: "Virginia" },
-  { name: "Washington" },
-  { name: "West Virginia" },
-  { name: "Wisconsin" },
-  { name: "Wyoming" },
+  { name: "Alabama" },
+  { name: "Alaska" },
+  { name: "Arizona" },
+  { name: "Arkansas" },
+  { name: "California" },
+  { name: "Colorado" },
+  { name: "Connecticut" },
+  { name: "Delaware" },
+  { name: "Florida" },
+  { name: "Georgia" },
+  { name: "Hawaii" },
+  { name: "Idaho" },
+  { name: "Illinois" },
+  { name: "Indiana" },
+  { name: "Iowa" },
+  { name: "Kansas" },
+  { name: "Kentucky" },
+  { name: "Louisiana" },
+  { name: "Maine" },
+  { name: "Maryland" },
+  { name: "Massachusetts" },
+  { name: "Michigan" },
+  { name: "Minnesota" },
+  { name: "Mississippi" },
+  { name: "Missouri" },
+  { name: "Montana" },
+  { name: "Nebraska" },
+  { name: "Nevada" },
+  { name: "New Hampshire" },
+  { name: "New Jersey" },
+  { name: "New Mexico" },
+  { name: "New York" },
+  { name: "North Carolina" },
+  { name: "North Dakota" },
+  { name: "Ohio" },
+  { name: "Oklahoma" },
+  { name: "Oregon" },
+  { name: "Pennsylvania" },
+  { name: "Rhode Island" },
+  { name: "South Carolina" },
+  { name: "South Dakota" },
+  { name: "Tennessee" },
+  { name: "Texas" },
+  { name: "Utah" },
+  { name: "Vermont" },
+  { name: "Virginia" },
+  { name: "Washington" },
+  { name: "West Virginia" },
+  { name: "Wisconsin" },
+  { name: "Wyoming" },
 ]);
 
 // Exemplo de controle de país
@@ -366,31 +366,31 @@ const selectedCountry = ref(250);
 
 // Interface para o formulário de Store
 interface StoreForm {
-  site: string;
-  storename: string;
-  country: string | number | null; // Alterado para aceitar number
-  zipcode: string;
-  MerchantID: string;
-  storeImage: string;
-  complement: string;
-  address: string;
-  streetNumber: string;
-  city: string;
-  state: string;
+  site: string;
+  storename: string;
+  country: string | number | null; // Alterado para aceitar number
+  zipcode: string;
+  MerchantID: string;
+  storeImage: string;
+  complement: string;
+  address: string;
+  streetNumber: string;
+  city: string;
+  state: string;
 }
 
 const form = ref<StoreForm>({
-  site: "",
-  storename: "",
-  country: null,
-  zipcode: "",
-  MerchantID: "",
-  storeImage: "",
-  complement: "",
-  address: "",
-  streetNumber: "",
-  city: "",
-  state: "",
+  site: "",
+  storename: "",
+  country: null,
+  zipcode: "",
+  MerchantID: "",
+  storeImage: "",
+  complement: "",
+  address: "",
+  streetNumber: "",
+  city: "",
+  state: "",
 });
 
 // Obtendo o axios injetado
@@ -402,54 +402,54 @@ const appUser = storedUser ? JSON.parse(storedUser).users_pk : null;
 
 // Interface para País
 interface Country {
-  countries_pk: number;
-  name: string;
-  abbreviation: string;
+  countries_pk: number;
+  name: string;
+  abbreviation: string;
 }
 
 const countriesList = ref<Country[]>([]);
 
 const fetchCountries = () => {
-  axios
-    .get("countries/search")
-    .then((response: any) => {
-      countriesList.value = response.data.countries.map((country: any) => ({
-        countries_pk: country.countries_pk,
-        name: country.name,
-        abbreviation: country.abbreviation,
-      }));
-    })
-    .catch((error: any) => {
-      console.error("Erro ao buscar países:", error);
-    });
+  axios
+    .get("countries/search")
+    .then((response: any) => {
+      countriesList.value = response.data.countries.map((country: any) => ({
+        countries_pk: country.countries_pk,
+        name: country.name,
+        abbreviation: country.abbreviation,
+      }));
+    })
+    .catch((error: any) => {
+      console.error("Erro ao buscar países:", error);
+    });
 };
 
 onMounted(() => {
-  fetchCountries();
+  fetchCountries();
 });
 
 const stores = ref<any[]>([]);
 
 const fetchStores = async () => {
-  try {
-    const response = await axios.get("/stores/list", {
-      params: { users_fk: userStore.user?.users_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    stores.value = [...response.data.stores];
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      (error as any)?.response?.data || (error as any)?.message,
-    );
-    stores.value = [];
-  }
+  try {
+    const response = await axios.get("/stores/list", {
+      params: { users_fk: userStore.user?.users_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    stores.value = [...response.data.stores];
+  } catch (error) {
+    console.error(
+      "❌ Erro ao buscar lojas:",
+      (error as any)?.response?.data || (error as any)?.message,
+    );
+    stores.value = [];
+  }
 };
 
 onMounted(() => {
-  fetchStores();
+  fetchStores();
 });
 
 import { useUserStore } from "@/store/UserStore";
@@ -457,144 +457,144 @@ import { useUserStore } from "@/store/UserStore";
 const storeForm = ref(null);
 
 const onlyAllowAlphanumeric = (event: KeyboardEvent) => {
-  const char = event.key;
-  // permite apenas letras e números
-  if (!/^[a-zA-Z0-9]$/.test(char)) {
-    event.preventDefault();
-  }
+  const char = event.key; // permite apenas letras e números
+  if (!/^[a-zA-Z0-9]$/.test(char)) {
+    event.preventDefault();
+  }
 };
 
 const userStore = useUserStore();
 const showVerificationMessage = ref(false);
 
 const getCountryNameFromId = (id: string | number | null): string => {
-  if (typeof id === 'string') {
+  if (typeof id === "string") {
     // Se o id for string (ex: 'Belgium'), tenta encontrar na lista. Isso é um fallback.
-    const matchByName = countriesList.value.find(c => c.name.toLowerCase() === id.toLowerCase());
-    if(matchByName) return matchByName.name;
+    const matchByName = countriesList.value.find(
+      (c) => c.name.toLowerCase() === id.toLowerCase(),
+    );
+    if (matchByName) return matchByName.name;
   }
-  if (typeof id === 'number') {
+  if (typeof id === "number") {
     // Se for número, procura pelo PK
     const matchById = countriesList.value.find((c) => c.countries_pk === id);
-    if(matchById) return matchById.name;
+    if (matchById) return matchById.name;
   }
   return "";
 };
 
-
 const saveStore = async () => {
-  const { valid } = await storeForm.value.validate();
+  const { valid } = await storeForm.value.validate();
 
-  if (!valid) {
-    console.warn("❌ Formulário inválido. Corrija os erros.");
-    return;
-  }
+  if (!valid) {
+    console.warn("❌ Formulário inválido. Corrija os erros.");
+    return;
+  }
 
-  const store = form.value;
+  const store = form.value;
 
-  const countryName = getCountryNameFromId(store.country);
-  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
+  const countryName = getCountryNameFromId(store.country);
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
 
-  const payload = {
-    web_site: store.site,
-    name: store.storename,
-    zip_code: store.zipcode,
-    countries_fk: store.country,
-    users_fk: userStore.user?.users_pk,
-    address: fullAddress,
-    picture_hash: form.value.storeImage,
-    merchant_id: store.MerchantID,
-  };
+  const payload = {
+    web_site: store.site,
+    name: store.storename,
+    zip_code: store.zipcode,
+    countries_fk: store.country,
+    users_fk: userStore.user?.users_pk,
+    address: fullAddress,
+    picture_hash: form.value.storeImage,
+    merchant_id: store.MerchantID,
+  };
 
-  try {
-    const response = await axios.post("/stores/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+  try {
+    const response = await axios.post("/stores/cadastro", payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
 
-    form.value = {
-      storename: "",
-      site: "",
-      country: null,
-      zipcode: "",
-      MerchantID: "",
-      storeImage: "",
-      complement: "",
-      address: "",
-      streetNumber: "",
-      city: "",
-      state: "",
-    };
+    form.value = {
+      storename: "",
+      site: "",
+      country: null,
+      zipcode: "",
+      MerchantID: "",
+      storeImage: "",
+      complement: "",
+      address: "",
+      streetNumber: "",
+      city: "",
+      state: "",
+    };
 
-    isExpanded.value = false;
+    isExpanded.value = false;
 
-    showVerificationMessage.value = true;
+    showVerificationMessage.value = true;
 
-    await fetchStores();
+    await fetchStores();
 
-    setTimeout(() => {
-      showVerificationMessage.value = false;
-    }, 1500);
-  } catch (error) {
-    console.error(
-      "❌ Erro ao cadastrar a loja:",
-      error.response?.data || error.message,
-    );
-  }
+    setTimeout(() => {
+      showVerificationMessage.value = false;
+    }, 1500);
+  } catch (error: any) {
+    console.error(
+      "❌ Erro ao cadastrar a loja:",
+      error.response?.data || error.message,
+    );
+  }
 };
 
 const cancelForm = () => {
-  form.value = {
-    site: "",
-    storename: "",
-    country: null,
-    zipcode: "",
-    MerchantID: "",
-    storeImage: "",
-    complement: "",
-    address: "",
-    streetNumber: "",
-    city: "",
-    state: "",
-  };
-  isExpanded.value = false;
+  form.value = {
+    site: "",
+    storename: "",
+    country: null,
+    zipcode: "",
+    MerchantID: "",
+    storeImage: "",
+    complement: "",
+    address: "",
+    streetNumber: "",
+    city: "",
+    state: "",
+  };
+  isExpanded.value = false;
 };
 
 const isExpanded = ref(false);
 const toggleForm = () => {
-  isExpanded.value = !isExpanded.value;
+  isExpanded.value = !isExpanded.value;
 };
 
 const editDialog = ref(false);
 
 interface EditableStore {
-  stores_pk?: number;
-  site: string;
-  storename: string;
-  country: number | null; // Alterado para number
-  zipcode: string;
-  MerchantID: string;
-  storeImage: string;
-  address: string;
-  streetNumber: string;
-  complement: string;
-  city: string;
-  state: string | null;
+  stores_pk?: number;
+  site: string;
+  storename: string;
+  country: number | null; // Alterado para number
+  zipcode: string;
+  MerchantID: string;
+  storeImage: string;
+  address: string;
+  streetNumber: string;
+  complement: string;
+  city: string;
+  state: string | null;
 }
 
 const editableStore = ref<EditableStore>({
-  site: "",
-  storename: "",
-  country: null,
-  zipcode: "",
-  MerchantID: "",
-  storeImage: "",
-  address: "",
-  streetNumber: "",
-  complement: "",
-  city: "",
-  state: "",
+  site: "",
+  storename: "",
+  country: null,
+  zipcode: "",
+  MerchantID: "",
+  storeImage: "",
+  address: "",
+  streetNumber: "",
+  complement: "",
+  city: "",
+  state: "",
 });
 const selectedStoreIndex = ref<number | null>(null);
 
@@ -603,12 +603,13 @@ const selectedStoreIndex = ref<number | null>(null);
 // ===================================================================
 const openEditDialog = (store: any, index: number) => {
   // Separa o endereço em partes
-  const addressParts = store.address?.split(",").map((s) => s.trim()) || [];
-  const [streetNumber, address, complement, city, state, countryName] = addressParts;
+  const addressParts = store.address?.split(",").map((s: any) => s.trim()) || [];
+  const [streetNumber, address, complement, city, state, countryName] =
+    addressParts;
 
   // Encontra o objeto do país na sua lista 'countriesList' usando o nome do país
   const countryObject = countriesList.value.find(
-    (c) => c.name.toLowerCase() === (countryName || "").toLowerCase()
+    (c) => c.name.toLowerCase() === (countryName || "").toLowerCase(),
   );
 
   // Pega o ID (countries_pk) do objeto encontrado. Se não encontrar, usa null.
@@ -634,127 +635,127 @@ const openEditDialog = (store: any, index: number) => {
 };
 
 const handleImageUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
 
-  const formData = new FormData();
-  formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-  await axios
-    .post("/images/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    })
-    .then((response) => {
-      if (editDialog.value) {
+  await axios
+    .post("/images/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then((response: any) => {
+      if (editDialog.value) {
         editableStore.value.storeImage = response.data.image_key;
       } else {
         form.value.storeImage = response.data.image_key;
       }
-    })
-    .catch((error) => {
-      console.error("❌ Error uploading image:", error.response?.data || error);
-    });
+    })
+    .catch((error: any) => {
+      console.error("❌ Error uploading image:", error.response?.data || error);
+    });
 };
 
 const saveEditedStore = async () => {
-  const store = editableStore.value;
+  const store = editableStore.value;
 
-  const countryName = getCountryNameFromId(store.country);
+  const countryName = getCountryNameFromId(store.country);
 
-  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
 
-  const payload = {
-    stores_pk: store.stores_pk,
-    name: store.storename,
-    web_site: store.site,
-    zip_code: store.zipcode,
-    countries_fk: store.country,
-    users_fk: userStore.user?.users_pk,
-    address: fullAddress,
-    picture_hash: store.storeImage,
-    merchant_id: store.MerchantID,
-  };
+  const payload = {
+    stores_pk: store.stores_pk,
+    name: store.storename,
+    web_site: store.site,
+    zip_code: store.zipcode,
+    countries_fk: store.country,
+    users_fk: userStore.user?.users_pk,
+    address: fullAddress,
+    picture_hash: store.storeImage,
+    merchant_id: store.MerchantID,
+  };
 
-  try {
-    await axios.put(`/stores/alter`, payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
+  try {
+    await axios.put(`/stores/alter`, payload, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
 
-    await fetchStores();
+    await fetchStores();
 
-    editDialog.value = false;
-  } catch (error) {
-    console.error(
-      "❌ Erro ao atualizar a loja:",
-      error.response?.data || error.message,
-    );
-  }
+    editDialog.value = false;
+  } catch (error: any) {
+    console.error(
+      "❌ Erro ao atualizar a loja:",
+      error.response?.data || error.message,
+    );
+  }
 };
 
-const removeStore = async (stores_pk) => {
-  try {
-    const token = localStorage.getItem("accessToken");
+const removeStore = async (stores_pk: any) => {
+  try {
+    const token = localStorage.getItem("accessToken");
 
-    await axios.delete(`/stores/${stores_pk}/delete/`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await axios.delete(`/stores/${stores_pk}/delete/`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }); // Atualiza a lista após excluir
 
-    // Atualiza a lista após excluir
-    await fetchStores();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao excluir a loja:",
-      error.response?.data || error.message,
-    );
-  }
+    await fetchStores();
+  } catch (error: any) {
+    console.error(
+      "❌ Erro ao excluir a loja:",
+      error.response?.data || error.message,
+    );
+  }
 };
 
 const isUnitedStates = computed(() => {
-  const selectedCountry = form.value.country;
-  if(typeof selectedCountry === 'number'){
+  const selectedCountry = form.value.country;
+  if (typeof selectedCountry === "number") {
     return selectedCountry === 250;
   }
-  const countryObject = countriesList.value.find(c => c.name.toLowerCase() === (selectedCountry || "").toLowerCase());
+  const countryObject = countriesList.value.find(
+    (c) => c.name.toLowerCase() === (selectedCountry || "").toLowerCase(),
+  );
   return countryObject?.countries_pk === 250;
 });
 
 const accountData = ref(null);
 
 const getMerchantAccount = () => {
-  const merchantId = "136699508";
-  const token = "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";
+  const merchantId = "136699508";
+  const token = "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";
 
-  axios
-    .get(
-      `https://shoppingcontent.googleapis.com/content/v2.1/${merchantId}/accounts`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    )
-    .then((response: any) => {
-      console.log("Dados da conta:", response.data);
-      accountData.value = response.data;
-    })
-    .catch((error: any) => {
-      console.error("Erro ao buscar dados da conta:", error);
-    });
+  axios
+    .get(
+      `https://shoppingcontent.googleapis.com/content/v2.1/${merchantId}/accounts`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    )
+    .then((response: any) => {
+      console.log("Dados da conta:", response.data);
+      accountData.value = response.data;
+    })
+    .catch((error: any) => {
+      console.error("Erro ao buscar dados da conta:", error);
+    });
 };
 
 onMounted(() => {
-  getMerchantAccount();
+  getMerchantAccount();
 });
-
 </script>
 
 <style scoped>
