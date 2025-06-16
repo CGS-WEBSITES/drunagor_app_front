@@ -1011,7 +1011,10 @@ const loading = ref(false);
 const timer = ref();
 const lastFetchPastAll = ref(false);
 const lastFetchPastMine = ref(false);
-const snackbar = ref({ show: false, message: "", color: "error" });
+const errorDialog = ref({
+  show: false,
+  message: "",
+});
 
 const axios = inject("axios");
 if (!axios) {
@@ -1394,7 +1397,7 @@ const fetchSceneries = async () => {
     });
 };
 
-const addEvent = async () => {
+const addEvent = () => {
   const userStore = useUserStore();
   const userId = userStore.user?.users_pk;
 
@@ -1413,123 +1416,125 @@ const addEvent = async () => {
     return;
   }
 
-  try {
-    const { data } = await axios.get("/stores/list", {
+  axios
+    .get("/stores/list", {
       params: { users_fk: userId },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    });
+    })
+    .then(({ data }) => {
+      const allStores = data.stores || [];
+      const found = allStores.find(
+        (s) =>
+          s.name?.toLowerCase().trim() ===
+          newEvent.value.store.toLowerCase().trim(),
+      );
 
-    const allStores = data.stores || [];
-    const found = allStores.find(
-      (s) =>
-        s.name?.toLowerCase().trim() ===
-        newEvent.value.store.toLowerCase().trim(),
-    );
+      if (!found) {
+        errorDialog.value = {
+          show: true,
+          message: "Store not found.",
+        };
+        return Promise.reject();
+      }
+      if (!found.active) {
+        errorDialog.value = {
+          show: true,
+          message: "This store is inactive.",
+        };
+        return Promise.reject();
+      }
+      if (!found.verified) {
+        errorDialog.value = {
+          show: true,
+          message: "Unverified stores cannot create events.",
+        };
+        return Promise.reject();
+      }
 
-    if (!found) {
-      errorDialog.value = {
-        show: true,
-        message: "Store not found.",
-      };
-      return;
-    }
+      return found.stores_pk;
+    })
+    .then((storesFk) => {
+      const [h, m] = newEvent.value.hour.split(":").map(Number);
+      const ampm = newEvent.value.ampm || "AM";
+      const hour12 = String(h).padStart(2, "0");
+      const minute = String(m).padStart(2, "0");
+      const formattedDate = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
 
-    if (!found.active) {
-      errorDialog.value = {
-        show: true,
-        message: "This store is inactive.",
-      };
-      return;
-    }
-
-    if (!found.verified) {
-      errorDialog.value = {
-        show: true,
-        message: "Unverified stores cannot create events.",
-      };
-      return;
-    }
-
-    const storesFk = found.stores_pk;
-    const [h, m] = newEvent.value.hour.split(":").map(Number);
-    const ampm = newEvent.value.ampm || "AM";
-    const hour12 = String(h).padStart(2, "0");
-    const minute = String(m).padStart(2, "0");
-    const formattedDate = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
-
-    const res = await axios.post(
-      "/events/cadastro",
-      {
-        seats_number: newEvent.value.seats,
-        seasons_fk: 2,
-        sceneries_fk: newEvent.value.scenario,
-        date: formattedDate,
-        stores_fk: storesFk,
-        users_fk: userId,
-        active: true,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      return axios.post(
+        "/events/cadastro",
+        {
+          seats_number: newEvent.value.seats,
+          seasons_fk: 2,
+          sceneries_fk: newEvent.value.scenario,
+          date: formattedDate,
+          stores_fk: storesFk,
+          users_fk: userId,
+          active: true,
         },
-      },
-    );
-
-    const newEventId = res.data?.event?.events_pk;
-    if (!newEventId) {
-      throw new Error("EventCreationFailed");
-    }
-
-    await Promise.all(
-      selectedRewards.value.map((reward) =>
-        axios.post(
-          "/rl_events_rewards/cadastro",
-          {
-            events_fk: newEventId,
-            rewards_fk: reward.rewards_pk,
-            active: true,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      );
+    })
+    .then((res) => {
+      const newEventId = res.data?.event?.events_pk;
+      if (!newEventId) {
+        errorDialog.value = {
+          show: true,
+          message: "Error creating event. Please try again.",
+        };
+        return Promise.reject(new Error("EventCreationFailed"));
+      }
+      return Promise.all(
+        selectedRewards.value.map((reward) =>
+          axios.post(
+            "/rl_events_rewards/cadastro",
+            {
+              events_fk: newEventId,
+              rewards_fk: reward.rewards_pk,
+              active: true,
             },
-          },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          ),
         ),
-      ),
-    );
-    errorDialog.value = {
-      show: true,
-      message: "Event created successfully!",
-    };
-    createEventDialog.value = false;
-    fetchUserCreatedEvents();
-    fetchPlayerEvents();
-
-    newEvent.value = {
-      date: "",
-      hour: "",
-      ampm: "AM",
-      store: "",
-      seats: "",
-      scenario: "",
-    };
-    selectedRewards.value = [];
-  } catch (err) {
-    if (["EventCreationFailed"].includes(err.message)) {
+      );
+    })
+    .then(() => {
+      errorDialog.value = {
+        show: true,
+        message: "Event created successfully!",
+      };
+      createEventDialog.value = false;
+      fetchUserCreatedEvents();
+      fetchPlayerEvents();
+      newEvent.value = {
+        date: "",
+        hour: "",
+        ampm: "AM",
+        store: "",
+        seats: "",
+        scenario: "",
+      };
+      selectedRewards.value = [];
+    })
+    .catch((err) => {
+      if (err.message === "EventCreationFailed") {
+        return;
+      }
+      console.error("❌ Erro ao cadastrar evento:", err);
       errorDialog.value = {
         show: true,
         message: "Error creating event. Please try again.",
       };
-      return;
-    }
-    console.error("❌ Erro ao cadastrar evento:", err);
-    errorDialog.value = {
-      show: true,
-      message: "Error creating event. Please try again.",
-    };
-  }
+    });
 };
 
 const deleteEvent = (events_pk) => {
