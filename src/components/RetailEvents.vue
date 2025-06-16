@@ -11,6 +11,15 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
+      <v-snackbar
+        v-model="snackbar.show"
+        :color="snackbar.color"
+        timeout="5000"
+        top
+      >
+        {{ snackbar.message }}
+      </v-snackbar>
+      
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -990,6 +999,7 @@ const loading = ref(false);
 const timer = ref();
 const lastFetchPastAll = ref(false);
 const lastFetchPastMine = ref(false);
+const snackbar = ref({ show: false, message: "", color: "error" });
 
 const axios = inject("axios");
 if (!axios) {
@@ -1384,7 +1394,11 @@ const addEvent = () => {
     !newEvent.value.scenario ||
     !userId
   ) {
-    console.error("❌ Dados insuficientes para criar o evento.");
+    snackbar.value = {
+      show: true,
+      message: "Preencha todos os campos antes de criar o evento.",
+      color: "warning",
+    };
     return;
   }
 
@@ -1395,16 +1409,33 @@ const addEvent = () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     })
-    .then((response) => {
-      const allStores = response.data.stores || [];
+    .then(({ data }) => {
+      const allStores = data.stores || [];
       const found = allStores.find(
         (s) =>
           s.name?.toLowerCase().trim() ===
-          newEvent.value.store?.toLowerCase().trim(),
+          newEvent.value.store.toLowerCase().trim(),
       );
       if (!found) {
-        console.error("❌ Store não encontrada na API.");
         throw new Error("StoreNotFound");
+      }
+      if (!found.active) {
+        // store inativa
+        snackbar.value = {
+          show: true,
+          message: "This store is inactive.",
+          color: "error",
+        };
+        throw new Error("StoreInactive");
+      }
+      if (!found.verified) {
+        // store não verificada
+        snackbar.value = {
+          show: true,
+          message: "Unverified stores cannot create events.",
+          color: "error",
+        };
+        throw new Error("StoreUnverified");
       }
       return found.stores_pk;
     })
@@ -1435,34 +1466,31 @@ const addEvent = () => {
     })
     .then(async (res) => {
       const newEventId = res.data?.event?.events_pk;
-
       if (!newEventId) {
-        console.error("❌ Não foi possível extrair o ID do novo evento.");
         throw new Error("EventCreationFailed");
       }
-
       const rewardPromises = selectedRewards.value.map((reward) =>
-        axios
-          .post(
-            "/rl_events_rewards/cadastro",
-            {
-              events_fk: newEventId,
-              rewards_fk: reward.rewards_pk,
-              active: true,
+        axios.post(
+          "/rl_events_rewards/cadastro",
+          {
+            events_fk: newEventId,
+            rewards_fk: reward.rewards_pk,
+            active: true,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            },
-          )
-          .catch((err) => {
-            console.error("❌ Erro ao associar reward ao evento:", err);
-          }),
+          },
+        ),
       );
-      return Promise.all(rewardPromises).then(() => newEventId);
-    })
-    .then(() => {
+      await Promise.all(rewardPromises);
+      snackbar.value = {
+        show: true,
+        message: "Event created successfully!",
+        color: "success",
+      };
+      // limpa e recarrega
       createEventDialog.value = false;
       fetchUserCreatedEvents();
       fetchPlayerEvents();
@@ -1478,15 +1506,22 @@ const addEvent = () => {
     })
     .catch((err) => {
       if (
-        err.message === "StoreNotFound" ||
-        err.message === "EventCreationFailed"
+        ["StoreNotFound", "StoreInactive", "StoreUnverified"].includes(
+          err.message,
+        )
       ) {
-      } else {
-        console.error(
-          "❌ Erro ao cadastrar evento ou associar rewards:",
-          err.response?.data || err.message,
-        );
+        // já tratei acima via snackbar
+        return;
       }
+      console.error(
+        "❌ Erro ao cadastrar evento ou associar rewards:",
+        err.response?.data || err.message,
+      );
+      snackbar.value = {
+        show: true,
+        message: "Error creating event. Please try again.",
+        color: "error",
+      };
     });
 };
 
@@ -1798,17 +1833,13 @@ onMounted(() => {
 
 const loadAll = async () => {
   loading.value = true;
-  await Promise.all([
-    fetchPlayerEvents(showPast.value),
-  ]);
+  await Promise.all([fetchPlayerEvents(showPast.value)]);
   loading.value = false;
 };
 
 const loadMine = async () => {
   loading.value = true;
-  await Promise.all([
-    fetchUserCreatedEvents(showPast.value),
-  ]);
+  await Promise.all([fetchUserCreatedEvents(showPast.value)]);
   loading.value = false;
 };
 
