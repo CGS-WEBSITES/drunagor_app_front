@@ -1388,7 +1388,7 @@ const fetchUserCreatedEvents = async (past) => {
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!retailerFk.value) return;
   fetchUserCreatedEvents();
-}, 3000);
+}, 100);
 
 const fetchSceneries = async () => {
   await axios
@@ -1808,7 +1808,7 @@ const scheduleFetch = () => {
     } else {
       loadMine();
     }
-  }, 3000);
+  });
 };
 
 onMounted(() => {
