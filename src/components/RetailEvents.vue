@@ -988,7 +988,7 @@ const showDialog = ref(false);
 const showAlert = ref(false);
 const loadingAll = ref(false);
 const loadingMine = ref(false);
-const TIMEOUT_MS = 300000;
+const TIMEOUT_MS = 500000;
 
 const axios = inject("axios");
 if (!axios) {
@@ -1333,7 +1333,7 @@ const fetchUserCreatedEvents = async (past) => {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-      timeout: 300000,
+      timeout: 500000,
     })
     .then((response) => {
       userCreatedEvents.value = response.data.events || [];
@@ -1351,7 +1351,7 @@ const fetchUserCreatedEvents = async (past) => {
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!retailerFk.value) return;
   fetchUserCreatedEvents();
-}, 300000);
+}, 500000);
 
 const fetchSceneries = async () => {
   await axios
