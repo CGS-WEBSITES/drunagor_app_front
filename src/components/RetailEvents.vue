@@ -1515,11 +1515,9 @@ const addEvent = () => {
       ).then(() => id);
     })
     .then((id) => {
-      // sucesso: exibe diálogo e reseta formulário
       successDialog.value = true;
       createEventDialog.value = false;
 
-      // atualiza listas sem bloquear cadeia de criação
       fetchUserCreatedEvents(showPast.value).catch(() => {});
       fetchPlayerEvents().catch(() => {});
 
