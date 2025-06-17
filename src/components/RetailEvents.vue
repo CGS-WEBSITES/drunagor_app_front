@@ -32,6 +32,17 @@
         </v-card>
       </v-dialog>
 
+      <v-dialog v-model="successDialog" max-width="400">
+        <v-card>
+          <v-card-title class="headline">Success</v-card-title>
+          <v-card-text>Event created successfully!</v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn text @click="successDialog = false">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -1015,6 +1026,7 @@ const errorDialog = ref({
   show: false,
   message: "",
 });
+const successDialog = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
@@ -1376,7 +1388,7 @@ const fetchUserCreatedEvents = async (past) => {
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!retailerFk.value) return;
   fetchUserCreatedEvents();
-}, 3000);
+}, 100);
 
 const fetchSceneries = async () => {
   await axios
@@ -1398,9 +1410,11 @@ const fetchSceneries = async () => {
 };
 
 const addEvent = () => {
-  const userStore = useUserStore();
-  const userId = userStore.user?.users_pk;
+  // reset dialogs
+  errorDialog.value.show = false;
+  successDialog.value = false;
 
+  const userId = useUserStore().user?.users_pk;
   if (
     !newEvent.value.date ||
     !newEvent.value.hour ||
@@ -1411,7 +1425,7 @@ const addEvent = () => {
   ) {
     errorDialog.value = {
       show: true,
-      message: "Preencha todos os campos antes de criar o evento.",
+      message: "Please fill in all fields before creating the event.",
     };
     return;
   }
@@ -1426,24 +1440,26 @@ const addEvent = () => {
     .then(({ data }) => {
       const allStores = data.stores || [];
       const found = allStores.find(
+
         (s) =>
           s.name?.toLowerCase().trim() ===
           newEvent.value.store.toLowerCase().trim(),
       );
 
       if (!found) {
-        errorDialog.value = {
-          show: true,
-          message: "Store not found.",
-        };
-        return Promise.reject();
+        errorDialog.value = { show: true, message: "Store not found." };
+        return Promise.reject("StoreNotFound");
       }
       if (!found.active) {
+        errorDialog.value = { show: true, message: "This store is inactive." };
+        return Promise.reject("StoreInactive");
+      }
+      if (!found.verified) {
         errorDialog.value = {
           show: true,
-          message: "This store is inactive.",
+          message: "Unverified stores cannot create events.",
         };
-        return Promise.reject();
+        return Promise.reject("StoreUnverified");
       }
       if (!found.verified) {
         errorDialog.value = {
@@ -1458,9 +1474,9 @@ const addEvent = () => {
     .then((storesFk) => {
       const [h, m] = newEvent.value.hour.split(":").map(Number);
       const ampm = newEvent.value.ampm || "AM";
-      const hour12 = String(h).padStart(2, "0");
-      const minute = String(m).padStart(2, "0");
-      const formattedDate = `${newEvent.value.date}; ${hour12}:${minute} ${ampm}`;
+      const hh = String(h).padStart(2, "0");
+      const mm = String(m).padStart(2, "0");
+      const date = `${newEvent.value.date}; ${hh}:${mm} ${ampm}`;
 
       return axios.post(
         "/events/cadastro",
@@ -1468,7 +1484,7 @@ const addEvent = () => {
           seats_number: newEvent.value.seats,
           seasons_fk: 2,
           sceneries_fk: newEvent.value.scenario,
-          date: formattedDate,
+          date,
           stores_fk: storesFk,
           users_fk: userId,
           active: true,
@@ -1480,41 +1496,42 @@ const addEvent = () => {
         },
       );
     })
-    .then((res) => {
-      const newEventId = res.data?.event?.events_pk;
-      if (!newEventId) {
+    .then(({ data }) => {
+      const id = data.event?.events_pk;
+      if (!id) {
         errorDialog.value = {
           show: true,
           message: "Error creating event. Please try again.",
         };
-        return Promise.reject(new Error("EventCreationFailed"));
+        return Promise.reject("EventCreationFailed");
       }
       return Promise.all(
-        selectedRewards.value.map((reward) =>
-          axios.post(
-            "/rl_events_rewards/cadastro",
-            {
-              events_fk: newEventId,
-              rewards_fk: reward.rewards_pk,
-              active: true,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        selectedRewards.value.map((r) =>
+          axios
+            .post(
+              "/rl_events_rewards/cadastro",
+              {
+                events_fk: id,
+                rewards_fk: r.rewards_pk,
+                active: true,
               },
-            },
-          ),
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              },
+            )
+            .catch(() => null),
         ),
-      );
+      ).then(() => id);
     })
-    .then(() => {
-      errorDialog.value = {
-        show: true,
-        message: "Event created successfully!",
-      };
+    .then((id) => {
+      successDialog.value = true;
       createEventDialog.value = false;
-      fetchUserCreatedEvents();
-      fetchPlayerEvents();
+
+      fetchUserCreatedEvents(showPast.value).catch(() => {});
+      fetchPlayerEvents().catch(() => {});
+
       newEvent.value = {
         date: "",
         hour: "",
@@ -1526,14 +1543,16 @@ const addEvent = () => {
       selectedRewards.value = [];
     })
     .catch((err) => {
-      if (err.message === "EventCreationFailed") {
+      if (
+        [
+          "StoreNotFound",
+          "StoreInactive",
+          "StoreUnverified",
+          "EventCreationFailed",
+        ].includes(err)
+      )
         return;
-      }
-      console.error("❌ Erro ao cadastrar evento:", err);
-      errorDialog.value = {
-        show: true,
-        message: "Error creating event. Please try again.",
-      };
+      console.error("Unexpected error:", err);
     });
 };
 
@@ -1800,7 +1819,7 @@ const scheduleFetch = () => {
     } else {
       loadMine();
     }
-  }, 3000);
+  });
 };
 
 onMounted(() => {
