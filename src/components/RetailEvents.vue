@@ -1438,11 +1438,14 @@ const addEvent = () => {
       },
     })
     .then(({ data }) => {
-      const found = (data.stores || []).find(
+      const allStores = data.stores || [];
+      const found = allStores.find(
+
         (s) =>
           s.name?.toLowerCase().trim() ===
           newEvent.value.store.toLowerCase().trim(),
       );
+
       if (!found) {
         errorDialog.value = { show: true, message: "Store not found." };
         return Promise.reject("StoreNotFound");
@@ -1458,6 +1461,14 @@ const addEvent = () => {
         };
         return Promise.reject("StoreUnverified");
       }
+      if (!found.verified) {
+        errorDialog.value = {
+          show: true,
+          message: "Unverified stores cannot create events.",
+        };
+        return Promise.reject();
+      }
+
       return found.stores_pk;
     })
     .then((storesFk) => {
