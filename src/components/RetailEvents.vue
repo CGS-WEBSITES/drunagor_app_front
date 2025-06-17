@@ -266,7 +266,6 @@
         </div>
         <div v-else class="list-container">
           <v-row
-            v-if="userCreatedEvents.length > 0"
             class="CreateNew align-center bg-gray text-white"
           >
             <v-col cols="2"></v-col>
@@ -287,12 +286,12 @@
               <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
             </v-col> -->
           </v-row>
-          <v-row v-else>
+          <v-row v-if="userCreatedEvents.length === 0">
             <v-col class="text-center">
               No events match the selected filters.
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-else>
             <v-col
               v-for="(event, index) in userCreatedEvents"
               :key="event.events_pk"
