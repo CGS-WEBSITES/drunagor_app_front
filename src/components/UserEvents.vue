@@ -132,7 +132,7 @@
             <v-col> No events match the selected filters. </v-col>
           </v-row>
         </div>
-        
+
         <v-dialog v-model="dialog" max-width="600" min-height="431">
           <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
@@ -473,7 +473,7 @@
                   class="mb-4"
                   block
                   color="green"
-                  @click="handleNewCampaign('underkeep')"
+                  @click="showCampaignDialog = true"
                   :disabled="
                     !currentPlayer ||
                     currentPlayer.event_status !== 'Joined the Quest'
@@ -554,6 +554,55 @@
               <v-btn color="red-darken-2" text @click="confirmQuitEvent"
                 >Quit Event</v-btn
               >
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showCampaignDialog" max-width="320" persistent>
+          <v-card>
+            <v-card-title class="text-h6">Choose an option</v-card-title>
+            <v-card-text>
+              What do you want to do?
+            </v-card-text>
+            <v-card-actions class="d-flex flex-column">
+              <v-btn
+                block
+                color="success"
+                class="mb-2"
+                @click="
+                  () => {
+                    joinEvent();
+                    showCampaignDialog = false;
+                  }
+                "
+              >
+                Join
+              </v-btn>
+              <v-btn
+                block
+                color="success"
+                class="mb-2"
+                @click="
+                  () => {
+                    handleNewCampaign('underkeep');
+                    showCampaignDialog = false;
+                  }
+                "
+              >
+                New Campaign
+              </v-btn>
+              <v-btn
+                block
+                color="success"
+                @click="
+                  () => {
+                    loadCampaign();
+                    showCampaignDialog = false;
+                  }
+                "
+              >
+                Load Campaign
+              </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -644,6 +693,7 @@ const quitErrorMessage = ref("");
 const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
+const showCampaignDialog = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
@@ -885,6 +935,10 @@ const handleNewCampaign = async (type) => {
   } finally {
     loading.value = false;
   }
+};
+
+const loadCampaign = () => {
+  console.log("Load Campaign clicado");
 };
 
 const createdCompanion = async () => {
