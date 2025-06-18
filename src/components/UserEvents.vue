@@ -998,7 +998,6 @@ const confirmLoadCampaign = async () => {
   loading.value = true;
 
   try {
-    // cadastra seleção de campanha
     await axios.post("/rl_campaigns_users/cadastro", {
       users_fk: userStore.user.users_pk,
       campaigns_fk: selectedLoadCampaign.value,
