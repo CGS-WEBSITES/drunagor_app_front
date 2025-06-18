@@ -560,10 +560,17 @@
 
         <v-dialog v-model="showCampaignDialog" max-width="320" persistent>
           <v-card>
-            <v-card-title class="text-h6">Choose an option</v-card-title>
-            <v-card-text>
-              What do you want to do?
-            </v-card-text>
+            <v-card-title
+              class="d-flex justify-space-between align-center pa-0"
+            >
+              <span class="text-h6 ml-4">Choose an option</span>
+              <v-card-actions class="pa-0">
+                <v-btn icon @click="showCampaignDialog = false">
+                  <v-icon color="red">mdi-close</v-icon>
+                </v-btn>
+              </v-card-actions>
+            </v-card-title>
+            <v-card-text> What do you want to do? </v-card-text>
             <v-card-actions class="d-flex flex-column">
               <v-btn
                 block
@@ -591,18 +598,37 @@
               >
                 New Campaign
               </v-btn>
-              <v-btn
-                block
-                color="success"
-                @click="
-                  () => {
-                    loadCampaign();
-                    showCampaignDialog = false;
-                  }
-                "
-              >
+              <v-btn block color="success" @click="loadCampaign">
                 Load Campaign
               </v-btn>
+
+              <v-dialog v-model="showLoadDialog" max-width="400" persistent>
+                <v-card>
+                  <v-card-title>Select a Campaign</v-card-title>
+                  <v-card-text>
+                    <v-select
+                      v-model="selectedLoadCampaign"
+                      :items="campaigns"
+                      item-title="party_name"
+                      item-value="campaigns_pk"
+                      label="Campaign"
+                      :loading="loading"
+                      :disabled="loading"
+                    />
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn text @click="showLoadDialog = false">Cancel</v-btn>
+                    <v-btn
+                      color="success"
+                      :disabled="!selectedLoadCampaign"
+                      @click="confirmLoadCampaign"
+                    >
+                      Load
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -694,6 +720,11 @@ const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
 const showCampaignDialog = ref(false);
+const showLoadDialog = ref(false);
+const campaigns = ref([]);
+const selectedLoadCampaign = ref(null);
+
+const BOX_ID = 38;
 
 const axios = inject("axios");
 if (!axios) {
@@ -937,8 +968,67 @@ const handleNewCampaign = async (type) => {
   }
 };
 
-const loadCampaign = () => {
-  console.log("Load Campaign clicado");
+const loadCampaign = async () => {
+  loading.value = true;
+  try {
+    const usersPk = userStore.user.users_pk;
+    const { data } = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: usersPk,
+        box: BOX_ID,
+      },
+    });
+    campaigns.value = data.campaigns;
+    selectedLoadCampaign.value = null;
+    showLoadDialog.value = true;
+  } catch (err) {
+    console.error("Failed to fetch campaigns:", err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Could not load campaigns.",
+    });
+  } finally {
+    loading.value = false;
+  }
+};
+
+const confirmLoadCampaign = async () => {
+  if (!selectedLoadCampaign.value) return;
+  loading.value = true;
+
+  try {
+    // cadastra seleção de campanha
+    await axios.post("/rl_campaigns_users/cadastro", {
+      users_fk: userStore.user.users_pk,
+      campaigns_fk: selectedLoadCampaign.value,
+      party_roles_fk: 1,
+      skus_fk: BOX_ID,
+    });
+
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Campaign selected!",
+    });
+
+    router.push({
+      path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
+      query: { sku: String(BOX_ID) },
+    });
+  } catch (err) {
+    console.error("Failed to select campaign:", err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Could not select campaign.",
+    });
+  } finally {
+    loading.value = false;
+    showLoadDialog.value = false;
+    showCampaignDialog.value = false;
+    myDialog.value = false;
+  }
 };
 
 const createdCompanion = async () => {
