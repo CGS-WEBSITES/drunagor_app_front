@@ -37,6 +37,7 @@
         </v-col>
       </v-row>
 
+      <!-- ALL EVENTS -->
       <div v-if="activeTab === 1">
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
@@ -129,18 +130,36 @@
             </v-col>
           </v-row>
           <v-row v-else>
-            <v-col> No events match the selected filters. </v-col>
+            <v-col>No events match the selected filters.</v-col>
           </v-row>
         </div>
 
+        <!-- Event Details Dialog -->
         <v-dialog v-model="dialog" max-width="600" min-height="431">
-          <v-card color="surface">
+          <v-card color="surface" style="position: relative">
+            <div v-if="loading" class="dialog-overlay">
+              <v-progress-circular
+                indeterminate
+                size="80"
+                width="7"
+                color="primary"
+              />
+            </div>
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
 
+            <!-- Share Event Sub-Dialog -->
             <v-dialog v-model="showDialog" width="400">
-              <v-card>
+              <v-card style="position: relative">
+                <div v-if="loading" class="dialog-overlay">
+                  <v-progress-circular
+                    indeterminate
+                    size="80"
+                    width="7"
+                    color="primary"
+                  />
+                </div>
                 <v-card-title class="text-h6">Share Event</v-card-title>
                 <v-card-text>
                   <v-text-field
@@ -149,10 +168,10 @@
                     readonly
                     density="compact"
                     hide-details
-                  ></v-text-field>
+                  />
                 </v-card-text>
                 <v-card-actions>
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     color="success"
                     size="small"
@@ -166,8 +185,8 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+
             <v-card-text>
-              <p></p>
               <v-btn
                 block
                 color="blue"
@@ -179,7 +198,6 @@
                 <v-icon start>mdi-share-variant</v-icon>
                 Share Event
               </v-btn>
-              <br />
               <p>
                 <v-icon>mdi-seat</v-icon> Disponible Seats:
                 {{ selectedEvent?.seats_number }}
@@ -188,7 +206,6 @@
                 <v-icon>mdi-sword-cross</v-icon> Scenario:
                 {{ selectedEvent?.scenario }}
               </p>
-              <br />
               <p class="text-end scheduled-box">
                 Scheduled for:
                 {{
@@ -203,6 +220,7 @@
                 }}
               </p>
             </v-card-text>
+
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
@@ -224,9 +242,9 @@
                     {{ selectedEvent?.address }}
                   </p>
                 </v-col>
-                <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
+
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
               <v-row
@@ -261,22 +279,17 @@
                 <span v-html="alertMessage"></span>
               </v-alert>
             </v-card-text>
-            <v-row class="mt-2 ml-0">
-              <v-col cols="12" class="mb-2">
-                <v-btn
-                  block
-                  color="#539041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                >
-                  Count me in
-                </v-btn>
-              </v-col>
-            </v-row>
+
+            <v-card-actions class="mt-2 ml-0">
+              <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
+                Count me in
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
       </div>
 
+      <!-- MY EVENTS -->
       <div v-else-if="activeTab === 2">
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
@@ -363,21 +376,22 @@
             </v-col>
           </v-row>
           <v-row v-else>
-            <v-col class="text-center">
-              No events match the selected filters.
-            </v-col>
+            <v-col class="text-center"
+              >No events match the selected filters.</v-col
+            >
           </v-row>
         </div>
 
+        <!-- My Event Details Dialog -->
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
-          <v-card color="surface" class="pa-6">
+          <v-card color="surface" class="pa-6" style="position: relative">
             <div v-if="loading" class="dialog-overlay">
               <v-progress-circular
                 indeterminate
-                :size="80"
-                :width="7"
+                size="80"
+                width="7"
                 color="primary"
-              ></v-progress-circular>
+              />
             </div>
             <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
@@ -392,9 +406,8 @@
                 mdi-close
               </v-icon>
             </div>
-
             <div class="mt-1 pl-6" style="display: inline-block">
-              <p class="text-caption scheduled-box ma-0 ml-">
+              <p class="text-caption scheduled-box ma-0">
                 Scheduled for:
                 {{
                   new Date(selectedMyEvent?.event_date).toLocaleString(
@@ -411,8 +424,7 @@
                 }}
               </p>
             </div>
-
-            <v-row class="" align="center" justify="space-between">
+            <v-row align="center" justify="space-between">
               <v-col cols="12" md="6" class="text-center pt-8 ml-3">
                 <div
                   style="
@@ -423,13 +435,6 @@
                     border-radius: 8px;
                   "
                 >
-                  <!-- <v-img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
-                    width="180"
-                    height="180"
-                    class="rounded"
-                    style="opacity: 0.3; filter: grayscale(1)"
-                  /> -->
                   <div
                     style="
                       position: absolute;
@@ -466,9 +471,8 @@
                     :loading="isRefreshingStatus"
                     :disabled="isRefreshingStatus"
                     @click="refreshEventStatus()"
-                  ></v-btn>
+                  />
                 </div>
-
                 <v-btn
                   class="mb-4"
                   block
@@ -481,10 +485,9 @@
                 >
                   Join Campaign
                 </v-btn>
-                <v-btn class="mb-8" block color="red" @click="quitEvent()">
-                  Quit Event
-                </v-btn>
-
+                <v-btn class="mb-8" block color="red" @click="quitEvent()"
+                  >Quit Event</v-btn
+                >
                 <v-alert
                   v-if="showQuitSuccessAlert"
                   type="success"
@@ -497,7 +500,6 @@
                   You have successfully left the event. It will no longer appear
                   in your list.
                 </v-alert>
-
                 <v-alert
                   v-if="showQuitErrorAlert"
                   type="error"
@@ -511,7 +513,6 @@
                 </v-alert>
               </v-col>
             </v-row>
-
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
@@ -533,21 +534,29 @@
                     {{ selectedMyEvent?.address }}
                   </p>
                 </v-col>
-                <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
           </v-card>
         </v-dialog>
 
+        <!-- Confirm Quit Dialog -->
         <v-dialog v-model="showQuitConfirmDialog" max-width="400">
-          <v-card>
+          <v-card style="position: relative">
+            <div v-if="loading" class="dialog-overlay">
+              <v-progress-circular
+                indeterminate
+                size="80"
+                width="7"
+                color="primary"
+              />
+            </div>
             <v-card-title class="text-h6">Confirm Exit</v-card-title>
             <v-card-text>
               Are you sure you want to quit this event? This action cannot be
               undone.
             </v-card-text>
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn color="grey" text @click="showQuitConfirmDialog = false"
                 >Cancel</v-btn
               >
@@ -558,8 +567,17 @@
           </v-card>
         </v-dialog>
 
+        <!-- Choose Option Dialog -->
         <v-dialog v-model="showCampaignDialog" max-width="320" persistent>
-          <v-card>
+          <v-card style="position: relative">
+            <div v-if="loading" class="dialog-overlay">
+              <v-progress-circular
+                indeterminate
+                size="80"
+                width="7"
+                color="primary"
+              />
+            </div>
             <v-card-title
               class="d-flex justify-space-between align-center pa-0"
             >
@@ -570,7 +588,7 @@
                 </v-btn>
               </v-card-actions>
             </v-card-title>
-            <v-card-text> What do you want to do? </v-card-text>
+            <v-card-text>What do you want to do?</v-card-text>
             <v-card-actions class="d-flex flex-column">
               <v-btn
                 block
@@ -596,10 +614,28 @@
               <v-btn block color="success" @click="loadCampaign">
                 Load Campaign
               </v-btn>
-
+              <!-- Load Campaign Dialog -->
               <v-dialog v-model="showLoadDialog" max-width="400" persistent>
-                <v-card>
-                  <v-card-title>Select a Campaign</v-card-title>
+                <v-card style="position: relative">
+                  <div v-if="loading" class="dialog-overlay">
+                    <v-progress-circular
+                      indeterminate
+                      size="80"
+                      width="7"
+                      color="primary"
+                    />
+                  </div>
+
+                  <v-card-title
+                    class="d-flex justify-space-between align-center pa-0"
+                  >
+                    <span class="text-h6 ml-4">Select a Campaign</span>
+                    <v-card-actions class="pa-0">
+                      <v-btn icon @click="showLoadDialog = false">
+                        <v-icon color="red">mdi-close</v-icon>
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card-title>
                   <v-card-text>
                     <v-select
                       v-model="selectedLoadCampaign"
@@ -612,10 +648,10 @@
                     />
                   </v-card-text>
                   <v-card-actions>
-                    <v-spacer />
-                    <v-btn text @click="showLoadDialog = false">Cancel</v-btn>
                     <v-btn
-                      color="success"
+                      color="green"
+                      elevation="4"
+                      class="mt-4"
                       :disabled="!selectedLoadCampaign"
                       @click="confirmLoadCampaign"
                     >
@@ -625,9 +661,31 @@
                 </v-card>
               </v-dialog>
 
-              <v-dialog v-model="showJoinCampaignDialog" max-width="400">
-                <v-card>
-                  <v-card-title>Enter Campaign ID</v-card-title>
+              <!-- Join Campaign Dialog -->
+              <v-dialog
+                v-model="showJoinCampaignDialog"
+                max-width="400"
+                persistent
+              >
+                <v-card style="position: relative">
+                  <div v-if="loading" class="dialog-overlay">
+                    <v-progress-circular
+                      indeterminate
+                      size="80"
+                      width="7"
+                      color="primary"
+                    />
+                  </div>
+                  <v-card-title
+                    class="d-flex justify-space-between align-center pa-0"
+                  >
+                    <span class="text-h6 ml-4">Enter Campaign ID</span>
+                    <v-card-actions class="pa-0">
+                      <v-btn icon @click="showJoinCampaignDialog = false">
+                        <v-icon color="red">mdi-close</v-icon>
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card-title>
                   <v-card-text>
                     <v-text-field
                       v-model="joinCampaignId"
@@ -637,13 +695,11 @@
                     />
                   </v-card-text>
                   <v-card-actions>
-                    <v-spacer />
-                    <v-btn text @click="showJoinCampaignDialog = false">
-                      Cancel
-                    </v-btn>
                     <v-btn
-                      color="success"
-                      :loading="joinCampaignLoading"
+                      block
+                      color="green"
+                      elevation="4"
+                      class="mt-4"
                       :disabled="!parsedCampaignFk"
                       @click="confirmJoinCampaign"
                     >
@@ -862,10 +918,10 @@ const openDialog = (event) => {
   fetchPlayers(event.events_pk);
 
   axios
-    .get('/rl_events_rewards/list_rewards', {
+    .get("/rl_events_rewards/list_rewards", {
       params: { events_fk: event.events_pk },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     })
     .then((rewardsRes) => {
@@ -885,27 +941,27 @@ const compressCampaign = (campaignId) => {
 const handleNewCampaign = (type) => {
   loading.value = true;
   const usersPk = userStore.user?.users_pk;
-  const nameMap = { underkeep: 'underkeep' };
+  const nameMap = { underkeep: "underkeep" };
   let selectedSku;
   let campaignFk;
 
   axios
-    .get('/skus/search', { params: { users_fk: usersPk } })
+    .get("/skus/search", { params: { users_fk: usersPk } })
     .then(({ data }) => {
       const skuList = Array.isArray(data.skus)
         ? data.skus
         : Object.values(data.skus);
       selectedSku = skuList.find(
-        (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase()
+        (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
       );
       if (!selectedSku) {
-        return Promise.reject(new Error('SKU não encontrado'));
+        return Promise.reject(new Error("SKU não encontrado"));
       }
-      return axios.post('/campaigns/cadastro', {
+      return axios.post("/campaigns/cadastro", {
         tracker_hash:
-          'eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=',
+          "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
         conclusion_percentage: 0,
-        box: selectedSku.skus_pk
+        box: selectedSku.skus_pk,
       });
     })
     .then(({ data }) => {
@@ -914,36 +970,36 @@ const handleNewCampaign = (type) => {
       campaignStore.add(newCamp);
       return axios.put(`/campaigns/alter/${campaignFk}`, {
         tracker_hash:
-          'eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=',
-        party_name: ''
+          "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
+        party_name: "",
       });
     })
     .then(() => {
-      return axios.post('/rl_campaigns_users/cadastro', {
+      return axios.post("/rl_campaigns_users/cadastro", {
         users_fk: usersPk,
         campaigns_fk: campaignFk,
         party_roles_fk: 2,
-        skus_fk: selectedSku.skus_pk
+        skus_fk: selectedSku.skus_pk,
       });
     })
     .then(() => {
       compressCampaign(String(campaignFk));
       toast.add({
-        severity: 'success',
-        summary: t('label.success'),
-        detail: 'Campanha criada com sucesso!'
+        severity: "success",
+        summary: t("label.success"),
+        detail: "Campanha criada com sucesso!",
       });
       router.push({
         path: `/campaign-tracker/campaign/${campaignFk}`,
-        query: { sku: String(selectedSku.skus_pk) }
+        query: { sku: String(selectedSku.skus_pk) },
       });
     })
     .catch((err) => {
-      console.error('Erro no fluxo de criação:', err);
+      console.error("Erro no fluxo de criação:", err);
       toast.add({
-        severity: 'error',
-        summary: t('label.error'),
-        detail: err.message || 'Falha ao criar campanha.'
+        severity: "error",
+        summary: t("label.error"),
+        detail: err.message || "Falha ao criar campanha.",
       });
     })
     .finally(() => {
@@ -1097,17 +1153,17 @@ const createEvent = () => {
 };
 
 const openMyEventsDialog = (event) => {
-  showQuitSuccessAlert.value = false
-  showQuitErrorAlert.value = false
-  selectedMyEvent.value = event
-  eventPk.value = event.events_pk
-  fetchPlayers(event.events_pk)
-  myDialog.value = true
+  showQuitSuccessAlert.value = false;
+  showQuitErrorAlert.value = false;
+  selectedMyEvent.value = event;
+  eventPk.value = event.events_pk;
+  fetchPlayers(event.events_pk);
+  myDialog.value = true;
 
-  const userStore = useUserStore()
-  const userId = parseInt(userStore.user?.users_pk, 10)
+  const userStore = useUserStore();
+  const userId = parseInt(userStore.user?.users_pk, 10);
   if (isNaN(userId)) {
-    return
+    return;
   }
 
   axios
@@ -1118,17 +1174,17 @@ const openMyEventsDialog = (event) => {
       },
     })
     .then((response) => {
-      const playersForEvent = response.data.players
+      const playersForEvent = response.data.players;
       const currentUserEntry = playersForEvent.find(
-        (player) => player.users_pk === userId
-      )
+        (player) => player.users_pk === userId,
+      );
       rlEventsUsersPkToQuit.value = currentUserEntry
         ? currentUserEntry.rl_events_users_pk
-        : null
+        : null;
     })
     .catch(() => {
-      rlEventsUsersPkToQuit.value = null
-    })
+      rlEventsUsersPkToQuit.value = null;
+    });
 };
 
 const refreshEventStatus = () => {
@@ -1151,7 +1207,7 @@ const refreshEventStatus = () => {
         });
       }
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Falha ao atualizar o status do evento:", error);
       toast.add({
         severity: "error",
@@ -1195,7 +1251,7 @@ const confirmQuitEvent = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     )
     .then(() => {
       showQuitSuccessAlert.value = true;
@@ -1217,31 +1273,31 @@ const confirmQuitEvent = () => {
 };
 
 const shareEvent = (eventId) => {
-  Promise
-    .resolve(eventId)
-    .then(id => {
+  Promise.resolve(eventId)
+    .then((id) => {
       if (!id) {
         throw new Error("Event ID not found!");
       }
       return btoa(id.toString());
     })
-    .then(encodedId => {
+    .then((encodedId) => {
       sharedLink.value = `${window.location.origin}/event/${encodedId}`;
       showDialog.value = true;
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Error generating share link:", error);
     });
 };
 
 const copyLink = (link) => {
-  navigator.clipboard.writeText(link)
+  navigator.clipboard
+    .writeText(link)
     .then(() => {
       showDialog.value = false;
       showAlert.value = true;
     })
     .catch((error) => {
-      console.error('Failed to copy link:', error);
+      console.error("Failed to copy link:", error);
     });
 };
 
@@ -1282,40 +1338,39 @@ const getEventStatusInfo = (status) => {
 
 const confirmJoinCampaign = () => {
   if (!parsedCampaignFk.value) return;
-  joinCampaignLoading.value = true;
+  loading.value = true;
 
-  axios.post(
-    "/rl_campaigns_users/cadastro",
-    {
-      users_fk:      userStore.user.users_pk,
-      campaigns_fk:  parsedCampaignFk.value,
-      party_roles_fk: 2,
-      skus_fk:       BOX_ID,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  axios
+    .post(
+      "/rl_campaigns_users/cadastro",
+      {
+        users_fk: userStore.user.users_pk,
+        campaigns_fk: parsedCampaignFk.value,
+        party_roles_fk: 2,
+        skus_fk: BOX_ID,
       },
-    }
-  )
-  .then(() => {
-    router.push({
-      path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
-      query: { sku: String(BOX_ID) },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    )
+    .then(() => {
+      showJoinCampaignDialog.value = false;
+      showCampaignDialog.value = false;
+
+      router.push({
+        path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
+        query: { sku: String(BOX_ID) },
+      });
+    })
+    .catch((err) => {
+      toast.add({ severity: "error", summary: "Erro", detail: err.message });
+    })
+    .finally(() => {
+      loading.value = false;
+      joinCampaignId.value = "";
     });
-  })
-  .catch(err => {
-    toast.add({
-      severity: "error",
-      summary: "Erro",
-      detail: err.message
-    });
-  })
-  .finally(() => {
-    joinCampaignLoading.value = false;
-    showJoinCampaignDialog.value = false;
-    joinCampaignId.value = "";
-  });
 };
 
 onMounted(() => {
@@ -1326,10 +1381,10 @@ onMounted(() => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     })
-    .then(response => {
+    .then((response) => {
       stores.value = response.data.stores || [];
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Error fetching stores:", error);
     });
 
@@ -1354,7 +1409,7 @@ onMounted(() => {
         fetchMyEvents(showPast.value),
       ]);
     })
-    .catch(error => {
+    .catch((error) => {
       console.error("Error fetching sceneries or events:", error);
     })
     .finally(() => {
@@ -1530,16 +1585,16 @@ watch(
   height: 160px;
 }
 
-dialog-overlay {
+.dialog-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: rgba(255, 255, 255, 0.6);
+  z-index: 9999;
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 10;
+  justify-content: center;
 }
 </style>
