@@ -642,7 +642,7 @@
                       Cancel
                     </v-btn>
                     <v-btn
-                      color="primary"
+                      color="success"
                       :loading="joinCampaignLoading"
                       :disabled="!parsedCampaignFk"
                       @click="confirmJoinCampaign"
@@ -803,17 +803,6 @@ const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
 
-const openEditDialog = (event, editable = false) => {
-  editableEvent.value = { ...event };
-  isEditable.value = editable;
-  editEventDialog.value = true;
-  if (!editable) {
-    fetchPlayers(event.events_pk);
-    fetchStatuses();
-    updatePlayerStatus(player, newStatus, editableEvent.value.events_pk);
-  }
-};
-
 const fetchStatuses = () => {
   axios
     .get("/event_status/search")
@@ -851,23 +840,6 @@ const fetchPlayers = (eventPk) => {
     });
 };
 
-const updatePlayerStatus = (player, newStatus, eventPk) => {
-  const usersPk = localStorage.getItem("app_user");
-  const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-  axios
-    .post("/rl_events_users/cadastro", {
-      users_fk: appUser,
-      events_fk: eventPk,
-      status: newStatus,
-    })
-    .then((response) => {
-      player.status = newStatus;
-    })
-    .catch((error) => {
-      // Handle error updating status
-    });
-};
-
 const dateRules = [
   (value) => {
     if (!value) return "Date is required.";
@@ -883,54 +855,25 @@ const today = new Date();
 const todayISO = today.toISOString().split("T")[0];
 const oneYearFromToday = new Date();
 oneYearFromToday.setFullYear(today.getFullYear() + 1);
-const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
 
-const handleTimeInput = (event) => {
-  let raw = event.target.value.replace(/\D/g, "");
-  raw = raw.slice(0, 4);
-  let hh = raw.slice(0, 2);
-  let mm = raw.slice(2, 4);
-  if (hh.length === 2) {
-    let h = parseInt(hh);
-    if (h < 1) hh = "01";
-    else if (h > 12) hh = "12";
-    else hh = h.toString().padStart(2, "0");
-  }
-  if (mm.length === 2) {
-    let m = parseInt(mm);
-    if (m > 59) mm = "59";
-    else mm = m.toString().padStart(2, "0");
-  }
-  if (mm) {
-    newEvent.value.hour = `${hh}:${mm}`;
-  } else {
-    newEvent.value.hour = hh;
-  }
-};
-
-const toggleReward = (reward) => {
-  if (selectedRewards.value.includes(reward)) {
-    selectedRewards.value = selectedRewards.value.filter((r) => r !== reward);
-  } else {
-    selectedRewards.value.push(reward);
-  }
-};
-
-const openDialog = async (event) => {
+const openDialog = (event) => {
   selectedEvent.value = event;
   dialog.value = true;
   fetchPlayers(event.events_pk);
-  try {
-    const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+
+  axios
+    .get('/rl_events_rewards/list_rewards', {
       params: { events_fk: event.events_pk },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
       },
+    })
+    .then((rewardsRes) => {
+      eventRewards.value = rewardsRes.data.rewards || [];
+    })
+    .catch(() => {
+      eventRewards.value = [];
     });
-    eventRewards.value = rewardsRes.data.rewards || [];
-  } catch (err) {
-    eventRewards.value = [];
-  }
 };
 
 const compressCampaign = (campaignId) => {
@@ -939,168 +882,140 @@ const compressCampaign = (campaignId) => {
   );
 };
 
-const handleNewCampaign = async (type) => {
+const handleNewCampaign = (type) => {
   loading.value = true;
-  try {
-    const usersPk = userStore.user?.users_pk;
-    const { data } = await axios.get("/skus/search", {
-      params: { users_fk: usersPk },
+  const usersPk = userStore.user?.users_pk;
+  const nameMap = { underkeep: 'underkeep' };
+  let selectedSku;
+  let campaignFk;
+
+  axios
+    .get('/skus/search', { params: { users_fk: usersPk } })
+    .then(({ data }) => {
+      const skuList = Array.isArray(data.skus)
+        ? data.skus
+        : Object.values(data.skus);
+      selectedSku = skuList.find(
+        (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase()
+      );
+      if (!selectedSku) {
+        return Promise.reject(new Error('SKU não encontrado'));
+      }
+      return axios.post('/campaigns/cadastro', {
+        tracker_hash:
+          'eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=',
+        conclusion_percentage: 0,
+        box: selectedSku.skus_pk
+      });
+    })
+    .then(({ data }) => {
+      campaignFk = data.campaign.campaigns_pk;
+      const newCamp = new Campaign(String(campaignFk), type);
+      campaignStore.add(newCamp);
+      return axios.put(`/campaigns/alter/${campaignFk}`, {
+        tracker_hash:
+          'eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=',
+        party_name: ''
+      });
+    })
+    .then(() => {
+      return axios.post('/rl_campaigns_users/cadastro', {
+        users_fk: usersPk,
+        campaigns_fk: campaignFk,
+        party_roles_fk: 2,
+        skus_fk: selectedSku.skus_pk
+      });
+    })
+    .then(() => {
+      compressCampaign(String(campaignFk));
+      toast.add({
+        severity: 'success',
+        summary: t('label.success'),
+        detail: 'Campanha criada com sucesso!'
+      });
+      router.push({
+        path: `/campaign-tracker/campaign/${campaignFk}`,
+        query: { sku: String(selectedSku.skus_pk) }
+      });
+    })
+    .catch((err) => {
+      console.error('Erro no fluxo de criação:', err);
+      toast.add({
+        severity: 'error',
+        summary: t('label.error'),
+        detail: err.message || 'Falha ao criar campanha.'
+      });
+    })
+    .finally(() => {
+      loading.value = false;
     });
-    const skuList = Array.isArray(data.skus)
-      ? data.skus
-      : Object.values(data.skus);
-    const nameMap = {
-      underkeep: "underkeep",
-    };
-    const selectedSku = skuList.find(
-      (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
-    );
-    if (!selectedSku) throw new Error("SKU não encontrado");
-    const campaignRes = await axios.post("/campaigns/cadastro", {
-      tracker_hash:
-        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
-      conclusion_percentage: 0,
-      box: selectedSku.skus_pk,
-    });
-    const campaignFk = campaignRes.data.campaign.campaigns_pk;
-    const newCamp = new Campaign(String(campaignFk), type);
-    campaignStore.add(newCamp);
-    await axios.put(`/campaigns/alter/${campaignFk}`, {
-      tracker_hash:
-        "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoidW5kZXJrZWVwIiwibmFtZSI6IiIsImRvb3IiOiIiLCJ3aW5nIjoiIiwic3RhdHVzSWRzIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZSwic2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=",
-      party_name: "",
-    });
-    await axios.post("/rl_campaigns_users/cadastro", {
-      users_fk: usersPk,
-      campaigns_fk: campaignFk,
-      party_roles_fk: 2,
-      skus_fk: selectedSku.skus_pk,
-    });
-    compressCampaign(String(campaignFk));
-    toast.add({
-      severity: "success",
-      summary: t("label.success"),
-      detail: "Campanha criada com sucesso!",
-    });
-    router.push({
-      path: `/campaign-tracker/campaign/${campaignFk}`,
-      query: { sku: String(selectedSku.skus_pk) },
-    });
-  } catch (err) {
-    console.error("Erro no fluxo de criação:", err);
-    toast.add({
-      severity: "error",
-      summary: t("label.error"),
-      detail: err.message || "Falha ao criar campanha.",
-    });
-  } finally {
-    loading.value = false;
-  }
 };
 
-const loadCampaign = async () => {
+const loadCampaign = () => {
   loading.value = true;
-  try {
-    const usersPk = userStore.user.users_pk;
-    const { data } = await axios.get("/rl_campaigns_users/search", {
+  const usersPk = userStore.user.users_pk;
+
+  axios
+    .get("/rl_campaigns_users/search", {
       params: {
         users_fk: usersPk,
         box: BOX_ID,
       },
+    })
+    .then(({ data }) => {
+      campaigns.value = data.campaigns;
+      selectedLoadCampaign.value = null;
+      showLoadDialog.value = true;
+    })
+    .catch((err) => {
+      console.error("Failed to fetch campaigns:", err);
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Could not load campaigns.",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
     });
-    campaigns.value = data.campaigns;
-    selectedLoadCampaign.value = null;
-    showLoadDialog.value = true;
-  } catch (err) {
-    console.error("Failed to fetch campaigns:", err);
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "Could not load campaigns.",
-    });
-  } finally {
-    loading.value = false;
-  }
 };
 
-const confirmLoadCampaign = async () => {
+const confirmLoadCampaign = () => {
   if (!selectedLoadCampaign.value) return;
   loading.value = true;
 
-  try {
-    await axios.post("/rl_campaigns_users/cadastro", {
+  axios
+    .post("/rl_campaigns_users/cadastro", {
       users_fk: userStore.user.users_pk,
       campaigns_fk: selectedLoadCampaign.value,
       party_roles_fk: 2,
       skus_fk: BOX_ID,
-    });
-
-    toast.add({
-      severity: "success",
-      summary: "Success",
-      detail: "Campaign selected!",
-    });
-
-    router.push({
-      path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
-      query: { sku: String(BOX_ID) },
-    });
-  } catch (err) {
-    console.error("Failed to select campaign:", err);
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "Could not select campaign.",
-    });
-  } finally {
-    loading.value = false;
-    showLoadDialog.value = false;
-    showCampaignDialog.value = false;
-    myDialog.value = false;
-  }
-};
-
-const createdCompanion = async () => {
-  const token =
-    "eyJjYW1wYWlnbkRhdGEiOnsiY2FtcGFpZ25JZCI6IiIsImNhbXBhaWduIjoiY29yZSIsIm5hbWUiOiIiLCJzdGF0dXNJdsdsIjpbXSwib3V0Y29tZUlkcyI6W10sImZvbGxvd2VySWRzIjpbXSwidW5mb2xkaW5nSWRzIjpbXSwiYmFja2dyb3VuZEFuZFRyYWl0SWRzIjpbXSwibGVnYWN5VHJhaWwiOnsicGVyc2V2ZXJhbmNlIjowLCJ0cmFnZWR5IjowLCJkb29tIjowLCJoZXJvaXNtIjowfSwiaXNTZXF1ZW50aWFsQWR2ZW50dXJlIjpmYWxzZ,SIc2VxdWVudGlhbEFkdmVudHVyZVJ1bmVzIjowfSwiaGVyb2VzIjpbXX0=";
-  try {
-    const { data: resp } = await axios.post("/campaigns/cadastro", {
-      tracker_hash: token,
-      conclusion_percentage: 0,
-      box: 22,
-    });
-    toast.add({
-      severity: "success",
-      summary: t("label.success"),
-      detail: "Campaign saved successfully.",
-      life: 3000,
-    });
-    const users_pk = JSON.parse(localStorage.getItem("app_user")).users_pk;
-    await axios
-      .post("rl_campaigns_users/cadastro", {
-        users_fk: users_pk,
-        campaigns_fk: resp.campaign.campaigns_pk,
-        party_roles_fk: 2,
-        skus_fk: parseInt(resp.campaign.box, 10),
-      })
-      .then((response) => {})
-      .catch((error) => {
-        toast.add({
-          severity: "error",
-          summary: t("label.error"),
-          detail: "Error creating campaign-user relationship.",
-          life: 3000,
-        });
+    })
+    .then(() => {
+      toast.add({
+        severity: "success",
+        summary: "Success",
+        detail: "Campaign selected!",
       });
-    router.push({ path: "/campaign-tracker/" });
-  } catch (err) {
-    toast.add({
-      severity: "error",
-      summary: t("label.error"),
-      detail: "Failed to save campaign.",
-      life: 3000,
+      router.push({
+        path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
+        query: { sku: String(BOX_ID) },
+      });
+    })
+    .catch((err) => {
+      console.error("Failed to select campaign:", err);
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Could not select campaign.",
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+      showLoadDialog.value = false;
+      showCampaignDialog.value = false;
+      myDialog.value = false;
     });
-  }
 };
 
 const fetchPlayerEvents = async (past) => {
@@ -1173,203 +1088,81 @@ const fetchSceneries = async () => {
       sceneries.value = response.data.sceneries || [];
     })
     .catch((error) => {
-      // Handle error fetching scenarios
+      console.error("Error fetching sceneries:", error);
     });
-};
-
-const addEvent = async () => {
-  const userStore = useUserStore();
-  const userId = userStore.user?.users_pk;
-  if (
-    !newEvent.value.date ||
-    !newEvent.value.hour ||
-    !newEvent.value.store ||
-    !newEvent.value.seats ||
-    !newEvent.value.scenario ||
-    !userId
-  ) {
-    return;
-  }
-  let selectedStore = null;
-  let storesFk = null;
-  try {
-    const response = await axios.get("/stores/list", {
-      params: {
-        users_fk: userId,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    const allStores = response.data.stores || [];
-    selectedStore = allStores.find(
-      (store) =>
-        store.name?.toLowerCase().trim() ===
-        newEvent.value.store?.toLowerCase().trim(),
-    );
-    if (!selectedStore) {
-      return;
-    }
-    storesFk = selectedStore.stores_pk;
-  } catch (error) {
-    return;
-  }
-  try {
-    const formattedDate = new Date(
-      `${newEvent.value.date}T${newEvent.value.hour}`,
-    );
-    const dateString = formattedDate.toLocaleDateString("en-CA");
-    const timeString = formattedDate.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-    const eventDateFormatted = `${dateString}; ${timeString}`;
-    const payload = {
-      seats_number: newEvent.value.seats,
-      seasons_fk: 2,
-      sceneries_fk: newEvent.value.scenario,
-      date: eventDateFormatted,
-      stores_fk: storesFk,
-      users_fk: userId,
-      active: true,
-    };
-    const response = await axios.post("/events/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    await fetchUserCreatedEvents();
-    await fetchPlayerEvents();
-    selectedRewards.value = [];
-    createEventDialog.value = false;
-  } catch (error) {
-    // Handle error registering event
-  }
-};
-
-const deleteEvent = async (events_pk) => {
-  try {
-    await axios.delete(`/events/${events_pk}/delete/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    await fetchUserCreatedEvents();
-    await fetchPlayerEvents();
-  } catch (error) {
-    // Handle error deleting event
-  }
 };
 
 const createEvent = () => {
   createEventDialog.value = false;
 };
 
-const openCreateEventDialog = () => {
-  createEventDialog.value = true;
-};
+const openMyEventsDialog = (event) => {
+  showQuitSuccessAlert.value = false
+  showQuitErrorAlert.value = false
+  selectedMyEvent.value = event
+  eventPk.value = event.events_pk
+  fetchPlayers(event.events_pk)
+  myDialog.value = true
 
-const handleImageUpload = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    newEvent.value.image = URL.createObjectURL(file);
-  }
-};
-
-const saveEditedEvent = () => {
-  const index = events.value.findIndex((e) => e.id === editableEvent.value.id);
-  if (index !== -1) {
-    events.value[index] = { ...editableEvent.value };
-  }
-  editEventDialog.value = false;
-};
-
-const toggleEditReward = (reward) => {
-  const index = editableEvent.value.rewards.findIndex((r) => r === reward);
-  if (index === -1) {
-    editableEvent.value.rewards.push(reward);
-  } else {
-    editableEvent.value.rewards.splice(index, 1);
-  }
-};
-
-const getPlayersForEvent = async (event_fk) => {
-  await axios
-    .get("/rl_events_users/list_players", {
-      params: {
-        events_fk: event_fk,
-      },
-    })
-    .then((response) => {})
-    .catch((error) => {
-      // Handle error fetching players
-    });
-};
-
-const openMyEventsDialog = async (event) => {
-  showQuitSuccessAlert.value = false;
-  showQuitErrorAlert.value = false;
-  selectedMyEvent.value = event;
-  eventPk.value = event.events_pk;
-  fetchPlayers(event.events_pk);
-  myDialog.value = true;
-  const userStore = useUserStore();
-  const userId = parseInt(userStore.user?.users_pk, 10);
+  const userStore = useUserStore()
+  const userId = parseInt(userStore.user?.users_pk, 10)
   if (isNaN(userId)) {
-    return;
+    return
   }
-  try {
-    const response = await axios.get("/rl_events_users/list_players", {
-      params: {
-        events_fk: event.events_pk,
-      },
+
+  axios
+    .get("/rl_events_users/list_players", {
+      params: { events_fk: event.events_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    });
-    const playersForEvent = response.data.players;
-    const currentUserEntry = playersForEvent.find(
-      (player) => player.users_pk === userId,
-    );
-    if (currentUserEntry) {
-      rlEventsUsersPkToQuit.value = currentUserEntry.rl_events_users_pk;
-    } else {
-      rlEventsUsersPkToQuit.value = null;
-    }
-  } catch (error) {
-    rlEventsUsersPkToQuit.value = null;
-  }
+    })
+    .then((response) => {
+      const playersForEvent = response.data.players
+      const currentUserEntry = playersForEvent.find(
+        (player) => player.users_pk === userId
+      )
+      rlEventsUsersPkToQuit.value = currentUserEntry
+        ? currentUserEntry.rl_events_users_pk
+        : null
+    })
+    .catch(() => {
+      rlEventsUsersPkToQuit.value = null
+    })
 };
 
-const refreshEventStatus = async () => {
+const refreshEventStatus = () => {
   if (!selectedMyEvent.value?.events_pk) {
     console.warn("Nenhum evento selecionado para atualizar.");
     return;
   }
+
   isRefreshingStatus.value = true;
-  try {
-    await fetchPlayers(selectedMyEvent.value.events_pk);
-    if (currentPlayer.value) {
-      selectedMyEvent.value.status = currentPlayer.value.event_status;
+
+  fetchPlayers(selectedMyEvent.value.events_pk)
+    .then(() => {
+      if (currentPlayer.value) {
+        selectedMyEvent.value.status = currentPlayer.value.event_status;
+        toast.add({
+          severity: "info",
+          summary: "Status Atualizado",
+          detail: `O novo status é: ${currentPlayer.value.event_status}`,
+          life: 3000,
+        });
+      }
+    })
+    .catch(error => {
+      console.error("Falha ao atualizar o status do evento:", error);
       toast.add({
-        severity: "info",
-        summary: "Status Atualizado",
-        detail: `O novo status é: ${currentPlayer.value.event_status}`,
+        severity: "error",
+        summary: "Erro",
+        detail: "Não foi possível atualizar o status.",
         life: 3000,
       });
-    }
-  } catch (error) {
-    console.error("Falha ao atualizar o status do evento:", error);
-    toast.add({
-      severity: "error",
-      summary: "Erro",
-      detail: "Não foi possível atualizar o status.",
-      life: 3000,
+    })
+    .finally(() => {
+      isRefreshingStatus.value = false;
     });
-  } finally {
-    isRefreshingStatus.value = false;
-  }
 };
 
 const quitEvent = () => {
@@ -1385,57 +1178,71 @@ const quitEvent = () => {
   }
 };
 
-const confirmQuitEvent = async () => {
+const confirmQuitEvent = () => {
   showQuitConfirmDialog.value = false;
+
   if (!rlEventsUsersPkToQuit.value) {
     quitErrorMessage.value = "Cannot quit event. Relationship ID not found.";
     showQuitErrorAlert.value = true;
     return;
   }
-  try {
-    await axios.delete(
+
+  axios
+    .delete(
       `/rl_events_users/${rlEventsUsersPkToQuit.value}/delete/`,
       { status: 3 },
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      },
-    );
-    showQuitSuccessAlert.value = true;
-    showQuitErrorAlert.value = false;
-    await fetchMyEvents();
-    setTimeout(() => {
-      myDialog.value = false;
-    }, 2500);
-  } catch (error) {
-    console.error("Failed to quit event:", error);
-    quitErrorMessage.value =
-      "An unexpected error occurred. Please try again later.";
-    showQuitErrorAlert.value = true;
-    showQuitSuccessAlert.value = false;
-  }
+      }
+    )
+    .then(() => {
+      showQuitSuccessAlert.value = true;
+      showQuitErrorAlert.value = false;
+      return fetchMyEvents();
+    })
+    .then(() => {
+      setTimeout(() => {
+        myDialog.value = false;
+      }, 2500);
+    })
+    .catch((error) => {
+      console.error("Failed to quit event:", error);
+      quitErrorMessage.value =
+        "An unexpected error occurred. Please try again later.";
+      showQuitErrorAlert.value = true;
+      showQuitSuccessAlert.value = false;
+    });
 };
 
 const shareEvent = (eventId) => {
-  try {
-    if (!eventId) throw new Error("Event ID not found!");
-    const encodedId = btoa(eventId.toString());
-    sharedLink.value = `${window.location.origin}/event/${encodedId}`;
-    showDialog.value = true;
-  } catch (error) {
-    // Handle error generating link
-  }
+  Promise
+    .resolve(eventId)
+    .then(id => {
+      if (!id) {
+        throw new Error("Event ID not found!");
+      }
+      return btoa(id.toString());
+    })
+    .then(encodedId => {
+      sharedLink.value = `${window.location.origin}/event/${encodedId}`;
+      showDialog.value = true;
+    })
+    .catch(error => {
+      console.error("Error generating share link:", error);
+    });
 };
 
-const copyLink = async (link) => {
-  try {
-    await navigator.clipboard.writeText(link);
-    showDialog.value = false;
-    showAlert.value = true;
-  } catch (error) {
-    // Handle error copying link
-  }
+const copyLink = (link) => {
+  navigator.clipboard.writeText(link)
+    .then(() => {
+      showDialog.value = false;
+      showAlert.value = true;
+    })
+    .catch((error) => {
+      console.error('Failed to copy link:', error);
+    });
 };
 
 const getEventStatusInfo = (status) => {
@@ -1473,53 +1280,64 @@ const getEventStatusInfo = (status) => {
   }
 };
 
-const confirmJoinCampaign = async () => {
+const confirmJoinCampaign = () => {
   if (!parsedCampaignFk.value) return;
   joinCampaignLoading.value = true;
-  try {
-    await axios.post(
-      "/rl_campaigns_users/cadastro",
-      {
-        users_fk: userStore.user.users_pk,
-        campaigns_fk: parsedCampaignFk.value,
-        party_roles_fk: 2,
-        skus_fk: BOX_ID,
+
+  axios.post(
+    "/rl_campaigns_users/cadastro",
+    {
+      users_fk:      userStore.user.users_pk,
+      campaigns_fk:  parsedCampaignFk.value,
+      party_roles_fk: 2,
+      skus_fk:       BOX_ID,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
-    );
+    }
+  )
+  .then(() => {
     router.push({
       path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
       query: { sku: String(BOX_ID) },
     });
-  } catch (err) {
-    toast.add({ severity: "error", summary: "Erro", detail: err.message });
-  } finally {
+  })
+  .catch(err => {
+    toast.add({
+      severity: "error",
+      summary: "Erro",
+      detail: err.message
+    });
+  })
+  .finally(() => {
     joinCampaignLoading.value = false;
     showJoinCampaignDialog.value = false;
     joinCampaignId.value = "";
-  }
+  });
 };
 
-onMounted(async () => {
-  try {
-    const response = await axios.get("/stores/list", {
+onMounted(() => {
+  axios
+    .get("/stores/list", {
       params: { users_fk: userStore.user?.users_pk },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
+    })
+    .then(response => {
+      stores.value = response.data.stores || [];
+    })
+    .catch(error => {
+      console.error("Error fetching stores:", error);
     });
-    stores.value = response.data.stores || [];
-  } catch (error) {
-    // Handle error fetching stores
-  }
 
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
+
   fetchStatuses();
+
   if (events.value.length) {
     fetchPlayers(events.value[0].events_pk);
   }
@@ -1528,17 +1346,20 @@ onMounted(async () => {
   const rawUser = localStorage.getItem("app_user");
   playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
 
-  await fetchSceneries();
-
-  loading.value = true;
-  try {
-    await Promise.all([
-      fetchPlayerEvents(showPast.value),
-      fetchMyEvents(showPast.value),
-    ]);
-  } finally {
-    loading.value = false;
-  }
+  fetchSceneries()
+    .then(() => {
+      loading.value = true;
+      return Promise.all([
+        fetchPlayerEvents(showPast.value),
+        fetchMyEvents(showPast.value),
+      ]);
+    })
+    .catch(error => {
+      console.error("Error fetching sceneries or events:", error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 });
 
 watch(showPast, async (novo) => {
