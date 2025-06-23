@@ -576,12 +576,7 @@
                 block
                 color="success"
                 class="mb-2"
-                @click="
-                  () => {
-                    joinEvent();
-                    showCampaignDialog = false;
-                  }
-                "
+                @click="showJoinCampaignDialog = true"
               >
                 Join
               </v-btn>
@@ -625,6 +620,34 @@
                       @click="confirmLoadCampaign"
                     >
                       Load
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+
+              <v-dialog v-model="showJoinCampaignDialog" max-width="400">
+                <v-card>
+                  <v-card-title>Enter Campaign ID</v-card-title>
+                  <v-card-text>
+                    <v-text-field
+                      v-model="joinCampaignId"
+                      label="Campaign ID"
+                      hide-details
+                      dense
+                    />
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer />
+                    <v-btn text @click="showJoinCampaignDialog = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="primary"
+                      :loading="joinCampaignLoading"
+                      :disabled="!parsedCampaignFk"
+                      @click="confirmJoinCampaign"
+                    >
+                      Join
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -723,6 +746,9 @@ const showCampaignDialog = ref(false);
 const showLoadDialog = ref(false);
 const campaigns = ref([]);
 const selectedLoadCampaign = ref(null);
+const showJoinCampaignDialog = ref(false);
+const joinCampaignId = ref("");
+const joinCampaignLoading = ref(false);
 
 const BOX_ID = 38;
 
@@ -771,6 +797,10 @@ const selectedStore = computed(() => {
   return (
     stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
   );
+});
+
+const parsedCampaignFk = computed(() => {
+  return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
 
 const openEditDialog = (event, editable = false) => {
@@ -943,7 +973,7 @@ const handleNewCampaign = async (type) => {
     await axios.post("/rl_campaigns_users/cadastro", {
       users_fk: usersPk,
       campaigns_fk: campaignFk,
-      party_roles_fk: 1,
+      party_roles_fk: 2,
       skus_fk: selectedSku.skus_pk,
     });
     compressCampaign(String(campaignFk));
@@ -1001,7 +1031,7 @@ const confirmLoadCampaign = async () => {
     await axios.post("/rl_campaigns_users/cadastro", {
       users_fk: userStore.user.users_pk,
       campaigns_fk: selectedLoadCampaign.value,
-      party_roles_fk: 1,
+      party_roles_fk: 2,
       skus_fk: BOX_ID,
     });
 
@@ -1050,7 +1080,7 @@ const createdCompanion = async () => {
       .post("rl_campaigns_users/cadastro", {
         users_fk: users_pk,
         campaigns_fk: resp.campaign.campaigns_pk,
-        party_roles_fk: 1,
+        party_roles_fk: 2,
         skus_fk: parseInt(resp.campaign.box, 10),
       })
       .then((response) => {})
@@ -1443,19 +1473,17 @@ const getEventStatusInfo = (status) => {
   }
 };
 
-const joinEvent = async () => {
-  const userId = userStore.user?.users_pk;
-  if (!userId || !selectedEvent.value) return;
-
-  showAlert.value = false;
-
+const confirmJoinCampaign = async () => {
+  if (!parsedCampaignFk.value) return;
+  joinCampaignLoading.value = true;
   try {
     await axios.post(
-      "/rl_events_users/cadastro",
+      "/rl_campaigns_users/cadastro",
       {
-        users_fk: userStore.user?.users_pk,
-        events_fk: selectedEvent.value.events_pk,
-        status: 1,
+        users_fk: userStore.user.users_pk,
+        campaigns_fk: parsedCampaignFk.value,
+        party_roles_fk: 2,
+        skus_fk: BOX_ID,
       },
       {
         headers: {
@@ -1463,34 +1491,16 @@ const joinEvent = async () => {
         },
       },
     );
-    alertType.value = "success";
-    alertMessage.value =
-      "You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.";
-    showAlert.value = true;
-    setTimeout(() => {
-      showAlert.value = false;
-    }, 3000);
-    setTimeout(() => {
-      dialog.value = false;
-    }, 3500);
-    try {
-      await fetchMyEvents();
-    } catch (refreshError) {
-      console.error(
-        "A inscrição no evento foi bem-sucedida, mas a atualização da lista 'My Events' falhou.",
-        refreshError,
-      );
-    }
-  } catch (error) {
-    const apiMessage = error.response?.data?.message;
-    if (apiMessage) {
-      alertMessage.value = apiMessage;
-      if (apiMessage.includes("already signed up")) {
-        alertType.value = "error";
-        console.error("Erro ao tentar entrar no evento:", error);
-      }
-      showAlert.value = true;
-    }
+    router.push({
+      path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
+      query: { sku: String(BOX_ID) },
+    });
+  } catch (err) {
+    toast.add({ severity: "error", summary: "Erro", detail: err.message });
+  } finally {
+    joinCampaignLoading.value = false;
+    showJoinCampaignDialog.value = false;
+    joinCampaignId.value = "";
   }
 };
 
