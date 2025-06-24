@@ -1,4 +1,25 @@
 <template>
+<v-tooltip location="left">
+  <template #activator="{ props }">
+    <v-btn
+      v-bind="props"
+      class="download-fab"
+      style="opacity: 0.6;"
+      icon
+      color="primary"
+      size="large"
+      elevation="8"
+      :href="pdfUrl"
+      target="_blank"
+      download="Drunagor_Nights_Season_1.pdf"
+    >
+      <v-icon
+      size="large">mdi-file-download-outline</v-icon>
+    </v-btn>
+  </template>
+  <span> Download Season 1 Drunagor Nigths Book</span>
+</v-tooltip>
+
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
@@ -653,6 +674,10 @@ import { set } from "lodash-es";
 const eventStore = useEventStore();
 const userStore = useUserStore();
 
+
+
+
+const assets = inject('assets');
 const isEditable = ref(false);
 const availableRewards = ref([]);
 const players = ref([]);
@@ -1522,6 +1547,18 @@ watch(
     }
   },
 );
+
+const pdfUrl = computed(() => {
+  const baseUrl = assets && typeof assets.value !== 'undefined' ? assets.value : assets;
+  if (!baseUrl) {
+    return '#'; 
+  }
+  return `${baseUrl}/book/test.pdf`;
+});
+
+
+
+
 </script>
 
 <style scoped>
@@ -1683,4 +1720,22 @@ watch(
   width: 80px;
   height: 160px;
 }
+
+.download-fab {
+  position: fixed;
+  z-index: 1000;
+  bottom: 24px;
+  right: 24px;
+}
+@media (max-width: 960px) {
+  .download-fab {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    bottom: auto;
+  }
+}
+
+
+
 </style>
