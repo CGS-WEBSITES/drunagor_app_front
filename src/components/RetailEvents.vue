@@ -17,7 +17,7 @@
       size="large">mdi-file-download-outline</v-icon>
     </v-btn>
   </template>
-  <span> Download Season 1 Drunagor Nigths Book</span>
+  <span> Download Season 1 Drunagor Nights Book</span>
 </v-tooltip>
 
   <v-row justify="center">
