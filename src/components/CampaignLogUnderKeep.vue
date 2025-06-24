@@ -2,7 +2,7 @@
 import CampaignLogOutcome from "@/components/CampaignLogOutcome.vue";
 import CampaignLogStatus from "@/components/CampaignLogStatus.vue";
 import { CampaignLogStatusRepository } from "@/data/repository/campaign/underkeep/CampaignLogStatusRepository";
-import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/core/CampaignLogOutcomeRepository";
+import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/underkeep/CampaignLogOutcomeRepository";
 import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
@@ -20,6 +20,16 @@ const { t } = useI18n();
     <v-col cols="12">
       <CampaignLogStatus
         :repository="statusRepository"
+        :campaign-id="props.campaignId"
+        :hero-id="props.heroId"
+      />
+    </v-col>
+  </v-row>
+
+<v-row no-gutters>
+    <v-col cols="12">
+      <CampaignLogOutcome
+        :repository="outcomeRepository"
         :campaign-id="props.campaignId"
         :hero-id="props.heroId"
       />

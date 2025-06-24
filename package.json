@@ -40,6 +40,7 @@
     "vue-axios": "^3.5.2",
     "vue-i18n": "^9.10.2",
     "vue-router": "^4.4.5",
+    "vue-the-mask": "^0.11.1",
     "vuetify": "^3.6.11"
   },
   "devDependencies": {

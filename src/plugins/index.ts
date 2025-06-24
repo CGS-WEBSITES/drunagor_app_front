@@ -19,6 +19,8 @@ import "primeicons/primeicons.css";
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 import {getToken} from '@/service/AccessToken'
+import VueTheMask from 'vue-the-mask'
+
 
 // Types
 import type { App } from "vue";
@@ -27,6 +29,7 @@ export async function registerPlugins(app: App, env: string) {
 
 
   // initializing puglins
+  app.use(VueTheMask)
   app.use(vuetify);
   app.use(router);
   app.use(pinia);
