@@ -130,43 +130,94 @@ const selected = ref(null);
     {{ t("label.new-campaign") }}
   </v-btn>
 
-  <v-dialog v-model="visible" max-width="800">
-    <v-card>
+   <v-dialog v-model="visible" max-width="750px" persistent>
+    <v-card class="rounded-lg">
+      <div v-if="loading" class="loading-container">
+        <v-progress-circular
+          :size="70"
+          :width="7"
+          color="primary"
+          indeterminate
+        ></v-progress-circular>
+        <h2 class="mt-4 text-grey-darken-1">Building your adventure...</h2>
+        <p class="text-grey-lighten-1">Please wait a moment.</p>
+      </div>
 
-      <v-card-text class="d-flex justify-center">
+      <div v-else>
+        <div class="d-flex justify-end pa-2">
+            <v-btn icon="mdi-close" variant="text" @click="visible = false"></v-btn>
+        </div>
+        
+        <v-card-text class="pt-0">
+          <v-container fluid>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-card
+                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
+                  @click="newCampaign('core')"
+                  hover
+                  height="200"
+                >
+                  <v-img :src="CoreLogo.toString()" width="280" height="100" contain></v-img>
+                </v-card>
+              </v-col>
 
-        <v-progress-circular v-if="loading" :size="80" :width="7" color="primary" indeterminate></v-progress-circular>
+              <v-col cols="12" sm="6">
+                <v-card
+                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
+                  @click="newCampaign('apocalypse')"
+                  hover
+                  height="200"
+                >
+                  <v-img :src="ApocalypseLogo.toString()" width="280" height="100" contain></v-img>
+                </v-card>
+              </v-col>
 
-        <v-slide-group v-else v-model="selected" class="pl-1" show-arrows center-active>
-          <v-slide-item value="core">
-            <v-img width="336" height="200" class="ma-2 cursor-pointer" :src="CoreLogo.toString()"
-              @click="newCampaign('core')" />
-          </v-slide-item>
+              <v-col cols="12" sm="6">
+                <v-card
+                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
+                  @click="newCampaign('awakenings')"
+                  hover
+                  height="200"
+                >
+                  <v-img :src="AwakeningsLogo.toString()" width="280" height="100" contain></v-img>
+                </v-card>
+              </v-col>
 
-          <v-slide-item value="apocalypse">
-            <v-img width="336" height="200" class="ma-2 cursor-pointer" :src="ApocalypseLogo.toString()"
-              @click="newCampaign('apocalypse')" />
-          </v-slide-item>
-
-          <v-slide-item value="awakenings">
-            <v-img width="336" height="200" class="ma-2 cursor-pointer" :src="AwakeningsLogo.toString()"
-              @click="newCampaign('awakenings')" />
-          </v-slide-item>
-
-          <v-slide-item value="underkeep">
-            <v-img width="336" height="200" class="ml-0 cursor-pointer" :src="UnderKeepLogo.toString()"
-              @click="newCampaign('underkeep')" />
-          </v-slide-item>
-        </v-slide-group>
-      </v-card-text>
+              <v-col cols="12" sm="6">
+                <v-card
+                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
+                  @click="newCampaign('underkeep')"
+                  hover
+                  height="200"
+                >
+                  <v-img :src="UnderKeepLogo.toString()" width="280" height="100" contain></v-img>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+      </div>
     </v-card>
   </v-dialog>
 </template>
 
 <style scoped>
-.v-slide-item--active {
-  transform: scale(1.1);
-  transition: transform 0.3s ease;
-  z-index: 2;
+.campaign-card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.campaign-card:hover {
+  transform: translateY(-5px);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
 }
 </style>
