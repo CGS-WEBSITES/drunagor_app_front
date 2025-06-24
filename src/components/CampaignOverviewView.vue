@@ -21,14 +21,23 @@
       <v-card-actions>
         <CampaignNew />
         <CampaignImport />
+        <v-btn variant="elevated" rounded @click="onJoinCampaign">
+          Join Campaign
+        </v-btn>
       </v-card-actions>
     </v-card>
     <v-card class="d-md-none justify-center pa-3 elevation-0">
       <v-card-actions class="d-flex justify-center">
         <CampaignNew />
+        <v-btn variant="elevated" rounded @click="onJoinCampaign">
+          Join Campaign
+        </v-btn>
       </v-card-actions>
       <v-card-actions class="d-flex justify-center">
         <CampaignImport />
+        <v-btn variant="elevated" rounded @click="onJoinCampaign">
+          Join Campaign
+        </v-btn>
       </v-card-actions>
     </v-card>
 
@@ -109,6 +118,47 @@
         </v-col>
       </v-row>
     </div>
+
+    <v-dialog v-model="showJoinCampaignDialog" max-width="400" persistent>
+      <v-card style="position: relative">
+        <div v-if="loading" class="dialog-overlay">
+          <v-progress-circular
+            indeterminate
+            size="80"
+            width="7"
+            color="primary"
+          />
+        </div>
+        <v-card-title class="d-flex justify-space-between align-center pa-0">
+          <span class="text-h6 ml-4">Enter Campaign ID</span>
+          <v-card-actions class="pa-0">
+            <v-btn icon @click="showJoinCampaignDialog = false">
+              <v-icon color="red">mdi-close</v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="joinCampaignId"
+            label="Campaign ID"
+            hide-details
+            dense
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            block
+            color="green"
+            elevation="4"
+            class="mt-4"
+            :disabled="!parsedCampaignFk"
+            @click="confirmJoinCampaign"
+          >
+            Join
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -125,6 +175,7 @@ import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import type { HeroData } from "@/data/repository/HeroData";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { useToast } from "primevue/usetoast";
 
 import { customAlphabet } from "nanoid";
 import axios from "axios";
@@ -136,13 +187,22 @@ const toastUser = useUserStore();
 const partyStore = PartyStore();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
+const toast = useToast()
 
 const nanoid = customAlphabet("1234567890", 5);
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
+const showJoinCampaignDialog = ref(false);
+const joinCampaignId = ref("");
+
+const BOX_ID = 38;
 
 const allCampaigns = computed(() => campaignStore.findAll());
 const avatarSize = computed(() => (route.meta.mdAndUp ? 120 : 70));
+
+const parsedCampaignFk = computed(() => {
+  return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
+});
 
 onBeforeMount(() => {
   campaignStore.reset();
@@ -237,6 +297,62 @@ const avatarCols = (campId: string) => {
   const count = heroAvatars(campId).length;
   return route.meta.mdAndUp && count <= 4 ? 3 : undefined;
 };
+
+const onJoinCampaign = () => {
+  showJoinCampaignDialog.value = true;
+};
+
+// Confirmação de entrar na campanha
+const confirmJoinCampaign = () => {
+  if (!parsedCampaignFk.value) return;
+  loading.value = true;
+
+  axios
+    .post(
+      "/rl_campaigns_users/cadastro",
+      {
+        users_fk: toastUser.user!.users_pk,
+        campaigns_fk: parsedCampaignFk.value,
+        party_roles_fk: 2,
+        skus_fk: BOX_ID,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    )
+    .then(() => {
+      showJoinCampaignDialog.value = false;
+      router.push({
+        path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
+        query: { sku: String(BOX_ID) },
+      });
+    })
+    .catch((err) => {
+      toast.add({
+        severity: "error",
+        summary: "Erro",
+        detail: err.message,
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+      joinCampaignId.value = "";
+    });
+};
 </script>
 
-<style scoped></style>
+<style scoped>
+.dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
