@@ -280,11 +280,18 @@
               </v-alert>
             </v-card-text>
 
-            <v-card-actions class="mt-2 ml-0">
-              <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
-                Count me in
-              </v-btn>
-            </v-card-actions>
+            <v-row class="mt-2 ml-0">
+              <v-col cols="12" class="mb-2">
+                <v-btn
+                  block
+                  color="#539041"
+                  class="rounded-0"
+                  @click="joinEvent"
+                >
+                  Count me in
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-card>
         </v-dialog>
       </div>
@@ -1370,6 +1377,49 @@ const confirmJoinCampaign = () => {
     .finally(() => {
       loading.value = false;
       joinCampaignId.value = "";
+    });
+};
+
+const joinEvent = async () => {
+  showAlert.value = false;
+
+  await axios
+    .post(
+      "/rl_events_users/cadastro",
+      {
+        users_fk: userStore.user.users_pk,
+        events_fk: selectedEvent.value.events_pk,
+        status: 1,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    )
+    .then(() => {
+      alertType.value = "success";
+      alertMessage.value =
+        "You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.";
+      showAlert.value = true;
+      setTimeout(() => {
+        showAlert.value = false;
+        dialog.value = false;
+      }, 1000);
+      setTimeout(() => {
+        activeTab.value = 2;
+      }, 1000);
+    })
+    .catch((error) => {
+      const apiMessage = error.response?.data?.message;
+      if (apiMessage) {
+        alertMessage.value = apiMessage;
+        if (apiMessage.includes("already signed up")) {
+          alertType.value = "error";
+          console.error("Erro ao tentar entrar no evento:", error);
+        }
+        showAlert.value = true;
+      }
     });
 };
 
