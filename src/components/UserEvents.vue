@@ -1048,7 +1048,6 @@ const createEvent = () => {
   createEventDialog.value = false;
 };
 
-
 const openMyEventsDialog = (event) => {
   showQuitSuccessAlert.value = false;
   showQuitErrorAlert.value = false;
@@ -1058,6 +1057,7 @@ const openMyEventsDialog = (event) => {
 
   const userStore = useUserStore();
   const userId = parseInt(userStore.user?.users_pk, 10);
+
   if (isNaN(userId)) {
     return;
   }
@@ -1080,40 +1080,6 @@ const openMyEventsDialog = (event) => {
     })
     .catch(() => {
       rlEventsUsersPkToQuit.value = null;
-    });
-};
-
-const refreshEventStatus = () => {
-  if (!selectedMyEvent.value?.events_pk) {
-    console.warn("Nenhum evento selecionado para atualizar.");
-    return;
-  }
-
-  isRefreshingStatus.value = true;
-
-  fetchPlayers(selectedMyEvent.value.events_pk)
-    .then(() => {
-      if (currentPlayer.value) {
-        selectedMyEvent.value.status = currentPlayer.value.event_status;
-        toast.add({
-          severity: "info",
-          summary: "Status Atualizado",
-          detail: `O novo status é: ${currentPlayer.value.event_status}`,
-          life: 3000,
-        });
-      }
-    })
-    .catch((error) => {
-      console.error("Falha ao atualizar o status do evento:", error);
-      toast.add({
-        severity: "error",
-        summary: "Erro",
-        detail: "Não foi possível atualizar o status.",
-        life: 3000,
-      });
-    })
-    .finally(() => {
-      isRefreshingStatus.value = false;
     });
 };
 
