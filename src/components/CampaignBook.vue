@@ -905,7 +905,7 @@ onBeforeUnmount(() => {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: top center;
-  padding: 2px 14px 10px;
+  padding: 12px 14px 10px;
   position: relative;
   z-index: 1;
   color: #212121;
@@ -913,15 +913,14 @@ onBeforeUnmount(() => {
   border-top-right-radius: 6px;
 }
 
-  .header-banner .d-flex { 
-  cursor: move; 
+.header-banner .d-flex {
+  cursor: move;
 }
-
 
 .section-title {
   font-size: 0.7rem;
   color: white;
-  padding: 23px 44px 5px;
+  padding: 10px 125px 20px;
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
@@ -932,12 +931,27 @@ onBeforeUnmount(() => {
   font-size: 1.8rem;
   color: white;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-  margin-top: 5px;
-  margin-bottom: 10px;
-  padding-left: 44px;
+  margin-top: 1px;
+  margin-bottom: 66px;
+  padding-left: 126px;
   padding-right: 44px;
   text-align: left;
 }
+
+@media (max-width: 1023px) {
+  .section-title {
+    padding: 0px 90px 20px;
+  }
+  .chapter-title-banner {
+    font-size: 1.8rem;
+    padding-left: 86px;
+    padding-right: 0px;
+    margin-bottom: 20px;
+  }
+}
+
+
+
 
 .close-btn {
   background-color: #212121 !important;
@@ -1124,7 +1138,7 @@ onBeforeUnmount(() => {
 .main-content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-height: 500px;
-  height: calc(90vh - 40px); 
+  height: calc(140vh - 40px); 
   display: flex; 
   flex-direction: column; 
 }
@@ -1358,9 +1372,9 @@ onBeforeUnmount(() => {
 }
 
 
-@media (max-width: 960px) {
+@media (max-width: 1023px) {
   .book-dialog {
-    width: 90vw !important;
+    width: 96vw !important;
     max-height: 85vh !important; 
     margin: 2.5vh auto; 
   }
@@ -1374,8 +1388,15 @@ onBeforeUnmount(() => {
     margin: 16px; 
   }
 
+  .section-title {
+    padding: 0px 100px 14px;
+  }
+
   .chapter-title-banner {
-    font-size: 1.6rem !important;
+    font-size: 1.5rem !important;
+    padding-left: 98px;
+    padding-right: 0px;
+    margin-bottom: 45px;
   }
 
   .body-text p {
@@ -1413,7 +1434,7 @@ onBeforeUnmount(() => {
 
 @media (max-width: 600px) {
   .book-dialog {
-    width: 96vw !important;
+    width: 95vw !important;
     max-height: 90vh !important; 
     overflow: hidden;
     margin: 2vh auto;
@@ -1446,16 +1467,17 @@ onBeforeUnmount(() => {
 
 
   .section-title {
-    font-size: 0.6rem !important;
-    padding: 15px 10px 5px 10px !important;
+    font-size: 0.5rem !important;
+    padding: 0px 0px 15px 10px !important;
   }
 
   .chapter-title-banner {
-    font-size: 1.4rem !important;
+    font-size: 1rem !important;
     padding-left: 10px !important;
     padding-right: 10px !important;
-    margin-top: 2px;
-    margin-bottom: 8px;
+    padding-bottom: 12px;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   .body-text p {
