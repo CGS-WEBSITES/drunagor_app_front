@@ -155,7 +155,7 @@
             </v-card-actions>
             <v-card-text>
               <p>
-                <v-icon>mdi-seat</v-icon> Disponible Seats:
+                <v-icon>mdi-seat</v-icon> Available Seats:
                 {{ selectedEvent?.seats_number }}
               </p>
               <p>
@@ -448,7 +448,7 @@
                     <v-card color="surface" class="ml-5">
                       <v-card-text>
                         <p>
-                          <v-icon>mdi-seat</v-icon> Disponible Seats:
+                          <v-icon>mdi-seat</v-icon> Available Seats:
                           {{ selectedEvent?.seats_number }}
                         </p>
                         <p>
