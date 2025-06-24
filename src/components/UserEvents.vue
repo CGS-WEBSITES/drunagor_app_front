@@ -1,7 +1,9 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
+      <h1
+        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+      >
         EVENTS
       </h1>
     </v-col>
@@ -11,7 +13,13 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
+          <v-tabs
+            class="EventsTabs mb-3"
+            v-model="activeTab"
+            fixed-tabs
+            align-tabs="center"
+            color="white"
+          >
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -20,7 +28,12 @@
 
       <v-row class="mb-4" align="center">
         <v-col cols="12" sm="6">
-          <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
+          <v-checkbox
+            v-model="showPast"
+            label="Past events"
+            hide-details
+            color="primary"
+          />
         </v-col>
       </v-row>
 
@@ -31,11 +44,24 @@
         </div>
         <div v-else class="list-container">
           <v-row v-if="events.length > 0">
-            <v-col v-for="(event, index) in sortedEvents" :key="index" class="py-2 pl-1 pr-1" cols="12" md="6">
-              <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
+            <v-col
+              v-for="(event, index) in sortedEvents"
+              :key="index"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
+            >
+              <v-card
+                color="terciary"
+                class="pt-0 event-card"
+                @click="openDialog(event)"
+              >
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div class="text-center ml-3" style="width: 70px; color: black">
+                    <div
+                      class="text-center ml-3"
+                      style="width: 70px; color: black"
+                    >
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(event.event_date)
@@ -64,7 +90,9 @@
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                      <v-icon class="pr-1" size="small" color="black"
+                        >mdi-chess-rook</v-icon
+                      >
                       {{ event.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -77,10 +105,22 @@
                     </p>
                     <p class="text-caption ml-3" v-if="event.rewards?.length">
                       <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                        <v-icon class="mr-1" color="red"
+                          >mdi-star-circle</v-icon
+                        >
                         Rewards:
-                        <v-col v-for="(reward, i) in event.rewards" :key="i" cols="auto">
-                          <v-img :src="reward.image" height="20" width="20" contain class="reward-icon" />
+                        <v-col
+                          v-for="(reward, i) in event.rewards"
+                          :key="i"
+                          cols="auto"
+                        >
+                          <v-img
+                            :src="reward.image"
+                            height="20"
+                            width="20"
+                            contain
+                            class="reward-icon"
+                          />
                         </v-col>
                       </v-row>
                     </p>
@@ -184,10 +224,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedEvent?.picture_hash
-                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -203,10 +247,16 @@
 
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
+              <v-row
+                v-for="(reward, index) in eventRewards"
+                :key="index"
+                class="align-center my-2"
+              >
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                    <v-img
+                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                    />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
@@ -217,18 +267,24 @@
                 </v-col>
               </v-row>
 
-              <v-alert v-if="showAlert" :type="alertType" class="mt-4" border="start" variant="tonal" closable
-                @click:close="showAlert = false">
+              <v-alert
+                v-if="showAlert"
+                :type="alertType"
+                class="mt-4"
+                border="start"
+                variant="tonal"
+                closable
+                @click:close="showAlert = false"
+              >
                 <span v-html="alertMessage"></span>
               </v-alert>
             </v-card-text>
-            <v-row class="mt-2 ml-0">
-              <v-col cols="12" class="mb-2">
-                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
-                  Count me in
-                </v-btn>
-              </v-col>
-            </v-row>
+
+            <v-card-actions class="mt-2 ml-0">
+              <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
+                Count me in
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-dialog>
       </div>
@@ -240,11 +296,24 @@
         </div>
         <div v-else class="list-container">
           <v-row v-if="myEvents.length > 0">
-            <v-col v-for="(evt, idx) in myEvents" :key="evt.events_pk" class="py-2 pl-1 pr-1" cols="12" md="6">
-              <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
+            <v-col
+              v-for="(evt, idx) in myEvents"
+              :key="evt.events_pk"
+              class="py-2 pl-1 pr-1"
+              cols="12"
+              md="6"
+            >
+              <v-card
+                color="terciary"
+                class="pt-0 event-card"
+                @click="openMyEventsDialog(evt)"
+              >
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div class="text-center ml-3" style="width: 70px; color: black">
+                    <div
+                      class="text-center ml-3"
+                      style="width: 70px; color: black"
+                    >
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(evt.event_date)
@@ -268,7 +337,9 @@
                   </v-col>
                   <v-col cols="8" sm="9" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                      <v-icon class="pr-1" size="small" color="black"
+                        >mdi-chess-rook</v-icon
+                      >
                       {{ evt.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -285,9 +356,16 @@
                     </p>
                   </v-col>
                   <v-col cols="1" class="d-flex align-center justify-end pr-2">
-                    <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
+                    <v-tooltip
+                      :text="getEventStatusInfo(evt.status).tooltip"
+                      location="top"
+                    >
                       <template #activator="{ props }">
-                        <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
+                        <v-icon
+                          v-bind="props"
+                          :color="getEventStatusInfo(evt.status).color"
+                          size="large"
+                        >
                           {{ getEventStatusInfo(evt.status).icon }}
                         </v-icon>
                       </template>
@@ -319,7 +397,12 @@
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
               </v-card-title>
-              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer">
+              <v-icon
+                color="red"
+                @click="myDialog = false"
+                class="mr-2"
+                style="cursor: pointer"
+              >
                 mdi-close
               </v-icon>
             </div>
@@ -366,12 +449,17 @@
                       border-radius: 4px;
                       text-transform: uppercase;
                       letter-spacing: 1px;
-                    ">
+                    "
+                  >
                     Coming Soon
                   </div>
                 </div>
-              </v-col> -->
-              <v-col cols="12" md="8" class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3">
+              </v-col>
+              <v-col
+                cols="12"
+                md="5"
+                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
+              >
                 <div class="d-flex align-center justify-center mb-2">
                   <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
                     Status: {{ selectedMyEvent?.status }}
@@ -428,10 +516,14 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img :src="selectedMyEvent?.picture_hash
-                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    " class="event-img" />
+                  <v-img
+                    :src="
+                      selectedMyEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    "
+                    class="event-img"
+                  />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -663,6 +755,7 @@ const alertType = ref("success");
 const alertMessage = ref("");
 const joinedEventPk = ref(null);
 const sortBy = ref("date");
+const playerFk = ref(null);
 const showPast = ref(false);
 const myEvents = ref([]);
 const sceneries = ref([]);
@@ -720,6 +813,7 @@ if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
+const user = computed(() => userStore.user);
 const boxSku = computed(() => route.query.sku || "");
 
 const sortedEvents = computed(() => {
@@ -734,6 +828,16 @@ const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
 const paginatedPlayers = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
   return players.value.slice(start, start + pageSize);
+});
+
+const appUserPk = computed(() => {
+  const raw = localStorage.getItem("app_user");
+  return raw ? JSON.parse(raw).users_pk : null;
+});
+
+const currentPlayer = computed(() => {
+  if (!appUserPk.value) return null;
+  return players.value.find((p) => p.users_pk === appUserPk.value) || null;
 });
 
 const selectedStoreImage = computed(() => {
@@ -811,7 +915,6 @@ oneYearFromToday.setFullYear(today.getFullYear() + 1);
 const openDialog = (event) => {
   selectedEvent.value = event;
   dialog.value = true;
-  showAlert.value = false
   fetchPlayers(event.events_pk);
 
   axios
@@ -974,7 +1077,7 @@ const confirmLoadCampaign = () => {
 const fetchPlayerEvents = async (past) => {
   loading.value = true;
   const params = {
-    player_fk: userStore.user.users_pk,
+    player_fk: playerFk.value,
     past_events: past.toString(),
   };
   await axios
@@ -1000,7 +1103,7 @@ const fetchMyEvents = async (past) => {
   loading.value = true;
 
   const params = {
-    player_fk: userStore.user.users_pk,
+    player_fk: playerFk.value,
     past_events: past.toString(),
     limit: 30,
     offset: 0,
@@ -1025,6 +1128,7 @@ const fetchMyEvents = async (past) => {
 };
 
 const fetchMyEventsDebounced = useDebounceFn(() => {
+  if (!playerFk.value) return;
   fetchMyEvents();
 }, 300);
 
@@ -1053,11 +1157,11 @@ const openMyEventsDialog = (event) => {
   showQuitErrorAlert.value = false;
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
+  fetchPlayers(event.events_pk);
   myDialog.value = true;
 
   const userStore = useUserStore();
   const userId = parseInt(userStore.user?.users_pk, 10);
-
   if (isNaN(userId)) {
     return;
   }
@@ -1083,18 +1187,51 @@ const openMyEventsDialog = (event) => {
     });
 };
 
-const refreshEventStatus = async () => {
+const refreshEventStatus = () => {
+  if (!selectedMyEvent.value?.events_pk) {
+    console.warn("Nenhum evento selecionado para atualizar.");
+    return;
+  }
 
   isRefreshingStatus.value = true;
-  fetchMyEvents(showPast.value)
 
-  const newEvent = myEvents.value.find(
-    (event) => event.events_pk === selectedMyEvent.value.events_pk
-  );
+  fetchPlayers(selectedMyEvent.value.events_pk)
+    .then(() => {
+      if (currentPlayer.value) {
+        selectedMyEvent.value.status = currentPlayer.value.event_status;
+        toast.add({
+          severity: "info",
+          summary: "Status Atualizado",
+          detail: `O novo status é: ${currentPlayer.value.event_status}`,
+          life: 3000,
+        });
+      }
+    })
+    .catch((error) => {
+      console.error("Falha ao atualizar o status do evento:", error);
+      toast.add({
+        severity: "error",
+        summary: "Erro",
+        detail: "Não foi possível atualizar o status.",
+        life: 3000,
+      });
+    })
+    .finally(() => {
+      isRefreshingStatus.value = false;
+    });
+};
 
-  selectedMyEvent.value = newEvent
-
-  isRefreshingStatus.value = false
+const quitEvent = () => {
+  if (rlEventsUsersPkToQuit.value) {
+    showQuitConfirmDialog.value = true;
+  } else {
+    toast.add({
+      severity: "warn",
+      summary: "Warning",
+      detail: "Cannot quit event. Relationship ID not found.",
+      life: 3000,
+    });
+  }
 };
 
 const confirmQuitEvent = () => {
@@ -1281,25 +1418,11 @@ onMounted(() => {
 });
 
 watch(showPast, async (novo) => {
-
-  if (activeTab.value == 1) {
-    await fetchPlayerEvents(novo);
-  }
-  else {
-    await fetchMyEvents(novo);
-  }
+  loading.value = true;
+  await fetchPlayerEvents(novo);
+  await fetchMyEvents(novo);
+  loading.value = false;
 });
-
-watch(activeTab, async (novo) => {
-  if (novo == 1) {
-    await fetchPlayerEvents(showPast.value);
-  }
-  else {
-    await fetchMyEvents(showPast.value);
-  }
-});
-
-
 
 watch(
   () => newEvent.value.store,
