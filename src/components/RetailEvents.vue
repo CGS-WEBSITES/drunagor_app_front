@@ -1095,17 +1095,10 @@ const currentShowPast = computed({
 
 const openInGoogleMaps = () => {
   const { name, latitude, longitude } = selectedStore.value;
-  console.log(
-    "Opening Google Maps for:",
-    name,
-    latitude,
-    longitude,
-  );
+
   if (!name || latitude == null || longitude == null) return "#";
 
   const encodedName = name.split(" ").join("+");
-  console.log("Encoded Name:", encodedName);
-
   const query = `${encodedName}%20${latitude},${longitude}`;
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
@@ -1834,7 +1827,6 @@ const refreshInterestedPlayers = async (event) => {
 };
 
 onMounted(() => {
-  openInGoogleMaps();
   axios
     .get("/stores/list", {
       params: { users_fk: userStore.user.users_pk },
