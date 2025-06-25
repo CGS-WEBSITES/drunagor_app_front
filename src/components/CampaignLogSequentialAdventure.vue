@@ -50,7 +50,7 @@ function openSequentialStateEditor() {
     @click="openSequentialStateEditor"
     class="cursor-pointer justify-center"
   >
-    <v-col cols="4" class="px-2" width="100%">
+    <v-col cols="6" class="px-2">
       <v-sheet
         rounded
         border="md"
@@ -58,17 +58,15 @@ function openSequentialStateEditor() {
         width="100%"
         style="background-color: #1f2937 !important"
       >
-        <div class="text-center">{{ sequentialAdventureState.curseCubes }}</div>
-
-        <v-divider></v-divider>
-
-        <div class="text-center">
+        <div class="text-h6 text-center">{{ sequentialAdventureState.curseCubes }}</div>
+        <v-divider class="my-2"></v-divider>
+        <div class="text-center text-body-2">
           {{ t("text.curse-cubes") }}
         </div>
       </v-sheet>
     </v-col>
 
-    <v-col cols="4" class="px-2">
+    <v-col cols="6" class="px-2">
       <v-sheet
         rounded
         border="md"
@@ -76,19 +74,17 @@ function openSequentialStateEditor() {
         width="100%"
         style="background-color: #1f2937 !important"
       >
-        <div class="text-center">
+        <div class="text-h6 text-center">
           {{ sequentialAdventureState.traumaCubes }}
         </div>
-
-        <v-divider></v-divider>
-
-        <div class="text-center">
+        <v-divider class="my-2"></v-divider>
+        <div class="text-center text-body-2">
           {{ t("text.trauma-cubes") }}
         </div>
       </v-sheet>
     </v-col>
 
-    <v-col cols="4" class="px-2">
+    <v-col cols="12" class="px-2">
       <v-sheet
         rounded
         border="md"
@@ -100,7 +96,7 @@ function openSequentialStateEditor() {
           <div
             v-for="resource in resourceDisplay"
             :key="resource.name"
-            class="text-center"
+            class="text-center text-body-1"
           >
             {{ resource.count }} - {{ t(resource.name) }}
           </div>
@@ -108,9 +104,52 @@ function openSequentialStateEditor() {
         <div class="text-center font-italic" v-else>
           {{ t("text.no-resources") }}
         </div>
-        <v-divider></v-divider>
-        <div class="text-center">{{ t("label.resources") }}</div>
+        <v-divider class="my-2"></v-divider>
+        <div class="text-center text-body-2">{{ t("label.resources") }}</div>
       </v-sheet>
+    </v-col>
+  </v-row>
+
+  <v-row no-gutters class="justify-center">
+    <v-col cols="6" class="px-2">
+      <v-sheet
+        rounded
+        border="md"
+        class="mb-6 pa-6 text-white"
+        width="100%"
+        style="background-color: #1f2937 !important"
+      >
+        <div class="text-h6 text-center">{{ sequentialAdventureState.availableCubes }}</div>
+        <v-divider class="my-2"></v-divider>
+        <div class="text-center text-body-2">{{ t('Available Cubes') }}</div>
+      </v-sheet>
+    </v-col>
+
+    <v-col cols="6" class="px-2">
+      <v-sheet
+        rounded
+        border="md"
+        class="mb-6 pa-6 text-white"
+        width="100%"
+        style="background-color: #1f2937 !important"
+      >
+        <div class="text-h6 text-center">{{ sequentialAdventureState.usedCubes }}</div>
+        <v-divider class="my-2"></v-divider>
+        <div class="text-center text-body-2">{{ t('Used Cubes') }}</div>
+      </v-sheet>
+    </v-col>
+    
+    <v-col cols="12" class="px-2 pb-4">
+
+        <v-btn
+          @click.stop="openSequentialStateEditor"
+          variant="elevated"
+          color="secundary"
+          rounded
+        >
+          {{ t('Manage Resources') }}
+        </v-btn>
+
     </v-col>
   </v-row>
 </template>

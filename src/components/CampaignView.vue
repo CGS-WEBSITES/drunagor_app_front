@@ -1,88 +1,3 @@
-<script setup lang="ts">
-import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
-import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
-import CampaignLog from "@/components/CampaignLog.vue";
-import { useRoute } from "vue-router";
-import { HeroStore } from "@/store/HeroStore";
-import CampaignRemove from "@/components/CampaignRemove.vue";
-import CampaignExport from "@/components/CampaignExport.vue";
-import CampaignSavePut from "@/components/CampaignSavePut.vue";
-import StoryRecord from "@/components/StoryRecord.vue";
-import CampaignName from "@/components/CampaignName.vue";
-import { CampaignStore } from "@/store/CampaignStore";
-import { type Campaign } from "@/store/Campaign";
-import CampaignCampPhase from "@/components/CampaignCampPhase.vue";
-import { ref, onMounted, watch } from "vue";
-import CampaignRunes from "@/components/CampaignRunes.vue";
-import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
-import CampaignBook from "@/components/CampaignBook.vue";
-import SelectDoor from "@/components/SelectDoor.vue";
-
-const route = useRoute();
-
-const campaignId = (route.params as { id: string }).id.toString();
-const campaignStore = CampaignStore();
-const heroStore = HeroStore();
-const isSequentialAdventure = ref(false);
-const campaign = ref<Campaign | null>(null);
-const alertIcon = ref("");
-const alertText = ref("");
-const alertTitle = ref("");
-const alertType = ref("");
-const showAlert = ref(false);
-
-const currentTab = ref("normal");
-
-onMounted(() => {
-  const foundCampaign = campaignStore.find(campaignId);
-  if (foundCampaign) {
-    campaign.value = foundCampaign;
-    isSequentialAdventure.value = foundCampaign.isSequentialAdventure ?? false;
-  } else {
-    console.error(`Campaign with ID ${campaignId} not found.`);
-    setAlert(
-      "mdi-alert-circle",
-      "Error",
-      `Campaign with ID ${campaignId} not found.`,
-      "error",
-    );
-  }
-});
-
-const setAlert = (icon: string, title: string, text: string, type: string) => {
-  alertIcon.value = icon;
-  alertTitle.value = title;
-  alertText.value = text;
-  showAlert.value = true;
-  alertType.value = type;
-
-  setTimeout(() => {
-    showAlert.value = false;
-  }, 1500);
-};
-
-function onCampPhase() {
-  isSequentialAdventure.value = false;
-}
-
-function onSequentialAdventure() {
-  isSequentialAdventure.value = true;
-}
-
-watch(
-  campaign,
-  (newCampaign) => {
-    if (newCampaign) {
-      isSequentialAdventure.value = newCampaign.isSequentialAdventure ?? false;
-      if (newCampaign.campaign !== "underkeep") {
-        currentTab.value = "normal";
-      }
-    }
-  },
-  { deep: true },
-);
-</script>
-
 <template>
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="12" xl="8">
@@ -146,6 +61,30 @@ watch(
       </v-card>
     </v-col>
   </v-row>
+
+  <v-row class="ml-0 justify-center mb-4">
+    <v-col cols="12" md="12" lg="12" xl="8">
+      <v-btn block color="secondary" class="ma-0 pa-2" @click="openModal">
+        <v-icon left class="mr-2">mdi-share-variant</v-icon>
+        Share Campaign
+      </v-btn>
+    </v-col>
+  </v-row>
+
+  <v-dialog v-model="visible" max-width="500">
+    <v-card>
+      <v-card-title>Share Campaign</v-card-title>
+      <v-card-text>
+        <p class="py-2">Copy this token to share your campaign:</p>
+        <v-textarea readonly auto-grow v-model="token" class="ma-0" />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="closeModal">Cancel</v-btn>
+        <v-btn @click="copyToClipboard">Copy to clipboard</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
   <template v-if="campaign">
     <template v-if="campaign.campaign === 'underkeep'">
@@ -336,7 +275,139 @@ watch(
   </template>
 </template>
 
+<script setup lang="ts">
+import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
+import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
+import CampaignLog from "@/components/CampaignLog.vue";
+import { useRoute } from "vue-router";
+import { HeroStore } from "@/store/HeroStore";
+import CampaignRemove from "@/components/CampaignRemove.vue";
+import CampaignExport from "@/components/CampaignExport.vue";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
+import StoryRecord from "@/components/StoryRecord.vue";
+import CampaignName from "@/components/CampaignName.vue";
+import { CampaignStore } from "@/store/CampaignStore";
+import { type Campaign } from "@/store/Campaign";
+import CampaignCampPhase from "@/components/CampaignCampPhase.vue";
+import { ref, onMounted, watch } from "vue";
+import CampaignRunes from "@/components/CampaignRunes.vue";
+import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
+import CampaignBook from "@/components/CampaignBook.vue";
+import SelectDoor from "@/components/SelectDoor.vue";
+import { useToast } from "primevue/usetoast";
+
+const route = useRoute();
+const campaignStore = CampaignStore();
+const heroStore = HeroStore();
+const toast = useToast();
+
+const campaignId = (route.params as { id: string }).id.toString();
+
+const isSequentialAdventure = ref(false);
+const campaign = ref<Campaign | null>(null);
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref<"success" | "info" | "warning" | "error" | undefined>(
+  undefined,
+);
+const showAlert = ref(false);
+const currentTab = ref("normal");
+const visible = ref(false);
+const token = ref("");
+
+const setAlert = (
+  icon: string,
+  title: string,
+  text: string,
+  type: "success" | "info" | "warning" | "error" | undefined,
+) => {
+  alertIcon.value = icon;
+  alertTitle.value = title;
+  alertText.value = text;
+  showAlert.value = true;
+  alertType.value = type;
+
+  setTimeout(() => {
+    showAlert.value = false;
+  }, 1500);
+};
+
+const onCampPhase = () => {
+  isSequentialAdventure.value = false;
+}
+
+const onSequentialAdventure = () => {
+  isSequentialAdventure.value = true;
+}
+
+const openModal = () => {
+  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
+  token.value = `${prefix}${campaignId}`;
+  visible.value = true;
+}
+
+const copyToClipboard = () => {
+  navigator.clipboard
+    .writeText(token.value)
+    .then(() => {
+      toast.add({
+        severity: "success",
+        summary: "Success",
+        detail: "Token copied to clipboard",
+        life: 3000,
+      });
+      closeModal();
+    })
+    .catch(() => {
+      toast.add({
+        severity: "error",
+        summary: "Error",
+        detail: "Failed to copy token",
+        life: 3000,
+      });
+    });
+}
+
+const closeModal = () => {
+  visible.value = false;
+}
+
+onMounted(() => {
+  const foundCampaign = campaignStore.find(campaignId);
+  if (foundCampaign) {
+    campaign.value = foundCampaign;
+    isSequentialAdventure.value = foundCampaign.isSequentialAdventure ?? false;
+  } else {
+    console.error(`Campaign with ID ${campaignId} not found.`);
+    setAlert(
+      "mdi-alert-circle",
+      "Error",
+      `Campaign with ID ${campaignId} not found.`,
+      "error",
+    );
+  }
+});
+
+watch(
+  campaign,
+  (newCampaign) => {
+    if (newCampaign) {
+      isSequentialAdventure.value = newCampaign.isSequentialAdventure ?? false;
+      if (newCampaign.campaign !== "underkeep") {
+        currentTab.value = "normal";
+      }
+    }
+  },
+  { deep: true },
+);
+</script>
+
 <style scoped>
+.v-textarea textarea[readonly] {
+  background-color: #f5f5f5;
+}
+
 .mx-1 {
   margin-left: 4px !important;
   margin-right: 4px !important;

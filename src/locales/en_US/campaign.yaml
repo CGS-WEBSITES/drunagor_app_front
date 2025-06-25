@@ -1,5 +1,22 @@
 ---
 outcome:
+  underkeep:
+    campaign:
+      - id: a-couriers-job
+        name: Striker
+        effect: ""
+      - id: adamant
+        name: Controller
+        effect: ""
+      - id: a-hideous-act
+        name: Leader
+        effect: ""
+      - id: a-lovers-request
+        name: Defender
+        effect: ""
+      - id: corrupted-hero
+        name: Support
+        effect: ""
   core:
     campaign:
       - id: a-couriers-job
@@ -212,6 +229,7 @@ outcome:
         name: Watcher
         effect: ""
     storyrecord: []
+    
 auras:
   core:
     campaign:
