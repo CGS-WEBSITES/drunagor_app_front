@@ -224,7 +224,7 @@
                 }}
               </p>
             </v-card-text>
-            <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
+            <v-card color="primary" min-height="130px" class="mr-4 event-card">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
@@ -700,7 +700,6 @@
                         color="primary"
                         min-height="130px"
                         class="mr-4 event-card"
-                        @click="openInGoogleMaps()"
                       >
                         <v-row no-gutters>
                           <v-col cols="3" lg="3">
@@ -1014,7 +1013,10 @@ import { set } from "lodash-es";
 const eventStore = useEventStore();
 const userStore = useUserStore();
 
-const assets = inject("assets");
+
+
+
+const assets = inject('assets');
 const isEditable = ref(false);
 const availableRewards = ref([]);
 const players = ref([]);
@@ -1079,7 +1081,7 @@ const selectedStoreImage = computed(() => {
 
 const selectedStore = computed(() => {
   return (
-    stores.value.find((s) => s.name === selectedEvent.value?.store_name) || {}
+    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
   );
 });
 
@@ -1092,26 +1094,6 @@ const currentShowPast = computed({
     else showPast.value = val;
   },
 });
-
-const openInGoogleMaps = () => {
-  const { name, latitude, longitude } = selectedStore.value;
-  console.log(
-    "Opening Google Maps for:",
-    name,
-    latitude,
-    longitude,
-  );
-  if (!name || latitude == null || longitude == null) return "#";
-
-  const encodedName = name.split(" ").join("+");
-  console.log("Encoded Name:", encodedName);
-
-  const query = `${encodedName}%20${latitude},${longitude}`;
-
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
-
-  window.open(mapsUrl, "_blank");
-};
 
 const validateTime = () => {
   const value = editableEvent.value.hour;
@@ -1221,11 +1203,11 @@ const fetchPlayersForEvent = (eventFk) => {
       params: {
         events_fk: eventFk,
         limit: 5,
-        offset: currentPage.value,
+        offset: currentPage.value
       },
     })
     .then((response) => {
-      console.log(response.data);
+      console.log(response.data)
       playersByEvent.value = response.data.players;
       totalPages.value = response.data.last_page;
     })
@@ -1310,7 +1292,7 @@ oneYearFromToday.setFullYear(today.getFullYear() + 1);
 const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
 
 const handleTimeInput = (event) => {
-  console.log(newEvent.hour);
+  console.log(newEvent.hour)
   let raw = event.target.value.replace(/\D/g, "");
   raw = raw.slice(0, 4);
 
@@ -1318,6 +1300,7 @@ const handleTimeInput = (event) => {
     let hh = raw.slice(0, 1);
     let mm = raw.slice(1, 3);
   } else if (raw.length == 4)
+
     if (hh.length === 2) {
       let h = parseInt(hh);
       if (h < 1) hh = "01";
@@ -1376,10 +1359,7 @@ const fetchPlayerEvents = (past) => {
   lastFetchPastAll.value = past;
   axios
     .get("/events/list_events/", {
-      params: {
-        player_fk: userStore.user.users_pk,
-        past_events: past.toString(),
-      },
+      params: { player_fk: userStore.user.users_pk, past_events: past.toString() },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -1479,6 +1459,7 @@ const addEvent = () => {
     .then(({ data }) => {
       const allStores = data.stores || [];
       const found = allStores.find(
+
         (s) =>
           s.name?.toLowerCase().trim() ===
           newEvent.value.store.toLowerCase().trim(),
@@ -1567,8 +1548,8 @@ const addEvent = () => {
       successDialog.value = true;
       createEventDialog.value = false;
 
-      fetchUserCreatedEvents(showPast.value).catch(() => {});
-      fetchPlayerEvents().catch(() => {});
+      fetchUserCreatedEvents(showPast.value).catch(() => { });
+      fetchPlayerEvents().catch(() => { });
 
       newEvent.value = {
         date: "",
@@ -1645,10 +1626,12 @@ const saveEditedEvent = () => {
     .then((response) => {
       const allStores = response.data.stores || [];
       const foundStore = allStores.find(
-        (s) => s.name === editableEvent.value.store,
+        (s) => s.name === editableEvent.value.store
       );
       if (!foundStore) {
-        console.error(`❌ Store "${editableEvent.value.store}" não encontrada`);
+        console.error(
+          `❌ Store "${editableEvent.value.store}" não encontrada`
+        );
         throw new Error("StoreNotFound");
       }
       return foundStore.stores_pk;
@@ -1667,9 +1650,11 @@ const saveEditedEvent = () => {
         stores_fk: storesFk,
       };
 
-      return axios.put("/events/alter", payload, {
-        params: { events_pk: eventPk },
-      });
+      return axios.put(
+        "/events/alter",
+        payload,
+        { params: { events_pk: eventPk } }
+      );
     })
     .then(() => {
       showSuccessAlert.value = true;
@@ -1837,7 +1822,6 @@ const refreshInterestedPlayers = async (event) => {
 };
 
 onMounted(() => {
-  openInGoogleMaps();
   axios
     .get("/stores/list", {
       params: { users_fk: userStore.user.users_pk },
@@ -1847,7 +1831,6 @@ onMounted(() => {
     })
     .then((response) => {
       stores.value = response.data.stores || [];
-      console.log("Stores fetched successfully:", stores.value);
     })
     .catch((error) => {
       console.error(
@@ -1866,9 +1849,11 @@ onMounted(() => {
 });
 
 watch(showPast, async (novo) => {
+
   if (activeTab.value == 1) {
     await fetchPlayerEvents(novo);
-  } else {
+  }
+  else {
     await fetchUserCreatedEvents(novo);
   }
 });
@@ -1876,13 +1861,14 @@ watch(showPast, async (novo) => {
 watch(activeTab, async (novo) => {
   if (novo == 1) {
     await fetchPlayerEvents(showPast.value);
-  } else {
+  }
+  else {
     await fetchUserCreatedEvents(showPast.value);
   }
 });
 
 watch(currentPage, async () => {
-  await fetchPlayersForEvent(selectedEvent.events_pk);
+  await fetchPlayersForEvent(selectedEvent.events_pk)
 });
 
 watch(
@@ -1901,25 +1887,15 @@ watch(
 );
 
 const pdfUrl = computed(() => {
-  const baseUrl =
-    assets && typeof assets.value !== "undefined" ? assets.value : assets;
+  const baseUrl = assets && typeof assets.value !== 'undefined' ? assets.value : assets;
   if (!baseUrl) {
-    return "#";
+    return '#';
   }
   return `${baseUrl}/book/test.pdf`;
 });
 </script>
 
 <style scoped>
-.map-link {
-  color: inherit;
-  text-decoration: underline;
-}
-
-.map-link:hover {
-  opacity: 0.8;
-}
-
 .list-container {
   min-height: 400px;
   /* adjust as needed to prevent shrinking */
