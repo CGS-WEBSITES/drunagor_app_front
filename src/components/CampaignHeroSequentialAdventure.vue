@@ -108,6 +108,34 @@ watch(
                 v-model="sequentialAdventureState.traumaCubes"
               ></v-number-input>
             </v-col>
+             <v-col cols="12" class="py-6">
+              <v-number-input
+                :reverse="false"
+                controlVariant="split"
+                :label="t('Available Cubes')"
+                :hideInput="false"
+                :inset="false"
+                variant="outlined"
+                id="available-cubes"
+                :min="0"
+                :max="20"
+                v-model="sequentialAdventureState.availableCubes"
+              ></v-number-input>
+            </v-col>
+            <v-col cols="12" class="py-6">
+              <v-number-input
+                :reverse="false"
+                controlVariant="split"
+                :label="t('Used Cubes')"
+                :hideInput="false"
+                :inset="false"
+                variant="outlined"
+                id="used-cubes"
+                :min="0"
+                :max="20"
+                v-model="sequentialAdventureState.usedCubes"
+              ></v-number-input>
+            </v-col>
             <v-divider></v-divider>
             <v-col cols="12" class="py-6 text-center text-h6">{{
               t("label.resources")
