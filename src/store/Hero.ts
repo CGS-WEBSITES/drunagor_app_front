@@ -18,6 +18,8 @@ export class HeroEquipment {
 export class SequentialAdventureState {
   public curseCubes: number = 0;
   public traumaCubes: number = 0;
+  public availableCubes: number = 0; 
+  public usedCubes: number = 0;    
   public resources: any = {};
 
   constructor() {
