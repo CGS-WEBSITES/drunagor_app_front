@@ -224,7 +224,7 @@
                 }}
               </p>
             </v-card-text>
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
+            <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
@@ -242,14 +242,7 @@
                   </h3>
                   <p class="text-caption">
                     <v-icon color="red">mdi-map-marker</v-icon>
-                    <a
-                      :href="googleMapsUrl"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="map-link"
-                    >
-                      {{ selectedEvent?.address }}
-                    </a>
+                    {{ selectedEvent?.address }}
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0"></v-col>
@@ -707,6 +700,7 @@
                         color="primary"
                         min-height="130px"
                         class="mr-4 event-card"
+                        @click="openInGoogleMaps()"
                       >
                         <v-row no-gutters>
                           <v-col cols="3" lg="3">
@@ -725,14 +719,7 @@
                             </h3>
                             <p class="text-caption">
                               <v-icon color="red">mdi-map-marker</v-icon>
-                              <a
-                                :href="googleMapsUrl"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="map-link"
-                              >
-                                {{ selectedEvent?.address }}
-                              </a>
+                              {{ selectedEvent?.address }}
                             </p>
                           </v-col>
                           <v-col cols="2" class="text-right pa-0"></v-col>
@@ -1096,15 +1083,6 @@ const selectedStore = computed(() => {
   );
 });
 
-const baseGep = 'EgoyMDI1MDYyMi4wIKXMDSoASAFQAw%3D%3D'
-
-const googleMapsUrl = computed(() => {
-  const { name, latitude, longitude } = selectedStore.value
-  if (!name || latitude == null || longitude == null) return '#'
-  const encodedName = name.split(' ').join('+')
-  return `https://www.google.com/maps/place/${encodedName}/@${latitude},${longitude},17z/data=!3m1!4b1?entry=ttu&g_ep=${baseGep}`
-})
-
 const currentShowPast = computed({
   get() {
     return activeTab.value === 1 ? showPast.value : showPast.value;
@@ -1114,6 +1092,26 @@ const currentShowPast = computed({
     else showPast.value = val;
   },
 });
+
+const openInGoogleMaps = () => {
+  const { name, latitude, longitude } = selectedStore.value;
+  console.log(
+    "Opening Google Maps for:",
+    name,
+    latitude,
+    longitude,
+  );
+  if (!name || latitude == null || longitude == null) return "#";
+
+  const encodedName = name.split(" ").join("+");
+  console.log("Encoded Name:", encodedName);
+
+  const query = `${encodedName}%20${latitude},${longitude}`;
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  window.open(mapsUrl, "_blank");
+};
 
 const validateTime = () => {
   const value = editableEvent.value.hour;
@@ -1836,6 +1834,7 @@ const refreshInterestedPlayers = async (event) => {
 };
 
 onMounted(() => {
+  openInGoogleMaps();
   axios
     .get("/stores/list", {
       params: { users_fk: userStore.user.users_pk },
