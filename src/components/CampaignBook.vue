@@ -298,19 +298,22 @@
                     Aponte a câmera para o QR Code
                   </p>
                 </div>
-                <div v-else-if="interPage === 'titles'" class="titles-background" :style="{
-                  backgroundImage: `url(${currentInteractionConfig?.background})`,
-                }">
-                  <div class="buttons-overlay">
-                    <v-row dense>
-                      <v-col v-for="item in interactions" :key="item.id" cols="12" class="py-1">
-                        <v-btn class="interaction-btn" block @click="showContent(item.id)">
-                          {{ item.title }}
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </div>
-                </div>
+                <div v-else-if="interPage === 'titles'" class="titles-container">
+                      <div class="image-display" :style="{
+                        backgroundImage: `url(${currentInteractionConfig?.background})`,
+                      }">
+                      </div>
+
+                      <div class="buttons-container">
+                        <v-row dense>
+                          <v-col v-for="item in interactions" :key="item.id" cols="12" class="py-1">
+                            <v-btn class="interaction-btn" block @click="showContent(item.id)" overflow>
+                              {{ item.title }}
+                            </v-btn>
+                          </v-col>
+                        </v-row>
+                      </div>
+                      </div>
                 <div v-else class="content-page-interactions">
                   <div class="content-wrapper-interactions" ref="contentWrapper">
                     <div v-for="item in interactions" :key="item.id" :id="item.id" class="interaction-detail pa-4">
@@ -1217,23 +1220,36 @@ onBeforeUnmount(() => {
     border-radius: 8px;
     background-color: #000;
 }
-.titles-background {
-    flex-grow: 1;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    border-radius: 8px; 
-    position: relative; 
+.titles-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
-.buttons-overlay {
-    background-color: rgba(0,0,0,0.6); 
-    padding: 20px;
-    border-radius: 8px;
-    width: 100%;
-    max-width: 400px; 
+
+.image-display {
+  width: 100%;
+  height: 597px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px; 
+}
+
+@media (max-width: 600px) {
+.image-display {
+  width: 100%;
+  height: 224px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px; 
+} }
+
+
+.buttons-container {
+  margin-top: 20px;
+  background-color: rgba(0,0,0,0.6); 
+  width: 100%;
+  max-width: 900px;
 }
 .interaction-btn {
     background-color: #3a2e29 !important; 
@@ -1242,8 +1258,9 @@ onBeforeUnmount(() => {
     margin-bottom: 8px; 
     text-transform: none !important; 
     font-family: "EB Garamond", serif !important; 
-    font-size: 1rem !important;
+    font-size: 1rem;
 }
+
 .content-page-interactions {
     flex-grow: 1;
     overflow-y: auto; 
@@ -1493,7 +1510,7 @@ onBeforeUnmount(() => {
     margin: 4px !important; 
   }
     .interaction-btn { 
-    font-size: 0.9rem !important;
+    font-size: 0.62rem !important;
   }
 
   .book-page {
