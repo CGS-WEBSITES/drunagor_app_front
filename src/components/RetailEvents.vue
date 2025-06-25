@@ -1268,18 +1268,21 @@ const updatePlayerStatus = (player, statusPk) => {
     });
 };
 
+const startOfToday = new Date();
+startOfToday.setHours(0, 0, 0, 0);
+
 const dateRules = [
-  (value) => {
-    if (!value) return "Date is required.";
-
-    const inputDate = new Date(value);
-    if (inputDate < today) return "Date cannot be in the past.";
-
-    if (inputDate > oneYearFromToday)
-      return "Date cannot be more than 1 year from today.";
-
-    return true;
-  },
+(value) => {
+  if (!value) return "The date is required.";
+  const inputDate = new Date(`${value}T00:00:00`);
+  if (inputDate < startOfToday) {
+    return "The date cannot be in the past.";
+  }
+  if (inputDate > oneYearFromToday) {
+    return "The date cannot be more than 1 year in the future.";
+  }
+  return true;
+},
 ];
 
 const today = new Date();
