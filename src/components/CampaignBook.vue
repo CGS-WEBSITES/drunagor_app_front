@@ -276,9 +276,7 @@
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </div>
-                      <p class="interaction-subtitle">
-                        {{ currentInteractionConfig?.subtitle }}
-                      </p>
+                      <p class="interaction-subtitle" v-html="currentInteractionConfig?.subtitle"></p>
                     </div>
                   </template>
                   <template v-else>
