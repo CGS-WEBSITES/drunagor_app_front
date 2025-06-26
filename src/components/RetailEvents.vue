@@ -224,7 +224,12 @@
                 }}
               </p>
             </v-card-text>
-            <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
+            <v-card
+              color="primary"
+              min-height="130px"
+              class="mr-4 event-card"
+              @click="openInGoogleMaps()"
+            >
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
@@ -1171,10 +1176,14 @@ const openEditDialog = (event, editable = false) => {
       )
       .then(({ data }) => {
         existingRewards.value = data.rewards || [];
+        editableEvent.value.rewards_pk = existingRewards.value.map(
+          (r) => r.rewards_pk,
+        );
       })
       .catch((err) => {
         console.error("Erro ao buscar rewards existentes:", err);
         existingRewards.value = [];
+        editableEvent.value.rewards_pk = [];
       });
   }
 
@@ -1619,6 +1628,8 @@ const handleImageUpload = (event) => {
 };
 
 const saveEditedEvent = () => {
+  loading.value = true;
+
   const eventPk = editableEvent.value.events_pk;
   if (!eventPk) {
     console.error("❌ Evento sem events_pk definido");
@@ -1663,32 +1674,42 @@ const saveEditedEvent = () => {
       });
     })
     .then(() => {
-      const originalIds = existingRewards.value.map(r => r.rewards_pk);
-      const selectedIds = editableEvent.value.rewards_pk || [];
+      const before = existingRewards.value.map((r) => r.rewards_pk);
+      const after = editableEvent.value.rewards_pk;
 
-      const toAdd = selectedIds.filter(id => !originalIds.includes(id));
-      const toRemove = originalIds.filter(id => !selectedIds.includes(id));
+      const toAdd = after.filter((id) => !before.includes(id));
+      const toRemove = before.filter((id) => !after.includes(id));
 
-      const addCalls = toAdd.map(id =>
-        axios.post("/rl_events_rewards/cadastro", {
-          events_fk: eventPk,
-          rewards_fk: id,
-          active: true
-        })
-      );
-      const removeCalls = toRemove.map(id =>
-        axios.post("/rl_events_rewards/cadastro", {
-          events_fk: eventPk,
-          rewards_fk: id,
-          active: false
-        })
-      );
-      return Promise.all([ ...addCalls, ...removeCalls ]);
+      const promises = [
+        ...toAdd.map((id) =>
+          axios.post(
+            "/rl_events_rewards/cadastro",
+            { events_fk: eventPk, rewards_fk: id, active: true },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          ),
+        ),
+        ...toRemove.map((id) =>
+          axios.post(
+            "/rl_events_rewards/cadastro",
+            { events_fk: eventPk, rewards_fk: id, active: false },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          ),
+        ),
+      ];
+
+      return Promise.all(promises);
     })
     .then(() => {
       showSuccessAlert.value = true;
       setTimeout(() => {
-        showSuccessAlert.value = false;
         editEventDialog.value = false;
         window.location.reload();
       }, 1500);
@@ -1696,41 +1717,10 @@ const saveEditedEvent = () => {
     .catch((error) => {
       if (error.message === "StoreNotFound") return;
       console.error("❌ Erro ao salvar edição do evento:", error);
-    });
-};
-
-const toggleEditReward = (reward) => {
-  const eventId = editableEvent.value.events_pk;
-  const alreadySelected = editableEvent.value.rewards.some(
-    (r) => r.rewards_pk === reward.rewards_pk,
-  );
-
-  const payload = {
-    events_fk: eventId,
-    rewards_fk: reward.rewards_pk,
-    active: !alreadySelected,
-  };
-
-  axios
-    .post("/rl_events_rewards/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      loading.value = false;
     })
-    .then(() => {
-      if (alreadySelected) {
-        editableEvent.value.rewards = editableEvent.value.rewards.filter(
-          (r) => r.rewards_pk !== reward.rewards_pk,
-        );
-      } else {
-        editableEvent.value.rewards.push(reward);
-      }
-    })
-    .catch((error) => {
-      console.error(
-        "❌ Erro ao atualizar rewards:",
-        error.response?.data || error.message,
-      );
+    .finally(() => {
+      loading.value = false;
     });
 };
 
