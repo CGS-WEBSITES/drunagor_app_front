@@ -828,6 +828,11 @@ function executeAction(action: GameAction) {
     }
 
     if (action.type === 'PROCEED' && action.target) {
+        if (action.target === 'next-adventure-step') {
+            backToTitles();
+            return;
+        }
+
         const nextInteraction = findInteractionById(action.target);
         if (nextInteraction) {
             selectInteraction(nextInteraction);
@@ -1046,7 +1051,6 @@ onBeforeUnmount(() => {
 }
 
 .v-btn {
-  font-family: "Uncial Antiqua", cursive !important;
   letter-spacing: 1px;
   border: 1px solid #212121 !important;
 }
@@ -1308,7 +1312,6 @@ onBeforeUnmount(() => {
     border-color: #5c4a42 !important;
     margin-bottom: 8px; 
     text-transform: none !important; 
-    font-family: "EB Garamond", serif !important; 
     font-size: 1rem;
 }
 
@@ -1333,7 +1336,7 @@ onBeforeUnmount(() => {
     margin-bottom: 1em;
 }
 .back-btn {
-    font-family: "Uncial Antiqua", cursive !important; 
+  /* font-family property removed */
 }
 
 .body-text-mechanics { 
