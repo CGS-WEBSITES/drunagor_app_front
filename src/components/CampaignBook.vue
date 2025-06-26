@@ -295,6 +295,12 @@
                   <p class="mt-4 text-white">
                     Point the camera at the QR Code
                   </p>
+                  
+                  <v-divider class="my-4" style="width: 80%; border-color: rgba(255,255,255,0.2);"></v-divider>
+                  <v-btn @click="loadBarricadeInteraction" class="manual-load-btn">
+                    Load Interaction 'The Barricade' 
+                  </v-btn>
+
                 </div>
                 <div v-else-if="interPage === 'titles'" class="titles-container">
                   <div class="image-display" :style="{
@@ -378,6 +384,7 @@ interface GameAction {
   text: string;
   type: 'PROCEED' | 'RETURN_TO_CHOICES';
   target?: string;
+  condition?: string;
 }
 
 interface InteractionItem {
@@ -801,11 +808,26 @@ function resetScan() {
   scanned.value = false;
   currentInteractionConfig.value = null;
   interactions.value = [];
+  activeInteraction.value = null;
   if (currentView.value === 'interactions') {
     nextTick(() => {
       codeReader.reset?.(); 
       startScanner(); 
     });
+  }
+}
+
+function loadBarricadeInteraction() {
+  codeReader.reset?.();
+  const barricadeKey = 'https://qr1.be/WMJL';
+  const cfg = interactionConfigs.value[barricadeKey];
+  if (cfg) {
+    currentInteractionConfig.value = cfg;
+    interactions.value = cfg.items;
+    scanned.value = true;
+    interPage.value = "titles";
+  } else {
+    console.error(`Error: Configuration for '${barricadeKey}' not found.`);
   }
 }
 
@@ -824,13 +846,11 @@ function executeAction(action: GameAction) {
         backToTitles();
         return;
     }
-
     if (action.type === 'PROCEED' && action.target) {
         if (action.target === 'next-adventure-step') {
             backToTitles();
             return;
         }
-
         const nextInteraction = findInteractionById(action.target);
         if (nextInteraction) {
             selectInteraction(nextInteraction);
@@ -895,7 +915,7 @@ onBeforeUnmount(() => {
   margin-top: 16px;
   text-align: center;
 }
-.action-btn-dynamic {
+.action-btn-dynamic, .manual-load-btn {
   background-color: #f0e6d2 !important;
   color: #3a2e29 !important;
   text-transform: none !important;
