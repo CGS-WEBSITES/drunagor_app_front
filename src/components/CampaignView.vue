@@ -2,6 +2,16 @@
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="12" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
+        <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
+          <v-alert
+            type="warning"
+            dense
+            border="start"
+            variant="tonal"
+          >
+            Players can only view this campaign. Only a Drunagor Master can save or delete a campaign.
+          </v-alert>
+        </v-card-text>
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
             <v-card style="width: 100%">
