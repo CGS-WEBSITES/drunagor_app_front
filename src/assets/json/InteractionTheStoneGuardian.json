@@ -1,110 +1,239 @@
 [
   {
     "id": "interaction-1.1",
+    "type": "choice",
     "title": "1.1 – EXAMINE THE FLOWING WATER",
     "body": [
       "The residents of Blackriver take pride in the many springs, lakes, and mines that emerge from the county’s underground caves. It’s easy to find good drinking water in these lands, but there’s something different about this: a faint emerald shimmer—subtle enough to escape untrained eyes, but not yours. You know exactly where it comes from, and that it’s best to step away…<br><br>",
       "You gain FOCUS 2.<br>Do not remove any Charges from this Interaction and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.2",
+    "type": "choice",
     "title": "1.2 – PICK A TORCH",
     "body": [
       "Anticipating that darkness will be a constant companion as you delve deeper into this dungeon, you pull one of the torches from the wall. The instant you touch it, however, a needle-like pain shoots through your arm like a shiver, and the blue flames flare up as if soaked in oil once more. The light is strong now—but at what cost?<br><br>",
       "Take the Living Torch Adventure Item card.<br>Do not remove any Charges from this Interaction and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.3",
+    "type": "choice",
     "title": "1.3 – PRY OUT THE RUBIES",
     "body": [
       "You’ve always lived by the motto \"fortune favors the bold,\" and now is no different. Priceless rubies in place of a gargoyle’s eyes? Why not take them? What could go wrong? Drawing a dagger to pry them loose, you attempt to extract the precious stones…<br><br>",
       "Make a Dexterity (red) Skill Challenge of Difficulty 13. Each Ranged cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.7. Otherwise, continue reading below:<br><br>",
       "…but luckily or unluckily, you aren’t skilled enough to make the theft. Precise and delicate hands are needed to know exactly where to wedge the blade and apply pressure. After several attempts, all you manage to collect are cuts on your fingers…<br><br>",
       "You gain 2 Curse Cubes. This effect is not the same as CURSE.<br>Do not remove any Charges from this Interaction and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed Dexterity Challenge",
+        "type": "PROCEED",
+        "target": "interaction-1.7"
+      },
+      {
+        "text": "Fail Dexterity Challenge",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.4",
+    "type": "choice",
     "title": "1.4 – PICK THE SCROLL",
     "body": [
       "You pull out the rolled-up parchment clutched in the statue’s mouth, curious about the arrangement. Drawings resembling nautical charts cover the scroll from end to end, but you know this is no map. These are arcane writings—and one must understand the language to decipher them…<br><br>",
       "Make a Wisdom (blue) Skill Challenge of Difficulty 13. Each Wisdom cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.10. Otherwise, continue reading below:<br><br>",
       "…but unfortunately, you are not a practitioner of such arts. To you, the drawings are no more than confusing geometric patterns, like stars scribbled on a page by someone with a lot of imagination—and a lot of time…<br><br>",
       "Do not remove any Charges from this Interaction and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed Wisdom Challenge",
+        "type": "PROCEED",
+        "target": "interaction-1.10"
+      },
+      {
+        "text": "Fail Wisdom Challenge",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.5",
+    "type": "choice",
     "title": "1.5 – TOPPLE THE GARGOYLE",
     "body": [
       "Few would call this a good idea, but you’ve always had a talent for ignoring other people’s opinions—for better or worse. Planting your feet firmly, you place your hands on the gargoyle, barely suppressing a mischievous grin. Are your arms as strong as your personality?<br><br>",
       "Make a Melee (yellow) Attribute Challenge of Difficulty 13. Each Melee cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.11. Otherwise, continue reading below:<br><br>",
       "The short answer: no. And perhaps it’s for the best. Even after throwing your full weight and stubborn will against the statue, it barely budges an inch from the column. Your failure, however, reveals that the piece is indeed loose—whatever that means…<br><br>",
       "You gain 2 Curse Cubes. This effect is not the same as CURSE.<br>If this is the last Charge on this Interaction, proceed to resolution 1.12. Otherwise, if there are still 2 Charges on this token, remove 1 and simply proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed Melee Challenge",
+        "type": "PROCEED",
+        "target": "interaction-1.11"
+      },
+      {
+        "text": "Fail Melee Challenge (Last Charge)",
+        "type": "PROCEED",
+        "target": "interaction-1.12"
+      },
+      {
+        "text": "Fail Melee Challenge (Not Last Charge)",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.6",
+    "type": "choice",
     "title": "1.6 – PULL THE LEVER",
     "body": [
       "Though slightly hesitant, you know handles serve only one purpose: pulling. Whether it opens a drawer, shifts weight somewhere else, or triggers a trap, you’re about to find out…<br><br>",
       "Make a Melee (yellow) Attribute Challenge of Difficulty 21. Each Melee cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.9. Otherwise, continue reading below:<br><br>",
       "…but the counterweight of the handle is heavier than it looks. Feeling challenged, you dig in your heels, grab the piece with both hands, and lean back, combining your weight with the strength of your arms. Half a foot of chain slides out from the stone, but the grinding of mechanisms is barely audible, drowned out by your panting chest. The mechanism wins this round…<br><br>",
       "You gain 2 Curse Cubes. This effect is not the same as CURSE.<br>If this is the last Charge on this Interaction, proceed to resolution 1.12. Otherwise, if there are still 2 Charges on this token, remove 1 and simply proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed Melee Challenge",
+        "type": "PROCEED",
+        "target": "interaction-1.9"
+      },
+      {
+        "text": "Fail Melee Challenge (Last Charge)",
+        "type": "PROCEED",
+        "target": "interaction-1.12"
+      },
+      {
+        "text": "Fail Melee Challenge (Not Last Charge)",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.7",
+    "type": "resolution",
     "title": "1.7 – YOU ARE SKILLED ENOUGH",
     "body": [
       "…and whether by luck or skill, you are indeed deft enough! Driving the dagger tip into the statue’s eyelid seam, a single strike to the pommel pops the treasures free. But the instant the final gem dislodges from the gargoyle, its stony skin begins to crack and a strange hum vibrates from within. That’s not a good sign…<br><br>",
       "If the \"Urgent Purge\" Status is noted on the Party’s Campaign Log, proceed to resolution 1.8. Otherwise, continue reading below:<br><br>",
       "…suddenly, the stony skin bursts into shards like the shell of an egg—a cocoon protecting something living inside. Or almost living. The screech of grinding gears echoes from within the walls as a vampiric monstrosity, neither dead nor alive, emerges from the gargoyle and lunges at you, leaping off the stone column…<br><br>",
       "Take the Cosmic Ruby Adventure Item card.<br>The statue transforms into a Commander of Darkness. Replace this Interaction token with a Shadow Vampire model.<br>Place the Commander Gargoyle Monster card in the appropriate position on the Initiative Track, then draw its Attack cards (1 per Hero in the Party).<br>Commander Gargoyle has R = 2P; Therefore, it will have 16, 32, 48, or 64 Health Points depending on the number of Heroes in the Party.<br>When the Commander is defeated, the Strongest Hero draws 2 Chest cards as loot.<br>Door 01 is now unlocked (it still cannot be opened while a Monster is on the board).<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If 'Urgent Purge' Status",
+        "type": "PROCEED",
+        "target": "interaction-1.8"
+      },
+      {
+        "text": "Otherwise (Encounter Commander)",
+        "type": "PROCEED",
+        "target": "next-adventure-step"
+      }
     ]
   },
   {
     "id": "interaction-1.8",
+    "type": "resolution",
     "title": "1.8 – AND YOU KNOW WHAT THIS IS",
     "body": [
       "…but you already knew this would happen. It was written on the scroll. Before the creature within that stony shell is born, you speak the incantation, which sets the gargoyle ablaze from the inside out, preventing the enemy from surfacing. The muffled snarls that follow almost make you feel pity—if you didn’t know better. Moments later, the sound of gears grinding in the walls echoes through the hall, and you know: the door is open…<br><br>",
       "Take the Cosmic Ruby Adventure Item card.<br>Door 01 is now unlocked.<br>Remove this Interaction from the board and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "next-adventure-step"
+      }
     ]
   },
   {
     "id": "interaction-1.9",
+    "type": "resolution",
     "title": "1.9 – YOU ARE STRONG ENOUGH",
     "body": [
       "…the handle’s counterweight may be heavier than it seems, but that’s no challenge for you and your years of physical training. Pulling with effort—enough to make you break a sweat—two feet of chain emerge from the stone and the sound of gears and a loud click echoes inside the wall. You couldn’t be prouder of yourself…<br><br>",
       "You gain FOCUS 4.<br>Door 01 is now unlocked.<br>Remove this Interaction from the board and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "next-adventure-step"
+      }
     ]
   },
   {
     "id": "interaction-1.10",
+    "type": "resolution",
     "title": "1.10 – YOU ARE VERSED IN THE ARCANE ARTS",
     "body": [
       "…and you are one of those versed in the arcane arts. The symbols form a Sigil of Slumber, used to suspend matter in temporal stasis. This statue is more than a block of stone—it’s a sarcophagus, and something slumbers within. Fortunately, the scroll not only reveals this secret but also tells how to purge the creature should things go wrong…<br><br>",
       "Write down the \"Urgent Purge\" Status on the Party’s Campaign Log.<br>Do not remove any Charges from this Interaction and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.11",
+    "type": "resolution",
     "title": "1.11 – YOU MANAGE TO TOPPLE THE STATUE",
     "body": [
       "The challenge is imposing. The statue easily weighs 400 pounds, and toppling it requires both strength and technique—but thankfully, you possess both. Bracing your shoulder against it, you drive with force from your legs—not your arms. At the first hint of wobble, you shout, unleashing all your strength in a push that sends the sculpture crashing to the ground. But what should be a victory quickly becomes a concern as cracks begin to spread across the fallen figure…<br><br>",
       "If the \"Urgent Purge\" Status is noted on the Party’s Campaign Log, proceed to resolution 1.8. Otherwise, continue reading below:<br><br>",
       "…suddenly, the stony skin bursts into shards like the shell of an egg—a cocoon protecting something within. The screech of grinding gears echoes from the walls as a vampiric monstrosity, neither dead nor alive, emerges from the gargoyle and lunges at you.<br><br>",
       "The statue transforms into a Commander of Darkness. Replace this Interaction token with a Shadow Vampire model.<br>Place the Commander Gargoyle Monster card in the appropriate position on the Initiative Track, then draw its Attack cards (1 per Hero in the Party).<br>Commander Gargoyle has R = 2P; Therefore, it will have 16, 32, 48, or 64 Health Points depending on the number of Heroes in the Party.<br>When the Commander is defeated, the Strongest Hero draws 2 Chest cards as loot.<br>Door 01 is now unlocked (it still cannot be opened while a Monster is on the board).<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If 'Urgent Purge' Status",
+        "type": "PROCEED",
+        "target": "interaction-1.8"
+      },
+      {
+        "text": "Otherwise (Encounter Commander)",
+        "type": "PROCEED",
+        "target": "next-adventure-step"
+      }
     ]
   },
   {
     "id": "interaction-1.12",
+    "type": "resolution",
     "title": "1.12 – YOU SAW THAT ONE COMING…",
     "body": [
-      "The string of failures, however, does not go unnoticed by the guardian. Part of you already knew—that statue, standing there as it was, was far too suspicious. Suddenly, the stony skin bursts into shards like the shell of an egg—a cocoon protecting something within. The screech of grinding gears echoes from the walls, and a vampiric monstrosity, neither dead nor alive, emerges from the gargoyle and lunges at you.<br><br>",
+      "The string of failures, however, does not go unnoticed by the guardian. Part of you already knew—that statue, standing there as it was, far too suspicious. Suddenly, the stony skin bursts into shards like the shell of an egg—a cocoon protecting something within. The screech of grinding gears echoes from the walls, and a vampiric monstrosity, neither dead nor alive, emerges from the gargoyle and lunges at you.<br><br>",
       "The statue transforms into a Commander of Darkness. Replace this Interaction token with a Shadow Vampire model.<br>Place the Commander Gargoyle Monster card in the appropriate position on the Initiative Track, then draw its Attack cards (1 per Hero in the Party).<br>Commander Gargoyle has R = 2P; Therefore, it will have 16, 32, 48, or 64 Health Points depending on the number of Heroes in the Party.<br>When the Commander is defeated, the Strongest Hero draws 2 Chest cards as loot.<br>Door 01 is now unlocked (it still cannot be opened while a Monster is on the board).<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "next-adventure-step"
+      }
     ]
   }
 ]
