@@ -1,69 +1,122 @@
 [
   {
     "id": "interaction-1.1",
-    "title": "1.1 – TAKE THE SHIELD",
+    "type": "choice",
+    "title": "1.1 – TAKE THE HEAVY WEAPON",
     "body": [
-      "Interestingly, this is not just any shield. You’ve heard of these, the Arcane Bulwarks of Valarai, used not only by Elven warriors but by wizards as well. This piece was made to block blows while also channeling arcane energy through it like a staff does. A treasure that will serve your cause very well…<br><br>",
-      "Take the Arcane Bulwark Adventure Item card.<br>This is an Interaction with Charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead; The Heroes will no longer be able to interact with this scene."
+      "You lift the greatsword from the shelf, and the quality of the steel and richness of detail are immediately evident. Filigree patterns run along the hilt and blade—but you realize they do more than merely adorn the weapon as it trembles at your touch. A latent mystical energy resides within it, waiting to be awakened...<br><br>",
+      "Take the Lost Claymore Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.2",
-    "title": "1.2 – TAKE THE HELMET",
+    "type": "choice",
+    "title": "1.2 – TAKE THE LIGHT WEAPON",
     "body": [
-      "The ferocity of the battles you have faced in Blackriver have taught you that danger lurks behind every attack, and a helmet as well-crafted as this one could mean the difference between life and death. Picking up the silver helm adorned with the plumes of a warlord, you hope it fits you…<br><br>",
-      "Take the Silver Helmet Adventure Item card.<br>This is an Interaction with Charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead; The Heroes will no longer be able to interact with this scene."
+      "You take the Scimitar off the shelf and swing it once, twice through the air, testing the balance of the blade. The Draconian design is unique, combining the ferocity of Orcish weapons with the grace of Elven blades. That alone makes it a one-of-a-kind piece, but there’s more: you can feel magic coursing through the steel, waiting for the right command to come alive...<br><br>",
+      "Take the Draconian Scimitar Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.3",
-    "title": "1.3 – TAKE THE SWORD",
+    "type": "choice",
+    "title": "1.3 – TAKE THE LONGBOW",
     "body": [
-      "It doesn’t take a great expert in sword forging to realize that this is no ordinary blade. The sinuous design and intricate runic carvings immediately reveal this as an elven masterpiece of the highest quality. A treasure worthy of an Earl, after all. Surely, this sword will serve you well…<br><br>",
-      "Take the Elven Spellblade Adventure Item card.<br>This is an Interaction with Charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead; The Heroes will no longer be able to interact with this scene."
+      "You take the Longbow off the shelf, stunned by the quality of the wood. How could it have survived so long? The secret lies in Elven magic: this bark was hardened like iron, yet kept as supple as a sapling. Just touching it is enough to feel its power—but you know that’s not all. Something lies within, dormant, waiting for something to unlock its full potential...<br><br>",
+      "Take the Lorelanian Longbow Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.4",
-    "title": "1.4 – TAKE THE BREASTPLATE",
+    "type": "choice",
+    "title": "1.4 – TAKE THE STAFF",
     "body": [
-      "Every armorsmith knows that the breastplate is the most vital piece of armor. Not only for the protection it offers, but also for the grandeur it bestows upon its wearer. Many such craftsmen devote weeks of work striving for perfection, both in detail and functionality. Entranced, you run your hands over the plates, causing the blue runes to glow in anticipation…<br><br>",
-      "If you have the \"Suspended Protections\" Status on the Party Campaign Log, proceed to resolution 1.8. Otherwise, continue reading below:<br>…a trap! You barely have time to regret your choices before energy begins to crackle around you, sending sparks flying through the air. The explosion hits you head on, inflicting terrible pain that you will always remember.<br><br>",
-      "You take 6 damage (Heroes can use ³ normally).<br>This is an Interaction with Charge tokens, but this resolution does not spend any of them (though it still cannot be chosen again). Proceed with the Adventure."
+      "You take hold of the Staff, and cosmic energies flow through your body and memories flash through your mind. The power that fuels this piece is not of this world, but of one far, far away, where lush jungles thrive and people paint themselves with the red pigment shed by the bark of this wood. Nature is powerful there, and you can feel it: its energy is in this staff, guarded or hidden. It’s up to you to uncover it...<br><br>",
+      "Take the Redwood Staff Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.5",
-    "title": "1.5 – READ THE INSCRIPTIONS",
+    "type": "choice",
+    "title": "1.5 – TAKE THE ROBE",
     "body": [
-      "The adventurer’s life may be new to you, but getting your face blown up by a magical protection rune is not. Many treasures left unguarded by watchful eyes have one of these to protect them from impudent hands. You’d do well to examine those glowing symbols…<br><br>",
-      "If you follow the Path of Mystics (check your Hero board), proceed to resolution 1.7. Otherwise, continue reading below:<br><br>",
-      "…the problem is, to someone unversed in the arts of the Arcane, these scribbles are nothing more than meaningless drawings. A work of art that any child could create—if not for the latent energy pulsing from them. Is it really a good idea to touch this armor?<br><br>",
-      "This is an Interaction with Charge tokens, but this resolution does not spend any of them (though it still cannot be chosen again). Proceed with the Adventure."
+      "You take the robe from the rack, and the quality of the fabric astounds you, smooth to the touch, slippery even—but despite its graceful appearance, it’s far more resilient than linen, as if nature itself made no sense. Elven embroidery in gold thread adorns the piece, and as you run a finger along the stitching you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
+      "Take the Astralsilk Robe Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.6",
-    "title": "1.6 – TAKE THE DAGGER",
+    "type": "choice",
+    "title": "1.6 – TAKE THE CUIRASS",
     "body": [
-      "A dagger is poetically lodged into the base of the armor stand, as if someone had driven it in with enough force to cause the cracks. Perhaps a subliminal message left to the Earl of Blackriver by a foe? Whatever the truth may be, this mystery will remain unsolved—because you pull out the piece. Your need far outweighs the rivalries of the dead…<br><br>",
-      "Take the Ritual Dagger Adventure Item card.<br>This is an Interaction with Charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead; The Heroes will no longer be able to interact with this scene."
+      "You lift the cuirass from the rack, and find the quality of the leatherwork striking. How did this piece survive the ages without deteriorating? Powerful enchantments, without a doubt. Gold rivets decorate the armor, and touching them you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
+      "Take the Dragonhide Cuirass Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.7",
-    "title": "1.7 – YOU ARE VERSED IN THE ARCANE",
+    "type": "choice",
+    "title": "1.7 – TAKE THE BREASTPLATE",
     "body": [
-      "…to the eyes of a layman, they would be nothing more than a child’s scribbles—but not to you. You are versed in the arts of the Arcane, and your suspicion is confirmed: that is a Sigil of Guard, a rune that, if not for you, would protect the armor if someone tried to take the breastplate.<br><br>",
-      "Write down the \"Protection Undone\" Status on the Party Campaign Log.<br>This is an Interaction with Charge tokens, but this resolution does not spend any of them (though it still cannot be chosen again)."
+      "You raise the plate chestpiece off the rack, impressed by the lightness of the steel. Legends say only the Elven blacksmiths of the Age of Dragons could forge the wondrous alloy known as Quicksilver, light as a leaf, sturdy as a tree trunk. As you examine the golden filigree engravings that decorate the piece, you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
+      "Take the Quicksilver Breastplate Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.8",
-    "title": "1.8 – YOU KNOW HOW TO UNDO THE PROTECTION",
+    "type": "choice",
+    "title": "1.8 – TAKE THE BOOTS",
     "body": [
-      "However, since the inscriptions had already been deciphered, and all it takes is uttering the security word for the runes to settle once more. The blue glow fades, allowing you to retrieve the gleaming silver piece. Without doubt, the most beautiful armor you’ve ever seen. Would the Earl mind you taking it?<br><br>",
-      "Take the Mirror Plate Adventure Item card.<br>This is an Interaction with Charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead; The Heroes will no longer be able to interact with this scene."
+      "Despite the incredible weapons at your disposal, you take the pair of boots—but they are by no means inferior to the rest. They might even be the most valuable of all, as the appearance of magical items often belies their true purpose. As light as sandals, yet as heavy as iron when they step, this humble pair of boots seems to bend space around them...<br><br>",
+      "Take the Gravity Boots Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   }
 ]
