@@ -1663,6 +1663,29 @@ const saveEditedEvent = () => {
       });
     })
     .then(() => {
+      const originalIds = existingRewards.value.map(r => r.rewards_pk);
+      const selectedIds = editableEvent.value.rewards_pk || [];
+
+      const toAdd = selectedIds.filter(id => !originalIds.includes(id));
+      const toRemove = originalIds.filter(id => !selectedIds.includes(id));
+
+      const addCalls = toAdd.map(id =>
+        axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk: id,
+          active: true
+        })
+      );
+      const removeCalls = toRemove.map(id =>
+        axios.post("/rl_events_rewards/cadastro", {
+          events_fk: eventPk,
+          rewards_fk: id,
+          active: false
+        })
+      );
+      return Promise.all([ ...addCalls, ...removeCalls ]);
+    })
+    .then(() => {
       showSuccessAlert.value = true;
       setTimeout(() => {
         showSuccessAlert.value = false;
