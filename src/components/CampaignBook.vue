@@ -282,7 +282,7 @@
                     </div>
                   </template>
                   <template v-else>
-                    <v-btn class="back-btn text-white mt-4" color="grey darken-2" @click="interPage = 'titles'">
+                    <v-btn class="back-btn text-white mt-4" color="grey darken-2" @click="backToTitles">
                       <v-icon left>mdi-arrow-left</v-icon>
                       Back to Options
                     </v-btn>
@@ -295,36 +295,41 @@
                   class="scan-page d-flex flex-column align-center justify-center">
                   <video id="qr-video" class="qr-video mb-4" autoplay muted playsinline></video>
                   <p class="mt-4 text-white">
-                    Aponte a câmera para o QR Code
+                    Point the camera at the QR Code
                   </p>
                 </div>
                 <div v-else-if="interPage === 'titles'" class="titles-container">
-                      <div class="image-display" :style="{
-                        backgroundImage: `url(${currentInteractionConfig?.background})`,
-                      }">
-                      </div>
-
-                      <div class="buttons-container">
-                        <v-row dense>
-                          <v-col v-for="item in interactions" :key="item.id" cols="12" class="py-1">
-                            <v-btn class="interaction-btn" block @click="showContent(item.id)" overflow>
-                              {{ item.title }}
-                            </v-btn>
-                          </v-col>
-                        </v-row>
-                      </div>
-                      </div>
-                <div v-else class="content-page-interactions">
-                  <div class="content-wrapper-interactions" ref="contentWrapper">
-                    <div v-for="item in interactions" :key="item.id" :id="item.id" class="interaction-detail pa-4">
-                      <h2 class="chapter-title-interactions mb-4">
-                        {{ item.title }}
-                      </h2>
-                      <div class="body-text-interactions">
-                        <p v-for="(p, i) in item.body" :key="i" v-html="p"></p>
-                      </div>
-                    </div>
+                  <div class="image-display" :style="{
+                    backgroundImage: `url(${currentInteractionConfig?.background})`,
+                  }">
                   </div>
+
+                  <div class="buttons-container">
+                    <v-row dense>
+                      <v-col v-for="item in interactionChoices" :key="item.id" cols="12" class="py-1">
+                        <v-btn class="interaction-btn" block @click="selectInteraction(item)" overflow>
+                          {{ item.title }}
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </div>
+                </div>
+                <div v-else-if="interPage === 'content' && activeInteraction" class="content-page-interactions">
+                    <div class="content-wrapper-interactions" ref="contentWrapper">
+                        <div :id="activeInteraction.id" class="interaction-detail pa-4">
+                            <h2 class="chapter-title-interactions mb-4">
+                                {{ activeInteraction.title }}
+                            </h2>
+                            <div class="body-text-interactions">
+                                <p v-for="(p, i) in activeInteraction.body" :key="i" v-html="p"></p>
+                            </div>
+                            <div class="interaction-actions pa-4" v-if="availableActions.length > 0">
+                                <v-btn v-for="(action, index) in availableActions" :key="index" @click="executeAction(action)" class="ma-1 action-btn-dynamic">
+                                  {{ action.text }}
+                                </v-btn>
+                            </div>
+                        </div>
+                    </div>
                 </div>
               </v-container>
             </div>
@@ -368,10 +373,18 @@ import firstEncounterClarificationsData from '@/data/book/firstEncounterClarific
 import secondEncounterClarificationsData from '@/data/book/secondEncounterClarifications.json'; 
 
 // --- INTERFACES ---
+interface GameAction {
+  text: string;
+  type: 'PROCEED' | 'RETURN_TO_CHOICES';
+  target?: string;
+}
+
 interface InteractionItem {
   id: string;
+  type: 'choice' | 'resolution';
   title: string;
   body: string[];
+  actions?: GameAction[];
 }
 
 interface InteractionConfig {
@@ -396,14 +409,13 @@ interface PageSection {
 
 interface NavigationItemExtended {
   sectionTitle: string; 
-  title: string;        
-  id: string;           
+  title: string;       
+  id: string;          
   viewType: 'player' | 'tutorial' | 'combatGuide' | 'explorationTips' | 'charProgression' | 'keywords' | 'interactions'; 
   sectionIndex?: number;  
   originalId?: string;    
   targetId?: string;      
 }
-
 
 interface GameMechanic {
   title: string;
@@ -456,6 +468,8 @@ const contentWrapper = ref<HTMLElement | null>(null);
 const interPage = ref<"scan" | "titles" | "content">("scan");
 const codeReader = new BrowserMultiFormatReader();
 const currentView = ref<"player" | "interactions" | "keywords" | "tutorial" | "combatGuide" | "explorationTips" | "charProgression">("player");
+const activeInteraction = ref<InteractionItem | null>(null);
+const availableActions = ref<GameAction[]>([]);
 
 
 // --- PROCESSAMENTO E INICIALIZAÇÃO DOS DADOS JSON ---
@@ -513,6 +527,13 @@ const secondEncounterClarifications = ref<EncounterClarificationsBook>(secondEnc
 
 // --- PROPRIEDADES COMPUTADAS ---
 
+const interactionChoices = computed(() => {
+  if (!currentInteractionConfig.value) {
+    return [];
+  }
+  return currentInteractionConfig.value.items.filter(item => item.type === 'choice');
+});
+
 const navigationItems = computed<NavigationItemExtended[]>(() => {
   const items: NavigationItemExtended[] = [];
 
@@ -534,7 +555,7 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
   });
 
   if (playerTutorials.value && playerTutorials.value.tutorials) {
-    const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials"; // Changed default to "Tutorials" for clarity
+    const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials"; 
     playerTutorials.value.tutorials.forEach((tutorial, index) => {
       items.push({
         sectionTitle: sectionGroupTitle,
@@ -603,7 +624,6 @@ const groupedNavigationItems = computed(() => {
   return groups;
 });
 
-// For splitting groups in the template
 const wingGroups = computed(() => {
   const result: { [key: string]: NavigationItemExtended[] } = {};
   const wingTitles = pages.value.map(p => p.section); 
@@ -629,7 +649,7 @@ const otherBookGroupTitlesInOrder = computed(() => [
 
 const otherBookGroups = computed(() => {
   const result: { [key: string]: NavigationItemExtended[] } = {};
-   otherBookGroupTitlesInOrder.value.forEach(title => {
+  otherBookGroupTitlesInOrder.value.forEach(title => {
     if (groupedNavigationItems.value[title]) {
       result[title] = groupedNavigationItems.value[title];
     }
@@ -785,20 +805,36 @@ function resetScan() {
   }
 }
 
-function showContent(id: string) {
-  interPage.value = "content";
-  nextTick(() => {
-    const el = document.getElementById(id);
-    const cWrapper = contentWrapper.value;
-    if (el && cWrapper) {
-      const wrapperTop = cWrapper.getBoundingClientRect().top;
-      const elementTop = el.getBoundingClientRect().top;
-      const scrollTop = cWrapper.scrollTop + (elementTop - wrapperTop) - 20; 
-      cWrapper.scrollTo({ top: scrollTop , behavior: "smooth" });
-    } else {
-        console.warn(`[BookScript] Elemento de conteúdo '${id}' ou wrapper não encontrado para scroll.`);
+function findInteractionById(id: string): InteractionItem | undefined {
+    return currentInteractionConfig.value?.items.find(item => item.id === id);
+}
+
+function selectInteraction(interaction: InteractionItem) {
+    activeInteraction.value = interaction;
+    interPage.value = "content";
+    availableActions.value = interaction.actions || [];
+}
+
+function executeAction(action: GameAction) {
+    if (action.type === 'RETURN_TO_CHOICES') {
+        backToTitles();
+        return;
     }
-  });
+
+    if (action.type === 'PROCEED' && action.target) {
+        const nextInteraction = findInteractionById(action.target);
+        if (nextInteraction) {
+            selectInteraction(nextInteraction);
+        } else {
+            console.error(`Action executed, but next interaction '${action.target}' not found.`);
+        }
+    }
+}
+
+function backToTitles() {
+  interPage.value = 'titles';
+  activeInteraction.value = null;
+  availableActions.value = [];
 }
 
 function setView(viewName: typeof currentView.value) {
@@ -811,8 +847,8 @@ function setView(viewName: typeof currentView.value) {
   if (viewName === 'interactions') {
     resetScan();
   } else if (currentView.value !== 'interactions' && scanned.value) { 
-     codeReader.reset?.();
-     scanned.value = false;
+    codeReader.reset?.();
+    scanned.value = false;
   }
 }
 
@@ -828,13 +864,12 @@ watch(currentView, (newView, oldView) => {
     }
   } else {
     if (oldView === 'interactions') {
-        codeReader.reset?.();
-        scanned.value = false; 
+      codeReader.reset?.();
+      scanned.value = false; 
     }
   }
 });
 
-// --- LIFECYCLE HOOKS ---
 onBeforeUnmount(() => {
   codeReader.reset?.(); 
   scanned.value = false;
@@ -843,9 +878,19 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Your existing styles - kept as is from your provided base */
 .body-text {
   font-style: italic;
+}
+.interaction-actions {
+  border-top: 1px solid #5c4a42;
+  margin-top: 16px;
+  text-align: center;
+}
+.action-btn-dynamic {
+  background-color: #f0e6d2 !important;
+  color: #3a2e29 !important;
+  text-transform: none !important;
+  font-size: 0.9rem !important;
 }
 
 .body-text p {
