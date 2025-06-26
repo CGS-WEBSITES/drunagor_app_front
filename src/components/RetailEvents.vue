@@ -90,7 +90,7 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-        <div v-if="loading" class="d-flex justify-center my-8">
+        <div v-if="loading" class="loading-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
@@ -286,7 +286,7 @@
       </div>
 
       <div v-if="activeTab === 2">
-        <div v-if="loading" class="d-flex justify-center my-8">
+        <div v-if="loading" class="loading-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
@@ -442,11 +442,14 @@
           </v-row>
         </div>
 
-        <v-dialog v-model="createEventDialog" max-width="1280">
+        <v-dialog v-model="createEventDialog" max-width="1280" scroll-target="#app">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <v-card class="pa-6 dark-background">
+            <div v-if="loading" class="loading-overlay">
+              <v-progress-circular indeterminate size="80" color="primary" />
+            </div>
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="12">
@@ -573,8 +576,12 @@
           v-model="editEventDialog"
           scroll-target="#app"
           max-width="800"
+
         >
-          <v-card class="dark-background">
+        <v-card class="dark-background">
+            <div v-if="loading" class="loading-overlay">
+              <v-progress-circular indeterminate size="80" color="primary" />
+            </div>
             <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
               Event changed successfully
             </v-alert>
@@ -996,8 +1003,11 @@
                   <v-btn
                     v-if="isEditable"
                     color="green"
+                    :loading="loading"
+                    :disabled="loading"
                     @click="saveEditedEvent"
-                    >Save Changes</v-btn
+                  >
+                    Save Changes</v-btn
                   >
                 </v-col>
               </v-row>
@@ -1096,6 +1106,15 @@ const currentShowPast = computed({
     if (activeTab.value === 1) showPast.value = val;
     else showPast.value = val;
   },
+});
+
+const pdfUrl = computed(() => {
+  const baseUrl =
+    assets && typeof assets.value !== "undefined" ? assets.value : assets;
+  if (!baseUrl) {
+    return "#";
+  }
+  return `${baseUrl}/book/test.pdf`;
 });
 
 const openInGoogleMaps = () => {
@@ -1448,6 +1467,7 @@ const fetchSceneries = async () => {
 };
 
 const addEvent = () => {
+  loading.value = true;
   // reset dialogs
   errorDialog.value.show = false;
   successDialog.value = false;
@@ -1590,6 +1610,10 @@ const addEvent = () => {
       )
         return;
       console.error("Unexpected error:", err);
+      loading.value = false;
+    })
+    .finally(() => {
+      loading.value = false;
     });
 };
 
@@ -1711,7 +1735,8 @@ const saveEditedEvent = () => {
       showSuccessAlert.value = true;
       setTimeout(() => {
         editEventDialog.value = false;
-        window.location.reload();
+        fetchUserCreatedEvents(showPast.value);
+        fetchPlayerEvents(showPast.value);
       }, 1500);
     })
     .catch((error) => {
@@ -1902,18 +1927,22 @@ watch(
     }
   },
 );
-
-const pdfUrl = computed(() => {
-  const baseUrl =
-    assets && typeof assets.value !== "undefined" ? assets.value : assets;
-  if (!baseUrl) {
-    return "#";
-  }
-  return `${baseUrl}/book/test.pdf`;
-});
 </script>
 
 <style scoped>
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .map-link {
   color: inherit;
   text-decoration: underline;
