@@ -353,9 +353,12 @@ import {
 import { BrowserMultiFormatReader } from "@zxing/library";
 
 // IMAGENS E ITENS DE INTERAÇÃO
-import BarricadeImg from "@/assets/Interaction_01_The Barricade.png";
-import ArmorImg from "@/assets/Interaction_03_ShinningArmor.png";
-import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable.png";
+import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
+import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
+import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
+import ReservoirImg from "@/assets/01-Flood-Dungeon_v02-min.png";
+import TreasuresImg from "@/assets/02-Arsenal-Dungeon-min.png";
+import GargoyleImg from "@/assets/03-Gargoyle-min.png";
 
 import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
 import InteractionTheShiningArmor from "@/assets/json/InteractionTheShiningArmor.json";
@@ -479,6 +482,9 @@ const importedImageAssets: Record<string, string> = {
   BarricadeImg,
   ArmorImg,
   WeaponsTableImg,
+  ReservoirImg,
+  TreasuresImg,
+  GargoyleImg,
 };
 
 const importedItemAssets: Record<string, InteractionItem[]> = {
