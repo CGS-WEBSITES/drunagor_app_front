@@ -1135,7 +1135,7 @@ const openEditDialog = (event, editable = false) => {
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries_fk: null,
+    sceneries_fk: event.sceneries_fk,
     store: event.store_name,
     rewards: event.rewards || [],
   };
@@ -1653,6 +1653,7 @@ const saveEditedEvent = () => {
         events_pk: eventPk,
         seats_number: editableEvent.value.seats_number,
         seasons_fk: seasonsFk,
+        sceneries_fk: editableEvent.value.sceneries_fk,
         date: dateFormatted,
         stores_fk: storesFk,
       };
