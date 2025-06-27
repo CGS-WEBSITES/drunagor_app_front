@@ -173,7 +173,7 @@ const selected = ref(null);
                 </v-card>
               </v-col>
 
-              <v-col cols="12" sm="6">
+              <v-col cols="12" sm="12">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
                   @click="newCampaign('awakenings')"
@@ -184,6 +184,7 @@ const selected = ref(null);
                 </v-card>
               </v-col>
 
+              <!-- 
               <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
@@ -194,6 +195,7 @@ const selected = ref(null);
                   <v-img :src="UnderKeepLogo.toString()" width="280" height="100" contain></v-img>
                 </v-card>
               </v-col>
+              -->
             </v-row>
           </v-container>
         </v-card-text>
