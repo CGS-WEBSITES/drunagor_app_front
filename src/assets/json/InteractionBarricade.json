@@ -1,64 +1,157 @@
 [
   {
     "id": "interaction-1.1",
+    "type": "choice",
     "title": "1.1 – ASK \"WHO IS THERE?\" OUT LOUD",
     "body": [
       "As if Blackriver can wait any longer, you shout to the other side of the barricade, searching for any sign of life. The sound of the crackling flames makes it difficult to hear the subtle response that echoes back.<br><br>",
       "Flip a coin: If the result is \"heads\", proceed to resolution 1.6; Otherwise, proceed to resolution 1.7. Note: Redirections like this are part of the chosen resolution and do not count as a new Interaction."
+    ],
+    "actions": [
+      {
+        "text": "Assume 'Heads'",
+        "type": "PROCEED",
+        "target": "interaction-1.6"
+      },
+      {
+        "text": "Assume 'Tails'",
+        "type": "PROCEED",
+        "target": "interaction-1.7"
+      }
     ]
   },
   {
     "id": "interaction-1.2",
+    "type": "choice",
     "title": "1.2 – PULL THE BARRICADE TO YOUR SIDE",
     "body": [
       "The villagers’ desperation is evident in the fragility of their attempted fortification. This is not a barricade, but a pile of junk, so you’d better be careful not to cause a disaster. You examine the poorly made construct for a moment and then muster up the courage to move the first piece. The die is cast…<br><br>",
       "If you follow the Path of Cunning or the Path of Nature (check your Hero board), proceed to resolution 1.8. Otherwise, continue reading below:<br><br>",
       "However, precise handling is not your greatest strength. As soon as you try to pull a chair out, the back of it, tangled with who knows what at the base of the barricade, shakes the poorly made pile and it collapses. You barely have time to scream as a disastrous avalanche buries you, causing pain and confusion…<br><br>",
       "You take 6 damage (you can use Reactions ³). If the Party has the \"Blackriver Survivors\" Status on the Campaign Log, proceed to resolution 1.11. On the other hand, if you have the \"Blackriver Monsters\" Status, proceed to resolution 1.12 instead. If the Party does not have either of them, flip a coin: If the result is \"heads\", proceed to resolution 1.11 anyway; Otherwise, proceed to resolution 1.12."
+    ],
+    "actions": [
+        {
+            "text": "If you follow the Path of Cunning or Nature",
+            "type": "PROCEED",
+            "target": "interaction-1.8"
+        },
+        {
+            "text": "If you DON'T follow those paths (and have 'Survivors' status)",
+            "type": "PROCEED",
+            "target": "interaction-1.11"
+        },
+        {
+            "text": "If you DON'T follow those paths (and have 'Monsters' status)",
+            "type": "PROCEED",
+            "target": "interaction-1.12"
+        },
+        {
+            "text": "If you DON'T follow paths and have NO status (assume 'Heads')",
+            "type": "PROCEED",
+            "target": "interaction-1.11"
+        },
+        {
+            "text": "If you DON'T follow paths and have NO status (assume 'Tails')",
+            "type": "PROCEED",
+            "target": "interaction-1.12"
+        }
     ]
   },
   {
     "id": "interaction-1.3",
+    "type": "choice",
     "title": "1.3 – PUSH THE BARRICADE TO THE OTHER SIDE",
     "body": [
       "The villagers’ desperation is evident in the fragility of their attempted fortification. This is not a barricade, but a pile of junk, so when in doubt, pushing it away from you is the best thing to do. The first jolt is enough for the poorly constructed tower to collapse in a disastrous avalanche that raises a cloud of dust. You hear screams of pain. Bad luck for whoever is on the other side…<br><br>",
       "If the Party has the \"Blackriver Survivors\" Status on the Campaign Log, proceed to resolution 1.9. On the other hand, if you have the \"Blackriver Monsters\" Status, proceed to resolution 1.10 instead. If the Party does not have either of them, flip a coin: If the result is \"heads\", proceed to resolution 1.9 anyway; Otherwise, proceed to resolution 1.10."
+    ],
+    "actions": [
+        {
+            "text": "If you have 'Blackriver Survivors' status",
+            "type": "PROCEED",
+            "target": "interaction-1.9"
+        },
+        {
+            "text": "If you have 'Blackriver Monsters' status",
+            "type": "PROCEED",
+            "target": "interaction-1.10"
+        },
+        {
+            "text": "If you have NO status (assume 'Heads')",
+            "type": "PROCEED",
+            "target": "interaction-1.9"
+        },
+        {
+            "text": "If you have NO status (assume 'Tails')",
+            "type": "PROCEED",
+            "target": "interaction-1.10"
+        }
     ]
   },
   {
     "id": "interaction-1.4",
+    "type": "choice",
     "title": "1.4 – SEARCH THE BARRICADE FOR SOMETHING USEFUL",
     "body": [
       "One man’s trash may be another man’s treasure. Could the villagers have accidentally left something of value amidst the junk? They were desperate, and it doesn’t hurt to take a look, after all. Living up to the saying that those who seek shall find, you run your hands through drawers, barrels, and broken chests, pulling out something you never imagined was there.<br><br>",
       "Draw 2 Chest cards, choose 1 of them to keep, and return the other to the bottom of the deck. Choose another option that has not yet been chosen and proceed to its resolution."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.5",
+    "type": "choice",
     "title": "1.5 – EXAMINE THE SWORD ON THE GROUND",
     "body": [
       "The barricade is impressive in its own way, but it’s the blade on the ground that catches your eye. Why would such a distinctive piece be discarded like this? You think about it and lower your head, because the answer is not at all pleasant. Swords are not tools, they are weapons, and they are only good for one thing. This one has probably already been in someone else’s unfortunate hands...<br><br>",
       "Take the Masterwork Sword Adventure Item card. This equipment is VERSATILE: Choose a side to use when you take this card, but you can change it voluntarily during your turn. Choose another option that has not yet been chosen and proceed to its resolution."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.6",
+    "type": "resolution",
     "title": "1.6 – ON THE OTHER SIDE THERE ARE SURVIVORS",
     "body": [
       "\"Praised be the Setting Sun! Carrick, we have company!\" an exhausted woman's voice reverberates through the night. \"I can’t believe it, we’re saved!\" a man answers amidst the clang of a sword and the growls of something sinister. \"You, on the other side, please help us! We are being massacred!\" he begs.<br><br>",
       "Write down the \"Blackriver Survivors\" Status on the Campaign Log.<br>Choose another option that has not yet been chosen and proceed to its resolution."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.7",
+    "type": "resolution",
     "title": "1.7 – THERE’S TROUBLE ON THE OTHER SIDE",
     "body": [
       "The unmistakable sound of claws and fangs piercing flesh and splintering bones echoes through the night along with the grunts of clenched teeth. If there were any survivors on the other side, it is likely that they too have already fallen victim to the monstrosities. Creatures that can’t wait to find you…<br><br>",
       "Write down the \"Blackriver Monsters\" Status on the Campaign Log.<br>Choose another option that has not yet been chosen and proceed to its resolution."
+    ],
+    "actions": [
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
     "id": "interaction-1.8",
+    "type": "resolution",
     "title": "1.8 – YOU ARE VERY CAREFUL",
     "body": [
       "However, precise handling is your greatest strength. Whether it’s the lightness of your fingers or the sharpness of your reasoning, you manage to uncover what others might have missed. Removing a chair that seemed to be loose, you controllably dismantle the barricade from the bottom, letting it collapse beside you. Despite the potentially disastrous episode, your path is now clear. You are unharmed and rewarded with a curiously useful piece...<br><br>",
@@ -67,6 +160,7 @@
   },
   {
     "id": "interaction-1.9",
+    "type": "resolution",
     "title": "1.9 – THEY DIDN’T STAND A CHANCE…",
     "body": [
       "Bad luck for the couple who had been cornered by the hideous creatures on the other side of the barricade. \"What the hell…!\" A woman’s indignant scream is muffled by the pile of junk. Her companion’s luck is no better: he looks back and is fatally wounded by a blow to the neck. The sudden tragedy makes your eyes widen, but now is not the time to mourn...<br><br>",
@@ -75,6 +169,7 @@
   },
   {
     "id": "interaction-1.10",
+    "type": "resolution",
     "title": "1.10 – A BRILLIANT MOVE!",
     "body": [
       "Bad luck for the hideous creatures that were cornered on the other side, behind the barricade. Whatever power had brought them—who knows how or from where—it had certainly left their minds behind. The monstrosities are no more intelligent than cattle. Supported by the junk that falls on them, you charge!<br><br>",
@@ -83,6 +178,7 @@
   },
   {
     "id": "interaction-1.11",
+    "type": "resolution",
     "title": "1.11 – THE SURVIVORS WERE TRAPPED…",
     "body": [
       "As soon as the junk pile collapses, the path ahead reveals itself, along with a couple of survivors who sigh in relief: Help arrived in the nick of time. \"May the Setting Sun guide your steps, comrades!\" the woman with greenish hair, dressed in leather armor and with a sword in her hands, thanks you as she waves goodbye. They go back the way you came, clearly scared, and you don’t even need to ask why...<br><br>",
@@ -91,6 +187,7 @@
   },
   {
     "id": "interaction-1.12",
+    "type": "resolution",
     "title": "1.12 – WHAT HAVE YOU SET FREE?",
     "body": [
       "The junk collapses, raising a curtain of dust from the rubble and momentarily obscuring your vision. It doesn’t take long for it to settle and reveal black silhouettes both on the ground and on the path ahead. Suddenly, the growls cease, and a strange noise—like a dog sniffing—begins to echo, sending a sense of unease through you...<br><br>",

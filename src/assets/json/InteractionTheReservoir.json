@@ -1,66 +1,151 @@
 [
   {
     "id": "interaction-1.1",
-    "title": "1.1 – TAKE THE HEAVY WEAPON",
+    "type": "choice",
+    "title": "1.1 – TURN THE WHEEL TO THE RIGHT",
     "body": [
-      "You lift the greatsword from the shelf, and the quality of the steel and richness of detail are immediately evident. Filigree patterns run along the hilt and blade—but you realize they do more than merely adorn the weapon as it trembles at your touch. A latent mystical energy resides within it, waiting to be awakened...<br><br>",
-      "Take the Lost Claymore Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "First, if the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 1.6. If not, and the Drainage Game Mechanic card is showing face A, proceed to resolution 1.7. Otherwise, if none of the above conditions apply, continue reading below:<br><br>",
+      "Your arms are put to the test as you grasp the wheel and try to turn it. The first pull is the hardest, but you overcome the challenge and the mechanism loosens, as nature makes it easier to keep things moving once they’re in motion. Soon, the sound of something heavy dragging through the walls echoes through the hall, followed by the rush of water flowing into the darkness…<br><br>",
+      "Flip the Drainage Game Mechanic card to face A. Any Time tokens it has remain on it.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "If mechanism is locked", "type": "PROCEED", "target": "interaction-1.6" },
+      { "text": "If wheel is already right", "type": "PROCEED", "target": "interaction-1.7" },
+      { "text": "Turn it (if possible)", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.2",
-    "title": "1.2 – TAKE THE LIGHT WEAPON",
+    "type": "choice",
+    "title": "1.2 – TURN THE WHEEL TO THE LEFT",
     "body": [
-      "You take the Scimitar off the shelf and swing it once, twice through the air, testing the balance of the blade. The Draconian design is unique, combining the ferocity of Orcish weapons with the grace of Elven blades. That alone makes it a one-of-a-kind piece, but there’s more: you can feel magic coursing through the steel, waiting for the right command to come alive...<br><br>",
-      "Take the Draconian Scimitar Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "First, if the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 1.6. If not, and the Drainage Game Mechanic card is showing face B, proceed to resolution 1.8. Otherwise, if none of the above conditions apply, continue reading below:<br><br>",
+      "You grab the wheel and, to your surprise, barely need any effort to turn it. The mechanism’s counterweight is working in your favor, applying the force necessary to lower the gates and close the reservoir’s drainage.<br><br>",
+      "Flip the Drainage Game Mechanic card to face B. Any Time tokens it has remain on it.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "If mechanism is locked", "type": "PROCEED", "target": "interaction-1.6" },
+      { "text": "If wheel is already left", "type": "PROCEED", "target": "interaction-1.8" },
+      { "text": "Turn it (if possible)", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.3",
-    "title": "1.3 – TAKE THE LONGBOW",
+    "type": "choice",
+    "title": "1.3 – LOCK OR UNLOCK THE MECHANISM",
     "body": [
-      "You take the Longbow off the shelf, stunned by the quality of the wood. How could it have survived so long? The secret lies in Elven magic: this bark was hardened like iron, yet kept as supple as a sapling. Just touching it is enough to feel its power—but you know that’s not all. Something lies within, dormant, waiting for something to unlock its full potential...<br><br>",
-      "Take the Lorelanian Longbow Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "A thick, sturdy wooden bar locks the wheel in its last position.<br><br>",
+      "If the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 1.9. Otherwise, continue reading below:<br><br>",
+      "Carefully, you grab the bar and push it all the way into the mechanism. The “click” of the precisely engineered lock echoes through the hall, securing the wheel in place.<br><br>",
+      "Write down the Locked Mechanism Status on the Party’s Campaign Log.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Unlock (if locked)", "type": "PROCEED", "target": "interaction-1.9" },
+      { "text": "Lock (if unlocked)", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.4",
-    "title": "1.4 – TAKE THE STAFF",
+    "type": "choice",
+    "title": "1.4 – TRY TO DECIPHER THE MECHANISM",
     "body": [
-      "You take hold of the Staff, and cosmic energies flow through your body and memories flash through your mind. The power that fuels this piece is not of this world, but of one far, far away, where lush jungles thrive and people paint themselves with the red pigment shed by the bark of this wood. Nature is powerful there, and you can feel it: its energy is in this staff, guarded or hidden. It’s up to you to uncover it...<br><br>",
-      "Take the Redwood Staff Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "The mechanism seems simple, as if it were one of the components guiding a great Umbralian ship. The operator can take four actions: turn the wheel in either direction or lock and unlock it with a latch. Identifying the parts is easy—making sense of it all is the hard part…<br><br>",
+      "Make a Wisdom (blue) Attribute Challenge of Difficulty 15. Each Wisdom cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.11. Otherwise, continue reading below:<br><br>",
+      "…and you were never very good at navigation. Even the appearance of the device deceives your eyes—clearly sturdy, but certainly as delicate as any mechanism. All it takes is one part to break for the entire structure to fail. In doubt, is inaction not the wisest move?<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Succeed on Wisdom Challenge", "type": "PROCEED", "target": "interaction-1.11" },
+      { "text": "Fail on Wisdom Challenge", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.5",
-    "title": "1.5 – TAKE THE ROBE",
+    "type": "choice",
+    "title": "1.5 – TRY TO DESTROY THE ROPES",
     "body": [
-      "You take the robe from the rack, and the quality of the fabric astounds you, smooth to the touch, slippery even—but despite its graceful appearance, it’s far more resilient than linen, as if nature itself made no sense. Elven embroidery in gold thread adorns the piece, and as you run a finger along the stitching you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
-      "Take the Astralsilk Robe Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "The wheel is sturdy enough to withstand a few blows, but it has a weakness: the wheel is tied to a rope, and cutting it would disable the mechanism. Still, the rope is nearly as thick as those securing a ship’s main sail—no easy task…<br><br>",
+      "Make a Melee (yellow) Attribute Challenge of Difficulty 15. Each Melee cube you have gives you a +2 bonus to your roll. If you have any way to apply BURN through one of your Skills, you automatically succeed without rolling. If you succeed, proceed to resolution 1.10. Otherwise, continue reading below:<br><br>",
+      "You strike at the rope a few times, but without proper technique, your blows only fray the tough braids, barely more than scratching them. The effort yields more fatigue than progress—but it’s a start…<br><br>",
+      "You gain 2 Curse Cubes. This effect is not the same as CURSE.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Succeed on Melee Challenge", "type": "PROCEED", "target": "interaction-1.10" },
+      { "text": "Fail on Melee Challenge", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.6",
-    "title": "1.6 – TAKE THE CUIRASS",
+    "type": "resolution",
+    "title": "1.6 – THE LATCH IS LOCKING THE WHEEL",
     "body": [
-      "You lift the cuirass from the rack, and find the quality of the leatherwork striking. How did this piece survive the ages without deteriorating? Powerful enchantments, without a doubt. Gold rivets decorate the armor, and touching them you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
-      "Take the Dragonhide Cuirass Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "You place your hands on the wheel, but the wooden latch is there, locking it in its last position. You’ll have to remove it first…<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.7",
-    "title": "1.7 – TAKE THE BREASTPLATE",
+    "type": "resolution",
+    "title": "1.7 – THE WHEEL IS ALREADY TURNED TO THE RIGHT",
     "body": [
-      "You raise the plate chestpiece off the rack, impressed by the lightness of the steel. Legends say only the Elven blacksmiths of the Age of Dragons could forge the wondrous alloy known as Quicksilver, light as a leaf, sturdy as a tree trunk. As you examine the golden filigree engravings that decorate the piece, you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
-      "Take the Quicksilver Breastplate Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "You reach for the wheel, but the moment you start turning it, you feel the mechanism resist. The gates are already open, and the reservoir is draining at full force. There’s no turning the wheel in this direction…<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
     ]
   },
   {
     "id": "interaction-1.8",
-    "title": "1.8 – TAKE THE BOOTS",
+    "type": "resolution",
+    "title": "1.8 – THE WHEEL IS ALREADY TURNED TO THE LEFT",
     "body": [
-      "Despite the incredible weapons at your disposal, you take the pair of boots—but they are by no means inferior to the rest. They might even be the most valuable of all, as the appearance of magical items often belies their true purpose. As light as sandals, yet as heavy as iron when they step, this humble pair of boots seems to bend space around them...<br><br>",
-      "Take the Gravity Boots Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
+      "You reach for the wheel, but the moment you start turning it, you feel the mechanism resist. The gates are already closed, and the reservoir is no longer at risk of draining. There’s no turning the wheel in this direction…<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+    ]
+  },
+  {
+    "id": "interaction-1.9",
+    "type": "resolution",
+    "title": "1.9 – THE MECHANISM IS UNLOCKED",
+    "body": [
+      "Carefully, you grab the head of the bar and pull half of it out of the mechanism. The “click” of the release echoes through the hall, freeing the wheel once more.<br><br>",
+      "Erase the “Locked Mechanism” Status from the Party’s Campaign Log.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+    ]
+  },
+  {
+    "id": "interaction-1.10",
+    "type": "resolution",
+    "title": "1.10 – THE ROPES CANNOT WITHSTAND YOU",
+    "body": [
+      "…but you know exactly what to do. Striking the hemp fibers in the right spot, the rope snaps at once, pulled into the mechanism’s internal pulleys. The wheel loosens and becomes utterly useless…<br><br>",
+      "You gain FOCUS 2.<br>If the Drainage Game Mechanic card is showing face B, remove this Interaction token from the board and then proceed with the Adventure. Otherwise, if it is showing face A, continue reading below:<br><br>",
+      "…whether part of your plan or not, the rope’s rupture causes another change: the gate loses tension and its counterweight promptly slams it shut, cutting off the water flow for good.<br><br>",
+      "Flip the Drainage Game Mechanic card to face B. Any Time tokens it has remain on it.<br>Remove this Interaction token from the board.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Proceed with the Adventure", "type": "PROCEED", "target": "next-adventure-step" }
+    ]
+  },
+  {
+    "id": "interaction-1.11",
+    "type": "resolution",
+    "title": "1.11 – YOU UNDERSTAND THE MECHANISM",
+    "body": [
+      "…but your mind is as sharp as your body, and a moment of clarity hits you. Turning the wheel to the right reels in the rope, while the other direction releases it. Reeling it in opens a gate and drains the reservoir—but the counterweight certainly prevents this. That’s the purpose of the latch: with the lock engaged, the operator no longer needs to hold the wheel.<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
     ]
   }
 ]
