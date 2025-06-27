@@ -1,4 +1,6 @@
 <template>
+
+  <!--
   <v-tooltip location="left">
     <template #activator="{ props }">
       <v-btn
@@ -18,6 +20,7 @@
     </template>
     <span> Download Season 1 Drunagor Nights Book</span>
   </v-tooltip>
+-->
 
   <v-row justify="center">
     <v-col cols="12" class="text-center">
