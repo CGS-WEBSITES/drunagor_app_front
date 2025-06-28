@@ -1,34 +1,52 @@
 <template>
   <v-btn variant="elevated" id="campaign-remove" class="px-6 my-2" rounded @click="openModal">
     <v-icon start>mdi-delete</v-icon>
-    {{
-    t("label.remove-campaign")
-  }}</v-btn>
-  <v-dialog v-model="visible">
+    {{ t("label.remove-campaign") }}
+  </v-btn>
+
+  <v-dialog v-model="visible" max-width="500px" persistent>
     <v-card>
-      <v-card-tile class="text-center">{{
-        t("label.remove-campaign")
-      }}</v-card-tile>
+      <v-card-title class="text-center">{{ t("label.remove-campaign") }}</v-card-title>
+
       <v-card-text>
-        {{ t("text.cannot-be-restored") }}
+        <v-alert
+          v-model="alertVisible"
+          :type="alertType"
+          closable
+        >
+          {{ alertMessage }}
+        </v-alert>
+
+        <p v-if="!alertVisible" class="text-center mt-2">
+          {{ t("text.cannot-be-restored") }}
+        </p>
       </v-card-text>
+      
       <v-divider></v-divider>
-      <v-card-actions>
+
+      <v-card-actions v-if="!alertVisible">
         <v-row no-gutters>
-          <v-col cols="12" class="d-flex flex-row justify-center">
-            <v-btn variant="text" @click="removeCampaign" width="100%">{{
-              t("label.yes")
-            }}</v-btn>
+          <v-col cols="6">
+            <v-btn 
+              variant="text" 
+              @click="removeCampaign" 
+              width="100%"
+              :loading="isLoading"
+              :disabled="isLoading"
+            >
+              {{ t("label.yes") }}
+            </v-btn>
           </v-col>
-          <v-divider vertical></v-divider>
-          <v-col cols="12" class="d-flex flex-row justify-center">
+          <v-col cols="6">
             <v-btn
               variant="text"
               @click="closeModal"
               width="100%"
               color="red-accent-2"
-              >{{ t("label.no") }}</v-btn
+              :disabled="isLoading"
             >
+              {{ t("label.no") }}
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-actions>
@@ -42,40 +60,42 @@ import { CampaignStore } from "@/store/CampaignStore";
 import { useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
-import { useToast } from "primevue/usetoast";
 import axios from "axios";
 
-const toast = useToast();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const router = useRouter();
 const { t } = useI18n();
 
 const visible = ref(false);
+const isLoading = ref(false);
+const alertVisible = ref(false);
+const alertMessage = ref('');
+const alertType = ref<'success' | 'error'>('success');
 
 const props = defineProps<{
   campaignId: string;
 }>();
 
 const openModal = () => {
+  alertVisible.value = false;
   visible.value = true;
-}
+};
 
 const closeModal = () => {
   visible.value = false;
-}
+};
 
 const removeCampaign = () => {
+  isLoading.value = true;
   const campaigns_pk = props.campaignId;
 
   axios
     .delete(`/campaigns/${campaigns_pk}/delete/`)
     .then(() => {
-
-      return axios.delete(`/rl_campaigns_users/${campaigns_pk}/delete/`);
-    })
-    .then((response: any) => {
-      console.log("Campaign relation removed:", response.data);
+      alertMessage.value = "Your campaign was deleted successfully";
+      alertType.value = 'success';
+      alertVisible.value = true;
 
       campaignStore.remove(campaigns_pk);
       heroStore
@@ -84,26 +104,32 @@ const removeCampaign = () => {
           heroStore.removeFromCampaign(hero.heroId, campaigns_pk);
         });
 
-      toast.add({
-        severity: "success",
-        summary: t("label.success"),
-        detail: t("text.campaign-removed"),
-        life: 3000,
-      });
-
-      closeModal();
-      router.push("/campaign-tracker/");
+      setTimeout(() => {
+        closeModal();
+        router.push("/campaign-tracker/");
+      }, 2000);
     })
     .catch((error: any) => {
-      console.error("Error removing campaign:", error);
-      toast.add({
-        severity: "error",
-        summary: t("label.error"),
-        detail: error.message || t("text.error-removing-campaign"),
-        life: 3000,
-      });
+      let detailMessage = t("text.error-removing-campaign");
+      if (error.response && error.response.data) {
+        detailMessage = error.response.data.message || error.response.data.detail || JSON.stringify(error.response.data);
+      } else {
+        detailMessage = error.message;
+      }
+      
+      alertMessage.value = detailMessage;
+      alertType.value = 'error';
+      alertVisible.value = true;
+
+      setTimeout(() => {
+        closeModal();
+        router.push("/campaign-tracker/");
+      }, 2000);
+    })
+    .finally(() => {
+      isLoading.value = false;
     });
-}
+};
 </script>
 
 <style scoped></style>
