@@ -1,9 +1,7 @@
 <template>
   <v-row justify="center">
     <v-col cols="12" class="text-center">
-      <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
-      >
+      <h1 class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2">
         EVENTS
       </h1>
     </v-col>
@@ -13,13 +11,7 @@
     <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
-          <v-tabs
-            class="EventsTabs mb-3"
-            v-model="activeTab"
-            fixed-tabs
-            align-tabs="center"
-            color="white"
-          >
+          <v-tabs class="EventsTabs mb-3" v-model="activeTab" fixed-tabs align-tabs="center" color="white">
             <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
             <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
           </v-tabs>
@@ -28,12 +20,7 @@
 
       <v-row class="mb-4" align="center">
         <v-col cols="12" sm="6">
-          <v-checkbox
-            v-model="showPast"
-            label="Past events"
-            hide-details
-            color="primary"
-          />
+          <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
         </v-col>
       </v-row>
 
@@ -44,24 +31,11 @@
         </div>
         <div v-else class="list-container">
           <v-row v-if="events.length > 0">
-            <v-col
-              v-for="(event, index) in sortedEvents"
-              :key="index"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
-            >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openDialog(event)"
-              >
+            <v-col v-for="(event, index) in sortedEvents" :key="index" class="py-2 pl-1 pr-1" cols="12" md="6">
+              <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
+                    <div class="text-center ml-3" style="width: 70px; color: black">
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(event.event_date)
@@ -90,9 +64,7 @@
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
+                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                       {{ event.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -105,22 +77,10 @@
                     </p>
                     <p class="text-caption ml-3" v-if="event.rewards?.length">
                       <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red"
-                          >mdi-star-circle</v-icon
-                        >
+                        <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
                         Rewards:
-                        <v-col
-                          v-for="(reward, i) in event.rewards"
-                          :key="i"
-                          cols="auto"
-                        >
-                          <v-img
-                            :src="reward.image"
-                            height="20"
-                            width="20"
-                            contain
-                            class="reward-icon"
-                          />
+                        <v-col v-for="(reward, i) in event.rewards" :key="i" cols="auto">
+                          <v-img :src="reward.image" height="20" width="20" contain class="reward-icon" />
                         </v-col>
                       </v-row>
                     </p>
@@ -138,12 +98,7 @@
         <v-dialog v-model="dialog" max-width="600" min-height="431">
           <v-card color="surface" style="position: relative">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                size="80"
-                width="7"
-                color="primary"
-              />
+              <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
             <v-card-actions class="d-flex justify-left">
               <v-btn color="red" @click="dialog = false">X</v-btn>
@@ -153,30 +108,15 @@
             <v-dialog v-model="showDialog" width="400">
               <v-card style="position: relative">
                 <div v-if="loading" class="dialog-overlay">
-                  <v-progress-circular
-                    indeterminate
-                    size="80"
-                    width="7"
-                    color="primary"
-                  />
+                  <v-progress-circular indeterminate size="80" width="7" color="primary" />
                 </div>
                 <v-card-title class="text-h6">Share Event</v-card-title>
                 <v-card-text>
-                  <v-text-field
-                    v-model="sharedLink"
-                    label="Event Link"
-                    readonly
-                    density="compact"
-                    hide-details
-                  />
+                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact" hide-details />
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn
-                    color="success"
-                    size="small"
-                    @click="copyLink(sharedLink)"
-                  >
+                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">
                     Copy Link
                   </v-btn>
                   <v-btn color="grey" size="small" @click="showDialog = false">
@@ -187,14 +127,8 @@
             </v-dialog>
 
             <v-card-text>
-              <v-btn
-                block
-                color="blue"
-                size="small"
-                variant="flat"
-                class="mt-2"
-                @click="shareEvent(selectedEvent?.events_pk)"
-              >
+              <v-btn block color="blue" size="small" variant="flat" class="mt-2"
+                @click="shareEvent(selectedEvent?.events_pk)">
                 <v-icon start>mdi-share-variant</v-icon>
                 Share Event
               </v-btn>
@@ -224,14 +158,10 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
+                  <v-img :src="selectedEvent?.picture_hash
+                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -247,16 +177,10 @@
 
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-for="(reward, index) in eventRewards"
-                :key="index"
-                class="align-center my-2"
-              >
+              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
-                    <v-img
-                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
-                    />
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
                   </v-avatar>
                 </v-col>
                 <v-col cols="9" md="10">
@@ -267,27 +191,15 @@
                 </v-col>
               </v-row>
 
-              <v-alert
-                v-if="showAlert"
-                :type="alertType"
-                class="mt-4"
-                border="start"
-                variant="tonal"
-                closable
-                @click:close="showAlert = false"
-              >
+              <v-alert v-if="showAlert" :type="alertType" class="mt-4" border="start" variant="tonal" closable
+                @click:close="showAlert = false">
                 <span v-html="alertMessage"></span>
               </v-alert>
             </v-card-text>
 
             <v-row class="mt-2 ml-0">
               <v-col cols="12" class="mb-2">
-                <v-btn
-                  block
-                  color="#539041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                >
+                <v-btn block color="#539041" class="rounded-0" @click="joinEvent">
                   Count me in
                 </v-btn>
               </v-col>
@@ -303,24 +215,11 @@
         </div>
         <div v-else class="list-container">
           <v-row v-if="myEvents.length > 0">
-            <v-col
-              v-for="(evt, idx) in myEvents"
-              :key="evt.events_pk"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
-            >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openMyEventsDialog(evt)"
-              >
+            <v-col v-for="(evt, idx) in myEvents" :key="evt.events_pk" class="py-2 pl-1 pr-1" cols="12" md="6">
+              <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
+                    <div class="text-center ml-3" style="width: 70px; color: black">
                       <p class="pt-3 text-caption font-weight-bold">
                         {{
                           new Date(evt.event_date)
@@ -344,9 +243,7 @@
                   </v-col>
                   <v-col cols="8" sm="9" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
+                      <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                       {{ evt.store_name }}
                     </h3>
                     <p class="text-caption text-truncate">
@@ -363,16 +260,9 @@
                     </p>
                   </v-col>
                   <v-col cols="1" class="d-flex align-center justify-end pr-2">
-                    <v-tooltip
-                      :text="getEventStatusInfo(evt.status).tooltip"
-                      location="top"
-                    >
+                    <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
                       <template #activator="{ props }">
-                        <v-icon
-                          v-bind="props"
-                          :color="getEventStatusInfo(evt.status).color"
-                          size="large"
-                        >
+                        <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
                           {{ getEventStatusInfo(evt.status).icon }}
                         </v-icon>
                       </template>
@@ -383,9 +273,7 @@
             </v-col>
           </v-row>
           <v-row v-else>
-            <v-col class="text-center"
-              >No events match the selected filters.</v-col
-            >
+            <v-col class="text-center">No events match the selected filters.</v-col>
           </v-row>
         </div>
 
@@ -393,23 +281,13 @@
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6" style="position: relative">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                size="80"
-                width="7"
-                color="primary"
-              />
+              <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
             <div class="d-flex align-center justify-space-between pl-8">
               <v-card-title class="text-h6 font-weight-bold pa-0">
                 {{ selectedMyEvent?.store_name }}
               </v-card-title>
-              <v-icon
-                color="red"
-                @click="myDialog = false"
-                class="mr-2"
-                style="cursor: pointer"
-              >
+              <v-icon color="red" @click="myDialog = false" class="mr-2" style="cursor: pointer">
                 mdi-close
               </v-icon>
             </div>
@@ -432,8 +310,8 @@
               </p>
             </div>
             <v-row align="center" justify="space-between">
-              <v-col cols="12" md="6" class="text-center pt-8 ml-3">
-                <div
+              <v-col cols="12" md="6" class="text-center pt-8">
+                <!-- <div
                   style="
                     position: relative;
                     display: inline-block;
@@ -460,62 +338,35 @@
                   >
                     Coming Soon
                   </div>
-                </div>
+                </div> -->
               </v-col>
-              <v-col
-                cols="12"
-                md="5"
-                class="text-center ml-3 px-5 px-md-0 mr-md-7 pr-md-3"
-              >
-                <div class="d-flex align-center justify-center mb-2">
-                  <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
-                    Status: {{ selectedMyEvent?.status }}
-                  </p>
-                  <v-btn
-                    icon="mdi-refresh"
-                    variant="text"
-                    size="small"
-                    :loading="isRefreshingStatus"
-                    :disabled="isRefreshingStatus"
-                    @click="refreshEventStatus()"
-                  />
-                </div>
-                <v-btn
-                  class="mb-4"
-                  block
-                  color="green"
-                  @click="showCampaignDialog = true"
-                  :disabled="
-                    !currentPlayer ||
-                    currentPlayer.event_status !== 'Joined the Quest'
-                  "
-                >
-                  Join Campaign
-                </v-btn>
-                <v-btn class="mb-8" block color="red" @click="quitEvent()"
-                  >Quit Event</v-btn
-                >
-                <v-alert
-                  v-if="showQuitSuccessAlert"
-                  type="success"
-                  title="Success"
-                  class="mb-4"
-                  variant="tonal"
-                  closable
-                  @click:close="showQuitSuccessAlert = false"
-                >
+              <v-col cols="12" class="text-center px-5">
+                <v-row>
+                  <v-col cols="12" class="d-flex align-center justify-center mb-2">
+                    <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
+                      Status: {{ selectedMyEvent?.status }}
+                    </p>
+                    <v-btn icon="mdi-refresh" variant="text" size="small" :loading="isRefreshingStatus"
+                      :disabled="isRefreshingStatus" @click="refreshEventStatus()" />
+                  </v-col>
+                  <v-col cols="12" md="6" class="py-0">
+                    <v-btn class="mb-4" block color="green" @click="showCampaignDialog = true" :disabled="!currentPlayer ||
+                      currentPlayer.event_status !== 'Joined the Quest'
+                      ">
+                      Join Campaign
+                    </v-btn>
+                  </v-col>
+                  <v-col cols="12" md="6" class="py-0">
+                    <v-btn class="mb-8" block color="red" @click="quitEvent()">Quit Event</v-btn>
+                  </v-col>
+                </v-row>
+                <v-alert v-if="showQuitSuccessAlert" type="success" title="Success" class="mb-4" variant="tonal"
+                  closable @click:close="showQuitSuccessAlert = false">
                   You have successfully left the event. It will no longer appear
                   in your list.
                 </v-alert>
-                <v-alert
-                  v-if="showQuitErrorAlert"
-                  type="error"
-                  title="Failed to Leave Event"
-                  class="mb-4"
-                  variant="tonal"
-                  closable
-                  @click:close="showQuitErrorAlert = false"
-                >
+                <v-alert v-if="showQuitErrorAlert" type="error" title="Failed to Leave Event" class="mb-4"
+                  variant="tonal" closable @click:close="showQuitErrorAlert = false">
                   {{ quitErrorMessage }}
                 </v-alert>
               </v-col>
@@ -523,14 +374,10 @@
             <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedMyEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
+                  <v-img :src="selectedMyEvent?.picture_hash
+                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                    : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    " class="event-img" />
                 </v-col>
                 <v-col cols="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
@@ -550,12 +397,7 @@
         <v-dialog v-model="showQuitConfirmDialog" max-width="400">
           <v-card style="position: relative">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                size="80"
-                width="7"
-                color="primary"
-              />
+              <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
             <v-card-title class="text-h6">Confirm Exit</v-card-title>
             <v-card-text>
@@ -564,12 +406,8 @@
             </v-card-text>
             <v-card-actions>
               <v-spacer />
-              <v-btn color="grey" text @click="showQuitConfirmDialog = false"
-                >Cancel</v-btn
-              >
-              <v-btn color="red-darken-2" text @click="confirmQuitEvent"
-                >Quit Event</v-btn
-              >
+              <v-btn color="grey" text @click="showQuitConfirmDialog = false">Cancel</v-btn>
+              <v-btn color="red-darken-2" text @click="confirmQuitEvent">Quit Event</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -578,16 +416,9 @@
         <v-dialog v-model="showCampaignDialog" max-width="320" persistent>
           <v-card style="position: relative">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                size="80"
-                width="7"
-                color="primary"
-              />
+              <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
-            <v-card-title
-              class="d-flex justify-space-between align-center pa-0"
-            >
+            <v-card-title class="d-flex justify-space-between align-center pa-0">
               <span class="text-h6 ml-4">Choose an option</span>
               <v-card-actions class="pa-0">
                 <v-btn icon @click="showCampaignDialog = false">
@@ -597,25 +428,15 @@
             </v-card-title>
             <v-card-text>What do you want to do?</v-card-text>
             <v-card-actions class="d-flex flex-column">
-              <v-btn
-                block
-                color="success"
-                class="mb-2"
-                @click="showJoinCampaignDialog = true"
-              >
+              <v-btn block color="success" class="mb-2" @click="showJoinCampaignDialog = true">
                 Join
               </v-btn>
-              <v-btn
-                block
-                color="success"
-                class="mb-2"
-                @click="
-                  () => {
-                    handleNewCampaign('underkeep');
-                    showCampaignDialog = false;
-                  }
-                "
-              >
+              <v-btn block color="success" class="mb-2" @click="
+                () => {
+                  handleNewCampaign('underkeep');
+                  showCampaignDialog = false;
+                }
+              ">
                 New Campaign
               </v-btn>
               <v-btn block color="success" @click="loadCampaign">
@@ -625,17 +446,10 @@
               <v-dialog v-model="showLoadDialog" max-width="400" persistent>
                 <v-card style="position: relative">
                   <div v-if="loading" class="dialog-overlay">
-                    <v-progress-circular
-                      indeterminate
-                      size="80"
-                      width="7"
-                      color="primary"
-                    />
+                    <v-progress-circular indeterminate size="80" width="7" color="primary" />
                   </div>
 
-                  <v-card-title
-                    class="d-flex justify-space-between align-center pa-0"
-                  >
+                  <v-card-title class="d-flex justify-space-between align-center pa-0">
                     <span class="text-h6 ml-4">Select a Campaign</span>
                     <v-card-actions class="pa-0">
                       <v-btn icon @click="showLoadDialog = false">
@@ -644,24 +458,12 @@
                     </v-card-actions>
                   </v-card-title>
                   <v-card-text>
-                    <v-select
-                      v-model="selectedLoadCampaign"
-                      :items="campaigns"
-                      item-title="party_name"
-                      item-value="campaigns_pk"
-                      label="Campaign"
-                      :loading="loading"
-                      :disabled="loading"
-                    />
+                    <v-select v-model="selectedLoadCampaign" :items="campaigns" item-title="party_name"
+                      item-value="campaigns_pk" label="Campaign" :loading="loading" :disabled="loading" />
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn
-                      color="green"
-                      elevation="4"
-                      class="mt-4"
-                      :disabled="!selectedLoadCampaign"
-                      @click="confirmLoadCampaign"
-                    >
+                    <v-btn color="green" elevation="4" class="mt-4" :disabled="!selectedLoadCampaign"
+                      @click="confirmLoadCampaign">
                       Load
                     </v-btn>
                   </v-card-actions>
@@ -669,23 +471,12 @@
               </v-dialog>
 
               <!-- Join Campaign Dialog -->
-              <v-dialog
-                v-model="showJoinCampaignDialog"
-                max-width="400"
-                persistent
-              >
+              <v-dialog v-model="showJoinCampaignDialog" max-width="400" persistent>
                 <v-card style="position: relative">
                   <div v-if="loading" class="dialog-overlay">
-                    <v-progress-circular
-                      indeterminate
-                      size="80"
-                      width="7"
-                      color="primary"
-                    />
+                    <v-progress-circular indeterminate size="80" width="7" color="primary" />
                   </div>
-                  <v-card-title
-                    class="d-flex justify-space-between align-center pa-0"
-                  >
+                  <v-card-title class="d-flex justify-space-between align-center pa-0">
                     <span class="text-h6 ml-4">Enter Campaign ID</span>
                     <v-card-actions class="pa-0">
                       <v-btn icon @click="showJoinCampaignDialog = false">
@@ -694,22 +485,11 @@
                     </v-card-actions>
                   </v-card-title>
                   <v-card-text>
-                    <v-text-field
-                      v-model="joinCampaignId"
-                      label="Campaign ID"
-                      hide-details
-                      dense
-                    />
+                    <v-text-field v-model="joinCampaignId" label="Campaign ID" hide-details dense />
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn
-                      block
-                      color="green"
-                      elevation="4"
-                      class="mt-4"
-                      :disabled="!parsedCampaignFk"
-                      @click="confirmJoinCampaign"
-                    >
+                    <v-btn block color="green" elevation="4" class="mt-4" :disabled="!parsedCampaignFk"
+                      @click="confirmJoinCampaign">
                       Join
                     </v-btn>
                   </v-card-actions>
@@ -1219,29 +999,7 @@ const refreshEventStatus = () => {
   isRefreshingStatus.value = true;
 
   fetchPlayers(selectedMyEvent.value.events_pk)
-    .then(() => {
-      if (currentPlayer.value) {
-        selectedMyEvent.value.status = currentPlayer.value.event_status;
-        toast.add({
-          severity: "info",
-          summary: "Status Atualizado",
-          detail: `O novo status é: ${currentPlayer.value.event_status}`,
-          life: 3000,
-        });
-      }
-    })
-    .catch((error) => {
-      console.error("Falha ao atualizar o status do evento:", error);
-      toast.add({
-        severity: "error",
-        summary: "Erro",
-        detail: "Não foi possível atualizar o status.",
-        life: 3000,
-      });
-    })
-    .finally(() => {
-      isRefreshingStatus.value = false;
-    });
+  isRefreshingStatus.value = false;
 };
 
 const quitEvent = () => {
