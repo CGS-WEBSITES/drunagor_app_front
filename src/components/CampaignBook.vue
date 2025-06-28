@@ -137,8 +137,8 @@
             <KeywordView v-else-if="currentView === 'keywords'" />
 
             <div v-else-if="currentView === 'tutorial'"
-                 class="book-page ma-5"
-                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                  class="book-page ma-5"
+                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container fluid class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -167,8 +167,8 @@
             </div>
 
             <div v-else-if="currentView === 'combatGuide'"
-                 class="book-page ma-5"
-                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                  class="book-page ma-5"
+                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container fluid class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -197,8 +197,8 @@
             </div>
 
             <div v-else-if="currentView === 'explorationTips'"
-                 class="book-page ma-5"
-                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                  class="book-page ma-5"
+                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -229,8 +229,8 @@
             </div>
             
             <div v-else-if="currentView === 'charProgression'"
-                 class="book-page ma-5"
-                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                  class="book-page ma-5"
+                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -266,6 +266,9 @@
                   <template v-if="interPage === 'scan' && !scanned">
                     <h3 class="dialog-title">Scan QR Code</h3>
                   </template>
+                  <template v-else-if="interPage === 'list'">
+                    <h3 class="dialog-title">Available Interactions</h3>
+                  </template>
                   <template v-else-if="interPage === 'titles'">
                     <div class="interaction-header">
                       <div class="d-flex justify-space-between">
@@ -276,12 +279,14 @@
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </div>
+                      <v-col cols="11">
                       <p class="interaction-subtitle" v-html="currentInteractionConfig?.subtitle"></p>
+                      </v-col>
                     </div>
                   </template>
                   <template v-else>
                     <v-btn class="back-btn text-white mt-4" color="grey darken-2" @click="backToTitles">
-                      <v-icon left>mdi-arrow-left</v-icon>
+                      <v-icon start>mdi-arrow-left</v-icon>
                       Back to Options
                     </v-btn>
                     <v-btn icon @click="resetScan" class="close-btn">
@@ -296,11 +301,32 @@
                     Point the camera at the QR Code
                   </p>
                   
-                  <v-divider class="my-4" style="width: 80%; border-color: rgba(255,255,255,0.2);"></v-divider>
-                  <v-btn @click="loadBarricadeInteraction" class="manual-load-btn">
-                    Load Interaction 'The Barricade' 
+                  <div class="or-separator my-4">OR</div>
+                  <v-btn @click="goToInteractionList" class="interaction-list-btn mb-4">
+                    <v-icon start>mdi-view-list</v-icon>
+                    Interactions List
                   </v-btn>
 
+
+                </div>
+                <div v-else-if="interPage === 'list'" class="interaction-list-container">
+                  <v-btn class="back-btn text-white mb-4" color="grey-darken-2" @click="resetScan">
+                      <v-icon start>mdi-arrow-left</v-icon>
+                      Back to Scanner
+                  </v-btn>
+                  <v-list class="interaction-vlist" bg-color="transparent">
+                    <v-list-item
+                      v-for="(config, key) in interactionConfigs"
+                      :key="key"
+                      @click="loadInteractionByKey(key.toString())"
+                      class="interaction-list-item"
+                      :title="config.title"
+                    >
+                      <template v-slot:prepend>
+                        <v-icon color="#f0e6d2">mdi-play-box-outline</v-icon>
+                      </template>
+                    </v-list-item>
+                  </v-list>
                 </div>
                 <div v-else-if="interPage === 'titles'" class="titles-container">
                   <div class="image-display" :style="{
@@ -473,7 +499,7 @@ const openGroups = ref<string[]>([]);
 const currentIndex = ref(-1); 
 const currentInteractionConfig = ref<InteractionConfig | null>(null);
 const contentWrapper = ref<HTMLElement | null>(null);
-const interPage = ref<"scan" | "titles" | "content">("scan");
+const interPage = ref<"scan" | "titles" | "content" | "list">("scan");
 const codeReader = new BrowserMultiFormatReader();
 const currentView = ref<"player" | "interactions" | "keywords" | "tutorial" | "combatGuide" | "explorationTips" | "charProgression">("player");
 const activeInteraction = ref<InteractionItem | null>(null);
@@ -828,6 +854,23 @@ function loadBarricadeInteraction() {
     interPage.value = "titles";
   } else {
     console.error(`Error: Configuration for '${barricadeKey}' not found.`);
+  }
+}
+
+function goToInteractionList() {
+  interPage.value = 'list';
+  codeReader.reset?.();
+}
+
+function loadInteractionByKey(key: string) {
+  const cfg = interactionConfigs.value[key];
+  if (cfg) {
+    currentInteractionConfig.value = cfg;
+    interactions.value = cfg.items;
+    scanned.value = true;
+    interPage.value = "titles";
+  } else {
+    console.error(`Error: Configuration for the key '${key}' not found.`);
   }
 }
 
@@ -1673,5 +1716,39 @@ onBeforeUnmount(() => {
   .mechanic-title::before {
     left: 0.2em;
   }
+}
+
+.or-separator {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #f0e6d2;
+  opacity: 0.7;
+}
+
+.interaction-list-btn {
+  background-color: #f0e6d2 !important;
+  color: #3a2e29 !important;
+  text-transform: none !important;
+  font-size: 0.9rem !important;
+}
+
+.interaction-list-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.interaction-vlist {
+  width: 100%;
+  max-width: 600px;
+}
+
+.interaction-list-item {
+  background-color: rgba(0,0,0,0.6);
+  margin-bottom: 8px;
+  border-radius: 4px;
+  color: #f0e6d2;
+  border: 1px solid #5c4a42;
 }
 </style>
