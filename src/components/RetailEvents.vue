@@ -90,7 +90,7 @@
       </v-row>
 
       <div v-if="activeTab === 1">
-        <div v-if="loading" class="d-flex justify-center my-8">
+        <div v-if="loading" class="loading-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
@@ -224,7 +224,12 @@
                 }}
               </p>
             </v-card-text>
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
+            <v-card
+              color="primary"
+              min-height="130px"
+              class="mr-4 event-card"
+              @click="openInGoogleMaps()"
+            >
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
@@ -281,7 +286,7 @@
       </div>
 
       <div v-if="activeTab === 2">
-        <div v-if="loading" class="d-flex justify-center my-8">
+        <div v-if="loading" class="loading-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
@@ -437,11 +442,14 @@
           </v-row>
         </div>
 
-        <v-dialog v-model="createEventDialog" max-width="1280">
+        <v-dialog v-model="createEventDialog" max-width="1280" scroll-target="#app">
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
           <v-card class="pa-6 dark-background">
+            <div v-if="loading" class="loading-overlay">
+              <v-progress-circular indeterminate size="80" color="primary" />
+            </div>
             <v-card-text>
               <v-row>
                 <v-col cols="12" md="12">
@@ -568,8 +576,12 @@
           v-model="editEventDialog"
           scroll-target="#app"
           max-width="800"
+
         >
-          <v-card class="dark-background">
+        <v-card class="dark-background">
+            <div v-if="loading" class="loading-overlay">
+              <v-progress-circular indeterminate size="80" color="primary" />
+            </div>
             <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
               Event changed successfully
             </v-alert>
@@ -700,6 +712,7 @@
                         color="primary"
                         min-height="130px"
                         class="mr-4 event-card"
+                        @click="openInGoogleMaps()"
                       >
                         <v-row no-gutters>
                           <v-col cols="3" lg="3">
@@ -990,8 +1003,11 @@
                   <v-btn
                     v-if="isEditable"
                     color="green"
+                    :loading="loading"
+                    :disabled="loading"
                     @click="saveEditedEvent"
-                    >Save Changes</v-btn
+                  >
+                    Save Changes</v-btn
                   >
                 </v-col>
               </v-row>
@@ -1013,10 +1029,7 @@ import { set } from "lodash-es";
 const eventStore = useEventStore();
 const userStore = useUserStore();
 
-
-
-
-const assets = inject('assets');
+const assets = inject("assets");
 const isEditable = ref(false);
 const availableRewards = ref([]);
 const players = ref([]);
@@ -1081,7 +1094,7 @@ const selectedStoreImage = computed(() => {
 
 const selectedStore = computed(() => {
   return (
-    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
+    stores.value.find((s) => s.name === selectedEvent.value?.store_name) || {}
   );
 });
 
@@ -1094,6 +1107,28 @@ const currentShowPast = computed({
     else showPast.value = val;
   },
 });
+
+const pdfUrl = computed(() => {
+  const baseUrl =
+    assets && typeof assets.value !== "undefined" ? assets.value : assets;
+  if (!baseUrl) {
+    return "#";
+  }
+  return `${baseUrl}/book/test.pdf`;
+});
+
+const openInGoogleMaps = () => {
+  const { name, latitude, longitude } = selectedStore.value;
+
+  if (!name || latitude == null || longitude == null) return "#";
+
+  const encodedName = name.split(" ").join("+");
+  const query = `${encodedName}%20${latitude},${longitude}`;
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  window.open(mapsUrl, "_blank");
+};
 
 const validateTime = () => {
   const value = editableEvent.value.hour;
@@ -1124,7 +1159,7 @@ const openEditDialog = (event, editable = false) => {
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
-    sceneries_fk: null,
+    sceneries_fk: event.sceneries_fk,
     store: event.store_name,
     rewards: event.rewards || [],
   };
@@ -1160,10 +1195,14 @@ const openEditDialog = (event, editable = false) => {
       )
       .then(({ data }) => {
         existingRewards.value = data.rewards || [];
+        editableEvent.value.rewards_pk = existingRewards.value.map(
+          (r) => r.rewards_pk,
+        );
       })
       .catch((err) => {
         console.error("Erro ao buscar rewards existentes:", err);
         existingRewards.value = [];
+        editableEvent.value.rewards_pk = [];
       });
   }
 
@@ -1203,11 +1242,11 @@ const fetchPlayersForEvent = (eventFk) => {
       params: {
         events_fk: eventFk,
         limit: 5,
-        offset: currentPage.value
+        offset: currentPage.value,
       },
     })
     .then((response) => {
-      console.log(response.data)
+      console.log(response.data);
       playersByEvent.value = response.data.players;
       totalPages.value = response.data.last_page;
     })
@@ -1292,7 +1331,7 @@ oneYearFromToday.setFullYear(today.getFullYear() + 1);
 const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
 
 const handleTimeInput = (event) => {
-  console.log(newEvent.hour)
+  console.log(newEvent.hour);
   let raw = event.target.value.replace(/\D/g, "");
   raw = raw.slice(0, 4);
 
@@ -1300,7 +1339,6 @@ const handleTimeInput = (event) => {
     let hh = raw.slice(0, 1);
     let mm = raw.slice(1, 3);
   } else if (raw.length == 4)
-
     if (hh.length === 2) {
       let h = parseInt(hh);
       if (h < 1) hh = "01";
@@ -1359,7 +1397,10 @@ const fetchPlayerEvents = (past) => {
   lastFetchPastAll.value = past;
   axios
     .get("/events/list_events/", {
-      params: { player_fk: userStore.user.users_pk, past_events: past.toString() },
+      params: {
+        player_fk: userStore.user.users_pk,
+        past_events: past.toString(),
+      },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -1429,6 +1470,7 @@ const fetchSceneries = async () => {
 };
 
 const addEvent = () => {
+  loading.value = true;
   // reset dialogs
   errorDialog.value.show = false;
   successDialog.value = false;
@@ -1459,7 +1501,6 @@ const addEvent = () => {
     .then(({ data }) => {
       const allStores = data.stores || [];
       const found = allStores.find(
-
         (s) =>
           s.name?.toLowerCase().trim() ===
           newEvent.value.store.toLowerCase().trim(),
@@ -1548,8 +1589,8 @@ const addEvent = () => {
       successDialog.value = true;
       createEventDialog.value = false;
 
-      fetchUserCreatedEvents(showPast.value).catch(() => { });
-      fetchPlayerEvents().catch(() => { });
+      fetchUserCreatedEvents(showPast.value).catch(() => {});
+      fetchPlayerEvents().catch(() => {});
 
       newEvent.value = {
         date: "",
@@ -1572,6 +1613,10 @@ const addEvent = () => {
       )
         return;
       console.error("Unexpected error:", err);
+      loading.value = false;
+    })
+    .finally(() => {
+      loading.value = false;
     });
 };
 
@@ -1610,6 +1655,8 @@ const handleImageUpload = (event) => {
 };
 
 const saveEditedEvent = () => {
+  loading.value = true;
+
   const eventPk = editableEvent.value.events_pk;
   if (!eventPk) {
     console.error("❌ Evento sem events_pk definido");
@@ -1626,12 +1673,10 @@ const saveEditedEvent = () => {
     .then((response) => {
       const allStores = response.data.stores || [];
       const foundStore = allStores.find(
-        (s) => s.name === editableEvent.value.store
+        (s) => s.name === editableEvent.value.store,
       );
       if (!foundStore) {
-        console.error(
-          `❌ Store "${editableEvent.value.store}" não encontrada`
-        );
+        console.error(`❌ Store "${editableEvent.value.store}" não encontrada`);
         throw new Error("StoreNotFound");
       }
       return foundStore.stores_pk;
@@ -1646,62 +1691,64 @@ const saveEditedEvent = () => {
         events_pk: eventPk,
         seats_number: editableEvent.value.seats_number,
         seasons_fk: seasonsFk,
+        sceneries_fk: editableEvent.value.sceneries_fk,
         date: dateFormatted,
         stores_fk: storesFk,
       };
 
-      return axios.put(
-        "/events/alter",
-        payload,
-        { params: { events_pk: eventPk } }
-      );
+      return axios.put("/events/alter", payload, {
+        params: { events_pk: eventPk },
+      });
+    })
+    .then(() => {
+      const before = existingRewards.value.map((r) => r.rewards_pk);
+      const after = editableEvent.value.rewards_pk;
+
+      const toAdd = after.filter((id) => !before.includes(id));
+      const toRemove = before.filter((id) => !after.includes(id));
+
+      const promises = [
+        ...toAdd.map((id) =>
+          axios.post(
+            "/rl_events_rewards/cadastro",
+            { events_fk: eventPk, rewards_fk: id, active: true },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          ),
+        ),
+        ...toRemove.map((id) =>
+          axios.post(
+            "/rl_events_rewards/cadastro",
+            { events_fk: eventPk, rewards_fk: id, active: false },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          ),
+        ),
+      ];
+
+      return Promise.all(promises);
     })
     .then(() => {
       showSuccessAlert.value = true;
       setTimeout(() => {
-        showSuccessAlert.value = false;
         editEventDialog.value = false;
-        window.location.reload();
+        fetchUserCreatedEvents(showPast.value);
+        fetchPlayerEvents(showPast.value);
       }, 1500);
     })
     .catch((error) => {
       if (error.message === "StoreNotFound") return;
       console.error("❌ Erro ao salvar edição do evento:", error);
-    });
-};
-
-const toggleEditReward = (reward) => {
-  const eventId = editableEvent.value.events_pk;
-  const alreadySelected = editableEvent.value.rewards.some(
-    (r) => r.rewards_pk === reward.rewards_pk,
-  );
-
-  const payload = {
-    events_fk: eventId,
-    rewards_fk: reward.rewards_pk,
-    active: !alreadySelected,
-  };
-
-  axios
-    .post("/rl_events_rewards/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      loading.value = false;
     })
-    .then(() => {
-      if (alreadySelected) {
-        editableEvent.value.rewards = editableEvent.value.rewards.filter(
-          (r) => r.rewards_pk !== reward.rewards_pk,
-        );
-      } else {
-        editableEvent.value.rewards.push(reward);
-      }
-    })
-    .catch((error) => {
-      console.error(
-        "❌ Erro ao atualizar rewards:",
-        error.response?.data || error.message,
-      );
+    .finally(() => {
+      loading.value = false;
     });
 };
 
@@ -1831,6 +1878,7 @@ onMounted(() => {
     })
     .then((response) => {
       stores.value = response.data.stores || [];
+      console.log("Stores fetched successfully:", stores.value);
     })
     .catch((error) => {
       console.error(
@@ -1849,11 +1897,9 @@ onMounted(() => {
 });
 
 watch(showPast, async (novo) => {
-
   if (activeTab.value == 1) {
     await fetchPlayerEvents(novo);
-  }
-  else {
+  } else {
     await fetchUserCreatedEvents(novo);
   }
 });
@@ -1861,14 +1907,13 @@ watch(showPast, async (novo) => {
 watch(activeTab, async (novo) => {
   if (novo == 1) {
     await fetchPlayerEvents(showPast.value);
-  }
-  else {
+  } else {
     await fetchUserCreatedEvents(showPast.value);
   }
 });
 
 watch(currentPage, async () => {
-  await fetchPlayersForEvent(selectedEvent.events_pk)
+  await fetchPlayersForEvent(selectedEvent.events_pk);
 });
 
 watch(
@@ -1885,17 +1930,31 @@ watch(
     }
   },
 );
-
-const pdfUrl = computed(() => {
-  const baseUrl = assets && typeof assets.value !== 'undefined' ? assets.value : assets;
-  if (!baseUrl) {
-    return '#';
-  }
-  return `${baseUrl}/book/test.pdf`;
-});
 </script>
 
 <style scoped>
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.map-link:hover {
+  opacity: 0.8;
+}
+
 .list-container {
   min-height: 400px;
   /* adjust as needed to prevent shrinking */

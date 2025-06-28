@@ -221,7 +221,7 @@
               </p>
             </v-card-text>
 
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
+            <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
@@ -520,7 +520,7 @@
                 </v-alert>
               </v-col>
             </v-row>
-            <v-card color="primary" min-height="130px" class="mr-4 event-card">
+            <v-card color="primary" min-height="130px" class="mr-4 event-card" @click="openInGoogleMaps()">
               <v-row no-gutters>
                 <v-col cols="3" lg="3">
                   <v-img
@@ -858,13 +858,28 @@ const selectedStoreImage = computed(() => {
 
 const selectedStore = computed(() => {
   return (
-    stores.value.find((s) => s.store_name === selectedEvent.value?.store) || {}
+    stores.value.find((s) => s.name === selectedEvent.value?.store_name) || {}
   );
 });
 
 const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
+
+const openInGoogleMaps = () => {
+  const event = selectedEvent.value;
+
+  if (!event?.store_name || event.latitude == null || event.longitude == null) return "#";
+
+  const encodedName = event.store_name.split(" ").join("+");
+  const lat = event.latitude;
+  const lng = event.longitude;
+  const query = `${encodedName}%20${lat},${lng}`;
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  window.open(mapsUrl, "_blank");
+};
 
 const fetchStatuses = () => {
   axios
@@ -1096,6 +1111,7 @@ const fetchPlayerEvents = async (past) => {
     })
     .then((response) => {
       events.value = response.data.events || [];
+      console.log("Fetched player events:", events.value);
     })
     .catch((error) => {
       console.error("Error fetching player events:", error);
@@ -1423,7 +1439,7 @@ const joinEvent = async () => {
     });
 };
 
-onMounted(() => {
+const fetchStoresList = async () => {
   axios
     .get("/stores/list", {
       params: { users_fk: userStore.user?.users_pk },
@@ -1437,11 +1453,11 @@ onMounted(() => {
     .catch((error) => {
       console.error("Error fetching stores:", error);
     });
+}
 
+onMounted(() => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
-
-  fetchStatuses();
 
   if (events.value.length) {
     fetchPlayers(events.value[0].events_pk);
@@ -1450,6 +1466,10 @@ onMounted(() => {
 
   const rawUser = localStorage.getItem("app_user");
   playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
+
+  openInGoogleMaps();
+  fetchStoresList();
+  fetchStatuses();
 
   fetchSceneries()
     .then(() => {
