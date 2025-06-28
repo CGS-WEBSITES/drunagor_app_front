@@ -2,13 +2,27 @@
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="12" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
+        <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
+          <v-alert
+            type="warning"
+            dense
+            border="start"
+            variant="tonal"
+          >
+            Players can only view this campaign. Only a Drunagor Master can save or delete a campaign.
+          </v-alert>
+        </v-card-text>
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
             <v-card style="width: 100%">
               <v-card-actions
                 class="d-flex flex-wrap justify-space-around pa-2"
               >
-                <CampaignRemove :campaign-id="campaignId" class="mx-1 my-1" />
+                <CampaignRemove
+                  v-if="showSaveCampaignButton"
+                  :campaign-id="campaignId"
+                  class="mx-1 my-1"
+                />
                 <CampaignExport :campaign-id="campaignId" class="mx-1 my-1" />
                 <SequentialAdventureButton
                   :campaign-id="campaignId"
@@ -23,6 +37,7 @@
                   :disabled="!isSequentialAdventure"
                 />
                 <CampaignSavePut
+                  v-if="showSaveCampaignButton"
                   :campaign-id="campaignId"
                   class="mx-1 my-1"
                   @success="
@@ -295,11 +310,14 @@ import SequentialAdventureButton from "@/components/SequentialAdventureButton.vu
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
 import { useToast } from "primevue/usetoast";
+import { useUserStore } from "@/store/UserStore";
+import axios from "axios";
 
 const route = useRoute();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const toast = useToast();
+const userStore = useUserStore();
 
 const campaignId = (route.params as { id: string }).id.toString();
 
@@ -315,6 +333,37 @@ const showAlert = ref(false);
 const currentTab = ref("normal");
 const visible = ref(false);
 const token = ref("");
+
+const userRoleName = ref<string | null>(null);
+const partyRolesList = ref<Array<{ party_roles_pk: number; name: string }>>([]);
+
+const showSaveCampaignButton = computed(() =>
+  partyRolesList.value.some(
+    (r) => r.name === userRoleName.value && r.name === "Drunagor Master",
+  ),
+);
+
+const fetchRoles = async () => {
+  try {
+    const { data } = await axios.get<{ roles_pk: number; name: string }>(
+      `/roles/${userStore.user.roles_fk}`,
+    );
+    userRoleName.value = data.name;
+  } catch (err) {
+    console.error("Erro ao buscar roles:", err);
+  }
+};
+
+const fetchPartyRoles = async () => {
+  try {
+    const { data } = await axios.get<{
+      party_roles: Array<{ party_roles_pk: number; name: string }>;
+    }>(`/party_roles/search`);
+    partyRolesList.value = data.party_roles;
+  } catch (err) {
+    console.error("Erro ao buscar party_roles:", err);
+  }
+};
 
 const setAlert = (
   icon: string,
@@ -335,17 +384,17 @@ const setAlert = (
 
 const onCampPhase = () => {
   isSequentialAdventure.value = false;
-}
+};
 
 const onSequentialAdventure = () => {
   isSequentialAdventure.value = true;
-}
+};
 
 const openModal = () => {
   const prefix = Math.floor(1000 + Math.random() * 9000).toString();
   token.value = `${prefix}${campaignId}`;
   visible.value = true;
-}
+};
 
 const copyToClipboard = () => {
   navigator.clipboard
@@ -367,11 +416,11 @@ const copyToClipboard = () => {
         life: 3000,
       });
     });
-}
+};
 
 const closeModal = () => {
   visible.value = false;
-}
+};
 
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
@@ -387,6 +436,8 @@ onMounted(() => {
       "error",
     );
   }
+  fetchRoles();
+  fetchPartyRoles();
 });
 
 watch(
