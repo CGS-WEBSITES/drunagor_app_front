@@ -540,22 +540,22 @@ const isMobile = computed(() => {
 
 const carouselItems = ref([
   {
-    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-companion.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-companion-1.0.png",
     label: "COMPANION",
     route: { name: "Campaign Overview" },
   },
   {
-    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-library3.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-1.0.png",
     label: "LIBRARY",
     route: { name: "Library" },
   },
   {
-    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-events3.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-1.0.png",
     label: "EVENTS",
     route: { name: "Events" },
   },
   {
-    img: "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Dashboard/btn-profile3.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-1.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
   },
