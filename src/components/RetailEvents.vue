@@ -1,27 +1,5 @@
 <template>
 
-  <!--
-  <v-tooltip location="left">
-    <template #activator="{ props }">
-      <v-btn
-        v-bind="props"
-        class="download-fab"
-        style="opacity: 0.6"
-        icon
-        color="primary"
-        size="large"
-        elevation="8"
-        :href="pdfUrl"
-        target="_blank"
-        download="Drunagor_Nights_Season_1.pdf"
-      >
-        <v-icon size="large">mdi-file-download-outline</v-icon>
-      </v-btn>
-    </template>
-    <span> Download Season 1 Drunagor Nights Book</span>
-  </v-tooltip>
--->
-
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
@@ -198,7 +176,6 @@
           </v-row>
         </div>
 
-        <!-- Diálogo para visualização do evento -->
         <v-dialog v-model="dialog" max-width="600" min-height="410">
           <v-card color="surface">
             <v-card-actions class="d-flex justify-left">
@@ -305,13 +282,7 @@
                 Create New
               </v-btn>
             </v-col>
-            <!-- <v-col cols="4">
-              <v-btn variant="text" class="sort-btn" @click="">PAST</v-btn>
-            </v-col>
-            <v-col cols="3">
-              <v-btn variant="text" class="sort-btn" @click="">LIVE</v-btn>
-            </v-col> -->
-          </v-row>
+            </v-row>
           <v-row v-if="userCreatedEvents.length === 0">
             <v-col class="text-center">
               No events match the selected filters.
@@ -379,8 +350,7 @@
                                 },
                               )
                             }}
-                            <!-- {{ event.ampm }} -->
-                          </p>
+                            </p>
                         </div>
                       </v-col>
 
@@ -463,12 +433,6 @@
                     variant="outlined"
                   />
                 </v-col>
-                <!-- Descrição -->
-                <!-- <v-col cols="12">
-                  <v-textarea v-model="newEvent.eventdesc" label="EVENT DESCRIPTION" counter="355"
-                    variant="outlined"></v-textarea>
-                </v-col> -->
-                <!-- Assentos + Data/Hora -->
                 <v-col cols="12" md="6">
                   <v-select
                     v-model="newEvent.seats"
@@ -517,7 +481,6 @@
                     :rules="dateRules"
                   ></v-text-field>
                 </v-col>
-                <!-- Recompensas -->
                 <v-col cols="12">
                   <p class="pb-3 font-weight-bold">REWARDS</p>
                   <v-autocomplete
@@ -574,7 +537,6 @@
           </v-card>
         </v-dialog>
 
-        <!-- Diálogo de Edição / Visualização com lista de Players Interested -->
         <v-dialog
           v-model="editEventDialog"
           scroll-target="#app"
@@ -677,7 +639,6 @@
                     clearable
                   ></v-autocomplete>
                 </v-col>
-                <!-- Se não estiver em modo edição, exibe a lista de Players Interested -->
                 <v-col
                   cols="12"
                   class="d-flex align-end flex-column"
@@ -837,8 +798,6 @@
                     >
                       <v-card class="pa-1 mb-3" rounded="lg" elevation="10">
                         <v-row no-gutters>
-                          <!-- remove espaço interno entre colunas -->
-                          <!-- Imagem do jogador -->
                           <v-col cols="4" lg="1" class="d-flex">
                             <v-img
                               :src="
@@ -853,7 +812,6 @@
                             ></v-img>
                           </v-col>
 
-                          <!-- Informações -->
                           <v-col
                             cols="8"
                             class="pl-3 d-flex flex-column justify-center"
@@ -884,9 +842,7 @@
                             </p>
                           </v-col>
 
-                          <!-- Botões -->
                           <v-col cols="12" md="3" class="d-flex flex-column">
-                            <!-- Ícone de Granted Passage, centralizado -->
                             <template
                               v-if="player.event_status === 'Granted Passage'"
                             >
@@ -917,7 +873,6 @@
                               </v-btn>
                             </template>
 
-                            <!-- Se o jogador está participando ativamente -->
                             <template
                               v-else-if="
                                 player.event_status === 'Joined the Quest'
@@ -941,7 +896,6 @@
                               </v-row>
                             </template>
 
-                            <!-- Ícone de Turned Away, centralizado -->
                             <template
                               v-else-if="player.event_status === 'Turned Away'"
                             >
@@ -959,7 +913,6 @@
                               </v-row>
                             </template>
 
-                            <!-- Botões de ação originais, alinhados um abaixo do outro -->
                             <template v-else>
                               <v-btn
                                 color="green"
@@ -998,7 +951,6 @@
                     </v-col>
                   </v-row>
                 </v-col>
-                <!-- Botões -->
                 <v-col cols="12" class="d-flex justify-space-between">
                   <v-btn color="red" @click="editEventDialog = false"
                     >Close</v-btn
@@ -1167,6 +1119,8 @@ const openEditDialog = (event, editable = false) => {
     rewards: event.rewards || [],
   };
 
+  eventRewards.value = [];
+
   selectedEvent.value = event;
   isEditable.value = editable;
   editEventDialog.value = true;
@@ -1184,6 +1138,9 @@ const openEditDialog = (event, editable = false) => {
 
   if (!editable) {
     chain = chain.then(() => {
+      fetchEventRewards(event.events_pk).then(rewards => {
+        eventRewards.value = rewards;
+      });
       fetchPlayersForEvent(event.events_pk);
       fetchStatuses();
     });
@@ -1395,11 +1352,11 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const fetchPlayerEvents = (past) => {
+const fetchPlayerEvents = async (past) => {
   loading.value = true;
   lastFetchPastAll.value = past;
-  axios
-    .get("/events/list_events/", {
+  try {
+    const { data } = await axios.get("/events/list_events/", {
       params: {
         player_fk: userStore.user.users_pk,
         past_events: past.toString(),
@@ -1407,23 +1364,40 @@ const fetchPlayerEvents = (past) => {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    })
-    .then(({ data }) => {
-      events.value = data.events || [];
-    })
-    .catch((err) => {
-      console.error("❌ Error fetching player events:", err);
-      events.value = [];
-    })
-    .finally(() => {
-      loading.value = false;
     });
+
+    const eventsData = data.events || [];
+    const eventsWithRewards = await Promise.all(
+      eventsData.map(async (event) => {
+        try {
+          const rewardsResponse = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+          });
+          const rewards = rewardsResponse.data.rewards || [];
+          const formattedRewards = rewards.map(r => ({
+            ...r,
+            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`
+          }));
+          return { ...event, rewards: formattedRewards };
+        } catch (rewardError) {
+          console.error(`Falha ao buscar recompensas para o evento ${event.events_pk}:`, rewardError);
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+    events.value = eventsWithRewards;
+  } catch (err) {
+    console.error("❌ Error fetching player events:", err);
+    events.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
 
 const fetchUserCreatedEvents = async (past) => {
   loading.value = true;
   lastFetchPastMine.value = past;
-
   try {
     const params = {
       retailer_fk: userStore.user.users_pk,
@@ -1439,8 +1413,32 @@ const fetchUserCreatedEvents = async (past) => {
       },
     });
 
-    userCreatedEvents.value = data.events || [];
-    console.log("Fetched user created events:", userCreatedEvents.value);
+    const eventsData = data.events || [];
+    const eventsWithRewards = await Promise.all(
+      eventsData.map(async (event) => {
+        try {
+          const rewardsResponse = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
+          
+          const rewards = rewardsResponse.data.rewards || [];
+          const formattedRewards = rewards.map(r => ({
+            ...r,
+            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`
+          }));
+
+          return { ...event, rewards: formattedRewards };
+        } catch (rewardError) {
+          console.error(`Falha ao buscar recompensas para o evento ${event.events_pk}:`, rewardError);
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+    
+    userCreatedEvents.value = eventsWithRewards;
   } catch (error) {
     console.error("Error fetching my events:", error);
     userCreatedEvents.value = [];
@@ -1474,7 +1472,6 @@ const fetchSceneries = async () => {
 
 const addEvent = () => {
   loading.value = true;
-  // reset dialogs
   errorDialog.value.show = false;
   successDialog.value = false;
 
@@ -1790,21 +1787,7 @@ const fetchEventRewards = (eventId) => {
       },
     })
     .then((response) => {
-      const relations = response.data.rewards || [];
-      return Promise.all(
-        relations.map((rel) =>
-          axios
-            .get(`/rewards/${rel.rewards_pk}`, {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            })
-            .then((rewardRes) => rewardRes.data)
-            .catch(() => null),
-        ),
-      ).then((fullRewards) => {
-        return fullRewards.filter(Boolean);
-      });
+      return response.data.rewards || [];
     })
     .catch((err) => {
       console.error("❌ Erro ao buscar rewards do evento:", err);
@@ -1815,8 +1798,8 @@ const fetchEventRewards = (eventId) => {
 const handleShareEvent = (eventId) => {
   const shareLink = generateShareEventLink(eventId);
   if (shareLink) {
-    sharedLink.value = shareLink; // supondo que sharedLink seja uma ref()
-    showCard.value = true; // e que showCard controle exibir o card
+    sharedLink.value = shareLink;
+    showCard.value = true;
   }
 };
 
