@@ -32,7 +32,7 @@
           <v-row v-if="events.length > 0">
             <v-col v-for="(event, index) in sortedEvents" :key="index" class="py-2 pl-1 pr-1" cols="12" md="6">
               <v-card color="terciary" class="pt-0 event-card" @click="openDialog(event)">
-                <v-row no-gutters>
+                <v-row no-gutters align="center">
                   <v-col cols="4" sm="2">
                     <div class="text-center ml-3" style="width: 70px; color: black">
                       <p class="pt-3 text-caption font-weight-bold">
@@ -213,7 +213,7 @@
           <v-row v-if="myEvents.length > 0">
             <v-col v-for="(evt, idx) in myEvents" :key="evt.events_pk" class="py-2 pl-1 pr-1" cols="12" md="6">
               <v-card color="terciary" class="pt-0 event-card" @click="openMyEventsDialog(evt)">
-                <v-row no-gutters>
+                <v-row no-gutters align="center">
                   <v-col cols="4" sm="2">
                     <div class="text-center ml-3" style="width: 70px; color: black">
                       <p class="pt-3 text-caption font-weight-bold">
@@ -250,7 +250,7 @@
                       <v-icon color="red">mdi-sword-cross</v-icon>
                       {{ evt.scenario }}
                     </p>
-                    <p class="text-caption" v-if="evt.rewards?.length">
+                    <p class="text-caption ml-3" v-if="evt.rewards?.length">
                        <v-row class="d-flex align-center rewards-container">
                         <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
                         Rewards:
@@ -903,6 +903,7 @@ const fetchPlayerEvents = async (past) => {
 
 const fetchMyEvents = async (past) => {
   loading.value = true;
+
   const params = {
     player_fk: playerFk.value,
     past_events: past.toString(),
@@ -942,7 +943,6 @@ const fetchMyEvents = async (past) => {
     loading.value = false;
   }
 };
-
 
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!playerFk.value) return;
