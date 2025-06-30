@@ -1,5 +1,4 @@
 <template>
-
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
@@ -282,7 +281,7 @@
                 Create New
               </v-btn>
             </v-col>
-            </v-row>
+          </v-row>
           <v-row v-if="userCreatedEvents.length === 0">
             <v-col class="text-center">
               No events match the selected filters.
@@ -350,7 +349,7 @@
                                 },
                               )
                             }}
-                            </p>
+                          </p>
                         </div>
                       </v-col>
 
@@ -415,7 +414,11 @@
           </v-row>
         </div>
 
-        <v-dialog v-model="createEventDialog" max-width="1280" scroll-target="#app">
+        <v-dialog
+          v-model="createEventDialog"
+          max-width="1280"
+          scroll-target="#app"
+        >
           <v-btn icon class="close-btn" @click="createEventDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -541,9 +544,8 @@
           v-model="editEventDialog"
           scroll-target="#app"
           max-width="800"
-
         >
-        <v-card class="dark-background">
+          <v-card class="dark-background">
             <div v-if="loading" class="loading-overlay">
               <v-progress-circular indeterminate size="80" color="primary" />
             </div>
@@ -619,9 +621,10 @@
                   <p class="pb-2 font-weight-bold">Current Rewards:</p>
                   <v-chip
                     v-for="reward in existingRewards"
-                    :key="reward.rewards_pk"
+                    :key="reward.rl_events_rewards_pk"
                     class="ma-1"
-                    label
+                    closable
+                    @click:close="removeReward(reward)"
                   >
                     {{ reward.name }}
                   </v-chip>
@@ -1138,7 +1141,7 @@ const openEditDialog = (event, editable = false) => {
 
   if (!editable) {
     chain = chain.then(() => {
-      fetchEventRewards(event.events_pk).then(rewards => {
+      fetchEventRewards(event.events_pk).then((rewards) => {
         eventRewards.value = rewards;
       });
       fetchPlayersForEvent(event.events_pk);
@@ -1271,17 +1274,17 @@ const startOfToday = new Date();
 startOfToday.setHours(0, 0, 0, 0);
 
 const dateRules = [
-(value) => {
-  if (!value) return "The date is required.";
-  const inputDate = new Date(`${value}T00:00:00`);
-  if (inputDate < startOfToday) {
-    return "The date cannot be in the past.";
-  }
-  if (inputDate > oneYearFromToday) {
-    return "The date cannot be more than 1 year in the future.";
-  }
-  return true;
-},
+  (value) => {
+    if (!value) return "The date is required.";
+    const inputDate = new Date(`${value}T00:00:00`);
+    if (inputDate < startOfToday) {
+      return "The date cannot be in the past.";
+    }
+    if (inputDate > oneYearFromToday) {
+      return "The date cannot be more than 1 year in the future.";
+    }
+    return true;
+  },
 ];
 
 const today = new Date();
@@ -1370,21 +1373,29 @@ const fetchPlayerEvents = async (past) => {
     const eventsWithRewards = await Promise.all(
       eventsData.map(async (event) => {
         try {
-          const rewardsResponse = await axios.get("/rl_events_rewards/list_rewards", {
-            params: { events_fk: event.events_pk },
-            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-          });
+          const rewardsResponse = await axios.get(
+            "/rl_events_rewards/list_rewards",
+            {
+              params: { events_fk: event.events_pk },
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          );
           const rewards = rewardsResponse.data.rewards || [];
-          const formattedRewards = rewards.map(r => ({
+          const formattedRewards = rewards.map((r) => ({
             ...r,
-            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`
+            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
           }));
           return { ...event, rewards: formattedRewards };
         } catch (rewardError) {
-          console.error(`Falha ao buscar recompensas para o evento ${event.events_pk}:`, rewardError);
+          console.error(
+            `Falha ao buscar recompensas para o evento ${event.events_pk}:`,
+            rewardError,
+          );
           return { ...event, rewards: [] };
         }
-      })
+      }),
     );
     events.value = eventsWithRewards;
   } catch (err) {
@@ -1417,27 +1428,33 @@ const fetchUserCreatedEvents = async (past) => {
     const eventsWithRewards = await Promise.all(
       eventsData.map(async (event) => {
         try {
-          const rewardsResponse = await axios.get("/rl_events_rewards/list_rewards", {
-            params: { events_fk: event.events_pk },
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          const rewardsResponse = await axios.get(
+            "/rl_events_rewards/list_rewards",
+            {
+              params: { events_fk: event.events_pk },
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
             },
-          });
-          
+          );
+
           const rewards = rewardsResponse.data.rewards || [];
-          const formattedRewards = rewards.map(r => ({
+          const formattedRewards = rewards.map((r) => ({
             ...r,
-            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`
+            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
           }));
 
           return { ...event, rewards: formattedRewards };
         } catch (rewardError) {
-          console.error(`Falha ao buscar recompensas para o evento ${event.events_pk}:`, rewardError);
+          console.error(
+            `Falha ao buscar recompensas para o evento ${event.events_pk}:`,
+            rewardError,
+          );
           return { ...event, rewards: [] };
         }
-      })
+      }),
     );
-    
+
     userCreatedEvents.value = eventsWithRewards;
   } catch (error) {
     console.error("Error fetching my events:", error);
@@ -1468,6 +1485,34 @@ const fetchSceneries = async () => {
         error.response?.data || error.message,
       );
     });
+};
+
+const removeReward = async (reward) => {
+  try {
+    const relationPk = reward.rl_events_rewards_pk;
+    await axios.put(
+      `/rl_events_rewards/alter/${relationPk}`,
+      {
+        events_fk: selectedEvent.value.events_pk,
+        rewards_fk: reward.rewards_pk,
+        active: false
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      }
+    );
+    existingRewards.value = existingRewards.value.filter(
+      (r) => r.rl_events_rewards_pk !== relationPk
+    );
+    editableEvent.value.rewards_pk = editableEvent.value.rewards_pk.filter(
+      (id) => id !== reward.rewards_pk
+    );
+  } catch (err) {
+    console.error("Erro ao remover reward:", err);
+    errorDialog.value = { show: true, message: "Falha ao remover reward." };
+  }
 };
 
 const addEvent = () => {
