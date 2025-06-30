@@ -765,7 +765,7 @@ const handleNewCampaign = (type) => {
       return axios.post("/rl_campaigns_users/cadastro", {
         users_fk: usersPk,
         campaigns_fk: campaignFk,
-        party_roles_fk: 2,
+        party_roles_fk: 1,
         skus_fk: selectedSku.skus_pk,
       });
     })
@@ -831,7 +831,7 @@ const confirmLoadCampaign = () => {
     .post("/rl_campaigns_users/cadastro", {
       users_fk: userStore.user.users_pk,
       campaigns_fk: selectedLoadCampaign.value,
-      party_roles_fk: 2,
+      party_roles_fk: 1,
       skus_fk: BOX_ID,
     })
     .then(() => {
