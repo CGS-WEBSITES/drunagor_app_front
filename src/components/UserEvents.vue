@@ -24,7 +24,6 @@
         </v-col>
       </v-row>
 
-      <!-- ALL EVENTS -->
       <div v-if="activeTab === 1">
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
@@ -94,7 +93,6 @@
           </v-row>
         </div>
 
-        <!-- Event Details Dialog -->
         <v-dialog v-model="dialog" max-width="600" min-height="431">
           <v-card color="surface" style="position: relative">
             <div v-if="loading" class="dialog-overlay">
@@ -104,7 +102,6 @@
               <v-btn color="red" @click="dialog = false">X</v-btn>
             </v-card-actions>
 
-            <!-- Share Event Sub-Dialog -->
             <v-dialog v-model="showDialog" width="400">
               <v-card style="position: relative">
                 <div v-if="loading" class="dialog-overlay">
@@ -208,7 +205,6 @@
         </v-dialog>
       </div>
 
-      <!-- MY EVENTS -->
       <div v-else-if="activeTab === 2">
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
@@ -254,9 +250,14 @@
                       <v-icon color="red">mdi-sword-cross</v-icon>
                       {{ evt.scenario }}
                     </p>
-                    <p class="text-caption">
-                      Seats: {{ evt.seats_number }} | Season:
-                      {{ evt.seasons_fk }}
+                    <p class="text-caption" v-if="evt.rewards?.length">
+                       <v-row class="d-flex align-center rewards-container">
+                        <v-icon class="mr-1" color="red">mdi-star-circle</v-icon>
+                        Rewards:
+                        <v-col v-for="(reward, i) in evt.rewards" :key="i" cols="auto">
+                          <v-img :src="reward.image" height="20" width="20" contain class="reward-icon" />
+                        </v-col>
+                      </v-row>
                     </p>
                   </v-col>
                   <v-col cols="1" class="d-flex align-center justify-end pr-2">
@@ -277,7 +278,6 @@
           </v-row>
         </div>
 
-        <!-- My Event Details Dialog -->
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
           <v-card color="surface" class="pa-6" style="position: relative">
             <div v-if="loading" class="dialog-overlay">
@@ -311,35 +311,7 @@
             </div>
             <v-row align="center" justify="space-between">
               <v-col cols="12" md="6" class="text-center pt-8">
-                <!-- <div
-                  style="
-                    position: relative;
-                    display: inline-block;
-                    background: white;
-                    padding: 8px;
-                    border-radius: 8px;
-                  "
-                >
-                  <div
-                    style="
-                      position: absolute;
-                      top: 50%;
-                      left: 50%;
-                      transform: translate(-50%, -50%) rotate(-10deg);
-                      font-weight: 600;
-                      font-size: 0.9rem;
-                      color: #999;
-                      background-color: rgba(255, 255, 255, 0.7);
-                      padding: 4px 10px;
-                      border-radius: 4px;
-                      text-transform: uppercase;
-                      letter-spacing: 1px;
-                    "
-                  >
-                    Coming Soon
-                  </div>
-                </div> -->
-              </v-col>
+                </v-col>
               <v-col cols="12" class="text-center px-5">
                 <v-row>
                   <v-col cols="12" class="d-flex align-center justify-center mb-2">
@@ -390,10 +362,25 @@
                 </v-col>
               </v-row>
             </v-card>
+             <v-card-text v-if="eventRewards.length">
+              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
+              <v-row v-for="(reward, index) in eventRewards" :key="index" class="align-center my-2">
+                <v-col cols="3" md="2">
+                  <v-avatar size="60">
+                    <v-img :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`" />
+                  </v-avatar>
+                </v-col>
+                <v-col cols="9" md="10">
+                  <h4 class="text-subtitle-1 font-weight-bold">
+                    {{ reward.name }}
+                  </h4>
+                  <p class="text-body-2">{{ reward.description }}</p>
+                </v-col>
+              </v-row>
+            </v-card-text>
           </v-card>
         </v-dialog>
 
-        <!-- Confirm Quit Dialog -->
         <v-dialog v-model="showQuitConfirmDialog" max-width="400">
           <v-card style="position: relative">
             <div v-if="loading" class="dialog-overlay">
@@ -412,7 +399,6 @@
           </v-card>
         </v-dialog>
 
-        <!-- Choose Option Dialog -->
         <v-dialog v-model="showCampaignDialog" max-width="320" persistent>
           <v-card style="position: relative">
             <div v-if="loading" class="dialog-overlay">
@@ -442,7 +428,6 @@
               <v-btn block color="success" @click="loadCampaign">
                 Load Campaign
               </v-btn>
-              <!-- Load Campaign Dialog -->
               <v-dialog v-model="showLoadDialog" max-width="400" persistent>
                 <v-card style="position: relative">
                   <div v-if="loading" class="dialog-overlay">
@@ -470,7 +455,6 @@
                 </v-card>
               </v-dialog>
 
-              <!-- Join Campaign Dialog -->
               <v-dialog v-model="showJoinCampaignDialog" max-width="400" persistent>
                 <v-card style="position: relative">
                   <div v-if="loading" class="dialog-overlay">
@@ -647,9 +631,9 @@ const parsedCampaignFk = computed(() => {
 });
 
 const openInGoogleMaps = () => {
-  const event = selectedEvent.value;
+  const event = selectedEvent.value || selectedMyEvent.value;
 
-  if (!event?.store_name || event.latitude == null || event.longitude == null) return "#";
+  if (!event?.store_name || event.latitude == null || event.longitude == null) return;
 
   const encodedName = event.store_name.split(" ").join("+");
   const lat = event.latitude;
@@ -660,6 +644,7 @@ const openInGoogleMaps = () => {
 
   window.open(mapsUrl, "_blank");
 };
+
 
 const fetchStatuses = () => {
   axios
@@ -882,53 +867,82 @@ const fetchPlayerEvents = async (past) => {
     player_fk: playerFk.value,
     past_events: past.toString(),
   };
-  await axios
-    .get("/events/list_events/", {
+  try {
+    const response = await axios.get("/events/list_events/", {
       params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    })
-    .then((response) => {
-      events.value = response.data.events || [];
-      console.log("Fetched player events:", events.value);
-    })
-    .catch((error) => {
-      console.error("Error fetching player events:", error);
-      events.value = [];
-    })
-    .finally(() => {
-      loading.value = false;
     });
+    const eventsData = response.data.events || [];
+    const eventsWithRewards = await Promise.all(
+      eventsData.map(async (event) => {
+        try {
+          const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+          });
+          const formattedRewards = (rewardsRes.data.rewards || []).map(r => ({
+            ...r,
+            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`
+          }));
+          return { ...event, rewards: formattedRewards };
+        } catch (error) {
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+    events.value = eventsWithRewards;
+  } catch (error) {
+    console.error("Error fetching player events:", error);
+    events.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
 
 const fetchMyEvents = async (past) => {
   loading.value = true;
-
   const params = {
     player_fk: playerFk.value,
     past_events: past.toString(),
     limit: 30,
     offset: 0,
   };
-  await axios
-    .get("/events/my_events/player", {
+  try {
+    const response = await axios.get("/events/my_events/player", {
       params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    })
-    .then((response) => {
-      myEvents.value = response.data.events || [];
-    })
-    .catch((error) => {
-      console.error("Error fetching my events:", error);
-      myEvents.value = [];
-    })
-    .finally(() => {
-      loading.value = false;
     });
+    const eventsData = response.data.events || [];
+    const eventsWithRewards = await Promise.all(
+      eventsData.map(async (event) => {
+        try {
+          const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+            headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+          });
+          const formattedRewards = (rewardsRes.data.rewards || []).map(r => ({
+            ...r,
+            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`
+          }));
+          return { ...event, rewards: formattedRewards };
+        } catch (error) {
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+    myEvents.value = eventsWithRewards;
+  } catch (error) {
+    console.error("Error fetching my events:", error);
+    myEvents.value = [];
+  } finally {
+    loading.value = false;
+  }
 };
+
 
 const fetchMyEventsDebounced = useDebounceFn(() => {
   if (!playerFk.value) return;
@@ -962,6 +976,21 @@ const openMyEventsDialog = (event) => {
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
   myDialog.value = true;
+  
+  eventRewards.value = [];
+  axios
+    .get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: event.events_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then((rewardsRes) => {
+      eventRewards.value = rewardsRes.data.rewards || [];
+    })
+    .catch(() => {
+      eventRewards.value = [];
+    });
 
   const userStore = useUserStore();
   const userId = parseInt(userStore.user?.users_pk, 10);
