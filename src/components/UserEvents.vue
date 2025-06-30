@@ -20,14 +20,14 @@
 
       <v-row class="mb-4" align="center">
   <v-col cols="12" sm="6" class="d-flex align-center">
-    <span>Upcoming Events</span>
+    <span class="ml-2">Upcoming</span>
     <v-switch
       v-model="showPast"
       hide-details
       color="secundary"
       class="mx-4"
     ></v-switch>
-    <span>All Events</span>
+    <span>All</span>
   </v-col>
 </v-row>
 
