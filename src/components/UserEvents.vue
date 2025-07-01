@@ -19,10 +19,17 @@
       </v-row>
 
       <v-row class="mb-4" align="center">
-        <v-col cols="12" sm="6">
-          <v-checkbox v-model="showPast" label="Past events" hide-details color="primary" />
-        </v-col>
-      </v-row>
+  <v-col cols="12" sm="6" class="d-flex align-center">
+    <span class="ml-2">Upcoming</span>
+    <v-switch
+      v-model="showPast"
+      hide-details
+      color="secundary"
+      class="mx-4"
+    ></v-switch>
+    <span>All</span>
+  </v-col>
+</v-row>
 
       <div v-if="activeTab === 1">
         <div v-if="loading" class="d-flex justify-center my-8">
