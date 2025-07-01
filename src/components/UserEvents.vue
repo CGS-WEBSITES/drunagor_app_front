@@ -1024,32 +1024,35 @@ const confirmQuitEvent = () => {
     return;
   }
 
+  loading.value = true;
+
   axios
     .delete(
       `/rl_events_users/${rlEventsUsersPkToQuit.value}/delete/`,
-      { status: 3 },
       {
+        data: { status: 3 },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      },
+      }
     )
     .then(() => {
       showQuitSuccessAlert.value = true;
       showQuitErrorAlert.value = false;
-      return fetchMyEvents();
+
+      return fetchMyEvents(showPast.value);
     })
     .then(() => {
-      setTimeout(() => {
-        myDialog.value = false;
-      }, 2500);
+      myDialog.value = false;
     })
     .catch((error) => {
       console.error("Failed to quit event:", error);
       quitErrorMessage.value =
         "An unexpected error occurred. Please try again later.";
       showQuitErrorAlert.value = true;
-      showQuitSuccessAlert.value = false;
+    })
+    .finally(() => {
+      loading.value = false;
     });
 };
 
