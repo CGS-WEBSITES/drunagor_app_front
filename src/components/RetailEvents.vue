@@ -1244,7 +1244,8 @@ const updatePlayerStatus = (player, statusPk) => {
       player.event_status = data.event_status || player.event_status;
       fetchPlayersForEvent(eventFk);
 
-      if (statusPk === "JoinedtheQuest" && Array.isArray(eventRewards.value)) {
+      if (statusPk === JoinedtheQuest.value && Array.isArray(eventRewards.value)) {
+        console.log(`Concedendo ${eventRewards.value.length} recompensas para o jogador ${player.user_name}`);
         return Promise.all(
           eventRewards.value.map((reward) =>
             axios.post(
