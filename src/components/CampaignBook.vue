@@ -103,8 +103,8 @@
                   <v-row>
                     <v-col cols="12">
                       <div v-for="(item, contentLoopIndex) in currentPage.content"
-                        :key="`content-${currentIndex}-${contentLoopIndex}`"
-                        :id="`content-block-${currentIndex}-${contentLoopIndex}`" class="content-block">
+                            :key="`content-${currentIndex}-${contentLoopIndex}`"
+                            :id="`content-block-${currentIndex}-${contentLoopIndex}`" class="content-block">
                         <div class="header-banner">
                           <div class="d-flex align-center justify-space-between pa-0 pb-0">
                             <h4 class="section-title">{{ currentPage.section }}</h4>
@@ -114,14 +114,14 @@
                           </h2>
                         </div>
                         <div class="body-text mt-3" v-html="item.body"></div>
-                        <div class="pt-5 px-16">
-                          <v-img src="@/assets/Barra.png"></v-img>
-                        </div>
+                        
                         <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
                           <v-card-text v-html="item.instruction" />
                         </v-card>
+
                         <v-card-text v-html="item.setup" />
-                        <div class="pt-5 px-16">
+
+                        <div v-if="item.instruction" class="pt-5 px-16">
                           <v-img src="@/assets/Barra.png"></v-img>
                         </div>
                       </div>
