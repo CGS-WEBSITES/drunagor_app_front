@@ -12,7 +12,11 @@ import App from "./App.vue";
 
 // Composables
 import { createApp } from "vue";
+
+// Fonts and Styles
 import '@fontsource/cinzel';
+import '@/assets/main.css';  
+import '@/assets/css/fonts.css';
 
 
 const app = createApp(App);
