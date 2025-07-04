@@ -2,7 +2,7 @@
   {
     "id": "interaction-2.1",
     "type": "choice",
-    "title": "2.1 – TAKE THE AXE",
+    "title": "2.1 – PICK UP THE AXE",
     "body": [
       "Although the Dwarves are the undisputed masters of axe-making, this human-crafted piece is truly impressive. The blackened handle may deceive the untrained eye, for Blackwood—the rarest wood in the Irallian Forest—bears a striking resemblance to a rotten log. With a grip like that, the blade matters little compared to the weapon’s head. It will strike with the force of a dragon’s claw.<br><br>",
       "Take the Lumberjack's Axe Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
@@ -17,7 +17,7 @@
   {
     "id": "interaction-2.2",
     "type": "choice",
-    "title": "2.2 – TAKE THE SHIELD",
+    "title": "2.2 – PICK UP THE SHIELD",
     "body": [
       "Only two types of shields hang on the wall: those untouched by battle and those that have endured countless wars. This kite shield bears the symbol of the Earl's family, and the marks of impact leave no doubt that it is one of the last of its kind. A weapon wielded during the emancipation of the Kingdom of Elan—suzerain state of Blackriver—from the Empire of Amira. A weapon you have just pulled from a well-deserved retirement…<br><br>",
       "Take the Earl's Shield Adventure Item card.<br>This is an Interaction with charge tokens. Remove one of them now. If the current charge is the last one, remove the token from the board instead. Heroes will no longer be able to interact with this scene."
