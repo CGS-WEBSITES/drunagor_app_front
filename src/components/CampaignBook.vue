@@ -156,9 +156,6 @@
                               <h3 class="tutorial-section-title">{{ tutorial.title }}</h3>
                               <div v-html="tutorial.bodyHTML"></div>
                             </section>
-                            <div class="pt-5 px-16" v-if="tutorialIndex < chapter.tutorials.length - 1">
-                              <v-img src="@/assets/Barra.png"></v-img>
-                            </div>
                           </template>
                         </div>
                       </div>
