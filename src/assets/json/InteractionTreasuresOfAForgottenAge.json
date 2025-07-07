@@ -1,8 +1,8 @@
 [
   {
-    "id": "interaction-1.1",
+    "id": "interaction-6.1",
     "type": "choice",
-    "title": "1.1 – TAKE THE HEAVY WEAPON",
+    "title": "6.1 – TAKE THE HEAVY WEAPON",
     "body": [
       "You lift the greatsword from the shelf, and the quality of the steel and richness of detail are immediately evident. Filigree patterns run along the hilt and blade—but you realize they do more than merely adorn the weapon as it trembles at your touch. A latent mystical energy resides within it, waiting to be awakened...<br><br>",
       "Take the Lost Claymore Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -15,9 +15,9 @@
     ]
   },
   {
-    "id": "interaction-1.2",
+    "id": "interaction-6.2",
     "type": "choice",
-    "title": "1.2 – TAKE THE LIGHT WEAPON",
+    "title": "6.2 – TAKE THE LIGHT WEAPON",
     "body": [
       "You take the Scimitar off the shelf and swing it once, twice through the air, testing the balance of the blade. The Draconian design is unique, combining the ferocity of Orcish weapons with the grace of Elven blades. That alone makes it a one-of-a-kind piece, but there’s more: you can feel magic coursing through the steel, waiting for the right command to come alive...<br><br>",
       "Take the Draconian Scimitar Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -30,9 +30,9 @@
     ]
   },
   {
-    "id": "interaction-1.3",
+    "id": "interaction-6.3",
     "type": "choice",
-    "title": "1.3 – TAKE THE LONGBOW",
+    "title": "6.3 – TAKE THE LONGBOW",
     "body": [
       "You take the Longbow off the shelf, stunned by the quality of the wood. How could it have survived so long? The secret lies in Elven magic: this bark was hardened like iron, yet kept as supple as a sapling. Just touching it is enough to feel its power—but you know that’s not all. Something lies within, dormant, waiting for something to unlock its full potential...<br><br>",
       "Take the Lorelanian Longbow Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -45,9 +45,9 @@
     ]
   },
   {
-    "id": "interaction-1.4",
+    "id": "interaction-6.4",
     "type": "choice",
-    "title": "1.4 – TAKE THE STAFF",
+    "title": "6.4 – TAKE THE STAFF",
     "body": [
       "You take hold of the Staff, and cosmic energies flow through your body and memories flash through your mind. The power that fuels this piece is not of this world, but of one far, far away, where lush jungles thrive and people paint themselves with the red pigment shed by the bark of this wood. Nature is powerful there, and you can feel it: its energy is in this staff, guarded or hidden. It’s up to you to uncover it...<br><br>",
       "Take the Redwood Staff Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -60,9 +60,9 @@
     ]
   },
   {
-    "id": "interaction-1.5",
+    "id": "interaction-6.5",
     "type": "choice",
-    "title": "1.5 – TAKE THE ROBE",
+    "title": "6.5 – TAKE THE ROBE",
     "body": [
       "You take the robe from the rack, and the quality of the fabric astounds you, smooth to the touch, slippery even—but despite its graceful appearance, it’s far more resilient than linen, as if nature itself made no sense. Elven embroidery in gold thread adorns the piece, and as you run a finger along the stitching you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
       "Take the Astralsilk Robe Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -75,9 +75,9 @@
     ]
   },
   {
-    "id": "interaction-1.6",
+    "id": "interaction-6.6",
     "type": "choice",
-    "title": "1.6 – TAKE THE CUIRASS",
+    "title": "6.6 – TAKE THE CUIRASS",
     "body": [
       "You lift the cuirass from the rack, and find the quality of the leatherwork striking. How did this piece survive the ages without deteriorating? Powerful enchantments, without a doubt. Gold rivets decorate the armor, and touching them you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
       "Take the Dragonhide Cuirass Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -90,9 +90,9 @@
     ]
   },
   {
-    "id": "interaction-1.7",
+    "id": "interaction-6.7",
     "type": "choice",
-    "title": "1.7 – TAKE THE BREASTPLATE",
+    "title": "6.7 – TAKE THE BREASTPLATE",
     "body": [
       "You raise the plate chestpiece off the rack, impressed by the lightness of the steel. Legends say only the Elven blacksmiths of the Age of Dragons could forge the wondrous alloy known as Quicksilver, light as a leaf, sturdy as a tree trunk. As you examine the golden filigree engravings that decorate the piece, you can feel it: a latent energy rests there, waiting to be awakened...<br><br>",
       "Take the Quicksilver Breastplate Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."
@@ -105,9 +105,9 @@
     ]
   },
   {
-    "id": "interaction-1.8",
+    "id": "interaction-6.8",
     "type": "choice",
-    "title": "1.8 – TAKE THE BOOTS",
+    "title": "6.8 – TAKE THE BOOTS",
     "body": [
       "Despite the incredible weapons at your disposal, you take the pair of boots—but they are by no means inferior to the rest. They might even be the most valuable of all, as the appearance of magical items often belies their true purpose. As light as sandals, yet as heavy as iron when they step, this humble pair of boots seems to bend space around them...<br><br>",
       "Take the Gravity Boots Adventure Item card.<br>You must use it (equipped or not) with the “Standard” side up.<br>The “Upgraded” side can only be used if the Party manages to upgrade this Equipment during the Adventure by using a Cosmic Ruby Consumable Item.<br>Proceed with the Adventure."

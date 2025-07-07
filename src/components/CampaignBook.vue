@@ -103,8 +103,8 @@
                   <v-row>
                     <v-col cols="12">
                       <div v-for="(item, contentLoopIndex) in currentPage.content"
-                        :key="`content-${currentIndex}-${contentLoopIndex}`"
-                        :id="`content-block-${currentIndex}-${contentLoopIndex}`" class="content-block">
+                            :key="`content-${currentIndex}-${contentLoopIndex}`"
+                            :id="`content-block-${currentIndex}-${contentLoopIndex}`" class="content-block">
                         <div class="header-banner">
                           <div class="d-flex align-center justify-space-between pa-0 pb-0">
                             <h4 class="section-title">{{ currentPage.section }}</h4>
@@ -114,14 +114,14 @@
                           </h2>
                         </div>
                         <div class="body-text mt-3" v-html="item.body"></div>
-                        <div class="pt-5 px-16">
-                          <v-img src="@/assets/Barra.png"></v-img>
-                        </div>
+                        
                         <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
                           <v-card-text v-html="item.instruction" />
                         </v-card>
+
                         <v-card-text v-html="item.setup" />
-                        <div class="pt-5 px-16">
+
+                        <div v-if="item.instruction" class="pt-5 px-16">
                           <v-img src="@/assets/Barra.png"></v-img>
                         </div>
                       </div>
@@ -137,27 +137,26 @@
             <KeywordView v-else-if="currentView === 'keywords'" />
 
             <div v-else-if="currentView === 'tutorial'"
-                  class="book-page ma-5"
-                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container fluid class="pa-3">
                 <v-row>
                   <v-col cols="12">
-                    <template v-for="(tutorialSectionItem, index) in playerTutorials.tutorials" :key="tutorialSectionItem.title">
-                      <div :id="`tutorial-section-${index}`" class="ml-4 content-block" :class="{ 'mb-6': index < playerTutorials.tutorials.length - 1 }">
+                    <template v-for="(chapter, chapterIndex) in playerTutorials.chapters" :key="chapter.chapterTitle">
+                      <div class="content-block" :class="{ 'mb-6': chapterIndex < playerTutorials.chapters.length - 1 }">
                         <div class="header-banner">
                           <div class="d-flex align-center justify-space-between pa-0 pb-0">
                             <h4 class="section-title">{{ playerTutorials.pageTitle }}</h4>
                           </div>
-                          <h2 class="chapter-title-banner">{{ playerTutorials.chapterTitle }}</h2>
+                          <h2 class="chapter-title-banner">{{ chapter.chapterTitle }}</h2>
                         </div>
                         <div class="body-text-mechanics pa-4 mt-3">
-                          <section class="mb-4">
-                            <h3 class="tutorial-section-title">{{ tutorialSectionItem.title }}</h3>
-                            <div v-html="tutorialSectionItem.bodyHTML"></div>
-                          </section>
-                          <div class="pt-5 px-16" v-if="index < playerTutorials.tutorials.length -1">
-                            <v-img src="@/assets/Barra.png"></v-img>
-                          </div>
+                          <template v-for="(tutorial, tutorialIndex) in chapter.tutorials" :key="tutorial.title">
+                            <section :id="`tutorial-section-${chapter.chapterTitle}-${tutorialIndex}`" class="mb-4">
+                              <h3 class="tutorial-section-title">{{ tutorial.title }}</h3>
+                              <div v-html="tutorial.bodyHTML"></div>
+                            </section>
+                          </template>
                         </div>
                       </div>
                     </template>
@@ -467,10 +466,14 @@ interface PlayerTutorialSection {
   bodyHTML: string;
 }
 
-interface PlayerTutorials {
-  pageTitle: string;
+interface TutorialChapter {
   chapterTitle: string;
   tutorials: PlayerTutorialSection[];
+}
+
+interface PlayerTutorials {
+  pageTitle: string;
+  chapters: TutorialChapter[];
 }
 
 interface ClarificationSection {
@@ -558,7 +561,7 @@ const initializeInteractionConfigs = () => {
 initializeInteractionConfigs();
 
 const gameMechanicsBook = ref<GameMechanicsBook>(gameMechanicsData as GameMechanicsBook);
-const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as PlayerTutorials);
+const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as any);
 const firstEncounterClarifications = ref<EncounterClarificationsBook>(firstEncounterClarificationsData as EncounterClarificationsBook);
 const secondEncounterClarifications = ref<EncounterClarificationsBook>(secondEncounterClarificationsData as EncounterClarificationsBook);
 
@@ -591,15 +594,19 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     }
   });
 
-  if (playerTutorials.value && playerTutorials.value.tutorials) {
-    const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials"; 
-    playerTutorials.value.tutorials.forEach((tutorial, index) => {
-      items.push({
-        sectionTitle: sectionGroupTitle,
-        title: tutorial.title,
-        id: `nav-tutorial-${index}`,
-        viewType: 'tutorial',
-        targetId: `tutorial-section-${index}`
+  if (playerTutorials.value && playerTutorials.value.chapters) {
+    const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials";
+    let tutorialNavCounter = 0;
+    playerTutorials.value.chapters.forEach(chapter => {
+      chapter.tutorials.forEach((tutorial, tutorialIndex) => {
+        items.push({
+          sectionTitle: sectionGroupTitle,
+          title: tutorial.title,
+          id: `nav-tutorial-${tutorialNavCounter}`,
+          viewType: 'tutorial',
+          targetId: `tutorial-section-${chapter.chapterTitle}-${tutorialIndex}`
+        });
+        tutorialNavCounter++;
       });
     });
   }
