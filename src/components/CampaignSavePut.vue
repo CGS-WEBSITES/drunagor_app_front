@@ -46,11 +46,15 @@ async function saveCampaign() {
     tracker_hash: token.value, party_name: party_name,
   }).then(() => {
     emit("success")
+    return true;
   }).catch((err) => {
     emit("fail")
+    return false;
   })
 
 }
+
+defineExpose({ save: saveCampaign });
 </script>
 
 <template>

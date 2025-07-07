@@ -15,7 +15,7 @@ label:
   remove-campaign: Remove campaign
   new-campaign: New campaign
   export-campaign: Export campaign
-  save-campaign-put: Save campaign
+  save-campaign-put: Save Changes
   copy-to-clipboard: Copy to clipboard
   import-campaign: " Import campaign"
   sequential-adventure: Start Playing
