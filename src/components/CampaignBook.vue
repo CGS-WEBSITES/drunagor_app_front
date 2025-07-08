@@ -166,8 +166,8 @@
             </div>
 
             <div v-else-if="currentView === 'combatGuide'"
-                  class="book-page ma-5"
-                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container fluid class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -196,8 +196,8 @@
             </div>
 
             <div v-else-if="currentView === 'explorationTips'"
-                  class="book-page ma-5"
-                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -228,8 +228,8 @@
             </div>
             
             <div v-else-if="currentView === 'charProgression'"
-                  class="book-page ma-5"
-                  :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
+                 class="book-page ma-5"
+                 :style="{ backgroundColor: '#ffffff', color: '#212121', borderRadius: '12px', border: '1px solid #1e1e1e', boxShadow: '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)'}">
               <v-container class="pa-3">
                 <v-row>
                   <v-col cols="12">
@@ -279,7 +279,7 @@
                         </v-btn>
                       </div>
                       <v-col cols="11">
-                      <p class="interaction-subtitle" v-html="currentInteractionConfig?.subtitle"></p>
+                        <p class="interaction-subtitle" v-html="currentInteractionConfig?.subtitle"></p>
                       </v-col>
                     </div>
                   </template>
@@ -431,6 +431,7 @@ interface PageContentItem {
   title?: string;
   body: string;
   instruction?: string;
+  setup?: string;
 }
 
 interface PageSection {
@@ -445,9 +446,9 @@ interface NavigationItemExtended {
   title: string;       
   id: string;          
   viewType: 'player' | 'tutorial' | 'combatGuide' | 'explorationTips' | 'charProgression' | 'keywords' | 'interactions'; 
-  sectionIndex?: number;  
-  originalId?: string;    
-  targetId?: string;      
+  sectionIndex?: number;   
+  originalId?: string;     
+  targetId?: string;       
 }
 
 interface GameMechanic {
@@ -722,7 +723,7 @@ const backgroundStyle = computed<CSSProperties>(() => {
     borderRadius: "12px",
   };
   if (currentPage.value.background) {
-    s.backgroundImage = currentPage.value.background;
+    s.backgroundImage = `url(${currentPage.value.background})`;
     s.backgroundSize = "cover";
     s.backgroundRepeat = "no-repeat";
     s.backgroundPosition = "center center";
@@ -958,804 +959,811 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .body-text {
-  font-style: italic;
+ font-style: italic;
 }
 .interaction-actions {
-  border-top: 1px solid #5c4a42;
-  margin-top: 16px;
-  text-align: center;
+ border-top: 1px solid #5c4a42;
+ margin-top: 16px;
+ text-align: center;
 }
 .action-btn-dynamic, .manual-load-btn {
-  background-color: #f0e6d2 !important;
-  color: #3a2e29 !important;
-  text-transform: none !important;
-  font-size: 0.9rem !important;
+ background-color: #f0e6d2 !important;
+ color: #3a2e29 !important;
+ text-transform: none !important;
+ font-size: 0.9rem !important;
 }
 
 .body-text p {
-  font-family: "EB Garamond", serif;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  text-indent: 2em;
-  color: #191919 !important;
-  margin-bottom: 1.5rem;
+ font-family: "EB Garamond", serif;
+ font-size: 1.1rem;
+ line-height: 1.6;
+ text-indent: 2em;
+ color: #191919 !important;
+ margin-bottom: 1.5rem;
 }
 
 .body-text p strong {
-  font-style: normal;
-  font-weight: bold;
+ font-style: normal;
+ font-weight: bold;
 }
 
 .body-text div[style*="color: Black"] {
-  text-indent: 0em !important;
+ text-indent: 0em !important;
 }
 
 .setup-placeholder {
-  text-align: center;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  border: 2px dashed #ccc;
-  background-color: #f9f9f9;
-  font-size: 1.1em;
-  font-style: normal !important;
+ text-align: center;
+ margin-top: 1.5rem;
+ margin-bottom: 1.5rem;
+ padding: 1rem;
+ border: 2px dashed #ccc;
+ background-color: #f9f9f9;
+ font-size: 1.1em;
+ font-style: normal !important;
 }
 
 .setup-placeholder strong {
-  font-style: normal !important;
+ font-style: normal !important;
 }
 
 .book-dialog {
-  position: relative;
-  width: 1000px;
-  box-shadow:
-    15px 0 15px -5px rgba(0, 0, 0, 0.3),
-    0 10px 20px rgba(0, 0, 0, 0.5),
-    inset 5px 0 10px rgba(255, 255, 255, 0.1);
-  margin: 5vh auto; 
+ position: relative;
+ width: 1000px;
+ box-shadow:
+  15px 0 15px -5px rgba(0, 0, 0, 0.3),
+  0 10px 20px rgba(0, 0, 0, 0.5),
+  inset 5px 0 10px rgba(255, 255, 255, 0.1);
+ margin: 5vh auto; 
 }
 
 .book-page {
-  background-color: #ffffff;
-  color: #212121;
-  border: 1px solid #1e1e1e;
-  margin: 20px; /* ma-5 equivalent */
-  box-shadow:
-    0 0 10px rgba(94, 69, 57, 0.3),
-    inset 0 0 20px rgba(94, 69, 57, 0.2);
-  border-radius: 12px;
-  min-height: calc(90vh - 40px);
+ background-color: #ffffff;
+ color: #212121;
+ border: 1px solid #1e1e1e;
+ margin: 20px; /* ma-5 equivalent */
+ box-shadow:
+  0 0 10px rgba(94, 69, 57, 0.3),
+  inset 0 0 20px rgba(94, 69, 57, 0.2);
+ border-radius: 12px;
+ min-height: calc(90vh - 40px);
 }
 
 .header-banner {
-  background-image: url('@/assets/booktop.png');
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: top center;
-  padding: 12px 14px 10px;
-  position: relative;
-  z-index: 1;
-  color: #212121;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+ background-image: url('@/assets/booktop.png');
+ background-size: cover;
+ background-repeat: no-repeat;
+ background-position: top center;
+ padding: 12px 14px 10px;
+ position: relative;
+ z-index: 1;
+ color: #212121;
+ border-top-left-radius: 6px;
+ border-top-right-radius: 6px;
 }
 
 .header-banner .d-flex {
-  cursor: move;
+ cursor: move;
 }
 
 .section-title {
-  font-size: 0.7rem;
-  color: white;
-  padding: 10px 125px 20px;
-  margin: 0;
-  text-transform: uppercase;
-  font-weight: bold;
+ font-size: 0.7rem;
+ color: white;
+ padding: 10px 125px 20px;
+ margin: 0;
+ text-transform: uppercase;
+ font-weight: bold;
 }
 
 .chapter-title-banner {
-  font-family: "Cinzel Decorative", cursive;
-  font-size: 1.8rem;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-  margin-top: 1px;
-  margin-bottom: 66px;
-  padding-left: 126px;
-  padding-right: 44px;
-  text-align: left;
+ font-family: "Cinzel Decorative", cursive;
+ font-size: 1.8rem;
+ color: white;
+ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+ margin-top: 1px;
+ margin-bottom: 66px;
+ padding-left: 126px;
+ padding-right: 44px;
+ text-align: left;
 }
 
 @media (max-width: 1023px) {
-  .section-title {
-    padding: 0px 90px 20px;
-  }
-  .chapter-title-banner {
-    font-size: 1.8rem;
-    padding-left: 86px;
-    padding-right: 0px;
-    margin-bottom: 20px;
-  }
+ .section-title {
+  padding: 0px 90px 20px;
+ }
+ .chapter-title-banner {
+  font-size: 1.8rem;
+  padding-left: 86px;
+  padding-right: 0px;
+  margin-bottom: 20px;
+ }
 }
 
 
 
 
 .close-btn {
-  background-color: #212121 !important;
-  color: #f0e6d2 !important;
-  border: 1px solid #1e1e1e;
-  border-radius: 50%;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+ background-color: #212121 !important;
+ color: #f0e6d2 !important;
+ border: 1px solid #1e1e1e;
+ border-radius: 50%;
+ box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 .header-close { 
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 2; 
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2; 
 }
 
 
 .close-btn:hover {
-  background-color: #1e1e1e !important;
+ background-color: #1e1e1e !important;
 }
 
 .instruction-card {
-  background: #e4e4e4 !important;
-  border: 2px solid #212121 !important;
-  color: #1a120f !important;
-  box-shadow: 3px 3px 0px #212121;
-  padding: 16px;
-  margin-top: 1rem;
+ background: #e4e4e4 !important;
+ border: 2px solid #212121 !important;
+ color: #1a120f !important;
+ box-shadow: 3px 3px 0px #212121;
+ padding: 16px;
+ margin-top: 1rem;
 }
 
 .instruction-card ul {
-  list-style-position: inside;
-  padding-left: 0;
-  list-style-type: disc;
+ list-style-position: inside;
+ padding-left: 0;
+ list-style-type: disc;
 }
 
 .instruction-card li {
-  margin-bottom: 0.5em;
+ margin-bottom: 0.5em;
 }
 
 .v-btn {
-  letter-spacing: 1px;
-  border: 1px solid #212121 !important;
+ letter-spacing: 1px;
+ border: 1px solid #212121 !important;
 }
 
 .nav-drawer {
-  background: #1a120f !important;
-  border-right: 2px solid #212121 !important;
-  z-index: 1001;
-  height: 100%;
-  transition: width 0.3s ease !important;
+ background: #1a120f !important;
+ border-right: 2px solid #212121 !important;
+ z-index: 1001;
+ height: 100%;
+ transition: width 0.3s ease !important;
 }
 
 .nav-drawer :deep(.v-list-item__title) {
-  color: #f0e6d2;
-  font-size: 0.8rem !important;
-  line-height: 1.3 !important;
-  white-space: normal !important;
-  height: auto !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
+ color: #f0e6d2;
+ font-size: 0.8rem !important;
+ line-height: 1.3 !important;
+ white-space: normal !important;
+ height: auto !important;
+ overflow: visible !important;
+ text-overflow: clip !important;
 }
 
 .drawer-section-header :deep(.v-list-item__title) {
-  font-weight: bold;
-  font-size: 0.85rem !important;
-  color: #f5e1a9 !important;
+ font-weight: bold;
+ font-size: 0.85rem !important;
+ color: #f5e1a9 !important;
 }
 
 .drawer-section-header.v-list-item--active-book-index .v-icon { 
-    color: #FFFFFF !important;
+  color: #FFFFFF !important;
 }
 
 
 .drawer-item-index :deep(.v-list-item__title) {
-  font-size: 0.75rem !important;
-  font-family: "EB Garamond", serif;
-  color: #d4be94 !important;
-  margin-left: 8px;
+ font-size: 0.75rem !important;
+ font-family: "EB Garamond", serif;
+ color: #d4be94 !important;
+ margin-left: 8px;
 }
 
 .nav-drawer :deep(.v-list-item) {
-  height: auto !important;
-  min-height: 40px;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
+ height: auto !important;
+ min-height: 40px;
+ padding-top: 8px !important;
+ padding-bottom: 8px !important;
 }
 
 .nav-drawer .v-list-subheader {
-  color: #e6c68a !important;
-  font-size: 0.9rem;
-  font-family: "Cinzel Decorative", cursive;
-  padding-left: 16px;
-  line-height: normal;
-  height: auto;
-  padding-top: 8px;
-  padding-bottom: 8px;
+ color: #e6c68a !important;
+ font-size: 0.9rem;
+ font-family: "Cinzel Decorative", cursive;
+ padding-left: 16px;
+ line-height: normal;
+ height: auto;
+ padding-top: 8px;
+ padding-bottom: 8px;
 }
 
 .drawer-item-index.v-list-item--active-book-index,
 .drawer-section-header.v-list-item--active-book-index { 
-  background-color: rgba(201, 170, 113, 0.2) !important;
+ background-color: rgba(201, 170, 113, 0.2) !important;
 }
 
 .drawer-item-index.v-list-item--active-book-index .v-list-item-title,
 .drawer-item-index:hover .v-list-item-title,
 .drawer-section-header.v-list-item--active-book-index :deep(.v-list-item__title),
 .drawer-section-header:hover :deep(.v-list-item__title) {
-  color: #ffffff !important;
-  font-weight: bold;
+ color: #ffffff !important;
+ font-weight: bold;
 }
 
 .drawer-item-index.v-list-item--active-book-index .numbered-avatar span {
-  color: white !important;
+ color: white !important;
 }
 
 
 .drawer-section-header.v-list-item,
 .drawer-item-index.v-list-item {
-  padding-inline-start: 12px !important;
+ padding-inline-start: 12px !important;
 }
 
 .drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
-  margin-inline-end: 16px !important;
+ margin-inline-end: 16px !important;
 }
 
 .drawer-item-index.v-list-item .v-list-item__prepend {
-  min-width: 24px !important;
-  max-width: 24px !important;
-  margin-right: 16px !important;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+ min-width: 24px !important;
+ max-width: 24px !important;
+ margin-right: 16px !important;
+ display: flex;
+ justify-content: center;
+ align-items: center;
 }
 
 .drawer-item-index .numbered-avatar {
-  margin: 0 !important;
-  flex-shrink: 0;
-  font-weight: bold;
+ margin: 0 !important;
+ flex-shrink: 0;
+ font-weight: bold;
 }
 
 .drawer-item-index .numbered-avatar .text-caption {
-  font-size: 0.75rem !important;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+ font-size: 0.75rem !important;
+ line-height: 1;
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ width: 100%;
+ height: 100%;
 }
 
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .v-list-item__prepend {
-  width: auto !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  justify-content: center !important;
+ width: auto !important;
+ margin-left: auto !important;
+ margin-right: auto !important;
+ justify-content: center !important;
 }
 
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-section-header.v-list-item .v-list-item__prepend .v-icon {
-  margin: 0 !important;
+ margin: 0 !important;
 }
 
 :deep(.v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering)) .drawer-item-index.v-list-item .v-list-item__prepend .numbered-avatar {
-  margin: 0 !important;
+ margin: 0 !important;
 }
 
 .v-navigation-drawer--rail:not(.v-navigation-drawer--is-hovering) .v-list-item__content {
-  display: none !important;
+ display: none !important;
 }
 
 .nav-drawer:hover .v-list-item-title {
-  opacity: 1;
-  margin-left: 0; 
-  transition:
-    opacity 0.3s ease 0.1s,
-    margin-left 0.3s ease;   
+ opacity: 1;
+ margin-left: 0; 
+ transition:
+  opacity 0.3s ease 0.1s,
+  margin-left 0.3s ease;   
 }
 
 /* Width for expanded state on hover is now controlled by 'width' prop and this :hover rule */
 .v-navigation-drawer--rail:hover {
-  width: 300px !important; /* Matches the 'width' prop on v-navigation-drawer */
+ width: 300px !important; /* Matches the 'width' prop on v-navigation-drawer */
 }
 
 .main-content {
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  min-height: 500px;
-  height: calc(140vh - 40px); 
-  display: flex; 
-  flex-direction: column; 
+ transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+ min-height: 500px;
+ height: calc(140vh - 40px); 
+ display: flex; 
+ flex-direction: column; 
 }
 
 .scrollable-content {
-  overflow-y: auto;
-  flex-grow: 1;
+ overflow-y: auto;
+ flex-grow: 1;
 }
 
 .content-block {
-  background-color: #fff; 
-  border: 1px solid #dedede;
-  border-radius: 6px;
-  padding: 0 0 16px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+ background-color: #fff; 
+ border: 1px solid #dedede;
+ border-radius: 6px;
+ padding: 0 0 16px 0;
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .content-block .header-banner {
-  padding-left: 16px;
-  padding-right: 16px;
+ padding-left: 16px;
+ padding-right: 16px;
 }
 
 .content-block:not(:last-child) {
-  margin-bottom: 24px;
+ margin-bottom: 24px;
 }
 
 .content-block:last-child {
-  margin-bottom: 16px; 
+ margin-bottom: 16px; 
 }
 
 .body-text.mt-3 { 
-  margin-top: 1rem !important;
-  padding: 0 16px;
+ margin-top: 1rem !important;
+ padding: 0 16px;
 }
 
 .instruction-card {
-  margin-left: 16px;
-  margin-right: 16px;
-  width: calc(100% - 32px);
+ margin-left: 16px;
+ margin-right: 16px;
+ width: calc(100% - 32px);
 }
 
 .dialog-title {
-    text-align: center;
-    width: 100%;
-    color: #f0e6d2; 
-    font-family: "Cinzel Decorative", cursive;
-    font-size: 1.5rem;
+  text-align: center;
+  width: 100%;
+  color: #f0e6d2; 
+  font-family: "Cinzel Decorative", cursive;
+  font-size: 1.5rem;
 }
 .interaction-header {
-    width: 100%;
-    color: #f0e6d2;
-    padding: 0 10px; 
-    position: relative;
+  width: 100%;
+  color: #f0e6d2;
+  padding: 0 10px; 
+  position: relative;
 }
 .interaction-main-title {
-    font-family: "Cinzel Decorative", cursive;
-    font-size: 1.3rem; 
-    margin-bottom: 8px;
-    line-height: 1.2;
-    padding-right: 40px; 
+  font-family: "Cinzel Decorative", cursive;
+  font-size: 1.3rem; 
+  margin-bottom: 8px;
+  line-height: 1.2;
+  padding-right: 40px; 
 }
 .interaction-subtitle {
-    font-family: "EB Garamond", serif;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    opacity: 0.9;
-    margin-bottom: 16px;
+  font-family: "EB Garamond", serif;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  opacity: 0.9;
+  margin-bottom: 16px;
 }
 .scan-page {
-    flex-grow: 1; 
+  flex-grow: 1; 
 }
 .qr-video {
-    width: 80%;
-    max-width: 300px;
-    border: 2px solid #f0e6d2;
-    border-radius: 8px;
-    background-color: #000;
+  width: 80%;
+  max-width: 300px;
+  border: 2px solid #f0e6d2;
+  border-radius: 8px;
+  background-color: #000;
 }
 .titles-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ width: 100%;
 }
 
 .image-display {
-  width: 100%;
-  height: 597px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px; 
+ width: 100%;
+ height: 597px;
+ background-size: cover;
+ background-position: center;
+ border-radius: 8px; 
 }
 
 @media (max-width: 600px) {
 .image-display {
-  width: 100%;
-  height: 224px;
-  background-size: cover;
-  background-position: center;
-  border-radius: 8px; 
+ width: 100%;
+ height: 224px;
+ background-size: cover;
+ background-position: center;
+ border-radius: 8px; 
 } }
 
 
 .buttons-container {
-  margin-top: 20px;
-  background-color: rgba(0,0,0,0.6); 
-  width: 100%;
-  max-width: 900px;
+ margin-top: 20px;
+ background-color: rgba(0,0,0,0.6); 
+ width: 100%;
+ max-width: 900px;
 }
 .interaction-btn {
-    background-color: #3a2e29 !important; 
-    color: #f0e6d2 !important;
-    border-color: #5c4a42 !important;
-    margin-bottom: 8px; 
-    text-transform: none !important; 
-    font-size: 1rem;
+  background-color: #3a2e29 !important; 
+  color: #f0e6d2 !important;
+  border-color: #5c4a42 !important;
+  margin-bottom: 8px; 
+  text-transform: none !important; 
+  font-size: 1rem;
 }
 
 .content-page-interactions {
-    flex-grow: 1;
-    overflow-y: auto; 
-    color: #f0e6d2; 
+  flex-grow: 1;
+  overflow-y: auto; 
+  color: #f0e6d2; 
 }
 .content-wrapper-interactions {
-    padding: 10px; 
+  padding: 10px; 
 }
 .chapter-title-interactions {
-    font-family: "Cinzel Decorative", cursive;
-    font-size: 1.5rem;
-    color: #f5e1a9; 
+  font-family: "Cinzel Decorative", cursive;
+  font-size: 1.5rem;
+  color: #f5e1a9; 
 }
 .body-text-interactions p {
-    font-family: "EB Garamond", serif;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #d4be94; 
-    margin-bottom: 1em;
+  font-family: "EB Garamond", serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #d4be94; 
+  margin-bottom: 1em;
 }
 .back-btn {
-  /* font-family property removed */
+ /* font-family property removed */
 }
 
 .body-text-mechanics { 
 }
 
 .body-text-mechanics :deep(p) {
-  font-family: "EB Garamond", serif;
-  font-size: 1rem;
-  line-height: 1.6;
-  text-indent: 2em;
-  margin-bottom: 1em;
-  color: #191919 !important;
+ font-family: "EB Garamond", serif;
+ font-size: 1rem;
+ line-height: 1.6;
+ text-indent: 2em;
+ margin-bottom: 1em;
+ color: #191919 !important;
 }
 
 .body-text-mechanics :deep(p:first-of-type) {
 }
 
 .body-text-mechanics :deep(ul) {
-  padding-left: 0; 
-  list-style: none; 
-  margin-top: 0.5em;
-  margin-bottom: 1em;
+ padding-left: 0; 
+ list-style: none; 
+ margin-top: 0.5em;
+ margin-bottom: 1em;
 }
 
 .body-text-mechanics :deep(li) {
-  padding-left: 1.8em; 
-  position: relative;
-  margin-bottom: 0.5em;
-  color: #191919 !important;
-  font-family: "EB Garamond", serif; 
-  font-size: 1rem; 
-  line-height: 1.6; 
+ padding-left: 1.8em; 
+ position: relative;
+ margin-bottom: 0.5em;
+ color: #191919 !important;
+ font-family: "EB Garamond", serif; 
+ font-size: 1rem; 
+ line-height: 1.6; 
 }
 
 .body-text-mechanics :deep(li:not(.custom-bullet)::before) {
-  content: '•'; 
-  position: absolute;
-  left: 0.5em; 
-  top: 0.1em; 
-  color: #212121;
-  font-size: 1.2em; 
+ content: '•'; 
+ position: absolute;
+ left: 0.5em; 
+ top: 0.1em; 
+ color: #212121;
+ font-size: 1.2em; 
 }
 
 .body-text-mechanics :deep(li.custom-bullet) {
 }
 
 .body-text-mechanics :deep(li.custom-bullet::before) {
-  position: absolute;
-  left: 0.5em; 
-  top: 0.1em;
-  font-size: 1.2em;
-  color: #212121;
+ position: absolute;
+ left: 0.5em; 
+ top: 0.1em;
+ font-size: 1.2em;
+ color: #212121;
 }
 
 .body-text-mechanics :deep(li.custom-bullet.filled::before) {
-  content: '•';
+ content: '•';
 }
 
 .body-text-mechanics :deep(li.custom-bullet.open::before) {
-  content: '○';
+ content: '○';
 }
 
 .mechanic-title { 
-  font-family: "EB Garamond", serif; 
-  font-size: 1.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  text-align: left;
-  position: relative; 
-  padding-left: 1.6em; 
-  text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
-  color: #191919; 
+ font-family: "EB Garamond", serif; 
+ font-size: 1.5rem;
+ margin-top: 1.5rem;
+ margin-bottom: 0.75rem;
+ text-align: left;
+ position: relative; 
+ padding-left: 1.6em; 
+ text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
+ color: #191919; 
 }
 
 .mechanic-title::before { 
-  content: '->';
-  position: absolute;
-  left: 0.5em; 
-  top: 0; 
-  font-size: 1em; 
-  color: #191919; 
+ content: '->';
+ position: absolute;
+ left: 0.5em; 
+ top: 0; 
+ font-size: 1em; 
+ color: #191919; 
 }
 
 .tutorial-section-title {
-  font-family: "EB Garamond", serif; 
-  font-size: 1.5rem; 
-  margin-top: 1.5rem;
-  margin-bottom: 0.75rem;
-  text-align: left;
-  color: #191919; 
-  font-weight: bold; 
-  text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
+ font-family: "EB Garamond", serif; 
+ font-size: 1.5rem; 
+ margin-top: 1.5rem;
+ margin-bottom: 0.75rem;
+ text-align: left;
+ color: #191919; 
+ font-weight: bold; 
+ text-shadow: 1px 1px 1px rgba(255,255,255,0.7);
 }
 
 .clarification-chapter-title { 
-  font-family: "Cinzel Decorative", cursive;
-  font-size: 1.6rem; 
-  color: #191919; 
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  padding-left: 0; 
-  text-align: left;
+ font-family: "Cinzel Decorative", cursive;
+ font-size: 1.6rem; 
+ color: #191919; 
+ text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+ margin-top: 1.5rem;
+ margin-bottom: 0.5rem;
+ padding-left: 0; 
+ text-align: left;
 }
 
 
 @media (max-width: 1023px) {
-  .book-dialog {
-    width: 96vw !important;
-    max-height: 85vh !important; 
-    margin: 2.5vh auto; 
-  }
+ .book-dialog {
+  width: 96vw !important;
+  max-height: 85vh !important; 
+  margin: 2.5vh auto; 
+ }
 
-  .main-content, .scrollable-content {
-    height: calc(85vh - 40px); 
-  }
-  .book-page {
-    min-height: unset; 
-    height: auto; 
-    margin: 16px; 
-  }
+ .main-content, .scrollable-content {
+  height: calc(85vh - 40px); 
+ }
+ .book-page {
+  min-height: unset; 
+  height: auto; 
+  margin: 16px; 
+ }
 
-  .section-title {
-    padding: 0px 100px 14px;
-  }
+ .section-title {
+  padding: 0px 100px 14px;
+ }
 
-  .chapter-title-banner {
-    font-size: 1.5rem !important;
-    padding-left: 98px;
-    padding-right: 0px;
-    margin-bottom: 45px;
-  }
+ .chapter-title-banner {
+  font-size: 1.5rem !important;
+  padding-left: 98px;
+  padding-right: 0px;
+  margin-bottom: 45px;
+ }
 
-  .body-text p {
-    font-size: 1rem !important;
-    line-height: 1.5;
-  }
-  .content-block .header-banner,
-  .body-text.mt-3,
-  .body-text-mechanics.pa-4 { 
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-    .body-text-mechanics.pa-4 {
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-  }
+ .body-text p {
+  font-size: 1rem !important;
+  line-height: 1.5;
+ }
+ .content-block .header-banner,
+ .body-text.mt-3,
+ .body-text-mechanics.pa-4 { 
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+ }
+  .body-text-mechanics.pa-4 {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+ }
 
 
-  .instruction-card {
-    margin-left: 12px;
-    margin-right: 12px;
-    width: calc(100% - 24px);
-  }
-  .mechanic-title, .tutorial-section-title { 
-    font-size: 1.3rem;
-  }
-  .clarification-chapter-title { font-size: 1.4rem; } 
-  .mechanic-title {
-      padding-left: 1.5em;
-  }
-  .mechanic-title::before {
-    left: 0.4em;
-  }
+ .instruction-card {
+  margin-left: 12px;
+  margin-right: 12px;
+  width: calc(100% - 24px);
+ }
+ .mechanic-title, .tutorial-section-title { 
+  font-size: 1.3rem;
+ }
+ .clarification-chapter-title { font-size: 1.4rem; } 
+ .mechanic-title {
+   padding-left: 1.5em;
+ }
+ .mechanic-title::before {
+  left: 0.4em;
+ }
 }
 
 @media (max-width: 600px) {
-  .book-dialog {
-    width: 95vw !important;
-    max-height: 90vh !important; 
-    overflow: hidden;
-    margin: 2vh auto;
-  }
+ .book-dialog {
+  width: 95vw !important;
+  max-height: 90vh !important; 
+  overflow: hidden;
+  margin: 2vh auto;
+ }
 
-  .main-content, .scrollable-content {
-    height: calc(90vh - 70px); 
-  }
+ .main-content, .scrollable-content {
+  height: calc(90vh - 70px); 
+ }
 
-  .d-flex.justify-end { 
-    position: sticky;
-    bottom: 0;
-    background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%);
-    padding: 16px 0;
-    z-index: 100;
-  }
+ .d-flex.justify-end { 
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(to bottom, transparent, #f0e6d299 20%, #f0e6d2 60%);
+  padding: 16px 0;
+  z-index: 100;
+ }
 
-  .v-navigation-drawer--rail:hover {
-    /* Ensure this matches the 'width' prop for consistency */
-    width: 300px !important; 
-  }
+ .v-navigation-drawer--rail:hover {
+  /* Ensure this matches the 'width' prop for consistency */
+  width: 300px !important; 
+ }
 
-  .header-banner {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-    .header-banner .d-flex { 
-    cursor: default; 
-  }
-
-
-  .section-title {
-    font-size: 0.5rem !important;
-    padding: 0px 0px 15px 10px !important;
-  }
-
-  .chapter-title-banner {
-    font-size: 1rem !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    padding-bottom: 12px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-  }
-
-  .body-text p {
-    font-size: 0.9rem !important;
-    text-indent: 1em;
-    line-height: 1.4;
-  }
+ .header-banner {
+  padding-left: 8px;
+  padding-right: 8px;
+ }
+  .header-banner .d-flex { 
+  cursor: default; 
+ }
 
 
-  .v-btn { 
-    font-size: 0.8rem !important;
-    padding: 8px 10px !important;
-    margin: 4px !important; 
-  }
-    .interaction-btn { 
-    font-size: 0.62rem !important;
-  }
+ .section-title {
+  font-size: 0.5rem !important;
+  padding: 0px 0px 15px 10px !important;
+ }
 
-  .book-page {
-    margin: 10px !important; 
-    min-height: unset; 
-  }
+ .chapter-title-banner {
+  font-size: 1rem !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+  padding-bottom: 12px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+ }
 
-  .content-block .header-banner,
-  .body-text.mt-3,
-  .body-text-mechanics.pa-4 { 
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
-  .body-text-mechanics.pa-4 {
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-  }
+ .body-text p {
+  font-size: 0.9rem !important;
+  text-indent: 1em;
+  line-height: 1.4;
+ }
 
 
-  .instruction-card {
-    font-size: 0.85rem !important;
-    padding: 12px !important;
-    margin-left: 8px;
-    margin-right: 8px;
-    width: calc(100% - 16px);
-  }
+ .v-btn { 
+  font-size: 0.8rem !important;
+  padding: 8px 10px !important;
+  margin: 4px !important; 
+ }
+  .interaction-btn { 
+  font-size: 0.62rem !important;
+ }
 
-  .content-block:not(:last-child) {
-    margin-bottom: 16px;
-  }
+ .book-page {
+  margin: 10px !important; 
+  min-height: unset; 
+ }
 
-  .mechanic-title, .tutorial-section-title { 
-    font-size: 1.2rem;
-  }
-  .clarification-chapter-title { font-size: 1.3rem; }
-    .mechanic-title {
-      padding-left: 1.4em;
-  }
-  .mechanic-title::before {
-    left: 0.3em;
-  }
+ .content-block .header-banner,
+ .body-text.mt-3,
+ .body-text-mechanics.pa-4 { 
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+ }
+ .body-text-mechanics.pa-4 {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+ }
+
+
+ .instruction-card {
+  font-size: 0.85rem !important;
+  padding: 12px !important;
+  margin-left: 8px;
+  margin-right: 8px;
+  width: calc(100% - 16px);
+ }
+
+ .content-block:not(:last-child) {
+  margin-bottom: 16px;
+ }
+
+ .mechanic-title, .tutorial-section-title { 
+  font-size: 1.2rem;
+ }
+ .clarification-chapter-title { font-size: 1.3rem; }
+  .mechanic-title {
+   padding-left: 1.4em;
+ }
+ .mechanic-title::before {
+  left: 0.3em;
+ }
 
 }
 
 @media (max-width: 400px) {
-  .d-flex.justify-end { 
-    flex-direction: column;
-    gap: 8px;
-  }
+ .d-flex.justify-end { 
+  flex-direction: column;
+  gap: 8px;
+ }
 
-  .v-btn { 
-    width: 100% !important;
-    justify-content: center;
-  }
+ .v-btn { 
+  width: 100% !important;
+  justify-content: center;
+ }
 
-  .book-dialog {
-    width: 98vw !important;
-    max-height: 95vh !important; 
-    margin: auto; 
-  }
+ .book-dialog {
+  width: 98vw !important;
+  max-height: 95vh !important; 
+  margin: auto; 
+ }
 
-  .main-content, .scrollable-content {
-    height: calc(95vh - 60px); 
-  }
+ .main-content, .scrollable-content {
+  height: calc(95vh - 60px); 
+ }
 
-  .header-banner {
-    margin-bottom: 0;
-  }
+ .header-banner {
+  margin-bottom: 0;
+ }
 
-  .section-title {
-    padding: 10px 8px 2px 8px !important;
-    font-size: 0.55rem !important;
-  }
+ .section-title {
+  padding: 10px 8px 2px 8px !important;
+  font-size: 0.55rem !important;
+ }
 
-  .chapter-title-banner {
-    font-size: 1.3rem !important;
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-    margin-bottom: 5px;
-  }
-  .mechanic-title, .tutorial-section-title { 
-    font-size: 1.1rem;
-  }
-  .clarification-chapter-title { font-size: 1.2rem; }
-  .mechanic-title {
-      padding-left: 1.3em;
-  }
-  .mechanic-title::before {
-    left: 0.2em;
-  }
+ .chapter-title-banner {
+  font-size: 1.3rem !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  margin-bottom: 5px;
+ }
+ .mechanic-title, .tutorial-section-title { 
+  font-size: 1.1rem;
+ }
+ .clarification-chapter-title { font-size: 1.2rem; }
+ .mechanic-title {
+   padding-left: 1.3em;
+ }
+ .mechanic-title::before {
+  left: 0.2em;
+ }
 }
 
 .or-separator {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #f0e6d2;
-  opacity: 0.7;
+ font-size: 1.2rem;
+ font-weight: bold;
+ color: #f0e6d2;
+ opacity: 0.7;
 }
 
 .interaction-list-btn {
-  background-color: #f0e6d2 !important;
-  color: #3a2e29 !important;
-  text-transform: none !important;
-  font-size: 0.9rem !important;
+ background-color: #f0e6d2 !important;
+ color: #3a2e29 !important;
+ text-transform: none !important;
+ font-size: 0.9rem !important;
 }
 
 .interaction-list-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+ width: 100%;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
 }
 
 .interaction-vlist {
-  width: 100%;
-  max-width: 600px;
+ width: 100%;
+ max-width: 600px;
 }
 
 .interaction-list-item {
-  background-color: rgba(0,0,0,0.6);
-  margin-bottom: 8px;
-  border-radius: 4px;
-  color: #f0e6d2;
-  border: 1px solid #5c4a42;
+ background-color: rgba(0,0,0,0.6);
+ margin-bottom: 8px;
+ border-radius: 4px;
+ color: #f0e6d2;
+ border: 1px solid #5c4a42;
+}
+
+:deep(.inline-icon) {
+  height: 1.2em; 
+  width: auto;   
+  vertical-align: middle; 
+  margin-bottom: 0.2em;
 }
 </style>
