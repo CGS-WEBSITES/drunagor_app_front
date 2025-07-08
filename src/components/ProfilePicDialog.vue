@@ -1,135 +1,69 @@
 <template>
   <v-dialog v-model="dialogIsActive" activator="parent" max-width="800">
-    <v-card
-      :class="{ 'on-hover': isHovering }"
-      :elevation="isHovering ? 12 : 2"
-      v-bind="props"
-      min-height="380"
-    >
-      <v-card-title class="d-flex justify-space-betwenn">
-        <div>Choose your profile picture</div>
+    <v-card min-height="380">
+      <v-card-title class="d-flex align-center">
+        <span>Choose your profile picture</span>
         <v-btn
           icon="mdi-close"
           class="ml-auto"
-          text="Close"
+          variant="text"
           @click="dialogIsActive = false"
-          variant="plain"
         ></v-btn>
       </v-card-title>
 
-      <v-card-text>
-        <v-row no-gutters class="pa-2">
+      <v-card-text class="py-4">
+        <v-row v-if="showAlert" no-gutters class="pa-2 mb-4">
           <v-alert
             closable
-            v-model="showAlert"
             :icon="alertIcon"
             :title="alertTitle"
             :text="alertText"
             :type="alertType"
+            @update:modelValue="showAlert = false"
           ></v-alert>
         </v-row>
-        <v-row>
+
+        <v-row justify="start">
           <v-col
+            v-for="(item, index) in availablePictures"
+            :key="index"
+            class="d-flex justify-center pa-3"
             cols="6"
             sm="4"
-            md="3"
-            class="pa-2"
-            v-for="(item, index) in availblePictures"
-            :key="index"
+            md="4"
           >
             <v-hover v-slot="{ isHovering, props }">
               <v-card
-                :class="{
-                  'on-hover': isHovering,
-                  'pa-0 d-flex justify-center': true,
-                }"
-                :elevation="
-                  isHovering ||
-                  (selectedPicture.hash && selectedPicture.hash === item.hash)
-                    ? 18
-                    : 0
-                "
                 v-bind="props"
-                class="pa-0"
-                :disabled="
-                  selectedPicture.hash && selectedPicture.hash != item.hash
-                "
-                :key="reloadKey"
-                @click="selectedPicture.hash = item.hash"
+                :elevation="isHovering ? 16 : 4"
+                :disabled="isSaving"
+                class="cursor-pointer"
+                :class="{ 'active-selection': UserStore.user.picture_hash === item.hash }"
+                @click="selectAndSavePicture(item.hash)"
+                rounded="md"
               >
                 <v-img
-                  :src="assets + '/Profile/' + item.hash"
+                  :src="`${assets}/Profile/${item.hash}`"
                   :alt="item.hash"
-                  :max-width="118"
-                  style="
-                    border: 0.5px solid gold;
-                    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-                    background-color: black;
-                  "
+                  width="130"
+                  height="130"
+                  aspect-ratio="1"
+                  cover
                 >
+                  <v-overlay
+                    :model-value="isSaving && savingPictureHash === item.hash"
+                    contained
+                    class="d-flex align-center justify-center"
+                    scrim="rgba(0, 0, 0, 0.5)"
+                  >
+                    <v-progress-circular indeterminate color="white"></v-progress-circular>
+                  </v-overlay>
                 </v-img>
               </v-card>
             </v-hover>
-            <div
-              class="d-flex justify-end"
-              style="
-                width: 100%;
-                height: 0px;
-                position: relative;
-                bottom: 105%;
-                left: 5%;
-              "
-            >
-              <v-btn
-                v-if="
-                  selectedPicture.hash && selectedPicture.hash === item.hash
-                "
-                icon
-                color="error"
-                elevation="3"
-                rounded="xl"
-                size="x-small"
-                @click="clearPic()"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </div>
           </v-col>
         </v-row>
       </v-card-text>
-
-      <v-card-actions class="pa-0">
-        <v-row no-gutters>
-          <v-col cols="6">
-            <v-btn
-              height="52"
-              block
-              color="success"
-              variant="flat"
-              @click="saveFig()"
-              :disabled="!selectedPicture.hash"
-            >
-              Save
-            </v-btn>
-          </v-col>
-          <v-col cols="6">
-            <v-btn
-              height="52"
-              block
-              color="error"
-              variant="flat"
-              @click="
-                () => {
-                  dialogIsActive = false;
-                  clearPic();
-                }
-              "
-            >
-              Cancel
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
@@ -139,63 +73,51 @@ import { ref, inject, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { getToken } from "@/service/AccessToken";
 
-const UserStore = useUserStore(); // Inicializa a store
-const reloadKey = ref<number>(0);
-const assets = inject<string>("assets");
-interface Picture {
-  hash: string | null;
-}
-const selectedPicture = ref<Picture>({
-  hash: null,
-});
-const availblePictures = ref<Picture[]>([
-  {
-    hash: "user.png",
-  },
-  {
-    hash: "jaheen.png",
-  },
-  {
-    hash: "lich.png",
-  },
-  {
-    hash: "lorelai.png",
-  },
-  {
-    hash: "maya.png",
-  },
-  {
-    hash: "vorn.png",
-  },
-]);
 const axios: any = inject("axios");
+const assets = inject<string>("assets");
+const UserStore = useUserStore();
+
+const dialogIsActive = ref(false);
+const isSaving = ref(false);
+const savingPictureHash = ref<string | null>(null);
+
+const showAlert = ref(false);
 const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
-const alertType = ref("");
-const showAlert = ref(false);
-const dialogIsActive = ref(false);
+const alertType = ref<"success" | "error" | "warning" | "info">("info");
 
-watch(selectedPicture, () => {
-  reloadKey.value += 1;
+interface Picture {
+  hash: string;
+}
+const availablePictures = ref<Picture[]>([
+  { hash: "user.png" },
+  { hash: "jaheen.png" },
+  { hash: "lich.png" },
+  { hash: "lorelai.png" },
+  { hash: "maya.png" },
+  { hash: "vorn.png" },
+]);
+
+watch(dialogIsActive, (isActive) => {
+  if (!isActive) {
+    showAlert.value = false;
+  }
 });
 
-// Função para exibir alertas
-const setAllert = (icon: string, title: string, text: string, type: string) => {
+const setAlert = (icon: string, title: string, text: string, type: "success" | "error" | "warning" | "info") => {
   alertIcon.value = icon;
   alertTitle.value = title;
   alertText.value = text;
-  showAlert.value = true;
   alertType.value = type;
-
-  setTimeout(() => {
-    showAlert.value = false;
-  }, 1500);
+  showAlert.value = true;
 };
 
-const saveFig = async () => {
-  const DURACAO_DO_ALERTA_EM_MS = 1500;
-  const ATRASO_ADICIONAL_MS = 500;
+const selectAndSavePicture = async (pictureHash: string) => {
+  if (isSaving.value) return;
+
+  isSaving.value = true;
+  savingPictureHash.value = pictureHash;
   const user = UserStore.user;
 
   try {
@@ -203,47 +125,44 @@ const saveFig = async () => {
       "users/alter",
       {
         users_pk: user.users_pk,
-        picture_hash: selectedPicture.value.hash,
+        picture_hash: pictureHash,
       },
       {
-        // Headers
         headers: getToken(),
       }
     );
 
-    await UserStore.setUser({
-      email: user.email,
-      google_id: user.google_id,
-      name: user.name,
-      picture_hash: selectedPicture.value.hash,
-      roles_fk: user.roles_fk,
-      user_name: user.user_name,
-      users_pk: user.users_pk,
-      verified: user.verified,
-      zip_code: user.zip_code,
-    });
+    await UserStore.setUser({ ...user, picture_hash: pictureHash });
 
-    // Exibe alerta de sucesso
-    setAllert("mdi-check", response.status, response.data.message, "success");
+    setAlert("mdi-check-circle", "Success!", response.data.message, "success");
+
+    setTimeout(() => {
+      dialogIsActive.value = false;
+    }, 1500);
+
   } catch (error: any) {
-    console.error("Error during login:", error);
-    // Trata erros com mensagens apropriadas
-    setAllert(
+    console.error("Error saving image:", error);
+    setAlert(
       "mdi-alert-circle",
-      error.response?.status || 500,
+      `Error ${error.response?.status || ''}`,
       error.response?.data?.message || "A network error occurred.",
       "error"
     );
   } finally {
     setTimeout(() => {
-      dialogIsActive.value = false;
-    }, DURACAO_DO_ALERTA_EM_MS + ATRASO_ADICIONAL_MS);
+      isSaving.value = false;
+      savingPictureHash.value = null;
+    }, 1500);
   }
 };
-
-const clearPic = () => {
-  selectedPicture.value = {
-    hash: null,
-  };
-};
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.active-selection {
+  border: 4px solid #1976D2;
+}
+</style>
