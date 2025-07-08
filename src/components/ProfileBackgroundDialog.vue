@@ -1,195 +1,116 @@
 <template>
   <v-dialog v-model="dialogIsActive" activator="parent" max-width="800">
-    <v-card
-      :class="{ 'on-hover': isHovering }"
-      :elevation="isHovering ? 12 : 2"
-      v-bind="props"
-      min-height="380"
-    >
-      <v-card-title class="d-flex justify-space-betwenn">
-        <div>Choose your Background</div>
+    <v-card min-height="380">
+      <v-card-title class="d-flex align-center">
+        <span>Choose your Background</span>
         <v-btn
           icon="mdi-close"
           class="ml-auto"
-          text="Close"
+          variant="text"
           @click="dialogIsActive = false"
-          variant="plain"
         ></v-btn>
       </v-card-title>
 
       <v-card-text>
-        <v-row no-gutters class="pa-2">
+        <v-row v-if="showAlert" no-gutters class="pa-2">
           <v-alert
             closable
-            v-model="showAlert"
             :icon="alertIcon"
             :title="alertTitle"
             :text="alertText"
             :type="alertType"
+            @update:modelValue="showAlert = false"
           ></v-alert>
         </v-row>
+
         <v-row>
           <v-col
+            v-for="(item, index) in availableBackgrounds"
+            :key="index"
             cols="12"
-            sm="12"
             md="6"
             class="pa-2"
-            v-for="(item, index) in availbleBackground"
-            :key="index"
           >
             <v-hover v-slot="{ isHovering, props }">
               <v-card
-                :class="{
-                  'on-hover': isHovering,
-                  'pa-0 d-flex justify-center': true,
-                }"
-                :elevation="
-                  isHovering ||
-                  (selectedBackground.hash &&
-                    selectedBackground.hash === item.hash)
-                    ? 18
-                    : 0
-                "
                 v-bind="props"
-                class="pa-0"
-                :disabled="
-                  selectedBackground.hash &&
-                  selectedBackground.hash != item.hash
-                "
-                :key="reloadKey"
-                @click="selectedBackground.hash = item.hash"
+                :elevation="isHovering ? 12 : 2"
+                :disabled="isSaving"
+                class="cursor-pointer"
+                :class="{ 'active-selection': UserStore.user.background_hash === item.hash }"
+                @click="selectAndSaveBackground(item.hash)"
               >
                 <v-img
-                  :src="assets + '/Profile/' + item.hash"
+                  :src="`${assets}/Profile/${item.hash}`"
                   :alt="item.hash"
-                  :max-width="518"
-                  style="
-                    border: 0.5px solid gold;
-                    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-                    background-color: black;
-                  "
+                  aspect-ratio="16/9"
+                  cover
                 >
+                  <v-overlay
+                    :model-value="isSaving && savingBackgroundHash === item.hash"
+                    contained
+                    class="d-flex align-center justify-center"
+                    scrim="rgba(0, 0, 0, 0.5)"
+                  >
+                    <v-progress-circular indeterminate color="white" size="64"></v-progress-circular>
+                  </v-overlay>
                 </v-img>
               </v-card>
             </v-hover>
-            <div
-              class="d-flex justify-end"
-              style="
-                width: 100%;
-                height: 0px;
-                position: relative;
-                bottom: 105%;
-                left: 5%;
-              "
-            >
-              <v-btn
-                v-if="
-                  selectedBackground.hash &&
-                  selectedBackground.hash === item.hash
-                "
-                icon
-                color="error"
-                elevation="3"
-                rounded="xl"
-                size="x-small"
-                @click="clearBack()"
-              >
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </div>
           </v-col>
         </v-row>
       </v-card-text>
-
-      <v-card-actions class="pa-0">
-        <v-row no-gutters>
-          <v-col cols="6">
-            <v-btn
-              height="52"
-              block
-              color="success"
-              variant="flat"
-              @click="saveBG()"
-              :disabled="!selectedBackground.hash"
-            >
-              Save
-            </v-btn>
-          </v-col>
-          <v-col cols="6">
-            <v-btn
-              height="52"
-              block
-              color="error"
-              variant="flat"
-              @click="
-                () => {
-                  dialogIsActive = false;
-                  clearBack();
-                }
-              "
-            >
-              Cancel
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref, inject, watch, nextTick } from "vue";
+import { ref, inject, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { getToken } from "@/service/AccessToken";
 
-const UserStore = useUserStore(); // Store do usuário
-const reloadKey = ref<number>(0);
+const axios: any = inject("axios");
 const assets = inject<string>("assets");
+const UserStore = useUserStore();
+
+const dialogIsActive = ref(false);
+const isSaving = ref(false);
+const savingBackgroundHash = ref<string | null>(null);
+
+const showAlert = ref(false);
+const alertIcon = ref("");
+const alertText = ref("");
+const alertTitle = ref("");
+const alertType = ref<"success" | "error" | "warning" | "info">("info");
 
 interface Background {
-  hash: string | null;
+  hash: string;
 }
-
-const selectedBackground = ref<Background>({ hash: null });
-
-const availbleBackground = ref<Background[]>([
+const availableBackgrounds = ref<Background[]>([
   { hash: "profile-bg-corelich-transparent.png" },
   { hash: "profile-bg-corewar-transparent.png" },
   { hash: "profile-bg-warriors-transparent.png" },
 ]);
 
-const axios: any = inject("axios");
-const alertIcon = ref("");
-const alertText = ref("");
-const alertTitle = ref("");
-const alertType = ref("");
-const showAlert = ref(false);
-const dialogIsActive = ref(false);
-
-// **WATCH** para atualizar a interface quando o background mudar
-watch(
-  () => UserStore.user.background_hash,
-  () => {
-    selectedBackground.value.hash = UserStore.user.background_hash;
-    reloadKey.value += 1; // Força atualização do Vue
+watch(dialogIsActive, (isActive) => {
+  if (!isActive) {
+    showAlert.value = false;
   }
-);
+});
 
-const setAllert = (icon: string, title: string, text: string, type: string) => {
+const setAlert = (icon: string, title: string, text: string, type: "success" | "error" | "warning" | "info") => {
   alertIcon.value = icon;
   alertTitle.value = title;
   alertText.value = text;
-  showAlert.value = true;
   alertType.value = type;
-
-  setTimeout(() => {
-    showAlert.value = false;
-  }, 1500);
+  showAlert.value = true;
 };
 
-const saveBG = async () => {
-  const DURACAO_DO_ALERTA_EM_MS = 1500;
-  const ATRASO_ADICIONAL_MS = 500;
+const selectAndSaveBackground = async (backgroundHash: string) => {
+  if (isSaving.value) return;
+
+  isSaving.value = true;
+  savingBackgroundHash.value = backgroundHash;
   const user = UserStore.user;
 
   try {
@@ -197,43 +118,48 @@ const saveBG = async () => {
       "users/alter",
       {
         users_pk: user.users_pk,
-        background_hash: selectedBackground.value.hash,
+        background_hash: backgroundHash,
       },
       {
         headers: getToken(),
       }
     );
 
-    console.log("✅ API Response:", response);
-
-    // Atualiza o usuário no store sem precisar recarregar a página
-    UserStore.setUser({
+    await UserStore.setUser({
       ...user,
-      background_hash: selectedBackground.value.hash,
+      background_hash: backgroundHash,
     });
 
-    // Aguarda atualização reativa do Vue antes de continuar
-    await nextTick();
+    setAlert("mdi-check-circle", "Success!", "Background updated!", "success");
 
-    reloadKey.value += 1; // Força um re-render no componente
-    setAllert("mdi-check", "Success", "Background updated!", "success");
-  } catch (error) {
-    console.error("❌ Error updating background:", error);
-    setAllert(
+    setTimeout(() => {
+      dialogIsActive.value = false;
+    }, 1500);
+
+  } catch (error: any) {
+    console.error("Error saving background:", error);
+    setAlert(
       "mdi-alert-circle",
-      "Error",
+      `Error ${error.response?.status || ''}`,
       error.response?.data?.message || "A network error occurred.",
       "error"
     );
   } finally {
     setTimeout(() => {
-      dialogIsActive.value = false;
-    }, DURACAO_DO_ALERTA_EM_MS + ATRASO_ADICIONAL_MS);
+      isSaving.value = false;
+      savingBackgroundHash.value = null;
+    }, 1500);
   }
 };
-
-const clearBack = () => {
-  selectedBackground.value.hash = null;
-  console.log("🗑️ Background reset:", selectedBackground.value);
-};
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.active-selection {
+  border: 3px solid #1976D2;
+  box-shadow: 0 0 12px rgba(25, 118, 210, 0.7);
+}
+</style>
