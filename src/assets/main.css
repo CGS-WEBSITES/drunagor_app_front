@@ -13,18 +13,3 @@
   vertical-align: middle; /* Alinha o ícone com o meio do texto */
   margin: 0 0.1em; /* Pequeno espaçamento em volta */
 }
-
-/* Ícone Específico: 1 SPELL DMG */
-.icon-spell-dmg {
-  background-image: url('@/assets/fonts/1 SPELL DMG.svg');
-}
-
-/* Ícone Específico: 2 MELEE DMG */
-.icon-melee-dmg {
-  background-image: url('@/assets/fonts/2 MELEE DMG.svg');
-}
-
-/* Ícone Específico: 3 REACTION */
-.icon-reaction {
-  background-image: url('@/assets/fonts/3 REACTION.svg');
-}
