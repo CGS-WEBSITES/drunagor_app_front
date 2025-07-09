@@ -13,10 +13,14 @@ import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
 import { useI18n } from "vue-i18n";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
+import { useRouter } from "vue-router";
 
 const route = useRoute();
 const heroDataRepository = new HeroDataRepository();
 const { t } = useI18n();
+const router = useRouter();
+const savePutRef = ref();
 
 const heroId = route.params.heroId.toString();
 const campaignId = route.params.campaignId.toString();
@@ -32,7 +36,7 @@ if (campaign.campaign === "core") {
   repository = new AwakeningsItemDataRepository();
 } else if (campaign.campaign === "underkeep") {
   repository = new UnderKeepItemDataRepository();
-}else {
+} else {
   throw new Error("Unknown campaign");
 }
 
@@ -42,23 +46,33 @@ let stash = ref(0);
 function onStash() {
   stash.value += 1;
 }
+
+function saveAndGoBack() {
+  if (savePutRef.value && savePutRef.value.save) {
+    savePutRef.value.save().then(() => {
+      router.go(-1);
+    });
+  } else {
+    router.go(-1);
+  }
+}
 </script>
 
 <template>
- <v-row no-gutters class="pt-6">
-  <v-col cols="12" class="d-flex justify-center pb-4">
-    <v-btn
-      variant="elevated"
-      @click="$router.go(-1)"
-
-    >
-      {{ t("label.back") }}
-    </v-btn>
-  </v-col>
-</v-row>
+  <v-row no-gutters class="pt-6">
+    <v-col cols="12" class="d-flex justify-center pb-4">
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
+        {{ t("Save Changes") }}
+      </v-btn>
+    </v-col>
+  </v-row>
+  <CampaignSavePut
+    ref="savePutRef"
+    :campaign-id="campaignId"
+    style="display: none"
+  />
   <v-row no-gutters>
     <v-col cols="12" class="d-flex align-center justify-center">
-      
       <v-card
         elevation="16"
         rounded
@@ -66,15 +80,8 @@ function onStash() {
         width="800px"
         class="hero-list-item rounded-t-xl"
       >
+        <v-img :src="hero.images.trackerInfo" class="rounded-0" contain />
 
-
-      
-            <v-img
-    :src="hero.images.trackerInfo"
-    class="rounded-0"
-    contain
-  />
-            
         <v-card-actions>
           <v-row no-gutters class="px-6"
             ><v-col cols="12">

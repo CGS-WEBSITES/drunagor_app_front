@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { SequentialAdventureState } from "@/store/Hero";
-import { ref, watch } from "vue";
-import { HeroStore } from "@/store/HeroStore";
-import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
-import { useRoute } from "vue-router";
-import type { HeroData } from "@/data/repository/HeroData";
+import { ref, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { HeroStore } from "@/store/HeroStore";
+import { SequentialAdventureState } from "@/store/Hero";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import type { HeroData } from "@/data/repository/HeroData";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
 
-const resourceDefinitions = [
+// Constantes e configurações
+const RESOURCE_DEFINITIONS = [
   { id: "focus", translation_key: "label.focus" },
   { id: "fruit-of-life", translation_key: "label.fruit-of-life" },
   { id: "ki", translation_key: "label.ki" },
@@ -15,147 +17,176 @@ const resourceDefinitions = [
   { id: "fury", translation_key: "label.fury" },
 ];
 
+// Inicialização de dependências
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const heroStore = HeroStore();
 const heroDataRepository = new HeroDataRepository();
-const { t } = useI18n();
 
-const route = useRoute();
+const savePutRef = ref();
+
+const emit = defineEmits(['save-campaign']);
+
+// Obtenção de parâmetros da rota
 const heroId = route.params.heroId.toString();
 const campaignId = route.params.campaignId.toString();
 
-const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
-const sequentialAdventureState = ref({} as SequentialAdventureState);
+// Dados do herói
+const hero = computed<HeroData>(
+  () => heroDataRepository.find(heroId) ?? ({} as HeroData),
+);
 
-const currentSeqAdv = heroStore.findInCampaign(
-  heroId,
-  campaignId
-).sequentialAdventureState;
-const seqAdvState =
-  typeof currentSeqAdv !== "undefined" && currentSeqAdv !== null
-    ? currentSeqAdv
-    : new SequentialAdventureState();
+// Estado da aventura sequencial
+const sequentialAdventureState = ref<SequentialAdventureState>(
+  initSequentialAdventureState(),
+);
 
-sequentialAdventureState.value = seqAdvState;
+function initSequentialAdventureState(): SequentialAdventureState {
+  const currentState = heroStore.findInCampaign(
+    heroId,
+    campaignId,
+  )?.sequentialAdventureState;
 
+  if (currentState) {
+    // Garante que todos os recursos existam no estado
+    RESOURCE_DEFINITIONS.forEach((resource) => {
+      if (currentState.resources[resource.id] === undefined) {
+        currentState.resources[resource.id] = 0;
+      }
+    });
+    return currentState;
+  }
+
+  return new SequentialAdventureState();
+}
+
+function saveAndGoBack() {
+  if (savePutRef.value && savePutRef.value.save) {
+    savePutRef.value.save().then(() => {
+      router.go(-1);
+    });
+  } else {
+    router.go(-1);
+  }
+}
+
+// Persistência automática do estado
 watch(
   sequentialAdventureState,
   (newState) => {
-    heroStore.findInCampaign(heroId, campaignId).sequentialAdventureState =
-      newState;
+    const campaignHero = heroStore.findInCampaign(heroId, campaignId);
+    if (campaignHero) {
+      campaignHero.sequentialAdventureState = newState;
+    }
   },
-  { deep: true }
+  { deep: true },
 );
 </script>
 
 <template>
   <v-row no-gutters>
     <v-col cols="12" class="py-6">
-      <v-btn variant="outlined" @click="$router.go(-1)">Back</v-btn>
+      <v-btn variant="outlined" @click="saveAndGoBack">
+        {{ t("Save Changes") }}
+      </v-btn>
     </v-col>
+
+    <CampaignSavePut
+      ref="savePutRef"
+      :campaign-id="campaignId"
+      style="display: none"
+    />
 
     <v-col cols="12">
       <v-card
         elevation="16"
         rounded
-        style="background-color: #1f2937"
-        width="100%"
         class="hero-list-item"
+        :style="{ backgroundColor: '#1f2937' }"
       >
         <v-card-title class="text-h5 px-2">
           {{ hero.name }}
-          <v-divider></v-divider>
+          <v-divider />
         </v-card-title>
+
         <v-card-text class="px-2">
           <v-row no-gutters>
+            <!-- Avatar e informações básicas -->
             <v-col cols="2">
-              <v-avatar :image="hero.images.avatar" size="65" />
+              <v-avatar :image="hero.images?.avatar" size="65" />
             </v-col>
             <v-col cols="10">
               <p>
-                {{ t("label." + hero.race.toLowerCase()) }}
-                {{ t("label." + hero.class.toLowerCase().replace(" ", "-")) }}
+                {{ t(`label.${hero.race?.toLowerCase()}`) }}
+                {{ t(`label.${hero.class?.toLowerCase().replace(" ", "-")}`) }}
               </p>
               <p>
                 {{ t("text.path-of") }}
-                {{ t("label." + hero.path.toLowerCase()) }}
+                {{ t(`label.${hero.path?.toLowerCase()}`) }}
               </p>
             </v-col>
-            <v-col cols="12" class="py-6">
-              <v-number-input
-                :reverse="false"
-                controlVariant="split"
-                :label="t('text.curse-cubes')"
-                :hideInput="false"
-                :inset="false"
-                variant="outlined"
-                id="curse-cubes"
-                :min="0"
-                :max="5"
-                v-model="sequentialAdventureState.curseCubes"
-              ></v-number-input>
+
+            <!-- Contadores de cubos -->
+            <template
+              v-for="(cube, index) in [
+                { id: 'curseCubes', label: 'text.curse-cubes', min: 0, max: 5 },
+                {
+                  id: 'traumaCubes',
+                  label: 'text.trauma-cubes',
+                  min: 0,
+                  max: 1,
+                },
+                {
+                  id: 'availableCubes',
+                  label: 'Available Cubes',
+                  min: 0,
+                  max: 20,
+                },
+                { id: 'usedCubes', label: 'Used Cubes', min: 0, max: 20 },
+              ]"
+              :key="index"
+            >
+              <v-col cols="12" class="py-3">
+                <v-number-input
+                  :model-value="sequentialAdventureState[cube.id]"
+                  @update:model-value="
+                    (val) => (sequentialAdventureState[cube.id] = val)
+                  "
+                  :label="t(cube.label)"
+                  :min="cube.min"
+                  :max="cube.max"
+                  variant="outlined"
+                  controlVariant="split"
+                />
+              </v-col>
+            </template>
+
+            <v-divider />
+
+            <!-- Recursos -->
+            <v-col cols="12" class="py-6 text-center text-h6">
+              {{ t("label.resources") }}
             </v-col>
-            <v-col cols="12" class="py-6">
+
+            <v-col cols="12">
               <v-number-input
-                :reverse="false"
-                controlVariant="split"
-                :label="t('text.trauma-cubes')"
-                :hideInput="false"
-                :inset="false"
-                variant="outlined"
-                id="trauma-cubes"
-                :min="0"
-                :max="1"
-                v-model="sequentialAdventureState.traumaCubes"
-              ></v-number-input>
-            </v-col>
-             <v-col cols="12" class="py-6">
-              <v-number-input
-                :reverse="false"
-                controlVariant="split"
-                :label="t('Available Cubes')"
-                :hideInput="false"
-                :inset="false"
-                variant="outlined"
-                id="available-cubes"
-                :min="0"
-                :max="20"
-                v-model="sequentialAdventureState.availableCubes"
-              ></v-number-input>
-            </v-col>
-            <v-col cols="12" class="py-6">
-              <v-number-input
-                :reverse="false"
-                controlVariant="split"
-                :label="t('Used Cubes')"
-                :hideInput="false"
-                :inset="false"
-                variant="outlined"
-                id="used-cubes"
-                :min="0"
-                :max="20"
-                v-model="sequentialAdventureState.usedCubes"
-              ></v-number-input>
-            </v-col>
-            <v-divider></v-divider>
-            <v-col cols="12" class="py-6 text-center text-h6">{{
-              t("label.resources")
-            }}</v-col>
-            <v-col cols="12"
-              ><v-number-input
-                v-for="resource in resourceDefinitions"
+                v-for="resource in RESOURCE_DEFINITIONS"
                 :key="resource.id"
-                :reverse="false"
-                controlVariant="split"
+                :model-value="sequentialAdventureState.resources[resource.id]"
+                @update:model-value="
+                  (val) =>
+                    (sequentialAdventureState.resources[resource.id] = val)
+                "
                 :label="t(resource.translation_key)"
-                :hideInput="false"
-                :inset="false"
-                variant="outlined"
-                id="resource.id"
                 :min="0"
                 :max="4"
-                v-model="sequentialAdventureState.resources[resource.translation_key]"
-              ></v-number-input
-            ></v-col>
+                variant="outlined"
+                :id="resource.id"
+                controlVariant="split"
+                class="mb-4"
+              />
+            </v-col>
           </v-row>
         </v-card-text>
       </v-card>
@@ -165,7 +196,7 @@ watch(
 
 <style scoped>
 .hero-list-item {
-  padding: 0px 16px 16px 16px;
+  padding: 0 16px 16px;
   background-image: url("@/assets/hero/flag-bg-red.webp");
   background-repeat: no-repeat;
   background-origin: content-box;
