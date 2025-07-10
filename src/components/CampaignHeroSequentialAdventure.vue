@@ -8,6 +8,8 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 
+// O mapeamento de ícones para recursos foi removido.
+
 // Constantes e configurações
 const RESOURCE_DEFINITIONS = [
   { id: "focus", translation_key: "label.focus" },
@@ -26,7 +28,7 @@ const heroDataRepository = new HeroDataRepository();
 
 const savePutRef = ref();
 
-const emit = defineEmits(['save-campaign']);
+const emit = defineEmits(["save-campaign"]);
 
 // Obtenção de parâmetros da rota
 const heroId = route.params.heroId.toString();
@@ -34,18 +36,18 @@ const campaignId = route.params.campaignId.toString();
 
 // Dados do herói
 const hero = computed<HeroData>(
-  () => heroDataRepository.find(heroId) ?? ({} as HeroData),
+  () => heroDataRepository.find(heroId) ?? ({} as HeroData)
 );
 
 // Estado da aventura sequencial
 const sequentialAdventureState = ref<SequentialAdventureState>(
-  initSequentialAdventureState(),
+  initSequentialAdventureState()
 );
 
 function initSequentialAdventureState(): SequentialAdventureState {
   const currentState = heroStore.findInCampaign(
     heroId,
-    campaignId,
+    campaignId
   )?.sequentialAdventureState;
 
   if (currentState) {
@@ -53,7 +55,6 @@ function initSequentialAdventureState(): SequentialAdventureState {
       currentState.lifepoints = 0;
     }
 
-    // Garante que todos os recursos existam no estado
     RESOURCE_DEFINITIONS.forEach((resource) => {
       if (currentState.resources[resource.id] === undefined) {
         currentState.resources[resource.id] = 0;
@@ -84,53 +85,39 @@ watch(
       campaignHero.sequentialAdventureState = newState;
     }
   },
-  { deep: true },
+  { deep: true }
 );
 </script>
 
 <template>
-  <v-row no-gutters>
-    <v-col cols="12" class="py-6">
-      <v-btn variant="outlined" @click="saveAndGoBack">
+  <v-row no-gutters class="pt-6">
+    <v-col cols="12" class="d-flex justify-center pb-4">
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
         {{ t("Save Changes") }}
       </v-btn>
     </v-col>
+  </v-row>
 
-    <CampaignSavePut
-      ref="savePutRef"
-      :campaign-id="campaignId"
-      style="display: none"
-    />
+  <CampaignSavePut
+    ref="savePutRef"
+    :campaign-id="campaignId"
+    style="display: none"
+  />
 
-    <v-col cols="12">
+  <v-row no-gutters>
+    <v-col cols="12" class="d-flex align-center justify-center">
       <v-card
         elevation="16"
         rounded
-        class="hero-list-item"
-        :style="{ backgroundColor: '#1f2937' }"
+        style="background-color: #1f2937"
+        width="800px"
+        class="hero-list-item rounded-t-xl"
       >
-        <v-card-title class="text-h5 px-2">
-          {{ hero.name }}
-          <v-divider />
-        </v-card-title>
+        <v-img :src="hero.images?.trackerInfo" class="rounded-0" contain />
 
-        <v-card-text class="px-2">
-          <v-row no-gutters>
-            <v-col cols="2">
-              <v-avatar :image="hero.images?.avatar" size="65" />
-            </v-col>
-            <v-col cols="10">
-              <p>
-                {{ t(`label.${hero.race?.toLowerCase()}`) }}
-                {{ t(`label.${hero.class?.toLowerCase().replace(" ", "-")}`) }}
-              </p>
-              <p>
-                {{ t("text.path-of") }}
-                {{ t(`label.${hero.path?.toLowerCase()}`) }}
-              </p>
-            </v-col>
-
-            <v-col cols="12" class="py-3">
+        <v-card-text>
+          <v-row no-gutters class="px-6">
+            <v-col cols="12" class="py-4">
               <v-number-input
                 :model-value="sequentialAdventureState.lifepoints"
                 @update:model-value="
@@ -141,62 +128,110 @@ watch(
                 :max="99"
                 variant="outlined"
                 controlVariant="split"
-              />
+              >
+                <template #prepend-inner>
+                  <v-icon color="red-lighten-2">mdi-heart</v-icon>
+                </template>
+              </v-number-input>
             </v-col>
-            <template
-              v-for="(cube, index) in [
-                { id: 'curseCubes', label: 'text.curse-cubes', min: 0, max: 5 },
-                {
-                  id: 'traumaCubes',
-                  label: 'text.trauma-cubes',
-                  min: 0,
-                  max: 1,
-                },
-                {
-                  id: 'availableCubes',
-                  label: 'Available Cubes',
-                  min: 0,
-                  max: 20,
-                },
-                { id: 'usedCubes', label: 'Used Cubes', min: 0, max: 20 },
-              ]"
-              :key="index"
-            >
-              <v-col cols="12" class="py-3">
-                <v-number-input
-                  :model-value="sequentialAdventureState[cube.id]"
-                  @update:model-value="
-                    (val) => (sequentialAdventureState[cube.id] = val)
-                  "
-                  :label="t(cube.label)"
-                  :min="cube.min"
-                  :max="cube.max"
-                  variant="outlined"
-                  controlVariant="split"
-                />
-              </v-col>
-            </template>
 
-            <v-divider />
+            <v-col cols="12" class="py-3">
+              <v-number-input
+                :model-value="sequentialAdventureState.curseCubes"
+                @update:model-value="
+                  (val) => (sequentialAdventureState.curseCubes = val)
+                "
+                :label="t('text.curse-cubes')"
+                :min="0"
+                :max="5"
+                variant="outlined"
+                controlVariant="split"
+              >
+                <template #prepend-inner>
+                  <v-icon color="grey-darken-1">mdi-cube</v-icon>
+                </template>
+              </v-number-input>
+            </v-col>
 
-            <v-col cols="12" class="py-6 text-center text-h6">
+            <v-col cols="12" class="py-3">
+              <v-number-input
+                :model-value="sequentialAdventureState.traumaCubes"
+                @update:model-value="
+                  (val) => (sequentialAdventureState.traumaCubes = val)
+                "
+                :label="t('text.trauma-cubes')"
+                :min="0"
+                :max="1"
+                variant="outlined"
+                controlVariant="split"
+              >
+                <template #prepend-inner>
+                  <v-icon color="purple-lighten-2">mdi-cube</v-icon>
+                </template>
+              </v-number-input>
+            </v-col>
+
+            <v-col cols="12" class="py-3">
+              <v-number-input
+                :model-value="sequentialAdventureState.availableCubes"
+                @update:model-value="
+                  (val) => (sequentialAdventureState.availableCubes = val)
+                "
+                label="Available Cubes"
+                :min="0"
+                :max="20"
+                variant="outlined"
+                controlVariant="split"
+              >
+                <template #prepend-inner>
+                  <div class="d-flex align-center mr-2">
+                    <v-icon size="x-small" color="yellow-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="red-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="green-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="blue-darken-2">mdi-cube</v-icon>
+                  </div>
+                </template>
+              </v-number-input>
+            </v-col>
+
+            <v-col cols="12" class="py-3">
+              <v-number-input
+                :model-value="sequentialAdventureState.usedCubes"
+                @update:model-value="
+                  (val) => (sequentialAdventureState.usedCubes = val)
+                "
+                label="Used Cubes"
+                :min="0"
+                :max="20"
+                variant="outlined"
+                controlVariant="split"
+              >
+                <template #prepend-inner>
+                  <div class="faded-cubes d-flex align-center mr-2">
+                    <v-icon size="x-small" color="yellow-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="red-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="green-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="blue-darken-2">mdi-cube</v-icon>
+                  </div>
+                </template>
+              </v-number-input>
+            </v-col>
+
+            <v-col cols="12"><v-divider class="my-4" /></v-col>
+            <v-col cols="12" class="pb-4 text-center text-h5">
               {{ t("label.resources") }}
             </v-col>
 
-            <v-col cols="12">
+            <v-col cols="12" v-for="resource in RESOURCE_DEFINITIONS" :key="resource.id">
               <v-number-input
-                v-for="resource in RESOURCE_DEFINITIONS"
-                :key="resource.id"
                 :model-value="sequentialAdventureState.resources[resource.id]"
                 @update:model-value="
-                  (val) =>
-                    (sequentialAdventureState.resources[resource.id] = val)
+                  (val) => (sequentialAdventureState.resources[resource.id] = val)
                 "
                 :label="t(resource.translation_key)"
                 :min="0"
                 :max="4"
                 variant="outlined"
-                :id="resource.id"
                 controlVariant="split"
                 class="mb-4"
               />
@@ -206,13 +241,19 @@ watch(
       </v-card>
     </v-col>
   </v-row>
+
+  <v-row no-gutters class="pt-6">
+    <v-col cols="12" class="d-flex justify-center pb-4">
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
+        {{ t("Save Changes") }}
+      </v-btn>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>
-.hero-list-item {
-  padding: 0 16px 16px;
-  background-image: url("@/assets/hero/flag-bg-red.webp");
-  background-repeat: no-repeat;
-  background-origin: content-box;
+.faded-cubes {
+  opacity: 0.5;
+  filter: grayscale(50%);
 }
 </style>
