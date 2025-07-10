@@ -55,6 +55,7 @@ declare module 'vue' {
     ConfigurationLanguage: typeof import('./components/ConfigurationLanguage.vue')['default']
     ConfigurationVariant: typeof import('./components/ConfigurationVariant.vue')['default']
     ConfigurationView: typeof import('./components/ConfigurationView.vue')['default']
+    DialogLoadCampaing: typeof import('./components/dialogs/DialogLoadCampaing.vue')['default']
     ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
     FavoriteCampaignCard: typeof import('./components/FavoriteCampaignCard.vue')['default']
     Filters: typeof import('./components/Filters.vue')['default']
