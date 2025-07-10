@@ -1211,29 +1211,29 @@ const joinEvent = async () => {
       },
     )
     .then(() => {
-      alertType.value = "success";
-      alertMessage.value =
-        "You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.";
-      showAlert.value = true;
-      setTimeout(() => {
-        showAlert.value = false;
-        dialog.value = false;
-      }, 1000);
-      setTimeout(() => {
-        activeTab.value = 2;
-      }, 1000);
-    })
-    .catch((error) => {
-      const apiMessage = error.response?.data?.message;
-      if (apiMessage) {
-        alertMessage.value = apiMessage;
-        if (apiMessage.includes("already signed up")) {
-          alertType.value = "error";
-          console.error("Erro ao tentar entrar no evento:", error);
-        }
-        showAlert.value = true;
-      }
-    });
+      alertType.value = "success";
+      alertMessage.value =
+        "You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.";
+      showAlert.value = true;
+
+      setTimeout(async () => {
+        dialog.value = false;
+        activeTab.value = 2;
+        await fetchMyEvents(showPast.value);
+        showAlert.value = false;
+      }, 2000);
+    })
+    .catch((error) => {
+      const apiMessage = error.response?.data?.message;
+      if (apiMessage) {
+        alertMessage.value = apiMessage;
+        if (apiMessage.includes("already signed up")) {
+          alertType.value = "error";
+          console.error("Erro ao tentar entrar no evento:", error);
+        }
+        showAlert.value = true;
+      }
+    });
 };
 
 const fetchStoresList = async () => {
