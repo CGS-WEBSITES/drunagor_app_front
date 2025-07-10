@@ -49,6 +49,10 @@ function initSequentialAdventureState(): SequentialAdventureState {
   )?.sequentialAdventureState;
 
   if (currentState) {
+    if (currentState.lifepoints === undefined) {
+      currentState.lifepoints = 0;
+    }
+
     // Garante que todos os recursos existam no estado
     RESOURCE_DEFINITIONS.forEach((resource) => {
       if (currentState.resources[resource.id] === undefined) {
@@ -112,7 +116,6 @@ watch(
 
         <v-card-text class="px-2">
           <v-row no-gutters>
-            <!-- Avatar e informações básicas -->
             <v-col cols="2">
               <v-avatar :image="hero.images?.avatar" size="65" />
             </v-col>
@@ -127,7 +130,19 @@ watch(
               </p>
             </v-col>
 
-            <!-- Contadores de cubos -->
+            <v-col cols="12" class="py-3">
+              <v-number-input
+                :model-value="sequentialAdventureState.lifepoints"
+                @update:model-value="
+                  (val) => (sequentialAdventureState.lifepoints = val)
+                "
+                :label="t('label.lifepoints', 'Life Points')"
+                :min="0"
+                :max="99"
+                variant="outlined"
+                controlVariant="split"
+              />
+            </v-col>
             <template
               v-for="(cube, index) in [
                 { id: 'curseCubes', label: 'text.curse-cubes', min: 0, max: 5 },
@@ -164,7 +179,6 @@ watch(
 
             <v-divider />
 
-            <!-- Recursos -->
             <v-col cols="12" class="py-6 text-center text-h6">
               {{ t("label.resources") }}
             </v-col>
