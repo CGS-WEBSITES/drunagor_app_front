@@ -20,6 +20,15 @@ sequentialAdventureState.value =
   heroStore.findInCampaign(props.hero.id, props.campaignId)
     ?.sequentialAdventureState ?? new SequentialAdventureState();
 
+// Mapa para associar cada recurso a um ícone
+const resourceIcons: { [key: string]: string } = {
+  "label.focus": "mdi-eye-circle",
+  "label.fruit-of-life": "mdi-leaf-circle",
+  "label.ki": "mdi-flash-circle",
+  "label.shield": "mdi-shield-sun",
+  "label.fury": "mdi-sword-cross",
+};
+
 const resourceDisplay = computed(() => {
   const resources = sequentialAdventureState.value?.resources;
   const resourcesToDisplay = [] as any[];
@@ -50,6 +59,26 @@ function openSequentialStateEditor() {
     @click="openSequentialStateEditor"
     class="cursor-pointer justify-center"
   >
+    <v-col cols="12" class="px-2">
+      <v-sheet
+        rounded
+        border="md"
+        class="mb-6 pa-6 text-white"
+        width="100%"
+        style="background-color: #1f2937 !important"
+        color="red-darken-4"
+      >
+        <div class="text-h6 text-center d-flex align-center justify-center">
+          <v-icon start>mdi-heart</v-icon>
+          <span>{{ sequentialAdventureState.lifepoints }}</span>
+        </div>
+        <v-divider class="my-2"></v-divider>
+        <div class="text-center text-body-2">
+          {{ t("label.lifepoints", "Life Points") }}
+        </div>
+      </v-sheet>
+    </v-col>
+
     <v-col cols="6" class="px-2">
       <v-sheet
         rounded
@@ -58,7 +87,10 @@ function openSequentialStateEditor() {
         width="100%"
         style="background-color: #1f2937 !important"
       >
-        <div class="text-h6 text-center">{{ sequentialAdventureState.curseCubes }}</div>
+        <div class="text-h6 text-center d-flex align-center justify-center">
+          <v-icon start>mdi-cube</v-icon>
+          <span>{{ sequentialAdventureState.curseCubes }}</span>
+        </div>
         <v-divider class="my-2"></v-divider>
         <div class="text-center text-body-2">
           {{ t("text.curse-cubes") }}
@@ -74,8 +106,9 @@ function openSequentialStateEditor() {
         width="100%"
         style="background-color: #1f2937 !important"
       >
-        <div class="text-h6 text-center">
-          {{ sequentialAdventureState.traumaCubes }}
+        <div class="text-h6 text-center d-flex align-center justify-center">
+          <v-icon start color="purple-lighten-2">mdi-cube</v-icon>
+          <span>{{ sequentialAdventureState.traumaCubes }}</span>
         </div>
         <v-divider class="my-2"></v-divider>
         <div class="text-center text-body-2">
@@ -96,9 +129,10 @@ function openSequentialStateEditor() {
           <div
             v-for="resource in resourceDisplay"
             :key="resource.name"
-            class="text-center text-body-1"
+            class="d-flex align-center justify-center text-body-1"
           >
-            {{ resource.count }} - {{ t(resource.name) }}
+            <v-icon start :icon="resourceIcons[resource.name]"></v-icon>
+            <span>{{ resource.count }} - {{ t(resource.name) }}</span>
           </div>
         </div>
         <div class="text-center font-italic" v-else>
@@ -119,7 +153,15 @@ function openSequentialStateEditor() {
         width="100%"
         style="background-color: #1f2937 !important"
       >
-        <div class="text-h6 text-center">{{ sequentialAdventureState.availableCubes }}</div>
+        <div class="text-h6 text-center d-flex align-center justify-center">
+          <span>{{ sequentialAdventureState.availableCubes }}</span>
+          <div class="ml-2">
+            <v-icon size="small" color="yellow-darken-2">mdi-cube</v-icon>
+            <v-icon size="small" color="red-darken-2">mdi-cube</v-icon>
+            <v-icon size="small" color="green-darken-2">mdi-cube</v-icon>
+            <v-icon size="small" color="blue-darken-2">mdi-cube</v-icon>
+          </div>
+        </div>
         <v-divider class="my-2"></v-divider>
         <div class="text-center text-body-2">{{ t('Available Cubes') }}</div>
       </v-sheet>
@@ -133,14 +175,21 @@ function openSequentialStateEditor() {
         width="100%"
         style="background-color: #1f2937 !important"
       >
-        <div class="text-h6 text-center">{{ sequentialAdventureState.usedCubes }}</div>
+        <div class="text-h6 text-center d-flex align-center justify-center">
+          <span>{{ sequentialAdventureState.usedCubes }}</span>
+          <div class="ml-2 faded-cubes">
+            <v-icon size="small" color="yellow-darken-2">mdi-cube</v-icon>
+            <v-icon size="small" color="red-darken-2">mdi-cube</v-icon>
+            <v-icon size="small" color="green-darken-2">mdi-cube</v-icon>
+            <v-icon size="small" color="blue-darken-2">mdi-cube</v-icon>
+          </div>
+        </div>
         <v-divider class="my-2"></v-divider>
         <div class="text-center text-body-2">{{ t('Used Cubes') }}</div>
       </v-sheet>
     </v-col>
     
     <v-col cols="12" class="px-2 pb-4">
-
         <v-btn
           @click.stop="openSequentialStateEditor"
           variant="elevated"
@@ -149,10 +198,13 @@ function openSequentialStateEditor() {
         >
           {{ t('Manage Resources') }}
         </v-btn>
-
     </v-col>
   </v-row>
 </template>
 
 <style scoped>
+.faded-cubes {
+  opacity: 0.6;
+  filter: grayscale(40%);
+}
 </style>
