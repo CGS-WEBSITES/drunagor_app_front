@@ -124,6 +124,14 @@ function saveAndGoBack() {
         </v-card-actions>
       </v-card> </v-col
   ></v-row>
+
+  <v-row no-gutters class="pt-6">
+    <v-col cols="12" class="d-flex justify-center pb-4">
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
+        {{ t("Save Changes") }}
+      </v-btn>
+    </v-col>
+  </v-row>
 </template>
 
 <style scoped>
