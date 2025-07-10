@@ -20,14 +20,7 @@ sequentialAdventureState.value =
   heroStore.findInCampaign(props.hero.id, props.campaignId)
     ?.sequentialAdventureState ?? new SequentialAdventureState();
 
-// Mapa para associar cada recurso a um ícone
-const resourceIcons: { [key: string]: string } = {
-  "label.focus": "mdi-eye-circle",
-  "label.fruit-of-life": "mdi-leaf-circle",
-  "label.ki": "mdi-flash-circle",
-  "label.shield": "mdi-shield-sun",
-  "label.fury": "mdi-sword-cross",
-};
+// A constante resourceIcons foi removida daqui
 
 const resourceDisplay = computed(() => {
   const resources = sequentialAdventureState.value?.resources;
@@ -131,7 +124,6 @@ function openSequentialStateEditor() {
             :key="resource.name"
             class="d-flex align-center justify-center text-body-1"
           >
-            <v-icon start :icon="resourceIcons[resource.name]"></v-icon>
             <span>{{ resource.count }} - {{ t(resource.name) }}</span>
           </div>
         </div>
