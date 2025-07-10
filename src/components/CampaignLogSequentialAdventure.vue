@@ -81,7 +81,7 @@ function openSequentialStateEditor() {
         style="background-color: #1f2937 !important"
       >
         <div class="text-h6 text-center d-flex align-center justify-center">
-          <v-icon start>mdi-cube</v-icon>
+          <v-icon color="black" start>mdi-cube</v-icon>
           <span>{{ sequentialAdventureState.curseCubes }}</span>
         </div>
         <v-divider class="my-2"></v-divider>
