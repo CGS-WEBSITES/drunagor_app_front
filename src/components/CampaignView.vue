@@ -19,7 +19,10 @@
                   :campaign-id="campaignId"
                   class="mx-1 my-1"
                 />
-                <fieldset :disabled="!showSaveCampaignButton" class="d-contents">
+                <fieldset
+                  :disabled="!showSaveCampaignButton"
+                  class="d-contents"
+                >
                   <CampaignExport :campaign-id="campaignId" class="mx-1 my-1" />
                   <SequentialAdventureButton
                     :campaign-id="campaignId"
@@ -160,7 +163,9 @@
                     width="100%"
                   >
                     <div
-                      v-if="heroStore.findAllInCampaign(campaignId).length === 0"
+                      v-if="
+                        heroStore.findAllInCampaign(campaignId).length === 0
+                      "
                       class="text-center pa-4"
                     >
                       No heroes added to this campaign yet.
@@ -181,7 +186,7 @@
                 </v-row>
               </fieldset>
             </v-window-item>
-            
+
             <v-window-item value="book" class="pa-0">
               <CampaignBook :campaign-id="campaignId" />
             </v-window-item>
@@ -207,7 +212,10 @@
             <v-row
               no-gutters
               class="d-flex justify-center mb-4"
-              v-if="campaign.campaign === 'awakenings' || campaign.campaign === 'apocalypse'"
+              v-if="
+                campaign.campaign === 'awakenings' ||
+                campaign.campaign === 'apocalypse'
+              "
             >
               <v-col cols="12">
                 <StoryRecord :campaign-id="campaignId" />
@@ -265,7 +273,9 @@
         </v-row>
       </fieldset>
     </template>
+    <DialogLoadCampaing v-model:visible="showLoading" />
   </template>
+
 
   <template v-else-if="!campaign && !showAlert">
     <v-row class="justify-center">
@@ -303,7 +313,8 @@ import SelectDoor from "@/components/SelectDoor.vue";
 import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/store/UserStore";
 import axios from "axios";
-import { ref as vueRef } from 'vue';
+import { ref as vueRef } from "vue";
+import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
 
 const route = useRoute();
 const campaignStore = CampaignStore();
@@ -326,6 +337,7 @@ const currentTab = ref("normal");
 const visible = ref(false);
 const token = ref("");
 const savePutRef = vueRef();
+const showLoading = ref(false);
 
 const showSaveCampaignButton = ref(false);
 
@@ -360,7 +372,7 @@ const setAlert = (
 
 const onCampPhase = () => {
   isSequentialAdventure.value = false;
-  
+
   setTimeout(() => {
     savePutRef.value?.save();
   }, 0);
@@ -370,7 +382,7 @@ const onSequentialAdventure = () => {
   isSequentialAdventure.value = true;
 
   setTimeout(() => {
-    savePutRef.value?.save(); 
+    savePutRef.value?.save();
   }, 0);
 };
 
@@ -421,6 +433,10 @@ onMounted(() => {
     );
   }
   fetchRole();
+
+  if (route.query.dialog) {
+    showLoading.value = true;
+  }
 });
 
 watch(

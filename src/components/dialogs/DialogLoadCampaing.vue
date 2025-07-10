@@ -1,5 +1,9 @@
 <template>
-  <v-dialog v-model="visible" max-width="600">
+  <v-dialog
+    :model-value="visible"
+    @update:model-value="(value) => emit('update:visible', value)"
+    max-width="700"
+  >
     <v-card>
       <v-card-title class="headline">LOADING YOUR GAME</v-card-title>
       <v-card-text>
