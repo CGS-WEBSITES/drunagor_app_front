@@ -16,6 +16,7 @@ export class HeroEquipment {
 }
 
 export class SequentialAdventureState {
+  public lifepoints: number = 0;
   public curseCubes: number = 0;
   public traumaCubes: number = 0;
   public availableCubes: number = 0; 
