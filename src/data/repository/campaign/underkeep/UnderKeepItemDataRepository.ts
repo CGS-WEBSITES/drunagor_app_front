@@ -388,7 +388,14 @@ export class UnderKeepItemDataRepository implements ItemDataRepository {
       cardType: "Gift",
       translation_key: "trinket.underkeep.heroic-heart",
     } as ItemData,
-    
+     {
+      id: "scroll-of-sudden-death",
+      itemType: "Consumable",
+      cardType: "Chest",
+      consumableType: "Scroll",
+      translation_key:
+        "consumable.underkeep.scroll-of-sudden-death",
+    } as ConsumableItemData,
 
 
 

@@ -9,7 +9,7 @@ weapon:
     masterwork-sword: Masterwork Sword
     lumberjacks-axe: Lumberjack's Axe
     elanian-crossbow: Elanian Crossbow
-    elven-speellblade: ELven Spellblade
+    elven-speellblade: Elven Spellblade
     stone-gladius: Stone Gladius
     lost-claymore: Lost Claymore  
     lost-claymore-gem: Lost Claymore (Cosmic Gem)
@@ -311,6 +311,7 @@ consumable:
     scroll-of-winter: Scroll of Winter
     potion-of-strength: Potion of Strength
     potion-of-concentration: Potion of Concentration
+    scroll-of-sudden-death: Scroll of Sudden Death
   core:
     cosmic-gemstone: Cosmic Gemstone
     cosmic-gemstone-chest: Cosmic Gemstone (Chest)
