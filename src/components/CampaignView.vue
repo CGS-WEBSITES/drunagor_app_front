@@ -42,22 +42,7 @@
                   v-if="showSaveCampaignButton"
                   :campaign-id="campaignId"
                   class="mx-1 my-1"
-                  @success="
-                    setAlert(
-                      'mdi-check',
-                      'Success',
-                      'The campaign was saved successfully!',
-                      'success',
-                    )
-                  "
-                  @fail="
-                    setAlert(
-                      'mdi-alert-circle',
-                      'Error',
-                      'The campaign could not be saved.',
-                      'error',
-                    )
-                  "
+                  @click="showSaveDialog = true"
                 />
               </v-card-actions>
             </v-card>
@@ -274,8 +259,16 @@
       </fieldset>
     </template>
     <DialogLoadCampaing v-model:visible="showLoading" />
-  </template>
 
+    <DialogSaveCampaign
+      v-model:visible="showSaveDialog"
+      @update:visible="
+        (val: any) => {
+          if (!val) handleSave();
+        }
+      "
+    />
+  </template>
 
   <template v-else-if="!campaign && !showAlert">
     <v-row class="justify-center">
@@ -315,6 +308,7 @@ import { useUserStore } from "@/store/UserStore";
 import axios from "axios";
 import { ref as vueRef } from "vue";
 import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
+import DialogSaveCampaign from "@/components/dialogs/DialogSaveCampaign.vue";
 
 const route = useRoute();
 const campaignStore = CampaignStore();
@@ -336,10 +330,32 @@ const showAlert = ref(false);
 const currentTab = ref("normal");
 const visible = ref(false);
 const token = ref("");
-const savePutRef = vueRef();
+const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const showLoading = ref(false);
+const showSaveDialog = ref(false);
 
 const showSaveCampaignButton = ref(false);
+
+const handleSave = () => {
+  savePutRef
+    .value!.save()
+    .then(() => {
+      setAlert(
+        "mdi-check",
+        "Success",
+        "The campaign was saved successfully!",
+        "success",
+      );
+    })
+    .catch(() => {
+      setAlert(
+        "mdi-alert-circle",
+        "Error",
+        "The campaign could not be saved.",
+        "error",
+      );
+    });
+};
 
 const fetchRole = async () => {
   axios
