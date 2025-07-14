@@ -20,11 +20,11 @@
         elevation="10"
       >
         <!-- Background Overlay -->
-        <div 
+        <div
           class="background-overlay"
           :style="{
-            backgroundImage: user.background_hash 
-              ? `url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${user.background_hash})` 
+            backgroundImage: user.background_hash
+              ? `url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${user.background_hash})`
               : 'url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -39,9 +39,13 @@
           }"
         ></div>
 
-        <v-row class="position-relative" style="z-index: 1;">
+        <v-row class="position-relative" style="z-index: 1">
           <!-- Imagem -->
-          <v-col cols="4" lg="2" class="d-flex align-center justify-center pl-6">
+          <v-col
+            cols="4"
+            lg="2"
+            class="d-flex align-center justify-center pl-6"
+          >
             <v-img
               :src="user.picture_hash"
               alt="User Profile Image"
@@ -54,7 +58,9 @@
           <!-- Informações -->
           <v-col cols="7">
             <p class="font-weight-bold text-truncate">{{ user.user_name }}</p>
-            <p class="text-caption grey--text">User since: {{ user.join_date }}</p>
+            <p class="text-caption grey--text">
+              User since: {{ user.join_date }}
+            </p>
           </v-col>
         </v-row>
       </v-card>
@@ -68,12 +74,6 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const navigateToUser = (userId) => {
-  if (!userId) return;
-  const encodedId = btoa(userId.toString());
-  router.push({ name: "User", params: { id: encodedId } });
-};
-
 // Obtém a instância do axios e a URL base da API
 const axios = inject("axios");
 const apiUrl = inject("apiUrl") || "https://api.drunagor.app/test/system";
@@ -86,17 +86,21 @@ const searchQuery = ref("");
 const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value;
   return users.value.filter((user) =>
-    user.user_name.toLowerCase().startsWith(searchQuery.value.toLowerCase())
+    user.user_name.toLowerCase().startsWith(searchQuery.value.toLowerCase()),
   );
 });
+
+const navigateToUser = (userId) => {
+  if (!userId) return;
+  const encodedId = btoa(userId.toString());
+  router.push({ name: "User", params: { id: encodedId } });
+};
 
 // Busca usuários pelo nome digitado
 const fetchUsers = async () => {
   if (!searchQuery.value) return;
 
   try {
-    
-
     const response = await axios.get(`${apiUrl}/users/search`, {
       params: { user_name: searchQuery.value }, // Busca pelo nome de usuário
       headers: {
@@ -109,8 +113,6 @@ const fetchUsers = async () => {
       return;
     }
 
-
-
     users.value = response.data.users.map((user) => ({
       users_pk: user.users_pk, // ID do usuário
       name: user.nome || "Name not available",
@@ -122,7 +124,6 @@ const fetchUsers = async () => {
       background_hash: user.background_hash,
     }));
   } catch (error) {
-
     users.value = [];
   }
 };

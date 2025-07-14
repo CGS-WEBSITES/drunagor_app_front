@@ -165,8 +165,17 @@
             no-gutters
           >
             <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
-              <div v-if="loading" class="d-flex justify-center align-center" style="min-height: 350px;">
-                <v-progress-circular :size="60" :width="6" color="primary" indeterminate></v-progress-circular>
+              <div
+                v-if="loading"
+                class="d-flex justify-center align-center"
+                style="min-height: 350px"
+              >
+                <v-progress-circular
+                  :size="60"
+                  :width="6"
+                  color="primary"
+                  indeterminate
+                ></v-progress-circular>
               </div>
               <v-carousel
                 hide-delimiters
@@ -207,12 +216,12 @@
                           cover
                         ></v-img>
 
-                          <v-img
-                            v-else-if="item.campaign === 'underkeep'"
-                            src="@/assets/underkeep.png"
-                            cover
-                            max-height="307"
-                          ></v-img>
+                        <v-img
+                          v-else-if="item.campaign === 'underkeep'"
+                          src="@/assets/underkeep.png"
+                          cover
+                          max-height="307"
+                        ></v-img>
 
                         <v-card-title class="text-uppercase" v-if="item.name">
                           {{ item.name }}
@@ -242,8 +251,8 @@
                 <v-col cols="12">
                   <v-card class="mx-auto">
                     <v-card-title class="mx-auto text-center">
-                      You don't have any campaigns saved yet. Click the
-                      button below to create one.
+                      You don't have any campaigns saved yet. Click the button
+                      below to create one.
                     </v-card-title>
                     <v-card-actions class="d-flex justify-center">
                       <v-btn @click="router.push({ name: 'Campaign Overview' })"
@@ -267,7 +276,6 @@
                   class="mb-3"
                 ></v-alert>
               </div>
-
             </v-col>
           </v-row>
         </v-card>
@@ -305,9 +313,18 @@
 
         <v-row class="d-flex justify-center align-center w-100" no-gutters>
           <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
-             <div v-if="loading" class="d-flex justify-center align-center" style="min-height: 400px;">
-                <v-progress-circular :size="60" :width="6" color="primary" indeterminate></v-progress-circular>
-              </div>
+            <div
+              v-if="loading"
+              class="d-flex justify-center align-center"
+              style="min-height: 400px"
+            >
+              <v-progress-circular
+                :size="60"
+                :width="6"
+                color="primary"
+                indeterminate
+              ></v-progress-circular>
+            </div>
             <v-carousel
               show-arrows="hover"
               hide-delimiters
@@ -350,11 +367,11 @@
                         cover
                       ></v-img>
                       <v-img
-                          v-else-if="item.campaign === 'underkeep'"
-                          src="@/assets/underkeep.png"
-                          cover
-                          max-height="260"
-                        ></v-img>
+                        v-else-if="item.campaign === 'underkeep'"
+                        src="@/assets/underkeep.png"
+                        cover
+                        max-height="260"
+                      ></v-img>
                       <v-card-subtitle
                         class="text-uppercase mt-3"
                         v-if="item.name"
@@ -386,8 +403,8 @@
               <v-col cols="10">
                 <v-card class="mx-auto">
                   <v-card-title class="text-center">
-                     You don't have any campaigns saved yet. Click the
-                      button below to create one.
+                    You don't have any campaigns saved yet. Click the button
+                    below to create one.
                   </v-card-title>
                   <v-card-actions class="d-flex justify-center">
                     <v-btn @click="router.push({ name: 'Campaign Overview' })"
@@ -399,18 +416,18 @@
             </v-row>
 
             <div v-if="loadingErrors.length > 0" class="w-100 mt-4 px-4">
-                <v-alert
-                  v-for="(error, index) in loadingErrors"
-                  :key="error.id"
-                  type="error"
-                  title="Loading Error"
-                  :text="error.text"
-                  variant="elevated"
-                  closable
-                  @click:close="loadingErrors.splice(index, 1)"
-                  class="mb-3"
-                ></v-alert>
-              </div>
+              <v-alert
+                v-for="(error, index) in loadingErrors"
+                :key="error.id"
+                type="error"
+                title="Loading Error"
+                :text="error.text"
+                variant="elevated"
+                closable
+                @click:close="loadingErrors.splice(index, 1)"
+                class="mb-3"
+              ></v-alert>
+            </div>
           </v-col>
         </v-row>
       </v-col>
@@ -424,12 +441,15 @@ import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroDataRepository, type HeroData } from "@/data/repository/HeroDataRepository";
+import {
+  HeroDataRepository,
+  type HeroData,
+} from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
-import axios from 'axios';
+import axios from "axios";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -442,6 +462,58 @@ const heroDataRepository = new HeroDataRepository();
 
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
+
+const carouselItems = ref([
+  {
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-companion-1.0.png",
+    label: "COMPANION",
+    route: { name: "Campaign Overview" },
+  },
+  {
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-1.0.png",
+    label: "LIBRARY",
+    route: { name: "Library" },
+  },
+  {
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-1.0.png",
+    label: "EVENTS",
+    route: { name: "Events" },
+  },
+  {
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-1.0.png",
+    label: "PROFILE",
+    route: { name: "PerfilHome" },
+  },
+]);
+
+const libraryItems = ref([
+  {
+    name: "COREBOX",
+    image: new URL(assets + "/Dashboard/btn-corebox.png", import.meta.url).href,
+  },
+  {
+    name: "DESERT OF HELLSCAR",
+    image: new URL(assets + "/Dashboard/btn-hellscar.png", import.meta.url)
+      .href,
+  },
+  {
+    name: "APOCALYPSE",
+    image: new URL(assets + "/Dashboard/btn-apoc.png", import.meta.url).href,
+  },
+  {
+    name: "AWAKENINGS",
+    image: new URL(assets + "/Dashboard/btn-awakenings.png", import.meta.url)
+      .href,
+  },
+]);
+
+const campaignList = computed(() => {
+  return campaignStore.findAll();
+});
+
+const isMobile = computed(() => {
+  return !display.value.mdAndUp;
+});
 
 function getBoxName(boxId: number): string {
   switch (boxId) {
@@ -462,7 +534,9 @@ function addLoadingError(message: string) {
   const newError = { id: Date.now(), text: message };
   loadingErrors.value.push(newError);
   setTimeout(() => {
-    loadingErrors.value = loadingErrors.value.filter(e => e.id !== newError.id);
+    loadingErrors.value = loadingErrors.value.filter(
+      (e) => e.id !== newError.id,
+    );
   }, 10000);
 }
 
@@ -495,6 +569,13 @@ function importCampaign(token: string) {
   });
 }
 
+function findHeroes(campaignId: string): HeroData[] {
+  return heroStore
+    .findAllInCampaign(campaignId)
+    .map((h) => heroDataRepository.find(h.heroId))
+    .filter((h): h is HeroData => !!h);
+}
+
 onBeforeMount(async () => {
   campaignStore.reset();
   heroStore.reset();
@@ -515,7 +596,10 @@ onBeforeMount(async () => {
       try {
         importCampaign(element.tracker_hash);
       } catch (e: any) {
-        console.error(`Failed to import campaign ID: ${element.campaigns_pk}`, e);
+        console.error(
+          `Failed to import campaign ID: ${element.campaigns_pk}`,
+          e,
+        );
         const partyName = element.party_name || "Unnamed Campaign";
         const boxName = getBoxName(element.box);
         const errorMessage = `Could not load the campaign "${partyName}" from the "${boxName}". The data seems to be corrupted. Please contact support if the issue persists.`;
@@ -524,68 +608,13 @@ onBeforeMount(async () => {
     });
   } catch (apiError) {
     console.error("Failed to fetch campaigns from API", apiError);
-    addLoadingError("An error occurred while fetching your campaigns. Please try again later.");
+    addLoadingError(
+      "An error occurred while fetching your campaigns. Please try again later.",
+    );
   } finally {
     loading.value = false;
   }
 });
-
-const campaignList = computed(() => {
-  return campaignStore.findAll();
-});
-
-const isMobile = computed(() => {
-  return !display.value.mdAndUp;
-});
-
-const carouselItems = ref([
-  {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-companion-1.0.png",
-    label: "COMPANION",
-    route: { name: "Campaign Overview" },
-  },
-  {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-1.0.png",
-    label: "LIBRARY",
-    route: { name: "Library" },
-  },
-  {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-1.0.png",
-    label: "EVENTS",
-    route: { name: "Events" },
-  },
-  {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-1.0.png",
-    label: "PROFILE",
-    route: { name: "PerfilHome" },
-  },
-]);
-
-const libraryItems = ref([
-  {
-    name: "COREBOX",
-    image: new URL(assets + "/Dashboard/btn-corebox.png", import.meta.url).href,
-  },
-  {
-    name: "DESERT OF HELLSCAR",
-    image: new URL(assets + "/Dashboard/btn-hellscar.png", import.meta.url).href,
-  },
-  {
-    name: "APOCALYPSE",
-    image: new URL(assets + "/Dashboard/btn-apoc.png", import.meta.url).href,
-  },
-  {
-    name: "AWAKENINGS",
-    image: new URL(assets + "/Dashboard/btn-awakenings.png", import.meta.url).href,
-  },
-]);
-
-function findHeroes(campaignId: string): HeroData[] {
-  return heroStore
-    .findAllInCampaign(campaignId)
-    .map(h => heroDataRepository.find(h.heroId))
-    .filter((h): h is HeroData => !!h);
-}
 </script>
 
 <style>

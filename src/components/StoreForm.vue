@@ -307,6 +307,61 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject } from "vue";
+import { useUserStore } from "@/store/UserStore";
+
+// Interface para o formulário de Store
+interface StoreForm {
+  site: string;
+  storename: string;
+  country: string | number | null; // Alterado para aceitar number
+  zipcode: string;
+  MerchantID: string;
+  storeImage: string;
+  complement: string;
+  address: string;
+  streetNumber: string;
+  city: string;
+  state: string;
+}
+
+// Interface para País
+interface Country {
+  countries_pk: number;
+  name: string;
+  abbreviation: string;
+}
+
+interface EditableStore {
+  stores_pk?: number;
+  site: string;
+  storename: string;
+  country: number | null; // Alterado para number
+  zipcode: string;
+  MerchantID: string;
+  storeImage: string;
+  address: string;
+  streetNumber: string;
+  complement: string;
+  city: string;
+  state: string | null;
+}
+
+const userStore = useUserStore();
+
+const editableStore = ref<EditableStore>({
+  site: "",
+  storename: "",
+  country: null,
+  zipcode: "",
+  MerchantID: "",
+  storeImage: "",
+  address: "",
+  streetNumber: "",
+  complement: "",
+  city: "",
+  state: "",
+});
+const selectedStoreIndex = ref<number | null>(null);
 
 const StateList = ref([
   { name: "Alabama" },
@@ -364,21 +419,7 @@ const StateList = ref([
 // Exemplo de controle de país
 const selectedCountry = ref(250);
 
-// Interface para o formulário de Store
-interface StoreForm {
-  site: string;
-  storename: string;
-  country: string | number | null; // Alterado para aceitar number
-  zipcode: string;
-  MerchantID: string;
-  storeImage: string;
-  complement: string;
-  address: string;
-  streetNumber: string;
-  city: string;
-  state: string;
-}
-
+const stores = ref<any[]>([]);
 const form = ref<StoreForm>({
   site: "",
   storename: "",
@@ -393,21 +434,30 @@ const form = ref<StoreForm>({
   state: "",
 });
 
+const countriesList = ref<Country[]>([]);
+const storeForm = ref(null);
+const showVerificationMessage = ref(false);
+const isExpanded = ref(false);
+const editDialog = ref(false);
+const accountData = ref(null);
+
 // Obtendo o axios injetado
 const axios: any = inject("axios");
+
+const isUnitedStates = computed(() => {
+  const selectedCountry = form.value.country;
+  if (typeof selectedCountry === "number") {
+    return selectedCountry === 250;
+  }
+  const countryObject = countriesList.value.find(
+    (c) => c.name.toLowerCase() === (selectedCountry || "").toLowerCase(),
+  );
+  return countryObject?.countries_pk === 250;
+});
 
 // Obter usuário logado
 const storedUser = localStorage.getItem("app_user");
 const appUser = storedUser ? JSON.parse(storedUser).users_pk : null;
-
-// Interface para País
-interface Country {
-  countries_pk: number;
-  name: string;
-  abbreviation: string;
-}
-
-const countriesList = ref<Country[]>([]);
 
 const fetchCountries = () => {
   axios
@@ -423,12 +473,6 @@ const fetchCountries = () => {
       console.error("Erro ao buscar países:", error);
     });
 };
-
-onMounted(() => {
-  fetchCountries();
-});
-
-const stores = ref<any[]>([]);
 
 const fetchStores = async () => {
   try {
@@ -448,23 +492,12 @@ const fetchStores = async () => {
   }
 };
 
-onMounted(() => {
-  fetchStores();
-});
-
-import { useUserStore } from "@/store/UserStore";
-
-const storeForm = ref(null);
-
 const onlyAllowAlphanumeric = (event: KeyboardEvent) => {
   const char = event.key; // permite apenas letras e números
   if (!/^[a-zA-Z0-9]$/.test(char)) {
     event.preventDefault();
   }
 };
-
-const userStore = useUserStore();
-const showVerificationMessage = ref(false);
 
 const getCountryNameFromId = (id: string | number | null): string => {
   if (typeof id === "string") {
@@ -561,49 +594,14 @@ const cancelForm = () => {
   isExpanded.value = false;
 };
 
-const isExpanded = ref(false);
 const toggleForm = () => {
   isExpanded.value = !isExpanded.value;
 };
 
-const editDialog = ref(false);
-
-interface EditableStore {
-  stores_pk?: number;
-  site: string;
-  storename: string;
-  country: number | null; // Alterado para number
-  zipcode: string;
-  MerchantID: string;
-  storeImage: string;
-  address: string;
-  streetNumber: string;
-  complement: string;
-  city: string;
-  state: string | null;
-}
-
-const editableStore = ref<EditableStore>({
-  site: "",
-  storename: "",
-  country: null,
-  zipcode: "",
-  MerchantID: "",
-  storeImage: "",
-  address: "",
-  streetNumber: "",
-  complement: "",
-  city: "",
-  state: "",
-});
-const selectedStoreIndex = ref<number | null>(null);
-
-// ===================================================================
-// AQUI ESTÁ A FUNÇÃO CORRIGIDA
-// ===================================================================
 const openEditDialog = (store: any, index: number) => {
   // Separa o endereço em partes
-  const addressParts = store.address?.split(",").map((s: any) => s.trim()) || [];
+  const addressParts =
+    store.address?.split(",").map((s: any) => s.trim()) || [];
   const [streetNumber, address, complement, city, state, countryName] =
     addressParts;
 
@@ -718,19 +716,6 @@ const removeStore = async (stores_pk: any) => {
   }
 };
 
-const isUnitedStates = computed(() => {
-  const selectedCountry = form.value.country;
-  if (typeof selectedCountry === "number") {
-    return selectedCountry === 250;
-  }
-  const countryObject = countriesList.value.find(
-    (c) => c.name.toLowerCase() === (selectedCountry || "").toLowerCase(),
-  );
-  return countryObject?.countries_pk === 250;
-});
-
-const accountData = ref(null);
-
 const getMerchantAccount = () => {
   const merchantId = "136699508";
   const token = "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";
@@ -754,6 +739,8 @@ const getMerchantAccount = () => {
 };
 
 onMounted(() => {
+  fetchStores();
+  fetchCountries();
   getMerchantAccount();
 });
 </script>

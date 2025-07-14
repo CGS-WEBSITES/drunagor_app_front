@@ -1062,7 +1062,7 @@ const loadCampaign = () => {
     .then(({ data }) => {
       campaigns.value = data.campaigns;
       console.log("Campaigns loaded:", campaigns.value);
-      
+
       selectedLoadCampaign.value = null;
       showLoadDialog.value = true;
     })
@@ -1098,9 +1098,9 @@ const confirmLoadCampaign = () => {
       });
       router.push({
         path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
-        query: { 
+        query: {
           sku: String(BOX_ID),
-          dialog: selectedLoadCampaign.value
+          dialog: selectedLoadCampaign.value,
         },
       });
     })

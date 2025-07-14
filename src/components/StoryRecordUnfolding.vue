@@ -1,38 +1,3 @@
-<script setup lang="ts">
-import { ref, watch } from "vue";
-import { StoryRecordUnfoldingRepository } from "@/data/repository/campaign/apocalypse/StoryRecordUnfoldingRepository";
-import { CampaignStore } from "@/store/CampaignStore";
-import type { Unfolding } from "@/data/repository/campaign/apocalypse/Unfolding";
-
-const props = defineProps<{
-  campaignId: string;
-}>();
-
-const campaignStore = CampaignStore();
-const repository = new StoryRecordUnfoldingRepository();
-const unfoldings = repository.findAll();
-
-const unfoldingIds = ref([] as string[]);
-unfoldingIds.value = campaignStore.find(props.campaignId).unfoldingIds ?? [];
-
-function findUnfoldings(followerIds: string[]): Unfolding[] {
-  const outcomes: Unfolding[] = [];
-  followerIds.forEach((followerId) => {
-    let outcome = repository.find(followerId);
-    if (outcome) {
-      outcomes.push(outcome);
-    }
-  });
-
-  return outcomes;
-}
-
-watch(unfoldingIds, (newUnfoldingIds) => {
-  campaignStore.find(props.campaignId).unfoldingIds = newUnfoldingIds;
-  console.log("findUnfoldings",findUnfoldings(newUnfoldingIds))
-});
-</script>
-
 <template>
   <span data-testid="story-record-unfolding">
     <v-select
@@ -65,5 +30,40 @@ watch(unfoldingIds, (newUnfoldingIds) => {
     </v-sheet>
   </span>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import { StoryRecordUnfoldingRepository } from "@/data/repository/campaign/apocalypse/StoryRecordUnfoldingRepository";
+import { CampaignStore } from "@/store/CampaignStore";
+import type { Unfolding } from "@/data/repository/campaign/apocalypse/Unfolding";
+
+const props = defineProps<{
+  campaignId: string;
+}>();
+
+const campaignStore = CampaignStore();
+const repository = new StoryRecordUnfoldingRepository();
+const unfoldings = repository.findAll();
+
+const unfoldingIds = ref([] as string[]);
+unfoldingIds.value = campaignStore.find(props.campaignId).unfoldingIds ?? [];
+
+function findUnfoldings(followerIds: string[]): Unfolding[] {
+  const outcomes: Unfolding[] = [];
+  followerIds.forEach((followerId) => {
+    let outcome = repository.find(followerId);
+    if (outcome) {
+      outcomes.push(outcome);
+    }
+  });
+
+  return outcomes;
+}
+
+watch(unfoldingIds, (newUnfoldingIds) => {
+  campaignStore.find(props.campaignId).unfoldingIds = newUnfoldingIds;
+  console.log("findUnfoldings", findUnfoldings(newUnfoldingIds));
+});
+</script>
 
 <style scoped></style>

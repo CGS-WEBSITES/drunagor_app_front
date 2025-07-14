@@ -1,107 +1,12 @@
-<script setup lang="ts">
-import { ref, toRef, watch, computed } from "vue";
-
-type MonsterColor = "white" | "gray" | "black" | "commander";
-
-const props = defineProps<{
-  title: string;
-  background: string;
-  frontImage: string;
-  subTitle?: string;
-  backImage?: string;
-}>();
-
-const currentImage = ref("");
-const frontImage = toRef(props, "frontImage");
-currentImage.value = frontImage.value;
-
-const showHelp = ref(false);
-const helpOverlayImage = new URL('@/assets/monster/big/help.webp', import.meta.url).href;
-
-watch(frontImage, async (newImage: string) => {
-  currentImage.value = newImage;
-});
-
-const monsterColorMap: Record<string, MonsterColor> = {
-  "hellish flayer": "gray",
-  "abomination": "black",
-  "skeleton archer": "white",
-  "faceless conjurer": "gray",
-  "skeleton knight": "white",
-  "shadow witch": "white",
-  "shadow knight": "black",
-  "executioner": "gray",
-  "rotten flesh": "gray",
-  "shadow vampire": "gray",
-  "shadow cultist": "white",
-  "corrupted farmer": "white",
-  "shadow pain": "white",
-  "shadow guardian": "gray",
-  "gremlin horde": "white",
-  "nagian hunter": "white",
-  "gorgoness witch": "white",
-  "grim doctor": "white",
-  "gorgon hexer": "gray",
-  "night stalker": "gray",
-  "fell asteris": "gray",
-  "hellspawn brute": "gray",
-  "wurm offspring": "gray",
-  "lady claw": "gray",
-  "death messenger": "gray",
-  "scout of darkness": "white",
-  "bone reaper": "gray",
-  "shadow mistress": "white",
-  "wallking horror": "white",
-  "ravager": "white",
-  "corrupted worm": "gray",
-  "hunter": "commander",
-  "archon": "commander",
-  "bane": "commander",
-  "thern": "commander",
-  "horde": "commander",
-  "demon lord": "commander",
-  "hexer": "commander",
-  "spawn": "commander",
-  "ox": "commander",
-  "flinch": "commander",
-  "twin": "commander",
-  "doctor": "commander",
-  "fallen sisters": "commander",
-  "witch": "commander",
-  "wermuggdir": "commander",
-  "walking horror": "white"
-};
-
-const resolvedColor = computed<MonsterColor>(() => {
-  const key = props.title?.toLowerCase().trim();
-  return monsterColorMap[key] || "black";
-});
-
-const subtitleColor = computed(() => {
-  switch (resolvedColor.value) {
-    case "white":
-    case "gray":
-      return "black";
-    case "commander":
-      return "transparent";
-    case "black":
-    default:
-      return "white";
-  }
-});
-
-const showSubtitle = computed(() => resolvedColor.value !== "commander");
-</script>
-
 <template>
   <v-container max-width="666" class="d-flex justify-center">
-    <v-card-text class="pa-0" style="position: relative;">
-      <v-img :src="currentImage" width="100%" style="border-radius: 12px;">
+    <v-card-text class="pa-0" style="position: relative">
+      <v-img :src="currentImage" width="100%" style="border-radius: 12px">
         <!-- Overlay Trigger -->
         <v-btn
           icon
           size="x-small"
-          style="position: absolute; top: 12px; right: 12px; z-index: 3;"
+          style="position: absolute; top: 12px; right: 12px; z-index: 3"
           @click="showHelp = true"
         >
           <v-icon color="white">mdi-help-circle</v-icon>
@@ -170,7 +75,15 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
         <!-- OVERLAY HELP IMAGE -->
         <div
           v-if="showHelp"
-          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4;"
+          style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 4;
+          "
           class="d-flex align-center justify-center"
         >
           <v-img :src="helpOverlayImage" width="90%" />
@@ -179,7 +92,7 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
             icon
             size="small"
             color="white"
-            style="position: absolute; top: 8px; right: 8px;"
+            style="position: absolute; top: 8px; right: 8px"
             @click="showHelp = false"
           >
             <v-icon>mdi-close</v-icon>
@@ -189,6 +102,104 @@ const showSubtitle = computed(() => resolvedColor.value !== "commander");
     </v-card-text>
   </v-container>
 </template>
+
+<script setup lang="ts">
+import { ref, toRef, watch, computed } from "vue";
+
+type MonsterColor = "white" | "gray" | "black" | "commander";
+
+const props = defineProps<{
+  title: string;
+  background: string;
+  frontImage: string;
+  subTitle?: string;
+  backImage?: string;
+}>();
+
+const currentImage = ref("");
+const frontImage = toRef(props, "frontImage");
+currentImage.value = frontImage.value;
+
+const showHelp = ref(false);
+const helpOverlayImage = new URL(
+  "@/assets/monster/big/help.webp",
+  import.meta.url,
+).href;
+
+const monsterColorMap: Record<string, MonsterColor> = {
+  "hellish flayer": "gray",
+  abomination: "black",
+  "skeleton archer": "white",
+  "faceless conjurer": "gray",
+  "skeleton knight": "white",
+  "shadow witch": "white",
+  "shadow knight": "black",
+  executioner: "gray",
+  "rotten flesh": "gray",
+  "shadow vampire": "gray",
+  "shadow cultist": "white",
+  "corrupted farmer": "white",
+  "shadow pain": "white",
+  "shadow guardian": "gray",
+  "gremlin horde": "white",
+  "nagian hunter": "white",
+  "gorgoness witch": "white",
+  "grim doctor": "white",
+  "gorgon hexer": "gray",
+  "night stalker": "gray",
+  "fell asteris": "gray",
+  "hellspawn brute": "gray",
+  "wurm offspring": "gray",
+  "lady claw": "gray",
+  "death messenger": "gray",
+  "scout of darkness": "white",
+  "bone reaper": "gray",
+  "shadow mistress": "white",
+  "wallking horror": "white",
+  ravager: "white",
+  "corrupted worm": "gray",
+  hunter: "commander",
+  archon: "commander",
+  bane: "commander",
+  thern: "commander",
+  horde: "commander",
+  "demon lord": "commander",
+  hexer: "commander",
+  spawn: "commander",
+  ox: "commander",
+  flinch: "commander",
+  twin: "commander",
+  doctor: "commander",
+  "fallen sisters": "commander",
+  witch: "commander",
+  wermuggdir: "commander",
+  "walking horror": "white",
+};
+
+const resolvedColor = computed<MonsterColor>(() => {
+  const key = props.title?.toLowerCase().trim();
+  return monsterColorMap[key] || "black";
+});
+
+const subtitleColor = computed(() => {
+  switch (resolvedColor.value) {
+    case "white":
+    case "gray":
+      return "black";
+    case "commander":
+      return "transparent";
+    case "black":
+    default:
+      return "white";
+  }
+});
+
+const showSubtitle = computed(() => resolvedColor.value !== "commander");
+
+watch(frontImage, async (newImage: string) => {
+  currentImage.value = newImage;
+});
+</script>
 
 <style scoped>
 .border-silver {
