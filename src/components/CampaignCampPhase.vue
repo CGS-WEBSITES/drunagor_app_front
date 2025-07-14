@@ -1,3 +1,46 @@
+<template>
+  <v-btn
+    variant="elevated"
+    id="camp-phase"
+    class="px-6 my-2"
+    rounded
+    @click="openModal"
+  >
+    <v-icon start>mdi-campfire</v-icon>
+    {{ t("label.camp-phase") }}
+  </v-btn>
+  <v-dialog v-model="visible" modal>
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.camp-phase") }}
+      </v-card-title>
+      <v-card-text>
+        <span>{{ t("text.reset-state") }}</span>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-action>
+        <v-row no-gutters>
+          <v-col cols="12" class="d-flex flex-row justify-center">
+            <v-btn variant="text" @click="campPhase" width="100%">{{
+              t("label.yes")
+            }}</v-btn>
+          </v-col>
+          <v-divider vertical></v-divider>
+          <v-col cols="12" class="d-flex flex-row justify-center">
+            <v-btn
+              variant="text"
+              @click="closeModal"
+              width="100%"
+              color="red-accent-2"
+              >{{ t("label.no") }}</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-card-action>
+    </v-card>
+  </v-dialog>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -36,42 +79,5 @@ function campPhase() {
   emit("campPhase");
 }
 </script>
-
-<template>
-  <v-btn variant="elevated" id="camp-phase" class="px-6 my-2" rounded @click="openModal">
-    <v-icon start>mdi-campfire</v-icon>
-    {{ t("label.camp-phase") }}
-  </v-btn>
-  <v-dialog v-model="visible" modal>
-    <v-card>
-      <v-card-title class="text-center">
-        {{ t("label.camp-phase") }}
-      </v-card-title>
-      <v-card-text>
-        <span>{{ t("text.reset-state") }}</span>
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-action>
-        <v-row no-gutters>
-          <v-col cols="12" class="d-flex flex-row justify-center">
-            <v-btn variant="text" @click="campPhase" width="100%">{{
-              t("label.yes")
-            }}</v-btn>
-          </v-col>
-          <v-divider vertical></v-divider>
-          <v-col cols="12" class="d-flex flex-row justify-center">
-            <v-btn
-              variant="text"
-              @click="closeModal"
-              width="100%"
-              color="red-accent-2"
-              >{{ t("label.no") }}</v-btn
-            >
-          </v-col>
-        </v-row>
-      </v-card-action>
-    </v-card>
-  </v-dialog>
-</template>
 
 <style scoped></style>

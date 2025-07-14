@@ -1,3 +1,30 @@
+<template>
+  <v-container max-width="660">
+    <v-card color="primary" class="my-4 pa-3 custom-card">
+      <v-card-title class="text-uppercase font-weight-bold">Variants</v-card-title>
+      <v-card-text>
+        <v-row class="variant-container">
+          <v-col
+            v-for="(variant, index) in variantStore.getAll()"
+            :key="variant.id"
+            cols="12"
+            md="4"
+            class="d-flex justify-center"
+          >
+            <v-btn
+              class="variant-button"
+              :class="{ active: variantSettings.includes(variant.id) }"
+              @click="toggleVariant(variant.id)"
+            >
+              {{ $t(variant.translation_key) }}
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card-text>
+    </v-card>
+  </v-container>
+</template>
+
 <script setup lang="ts">
 import type { VariantId } from "@/data/type/VariantId";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
@@ -38,33 +65,6 @@ const toggleVariant = (variantId: VariantId) => {
   }
 };
 </script>
-
-<template>
-  <v-container max-width="660">
-    <v-card color="primary" class="my-4 pa-3 custom-card">
-      <v-card-title class="text-uppercase font-weight-bold">Variants</v-card-title>
-      <v-card-text>
-        <v-row class="variant-container">
-          <v-col
-            v-for="(variant, index) in variantStore.getAll()"
-            :key="variant.id"
-            cols="12"
-            md="4"
-            class="d-flex justify-center"
-          >
-            <v-btn
-              class="variant-button"
-              :class="{ active: variantSettings.includes(variant.id) }"
-              @click="toggleVariant(variant.id)"
-            >
-              {{ $t(variant.translation_key) }}
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-  </v-container>
-</template>
 
 <style scoped>
 .custom-card {

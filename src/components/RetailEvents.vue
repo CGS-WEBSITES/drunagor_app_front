@@ -59,17 +59,17 @@
       </v-row>
 
       <v-row class="mb-4" align="center">
-  <v-col cols="12" sm="6" class="d-flex align-center">
-    <span class="ml-2">Upcoming</span>
-    <v-switch
-      v-model="showPast"
-      hide-details
-      color="secundary"
-      class="mx-4"
-    ></v-switch>
-    <span>All</span>
-  </v-col>
-</v-row>
+        <v-col cols="12" sm="6" class="d-flex align-center">
+          <span class="ml-2">Upcoming</span>
+          <v-switch
+            v-model="showPast"
+            hide-details
+            color="secundary"
+            class="mx-4"
+          ></v-switch>
+          <span>All</span>
+        </v-col>
+      </v-row>
 
       <div v-if="activeTab === 1">
         <div v-if="loading" class="loading-overlay">
@@ -1244,8 +1244,13 @@ const updatePlayerStatus = (player, statusPk) => {
       player.event_status = data.event_status || player.event_status;
       fetchPlayersForEvent(eventFk);
 
-      if (statusPk === JoinedtheQuest.value && Array.isArray(eventRewards.value)) {
-        console.log(`Concedendo ${eventRewards.value.length} recompensas para o jogador ${player.user_name}`);
+      if (
+        statusPk === JoinedtheQuest.value &&
+        Array.isArray(eventRewards.value)
+      ) {
+        console.log(
+          `Concedendo ${eventRewards.value.length} recompensas para o jogador ${player.user_name}`,
+        );
         return Promise.all(
           eventRewards.value.map((reward) =>
             axios.post(
@@ -1498,19 +1503,19 @@ const removeReward = async (reward) => {
       {
         events_fk: selectedEvent.value.events_pk,
         rewards_fk: reward.rewards_pk,
-        active: false
+        active: false,
       },
       {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
-      }
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
     );
     existingRewards.value = existingRewards.value.filter(
-      (r) => r.rl_events_rewards_pk !== relationPk
+      (r) => r.rl_events_rewards_pk !== relationPk,
     );
     editableEvent.value.rewards_pk = editableEvent.value.rewards_pk.filter(
-      (id) => id !== reward.rewards_pk
+      (id) => id !== reward.rewards_pk,
     );
   } catch (err) {
     console.error("Erro ao remover reward:", err);

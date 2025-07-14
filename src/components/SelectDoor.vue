@@ -1,3 +1,23 @@
+<template>
+  <v-select
+    v-model="selectedWing"
+    label="Select Wing"
+    :items="campaignOptions"
+    variant="outlined"
+    class="mb-4"
+    clearable
+  />
+
+  <v-select
+    v-model="selectedDoor"
+    :label="'Select Door'"
+    :items="filteredDoors"
+    variant="outlined"
+    :disabled="!selectedWing"
+    clearable
+  />
+</template>
+
 <script setup lang="ts">
 import { CampaignStore } from "@/store/CampaignStore";
 import { ref, watch, computed } from "vue";
@@ -66,23 +86,3 @@ watch(selectedDoor, (newValue) => {
   campaignStore.find(props.campaignId).door = newValue;
 });
 </script>
-
-<template>
-  <v-select
-    v-model="selectedWing"
-    label="Select Wing"
-    :items="campaignOptions"
-    variant="outlined"
-    class="mb-4"
-    clearable
-  />
-
-  <v-select
-    v-model="selectedDoor"
-    :label="('Select Door')"
-    :items="filteredDoors"
-    variant="outlined"
-    :disabled="!selectedWing"
-    clearable
-  />
-</template>

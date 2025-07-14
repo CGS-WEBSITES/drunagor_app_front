@@ -7,7 +7,7 @@
         :md="4"
         class="d-flex flex-column align-center"
         :class="isMobile ? 'pa-2' : 'pa-4'"
-        style="background-color: #00635D;"
+        style="background-color: #00635d"
       >
         <!-- Imagem da Caixa -->
         <v-img
@@ -36,10 +36,7 @@
         </v-card-title>
 
         <v-card-subtitle>
-          <div
-            class="d-flex align-center"
-            :class="isMobile ? 'mb-1' : 'mb-2'"
-          >
+          <div class="d-flex align-center" :class="isMobile ? 'mb-1' : 'mb-2'">
             <v-icon class="mr-2" color="white">mdi-content-save</v-icon>
             <span>CONTENT</span>
           </div>
@@ -71,7 +68,7 @@ export default {
 
 <style scoped>
 #right-column {
-  background-image: url('@/assets/bg_apoc.png');
+  background-image: url("@/assets/bg_apoc.png");
   background-size: cover;
   background-position: center;
 }

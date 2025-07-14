@@ -1,18 +1,3 @@
-<script setup lang="ts">
-import { setLanguage, loadLanguage } from "@/language";
-import { LanguageStore } from "@/store/LanguageStore";
-import { watch } from "vue";
-import { useI18n } from "vue-i18n";
-
-const languageStore = LanguageStore();
-const { locale } = useI18n();
-
-watch(locale, () => {
-  setLanguage(locale.value);
-  loadLanguage(locale.value);
-});
-</script>
-
 <template>
   <Card class="w-full" data-testid="configuration-language">
     <template #title> {{ $t("configuration.language") }} </template>
@@ -44,4 +29,20 @@ watch(locale, () => {
     </template>
   </Card>
 </template>
+
+<script setup lang="ts">
+import { setLanguage, loadLanguage } from "@/language";
+import { LanguageStore } from "@/store/LanguageStore";
+import { watch } from "vue";
+import { useI18n } from "vue-i18n";
+
+const languageStore = LanguageStore();
+const { locale } = useI18n();
+
+watch(locale, () => {
+  setLanguage(locale.value);
+  loadLanguage(locale.value);
+});
+</script>
+
 <style scoped></style>

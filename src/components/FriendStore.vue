@@ -2,13 +2,8 @@
     <StoreList />
 </template>
 
-
 <script lang="ts" setup>
-import StoreList from '@/components/StoreList.vue';
-
-
+import StoreList from "@/components/StoreList.vue";
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

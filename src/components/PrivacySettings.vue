@@ -2,17 +2,21 @@
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="804" class="py-4">
       <v-card color="primary" elevation="2" rounded="lg">
-        <v-card-title class="d-flex justify-space-between align-center" @click="togglePrivacy">
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-wrap text-uppercase">The Chronicles of Drunagor
-            Community is coming soon!</span>
+        <v-card-title
+          class="d-flex justify-space-between align-center"
+          @click="togglePrivacy"
+        >
+          <span
+            class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-wrap text-uppercase"
+            >The Chronicles of Drunagor Community is coming soon!</span
+          >
           <v-icon>{{
             isExpanded ? "mdi-chevron-up" : "mdi-chevron-down"
-            }}</v-icon>
+          }}</v-icon>
         </v-card-title>
 
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
-
             <v-row no-gutters>
               <v-cols cols></v-cols>
             </v-row>
@@ -48,20 +52,6 @@ import { reactive, ref } from "vue";
 
 const isExpanded = ref(false);
 
-const togglePrivacy = () => {
-  isExpanded.value = !isExpanded.value;
-};
-
-const privacy = reactive({
-  profileVisibility: "Public",
-  friendRequests: "Allow all",
-  showAccountCreationDate: true,
-  showRealName: false,
-  showPoints: true,
-  showRank: true,
-  showStatistics: false,
-});
-
 const profileVisibilityOptions = ["Public", "Private", "Friends only"];
 const friendRequestOptions = ["Allow all", "Friends only", "No one"];
 
@@ -75,4 +65,18 @@ const switches = [
   { key: "showRank", label: "Show your rank to other users" },
   { key: "showStatistics", label: "Show your statistics to other users" },
 ];
+
+const privacy = reactive({
+  profileVisibility: "Public",
+  friendRequests: "Allow all",
+  showAccountCreationDate: true,
+  showRealName: false,
+  showPoints: true,
+  showRank: true,
+  showStatistics: false,
+});
+
+const togglePrivacy = () => {
+  isExpanded.value = !isExpanded.value;
+};
 </script>

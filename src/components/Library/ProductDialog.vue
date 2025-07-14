@@ -63,13 +63,17 @@
                 <v-checkbox
                   label="CONTENT"
                   :model-value="product?.contentChecked"
-                  @update:model-value="(value) => updateProduct('contentChecked', value)"
+                  @update:model-value="
+                    (value) => updateProduct('contentChecked', value)
+                  "
                   hide-details
                 ></v-checkbox>
                 <v-checkbox
                   label="COMPONENT TYPE"
                   :model-value="product?.componentChecked"
-                  @update:model-value="(value) => updateProduct('componentChecked', value)"
+                  @update:model-value="
+                    (value) => updateProduct('componentChecked', value)
+                  "
                   hide-details
                 ></v-checkbox>
               </v-card-subtitle>
@@ -107,7 +111,9 @@
                   <!-- Segunda linha: WHITE MONSTERS, DOORS -->
                   <v-row>
                     <v-col cols="12" md="3">
-                      <p class="text-subtitle-2 font-weight-bold">WHITE MONSTERS</p>
+                      <p class="text-subtitle-2 font-weight-bold">
+                        WHITE MONSTERS
+                      </p>
                       <p class="text-body-2">Corrupted Farmer</p>
                       <p class="text-body-2">Dark Piercer</p>
                     </v-col>

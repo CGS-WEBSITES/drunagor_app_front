@@ -1,3 +1,37 @@
+<template>
+  <div>
+    <v-select
+      v-model="stashedItemIds"
+      clearable
+      chips
+      :label="$t('text.add-or-remove-stashed-items')"
+      hint="Cannot be used during a scenario"
+      :items="items"
+      item-title="name"
+      item-value="id"
+      multiple
+      variant="outlined"
+    ></v-select>
+    <v-sheet
+      v-if="stashedItemIds.length > 0"
+      rounded
+      border="md"
+      class="mb-6 pa-6 text-white"
+      style="background-color: #1f2937 !important"
+    >
+      <ul>
+        <li
+          class="py-1"
+          v-for="itemCard in findItemCards(stashedItemIds)"
+          :key="itemCard.id"
+        >
+          {{ t(itemCard.translation_key) }}
+        </li>
+      </ul>
+    </v-sheet>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { HeroStore } from "@/store/HeroStore";
@@ -49,39 +83,5 @@ watch(stashedItemIds, (newStashedItemCardIds) => {
     newStashedItemCardIds;
 });
 </script>
-
-<template>
-  <div>
-    <v-select
-      v-model="stashedItemIds"
-      clearable
-      chips
-      :label="$t('text.add-or-remove-stashed-items')"
-      hint="Cannot be used during a scenario"
-      :items="items"
-      item-title="name"
-      item-value="id"
-      multiple
-      variant="outlined"
-    ></v-select>
-    <v-sheet
-      v-if="stashedItemIds.length > 0"
-      rounded
-      border="md"
-      class="mb-6 pa-6 text-white"
-      style="background-color: #1f2937 !important"
-    >
-      <ul>
-        <li
-          class="py-1"
-          v-for="itemCard in findItemCards(stashedItemIds)"
-          :key="itemCard.id"
-        >
-          {{ t(itemCard.translation_key) }}
-        </li>
-      </ul>
-    </v-sheet>
-  </div>
-</template>
 
 <style scoped></style>

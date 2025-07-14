@@ -37,7 +37,10 @@
                 :elevation="isHovering ? 12 : 2"
                 :disabled="isSaving"
                 class="cursor-pointer"
-                :class="{ 'active-selection': UserStore.user.background_hash === item.hash }"
+                :class="{
+                  'active-selection':
+                    UserStore.user.background_hash === item.hash,
+                }"
                 @click="selectAndSaveBackground(item.hash)"
               >
                 <v-img
@@ -47,12 +50,18 @@
                   cover
                 >
                   <v-overlay
-                    :model-value="isSaving && savingBackgroundHash === item.hash"
+                    :model-value="
+                      isSaving && savingBackgroundHash === item.hash
+                    "
                     contained
                     class="d-flex align-center justify-center"
                     scrim="rgba(0, 0, 0, 0.5)"
                   >
-                    <v-progress-circular indeterminate color="white" size="64"></v-progress-circular>
+                    <v-progress-circular
+                      indeterminate
+                      color="white"
+                      size="64"
+                    ></v-progress-circular>
                   </v-overlay>
                 </v-img>
               </v-card>
@@ -92,13 +101,12 @@ const availableBackgrounds = ref<Background[]>([
   { hash: "profile-bg-warriors-transparent.png" },
 ]);
 
-watch(dialogIsActive, (isActive) => {
-  if (!isActive) {
-    showAlert.value = false;
-  }
-});
-
-const setAlert = (icon: string, title: string, text: string, type: "success" | "error" | "warning" | "info") => {
+const setAlert = (
+  icon: string,
+  title: string,
+  text: string,
+  type: "success" | "error" | "warning" | "info",
+) => {
   alertIcon.value = icon;
   alertTitle.value = title;
   alertText.value = text;
@@ -122,7 +130,7 @@ const selectAndSaveBackground = async (backgroundHash: string) => {
       },
       {
         headers: getToken(),
-      }
+      },
     );
 
     await UserStore.setUser({
@@ -135,14 +143,13 @@ const selectAndSaveBackground = async (backgroundHash: string) => {
     setTimeout(() => {
       dialogIsActive.value = false;
     }, 1500);
-
   } catch (error: any) {
     console.error("Error saving background:", error);
     setAlert(
       "mdi-alert-circle",
-      `Error ${error.response?.status || ''}`,
+      `Error ${error.response?.status || ""}`,
       error.response?.data?.message || "A network error occurred.",
-      "error"
+      "error",
     );
   } finally {
     setTimeout(() => {
@@ -151,6 +158,12 @@ const selectAndSaveBackground = async (backgroundHash: string) => {
     }, 1500);
   }
 };
+
+watch(dialogIsActive, (isActive) => {
+  if (!isActive) {
+    showAlert.value = false;
+  }
+});
 </script>
 
 <style scoped>
@@ -159,7 +172,7 @@ const selectAndSaveBackground = async (backgroundHash: string) => {
 }
 
 .active-selection {
-  border: 3px solid #1976D2;
+  border: 3px solid #1976d2;
   box-shadow: 0 0 12px rgba(25, 118, 210, 0.7);
 }
 </style>

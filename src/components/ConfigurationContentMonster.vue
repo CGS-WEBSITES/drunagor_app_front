@@ -1,36 +1,3 @@
-<script setup lang="ts">
-import { ContentDataStore } from "@/data/store/ContentDataStore.js";
-import type { ContentId } from "@/data/type/ContentId";
-import { ConfigurationStore } from "@/store/ConfigurationStore";
-import { watch, ref } from "vue";
-import { useToast } from "primevue/usetoast";
-import { useI18n } from "vue-i18n";
-
-const toast = useToast();
-const { t } = useI18n();
-
-const contentStore = ContentDataStore();
-const configurationStore = ConfigurationStore();
-const monsterContentSettings = ref([] as ContentId[]);
-
-configurationStore.enabledMonsterContent.forEach((enabledContent) => {
-  monsterContentSettings.value.push(enabledContent);
-});
-
-watch(monsterContentSettings, async (newSettings) => {
-  if (newSettings.length > 0) {
-    configurationStore.$patch({ enabledMonsterContent: newSettings });
-  } else {
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: t("configuration.error.atleast-one-selected"),
-      life: 3000,
-    });
-  }
-});
-</script>
-
 <template>
   <v-container max-width="680">
     <v-card color="primary" class="my-4">
@@ -52,5 +19,38 @@ watch(monsterContentSettings, async (newSettings) => {
     </v-card>
   </v-container>
 </template>
+
+<script setup lang="ts">
+import { ContentDataStore } from "@/data/store/ContentDataStore.js";
+import type { ContentId } from "@/data/type/ContentId";
+import { ConfigurationStore } from "@/store/ConfigurationStore";
+import { watch, ref } from "vue";
+import { useToast } from "primevue/usetoast";
+import { useI18n } from "vue-i18n";
+
+const toast = useToast();
+const { t } = useI18n();
+
+const monsterContentSettings = ref([] as ContentId[]);
+const contentStore = ContentDataStore();
+const configurationStore = ConfigurationStore();
+
+configurationStore.enabledMonsterContent.forEach((enabledContent) => {
+  monsterContentSettings.value.push(enabledContent);
+});
+
+watch(monsterContentSettings, async (newSettings) => {
+  if (newSettings.length > 0) {
+    configurationStore.$patch({ enabledMonsterContent: newSettings });
+  } else {
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: t("configuration.error.atleast-one-selected"),
+      life: 3000,
+    });
+  }
+});
+</script>
 
 <style scoped></style>
