@@ -278,7 +278,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
     // Verifica se a referência ao alerta existe
     if (alertRef.value) {
       // Rola a página até o elemento do alerta
-      alertRef.value.$el.scrollIntoView({ behavior: "smooth", block: "center" });
+      alertRef.value.$el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   });
 
@@ -309,12 +312,12 @@ const saveForm = async () => {
           receive_email: form.email_updates,
           password: changePassword.value ? form.confirm_password : undefined,
           countries_fk: countriesList.value.find(
-            (country) => country.name === form.country
+            (country) => country.name === form.country,
           )?.countries_pk,
         },
         {
           headers: getToken(),
-        }
+        },
       )
       .then((response: any) => {
         console.log("API Response:", response);
@@ -326,7 +329,7 @@ const saveForm = async () => {
           "mdi-check",
           response.status,
           response.data.message,
-          "success"
+          "success",
         );
       })
       .catch((error: any) => {
@@ -335,7 +338,7 @@ const saveForm = async () => {
           "mdi-alert-circle",
           String(error.response?.status || 500),
           error.response?.data?.message || "Erro de rede.",
-          "error"
+          "error",
         );
       });
   }
@@ -352,7 +355,7 @@ const fetchCountries = () => {
       }));
 
       const userCountry = countriesList.value.find(
-        (country) => country.countries_pk === form.country
+        (country) => country.countries_pk === form.country,
       );
 
       form.country = userCountry ? userCountry.name : "";
@@ -362,11 +365,11 @@ const fetchCountries = () => {
     });
 };
 
-onMounted(() => {
-  fetchCountries();
-});
-
 const cancelForm = () => {
   console.log("Form Cancelled");
 };
+
+onMounted(() => {
+  fetchCountries();
+});
 </script>

@@ -44,19 +44,14 @@
       <!-- Diálogo de confirmação para exclusão -->
       <v-dialog v-model="showDeleteDialog" max-width="500px" persistent>
         <v-card>
-          <v-card-title class="text-h5"
-            >Confirm Account Deletion</v-card-title
-          >
+          <v-card-title class="text-h5">Confirm Account Deletion</v-card-title>
           <v-card-text>
             Are you sure you want to delete your account? This action cannot be
             undone.
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              variant="text"
-              @click="showDeleteDialog = false"
-            >
+            <v-btn variant="text" @click="showDeleteDialog = false">
               Cancel
             </v-btn>
             <v-btn
@@ -114,7 +109,7 @@ const setAlert = (
   icon: string,
   title: string,
   text: string,
-  type: "success" | "error" | "warning" | "info"
+  type: "success" | "error" | "warning" | "info",
 ) => {
   alertIcon.value = icon;
   alertTitle.value = title;
@@ -140,7 +135,7 @@ const confirmDelete = async () => {
         "mdi-alert-circle",
         "Error",
         "User not found. Please log in again.",
-        "error"
+        "error",
       );
       return;
     }
@@ -166,7 +161,7 @@ const confirmDelete = async () => {
       "mdi-alert-circle",
       `Error ${error.response?.status || ""}`,
       error.response?.data?.message || "A network error occurred.",
-      "error"
+      "error",
     );
   } finally {
     isDeleting.value = false; // Desativa o loading
