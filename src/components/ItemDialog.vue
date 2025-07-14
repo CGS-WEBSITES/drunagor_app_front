@@ -1,5 +1,9 @@
 <template>
-  <v-dialog :model-value="dialogVisible" @update:model-value="$emit('update:dialogVisible', $event)" max-width="900px">
+  <v-dialog
+    :model-value="dialogVisible"
+    @update:model-value="$emit('update:dialogVisible', $event)"
+    max-width="900px"
+  >
     <v-card class="pa-0" color="#0F7273">
       <v-row class="ma-0 pa-0">
         <!-- Botão "X" no canto superior direito -->
@@ -7,7 +11,7 @@
           icon
           @click="$emit('update:dialogVisible', false)"
           class="position-absolute"
-          style="top: 10px; right: 10px;"
+          style="top: 10px; right: 10px"
         >
           <v-icon>mdi-close</v-icon>
         </v-btn>

@@ -16,10 +16,7 @@
         :key="product.id"
         class="d-flex justify-center"
       >
-        <ProductCard
-          :product="product"
-          @view-details="handleViewDetails"
-        />
+        <ProductCard :product="product" @view-details="handleViewDetails" />
       </v-col>
     </v-row>
 

@@ -1,3 +1,17 @@
+<template>
+  <v-autocomplete
+    clearable
+    v-model="selectedId"
+    :items="items"
+    item-title="name"
+    item-value="id"
+    :label="placeholder"
+    :hint="$t('label.stash')"
+    variant="outlined"
+    @input="onStash"
+  ></v-autocomplete>
+</template>
+
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import type { ItemData } from "@/data/repository/ItemData";
@@ -19,8 +33,8 @@ const selectedId = ref(props.value);
 const { t } = useI18n();
 
 let items = computed(() => {
-  let globalItems: string[] = []
-  
+  let globalItems: string[] = [];
+
   props.categories.map((category) => {
     const translatedItems = category.items.map((item) => {
       return {
@@ -29,12 +43,12 @@ let items = computed(() => {
       };
     });
 
-    sortBy(translatedItems, ["name"]).map((sortedItem)=>{
-      globalItems.push(sortedItem)
+    sortBy(translatedItems, ["name"]).map((sortedItem) => {
+      globalItems.push(sortedItem);
     });
   });
 
-  return globalItems
+  return globalItems;
 });
 
 function onStash() {
@@ -46,19 +60,5 @@ watch(selectedId, (newSelectedId) => {
   emit("selected", newSelectedId);
 });
 </script>
-
-<template>
-  <v-autocomplete
-    clearable
-    v-model="selectedId"
-    :items="items"
-    item-title="name"
-    item-value="id"
-    :label="placeholder"
-    :hint="$t('label.stash')"
-    variant="outlined"
-    @input="onStash"
-  ></v-autocomplete>
-</template>
 
 <style scoped></style>
