@@ -1,3 +1,29 @@
+<template>
+  <v-btn variant="elevated" id="campaign-import" rounded @click="openModal">{{
+    t("label.import-campaign")
+  }}</v-btn>
+  <v-dialog v-model="visible">
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.import-campaign") }}
+      </v-card-title>
+      <v-card-text>
+        <div class="py-4">{{ t("text.input-token") }}</div>
+        <v-textarea id="campaign-token" v-model="token"></v-textarea>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions class="d-flex flex-row justify-space-around">
+        <v-btn outlined id="import-button" @click="importCampaign">{{
+          t("label.import")
+        }}</v-btn>
+        <v-btn outlined id="import-button" @click="closeModal">{{
+          t("label.cancel")
+        }}</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -87,31 +113,5 @@ function closeModal() {
   visible.value = false;
 }
 </script>
-
-<template>
-  <v-btn variant="elevated"id="campaign-import" rounded @click="openModal">{{
-    t("label.import-campaign")
-  }}</v-btn>
-  <v-dialog v-model="visible">
-    <v-card>
-      <v-card-title class="text-center">
-        {{ t("label.import-campaign") }}
-      </v-card-title>
-      <v-card-text>
-        <div class="py-4">{{ t("text.input-token") }}</div>
-        <v-textarea id="campaign-token" v-model="token"></v-textarea>
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-actions class="d-flex flex-row justify-space-around">
-        <v-btn outlined id="import-button" @click="importCampaign">{{
-          t("label.import")
-        }}</v-btn>
-        <v-btn outlined id="import-button" @click="closeModal">{{
-          t("label.cancel")
-        }}</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-</template>
 
 <style scoped></style>

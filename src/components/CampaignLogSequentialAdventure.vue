@@ -1,50 +1,3 @@
-<script setup lang="ts">
-import { computed, ref } from "vue";
-import { HeroStore } from "@/store/HeroStore";
-import { useRouter } from "vue-router";
-import { SequentialAdventureState } from "@/store/Hero";
-import type { HeroData } from "@/data/repository/HeroData";
-import { useI18n } from "vue-i18n";
-
-const props = defineProps<{
-  hero: HeroData;
-  campaignId: string;
-}>();
-
-const heroStore = HeroStore();
-const router = useRouter();
-const { t } = useI18n();
-
-const sequentialAdventureState = ref({} as SequentialAdventureState);
-sequentialAdventureState.value =
-  heroStore.findInCampaign(props.hero.id, props.campaignId)
-    ?.sequentialAdventureState ?? new SequentialAdventureState();
-
-// A constante resourceIcons foi removida daqui
-
-const resourceDisplay = computed(() => {
-  const resources = sequentialAdventureState.value?.resources;
-  const resourcesToDisplay = [] as any[];
-
-  for (const resource in resources) {
-    if (resources[resource] > 0) {
-      resourcesToDisplay.push({
-        name: resource,
-        count: resources[resource],
-      });
-    }
-  }
-  return resourcesToDisplay;
-});
-
-function openSequentialStateEditor() {
-  router.push({
-    name: "HeroSequentialState",
-    params: { campaignId: props.campaignId, heroId: props.hero.id },
-  });
-}
-</script>
-
 <template>
   <v-row
     no-gutters
@@ -155,7 +108,7 @@ function openSequentialStateEditor() {
           </div>
         </div>
         <v-divider class="my-2"></v-divider>
-        <div class="text-center text-body-2">{{ t('Available Cubes') }}</div>
+        <div class="text-center text-body-2">{{ t("Available Cubes") }}</div>
       </v-sheet>
     </v-col>
 
@@ -177,22 +130,69 @@ function openSequentialStateEditor() {
           </div>
         </div>
         <v-divider class="my-2"></v-divider>
-        <div class="text-center text-body-2">{{ t('Used Cubes') }}</div>
+        <div class="text-center text-body-2">{{ t("Used Cubes") }}</div>
       </v-sheet>
     </v-col>
-    
+
     <v-col cols="12" class="px-2 pb-4">
-        <v-btn
-          @click.stop="openSequentialStateEditor"
-          variant="elevated"
-          color="secundary"
-          rounded
-        >
-          {{ t('Manage Resources') }}
-        </v-btn>
+      <v-btn
+        @click.stop="openSequentialStateEditor"
+        variant="elevated"
+        color="secundary"
+        rounded
+      >
+        {{ t("Manage Resources") }}
+      </v-btn>
     </v-col>
   </v-row>
 </template>
+
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { HeroStore } from "@/store/HeroStore";
+import { useRouter } from "vue-router";
+import { SequentialAdventureState } from "@/store/Hero";
+import type { HeroData } from "@/data/repository/HeroData";
+import { useI18n } from "vue-i18n";
+
+const props = defineProps<{
+  hero: HeroData;
+  campaignId: string;
+}>();
+
+const heroStore = HeroStore();
+const router = useRouter();
+const { t } = useI18n();
+
+const resourceDisplay = computed(() => {
+  const resources = sequentialAdventureState.value?.resources;
+  const resourcesToDisplay = [] as any[];
+
+  for (const resource in resources) {
+    if (resources[resource] > 0) {
+      resourcesToDisplay.push({
+        name: resource,
+        count: resources[resource],
+      });
+    }
+  }
+  return resourcesToDisplay;
+});
+
+const sequentialAdventureState = ref({} as SequentialAdventureState);
+sequentialAdventureState.value =
+  heroStore.findInCampaign(props.hero.id, props.campaignId)
+    ?.sequentialAdventureState ?? new SequentialAdventureState();
+
+// A constante resourceIcons foi removida daqui
+
+function openSequentialStateEditor() {
+  router.push({
+    name: "HeroSequentialState",
+    params: { campaignId: props.campaignId, heroId: props.hero.id },
+  });
+}
+</script>
 
 <style scoped>
 .faded-cubes {

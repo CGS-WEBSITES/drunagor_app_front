@@ -1,10 +1,3 @@
-<script setup lang="ts">
-const props = defineProps<{
-  id?: string;
-  avatar?: string;
-}>();
-</script>
-
 <template>
   <div :id="props.id" class="flex items-center gap-4 p-2 h-16 cursor-pointer">
     <img
@@ -15,5 +8,12 @@ const props = defineProps<{
     <slot></slot>
   </div>
 </template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  id?: string;
+  avatar?: string;
+}>();
+</script>
 
 <style scoped></style>

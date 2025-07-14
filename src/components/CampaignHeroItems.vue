@@ -1,34 +1,3 @@
-<script setup lang="ts">
-import CampaignHeroWeapon from "@/components/CampaignHeroWeapon.vue";
-import CampaignHeroOffHand from "@/components/CampaignHeroOffHand.vue";
-import CampaignHeroArmor from "@/components/CampaignHeroArmor.vue";
-import CampaignHeroTrinket from "@/components/CampaignHeroTrinket.vue";
-import CampaignHeroBagItem from "@/components/CampaignHeroBagItem.vue";
-import { HeroStore } from "@/store/HeroStore";
-import { HeroEquipment } from "@/store/Hero";
-import type { HeroData } from "@/data/repository/HeroData";
-import { ref } from "vue";
-import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
-import { useI18n } from "vue-i18n";
-
-const { t } = useI18n();
-const heroStore = HeroStore();
-
-const props = defineProps<{
-  heroId: string;
-  hero: HeroData;
-  campaignId: string;
-  repository: ItemDataRepository;
-}>();
-
-const filterProficiencies = ref(true);
-
-const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
-if (typeof campaignHero.equipment === "undefined") {
-  campaignHero.equipment = new HeroEquipment();
-}
-</script>
-
 <template>
   <v-row no-gutters>
     <v-col cols="12" class="py-1">
@@ -128,5 +97,36 @@ if (typeof campaignHero.equipment === "undefined") {
     </CampaignHeroBagItem>
   </v-col>
 </template>
+
+<script setup lang="ts">
+import CampaignHeroWeapon from "@/components/CampaignHeroWeapon.vue";
+import CampaignHeroOffHand from "@/components/CampaignHeroOffHand.vue";
+import CampaignHeroArmor from "@/components/CampaignHeroArmor.vue";
+import CampaignHeroTrinket from "@/components/CampaignHeroTrinket.vue";
+import CampaignHeroBagItem from "@/components/CampaignHeroBagItem.vue";
+import { HeroStore } from "@/store/HeroStore";
+import { HeroEquipment } from "@/store/Hero";
+import type { HeroData } from "@/data/repository/HeroData";
+import { ref } from "vue";
+import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+const heroStore = HeroStore();
+
+const props = defineProps<{
+  heroId: string;
+  hero: HeroData;
+  campaignId: string;
+  repository: ItemDataRepository;
+}>();
+
+const filterProficiencies = ref(true);
+
+const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
+if (typeof campaignHero.equipment === "undefined") {
+  campaignHero.equipment = new HeroEquipment();
+}
+</script>
 
 <style scoped></style>

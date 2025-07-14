@@ -1,3 +1,51 @@
+<template>
+  <v-row no-gutters class="justify-space-around">
+    <v-col
+      cols="12"
+      md="2"
+      lg="2"
+      v-for="skill in skills"
+      :key="skill.id"
+      class="skill"
+    >
+      <h3>{{ t(skill.translationKey) }}</h3>
+      <v-checkbox
+        v-for="level in 2"
+        :key="skill.name + '-' + level"
+        v-model="selectedSkills"
+        :value="skill.id + '-' + level"
+        :label="getSkillLabel(skill.id + '-' + level, level)"
+        @input="() => onSkillSelect(skill.id + '-' + level)"
+      ></v-checkbox>
+    </v-col>
+  </v-row>
+
+  <v-dialog v-model="visible">
+    <v-card>
+      <v-card-title>
+        {{ t("text.select-action-cube-color") }}
+      </v-card-title>
+      <v-card-text>
+        <v-list density="compact">
+          <v-list-item
+            v-for="color in cubeColors"
+            :key="color"
+            dense
+            @click="setSelectedCubeColor(color)"
+          >
+            <v-list-item-title class="d-flex">
+              {{ t("label." + color.toLowerCase()) }}
+              <v-img max-width="20" class="d-flex mt-1 ml-4">
+                <CubeIcon :class="'h-5 w-5 ' + color.toLowerCase()" />
+              </v-img>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+</template>
+
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { HeroStore } from "@/store/HeroStore";
@@ -49,14 +97,14 @@ function getSkillLabel(skillId: string, level: number): string {
 
   const selectedCubes = heroStore.findInCampaign(
     props.heroId,
-    props.campaignId
+    props.campaignId,
   ).dungeonRoleSkillCubeColors;
   const selectedCube =
     level === 1 ? selectedCubes.rankOne : selectedCubes.rankTwo;
 
   return selectedCube !== null
     ? `${t("label.level")} ${level} (${t(
-        "label." + selectedCube.toLowerCase()
+        "label." + selectedCube.toLowerCase(),
       )})`
     : `${t("label.level")} ${level}`;
 }
@@ -76,7 +124,7 @@ function onSkillSelect(skillId: string) {
 
   const wasSelected =
     selectedSkills.value.filter(
-      (selectedSkillId) => selectedSkillId === skillId
+      (selectedSkillId) => selectedSkillId === skillId,
     ).length > 0;
   if (!wasSelected) {
     clearCubeColor(skillId);
@@ -91,12 +139,12 @@ function clearCubeColor(skillId: string) {
   if (skillId === "dungeon-role-1") {
     heroStore.findInCampaign(
       props.heroId,
-      props.campaignId
+      props.campaignId,
     ).dungeonRoleSkillCubeColors.rankOne = null;
   } else if (skillId === "dungeon-role-2") {
     heroStore.findInCampaign(
       props.heroId,
-      props.campaignId
+      props.campaignId,
     ).dungeonRoleSkillCubeColors.rankTwo = null;
   }
 }
@@ -105,12 +153,12 @@ function setSelectedCubeColor(color: string) {
   if (selectedSkillId.value === "dungeon-role-1") {
     heroStore.findInCampaign(
       props.heroId,
-      props.campaignId
+      props.campaignId,
     ).dungeonRoleSkillCubeColors.rankOne = color;
   } else if (selectedSkillId.value === "dungeon-role-2") {
     heroStore.findInCampaign(
       props.heroId,
-      props.campaignId
+      props.campaignId,
     ).dungeonRoleSkillCubeColors.rankTwo = color;
   }
   closeModal();
@@ -120,47 +168,6 @@ watch(selectedSkills, (newSkills) => {
   heroStore.findInCampaign(props.heroId, props.campaignId).skillIds = newSkills;
 });
 </script>
-
-<template>
-  <v-row no-gutters class="justify-space-around">
-    <v-col cols="12" md="2" lg="2" v-for="skill in skills" :key="skill.id" class="skill">
-      <h3>{{ t(skill.translationKey) }}</h3>
-      <v-checkbox
-        v-for="level in 2"
-        :key="skill.name + '-' + level"
-        v-model="selectedSkills"
-        :value="skill.id + '-' + level"
-        :label="getSkillLabel(skill.id + '-' + level, level)"
-        @input="() => onSkillSelect(skill.id + '-' + level)"
-      ></v-checkbox>
-    </v-col>
-  </v-row>
-  
-  <v-dialog v-model="visible">
-    <v-card>
-      <v-card-title>
-        {{ t("text.select-action-cube-color") }}
-      </v-card-title>
-      <v-card-text>
-        <v-list density="compact">
-          <v-list-item
-            v-for="color in cubeColors"
-            :key="color"
-            dense
-            @click="setSelectedCubeColor(color)"
-          >
-            <v-list-item-title class="d-flex">
-              {{ t("label." + color.toLowerCase()) }}
-              <v-img max-width="20" class="d-flex mt-1 ml-4">
-                <CubeIcon :class="'h-5 w-5 ' + color.toLowerCase()" />
-              </v-img>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-</template>
 
 <style scoped>
 .skill-container {

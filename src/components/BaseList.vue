@@ -1,9 +1,3 @@
-<script setup lang="ts">
-const props = defineProps<{
-  id?: string;
-}>();
-</script>
-
 <template>
   <div :id="props.id">
     <header>
@@ -12,5 +6,11 @@ const props = defineProps<{
     <slot></slot>
   </div>
 </template>
+
+<script setup lang="ts">
+const props = defineProps<{
+  id?: string;
+}>();
+</script>
 
 <style scoped></style>

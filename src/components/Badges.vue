@@ -1,8 +1,16 @@
 <template>
-  <v-container max-width="800" style="min-width: 360px;" class="pa-4">
-    <v-card rounded="lg" elevation="3" color="primary" class="pl-1 pt-1 pr-1 pb-0">
+  <v-container max-width="800" style="min-width: 360px" class="pa-4">
+    <v-card
+      rounded="lg"
+      elevation="3"
+      color="primary"
+      class="pl-1 pt-1 pr-1 pb-0"
+    >
       <v-card-title class="d-flex justify-space-between pb-0">
-        <span class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0">BADGES</span>
+        <span
+          class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0"
+          >BADGES</span
+        >
       </v-card-title>
 
       <div v-if="userRewards.length > 0">
@@ -15,7 +23,11 @@
               color="secundary"
             >
               <v-row class="align-center">
-                <v-col cols="2" lg="2" class="d-flex align-center justify-center ml-3 ml-md-0">
+                <v-col
+                  cols="2"
+                  lg="2"
+                  class="d-flex align-center justify-center ml-3 ml-md-0"
+                >
                   <v-img
                     :src="item.image"
                     alt="Reward Icon"
@@ -25,11 +37,15 @@
                 </v-col>
 
                 <v-col cols="8" class="pl-0 d-flex flex-column justify-center">
-                  <p class="font-weight-bold white--text ma-0">{{ item.title }}</p>
-                  <p class="text-body-2 grey--text ma-0">{{ item.description }}</p>
-                  </v-col>
+                  <p class="font-weight-bold white--text ma-0">
+                    {{ item.title }}
+                  </p>
+                  <p class="text-body-2 grey--text ma-0">
+                    {{ item.description }}
+                  </p>
+                </v-col>
               </v-row>
-              
+
               <div class="date-position text-caption grey--text">
                 {{ item.date }}
               </div>
@@ -39,7 +55,9 @@
       </div>
 
       <div v-else class="text-center py-2">
-        <v-icon color="grey lighten-1" size="48">mdi-emoticon-sad-outline</v-icon>
+        <v-icon color="grey lighten-1" size="48"
+          >mdi-emoticon-sad-outline</v-icon
+        >
         <p class="mt-4 text-body-1 white--text font-weight-medium">
           You don't have any rewards yet.
         </p>
@@ -52,20 +70,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import { ref, onMounted } from "vue";
+import axios from "axios";
 
 const userRewards = ref([]);
 
 const fetchUserRewards = async () => {
   try {
-    const userData = JSON.parse(localStorage.getItem('app_user'));
+    const userData = JSON.parse(localStorage.getItem("app_user"));
     if (!userData?.users_pk) return;
 
-    const response = await axios.get('/rl_users_rewards/list_rewards', {
+    const response = await axios.get("/rl_users_rewards/list_rewards", {
       params: { users_fk: userData.users_pk },
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
@@ -76,7 +94,7 @@ const fetchUserRewards = async () => {
       date: new Date(reward.date).toLocaleDateString(),
     }));
   } catch (err) {
-    console.error('❌ Erro ao buscar rewards do usuário:', err);
+    console.error("❌ Erro ao buscar rewards do usuário:", err);
     userRewards.value = [];
   }
 };
@@ -89,7 +107,7 @@ onMounted(() => {
 <style scoped>
 .date-position {
   position: absolute;
-  bottom: 8px;   /* Distância da borda inferior */
-  right: 12px;  /* Distância da borda direita */
+  bottom: 8px; /* Distância da borda inferior */
+  right: 12px; /* Distância da borda direita */
 }
 </style>
