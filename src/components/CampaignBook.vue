@@ -227,7 +227,9 @@
                           </h2>
                         </div>
                         <div class="body-text mt-3" v-html="item.body"></div>
-
+                        <div class="pt-5 px-16">
+                          <v-img src="@/assets/Barra.png"></v-img>
+                        </div>
                         <v-card
                           v-if="item.instruction"
                           class="instruction-card mt-6 py-0"
@@ -235,10 +237,8 @@
                         >
                           <v-card-text v-html="item.instruction" />
                         </v-card>
-
                         <v-card-text v-html="item.setup" />
-
-                        <div v-if="item.instruction" class="pt-5 px-16">
+                        <div class="pt-5 px-16">
                           <v-img src="@/assets/Barra.png"></v-img>
                         </div>
                       </div>
@@ -273,15 +273,15 @@
                   <v-col cols="12">
                     <template
                       v-for="(
-                        chapter, chapterIndex
-                      ) in playerTutorials.chapters"
-                      :key="chapter.chapterTitle"
+                        tutorialSectionItem, index
+                      ) in playerTutorials.tutorials"
+                      :key="tutorialSectionItem.title"
                     >
                       <div
-                        class="content-block"
+                        :id="`tutorial-section-${index}`"
+                        class="ml-4 content-block"
                         :class="{
-                          'mb-6':
-                            chapterIndex < playerTutorials.chapters.length - 1,
+                          'mb-6': index < playerTutorials.tutorials.length - 1,
                         }"
                       >
                         <div class="header-banner">
@@ -293,26 +293,22 @@
                             </h4>
                           </div>
                           <h2 class="chapter-title-banner">
-                            {{ chapter.chapterTitle }}
+                            {{ playerTutorials.chapterTitle }}
                           </h2>
                         </div>
                         <div class="body-text-mechanics pa-4 mt-3">
-                          <template
-                            v-for="(
-                              tutorial, tutorialIndex
-                            ) in chapter.tutorials"
-                            :key="tutorial.title"
+                          <section class="mb-4">
+                            <h3 class="tutorial-section-title">
+                              {{ tutorialSectionItem.title }}
+                            </h3>
+                            <div v-html="tutorialSectionItem.bodyHTML"></div>
+                          </section>
+                          <div
+                            class="pt-5 px-16"
+                            v-if="index < playerTutorials.tutorials.length - 1"
                           >
-                            <section
-                              :id="`tutorial-section-${chapter.chapterTitle}-${tutorialIndex}`"
-                              class="mb-4"
-                            >
-                              <h3 class="tutorial-section-title">
-                                {{ tutorial.title }}
-                              </h3>
-                              <div v-html="tutorial.bodyHTML"></div>
-                            </section>
-                          </template>
+                            <v-img src="@/assets/Barra.png"></v-img>
+                          </div>
                         </div>
                       </div>
                     </template>
@@ -755,7 +751,6 @@ interface PageContentItem {
   title?: string;
   body: string;
   instruction?: string;
-  setup?: string;
 }
 
 interface PageSection {
@@ -798,14 +793,10 @@ interface PlayerTutorialSection {
   bodyHTML: string;
 }
 
-interface TutorialChapter {
-  chapterTitle: string;
-  tutorials: PlayerTutorialSection[];
-}
-
 interface PlayerTutorials {
   pageTitle: string;
-  chapters: TutorialChapter[];
+  chapterTitle: string;
+  tutorials: PlayerTutorialSection[];
 }
 
 interface ClarificationSection {
@@ -905,7 +896,9 @@ initializeInteractionConfigs();
 const gameMechanicsBook = ref<GameMechanicsBook>(
   gameMechanicsData as GameMechanicsBook,
 );
-const playerTutorials = ref<PlayerTutorials>(playerTutorialsData as any);
+const playerTutorials = ref<PlayerTutorials>(
+  playerTutorialsData as PlayerTutorials,
+);
 const firstEncounterClarifications = ref<EncounterClarificationsBook>(
   firstEncounterClarificationsData as EncounterClarificationsBook,
 );
@@ -944,19 +937,15 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     }
   });
 
-  if (playerTutorials.value && playerTutorials.value.chapters) {
+  if (playerTutorials.value && playerTutorials.value.tutorials) {
     const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials";
-    let tutorialNavCounter = 0;
-    playerTutorials.value.chapters.forEach((chapter) => {
-      chapter.tutorials.forEach((tutorial, tutorialIndex) => {
-        items.push({
-          sectionTitle: sectionGroupTitle,
-          title: tutorial.title,
-          id: `nav-tutorial-${tutorialNavCounter}`,
-          viewType: "tutorial",
-          targetId: `tutorial-section-${chapter.chapterTitle}-${tutorialIndex}`,
-        });
-        tutorialNavCounter++;
+    playerTutorials.value.tutorials.forEach((tutorial, index) => {
+      items.push({
+        sectionTitle: sectionGroupTitle,
+        title: tutorial.title,
+        id: `nav-tutorial-${index}`,
+        viewType: "tutorial",
+        targetId: `tutorial-section-${index}`,
       });
     });
   }
@@ -1108,7 +1097,7 @@ const backgroundStyle = computed<CSSProperties>(() => {
     borderRadius: "12px",
   };
   if (currentPage.value.background) {
-    s.backgroundImage = `url(${currentPage.value.background})`;
+    s.backgroundImage = currentPage.value.background;
     s.backgroundSize = "cover";
     s.backgroundRepeat = "no-repeat";
     s.backgroundPosition = "center center";
@@ -1203,50 +1192,78 @@ async function startScanner() {
       console.error("[BookScript] Elemento de vídeo QR não encontrado.");
       return;
     }
-    const devices = await codeReader.listVideoInputDevices();
-    if (!devices.length) {
-      console.error("[BookScript] Nenhuma câmera encontrada.");
-      return;
-    }
-    const deviceId = devices[0].deviceId;
-    codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
-      if (result) {
-        const raw = result.getText().trim();
-        let normalized: string;
-        try {
-          const u = new URL(raw);
-          normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
-        } catch {
-          normalized = raw.replace(/\/$/, "");
+
+    const constraints: MediaStreamConstraints = {
+      audio: false,
+      video: {
+        facingMode: { exact: "environment" },
+      },
+    };
+
+    await codeReader.decodeFromConstraints(
+      constraints,
+      videoElement,
+      (result, err) => {
+        if (result) {
+          handleQrResult(result.getText());
         }
-        console.log("📱 QR Code normalizado:", normalized);
-        const cfg = interactionConfigs.value[normalized];
-        if (cfg) {
-          currentInteractionConfig.value = cfg;
-          interactions.value = cfg.items;
-          scanned.value = true;
-          interPage.value = "titles";
-          codeReader.reset?.();
-        } else {
-          console.warn(
-            "[BookScript] QR Code desconhecido após normalização:",
-            normalized,
-          );
+        if (
+          err &&
+          !(
+            err.name === "NotFoundException" ||
+            err.name === "FormatException" ||
+            err.name === "ChecksumException"
+          )
+        ) {
+          console.error("[BookScript] Erro ao decodificar QR Code:", err);
         }
-      }
-      if (
-        err &&
-        !(
-          err.name === "NotFoundException" ||
-          err.name === "FormatException" ||
-          err.name === "ChecksumException"
-        )
-      ) {
-      }
-    });
+      },
+    );
+    console.log("[BookScript] Scanner iniciado com facingMode: environment");
   } catch (e) {
-    console.error("[BookScript] Erro ao iniciar o scanner:", e);
+    console.warn(
+      "[BookScript] Não foi possível usar facingMode:environment, aplicando fallback para deviceId=null",
+      e,
+    );
+
+    codeReader.decodeFromVideoDevice(
+      /* deviceId */ null,
+      document.getElementById("qr-video") as HTMLVideoElement,
+      (result, err) => {
+        if (result) {
+          handleQrResult(result.getText());
+        }
+      },
+    );
   }
+}
+
+function handleQrResult(raw: string) {
+  const normalized = normalizeQrUrl(raw);
+  const cfg = interactionConfigs.value[normalized];
+  if (cfg) {
+    currentInteractionConfig.value = cfg;
+    interactions.value = cfg.items;
+    scanned.value = true;
+    interPage.value = "titles";
+    codeReader.reset?.();
+  } else {
+    console.warn(
+      "[BookScript] QR Code desconhecido após normalização:",
+      normalized,
+    );
+  }
+}
+
+function normalizeQrUrl(raw: string): string {
+  let url: string;
+  try {
+    const u = new URL(raw.trim());
+    url = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
+  } catch {
+    url = raw.trim().replace(/\/$/, "");
+  }
+  return url;
 }
 
 function resetScan() {
@@ -2186,12 +2203,5 @@ onBeforeUnmount(() => {
   border-radius: 4px;
   color: #f0e6d2;
   border: 1px solid #5c4a42;
-}
-
-:deep(.inline-icon) {
-  height: 1.2em;
-  width: auto;
-  vertical-align: middle;
-  margin-bottom: 0.2em;
 }
 </style>
