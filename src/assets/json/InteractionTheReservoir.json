@@ -1,131 +1,186 @@
 [
   {
-    "id": "interaction-1.1",
+    "id": "interaction-5.1",
     "type": "choice",
-    "title": "1.1 – TURN THE WHEEL TO THE RIGHT",
+    "title": "5.1 – TURN THE WHEEL TO THE RIGHT",
     "body": [
-      "First, if the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 1.6. If not, and the Drainage Game Mechanic card is showing face A, proceed to resolution 1.7. Otherwise, if none of the above conditions apply, continue reading below:<br><br>",
+      "First, if the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 5.6. If not, and the Drainage Game Mechanic card is showing face A, proceed to resolution 5.7. Otherwise, if none of the above conditions apply, continue reading below:<br><br>",
       "Your arms are put to the test as you grasp the wheel and try to turn it. The first pull is the hardest, but you overcome the challenge and the mechanism loosens, as nature makes it easier to keep things moving once they’re in motion. Soon, the sound of something heavy dragging through the walls echoes through the hall, followed by the rush of water flowing into the darkness…<br><br>",
       "Flip the Drainage Game Mechanic card to face A. Any Time tokens it has remain on it.<br>Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "If mechanism is locked", "type": "PROCEED", "target": "interaction-1.6" },
-      { "text": "If wheel is already right", "type": "PROCEED", "target": "interaction-1.7" },
-      { "text": "Turn it (if possible)", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "If mechanism is locked - (interaction 5.6)",
+        "type": "PROCEED",
+        "target": "interaction-5.6"
+      },
+      {
+        "text": "If wheel is already right - (interaction 5.7)",
+        "type": "PROCEED",
+        "target": "interaction-5.7"
+      },
+      {
+        "text": "Turn it (if possible)",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.2",
+    "id": "interaction-5.2",
     "type": "choice",
-    "title": "1.2 – TURN THE WHEEL TO THE LEFT",
+    "title": "5.2 – TURN THE WHEEL TO THE LEFT",
     "body": [
-      "First, if the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 1.6. If not, and the Drainage Game Mechanic card is showing face B, proceed to resolution 1.8. Otherwise, if none of the above conditions apply, continue reading below:<br><br>",
+      "First, if the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 5.6. If not, and the Drainage Game Mechanic card is showing face B, proceed to resolution 5.8. Otherwise, if none of the above conditions apply, continue reading below:<br><br>",
       "You grab the wheel and, to your surprise, barely need any effort to turn it. The mechanism’s counterweight is working in your favor, applying the force necessary to lower the gates and close the reservoir’s drainage.<br><br>",
       "Flip the Drainage Game Mechanic card to face B. Any Time tokens it has remain on it.<br>Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "If mechanism is locked", "type": "PROCEED", "target": "interaction-1.6" },
-      { "text": "If wheel is already left", "type": "PROCEED", "target": "interaction-1.8" },
-      { "text": "Turn it (if possible)", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "If mechanism is locked - (interaction 5.6)",
+        "type": "PROCEED",
+        "target": "interaction-5.6"
+      },
+      {
+        "text": "If wheel is already left - (interaction 5.8)",
+        "type": "PROCEED",
+        "target": "interaction-5.8"
+      },
+      {
+        "text": "Turn it (if possible)",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.3",
+    "id": "interaction-5.3",
     "type": "choice",
-    "title": "1.3 – LOCK OR UNLOCK THE MECHANISM",
+    "title": "5.3 – LOCK OR UNLOCK THE MECHANISM",
     "body": [
       "A thick, sturdy wooden bar locks the wheel in its last position.<br><br>",
-      "If the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 1.9. Otherwise, continue reading below:<br><br>",
+      "If the “Locked Mechanism” Status is noted on the Party’s Campaign Log, proceed to resolution 5.9. Otherwise, continue reading below:<br><br>",
       "Carefully, you grab the bar and push it all the way into the mechanism. The “click” of the precisely engineered lock echoes through the hall, securing the wheel in place.<br><br>",
       "Write down the Locked Mechanism Status on the Party’s Campaign Log.<br>Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Unlock (if locked)", "type": "PROCEED", "target": "interaction-1.9" },
-      { "text": "Lock (if unlocked)", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Unlock (if locked) - (interaction 5.9)",
+        "type": "PROCEED",
+        "target": "interaction-5.9"
+      },
+      {
+        "text": "Lock (if unlocked)",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.4",
+    "id": "interaction-5.4",
     "type": "choice",
-    "title": "1.4 – TRY TO DECIPHER THE MECHANISM",
+    "title": "5.4 – TRY TO DECIPHER THE MECHANISM",
     "body": [
       "The mechanism seems simple, as if it were one of the components guiding a great Umbralian ship. The operator can take four actions: turn the wheel in either direction or lock and unlock it with a latch. Identifying the parts is easy—making sense of it all is the hard part…<br><br>",
-      "Make a Wisdom (blue) Attribute Challenge of Difficulty 15. Each Wisdom cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.11. Otherwise, continue reading below:<br><br>",
+      "Make a Wisdom (blue) Attribute Challenge of Difficulty 15. Each Wisdom cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 5.11. Otherwise, continue reading below:<br><br>",
       "…and you were never very good at navigation. Even the appearance of the device deceives your eyes—clearly sturdy, but certainly as delicate as any mechanism. All it takes is one part to break for the entire structure to fail. In doubt, is inaction not the wisest move?<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Succeed on Wisdom Challenge", "type": "PROCEED", "target": "interaction-1.11" },
-      { "text": "Fail on Wisdom Challenge", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Succeed on Wisdom Challenge - (interaction 5.11)",
+        "type": "PROCEED",
+        "target": "interaction-5.11"
+      },
+      {
+        "text": "Fail on Wisdom Challenge",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.5",
+    "id": "interaction-5.5",
     "type": "choice",
-    "title": "1.5 – TRY TO DESTROY THE ROPES",
+    "title": "5.5 – TRY TO DESTROY THE ROPES",
     "body": [
       "The wheel is sturdy enough to withstand a few blows, but it has a weakness: the wheel is tied to a rope, and cutting it would disable the mechanism. Still, the rope is nearly as thick as those securing a ship’s main sail—no easy task…<br><br>",
-      "Make a Melee (yellow) Attribute Challenge of Difficulty 15. Each Melee cube you have gives you a +2 bonus to your roll. If you have any way to apply BURN through one of your Skills, you automatically succeed without rolling. If you succeed, proceed to resolution 1.10. Otherwise, continue reading below:<br><br>",
+      "Make a Melee (yellow) Attribute Challenge of Difficulty 15. Each Melee cube you have gives you a +2 bonus to your roll. If you have any way to apply BURN through one of your Skills, you automatically succeed without rolling. If you succeed, proceed to resolution 5.10. Otherwise, continue reading below:<br><br>",
       "You strike at the rope a few times, but without proper technique, your blows only fray the tough braids, barely more than scratching them. The effort yields more fatigue than progress—but it’s a start…<br><br>",
       "You gain 2 Curse Cubes. This effect is not the same as CURSE.<br>Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Succeed on Melee Challenge", "type": "PROCEED", "target": "interaction-1.10" },
-      { "text": "Fail on Melee Challenge", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Succeed on Melee Challenge - (interaction 5.10)",
+        "type": "PROCEED",
+        "target": "interaction-5.10"
+      },
+      {
+        "text": "Fail on Melee Challenge",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.6",
+    "id": "interaction-5.6",
     "type": "resolution",
-    "title": "1.6 – THE LATCH IS LOCKING THE WHEEL",
+    "title": "5.6 – THE LATCH IS LOCKING THE WHEEL",
     "body": [
       "You place your hands on the wheel, but the wooden latch is there, locking it in its last position. You’ll have to remove it first…<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.7",
+    "id": "interaction-5.7",
     "type": "resolution",
-    "title": "1.7 – THE WHEEL IS ALREADY TURNED TO THE RIGHT",
+    "title": "5.7 – THE WHEEL IS ALREADY TURNED TO THE RIGHT",
     "body": [
       "You reach for the wheel, but the moment you start turning it, you feel the mechanism resist. The gates are already open, and the reservoir is draining at full force. There’s no turning the wheel in this direction…<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.8",
+    "id": "interaction-5.8",
     "type": "resolution",
-    "title": "1.8 – THE WHEEL IS ALREADY TURNED TO THE LEFT",
+    "title": "5.8 – THE WHEEL IS ALREADY TURNED TO THE LEFT",
     "body": [
       "You reach for the wheel, but the moment you start turning it, you feel the mechanism resist. The gates are already closed, and the reservoir is no longer at risk of draining. There’s no turning the wheel in this direction…<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.9",
+    "id": "interaction-5.9",
     "type": "resolution",
-    "title": "1.9 – THE MECHANISM IS UNLOCKED",
+    "title": "5.9 – THE MECHANISM IS UNLOCKED",
     "body": [
       "Carefully, you grab the head of the bar and pull half of it out of the mechanism. The “click” of the release echoes through the hall, freeing the wheel once more.<br><br>",
       "Erase the “Locked Mechanism” Status from the Party’s Campaign Log.<br>Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   },
   {
-    "id": "interaction-1.10",
+    "id": "interaction-5.10",
     "type": "resolution",
-    "title": "1.10 – THE ROPES CANNOT WITHSTAND YOU",
+    "title": "5.10 – THE ROPES CANNOT WITHSTAND YOU",
     "body": [
       "…but you know exactly what to do. Striking the hemp fibers in the right spot, the rope snaps at once, pulled into the mechanism’s internal pulleys. The wheel loosens and becomes utterly useless…<br><br>",
       "You gain FOCUS 2.<br>If the Drainage Game Mechanic card is showing face B, remove this Interaction token from the board and then proceed with the Adventure. Otherwise, if it is showing face A, continue reading below:<br><br>",
@@ -133,19 +188,26 @@
       "Flip the Drainage Game Mechanic card to face B. Any Time tokens it has remain on it.<br>Remove this Interaction token from the board.<br>Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Proceed with the Adventure", "type": "PROCEED", "target": "next-adventure-step" }
+      {
+        "text": "Proceed with the Adventure - (next-adventure-step)",
+        "type": "PROCEED",
+        "target": "next-adventure-step"
+      }
     ]
   },
   {
-    "id": "interaction-1.11",
+    "id": "interaction-5.11",
     "type": "resolution",
-    "title": "1.11 – YOU UNDERSTAND THE MECHANISM",
+    "title": "5.11 – YOU UNDERSTAND THE MECHANISM",
     "body": [
       "…but your mind is as sharp as your body, and a moment of clarity hits you. Turning the wheel to the right reels in the rope, while the other direction releases it. Reeling it in opens a gate and drains the reservoir—but the counterweight certainly prevents this. That’s the purpose of the latch: with the lock engaged, the operator no longer needs to hold the wheel.<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
-      { "text": "Return to Options", "type": "RETURN_TO_CHOICES" }
+      {
+        "text": "Return to Options",
+        "type": "RETURN_TO_CHOICES"
+      }
     ]
   }
 ]

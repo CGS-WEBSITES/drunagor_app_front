@@ -9,12 +9,12 @@
     ],
     "actions": [
       {
-        "text": "Assume 'Heads'",
+        "text": "Assume 'Heads' - (interaction 1.6)",
         "type": "PROCEED",
         "target": "interaction-1.6"
       },
       {
-        "text": "Assume 'Tails'",
+        "text": "Assume 'Tails' - (interaction 1.7)",
         "type": "PROCEED",
         "target": "interaction-1.7"
       }
@@ -31,31 +31,31 @@
       "You take 6 damage (you can use Reactions ³). If the Party has the \"Blackriver Survivors\" Status on the Campaign Log, proceed to resolution 1.11. On the other hand, if you have the \"Blackriver Monsters\" Status, proceed to resolution 1.12 instead. If the Party does not have either of them, flip a coin: If the result is \"heads\", proceed to resolution 1.11 anyway; Otherwise, proceed to resolution 1.12."
     ],
     "actions": [
-        {
-            "text": "If you follow the Path of Cunning or Nature",
-            "type": "PROCEED",
-            "target": "interaction-1.8"
-        },
-        {
-            "text": "If you DON'T follow those paths (and have 'Survivors' status)",
-            "type": "PROCEED",
-            "target": "interaction-1.11"
-        },
-        {
-            "text": "If you DON'T follow those paths (and have 'Monsters' status)",
-            "type": "PROCEED",
-            "target": "interaction-1.12"
-        },
-        {
-            "text": "If you DON'T follow paths and have NO status (assume 'Heads')",
-            "type": "PROCEED",
-            "target": "interaction-1.11"
-        },
-        {
-            "text": "If you DON'T follow paths and have NO status (assume 'Tails')",
-            "type": "PROCEED",
-            "target": "interaction-1.12"
-        }
+      {
+        "text": "If you follow the Path of Cunning or Nature - (interaction 1.8)",
+        "type": "PROCEED",
+        "target": "interaction-1.8"
+      },
+      {
+        "text": "If you DON'T follow those paths (and have 'Survivors' status) - (interaction 1.11)",
+        "type": "PROCEED",
+        "target": "interaction-1.11"
+      },
+      {
+        "text": "If you DON'T follow those paths (and have 'Monsters' status) - (interaction 1.12)",
+        "type": "PROCEED",
+        "target": "interaction-1.12"
+      },
+      {
+        "text": "If you DON'T follow paths and have NO status (assume 'Heads') - (interaction 1.11)",
+        "type": "PROCEED",
+        "target": "interaction-1.11"
+      },
+      {
+        "text": "If you DON'T follow paths and have NO status (assume 'Tails') - (interaction 1.12)",
+        "type": "PROCEED",
+        "target": "interaction-1.12"
+      }
     ]
   },
   {
@@ -67,26 +67,26 @@
       "If the Party has the \"Blackriver Survivors\" Status on the Campaign Log, proceed to resolution 1.9. On the other hand, if you have the \"Blackriver Monsters\" Status, proceed to resolution 1.10 instead. If the Party does not have either of them, flip a coin: If the result is \"heads\", proceed to resolution 1.9 anyway; Otherwise, proceed to resolution 1.10."
     ],
     "actions": [
-        {
-            "text": "If you have 'Blackriver Survivors' status",
-            "type": "PROCEED",
-            "target": "interaction-1.9"
-        },
-        {
-            "text": "If you have 'Blackriver Monsters' status",
-            "type": "PROCEED",
-            "target": "interaction-1.10"
-        },
-        {
-            "text": "If you have NO status (assume 'Heads')",
-            "type": "PROCEED",
-            "target": "interaction-1.9"
-        },
-        {
-            "text": "If you have NO status (assume 'Tails')",
-            "type": "PROCEED",
-            "target": "interaction-1.10"
-        }
+      {
+        "text": "If you have 'Blackriver Survivors' status - (interaction 1.9)",
+        "type": "PROCEED",
+        "target": "interaction-1.9"
+      },
+      {
+        "text": "If you have 'Blackriver Monsters' status - (interaction 1.10)",
+        "type": "PROCEED",
+        "target": "interaction-1.10"
+      },
+      {
+        "text": "If you have NO status (assume 'Heads') - (interaction 1.9)",
+        "type": "PROCEED",
+        "target": "interaction-1.9"
+      },
+      {
+        "text": "If you have NO status (assume 'Tails') - (interaction 1.10)",
+        "type": "PROCEED",
+        "target": "interaction-1.10"
+      }
     ]
   },
   {
