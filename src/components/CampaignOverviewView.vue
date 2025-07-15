@@ -1,17 +1,19 @@
 <template>
   <v-container max-width="680">
     <div v-if="loadingErrors.length > 0" class="mb-4">
-      <v-alert
+      <BaseAlert
         v-for="(error, index) in loadingErrors"
         :key="error.id"
+        :model-value="true"
         type="error"
         title="Loading Error"
-        :text="error.text"
         variant="elevated"
         closable
-        @click:close="loadingErrors.splice(index, 1)"
         class="mb-3"
-      />
+        @update:modelValue="() => loadingErrors.splice(index, 1)"
+      >
+        {{ error.text }}
+      </BaseAlert>
     </div>
 
     <v-card
@@ -176,6 +178,7 @@ import { Hero } from "@/store/Hero";
 import type { HeroData } from "@/data/repository/HeroData";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { useToast } from "primevue/usetoast";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 import { customAlphabet } from "nanoid";
 import axios from "axios";

@@ -30,8 +30,10 @@
                                         </v-col>
                                     </v-row>
                                 </v-container>
-                                <v-alert closable v-model="showAlert" :icon="alertIcon" :title="alertTitle"
-                                    :text="alertText" :type="alertType"></v-alert>
+                                <BaseAlert v-model="showAlert" :type="alertType" :icon="alertIcon" :title="alertTitle"
+                                    closable class="my-4">
+                                    {{ alertText }}
+                                </BaseAlert>
 
                                 <v-form ref="regForm">
                                     <v-row>
@@ -125,6 +127,7 @@ import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 import type { User } from "@/store/UserStore";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userStore = useUserStore();
 

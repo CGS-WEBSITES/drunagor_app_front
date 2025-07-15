@@ -11,16 +11,16 @@
       ADD STORE
     </v-btn>
   </v-col>
-  <v-alert
-    v-if="showVerificationMessage"
+  <BaseAlert
+    v-model="showVerificationMessage"
     type="info"
+    icon="mdi-alert-octagram-outline"
     color="warning"
     class="my-4"
-    icon="mdi-alert-octagram-outline"
   >
     Your store is under review and cannot create events yet. The verification
     process may take up to 3 business days.
-  </v-alert>
+  </BaseAlert>
 
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="800" style="min-width: 360px" class="pa-4">
@@ -308,6 +308,7 @@
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 // Interface para o formulário de Store
 interface StoreForm {

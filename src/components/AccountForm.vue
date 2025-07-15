@@ -20,16 +20,17 @@
         <!-- Conteúdo do formulário (visível apenas se expandido) -->
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
-            <!-- Adicionado ref="alertRef" ao v-alert -->
-            <v-alert
+            <BaseAlert
               ref="alertRef"
-              closable
               v-model="showAlert"
+              :type="alertType"
               :icon="alertIcon"
               :title="alertTitle"
-              :text="alertText"
-              :type="alertType"
-            ></v-alert>
+              text
+              class="mb-4"
+            >
+              {{ alertText }}
+            </BaseAlert>
             <v-form ref="userForm">
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-5">Name</p>
               <v-text-field
@@ -214,6 +215,7 @@ import { ref, inject, onMounted, reactive, nextTick } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import type { VForm } from "vuetify/components";
 import { getToken } from "@/service/AccessToken";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userForm = ref<VForm>();
 const userStore = useUserStore();
@@ -245,7 +247,7 @@ const rules = {
     v === form.new_password || "The passwords must match",
   matchEmails: (v: string) => v === form.new_email || "The Emails must match",
 };
-const alertRef = ref<any>(null); // Cria a referência para o v-alert
+const alertRef = ref<any>(null); 
 const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");

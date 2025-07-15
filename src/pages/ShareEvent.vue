@@ -19,9 +19,9 @@
                                 month: '2-digit',
                                 day: '2-digit',
                                 year: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            hour12: true
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
                             }) }}
                         </p>
                     </v-card-text>
@@ -69,8 +69,7 @@
                         </v-col>
                     </v-row>
 
-                    <v-alert v-if="showSuccessAlert" type="success" class="mt-4" border="start" variant="tonal" closable
-                        @click:close="showSuccessAlert = false">
+                    <BaseAlert v-model="showSuccessAlert" type="success" border="start" variant="tonal" class="mt-4">
                         You’ve successfully joined this event! Visit the <strong>Events</strong> page to view it.
 
                         <v-row class="mt-3">
@@ -80,7 +79,7 @@
                                 </v-btn>
                             </v-col>
                         </v-row>
-                    </v-alert>
+                    </BaseAlert>
 
                     <!-- Dialog de login -->
                     <v-dialog v-model="showLoginDialog" width="460">
@@ -127,6 +126,7 @@
 <script setup>
 import { ref, onMounted, inject, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const router = useRouter();
 const route = useRoute();

@@ -13,14 +13,16 @@
 
       <v-card-text class="py-4">
         <v-row v-if="showAlert" no-gutters class="pa-2 mb-4">
-          <v-alert
-            closable
+          <BaseAlert
+            v-model="showAlert"
+            :type="alertType"
             :icon="alertIcon"
             :title="alertTitle"
-            :text="alertText"
-            :type="alertType"
-            @update:modelValue="showAlert = false"
-          ></v-alert>
+            closable
+            class="w-100"
+          >
+            {{ alertText }}
+          </BaseAlert>
         </v-row>
 
         <v-row justify="start">
@@ -77,6 +79,7 @@
 import { ref, inject, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { getToken } from "@/service/AccessToken";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const axios: any = inject("axios");
 const assets = inject<string>("assets");
