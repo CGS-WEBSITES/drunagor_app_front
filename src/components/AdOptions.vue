@@ -18,15 +18,16 @@
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
             <!-- Alerta genérico para feedback -->
-            <v-alert
-              closable
+            <BaseAlert
               v-model="showAlert"
+              :type="alertType"
               :icon="alertIcon"
               :title="alertTitle"
-              :text="alertText"
-              :type="alertType"
+              text
               class="mb-6"
-            ></v-alert>
+            >
+              {{ alertText }}
+            </BaseAlert>
 
             <!-- Botão para deletar a conta -->
             <v-btn
@@ -73,6 +74,7 @@
 import { ref, inject } from "vue";
 import { getToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 // --- Refs e Injeções ---
 const userStore = useUserStore();

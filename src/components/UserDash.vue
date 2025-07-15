@@ -17,6 +17,7 @@
                   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
                   background-color: black;
                 "
+                a
               />
             </v-avatar>
             <v-card-title class="user_nameuser text-h3">{{
@@ -264,17 +265,20 @@
               </v-row>
 
               <div v-if="loadingErrors.length > 0" class="w-100 mt-4 px-4">
-                <v-alert
+                <BaseAlert
                   v-for="(error, index) in loadingErrors"
                   :key="error.id"
+                  v-model="error.visible"
                   type="error"
+                  icon="mdi-alert-octagram-outline"
                   title="Loading Error"
-                  :text="error.text"
                   variant="elevated"
                   closable
-                  @click:close="loadingErrors.splice(index, 1)"
+                  @update:modelValue="() => loadingErrors.splice(index, 1)"
                   class="mb-3"
-                ></v-alert>
+                >
+                  {{ error.text }}
+                </BaseAlert>
               </div>
             </v-col>
           </v-row>
@@ -416,17 +420,20 @@
             </v-row>
 
             <div v-if="loadingErrors.length > 0" class="w-100 mt-4 px-4">
-              <v-alert
+              <BaseAlert
                 v-for="(error, index) in loadingErrors"
                 :key="error.id"
+                v-model="error.visible"
                 type="error"
+                icon="mdi-alert-octagram-outline"
                 title="Loading Error"
-                :text="error.text"
                 variant="elevated"
                 closable
-                @click:close="loadingErrors.splice(index, 1)"
+                @update:modelValue="() => loadingErrors.splice(index, 1)"
                 class="mb-3"
-              ></v-alert>
+              >
+                {{ error.text }}
+              </BaseAlert>
             </div>
           </v-col>
         </v-row>
@@ -450,6 +457,7 @@ import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
 import axios from "axios";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -531,13 +539,16 @@ function getBoxName(boxId: number): string {
 }
 
 function addLoadingError(message: string) {
-  const newError = { id: Date.now(), text: message };
+  const newError = { id: Date.now(), text: message, visible: true };
   loadingErrors.value.push(newError);
+  // opcional: auto‐remover após X segundos
   setTimeout(() => {
-    loadingErrors.value = loadingErrors.value.filter(
-      (e) => e.id !== newError.id,
-    );
+    removeErrorById(newError.id);
   }, 10000);
+}
+
+function removeErrorById(id: number) {
+  loadingErrors.value = loadingErrors.value.filter(e => e.id !== id);
 }
 
 function importCampaign(token: string) {

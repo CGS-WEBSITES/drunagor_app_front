@@ -3,10 +3,17 @@
     <v-col cols="12" md="12" lg="12" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
-          <v-alert type="warning" dense border="start" variant="tonal">
+          <BaseAlert
+            :modelValue="true"
+            type="warning"
+            text
+            border="start"
+            variant="tonal"
+            :closable="false"
+          >
             Players can only view this campaign. Only a Drunagor Master can save
             or delete a campaign.
-          </v-alert>
+          </BaseAlert>
         </v-card-text>
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
@@ -49,16 +56,17 @@
           </v-row>
         </v-card-actions>
         <v-card-text v-if="showAlert" class="pa-0">
-          <v-alert
-            closable
+          <BaseAlert
             v-model="showAlert"
             :icon="alertIcon"
             :title="alertTitle"
-            :text="alertText"
             :type="alertType"
+            text
             density="compact"
             class="ma-2"
-          ></v-alert>
+          >
+            {{ alertText }}
+          </BaseAlert>
         </v-card-text>
       </v-card>
     </v-col>
@@ -309,6 +317,7 @@ import axios from "axios";
 import { ref as vueRef } from "vue";
 import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
 import DialogSaveCampaign from "@/components/dialogs/DialogSaveCampaign.vue";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const route = useRoute();
 const campaignStore = CampaignStore();

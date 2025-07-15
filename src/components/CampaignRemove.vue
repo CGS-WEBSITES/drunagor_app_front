@@ -17,9 +17,9 @@
       }}</v-card-title>
 
       <v-card-text>
-        <v-alert v-model="alertVisible" :type="alertType" closable>
+        <BaseAlert v-model="alertVisible" :type="alertType" closable>
           {{ alertMessage }}
-        </v-alert>
+        </BaseAlert>
 
         <p v-if="!alertVisible" class="text-center mt-2">
           {{ t("text.cannot-be-restored") }}
@@ -65,6 +65,7 @@ import { useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();

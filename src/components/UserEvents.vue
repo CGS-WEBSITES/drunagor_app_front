@@ -271,17 +271,16 @@
                 </v-col>
               </v-row>
 
-              <v-alert
-                v-if="showAlert"
+              <BaseAlert
+                v-model="showAlert"
                 :type="alertType"
                 class="mt-4"
                 border="start"
                 variant="tonal"
                 closable
-                @click:close="showAlert = false"
               >
                 <span v-html="alertMessage"></span>
-              </v-alert>
+              </BaseAlert>
             </v-card-text>
 
             <v-row class="mt-2 ml-0">
@@ -490,29 +489,27 @@
                     >
                   </v-col>
                 </v-row>
-                <v-alert
-                  v-if="showQuitSuccessAlert"
+                <BaseAlert
+                  v-model="showQuitSuccessAlert"
                   type="success"
                   title="Success"
                   class="mb-4"
                   variant="tonal"
                   closable
-                  @click:close="showQuitSuccessAlert = false"
                 >
                   You have successfully left the event. It will no longer appear
                   in your list.
-                </v-alert>
-                <v-alert
-                  v-if="showQuitErrorAlert"
+                </BaseAlert>
+                <BaseAlert
+                  v-model="showQuitErrorAlert"
                   type="error"
                   title="Failed to Leave Event"
                   class="mb-4"
                   variant="tonal"
                   closable
-                  @click:close="showQuitErrorAlert = false"
                 >
                   {{ quitErrorMessage }}
-                </v-alert>
+                </BaseAlert>
               </v-col>
             </v-row>
             <v-card
@@ -752,6 +749,7 @@ import { useToast } from "primevue/usetoast";
 import { useI18n } from "vue-i18n";
 import { Campaign } from "@/store/Campaign";
 import { useDebounceFn } from "@vueuse/core";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const router = useRouter();
 const toast = useToast();

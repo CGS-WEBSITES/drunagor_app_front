@@ -32,15 +32,15 @@
                       Welcome back!
                     </h1>
 
-                    <v-alert
-                      class="my-5"
-                      closable
+                    <BaseAlert
                       v-model="showAlert"
+                      :type="alertType"
                       :icon="alertIcon"
                       :title="alertTitle"
-                      :text="alertText"
-                      :type="alertType"
-                    ></v-alert>
+                      class="my-5"
+                    >
+                      {{ alertText }}
+                    </BaseAlert>
 
                     <v-form>
                       <v-text-field
@@ -142,14 +142,15 @@
                       Create an Account
                     </h1>
 
-                    <v-alert
-                      closable
+                    <BaseAlert
                       v-model="showAlert"
+                      :type="alertType"
                       :icon="alertIcon"
                       :title="alertTitle"
-                      :text="alertText"
-                      :type="alertType"
-                    ></v-alert>
+                      class="mb-6"
+                    >
+                      {{ alertText }}
+                    </BaseAlert>
 
                     <v-form ref="regForm">
                       <v-row>
@@ -385,6 +386,7 @@ import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 import type { User } from "@/store/UserStore";
 import { onBeforeMount } from "vue";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userStore = useUserStore();
 
