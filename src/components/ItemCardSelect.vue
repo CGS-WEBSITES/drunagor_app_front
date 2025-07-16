@@ -1,3 +1,17 @@
+<template>
+  <v-autocomplete
+    clearable
+    v-model="selectedId"
+    :items="items"
+    item-title="name"
+    item-value="id"
+    :label="placeholder"
+    :hint="t('label.stash')"
+    variant="outlined"
+    @input="onStash"
+  ></v-autocomplete>
+</template>
+
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import type { ItemData } from "@/data/repository/ItemData";
@@ -40,19 +54,5 @@ watch(selectedId, (newSelectedId) => {
   emit("selected", newSelectedId);
 });
 </script>
-
-<template>
-  <v-autocomplete
-    clearable
-    v-model="selectedId"
-    :items="items"
-    item-title="name"
-    item-value="id"
-    :label="placeholder"
-    :hint="t('label.stash')"
-    variant="outlined"
-    @input="onStash"
-  ></v-autocomplete>
-</template>
 
 <style scoped></style>

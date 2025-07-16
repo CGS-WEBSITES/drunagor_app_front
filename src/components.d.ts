@@ -13,6 +13,7 @@ declare module 'vue' {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     Badges: typeof import('./components/Badges.vue')['default']
     BadgesUser: typeof import('./components/BadgesUser.vue')['default']
+    BaseAlert: typeof import('./components/Alerts/BaseAlert.vue')['default']
     BaseList: typeof import('./components/BaseList.vue')['default']
     BaseListItem: typeof import('./components/BaseListItem.vue')['default']
     BaseListSearch: typeof import('./components/BaseListSearch.vue')['default']

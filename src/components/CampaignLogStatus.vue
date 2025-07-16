@@ -1,46 +1,3 @@
-<script setup lang="ts">
-import { ref, watch } from "vue";
-import type { Status } from "@/data/repository/campaign/Status";
-import { HeroStore } from "@/store/HeroStore";
-import type { StatusRepository } from "@/data/repository/campaign/StatusRepository";
-import { useI18n } from "vue-i18n";
-import { ConfigurationStore } from "@/store/ConfigurationStore";
-
-const props = defineProps<{
-  heroId: string;
-  campaignId: string;
-  repository: StatusRepository;
-}>();
-
-const heroStore = HeroStore();
-const configurationStore = ConfigurationStore();
-const { t } = useI18n();
-props.repository.load(configurationStore.enabledLanguage);
-
-const statuses = props.repository.findAll();
-
-const statusIds = ref([] as string[]);
-statusIds.value =
-  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds ?? [];
-
-function findStatuses(statusIds: string[]): Status[] {
-  const statuses: Status[] = [];
-  statusIds.forEach((statusId) => {
-    let status = props.repository.find(statusId);
-    if (status) {
-      statuses.push(status);
-    }
-  });
-
-  return statuses;
-}
-
-watch(statusIds, (newStatusIds) => {
-  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds =
-    newStatusIds;
-});
-</script>
-
 <template>
   <span :data-testid="'campaign-log-status-' + heroId">
     <v-select
@@ -78,5 +35,50 @@ watch(statusIds, (newStatusIds) => {
     </v-sheet>
   </span>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import type { Status } from "@/data/repository/campaign/Status";
+import { HeroStore } from "@/store/HeroStore";
+import type { StatusRepository } from "@/data/repository/campaign/StatusRepository";
+import { useI18n } from "vue-i18n";
+import { ConfigurationStore } from "@/store/ConfigurationStore";
+
+const props = defineProps<{
+  heroId: string;
+  campaignId: string;
+  repository: StatusRepository;
+}>();
+
+const heroStore = HeroStore();
+const configurationStore = ConfigurationStore();
+const { t } = useI18n();
+
+const statusIds = ref([] as string[]);
+
+props.repository.load(configurationStore.enabledLanguage);
+
+const statuses = props.repository.findAll();
+
+statusIds.value =
+  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds ?? [];
+
+function findStatuses(statusIds: string[]): Status[] {
+  const statuses: Status[] = [];
+  statusIds.forEach((statusId) => {
+    let status = props.repository.find(statusId);
+    if (status) {
+      statuses.push(status);
+    }
+  });
+
+  return statuses;
+}
+
+watch(statusIds, (newStatusIds) => {
+  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds =
+    newStatusIds;
+});
+</script>
 
 <style scoped></style>

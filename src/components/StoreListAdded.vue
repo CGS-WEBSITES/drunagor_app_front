@@ -4,18 +4,19 @@
       <v-col cols="12" class="d-flex justify-center pa-0">
         <v-tabs v-model="activeTab" class="mb-4 overflow-visible-tabs">
           <v-tab :value="'friends'" class="text-h5 text-bold">Friends</v-tab>
-          
-          <v-badge 
-            :model-value="requests.length > 0" 
-            color="red" 
+
+          <v-badge
+            :model-value="requests.length > 0"
+            color="red"
             dot
             location="top end"
             offset-x="8"
             offset-y="8"
           >
-            <v-tab :value="'requests'" class="text-h5 text-bold">Requests</v-tab>
+            <v-tab :value="'requests'" class="text-h5 text-bold"
+              >Requests</v-tab
+            >
           </v-badge>
-
         </v-tabs>
       </v-col>
 
@@ -53,11 +54,7 @@
               }"
             ></div>
             <v-row>
-              <v-col
-                cols="4"
-                lg="2"
-                class="d-flex align-center justify-center"
-              >
+              <v-col cols="4" lg="2" class="d-flex align-center justify-center">
                 <v-img
                   :src="item.image"
                   alt="User Image"
@@ -122,6 +119,14 @@ const friends = ref([]);
 const requests = ref([]);
 const processingRequest = ref(null); // Controla o estado de loading
 
+const filteredList = computed(() => {
+  const list = activeTab.value === "friends" ? friends.value : requests.value;
+  if (!searchQuery.value) return list;
+  return list.filter((item) =>
+    item.user_name.toLowerCase().includes(searchQuery.value.toLowerCase()),
+  );
+});
+
 const navigateToUser = (userId) => {
   try {
     if (!userId) throw new Error("ID do usuário não encontrado!");
@@ -165,7 +170,10 @@ const fetchFriends = async () => {
       accepted: true,
     }));
   } catch (error) {
-    console.error("❌ Erro ao buscar amigos:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao buscar amigos:",
+      error.response?.data || error.message,
+    );
   }
 };
 
@@ -191,7 +199,10 @@ const fetchRequests = async () => {
       accepted: false,
     }));
   } catch (error) {
-      console.error("❌ Erro ao buscar solicitações:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao buscar solicitações:",
+      error.response?.data || error.message,
+    );
   }
 };
 
@@ -204,11 +215,13 @@ const acceptFriend = async (requestItem) => {
   const { friends_pk } = requestItem;
   processingRequest.value = friends_pk;
 
-  const requestIndex = requests.value.findIndex(r => r.friends_pk === friends_pk);
+  const requestIndex = requests.value.findIndex(
+    (r) => r.friends_pk === friends_pk,
+  );
   if (requestIndex > -1) {
     requests.value.splice(requestIndex, 1);
   }
-  
+
   const newFriend = { ...requestItem, accepted: true };
   friends.value.unshift(newFriend);
 
@@ -220,12 +233,14 @@ const acceptFriend = async (requestItem) => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     );
     await fetchFriends();
-
   } catch (error) {
-    console.error("❌ Erro ao aceitar amizade:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao aceitar amizade:",
+      error.response?.data || error.message,
+    );
     await fetchFriends();
     await fetchRequests();
   } finally {
@@ -235,15 +250,17 @@ const acceptFriend = async (requestItem) => {
 
 const declineFriend = async (friends_pk) => {
   if (!friends_pk) {
-      console.error("❌ Erro: ID do pedido (friends_pk) não fornecido.");
-      return;
+    console.error("❌ Erro: ID do pedido (friends_pk) não fornecido.");
+    return;
   }
 
   processingRequest.value = friends_pk;
 
-  const requestIndex = requests.value.findIndex(r => r.friends_pk === friends_pk);
+  const requestIndex = requests.value.findIndex(
+    (r) => r.friends_pk === friends_pk,
+  );
   if (requestIndex > -1) {
-      requests.value.splice(requestIndex, 1);
+    requests.value.splice(requestIndex, 1);
   }
 
   try {
@@ -253,19 +270,19 @@ const declineFriend = async (friends_pk) => {
       },
     });
   } catch (error) {
-    console.error("❌ Erro ao recusar amizade:", error.response?.data || error.message);
+    console.error(
+      "❌ Erro ao recusar amizade:",
+      error.response?.data || error.message,
+    );
     await fetchRequests();
   } finally {
     processingRequest.value = null;
   }
 };
 
-const filteredList = computed(() => {
-  const list = activeTab.value === "friends" ? friends.value : requests.value;
-  if (!searchQuery.value) return list;
-  return list.filter((item) =>
-    item.user_name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+onMounted(() => {
+  fetchRequests();
+  fetchFriends();
 });
 
 watch(activeTab, (newTab) => {
@@ -274,11 +291,6 @@ watch(activeTab, (newTab) => {
   } else if (newTab === "requests") {
     fetchRequests();
   }
-});
-
-onMounted(() => {
-    fetchRequests();
-    fetchFriends();
 });
 </script>
 

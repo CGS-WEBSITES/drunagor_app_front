@@ -1,3 +1,33 @@
+<template>
+  <v-btn variant="elevated" id="campaign-add-hero" rounded @click="openModal">
+    <v-icon start>mdi-plus</v-icon>
+    {{ t("label.add-hero") }}
+  </v-btn>
+
+  <v-dialog v-model="visible" max-width="500">
+    <v-card>
+      <v-card-title class="text-center">
+        {{ t("label.add-hero") }}
+      </v-card-title>
+      <v-card-text>
+        <v-list lines="one">
+          <v-list-item id="party-random-hero" @click="addRandomHeroToCampaign">
+            <v-img :src="RandomImage"
+          /></v-list-item>
+
+          <v-list-item
+            v-for="hero in filteredHeroes"
+            :key="hero.id"
+            @click="addHeroToCampaign(hero.id)"
+          >
+            <v-img :src="hero.images.trackerimage" />
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+</template>
+
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import BaseList from "@/components/BaseList.vue";
@@ -47,7 +77,7 @@ function addHeroToCampaign(heroId: string) {
 
 function addRandomHeroToCampaign() {
   const randomHero = new RandomizeHero().randomize(
-    _.map(heroStore.findAllInCampaign(props.campaignId), "heroId")
+    _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
   );
 
   if (randomHero === null) {
@@ -63,42 +93,5 @@ function addRandomHeroToCampaign() {
   closeModal();
 }
 </script>
-
-<template>
-  <v-btn variant="elevated" id="campaign-add-hero" rounded @click="openModal">
-    <v-icon start>mdi-plus</v-icon>
-    {{ t("label.add-hero") }}
-  </v-btn>
-
-  <v-dialog v-model="visible" max-width="500">
-    <v-card>
-      <v-card-title class="text-center">
-        {{ t("label.add-hero") }}
-      </v-card-title>
-      <v-card-text>
-        <v-list lines="one">
-          <v-list-item
-            id="party-random-hero"
-            @click="addRandomHeroToCampaign"
-          >
-             <v-img
-    :src="RandomImage" 
-  /></v-list-item>
-     
-          
-          <v-list-item
-  v-for="hero in filteredHeroes"
-  :key="hero.id"
-  @click="addHeroToCampaign(hero.id)"
->
-  <v-img
-    :src="hero.images.trackerimage" 
-  />
-</v-list-item>
-        </v-list>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-</template>
 
 <style scoped></style>

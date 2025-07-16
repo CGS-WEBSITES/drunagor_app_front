@@ -1,3 +1,65 @@
+<template>
+  <div id="story-record-legacy-trail" class="form-control w-full">
+    <v-row no-gutters>
+      <v-col cols="12" class="text-left"> Perseverance </v-col>
+      <v-col cols="12">
+        <v-radio-group
+          v-model="perseverance"
+          inline
+          class="d-flex flex-row justify-end"
+        >
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+
+      <v-col cols="12" class="text-left"> Tragedy </v-col>
+      <v-col cols="12">
+        <v-radio-group
+          v-model="tragedy"
+          inline
+          class="d-flex flex-row justify-end"
+        >
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+
+      <v-col cols="12" class="text-left"> Doom </v-col>
+      <v-col cols="12">
+        <v-radio-group
+          v-model="doom"
+          inline
+          class="d-flex flex-row justify-end"
+        >
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+
+      <v-col cols="12" class="text-left"> Heroism </v-col>
+      <v-col cols="12">
+        <v-radio-group
+          v-model="heroism"
+          inline
+          class="d-flex flex-row justify-end"
+        >
+          <v-radio label="0" value="0"></v-radio>
+          <v-radio label="1" value="1"></v-radio>
+          <v-radio label="2" value="2"></v-radio>
+          <v-radio label="3" value="3"></v-radio>
+        </v-radio-group>
+      </v-col>
+    </v-row>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -38,51 +100,5 @@ watch(heroism, async (newHeroism) => {
   campaignStore.find(props.campaignId).legacyTrail.heroism = newHeroism;
 });
 </script>
-
-<template>
-  <div id="story-record-legacy-trail" class="form-control w-full">
-    <v-row no-gutters>
-      <v-col cols="12" class="text-left"> Perseverance </v-col>
-      <v-col cols="12">
-        <v-radio-group v-model="perseverance" inline  class="d-flex flex-row justify-end">
-          <v-radio label="0" value="0"></v-radio>
-          <v-radio label="1" value="1"></v-radio>
-          <v-radio label="2" value="2"></v-radio>
-          <v-radio label="3" value="3"></v-radio>
-        </v-radio-group>
-      </v-col>
-
-      <v-col cols="12" class="text-left"> Tragedy </v-col>
-      <v-col cols="12">
-        <v-radio-group v-model="tragedy" inline class="d-flex flex-row justify-end">
-          <v-radio label="0" value="0"></v-radio>
-          <v-radio label="1" value="1"></v-radio>
-          <v-radio label="2" value="2"></v-radio>
-          <v-radio label="3" value="3"></v-radio>
-        </v-radio-group>
-      </v-col>
-
-      <v-col cols="12" class="text-left"> Doom </v-col>
-      <v-col cols="12">
-        <v-radio-group v-model="doom" inline class="d-flex flex-row justify-end">
-          <v-radio label="0" value="0"></v-radio>
-          <v-radio label="1" value="1"></v-radio>
-          <v-radio label="2" value="2"></v-radio>
-          <v-radio label="3" value="3"></v-radio>
-        </v-radio-group>
-      </v-col>
-
-      <v-col cols="12" class="text-left"> Heroism </v-col>
-      <v-col cols="12">
-        <v-radio-group v-model="heroism" inline class="d-flex flex-row justify-end">
-          <v-radio label="0" value="0"></v-radio>
-          <v-radio label="1" value="1"></v-radio>
-          <v-radio label="2" value="2"></v-radio>
-          <v-radio label="3" value="3"></v-radio>
-        </v-radio-group>
-      </v-col>
-    </v-row>
-  </div>
-</template>
 
 <style scoped></style>

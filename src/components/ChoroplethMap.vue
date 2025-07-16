@@ -1,3 +1,7 @@
+<template>
+  <div ref="plotDiv" class="map-container"></div>
+</template>
+
 <script setup lang="ts">
 import { onMounted, ref, onUnmounted } from "vue";
 import * as Plotly from "plotly.js-dist";
@@ -9,7 +13,7 @@ const plotDiv = ref<HTMLDivElement | null>(null);
 // Function to draw the Plotly map
 const drawMap = () => {
   d3.csv(
-    "https://raw.githubusercontent.com/plotly/datasets/master/2014_usa_states.csv"
+    "https://raw.githubusercontent.com/plotly/datasets/master/2014_usa_states.csv",
   ).then((rows) => {
     function unpack(rows: any[], key: string) {
       return rows.map((row) => row[key]);
@@ -176,10 +180,6 @@ onUnmounted(() => {
   window.removeEventListener("resize", resizeMap);
 });
 </script>
-
-<template>
-  <div ref="plotDiv" class="map-container"></div>
-</template>
 
 <style scoped>
 .map-container {

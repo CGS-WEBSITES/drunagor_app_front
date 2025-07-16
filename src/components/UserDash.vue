@@ -17,6 +17,7 @@
                   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
                   background-color: black;
                 "
+                a
               />
             </v-avatar>
             <v-card-title class="user_nameuser text-h3">{{
@@ -165,8 +166,17 @@
             no-gutters
           >
             <v-col cols="12" sm="12" md="12" class="px-5 mb-0">
-              <div v-if="loading" class="d-flex justify-center align-center" style="min-height: 350px;">
-                <v-progress-circular :size="60" :width="6" color="primary" indeterminate></v-progress-circular>
+              <div
+                v-if="loading"
+                class="d-flex justify-center align-center"
+                style="min-height: 350px"
+              >
+                <v-progress-circular
+                  :size="60"
+                  :width="6"
+                  color="primary"
+                  indeterminate
+                ></v-progress-circular>
               </div>
               <v-carousel
                 hide-delimiters
@@ -207,12 +217,12 @@
                           cover
                         ></v-img>
 
-                          <v-img
-                            v-else-if="item.campaign === 'underkeep'"
-                            src="@/assets/underkeep.png"
-                            cover
-                            max-height="307"
-                          ></v-img>
+                        <v-img
+                          v-else-if="item.campaign === 'underkeep'"
+                          src="@/assets/underkeep.png"
+                          cover
+                          max-height="307"
+                        ></v-img>
 
                         <v-card-title class="text-uppercase" v-if="item.name">
                           {{ item.name }}
@@ -242,8 +252,8 @@
                 <v-col cols="12">
                   <v-card class="mx-auto">
                     <v-card-title class="mx-auto text-center">
-                      You don't have any campaigns saved yet. Click the
-                      button below to create one.
+                      You don't have any campaigns saved yet. Click the button
+                      below to create one.
                     </v-card-title>
                     <v-card-actions class="d-flex justify-center">
                       <v-btn @click="router.push({ name: 'Campaign Overview' })"
@@ -255,19 +265,21 @@
               </v-row>
 
               <div v-if="loadingErrors.length > 0" class="w-100 mt-4 px-4">
-                <v-alert
+                <BaseAlert
                   v-for="(error, index) in loadingErrors"
                   :key="error.id"
+                  v-model="error.visible"
                   type="error"
+                  icon="mdi-alert-octagram-outline"
                   title="Loading Error"
-                  :text="error.text"
                   variant="elevated"
                   closable
-                  @click:close="loadingErrors.splice(index, 1)"
+                  @update:modelValue="() => loadingErrors.splice(index, 1)"
                   class="mb-3"
-                ></v-alert>
+                >
+                  {{ error.text }}
+                </BaseAlert>
               </div>
-
             </v-col>
           </v-row>
         </v-card>
@@ -305,9 +317,18 @@
 
         <v-row class="d-flex justify-center align-center w-100" no-gutters>
           <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
-             <div v-if="loading" class="d-flex justify-center align-center" style="min-height: 400px;">
-                <v-progress-circular :size="60" :width="6" color="primary" indeterminate></v-progress-circular>
-              </div>
+            <div
+              v-if="loading"
+              class="d-flex justify-center align-center"
+              style="min-height: 400px"
+            >
+              <v-progress-circular
+                :size="60"
+                :width="6"
+                color="primary"
+                indeterminate
+              ></v-progress-circular>
+            </div>
             <v-carousel
               show-arrows="hover"
               hide-delimiters
@@ -350,11 +371,11 @@
                         cover
                       ></v-img>
                       <v-img
-                          v-else-if="item.campaign === 'underkeep'"
-                          src="@/assets/underkeep.png"
-                          cover
-                          max-height="260"
-                        ></v-img>
+                        v-else-if="item.campaign === 'underkeep'"
+                        src="@/assets/underkeep.png"
+                        cover
+                        max-height="260"
+                      ></v-img>
                       <v-card-subtitle
                         class="text-uppercase mt-3"
                         v-if="item.name"
@@ -386,8 +407,8 @@
               <v-col cols="10">
                 <v-card class="mx-auto">
                   <v-card-title class="text-center">
-                     You don't have any campaigns saved yet. Click the
-                      button below to create one.
+                    You don't have any campaigns saved yet. Click the button
+                    below to create one.
                   </v-card-title>
                   <v-card-actions class="d-flex justify-center">
                     <v-btn @click="router.push({ name: 'Campaign Overview' })"
@@ -399,18 +420,21 @@
             </v-row>
 
             <div v-if="loadingErrors.length > 0" class="w-100 mt-4 px-4">
-                <v-alert
-                  v-for="(error, index) in loadingErrors"
-                  :key="error.id"
-                  type="error"
-                  title="Loading Error"
-                  :text="error.text"
-                  variant="elevated"
-                  closable
-                  @click:close="loadingErrors.splice(index, 1)"
-                  class="mb-3"
-                ></v-alert>
-              </div>
+              <BaseAlert
+                v-for="(error, index) in loadingErrors"
+                :key="error.id"
+                v-model="error.visible"
+                type="error"
+                icon="mdi-alert-octagram-outline"
+                title="Loading Error"
+                variant="elevated"
+                closable
+                @update:modelValue="() => loadingErrors.splice(index, 1)"
+                class="mb-3"
+              >
+                {{ error.text }}
+              </BaseAlert>
+            </div>
           </v-col>
         </v-row>
       </v-col>
@@ -424,12 +448,16 @@ import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroDataRepository, type HeroData } from "@/data/repository/HeroDataRepository";
+import {
+  HeroDataRepository,
+  type HeroData,
+} from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
-import axios from 'axios';
+import axios from "axios";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -442,101 +470,6 @@ const heroDataRepository = new HeroDataRepository();
 
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
-
-function getBoxName(boxId: number): string {
-  switch (boxId) {
-    case 22:
-      return "Corebox";
-    case 23:
-      return "Apocalypse";
-    case 34:
-      return "Awakenings";
-    case 38:
-      return "Underkeep Drunagor Nights";
-    default:
-      return `Unknown Box (ID: ${boxId})`;
-  }
-}
-
-function addLoadingError(message: string) {
-  const newError = { id: Date.now(), text: message };
-  loadingErrors.value.push(newError);
-  setTimeout(() => {
-    loadingErrors.value = loadingErrors.value.filter(e => e.id !== newError.id);
-  }, 10000);
-}
-
-function importCampaign(token: string) {
-  let data;
-  try {
-    data = JSON.parse(atob(token));
-  } catch (error) {
-    throw new Error("Invalid data format (not a valid Base64 or JSON string).");
-  }
-
-  if (!("campaignData" in data) || !("heroes" in data)) {
-    throw new Error("Incomplete campaign data structure.");
-  }
-
-  const campaign: Campaign = data.campaignData;
-  campaignStore.add(campaign);
-
-  const heroes = data.heroes as Hero[];
-  heroes.forEach((h) => {
-    h.campaignId = campaign.campaignId;
-
-    if (typeof h.equipment === "undefined") {
-      h.equipment = new HeroEquipment();
-    }
-    if (typeof h.sequentialAdventureState === "undefined") {
-      h.sequentialAdventureState = null;
-    }
-    heroStore.add(h);
-  });
-}
-
-onBeforeMount(async () => {
-  campaignStore.reset();
-  heroStore.reset();
-  loadingErrors.value = [];
-  loading.value = true;
-
-  if (!user) {
-    loading.value = false;
-    return;
-  }
-
-  try {
-    const res = await axios.get("/rl_campaigns_users/search", {
-      params: { users_fk: user.users_pk },
-    });
-
-    res.data.campaigns.forEach((element: any) => {
-      try {
-        importCampaign(element.tracker_hash);
-      } catch (e: any) {
-        console.error(`Failed to import campaign ID: ${element.campaigns_pk}`, e);
-        const partyName = element.party_name || "Unnamed Campaign";
-        const boxName = getBoxName(element.box);
-        const errorMessage = `Could not load the campaign "${partyName}" from the "${boxName}". The data seems to be corrupted. Please contact support if the issue persists.`;
-        addLoadingError(errorMessage);
-      }
-    });
-  } catch (apiError) {
-    console.error("Failed to fetch campaigns from API", apiError);
-    addLoadingError("An error occurred while fetching your campaigns. Please try again later.");
-  } finally {
-    loading.value = false;
-  }
-});
-
-const campaignList = computed(() => {
-  return campaignStore.findAll();
-});
-
-const isMobile = computed(() => {
-  return !display.value.mdAndUp;
-});
 
 const carouselItems = ref([
   {
@@ -568,7 +501,8 @@ const libraryItems = ref([
   },
   {
     name: "DESERT OF HELLSCAR",
-    image: new URL(assets + "/Dashboard/btn-hellscar.png", import.meta.url).href,
+    image: new URL(assets + "/Dashboard/btn-hellscar.png", import.meta.url)
+      .href,
   },
   {
     name: "APOCALYPSE",
@@ -576,16 +510,122 @@ const libraryItems = ref([
   },
   {
     name: "AWAKENINGS",
-    image: new URL(assets + "/Dashboard/btn-awakenings.png", import.meta.url).href,
+    image: new URL(assets + "/Dashboard/btn-awakenings.png", import.meta.url)
+      .href,
   },
 ]);
+
+const campaignList = computed(() => {
+  return campaignStore.findAll();
+});
+
+const isMobile = computed(() => {
+  return !display.value.mdAndUp;
+});
+
+function getBoxName(boxId: number): string {
+  switch (boxId) {
+    case 22:
+      return "Corebox";
+    case 23:
+      return "Apocalypse";
+    case 34:
+      return "Awakenings";
+    case 38:
+      return "Underkeep Drunagor Nights";
+    default:
+      return `Unknown Box (ID: ${boxId})`;
+  }
+}
+
+function addLoadingError(message: string) {
+  const newError = { id: Date.now(), text: message, visible: true };
+  loadingErrors.value.push(newError);
+  // opcional: auto‐remover após X segundos
+  setTimeout(() => {
+    removeErrorById(newError.id);
+  }, 10000);
+}
+
+function removeErrorById(id: number) {
+  loadingErrors.value = loadingErrors.value.filter(e => e.id !== id);
+}
+
+function importCampaign(token: string) {
+  let data;
+  try {
+    data = JSON.parse(atob(token));
+  } catch (error) {
+    throw new Error("Invalid data format (not a valid Base64 or JSON string).");
+  }
+
+  if (!("campaignData" in data) || !("heroes" in data)) {
+    throw new Error("Incomplete campaign data structure.");
+  }
+
+  const campaign: Campaign = data.campaignData;
+  campaignStore.add(campaign);
+
+  const heroes = data.heroes as Hero[];
+  heroes.forEach((h) => {
+    h.campaignId = campaign.campaignId;
+
+    if (typeof h.equipment === "undefined") {
+      h.equipment = new HeroEquipment();
+    }
+    if (typeof h.sequentialAdventureState === "undefined") {
+      h.sequentialAdventureState = null;
+    }
+    heroStore.add(h);
+  });
+}
 
 function findHeroes(campaignId: string): HeroData[] {
   return heroStore
     .findAllInCampaign(campaignId)
-    .map(h => heroDataRepository.find(h.heroId))
+    .map((h) => heroDataRepository.find(h.heroId))
     .filter((h): h is HeroData => !!h);
 }
+
+onBeforeMount(async () => {
+  campaignStore.reset();
+  heroStore.reset();
+  loadingErrors.value = [];
+  loading.value = true;
+
+  if (!user) {
+    loading.value = false;
+    return;
+  }
+
+  try {
+    const res = await axios.get("/rl_campaigns_users/search", {
+      params: { users_fk: user.users_pk },
+    });
+
+    res.data.campaigns.forEach((element: any) => {
+      try {
+        importCampaign(element.tracker_hash);
+      } catch (e: any) {
+        console.error(
+          `Failed to import campaign ID: ${element.campaigns_pk}`,
+          e,
+        );
+        const partyName = element.party_name || "Unnamed Campaign";
+        const boxName = getBoxName(element.box);
+        const errorMessage = `Could not load the campaign "${partyName}" from the "${boxName}". The data seems to be corrupted. Please contact support if the issue persists.`;
+        addLoadingError(errorMessage);
+      }
+    });
+  } catch (apiError) {
+    console.error("Failed to fetch campaigns from API", apiError);
+    addLoadingError(
+      "An error occurred while fetching your campaigns. Please try again later.",
+    );
+  } finally {
+    loading.value = false;
+  }
+});
 </script>
 
 <style>

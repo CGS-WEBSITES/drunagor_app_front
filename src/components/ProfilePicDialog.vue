@@ -13,14 +13,16 @@
 
       <v-card-text class="py-4">
         <v-row v-if="showAlert" no-gutters class="pa-2 mb-4">
-          <v-alert
-            closable
+          <BaseAlert
+            v-model="showAlert"
+            :type="alertType"
             :icon="alertIcon"
             :title="alertTitle"
-            :text="alertText"
-            :type="alertType"
-            @update:modelValue="showAlert = false"
-          ></v-alert>
+            closable
+            class="w-100"
+          >
+            {{ alertText }}
+          </BaseAlert>
         </v-row>
 
         <v-row justify="start">
@@ -38,7 +40,9 @@
                 :elevation="isHovering ? 16 : 4"
                 :disabled="isSaving"
                 class="cursor-pointer"
-                :class="{ 'active-selection': UserStore.user.picture_hash === item.hash }"
+                :class="{
+                  'active-selection': UserStore.user.picture_hash === item.hash,
+                }"
                 @click="selectAndSavePicture(item.hash)"
                 rounded="md"
               >
@@ -56,7 +60,10 @@
                     class="d-flex align-center justify-center"
                     scrim="rgba(0, 0, 0, 0.5)"
                   >
-                    <v-progress-circular indeterminate color="white"></v-progress-circular>
+                    <v-progress-circular
+                      indeterminate
+                      color="white"
+                    ></v-progress-circular>
                   </v-overlay>
                 </v-img>
               </v-card>
@@ -72,6 +79,7 @@
 import { ref, inject, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { getToken } from "@/service/AccessToken";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const axios: any = inject("axios");
 const assets = inject<string>("assets");
@@ -105,7 +113,12 @@ watch(dialogIsActive, (isActive) => {
   }
 });
 
-const setAlert = (icon: string, title: string, text: string, type: "success" | "error" | "warning" | "info") => {
+const setAlert = (
+  icon: string,
+  title: string,
+  text: string,
+  type: "success" | "error" | "warning" | "info",
+) => {
   alertIcon.value = icon;
   alertTitle.value = title;
   alertText.value = text;
@@ -129,7 +142,7 @@ const selectAndSavePicture = async (pictureHash: string) => {
       },
       {
         headers: getToken(),
-      }
+      },
     );
 
     await UserStore.setUser({ ...user, picture_hash: pictureHash });
@@ -139,14 +152,13 @@ const selectAndSavePicture = async (pictureHash: string) => {
     setTimeout(() => {
       dialogIsActive.value = false;
     }, 1500);
-
   } catch (error: any) {
     console.error("Error saving image:", error);
     setAlert(
       "mdi-alert-circle",
-      `Error ${error.response?.status || ''}`,
+      `Error ${error.response?.status || ""}`,
       error.response?.data?.message || "A network error occurred.",
-      "error"
+      "error",
     );
   } finally {
     setTimeout(() => {
@@ -163,6 +175,6 @@ const selectAndSavePicture = async (pictureHash: string) => {
 }
 
 .active-selection {
-  border: 4px solid #1976D2;
+  border: 4px solid #1976d2;
 }
 </style>

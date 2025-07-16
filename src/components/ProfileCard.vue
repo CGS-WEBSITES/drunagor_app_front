@@ -1,6 +1,6 @@
 <template>
-   <v-card
-   color="primary"
+  <v-card
+    color="primary"
     class="profile-card mx-auto py-0"
     rounded="0"
     elevation="3"
@@ -13,36 +13,42 @@
   >
     <div class="position-relative">
       <v-img
-      :key="reloadKey"
-      :src="
-        user.background_hash
-          ? assets + '/Profile/' + user.background_hash
-          : assets + '/Profile/profile-bg-warriors-transparent.png'
-      "
-      :alt="user.picture_hash"
+        :key="reloadKey"
+        :src="
+          user.background_hash
+            ? assets + '/Profile/' + user.background_hash
+            : assets + '/Profile/profile-bg-warriors-transparent.png'
+        "
+        :alt="user.picture_hash"
         max-height="529px"
         max-width="100%"
         cover
       >
+        <p
+          class="user-join-date"
+          style="
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            font-size: 0.7rem;
+            color: #ddd;
+            margin: 0;
+          "
+        >
+          Joined: {{ formattedJoinDate }}
+        </p>
 
-      <p 
-    class="user-join-date" 
-    style="position: absolute; bottom: 4px; left: 4px; font-size: 0.7rem; color: #ddd; margin: 0;"
-  >
-  Joined: {{ formattedJoinDate }}
-  </p>
-
-      <v-btn
-        icon
-        class="position-absolute bottom-0 right-0 ma-1"
-        color="rgba(0, 0, 0, 0.6)"
-        elevation="3"
-        rounded="xl"
-        size="x-small"
-      >
-        <v-icon>mdi-pencil</v-icon>
-        <profile-background-dialog/>
-      </v-btn></v-img>
+        <v-btn
+          icon
+          class="position-absolute bottom-0 right-0 ma-1"
+          color="rgba(0, 0, 0, 0.6)"
+          elevation="3"
+          rounded="xl"
+          size="x-small"
+        >
+          <v-icon>mdi-pencil</v-icon>
+          <profile-background-dialog /> </v-btn
+      ></v-img>
 
       <!-- <v-btn icon="mdi-pencil" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)" elevation="3"
         :to="'/perfil/perfil-image'"></v-btn> -->
@@ -90,9 +96,9 @@
         <p class="user-ranking" style="font-size: 1.1rem;">
           {{ ranking }}°
         </p> -->
-        </div>
-      </v-card-text>
-    </v-card>
+      </div>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts" setup>
@@ -111,7 +117,6 @@ const formattedJoinDate = computed(() => {
     day: "numeric",
   });
 });
-
 </script>
 
 <style scoped>

@@ -20,16 +20,17 @@
         <!-- Conteúdo do formulário (visível apenas se expandido) -->
         <v-expand-transition>
           <v-card-text v-if="isExpanded">
-            <!-- Adicionado ref="alertRef" ao v-alert -->
-            <v-alert
+            <BaseAlert
               ref="alertRef"
-              closable
               v-model="showAlert"
+              :type="alertType"
               :icon="alertIcon"
               :title="alertTitle"
-              :text="alertText"
-              :type="alertType"
-            ></v-alert>
+              text
+              class="mb-4"
+            >
+              {{ alertText }}
+            </BaseAlert>
             <v-form ref="userForm">
               <p class="text-h6 font-weight-medium pl-3 pb-3 pt-5">Name</p>
               <v-text-field
@@ -214,6 +215,7 @@ import { ref, inject, onMounted, reactive, nextTick } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import type { VForm } from "vuetify/components";
 import { getToken } from "@/service/AccessToken";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userForm = ref<VForm>();
 const userStore = useUserStore();
@@ -245,7 +247,7 @@ const rules = {
     v === form.new_password || "The passwords must match",
   matchEmails: (v: string) => v === form.new_email || "The Emails must match",
 };
-const alertRef = ref<any>(null); // Cria a referência para o v-alert
+const alertRef = ref<any>(null); 
 const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
@@ -278,7 +280,10 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
     // Verifica se a referência ao alerta existe
     if (alertRef.value) {
       // Rola a página até o elemento do alerta
-      alertRef.value.$el.scrollIntoView({ behavior: "smooth", block: "center" });
+      alertRef.value.$el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
     }
   });
 
@@ -309,12 +314,12 @@ const saveForm = async () => {
           receive_email: form.email_updates,
           password: changePassword.value ? form.confirm_password : undefined,
           countries_fk: countriesList.value.find(
-            (country) => country.name === form.country
+            (country) => country.name === form.country,
           )?.countries_pk,
         },
         {
           headers: getToken(),
-        }
+        },
       )
       .then((response: any) => {
         console.log("API Response:", response);
@@ -326,7 +331,7 @@ const saveForm = async () => {
           "mdi-check",
           response.status,
           response.data.message,
-          "success"
+          "success",
         );
       })
       .catch((error: any) => {
@@ -335,7 +340,7 @@ const saveForm = async () => {
           "mdi-alert-circle",
           String(error.response?.status || 500),
           error.response?.data?.message || "Erro de rede.",
-          "error"
+          "error",
         );
       });
   }
@@ -352,7 +357,7 @@ const fetchCountries = () => {
       }));
 
       const userCountry = countriesList.value.find(
-        (country) => country.countries_pk === form.country
+        (country) => country.countries_pk === form.country,
       );
 
       form.country = userCountry ? userCountry.name : "";
@@ -362,11 +367,11 @@ const fetchCountries = () => {
     });
 };
 
-onMounted(() => {
-  fetchCountries();
-});
-
 const cancelForm = () => {
   console.log("Form Cancelled");
 };
+
+onMounted(() => {
+  fetchCountries();
+});
 </script>

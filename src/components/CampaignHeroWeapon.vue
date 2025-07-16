@@ -1,3 +1,16 @@
+<template>
+  <ItemCardSelect
+    @clear="onClear"
+    :items="weaponCards"
+    item-type="Weapon"
+    :sub-type-list="subTypeList"
+    :value="selectedId"
+    @selected="onSelect"
+    @stash="onStash"
+    :repository="cardsDataRepository"
+  ></ItemCardSelect>
+</template>
+
 <script setup lang="ts">
 import type { WeaponItemData } from "@/data/repository/ItemData";
 import { HeroStore } from "@/store/HeroStore";
@@ -52,18 +65,5 @@ function onStash() {
   emit("stash");
 }
 </script>
-
-<template>
-  <ItemCardSelect
-    @clear="onClear"
-    :items="weaponCards"
-    item-type="Weapon"
-    :sub-type-list="subTypeList"
-    :value="selectedId"
-    @selected="onSelect"
-    @stash="onStash"
-    :repository="cardsDataRepository"
-  ></ItemCardSelect>
-</template>
 
 <style scoped></style>

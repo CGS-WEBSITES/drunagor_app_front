@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" align="center" class="ml-1 ">
+  <v-row justify="center" align="center" class="ml-1">
     <v-col
       cols="12"
       md="6"
@@ -8,8 +8,6 @@
       v-for="item in products"
       :key="item.id"
     >
-  
-  
       <ProductCard
         id="product-card"
         :product="item"
@@ -29,6 +27,4 @@ export default {
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -1,3 +1,25 @@
+<template>
+  <v-container max-width="680">
+    <v-card color="primary" class="my-4">
+      <v-card-title>
+        {{ $t("configuration.hero-content") }}
+      </v-card-title>
+      <v-card-text>
+        <v-checkbox
+          dense
+          v-for="content in contentStore.getAllWithHeroes()"
+          :key="content.id"
+          :label="$t(content.translation_key)"
+          v-model="heroContentSettings"
+          :data-testid="'configuration-content-monster-' + content.id"
+          :value="content.id"
+        >
+        </v-checkbox>
+      </v-card-text>
+    </v-card>
+  </v-container>
+</template>
+
 <script setup lang="ts">
 import { ContentDataStore } from "@/data/store/ContentDataStore";
 import type { ContentId } from "@/data/type/ContentId";
@@ -30,27 +52,5 @@ watch(heroContentSettings, async (newSettings) => {
   }
 });
 </script>
-
-<template>
-  <v-container max-width="680">
-    <v-card color="primary" class="my-4">
-      <v-card-title>
-        {{ $t("configuration.hero-content") }}
-      </v-card-title>
-      <v-card-text>
-        <v-checkbox
-          dense
-          v-for="content in contentStore.getAllWithHeroes()"
-          :key="content.id"
-          :label="$t(content.translation_key)"
-          v-model="heroContentSettings"
-          :data-testid="'configuration-content-monster-' + content.id"
-          :value="content.id"
-        >
-        </v-checkbox>
-      </v-card-text>
-    </v-card>
-  </v-container>
-</template>
 
 <style scoped></style>

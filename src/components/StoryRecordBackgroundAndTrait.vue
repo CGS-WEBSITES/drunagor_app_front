@@ -1,24 +1,3 @@
-<script setup lang="ts">
-import { ref, watch } from "vue";
-import { CampaignStore } from "@/store/CampaignStore";
-
-const props = defineProps<{
-  campaignId: string;
-}>();
-
-const campaignStore = CampaignStore();
-
-const backgroundAndTraitIds = ref([] as string[]);
-backgroundAndTraitIds.value =
-  campaignStore.find(props.campaignId).backgroundAndTraitIds ?? [];
-
-watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
-  campaignStore.find(props.campaignId).backgroundAndTraitIds =
-    newBackgroundAndTraitsIds;
-  console.log(newBackgroundAndTraitsIds);
-});
-</script>
-
 <template>
   <div
     id="story-record-background-and-trait"
@@ -71,5 +50,26 @@ watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
     </v-row>
   </div>
 </template>
+
+<script setup lang="ts">
+import { ref, watch } from "vue";
+import { CampaignStore } from "@/store/CampaignStore";
+
+const props = defineProps<{
+  campaignId: string;
+}>();
+
+const campaignStore = CampaignStore();
+
+const backgroundAndTraitIds = ref([] as string[]);
+backgroundAndTraitIds.value =
+  campaignStore.find(props.campaignId).backgroundAndTraitIds ?? [];
+
+watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
+  campaignStore.find(props.campaignId).backgroundAndTraitIds =
+    newBackgroundAndTraitsIds;
+  console.log(newBackgroundAndTraitsIds);
+});
+</script>
 
 <style scoped></style>

@@ -3,13 +3,6 @@
     <StoreListAdded />
 </template>
 
+<script lang="ts" setup></script>
 
-<script lang="ts" setup>
-
-
-
-</script>
-
-<style scoped>
-
-</style>
+<style scoped></style>

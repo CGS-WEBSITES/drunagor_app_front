@@ -1,94 +1,3 @@
-<script setup lang="ts">
-import { ref, watch, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
-import { HeroStore } from "@/store/HeroStore";
-import { SequentialAdventureState } from "@/store/Hero";
-import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
-import type { HeroData } from "@/data/repository/HeroData";
-import CampaignSavePut from "@/components/CampaignSavePut.vue";
-
-// O mapeamento de ícones para recursos foi removido.
-
-// Constantes e configurações
-const RESOURCE_DEFINITIONS = [
-  { id: "focus", translation_key: "label.focus" },
-  { id: "fruit-of-life", translation_key: "label.fruit-of-life" },
-  { id: "ki", translation_key: "label.ki" },
-  { id: "shield", translation_key: "label.shield" },
-  { id: "fury", translation_key: "label.fury" },
-];
-
-// Inicialização de dependências
-const { t } = useI18n();
-const route = useRoute();
-const router = useRouter();
-const heroStore = HeroStore();
-const heroDataRepository = new HeroDataRepository();
-
-const savePutRef = ref();
-
-const emit = defineEmits(["save-campaign"]);
-
-// Obtenção de parâmetros da rota
-const heroId = route.params.heroId.toString();
-const campaignId = route.params.campaignId.toString();
-
-// Dados do herói
-const hero = computed<HeroData>(
-  () => heroDataRepository.find(heroId) ?? ({} as HeroData)
-);
-
-// Estado da aventura sequencial
-const sequentialAdventureState = ref<SequentialAdventureState>(
-  initSequentialAdventureState()
-);
-
-function initSequentialAdventureState(): SequentialAdventureState {
-  const currentState = heroStore.findInCampaign(
-    heroId,
-    campaignId
-  )?.sequentialAdventureState;
-
-  if (currentState) {
-    if (currentState.lifepoints === undefined) {
-      currentState.lifepoints = 0;
-    }
-
-    RESOURCE_DEFINITIONS.forEach((resource) => {
-      if (currentState.resources[resource.id] === undefined) {
-        currentState.resources[resource.id] = 0;
-      }
-    });
-    return currentState;
-  }
-
-  return new SequentialAdventureState();
-}
-
-function saveAndGoBack() {
-  if (savePutRef.value && savePutRef.value.save) {
-    savePutRef.value.save().then(() => {
-      router.go(-1);
-    });
-  } else {
-    router.go(-1);
-  }
-}
-
-// Persistência automática do estado
-watch(
-  sequentialAdventureState,
-  (newState) => {
-    const campaignHero = heroStore.findInCampaign(heroId, campaignId);
-    if (campaignHero) {
-      campaignHero.sequentialAdventureState = newState;
-    }
-  },
-  { deep: true }
-);
-</script>
-
 <template>
   <v-row no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
@@ -185,10 +94,18 @@ watch(
               >
                 <template #prepend-inner>
                   <div class="d-flex align-center mr-2">
-                    <v-icon size="x-small" color="yellow-darken-2">mdi-cube</v-icon>
-                    <v-icon size="x-small" color="red-darken-2">mdi-cube</v-icon>
-                    <v-icon size="x-small" color="green-darken-2">mdi-cube</v-icon>
-                    <v-icon size="x-small" color="blue-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="yellow-darken-2"
+                      >mdi-cube</v-icon
+                    >
+                    <v-icon size="x-small" color="red-darken-2"
+                      >mdi-cube</v-icon
+                    >
+                    <v-icon size="x-small" color="green-darken-2"
+                      >mdi-cube</v-icon
+                    >
+                    <v-icon size="x-small" color="blue-darken-2"
+                      >mdi-cube</v-icon
+                    >
                   </div>
                 </template>
               </v-number-input>
@@ -208,10 +125,18 @@ watch(
               >
                 <template #prepend-inner>
                   <div class="faded-cubes d-flex align-center mr-2">
-                    <v-icon size="x-small" color="yellow-darken-2">mdi-cube</v-icon>
-                    <v-icon size="x-small" color="red-darken-2">mdi-cube</v-icon>
-                    <v-icon size="x-small" color="green-darken-2">mdi-cube</v-icon>
-                    <v-icon size="x-small" color="blue-darken-2">mdi-cube</v-icon>
+                    <v-icon size="x-small" color="yellow-darken-2"
+                      >mdi-cube</v-icon
+                    >
+                    <v-icon size="x-small" color="red-darken-2"
+                      >mdi-cube</v-icon
+                    >
+                    <v-icon size="x-small" color="green-darken-2"
+                      >mdi-cube</v-icon
+                    >
+                    <v-icon size="x-small" color="blue-darken-2"
+                      >mdi-cube</v-icon
+                    >
                   </div>
                 </template>
               </v-number-input>
@@ -222,11 +147,16 @@ watch(
               {{ t("label.resources") }}
             </v-col>
 
-            <v-col cols="12" v-for="resource in RESOURCE_DEFINITIONS" :key="resource.id">
+            <v-col
+              cols="12"
+              v-for="resource in RESOURCE_DEFINITIONS"
+              :key="resource.id"
+            >
               <v-number-input
                 :model-value="sequentialAdventureState.resources[resource.id]"
                 @update:model-value="
-                  (val) => (sequentialAdventureState.resources[resource.id] = val)
+                  (val) =>
+                    (sequentialAdventureState.resources[resource.id] = val)
                 "
                 :label="t(resource.translation_key)"
                 :min="0"
@@ -250,6 +180,97 @@ watch(
     </v-col>
   </v-row>
 </template>
+
+<script setup lang="ts">
+import { ref, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { HeroStore } from "@/store/HeroStore";
+import { SequentialAdventureState } from "@/store/Hero";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import type { HeroData } from "@/data/repository/HeroData";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
+
+// O mapeamento de ícones para recursos foi removido.
+
+// Constantes e configurações
+const RESOURCE_DEFINITIONS = [
+  { id: "focus", translation_key: "label.focus" },
+  { id: "fruit-of-life", translation_key: "label.fruit-of-life" },
+  { id: "ki", translation_key: "label.ki" },
+  { id: "shield", translation_key: "label.shield" },
+  { id: "fury", translation_key: "label.fury" },
+];
+
+// Inicialização de dependências
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const heroStore = HeroStore();
+const heroDataRepository = new HeroDataRepository();
+
+const savePutRef = ref();
+
+const emit = defineEmits(["save-campaign"]);
+
+// Obtenção de parâmetros da rota
+const heroId = route.params.heroId.toString();
+const campaignId = route.params.campaignId.toString();
+
+// Dados do herói
+const hero = computed<HeroData>(
+  () => heroDataRepository.find(heroId) ?? ({} as HeroData),
+);
+
+// Estado da aventura sequencial
+const sequentialAdventureState = ref<SequentialAdventureState>(
+  initSequentialAdventureState(),
+);
+
+function initSequentialAdventureState(): SequentialAdventureState {
+  const currentState = heroStore.findInCampaign(
+    heroId,
+    campaignId,
+  )?.sequentialAdventureState;
+
+  if (currentState) {
+    if (currentState.lifepoints === undefined) {
+      currentState.lifepoints = 0;
+    }
+
+    RESOURCE_DEFINITIONS.forEach((resource) => {
+      if (currentState.resources[resource.id] === undefined) {
+        currentState.resources[resource.id] = 0;
+      }
+    });
+    return currentState;
+  }
+
+  return new SequentialAdventureState();
+}
+
+function saveAndGoBack() {
+  if (savePutRef.value && savePutRef.value.save) {
+    savePutRef.value.save().then(() => {
+      router.go(-1);
+    });
+  } else {
+    router.go(-1);
+  }
+}
+
+// Persistência automática do estado
+watch(
+  sequentialAdventureState,
+  (newState) => {
+    const campaignHero = heroStore.findInCampaign(heroId, campaignId);
+    if (campaignHero) {
+      campaignHero.sequentialAdventureState = newState;
+    }
+  },
+  { deep: true },
+);
+</script>
 
 <style scoped>
 .faded-cubes {

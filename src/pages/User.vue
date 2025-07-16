@@ -58,35 +58,42 @@
         <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
           {{ user.user_name }}
 
-        <div class="d-none d-md-inline justify-center align-center">
-          <v-menu v-if="isFriend" open-on-hover>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" icon="mdi-account-check" color="rgba(0, 0, 0, 0.0)" elevation="0"
-                size="small"></v-btn>
-            </template>
-            <!-- <v-list>
-            <v-list-item @click="removeFriend">
-              <v-list-item-icon>
-                <v-icon >mdi-account-remove</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>Remove Friend</v-list-item-title>
-            </v-list-item>
-          </v-list> -->
-          </v-menu>
+          <div class="d-none d-md-inline justify-center align-center">
+            <v-menu v-if="isFriend" open-on-hover>
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-account-check" color="rgba(0, 0, 0, 0.0)" elevation="0"
+                  size="small"></v-btn>
+              </template>
+              <!-- <v-list>
+              <v-list-item @click="removeFriend">
+                <v-list-item-icon>
+                  <v-icon >mdi-account-remove</v-icon>
+                </v-list-item-icon>
+                <v-list-item-title>Remove Friend</v-list-item-title>
+              </v-list-item>
+            </v-list> -->
+            </v-menu>
 
-          <v-btn v-else icon="mdi-account-plus" color="rgba(0, 0, 0, 0.6)" elevation="3" size="small"
-            @click="addFriend"></v-btn>
-        </div>
+            <v-btn v-else icon="mdi-account-plus" color="rgba(0, 0, 0, 0.6)" elevation="3" size="small"
+              @click="addFriend"></v-btn>
+          </div>
 
-        <v-alert v-if="showAlert" type="success" class="custom-alert" text>
-          Friend request sent!
-        </v-alert>
+          <BaseAlert
+            v-model="showAlert"
+            type="success"
+            text
+            class="custom-alert"
+          >
+            Friend request sent!
+          </BaseAlert>
 
-        <v-alert v-if="showErrorAlert" type="error" class="custom-alert">
-          {{ errorMessage }}
-        </v-alert>
-
-
+          <BaseAlert
+            v-model="showErrorAlert"
+            type="error"
+            class="custom-alert"
+          >
+            {{ errorMessage }}
+          </BaseAlert>
         </p>
       </div>
     </v-card-text>
@@ -97,8 +104,6 @@
 
   <favorite-campaign-card />
 
-
-
 </template>
 
 <script lang="ts" setup>
@@ -106,6 +111,7 @@ import { inject, computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
 import { useUserStore } from "@/store/UserStore";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const assets = inject<string>("assets");
 const route = useRoute();

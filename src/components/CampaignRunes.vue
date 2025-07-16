@@ -1,15 +1,3 @@
-<script setup lang="ts">
-import { CampaignStore } from "@/store/CampaignStore";
-import { useI18n } from "vue-i18n";
-
-const campaignStore = CampaignStore();
-
-const props = defineProps<{
-  campaignId: string;
-}>();
-const { t } = useI18n();
-</script>
-
 <template>
   <v-number-input
     :reverse="false"
@@ -23,5 +11,17 @@ const { t } = useI18n();
     v-model="campaignStore.find(props.campaignId).sequentialAdventureRunes"
   ></v-number-input>
 </template>
+
+<script setup lang="ts">
+import { CampaignStore } from "@/store/CampaignStore";
+import { useI18n } from "vue-i18n";
+
+const campaignStore = CampaignStore();
+const { t } = useI18n();
+
+const props = defineProps<{
+  campaignId: string;
+}>();
+</script>
 
 <style scoped></style>

@@ -1,63 +1,3 @@
-<script setup lang="ts">
-import type { HeroData } from "@/data/repository/HeroData";
-import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
-import { useRoute } from "vue-router";
-import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
-import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
-import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
-import { ref } from "vue";
-import { CampaignStore } from "@/store/CampaignStore";
-import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
-import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
-import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
-import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
-import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
-import { useI18n } from "vue-i18n";
-import CampaignSavePut from "@/components/CampaignSavePut.vue";
-import { useRouter } from "vue-router";
-
-const route = useRoute();
-const heroDataRepository = new HeroDataRepository();
-const { t } = useI18n();
-const router = useRouter();
-const savePutRef = ref();
-
-const heroId = route.params.heroId.toString();
-const campaignId = route.params.campaignId.toString();
-const campaignStore = CampaignStore();
-const campaign = campaignStore.find(campaignId);
-let repository: ItemDataRepository;
-
-if (campaign.campaign === "core") {
-  repository = new CoreItemDataRepository();
-} else if (campaign.campaign === "apocalypse") {
-  repository = new ApocalypseItemDataRepository();
-} else if (campaign.campaign === "awakenings") {
-  repository = new AwakeningsItemDataRepository();
-} else if (campaign.campaign === "underkeep") {
-  repository = new UnderKeepItemDataRepository();
-} else {
-  throw new Error("Unknown campaign");
-}
-
-const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
-
-let stash = ref(0);
-function onStash() {
-  stash.value += 1;
-}
-
-function saveAndGoBack() {
-  if (savePutRef.value && savePutRef.value.save) {
-    savePutRef.value.save().then(() => {
-      router.go(-1);
-    });
-  } else {
-    router.go(-1);
-  }
-}
-</script>
-
 <template>
   <v-row no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
@@ -133,6 +73,66 @@ function saveAndGoBack() {
     </v-col>
   </v-row>
 </template>
+
+<script setup lang="ts">
+import type { HeroData } from "@/data/repository/HeroData";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { useRoute } from "vue-router";
+import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
+import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
+import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
+import { ref } from "vue";
+import { CampaignStore } from "@/store/CampaignStore";
+import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
+import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
+import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
+import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
+import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
+import { useI18n } from "vue-i18n";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
+import { useRouter } from "vue-router";
+
+const route = useRoute();
+const heroDataRepository = new HeroDataRepository();
+const { t } = useI18n();
+const router = useRouter();
+const savePutRef = ref();
+
+const heroId = route.params.heroId.toString();
+const campaignId = route.params.campaignId.toString();
+const campaignStore = CampaignStore();
+const campaign = campaignStore.find(campaignId);
+let repository: ItemDataRepository;
+
+if (campaign.campaign === "core") {
+  repository = new CoreItemDataRepository();
+} else if (campaign.campaign === "apocalypse") {
+  repository = new ApocalypseItemDataRepository();
+} else if (campaign.campaign === "awakenings") {
+  repository = new AwakeningsItemDataRepository();
+} else if (campaign.campaign === "underkeep") {
+  repository = new UnderKeepItemDataRepository();
+} else {
+  throw new Error("Unknown campaign");
+}
+
+const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
+
+let stash = ref(0);
+function onStash() {
+  stash.value += 1;
+}
+
+function saveAndGoBack() {
+  if (savePutRef.value && savePutRef.value.save) {
+    savePutRef.value.save().then(() => {
+      router.go(-1);
+    });
+  } else {
+    router.go(-1);
+  }
+}
+</script>
 
 <style scoped>
 #hero-card {

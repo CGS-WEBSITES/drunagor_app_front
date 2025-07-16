@@ -32,14 +32,15 @@
                 </v-col>
               </v-row>
             </v-container>
-            <v-alert
-              closable
+            <BaseAlert
               v-model="showAlert"
+              :type="alertType"
               :icon="alertIcon"
               :title="alertTitle"
-              :text="alertText"
-              :type="alertType"
-            ></v-alert>
+              text
+            >
+              {{ alertText }}
+            </BaseAlert>
             <h4 class="text-center mt-4 py-3"></h4>
             <v-form>
               <v-row>
@@ -84,6 +85,7 @@ import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userStore = useUserStore();
 
@@ -95,8 +97,8 @@ const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
 const alertType = ref("");
-const termsDialog = ref(false);
 const showAlert = ref(false);
+const termsDialog = ref(false);
 const privacyDialog = ref(false);
 
 const navigateTo = (route: string) => {
