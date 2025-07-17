@@ -80,7 +80,7 @@
   </v-row>
 
   <v-row class="ml-0 justify-center mb-4">
-    <v-col cols="12" md="12" lg="6" xl="8">
+    <v-col cols="12" md="12" lg="9" xl="8">
       <v-btn block color="secondary" class="ma-0 pa-2" @click="openModal">
         <v-icon left class="mr-2">mdi-share-variant</v-icon>
         Share Campaign
@@ -106,7 +106,7 @@
   <template v-if="campaign">
     <template v-if="campaign.campaign === 'underkeep'">
       <v-row class="ml-0 justify-center">
-        <v-col cols="12" md="12" lg="7" xl="8">
+        <v-col cols="12" md="12" lg="9" xl="8">
           <v-tabs
             v-model="currentTab"
             centered
