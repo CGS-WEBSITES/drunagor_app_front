@@ -1,7 +1,14 @@
 <template>
+  
+
   <v-row class="ml-0 justify-center">
-    <v-col cols="12" md="12" lg="12" xl="8">
+    <v-col cols="12" md="12" lg="6" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
+         <v-row class="ml-0 justify-center">
+    <v-col cols="12" md="12" lg="12" xl="8">
+      <CampaignPlayerList :campaign-id="campaignId" class="mb-0" />
+    </v-col>
+  </v-row>
         <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
           <BaseAlert
             :modelValue="true"
@@ -73,7 +80,7 @@
   </v-row>
 
   <v-row class="ml-0 justify-center mb-4">
-    <v-col cols="12" md="12" lg="12" xl="8">
+    <v-col cols="12" md="12" lg="9" xl="8">
       <v-btn block color="secondary" class="ma-0 pa-2" @click="openModal">
         <v-icon left class="mr-2">mdi-share-variant</v-icon>
         Share Campaign
@@ -99,7 +106,7 @@
   <template v-if="campaign">
     <template v-if="campaign.campaign === 'underkeep'">
       <v-row class="ml-0 justify-center">
-        <v-col cols="12" md="12" lg="12" xl="8">
+        <v-col cols="12" md="12" lg="9" xl="8">
           <v-tabs
             v-model="currentTab"
             centered
@@ -318,6 +325,7 @@ import { ref as vueRef } from "vue";
 import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
 import DialogSaveCampaign from "@/components/dialogs/DialogSaveCampaign.vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
+import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 
 const route = useRoute();
 const campaignStore = CampaignStore();
