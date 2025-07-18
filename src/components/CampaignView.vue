@@ -102,6 +102,8 @@
           text
           border="start"
           variant="tonal"
+          closable
+          @update:modelValue="handleAlertClose"
         >
           {{ transferAlertText }}
         </BaseAlert>
@@ -137,6 +139,12 @@
           </div>
         </template>
       </v-card-text>
+
+      <v-card-actions v-if="!confirmingTransfer" class="d-flex justify-end">
+        <v-btn text @click="closeTransferDialog" :disabled="transferLoading">
+          Close
+        </v-btn>
+      </v-card-actions>
 
       <v-card-actions v-if="confirmingTransfer" class="d-flex justify-end">
         <v-btn color="red" :disabled="transferLoading" @click="cancelTransfer">
@@ -449,12 +457,9 @@ const initTransfer = (user: (typeof players.value)[0]) => {
 };
 
 const openTransferDialog = () => {
-  // mostra o diálogo
   transferDialogVisible.value = true;
-  // dispara o loader
   transferLoading.value = true;
 
-  // busca lista de jogadores
   axios
     .get("/rl_campaigns_users/list_players", {
       params: { campaigns_fk: campaignId },
@@ -466,7 +471,6 @@ const openTransferDialog = () => {
     })
     .catch((err) => {
       console.error("Error fetching players:", err);
-      // aqui você poderia exibir um alerta de erro, se quiser
     })
     .finally(() => {
       transferLoading.value = false;
@@ -525,6 +529,13 @@ const closeTransferDialog = () => {
   confirmingTransfer.value = false;
   selectedUser.value = null;
 };
+
+const handleAlertClose = (val: boolean) => {
+  transferAlertVisible.value = val;
+  if (!val) {
+    closeTransferDialog();
+  }
+}
 
 const handleSave = () => {
   savePutRef
@@ -657,6 +668,12 @@ watch(
   },
   { deep: true },
 );
+
+watch(transferAlertVisible, (visible) => {
+  if (!visible) {
+    closeTransferDialog();
+  }
+});
 </script>
 
 <style scoped>
