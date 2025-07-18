@@ -68,6 +68,7 @@ import axios from "axios";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const campaignStore = CampaignStore();
+console.log("CampaignStore initialized:", campaignStore);
 const heroStore = HeroStore();
 const router = useRouter();
 const { t } = useI18n();
@@ -93,19 +94,39 @@ const closeModal = () => {
 
 const removeCampaign = () => {
   isLoading.value = true;
-  const campaigns_pk = props.campaignId;
 
+  const campaignId = props.campaignId;
   axios
-    .delete(`/campaigns/${campaigns_pk}/delete/`)
+    .get("/rl_campaigns_users/list_players", {
+      params: {
+        campaigns_fk: campaignId,
+      },
+    })
+    .then(({ data }) => {
+      const users = data.Users as Array<{ rl_campaigns_users_pk: number }>;
+
+      return Promise.all(
+        users.map((u) =>
+          axios.delete(
+            `/rl_campaigns_users/${u.rl_campaigns_users_pk}/delete/`,
+          ),
+        ),
+      );
+    })
     .then(() => {
-      alertMessage.value = "Your campaign was deleted successfully";
+      return axios.delete(`/campaigns/${props.campaignId}/delete/`);
+    })
+    .then(() => {
+      alertMessage.value = t("text.campaign-deleted-success");
       alertType.value = "success";
       alertVisible.value = true;
 
-      campaignStore.remove(campaigns_pk);
-      heroStore.findAllInCampaign(campaigns_pk).forEach((hero) => {
-        heroStore.removeFromCampaign(hero.heroId, campaigns_pk);
-      });
+      campaignStore.remove(props.campaignId);
+      heroStore
+        .findAllInCampaign(props.campaignId)
+        .forEach((hero) =>
+          heroStore.removeFromCampaign(hero.heroId, props.campaignId),
+        );
 
       setTimeout(() => {
         closeModal();
@@ -114,7 +135,7 @@ const removeCampaign = () => {
     })
     .catch((error: any) => {
       let detailMessage = t("text.error-removing-campaign");
-      if (error.response && error.response.data) {
+      if (error.response?.data) {
         detailMessage =
           error.response.data.message ||
           error.response.data.detail ||
