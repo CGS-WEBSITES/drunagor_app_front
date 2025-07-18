@@ -79,7 +79,13 @@
 
   <v-row class="ml-0 justify-center mb-4">
     <v-col cols="12" md="12" lg="9" xl="8">
-      <v-btn v-btn block color="secondary" class="ma-0 pa-2" @click="openTransferDialog">
+      <v-btn
+        v-btn
+        block
+        color="secondary"
+        class="ma-0 pa-2"
+        @click="openTransferDialog"
+      >
         Transfer Drunagor Master
       </v-btn>
     </v-col>
@@ -88,28 +94,60 @@
   <v-dialog v-model="transferDialogVisible" max-width="400px">
     <v-card>
       <v-card-title>Transfer Drunagor Master</v-card-title>
+
+      <v-card-text v-if="transferAlertVisible" class="pa-2">
+        <BaseAlert
+          v-model="transferAlertVisible"
+          type="success"
+          text
+          border="start"
+          variant="tonal"
+        >
+          Transfer successful!
+        </BaseAlert>
+      </v-card-text>
+
       <v-card-text>
         <div v-if="transferLoading" class="d-flex justify-center pa-4">
           <v-progress-circular indeterminate color="primary" />
         </div>
 
-        <v-list v-else two-line>
-          <v-list-item
-            v-for="user in players"
-            :key="user.rl_campaigns_users_pk"
-          >
-            <v-list-item-content>
-              <v-list-item-title>
-                {{ user.user_name }} — {{ user.role_name }}
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
+        <template v-else>
+          <v-list v-if="!confirmingTransfer" two-line>
+            <v-list-item
+              v-for="user in players"
+              :key="user.rl_campaigns_users_pk"
+              :disabled="user.party_roles_fk === 1"
+              @click="initTransfer(user)"
+            >
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ user.user_name }} — {{ user.role_name }}
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+
+          <div v-else class="pa-4">
+            <p class="text-center">
+              Do you want to transfer Drunagor Master to
+              <strong>{{ selectedUser!.user_name }}</strong
+              >?
+            </p>
+          </div>
+        </template>
       </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn text @click="closeTransferDialog" :disabled="transferLoading">
-          Close
+
+      <v-card-actions v-if="confirmingTransfer" class="d-flex justify-end">
+        <v-btn color="red" :disabled="transferLoading" @click="cancelTransfer">
+          No
+        </v-btn>
+        <v-btn
+          color="green"
+          :disabled="transferLoading"
+          @click="confirmTransfer"
+        >
+          Yes
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -391,31 +429,84 @@ const showSaveCampaignButton = ref(false);
 const transferLoading = ref(false);
 const transferDialogVisible = ref(false);
 const players = ref<
-  Array<{ rl_campaigns_users_pk: number; user_name: string; role_name: string }>
+  Array<{
+    rl_campaigns_users_pk: number;
+    user_name: string;
+    role_name: string;
+    party_roles_fk: number;
+  }>
 >([]);
+const selectedUser = ref<(typeof players.value)[0] | null>(null);
+const confirmingTransfer = ref(false);
+const originalMaster = ref<(typeof players.value)[0] | null>(null);
+const transferAlertVisible = ref(false);
 
 const openTransferDialog = () => {
   transferDialogVisible.value = true;
   transferLoading.value = true;
-
   axios
     .get("/rl_campaigns_users/list_players", {
       params: { campaigns_fk: campaignId },
     })
     .then(({ data }) => {
       players.value = data.Users;
+      originalMaster.value =
+        players.value.find((u) => u.party_roles_fk === 1) || null;
     })
     .catch((err) => {
       console.error("Error fetching players:", err);
-      transferLoading.value = false;
     })
     .finally(() => {
       transferLoading.value = false;
     });
 };
 
+const initTransfer = (user: (typeof players.value)[0]) => {
+  selectedUser.value = user;
+  confirmingTransfer.value = true;
+};
+
+const cancelTransfer = () => {
+  confirmingTransfer.value = false;
+  selectedUser.value = null;
+};
+
+const confirmTransfer = () => {
+  if (!selectedUser.value || !originalMaster.value) return;
+  transferLoading.value = true;
+
+  const promote = axios.put("/rl_campaigns_users/alter", {
+    rl_campaigns_users_pk: selectedUser.value.rl_campaigns_users_pk,
+    party_roles_fk: 1,
+  });
+
+  const demote = axios.put("/rl_campaigns_users/alter", {
+    rl_campaigns_users_pk: originalMaster.value.rl_campaigns_users_pk,
+    party_roles_fk: 2,
+  });
+
+  Promise.all([promote, demote])
+    .then(() => {
+      transferAlertVisible.value = true;
+      setTimeout(() => {
+        transferAlertVisible.value = false;
+        closeTransferDialog();
+      }, 1500);
+    })
+    .catch((err) => {
+      console.error("Error transferring master:", err);
+      transferLoading.value = false;    })
+    .finally(() => {
+      transferLoading.value = false;
+      confirmingTransfer.value = false;
+      selectedUser.value = null;
+    });
+};
+
 const closeTransferDialog = () => {
   transferDialogVisible.value = false;
+  confirmingTransfer.value = false;
+  selectedUser.value = null;
 };
 
 const handleSave = () => {
