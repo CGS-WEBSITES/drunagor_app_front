@@ -77,7 +77,7 @@
     </v-col>
   </v-row>
 
-  <v-row class="ml-0 justify-center mb-4">
+  <v-row v-if="showSaveCampaignButton" class="ml-0 justify-center mb-4">
     <v-col cols="12" md="12" lg="9" xl="8">
       <v-btn
         v-btn
@@ -103,7 +103,6 @@
           border="start"
           variant="tonal"
           closable
-          @update:modelValue="handleAlertClose"
         >
           {{ transferAlertText }}
         </BaseAlert>
@@ -530,13 +529,6 @@ const closeTransferDialog = () => {
   selectedUser.value = null;
 };
 
-const handleAlertClose = (val: boolean) => {
-  transferAlertVisible.value = val;
-  if (!val) {
-    closeTransferDialog();
-  }
-}
-
 const handleSave = () => {
   savePutRef
     .value!.save()
@@ -669,10 +661,8 @@ watch(
   { deep: true },
 );
 
-watch(transferAlertVisible, (visible) => {
-  if (!visible) {
-    closeTransferDialog();
-  }
+watch(transferAlertVisible, (newVal) => {
+  if (!newVal) closeTransferDialog();
 });
 </script>
 
