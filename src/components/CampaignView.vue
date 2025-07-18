@@ -98,12 +98,12 @@
       <v-card-text v-if="transferAlertVisible" class="pa-2">
         <BaseAlert
           v-model="transferAlertVisible"
-          type="success"
+          :type="transferAlertType"
           text
           border="start"
           variant="tonal"
         >
-          Transfer successful!
+          {{ transferAlertText }}
         </BaseAlert>
       </v-card-text>
 
@@ -440,10 +440,21 @@ const selectedUser = ref<(typeof players.value)[0] | null>(null);
 const confirmingTransfer = ref(false);
 const originalMaster = ref<(typeof players.value)[0] | null>(null);
 const transferAlertVisible = ref(false);
+const transferAlertText = ref("");
+const transferAlertType = ref<"success" | "error">("success");
+
+const initTransfer = (user: (typeof players.value)[0]) => {
+  selectedUser.value = user;
+  confirmingTransfer.value = true;
+};
 
 const openTransferDialog = () => {
+  // mostra o diálogo
   transferDialogVisible.value = true;
+  // dispara o loader
   transferLoading.value = true;
+
+  // busca lista de jogadores
   axios
     .get("/rl_campaigns_users/list_players", {
       params: { campaigns_fk: campaignId },
@@ -455,20 +466,11 @@ const openTransferDialog = () => {
     })
     .catch((err) => {
       console.error("Error fetching players:", err);
+      // aqui você poderia exibir um alerta de erro, se quiser
     })
     .finally(() => {
       transferLoading.value = false;
     });
-};
-
-const initTransfer = (user: (typeof players.value)[0]) => {
-  selectedUser.value = user;
-  confirmingTransfer.value = true;
-};
-
-const cancelTransfer = () => {
-  confirmingTransfer.value = false;
-  selectedUser.value = null;
 };
 
 const confirmTransfer = () => {
@@ -479,7 +481,6 @@ const confirmTransfer = () => {
     rl_campaigns_users_pk: selectedUser.value.rl_campaigns_users_pk,
     party_roles_fk: 1,
   });
-
   const demote = axios.put("/rl_campaigns_users/alter", {
     rl_campaigns_users_pk: originalMaster.value.rl_campaigns_users_pk,
     party_roles_fk: 2,
@@ -487,20 +488,36 @@ const confirmTransfer = () => {
 
   Promise.all([promote, demote])
     .then(() => {
+      transferAlertText.value = "Transfer successful!";
+      transferAlertType.value = "success";
       transferAlertVisible.value = true;
+
       setTimeout(() => {
         transferAlertVisible.value = false;
         closeTransferDialog();
       }, 1500);
     })
     .catch((err) => {
-      console.error("Error transferring master:", err);
-      transferLoading.value = false;    })
+      const payload = err.response?.data;
+      transferAlertText.value =
+        payload?.message || JSON.stringify(payload?.errors || {});
+      transferAlertType.value = "error";
+      transferAlertVisible.value = true;
+
+      setTimeout(() => {
+        transferAlertVisible.value = false;
+      }, 1500);
+    })
     .finally(() => {
       transferLoading.value = false;
       confirmingTransfer.value = false;
       selectedUser.value = null;
     });
+};
+
+const cancelTransfer = () => {
+  confirmingTransfer.value = false;
+  selectedUser.value = null;
 };
 
 const closeTransferDialog = () => {
