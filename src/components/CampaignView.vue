@@ -1,14 +1,12 @@
 <template>
-  
-
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="6" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-         <v-row class="ml-0 justify-center">
-    <v-col cols="12" md="12" lg="12" xl="8">
-      <CampaignPlayerList :campaign-id="campaignId" class="mb-0" />
-    </v-col>
-  </v-row>
+        <v-row class="ml-0 justify-center">
+          <v-col cols="12" md="12" lg="12" xl="8">
+            <CampaignPlayerList :campaign-id="campaignId" class="mb-0" />
+          </v-col>
+        </v-row>
         <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
           <BaseAlert
             :modelValue="true"
@@ -78,6 +76,41 @@
       </v-card>
     </v-col>
   </v-row>
+
+  <v-card-actions class="d-flex justify-center">
+    <!-- já existente: CampaignRemove, export, etc. -->
+    <v-btn
+      variant="text"
+      @click="openTransferDialog"
+      
+      class="mx-1 my-1"
+    >
+      Transfer Drunagor Master
+    </v-btn>
+  </v-card-actions>
+
+  <!-- diálogo de transferência -->
+  <v-dialog v-model="transferDialogVisible" max-width="400px">
+    <v-card>
+      <v-card-title>Transfer Drunagor Master</v-card-title>
+      <v-card-text>
+        <v-list two-line>
+          <v-list-item
+            v-for="user in players"
+            :key="user.rl_campaigns_users_pk"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ user.user_name }} - {{ user.role_name }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="closeTransferDialog">Close</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
   <v-row class="ml-0 justify-center mb-4">
     <v-col cols="12" md="12" lg="9" xl="8">
@@ -352,6 +385,28 @@ const showLoading = ref(false);
 const showSaveDialog = ref(false);
 
 const showSaveCampaignButton = ref(false);
+const transferDialogVisible = ref(false);
+const players = ref<
+  Array<{ rl_campaigns_users_pk: number; user_name: string, role_name: string }>
+>([]);
+
+const openTransferDialog = () => {
+  transferDialogVisible.value = true;
+  axios
+    .get("/rl_campaigns_users/list_players", {
+      params: { campaigns_fk: campaignId },
+    })
+    .then(({ data }) => {
+      players.value = data.Users;
+    })
+    .catch((err) => {
+      console.error("Error fetching players:", err);
+    });
+};
+
+const closeTransferDialog = () => {
+  transferDialogVisible.value = false;
+};
 
 const handleSave = () => {
   savePutRef
