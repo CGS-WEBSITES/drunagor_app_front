@@ -6,8 +6,8 @@
           <v-col cols="12" md="12" lg="12" xl="8">
             <CampaignPlayerList
               ref="campaignPlayerListRef"
-              :campaign-id="campaignId" 
-              class="mb-0" 
+              :campaign-id="campaignId"
+              class="mb-0"
             />
           </v-col>
         </v-row>
@@ -138,7 +138,14 @@
       <v-card-actions>
         <v-btn text @click="confirmRemoveDialog = false">No</v-btn>
         <v-spacer />
-        <v-btn color="error" @click="removePlayer">Yes</v-btn>
+        <v-btn 
+          color="success"
+          :loading="removingLoading"
+          :disabled="removingLoading"
+          @click="removePlayer"
+        >
+          Yes
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -428,7 +435,10 @@ const playerToRemove = ref<null | {
   user_name: string;
 }>(null);
 const showSaveCampaignButton = ref(false);
-const campaignPlayerListRef = vueRef<InstanceType<typeof CampaignPlayerList> | null>(null);
+const campaignPlayerListRef = vueRef<InstanceType<
+  typeof CampaignPlayerList
+> | null>(null);
+const removingLoading = ref(false);
 
 const handleSave = () => {
   savePutRef
@@ -476,6 +486,8 @@ const confirmPlayerRemoval = (player: {
 const removePlayer = async () => {
   if (!playerToRemove.value) return;
 
+  removingLoading.value = true;
+
   await axios
     .delete(
       `rl_campaigns_users/${playerToRemove.value.rl_campaigns_users_pk}/delete/`,
@@ -492,10 +504,24 @@ const removePlayer = async () => {
     })
     .catch(() => {
       setAlert("mdi-alert-circle", "Erro", "Failed to remove player", "error");
+      alertIcon.value = "mdi-alert-circle";
+      alertTitle.value = "Erro";
+      alertText.value = "Failed to remove player";
+      alertType.value = "error";
     })
-    .finally(() => {
+    .finally(async () => {
+      removingLoading.value = false;
       confirmRemoveDialog.value = false;
       removeDialog.value = false;
+      await campaignPlayerListRef.value?.fetchPlayers();
+
+      await nextTick();
+      setAlert(
+        alertIcon.value,
+        alertTitle.value,
+        alertText.value || "Player successfully removed",
+        alertType.value,
+      );
     });
 };
 
