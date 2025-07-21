@@ -469,20 +469,22 @@ const confirmPlayerRemoval = (player: {
   confirmRemoveDialog.value = true;
 };
 
-const removePlayer = () => {
+const removePlayer = async () => {
   if (!playerToRemove.value) return;
 
-  axios
+  await axios
     .delete(
       `rl_campaigns_users/${playerToRemove.value.rl_campaigns_users_pk}/delete/`,
     )
-    .then(() => {
+    .then(async () => {
       setAlert(
         "mdi-check",
         "Sucesso",
         "Player successfully removed",
         "success",
       );
+
+      await fetchRlCampaignsUsersListPlayers();
     })
     .catch(() => {
       setAlert("mdi-alert-circle", "Erro", "Failed to remove player", "error");
