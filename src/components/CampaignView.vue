@@ -118,7 +118,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="removeDialog = false">Cancelar</v-btn>
+        <v-btn text @click="removeDialog = false">Cancel</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -474,7 +474,7 @@ const removePlayer = () => {
 
   axios
     .delete(
-      `rl_campaigns_users/${playerToRemove.value.rl_campaigns_users_pk}/delete`,
+      `rl_campaigns_users/${playerToRemove.value.rl_campaigns_users_pk}/delete/`,
     )
     .then(() => {
       setAlert(
