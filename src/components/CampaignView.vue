@@ -4,7 +4,11 @@
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-row class="ml-0 justify-center">
           <v-col cols="12" md="12" lg="12" xl="8">
-            <CampaignPlayerList :campaign-id="campaignId" class="mb-0" />
+            <CampaignPlayerList
+              ref="campaignPlayerListRef"
+              :campaign-id="campaignId" 
+              class="mb-0" 
+            />
           </v-col>
         </v-row>
         <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
@@ -423,8 +427,8 @@ const playerToRemove = ref<null | {
   rl_campaigns_users_pk: number;
   user_name: string;
 }>(null);
-
 const showSaveCampaignButton = ref(false);
+const campaignPlayerListRef = vueRef<InstanceType<typeof CampaignPlayerList> | null>(null);
 
 const handleSave = () => {
   savePutRef
@@ -484,7 +488,7 @@ const removePlayer = async () => {
         "success",
       );
 
-      await fetchRlCampaignsUsersListPlayers();
+      await campaignPlayerListRef.value?.fetchPlayers();
     })
     .catch(() => {
       setAlert("mdi-alert-circle", "Erro", "Failed to remove player", "error");
