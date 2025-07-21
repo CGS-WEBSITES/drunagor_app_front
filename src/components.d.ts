@@ -45,6 +45,7 @@ declare module 'vue' {
     CampaignName: typeof import('./components/CampaignName.vue')['default']
     CampaignNew: typeof import('./components/CampaignNew.vue')['default']
     CampaignOverviewView: typeof import('./components/CampaignOverviewView.vue')['default']
+    CampaignPlayerList: typeof import('./components/CampaignPlayerList.vue')['default']
     CampaignRemove: typeof import('./components/CampaignRemove.vue')['default']
     CampaignRunes: typeof import('./components/CampaignRunes.vue')['default']
     CampaignSavePut: typeof import('./components/CampaignSavePut.vue')['default']
