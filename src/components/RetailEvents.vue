@@ -215,9 +215,8 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      selectedEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      mapUrl ||
+                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -687,9 +686,8 @@
                           <v-col cols="3" lg="3">
                             <v-img
                               :src="
-                                selectedEvent?.picture_hash
-                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                                mapUrl ||
+                                'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                               "
                               class="event-img"
                             />
@@ -1077,13 +1075,34 @@ const pdfUrl = computed(() => {
   return `${baseUrl}/book/test.pdf`;
 });
 
+const mapUrl = computed(() => {
+  const evt = selectedEvent.value;
+
+  if (!evt?.latitude || !evt?.longitude) return "";
+
+  const lat = evt.latitude;
+  const lng = evt.longitude;
+  const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
+  
+  return (
+    `https://maps.googleapis.com/maps/api/staticmap?` +
+    `center=${lat},${lng}` +
+    `&zoom=15&size=600x300` +
+    `&markers=color:red%7C${lat},${lng}` +
+    `&key=${key}`
+  );
+});
+
 const openInGoogleMaps = () => {
-  const { name, latitude, longitude } = selectedStore.value;
+  const event = selectedEvent.value;
 
-  if (!name || latitude == null || longitude == null) return "#";
+  if (!event?.store_name || event.latitude == null || event.longitude == null)
+    return;
 
-  const encodedName = name.split(" ").join("+");
-  const query = `${encodedName}%20${latitude},${longitude}`;
+  const encodedName = event.store_name.split(" ").join("+");
+  const lat = event.latitude;
+  const lng = event.longitude;
+  const query = `${encodedName}%20${lat},${lng}`;
 
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
 
