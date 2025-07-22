@@ -57,7 +57,8 @@
                 </p>
               </div>
 
-              <div class="text-caption text-grey-lighten-1"> {{ item.role_name }}
+              <div class="text-caption text-grey-lighten-1">
+                {{ item.role_name }}
               </div>
             </v-col>
           </v-row>
@@ -113,6 +114,10 @@ const fetchPlayers = async () => {
     players.value = [];
   }
 };
+
+defineExpose({
+  fetchPlayers,
+});
 
 onMounted(fetchPlayers);
 </script>

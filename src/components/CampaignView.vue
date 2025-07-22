@@ -1,14 +1,16 @@
 <template>
-  
-
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="6" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-         <v-row class="ml-0 justify-center">
-    <v-col cols="12" md="12" lg="12" xl="8">
-      <CampaignPlayerList :campaign-id="campaignId" class="mb-0" />
-    </v-col>
-  </v-row>
+        <v-row class="ml-0 justify-center">
+          <v-col cols="12" md="12" lg="12" xl="8">
+            <CampaignPlayerList
+              ref="campaignPlayerListRef"
+              :campaign-id="campaignId"
+              class="mb-0"
+            />
+          </v-col>
+        </v-row>
         <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
           <BaseAlert
             :modelValue="true"
@@ -78,6 +80,75 @@
       </v-card>
     </v-col>
   </v-row>
+
+  <v-row class="ml-0 justify-center mb-2">
+    <v-col cols="12" md="12" lg="9" xl="8" class="d-flex justify-end">
+      <v-btn
+        block
+        color="error"
+        class="ma-0 pa-2"
+        v-if="showSaveCampaignButton"
+        @click="removeDialog = true"
+      >
+        <v-icon left class="mr-2">mdi-account-remove</v-icon>
+        Remove Players
+      </v-btn>
+    </v-col>
+  </v-row>
+
+  <v-dialog v-model="removeDialog" max-width="400">
+    <v-card>
+      <v-card-title>Remove Players</v-card-title>
+      <v-card-text>
+        <v-list>
+          <v-list-item
+            v-for="player in players"
+            :key="player.rl_campaigns_users_pk"
+            @click="confirmPlayerRemoval(player)"
+            class="cursor-pointer"
+          >
+            <v-list-item-avatar>
+              <v-img
+                :src="
+                  player.picture_hash ? `/images/${player.picture_hash}` : ''
+                "
+              />
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title>{{ player.user_name }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn text @click="removeDialog = false">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog v-model="confirmRemoveDialog" max-width="300">
+    <v-card>
+      <v-card-title class="headline">Confirmation</v-card-title>
+      <v-card-text>
+        Do you want to delete the player
+        <strong>{{ playerToRemove?.user_name }}</strong
+        >?
+      </v-card-text>
+      <v-card-actions>
+        <v-btn text @click="confirmRemoveDialog = false">No</v-btn>
+        <v-spacer />
+        <v-btn 
+          color="success"
+          :loading="removingLoading"
+          :disabled="removingLoading"
+          @click="removePlayer"
+        >
+          Yes
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 
   <v-row class="ml-0 justify-center mb-4">
     <v-col cols="12" md="12" lg="9" xl="8">
@@ -350,8 +421,24 @@ const token = ref("");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const showLoading = ref(false);
 const showSaveDialog = ref(false);
-
+const players = ref<
+  Array<{
+    rl_campaigns_users_pk: number;
+    user_name: string;
+    picture_hash: string | null;
+  }>
+>([]);
+const removeDialog = ref(false);
+const confirmRemoveDialog = ref(false);
+const playerToRemove = ref<null | {
+  rl_campaigns_users_pk: number;
+  user_name: string;
+}>(null);
 const showSaveCampaignButton = ref(false);
+const campaignPlayerListRef = vueRef<InstanceType<
+  typeof CampaignPlayerList
+> | null>(null);
+const removingLoading = ref(false);
 
 const handleSave = () => {
   savePutRef
@@ -370,6 +457,70 @@ const handleSave = () => {
         "Error",
         "The campaign could not be saved.",
         "error",
+      );
+    });
+};
+
+const fetchRlCampaignsUsersListPlayers = async () => {
+  await axios
+    .get("rl_campaigns_users/list_players", {
+      params: { campaigns_fk: campaignId },
+    })
+    .then((response) => {
+      players.value = response.data.Users;
+      console.log("Fetched players:", response.data.Users);
+    })
+    .catch(() => {
+      showSaveCampaignButton.value = false;
+    });
+};
+
+const confirmPlayerRemoval = (player: {
+  rl_campaigns_users_pk: number;
+  user_name: string;
+}) => {
+  playerToRemove.value = player;
+  confirmRemoveDialog.value = true;
+};
+
+const removePlayer = async () => {
+  if (!playerToRemove.value) return;
+
+  removingLoading.value = true;
+
+  await axios
+    .delete(
+      `rl_campaigns_users/${playerToRemove.value.rl_campaigns_users_pk}/delete/`,
+    )
+    .then(async () => {
+      setAlert(
+        "mdi-check",
+        "Sucesso",
+        "Player successfully removed",
+        "success",
+      );
+
+      await campaignPlayerListRef.value?.fetchPlayers();
+    })
+    .catch(() => {
+      setAlert("mdi-alert-circle", "Erro", "Failed to remove player", "error");
+      alertIcon.value = "mdi-alert-circle";
+      alertTitle.value = "Erro";
+      alertText.value = "Failed to remove player";
+      alertType.value = "error";
+    })
+    .finally(async () => {
+      removingLoading.value = false;
+      confirmRemoveDialog.value = false;
+      removeDialog.value = false;
+      await campaignPlayerListRef.value?.fetchPlayers();
+
+      await nextTick();
+      setAlert(
+        alertIcon.value,
+        alertTitle.value,
+        alertText.value || "Player successfully removed",
+        alertType.value,
       );
     });
 };
@@ -466,6 +617,7 @@ onMounted(() => {
     );
   }
   fetchRole();
+  fetchRlCampaignsUsersListPlayers();
 
   if (route.query.dialog) {
     showLoading.value = true;
