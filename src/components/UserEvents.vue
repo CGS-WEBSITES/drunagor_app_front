@@ -230,9 +230,8 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      selectedEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      mapUrl ||
+                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -522,9 +521,8 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      selectedMyEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      mapUrlMy ||
+                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -882,6 +880,42 @@ const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
 
+const mapUrl = computed(() => {
+  const evt = selectedEvent.value;
+
+  if (!evt?.latitude || !evt?.longitude) return "";
+
+  const lat = evt.latitude;
+  const lng = evt.longitude;
+  const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
+  
+  return (
+    `https://maps.googleapis.com/maps/api/staticmap?` +
+    `center=${lat},${lng}` +
+    `&zoom=15&size=600x300` +
+    `&markers=color:red%7C${lat},${lng}` +
+    `&key=${key}`
+  );
+});
+
+const mapUrlMy  = computed(() => {
+  const evt = selectedMyEvent.value;
+
+  if (!evt?.latitude || !evt?.longitude) return "";
+
+  const lat = evt.latitude;
+  const lng = evt.longitude;
+  const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
+
+  return (
+    `https://maps.googleapis.com/maps/api/staticmap?` +
+    `center=${lat},${lng}` +
+    `&zoom=15&size=600x300` +
+    `&markers=color:red%7C${lat},${lng}` +
+    `&key=${key}`
+  );
+});
+
 const openInGoogleMaps = () => {
   const event = selectedEvent.value || selectedMyEvent.value;
 
@@ -953,6 +987,7 @@ oneYearFromToday.setFullYear(today.getFullYear() + 1);
 
 const openDialog = (event) => {
   selectedEvent.value = event;
+  console.log("Selected event:", selectedEvent.value);
   dialog.value = true;
   fetchPlayers(event.events_pk);
 
@@ -1243,8 +1278,8 @@ const openMyEventsDialog = (event) => {
   eventPk.value = event.events_pk;
   fetchPlayers(event.events_pk);
   myDialog.value = true;
-
   eventRewards.value = [];
+
   axios
     .get("/rl_events_rewards/list_rewards", {
       params: { events_fk: event.events_pk },
