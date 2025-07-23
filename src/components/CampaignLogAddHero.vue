@@ -1,5 +1,11 @@
 <template>
-  <v-btn variant="elevated" id="campaign-add-hero" rounded @click="openModal">
+  <v-btn
+    variant="elevated"
+    id="campaign-add-hero"
+    rounded
+    @click="openModal"
+    :disabled="isLimitReached"
+  >
     <v-icon start>mdi-plus</v-icon>
     {{ t("label.add-hero") }}
   </v-btn>
@@ -41,6 +47,7 @@ import { HeroStore } from "@/store/HeroStore";
 import { Hero } from "@/store/Hero";
 import { useI18n } from "vue-i18n";
 import type { HeroData } from "@/data/repository/HeroData";
+import { CampaignStore } from "@/store/CampaignStore";
 
 const props = defineProps<{
   campaignId: string;
@@ -59,6 +66,25 @@ function closeModal() {
 }
 
 const heroStore = HeroStore();
+const campaignStore = CampaignStore();
+
+const campaign = computed(() => campaignStore.find(props.campaignId));
+
+const MAX_HEROES = 4;
+const campaignHeroesCount = computed(
+  () => heroStore.findAllInCampaign(props.campaignId).length,
+);
+
+const isLimitReached = computed(() => {
+  if (!campaign.value) {
+    return false;
+  }
+  if (campaign.value.campaign === 'underkeep') {
+    return campaignHeroesCount.value >= MAX_HEROES;
+  }
+  return false;
+});
+
 const heroes = new EnabledHeroes().findAll();
 
 let filteredHeroes = computed(() => heroes.filter(filterHero));
@@ -71,11 +97,32 @@ function filterHero(hero: HeroData) {
 }
 
 function addHeroToCampaign(heroId: string) {
+  if (isLimitReached.value) {
+    toast.add({
+      severity: "warn",
+      summary: "Limit reached",
+      detail: `Underkeep campaigns can only have ${MAX_HEROES} heroes.`,
+      life: 3000,
+    });
+    closeModal();
+    return;
+  }
   heroStore.add(new Hero(heroId, props.campaignId));
   closeModal();
 }
 
 function addRandomHeroToCampaign() {
+  if (isLimitReached.value) {
+    toast.add({
+      severity: "warn",
+      summary: "Limit reached",
+      detail: `Underkeep campaigns can only have ${MAX_HEROES} heroes.`,
+      life: 3000,
+    });
+    closeModal();
+    return;
+  }
+
   const randomHero = new RandomizeHero().randomize(
     _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
   );

@@ -19,8 +19,8 @@ export class SequentialAdventureState {
   public lifepoints: number = 0;
   public curseCubes: number = 0;
   public traumaCubes: number = 0;
-  public availableCubes: number = 0; 
-  public usedCubes: number = 0;    
+  public availableCubes: number = 0;
+  public usedCubes: number = 0;
   public resources: any = {};
 
   constructor() {
@@ -45,6 +45,7 @@ export class Hero {
     rankOne: null,
     rankTwo: null,
   };
+  public classAbilityCount: number = 0;
   public sequentialAdventureState: SequentialAdventureState | null = null;
   public auraId: string | null = null;
   public outcomeIds: Array<string> = [];
