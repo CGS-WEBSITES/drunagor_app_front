@@ -248,20 +248,24 @@
                 </v-col>
               </v-row>
             </v-card>
-            <v-card
-              color="primary"
-              min-height="130px"
-              class="mr-4 mt-4 event-card"
-            >
-              <v-col cols="3" lg="3">
-                <v-img
+
+            <v-card color="primary" class="mr-4 mt-4 event-card">
+              <v-responsive
+                style="width: 100%; height: 200px"
+                aspect-ratio="16/9"
+              >
+                <iframe
+                  v-if="selectedEvent?.latitude"
                   :src="
-                    mapUrl ||
-                    'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                    `&z=15&output=embed`
                   "
-                  class="event-img"
+                  frameborder="0"
+                  style="border: 0; width: 100%; height: 100%"
+                  allowfullscreen
+                  loading="lazy"
                 />
-              </v-col>
+              </v-responsive>
             </v-card>
 
             <v-card-text v-if="eventRewards.length">
@@ -555,20 +559,23 @@
                 </v-col>
               </v-row>
             </v-card>
-            <v-card
-              color="primary"
-              min-height="130px"
-              class="mr-4 mt-4 event-card"
-            >
-              <v-col cols="3" lg="3">
-                <v-img
+            <v-card color="primary" class="mr-4 mt-4 event-card">
+              <v-responsive
+                style="width: 100%; height: 200px"
+                aspect-ratio="16/9"
+              >
+                <iframe
+                  v-if="selectedMyEvent?.latitude"
                   :src="
-                    mapUrlMy ||
-                    'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                    `https://www.google.com/maps?q=${selectedMyEvent.latitude},${selectedMyEvent.longitude}` +
+                    `&z=15&output=embed`
                   "
-                  class="event-img"
+                  frameborder="0"
+                  style="border: 0; width: 100%; height: 100%"
+                  allowfullscreen
+                  loading="lazy"
                 />
-              </v-col>
+              </v-responsive>
             </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
@@ -910,42 +917,6 @@ const selectedStore = computed(() => {
 
 const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
-});
-
-const mapUrl = computed(() => {
-  const evt = selectedEvent.value;
-  console.log("Selected event for map:", evt);
-  if (!evt?.latitude || !evt?.longitude) return "";
-
-  const lat = evt.latitude;
-  const lng = evt.longitude;
-  const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
-
-  return (
-    `https://maps.googleapis.com/maps/api/staticmap?` +
-    `center=${lat},${lng}` +
-    `&zoom=15&size=600x300` +
-    `&markers=color:red%7C${lat},${lng}` +
-    `&key=${key}`
-  );
-});
-
-const mapUrlMy = computed(() => {
-  const evt = selectedMyEvent.value;
-
-  if (!evt?.latitude || !evt?.longitude) return "";
-
-  const lat = evt.latitude;
-  const lng = evt.longitude;
-  const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
-
-  return (
-    `https://maps.googleapis.com/maps/api/staticmap?` +
-    `center=${lat},${lng}` +
-    `&zoom=15&size=600x300` +
-    `&markers=color:red%7C${lat},${lng}` +
-    `&key=${key}`
-  );
 });
 
 const openInGoogleMaps = () => {
