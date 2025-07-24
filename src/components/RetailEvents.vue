@@ -215,8 +215,9 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      mapUrl ||
-                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -233,6 +234,26 @@
                 <v-col cols="2" class="text-right pa-0"></v-col>
               </v-row>
             </v-card>
+
+            <v-card color="primary" class="mr-4 mt-4 event-card">
+              <v-responsive
+                style="width: 100%; height: 200px"
+                aspect-ratio="16/9"
+              >
+                <iframe
+                  v-if="selectedEvent?.latitude"
+                  :src="
+                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                    `&z=15&output=embed`
+                  "
+                  frameborder="0"
+                  style="border: 0; width: 100%; height: 100%"
+                  allowfullscreen
+                  loading="lazy"
+                />
+              </v-responsive>
+            </v-card>
+
             <v-card-text>
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
 
@@ -686,8 +707,9 @@
                           <v-col cols="3" lg="3">
                             <v-img
                               :src="
-                                mapUrl ||
-                                'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                                selectedEvent?.picture_hash
+                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                               "
                               class="event-img"
                             />
@@ -703,6 +725,24 @@
                           </v-col>
                           <v-col cols="2" class="text-right pa-0"></v-col>
                         </v-row>
+                      </v-card>
+                      <v-card color="primary" class="mr-4 mt-4 event-card">
+                        <v-responsive
+                          style="width: 100%; height: 200px"
+                          aspect-ratio="16/9"
+                        >
+                          <iframe
+                            v-if="selectedEvent?.latitude"
+                            :src="
+                              `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                              `&z=15&output=embed`
+                            "
+                            frameborder="0"
+                            style="border: 0; width: 100%; height: 100%"
+                            allowfullscreen
+                            loading="lazy"
+                          />
+                        </v-responsive>
                       </v-card>
                       <v-card-text>
                         <h3 class="text-h6 font-weight-bold mb-1">REWARDS:</h3>
@@ -1073,24 +1113,6 @@ const pdfUrl = computed(() => {
     return "#";
   }
   return `${baseUrl}/book/test.pdf`;
-});
-
-const mapUrl = computed(() => {
-  const evt = selectedEvent.value;
-
-  if (!evt?.latitude || !evt?.longitude) return "";
-
-  const lat = evt.latitude;
-  const lng = evt.longitude;
-  const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
-  
-  return (
-    `https://maps.googleapis.com/maps/api/staticmap?` +
-    `center=${lat},${lng}` +
-    `&zoom=15&size=600x300` +
-    `&markers=color:red%7C${lat},${lng}` +
-    `&key=${key}`
-  );
 });
 
 const openInGoogleMaps = () => {
