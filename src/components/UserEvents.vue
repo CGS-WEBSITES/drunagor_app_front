@@ -230,8 +230,9 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      mapUrl ||
-                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -246,6 +247,21 @@
                   </p>
                 </v-col>
               </v-row>
+            </v-card>
+            <v-card
+              color="primary"
+              min-height="130px"
+              class="mr-4 mt-4 event-card"
+            >
+              <v-col cols="3" lg="3">
+                <v-img
+                  :src="
+                    mapUrl ||
+                    'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                  "
+                  class="event-img"
+                />
+              </v-col>
             </v-card>
 
             <v-card-text v-if="eventRewards.length">
@@ -521,8 +537,9 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      mapUrlMy ||
-                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      selectedMyEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -537,6 +554,21 @@
                   </p>
                 </v-col>
               </v-row>
+            </v-card>
+            <v-card
+              color="primary"
+              min-height="130px"
+              class="mr-4 mt-4 event-card"
+            >
+              <v-col cols="3" lg="3">
+                <v-img
+                  :src="
+                    mapUrlMy ||
+                    'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                  "
+                  class="event-img"
+                />
+              </v-col>
             </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
@@ -882,13 +914,13 @@ const parsedCampaignFk = computed(() => {
 
 const mapUrl = computed(() => {
   const evt = selectedEvent.value;
-
+  console.log("Selected event for map:", evt);
   if (!evt?.latitude || !evt?.longitude) return "";
 
   const lat = evt.latitude;
   const lng = evt.longitude;
   const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
-  
+
   return (
     `https://maps.googleapis.com/maps/api/staticmap?` +
     `center=${lat},${lng}` +
@@ -898,7 +930,7 @@ const mapUrl = computed(() => {
   );
 });
 
-const mapUrlMy  = computed(() => {
+const mapUrlMy = computed(() => {
   const evt = selectedMyEvent.value;
 
   if (!evt?.latitude || !evt?.longitude) return "";

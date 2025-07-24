@@ -215,8 +215,9 @@
                 <v-col cols="3" lg="3">
                   <v-img
                     :src="
-                      mapUrl ||
-                      'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                      selectedEvent?.picture_hash
+                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
                   />
@@ -231,6 +232,15 @@
                   </p>
                 </v-col>
                 <v-col cols="2" class="text-right pa-0"></v-col>
+                <v-col cols="3" lg="3">
+                <v-img
+                  :src="
+                    mapUrl ||
+                    'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                  "
+                  class="event-img"
+                />
+              </v-col>
               </v-row>
             </v-card>
             <v-card-text>
@@ -686,8 +696,9 @@
                           <v-col cols="3" lg="3">
                             <v-img
                               :src="
-                                mapUrl ||
-                                'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                                selectedEvent?.picture_hash
+                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                               "
                               class="event-img"
                             />
@@ -702,6 +713,15 @@
                             </p>
                           </v-col>
                           <v-col cols="2" class="text-right pa-0"></v-col>
+                          <v-col cols="3" lg="3">
+                          <v-img
+                            :src="
+                              mapUrl ||
+                              'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                            "
+                            class="event-img"
+                          />
+                        </v-col>
                         </v-row>
                       </v-card>
                       <v-card-text>
@@ -1077,13 +1097,13 @@ const pdfUrl = computed(() => {
 
 const mapUrl = computed(() => {
   const evt = selectedEvent.value;
-
+  console.log("Selected event for map:", evt);
   if (!evt?.latitude || !evt?.longitude) return "";
 
   const lat = evt.latitude;
   const lng = evt.longitude;
   const key = "AIzaSyD1bzcyTjbgnsOlnqlzGsRUAXNQjilcf6c";
-  
+
   return (
     `https://maps.googleapis.com/maps/api/staticmap?` +
     `center=${lat},${lng}` +
@@ -1092,6 +1112,8 @@ const mapUrl = computed(() => {
     `&key=${key}`
   );
 });
+
+watch(mapUrl, url => console.log("mapUrl gerada:", url))
 
 const openInGoogleMaps = () => {
   const event = selectedEvent.value;
