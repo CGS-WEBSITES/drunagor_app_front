@@ -52,6 +52,7 @@ declare module 'vue' {
     CampaignView: typeof import('./components/CampaignView.vue')['default']
     ChoroplethMap: typeof import('./components/ChoroplethMap.vue')['default']
     ComingSoon: typeof import('./components/ComingSoon.vue')['default']
+    CommunityBuilds: typeof import('./components/CommunityBuilds.vue')['default']
     ConfigurationContentHero: typeof import('./components/ConfigurationContentHero.vue')['default']
     ConfigurationContentMonster: typeof import('./components/ConfigurationContentMonster.vue')['default']
     ConfigurationLanguage: typeof import('./components/ConfigurationLanguage.vue')['default']
