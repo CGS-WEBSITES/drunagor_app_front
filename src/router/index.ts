@@ -73,6 +73,17 @@ const router = createRouter({
       },
     },
     {
+      path: "/community-builds",
+      name: "CommunityBuilds",
+      component: () => import("@/components/CommunityBuilds.vue"),
+      beforeEnter(to, from, next) {
+        if (isSignedIn()) {
+          next()
+          return
+        }
+      },
+    },
+    {
       path: "/tracker-parent",
       name: "TrackerParent",
       component: () => import("@/pages/CampaignTracker.vue"),
