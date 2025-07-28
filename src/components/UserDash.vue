@@ -282,6 +282,20 @@
               </div>
             </v-col>
           </v-row>
+
+          <v-row no-gutters class="justify-center pb-6 px-5">
+            <v-col cols="12" md="12" lg="12">
+              <v-card
+                @click="router.push({ name: 'CommunityBuilds' })"
+                flat
+                style="cursor: pointer"
+              >
+                <v-img
+                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+                />
+              </v-card>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
@@ -320,7 +334,7 @@
             <div
               v-if="loading"
               class="d-flex justify-center align-center"
-              style="min-height: 400px"
+              style="min-height: 420px"
             >
               <v-progress-circular
                 :size="60"
@@ -333,7 +347,7 @@
               show-arrows="hover"
               hide-delimiters
               v-else-if="campaignList.length > 0"
-              height="500"
+              height="410"
             >
               <v-carousel-item
                 v-for="(item, index) in campaignStore.findAll()"
@@ -437,6 +451,20 @@
             </div>
           </v-col>
         </v-row>
+        
+        <v-row no-gutters class="justify-center pb-6 px-3">
+          <v-col cols="12">
+            <v-card
+              @click="router.push({ name: 'CommunityBuilds' })"
+              flat
+              style="cursor: pointer"
+            >
+              <v-img
+                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+              />
+            </v-card>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
   </v-main>
@@ -469,7 +497,7 @@ const assets = inject<string>("assets");
 const heroDataRepository = new HeroDataRepository();
 
 const loading = ref(true);
-const loadingErrors = ref<{ id: number; text: string }[]>([]);
+const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
 const carouselItems = ref([
   {
