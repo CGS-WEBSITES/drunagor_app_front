@@ -26,7 +26,7 @@
         },
         {
           "title": "STARTGAME TRIGGER",
-          "bodyHTML": "<p>Now that you’ve completed the first Tutorial readings, place the Initiative Marker on Vorn’s (or the Hero who is playing the Defender role if it is not Vorn) Initiative card. That Hero can move to reach a Monster and make Attacks (<img src=\"/icons/2-melee-dmg.svg\" class=\"inline-icon\" alt=\"Melee Damage\">) against it. For purposes of this Tutorial, if the Vampire is killed, keep it on the board with 1 Health so as not to interfere with the following Tutorials.</p><p>You may begin to play the Adventure. Once the Defender’s turn ends (after taking their Move Action and Two Cube Actions), move the Initiative marker to the next card, the Vampire Monster, and read “The Monsters’ Turn” and “Reactions” in the Tutorial tab of your app.</p>"
+          "bodyHTML": "Now that you’ve completed the first Tutorial readings, place the Initiative Marker on Vorn’s (or the Hero who is playing the Defender role if it is not Vorn) Initiative card. That Hero can move to reach a Monster and make Attacks (²) against it. For purposes of this Tutorial, if the Vampire is killed, keep it on the board with 1 Health so as not to interfere with the following Tutorials. \nYou may begin to play the Adventure. Once the Defender’s turn ends (after taking their Move Action and Two Cube Actions), move the Initiative marker to the next card, the Vampire Monster, and read “The Monsters’ Turn” and “Reactions” in the Tutorial tab of your app.  "
         }
       ]
     },
