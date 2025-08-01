@@ -63,7 +63,6 @@ async function saveCampaign() {
 
 function handleClick() {
   emit('open-save-panel');
-  saveCampaign();
 }
 
 defineExpose({ save: saveCampaign });

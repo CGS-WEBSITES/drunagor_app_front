@@ -34,7 +34,10 @@
                     <v-tab value="load">Load Campaign</v-tab>
                   </v-tabs>
 
-                  <SaveInstructions v-if="instructionTab === 'save'" />
+                  <SaveInstructions 
+                    v-if="instructionTab === 'save'" 
+                    @save="handleSave"
+                  />
                   <LoadInstructions v-else />
                 </v-expansion-panel-text>
               </v-expansion-panel>
@@ -376,16 +379,6 @@
         </v-row>
       </fieldset>
     </template>
-    <DialogLoadCampaing v-model:visible="showLoading" />
-
-    <DialogSaveCampaign
-      v-model:visible="showSaveDialog"
-      @update:visible="
-        (val: any) => {
-          if (!val) handleSave();
-        }
-      "
-    />
   </template>
 
   <template v-else-if="!campaign && !showAlert">
@@ -425,8 +418,6 @@ import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/store/UserStore";
 import axios from "axios";
 import { ref as vueRef } from "vue";
-import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
-import DialogSaveCampaign from "@/components/dialogs/DialogSaveCampaign.vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import SaveInstructions from "./SaveInstructions.vue";
@@ -454,7 +445,6 @@ const visible = ref(false);
 const token = ref("");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const showLoading = ref(false);
-const showSaveDialog = ref(false);
 const players = ref<
   Array<{
     rl_campaigns_users_pk: number;
