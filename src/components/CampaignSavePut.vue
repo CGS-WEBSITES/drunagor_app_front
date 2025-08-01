@@ -1,5 +1,10 @@
 <template>
-  <v-btn variant="elevated" id="campaign-export" rounded @click="saveCampaign">
+  <v-btn 
+    variant="elevated" 
+    id="campaign-export" 
+    rounded 
+    @click="handleClick"
+  >
     {{ t("label.save-campaign-put") }}
   </v-btn>
 </template>
@@ -10,15 +15,13 @@ import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
-import { useRoute } from "vue-router";
 
 const props = defineProps<{ campaignId: string }>();
-const emit = defineEmits(["success", "fail"]);
+const emit = defineEmits(["success", "fail", "open-save-panel"]);
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const token = ref("");
 const { t } = useI18n();
-const route = useRoute();
 
 function compressCampaign(campaignId: string) {
   const campaign = campaignStore.find(campaignId);
@@ -56,6 +59,11 @@ async function saveCampaign() {
       emit("fail");
       return false;
     });
+}
+
+function handleClick() {
+  emit('open-save-panel');
+  saveCampaign();
 }
 
 defineExpose({ save: saveCampaign });

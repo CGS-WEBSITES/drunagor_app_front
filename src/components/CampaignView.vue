@@ -90,7 +90,7 @@
                   v-if="showSaveCampaignButton"
                   :campaign-id="campaignId"
                   class="mx-1 my-1"
-                  @click="showSaveDialog = true"
+                  @open-save-panel="openSavePanel"
                 />
               </v-card-actions>
             </v-card>
@@ -517,6 +517,11 @@ const confirmPlayerRemoval = (player: {
 }) => {
   playerToRemove.value = player;
   confirmRemoveDialog.value = true;
+};
+
+const openSavePanel = () => {
+  expandedPanel.value = [0];
+  instructionTab.value = 'save';
 };
 
 const removePlayer = async () => {
