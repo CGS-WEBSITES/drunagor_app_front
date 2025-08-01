@@ -1,6 +1,32 @@
 <template>
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="6" xl="8">
+      <v-card-text v-if="showAlert" class="pa-2">
+        <BaseAlert
+          v-model="showAlert"
+          :icon="alertIcon"
+          :title="alertTitle"
+          :type="alertType"
+          text
+          density="compact"
+          class="ma-2"
+        >
+          {{ alertText }}
+        </BaseAlert>
+      </v-card-text>
+      <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
+        <BaseAlert
+          :modelValue="true"
+          type="warning"
+          text
+          border="start"
+          variant="tonal"
+          :closable="false"
+        >
+          Players can only view this campaign. Only a Drunagor Master can save
+          or delete a campaign.
+        </BaseAlert>
+      </v-card-text>
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-row class="ml-0 justify-center">
           <v-col cols="12" md="12" lg="12" xl="12">
@@ -34,8 +60,8 @@
                     <v-tab value="load">Load Campaign</v-tab>
                   </v-tabs>
 
-                  <SaveInstructions 
-                    v-if="instructionTab === 'save'" 
+                  <SaveInstructions
+                    v-if="instructionTab === 'save'"
                     @save="handleSave"
                   />
                   <LoadInstructions v-else />
@@ -46,19 +72,6 @@
         </v-row>
       </v-card>
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-        <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
-          <BaseAlert
-            :modelValue="true"
-            type="warning"
-            text
-            border="start"
-            variant="tonal"
-            :closable="false"
-          >
-            Players can only view this campaign. Only a Drunagor Master can save
-            or delete a campaign.
-          </BaseAlert>
-        </v-card-text>
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
             <v-card style="width: 100%">
@@ -99,19 +112,6 @@
             </v-card>
           </v-row>
         </v-card-actions>
-        <v-card-text v-if="showAlert" class="pa-0">
-          <BaseAlert
-            v-model="showAlert"
-            :icon="alertIcon"
-            :title="alertTitle"
-            :type="alertType"
-            text
-            density="compact"
-            class="ma-2"
-          >
-            {{ alertText }}
-          </BaseAlert>
-        </v-card-text>
       </v-card>
     </v-col>
   </v-row>
@@ -464,7 +464,7 @@ const campaignPlayerListRef = vueRef<InstanceType<
 > | null>(null);
 const removingLoading = ref(false);
 const expandedPanel = ref<number[]>([]);
-const instructionTab = ref<'save'|'load'>('save');
+const instructionTab = ref<"save" | "load">("save");
 
 const handleSave = () => {
   savePutRef
@@ -511,7 +511,7 @@ const confirmPlayerRemoval = (player: {
 
 const openSavePanel = () => {
   expandedPanel.value = [0];
-  instructionTab.value = 'save';
+  instructionTab.value = "save";
 };
 
 const removePlayer = async () => {
@@ -656,10 +656,10 @@ onMounted(() => {
     showLoading.value = true;
   }
 
-  if (route.query.openInstructions === 'load') {
-    expandedPanel.value = [0]; 
-    instructionTab.value = 'load'; 
-    
+  if (route.query.openInstructions === "load") {
+    expandedPanel.value = [0];
+    instructionTab.value = "load";
+
     router.replace({ query: {} });
   }
 });

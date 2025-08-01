@@ -197,14 +197,16 @@
         <div class="mt-2">Until next time, dear Adventurer!</div>
       </v-alert>
     </v-card-text>
-    <v-btn color="primary" class="mt-4" @click="$emit('save')">
-      Save Campaign
-    </v-btn>
+    <v-card-actions class="justify-end mt-4">
+      <v-btn color="white" class="mt-4" @click="$emit('save')">
+        Save Campaign
+      </v-btn>
+    </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
-  defineEmits(["save"]);
+defineEmits(["save"]);
 </script>
 
 <style scoped>
