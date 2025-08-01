@@ -1133,7 +1133,7 @@ const confirmLoadCampaign = () => {
         path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
         query: {
           sku: String(BOX_ID),
-          dialog: selectedLoadCampaign.value,
+          openInstructions: 'load',
         },
       });
     })

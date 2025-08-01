@@ -13,7 +13,11 @@
         </v-row>
         <v-row class="ml-0 justify-center">
           <v-col cols="12" md="12" lg="12" xl="12">
-            <v-expansion-panels accordion class="w-100 mb-4">
+            <v-expansion-panels
+              v-model="expandedPanel"
+              accordion
+              class="w-100 mb-4"
+            >
               <v-expansion-panel>
                 <v-expansion-panel-title
                   class="d-flex align-center justify-space-between"
@@ -402,7 +406,7 @@
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
@@ -428,12 +432,12 @@ import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import SaveInstructions from "./SaveInstructions.vue";
 import LoadInstructions from "./LoadInstructions.vue";
 
-const route = useRoute();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const toast = useToast();
 const userStore = useUserStore();
 
+const route = useRoute();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isSequentialAdventure = ref(false);
@@ -469,7 +473,8 @@ const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
 const removingLoading = ref(false);
-const instructionTab = ref<'save'|'load'>('save')
+const expandedPanel = ref<number[]>([]);
+const instructionTab = ref<'save'|'load'>('save');
 
 const handleSave = () => {
   savePutRef
@@ -633,6 +638,8 @@ const closeModal = () => {
   visible.value = false;
 };
 
+const router = useRouter();
+
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
@@ -652,6 +659,13 @@ onMounted(() => {
 
   if (route.query.dialog) {
     showLoading.value = true;
+  }
+
+  if (route.query.openInstructions === 'load') {
+    expandedPanel.value = [0]; 
+    instructionTab.value = 'load'; 
+    
+    router.replace({ query: {} });
   }
 });
 
