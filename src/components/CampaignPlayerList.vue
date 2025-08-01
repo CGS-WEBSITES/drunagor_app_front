@@ -1,5 +1,5 @@
 <template>
-  <v-expansion-panels accordion>
+  <v-expansion-panels accordion class="w-100">
     <v-expansion-panel>
       <v-expansion-panel-title
         class="d-flex align-center justify-space-between"

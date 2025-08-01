@@ -3,7 +3,7 @@
     <v-col cols="12" md="12" lg="6" xl="8">
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-row class="ml-0 justify-center">
-          <v-col cols="12" md="12" lg="12" xl="8">
+          <v-col cols="12" md="12" lg="12" xl="12">
             <CampaignPlayerList
               ref="campaignPlayerListRef"
               :campaign-id="campaignId"
@@ -11,6 +11,34 @@
             />
           </v-col>
         </v-row>
+        <v-row class="ml-0 justify-center">
+          <v-col cols="12" md="12" lg="12" xl="12">
+            <v-expansion-panels accordion class="w-100 mb-4">
+              <v-expansion-panel>
+                <v-expansion-panel-title
+                  class="d-flex align-center justify-space-between"
+                >
+                  <span class="text-h6">Instructions</span>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <v-tabs
+                    v-model="instructionTab"
+                    background-color="surface"
+                    grow
+                  >
+                    <v-tab value="save">Save Campaign</v-tab>
+                    <v-tab value="load">Load Campaign</v-tab>
+                  </v-tabs>
+
+                  <SaveInstructions v-if="instructionTab === 'save'" />
+                  <LoadInstructions v-else />
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
+      </v-card>
+      <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
           <BaseAlert
             :modelValue="true"
@@ -138,7 +166,7 @@
       <v-card-actions>
         <v-btn text @click="confirmRemoveDialog = false">No</v-btn>
         <v-spacer />
-        <v-btn 
+        <v-btn
           color="success"
           :loading="removingLoading"
           :disabled="removingLoading"
@@ -397,6 +425,8 @@ import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
 import DialogSaveCampaign from "@/components/dialogs/DialogSaveCampaign.vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
+import SaveInstructions from "./SaveInstructions.vue";
+import LoadInstructions from "./LoadInstructions.vue";
 
 const route = useRoute();
 const campaignStore = CampaignStore();
@@ -439,6 +469,7 @@ const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
 const removingLoading = ref(false);
+const instructionTab = ref<'save'|'load'>('save')
 
 const handleSave = () => {
   savePutRef
