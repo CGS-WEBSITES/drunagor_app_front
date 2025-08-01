@@ -1,29 +1,20 @@
 <template>
   <v-row class="ml-0 justify-center">
     <v-col cols="12" md="12" lg="6" xl="8">
+      <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
+        <BaseAlert
+          :modelValue="true"
+          type="warning"
+          text
+          border="start"
+          variant="tonal"
+          :closable="false"
+        >
+          Players can only view this campaign. Only a Drunagor Master can save
+          or delete a campaign.
+        </BaseAlert>
+      </v-card-text>
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-        <v-row class="ml-0 justify-center">
-          <v-col cols="12" md="12" lg="12" xl="8">
-            <CampaignPlayerList
-              ref="campaignPlayerListRef"
-              :campaign-id="campaignId"
-              class="mb-0"
-            />
-          </v-col>
-        </v-row>
-        <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
-          <BaseAlert
-            :modelValue="true"
-            type="warning"
-            text
-            border="start"
-            variant="tonal"
-            :closable="false"
-          >
-            Players can only view this campaign. Only a Drunagor Master can save
-            or delete a campaign.
-          </BaseAlert>
-        </v-card-text>
         <v-card-actions class="d-flex justify-space-between">
           <v-row no-gutters>
             <v-card style="width: 100%">
@@ -58,13 +49,24 @@
                   v-if="showSaveCampaignButton"
                   :campaign-id="campaignId"
                   class="mx-1 my-1"
-                  @click="showSaveDialog = true"
+                  @open-save-panel="openSavePanel"
                 />
               </v-card-actions>
             </v-card>
           </v-row>
         </v-card-actions>
-        <v-card-text v-if="showAlert" class="pa-0">
+      </v-card>
+      <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
+        <v-row class="ml-0 mt-2 justify-center">
+          <v-col cols="12" md="12" lg="12" xl="12">
+            <CampaignPlayerList
+              ref="campaignPlayerListRef"
+              :campaign-id="campaignId"
+              class="mb-0"
+            />
+          </v-col>
+        </v-row>
+        <v-card-text v-if="showAlert" class="pa-2">
           <BaseAlert
             v-model="showAlert"
             :icon="alertIcon"
@@ -77,6 +79,39 @@
             {{ alertText }}
           </BaseAlert>
         </v-card-text>
+        <v-row class="ml-0 justify-center">
+          <v-col cols="12" md="12" lg="12" xl="12">
+            <v-expansion-panels
+              v-model="expandedPanel"
+              accordion
+              class="w-100 mb-4"
+            >
+              <v-expansion-panel>
+                <v-expansion-panel-title
+                  class="d-flex align-center justify-space-between"
+                >
+                  <span class="text-h6">Instructions</span>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <v-tabs
+                    v-model="instructionTab"
+                    background-color="surface"
+                    grow
+                  >
+                    <v-tab value="save">Save Campaign</v-tab>
+                    <v-tab value="load">Load Campaign</v-tab>
+                  </v-tabs>
+
+                  <SaveInstructions
+                    v-if="instructionTab === 'save'"
+                    @save="handleSave"
+                  />
+                  <LoadInstructions v-else />
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
       </v-card>
     </v-col>
   </v-row>
@@ -138,7 +173,7 @@
       <v-card-actions>
         <v-btn text @click="confirmRemoveDialog = false">No</v-btn>
         <v-spacer />
-        <v-btn 
+        <v-btn
           color="success"
           :loading="removingLoading"
           :disabled="removingLoading"
@@ -344,16 +379,6 @@
         </v-row>
       </fieldset>
     </template>
-    <DialogLoadCampaing v-model:visible="showLoading" />
-
-    <DialogSaveCampaign
-      v-model:visible="showSaveDialog"
-      @update:visible="
-        (val: any) => {
-          if (!val) handleSave();
-        }
-      "
-    />
   </template>
 
   <template v-else-if="!campaign && !showAlert">
@@ -374,7 +399,7 @@
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
@@ -393,17 +418,17 @@ import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/store/UserStore";
 import axios from "axios";
 import { ref as vueRef } from "vue";
-import DialogLoadCampaing from "@/components/dialogs/DialogLoadCampaing.vue";
-import DialogSaveCampaign from "@/components/dialogs/DialogSaveCampaign.vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
+import SaveInstructions from "./SaveInstructions.vue";
+import LoadInstructions from "./LoadInstructions.vue";
 
-const route = useRoute();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const toast = useToast();
 const userStore = useUserStore();
 
+const route = useRoute();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isSequentialAdventure = ref(false);
@@ -420,7 +445,6 @@ const visible = ref(false);
 const token = ref("");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const showLoading = ref(false);
-const showSaveDialog = ref(false);
 const players = ref<
   Array<{
     rl_campaigns_users_pk: number;
@@ -439,6 +463,8 @@ const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
 const removingLoading = ref(false);
+const expandedPanel = ref<number[]>([]);
+const instructionTab = ref<"save" | "load">("save");
 
 const handleSave = () => {
   savePutRef
@@ -481,6 +507,11 @@ const confirmPlayerRemoval = (player: {
 }) => {
   playerToRemove.value = player;
   confirmRemoveDialog.value = true;
+};
+
+const openSavePanel = () => {
+  expandedPanel.value = [0];
+  instructionTab.value = "save";
 };
 
 const removePlayer = async () => {
@@ -602,6 +633,8 @@ const closeModal = () => {
   visible.value = false;
 };
 
+const router = useRouter();
+
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
@@ -621,6 +654,13 @@ onMounted(() => {
 
   if (route.query.dialog) {
     showLoading.value = true;
+  }
+
+  if (route.query.openInstructions === "load") {
+    expandedPanel.value = [0];
+    instructionTab.value = "load";
+
+    router.replace({ query: {} });
   }
 });
 
