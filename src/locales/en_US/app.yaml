@@ -19,7 +19,7 @@ label:
   copy-to-clipboard: Copy to clipboard
   import-campaign: " Import campaign"
   sequential-adventure: Start Playing
-  camp-phase: Stop Playing
+  camp-phase: reset status
   remove-hero: Remove hero
   add-hero: Add hero
   campaigns: Campaigns
