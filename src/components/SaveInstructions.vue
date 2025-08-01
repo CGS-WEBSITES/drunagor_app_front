@@ -4,7 +4,8 @@
       SAVING YOUR GAME
     </v-card-title>
     
-    <v-card-text>
+    <!-- Container scrollável -->
+    <v-card-text class="scroll-container">
       <p class="text-body-1 mb-4">
         You're done with this game session and it's time to save your Party's progress. 
         To do so, ensure that:
@@ -207,5 +208,11 @@
 
 .v-list-item {
   min-height: 36px;
+}
+
+.scroll-container {
+  max-height: 25vh;    
+  overflow-y: auto;   
+  padding-right: 8px; 
 }
 </style>

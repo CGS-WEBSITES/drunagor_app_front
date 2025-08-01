@@ -4,7 +4,7 @@
       LOADING YOUR GAME
     </v-card-title>
 
-    <v-card-text>
+    <v-card-text class="scroll-container">
       <p class="text-body-1 mb-4">
         We're glad to have you back, dear Adventurers! These instructions will
         help you restart the Campaign exactly where you left off.
@@ -211,5 +211,11 @@
 
 .v-list-item {
   min-height: 36px;
+}
+
+.scroll-container {
+  max-height: 25vh;    
+  overflow-y: auto;   
+  padding-right: 8px; 
 }
 </style>
