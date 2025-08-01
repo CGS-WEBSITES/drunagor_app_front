@@ -98,7 +98,7 @@
                     background-color="surface"
                     grow
                   >
-                    <v-tab value="save">Save Campaign</v-tab>
+                    <v-tab v-if="showSaveCampaignButton" value="save">Save Campaign</v-tab>
                     <v-tab value="load">Load Campaign</v-tab>
                   </v-tabs>
 
