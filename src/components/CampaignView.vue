@@ -1,6 +1,6 @@
 <template>
   <v-row class="ml-0 justify-center">
-    <v-col cols="12" md="12" lg="6" xl="8">
+    <v-col cols="12" md="12" lg="6" xl="6">
       <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
         <BaseAlert
           :modelValue="true"
@@ -14,8 +14,9 @@
           or delete a campaign.
         </BaseAlert>
       </v-card-text>
+
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-        <v-card-actions class="d-flex justify-space-between">
+        <v-card-actions class="d-flex flex-wrap justify-space-around pa-2">
           <v-row no-gutters>
             <v-card style="width: 100%">
               <v-card-actions
@@ -26,6 +27,14 @@
                   :campaign-id="campaignId"
                   class="mx-1 my-1"
                 />
+
+                <RemovePlayersButton
+                  :campaignId="campaignId"
+                  :showSaveCampaignButton="showSaveCampaignButton"
+                  @playersRemoved="onPlayerRemoved"
+                  class="mx-1 my-1"
+                />
+
                 <fieldset
                   :disabled="!showSaveCampaignButton"
                   class="d-contents"
@@ -44,6 +53,7 @@
                     :disabled="!isSequentialAdventure"
                   />
                 </fieldset>
+
                 <CampaignSavePut
                   ref="savePutRef"
                   v-if="showSaveCampaignButton"
@@ -51,11 +61,18 @@
                   class="mx-1 my-1"
                   @open-save-panel="openSavePanel"
                 />
+
+                <ShareCampaignButton
+                  :campaignId="campaignId"
+                  class="mx-1 my-1"
+                />
               </v-card-actions>
             </v-card>
           </v-row>
         </v-card-actions>
       </v-card>
+
+      <!-- Players list and alerts -->
       <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
         <v-row class="ml-0 mt-2 justify-center">
           <v-col cols="12" md="12" lg="12" xl="12">
@@ -66,6 +83,7 @@
             />
           </v-col>
         </v-row>
+
         <v-card-text v-if="showAlert" class="pa-2">
           <BaseAlert
             v-model="showAlert"
@@ -79,6 +97,7 @@
             {{ alertText }}
           </BaseAlert>
         </v-card-text>
+
         <v-row class="ml-0 justify-center">
           <v-col cols="12" md="12" lg="12" xl="12">
             <v-expansion-panels
@@ -98,7 +117,9 @@
                     background-color="surface"
                     grow
                   >
-                    <v-tab v-if="showSaveCampaignButton" value="save">Save Campaign</v-tab>
+                    <v-tab v-if="showSaveCampaignButton" value="save"
+                      >Save Campaign</v-tab
+                    >
                     <v-tab value="load">Load Campaign</v-tab>
                   </v-tabs>
 
@@ -115,99 +136,6 @@
       </v-card>
     </v-col>
   </v-row>
-
-  <v-row class="ml-0 justify-center mb-2">
-    <v-col cols="12" md="12" lg="9" xl="8" class="d-flex justify-end">
-      <v-btn
-        block
-        color="error"
-        class="ma-0 pa-2"
-        v-if="showSaveCampaignButton"
-        @click="removeDialog = true"
-      >
-        <v-icon left class="mr-2">mdi-account-remove</v-icon>
-        Remove Players
-      </v-btn>
-    </v-col>
-  </v-row>
-
-  <v-dialog v-model="removeDialog" max-width="400">
-    <v-card>
-      <v-card-title>Remove Players</v-card-title>
-      <v-card-text>
-        <v-list>
-          <v-list-item
-            v-for="player in players"
-            :key="player.rl_campaigns_users_pk"
-            @click="confirmPlayerRemoval(player)"
-            class="cursor-pointer"
-          >
-            <v-list-item-avatar>
-              <v-img
-                :src="
-                  player.picture_hash ? `/images/${player.picture_hash}` : ''
-                "
-              />
-            </v-list-item-avatar>
-            <v-list-item-content>
-              <v-list-item-title>{{ player.user_name }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn text @click="removeDialog = false">Cancel</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
-  <v-dialog v-model="confirmRemoveDialog" max-width="300">
-    <v-card>
-      <v-card-title class="headline">Confirmation</v-card-title>
-      <v-card-text>
-        Do you want to delete the player
-        <strong>{{ playerToRemove?.user_name }}</strong
-        >?
-      </v-card-text>
-      <v-card-actions>
-        <v-btn text @click="confirmRemoveDialog = false">No</v-btn>
-        <v-spacer />
-        <v-btn
-          color="success"
-          :loading="removingLoading"
-          :disabled="removingLoading"
-          @click="removePlayer"
-        >
-          Yes
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
-  <v-row class="ml-0 justify-center mb-4">
-    <v-col cols="12" md="12" lg="9" xl="8">
-      <v-btn block color="secondary" class="ma-0 pa-2" @click="openModal">
-        <v-icon left class="mr-2">mdi-share-variant</v-icon>
-        Share Campaign
-      </v-btn>
-    </v-col>
-  </v-row>
-
-  <v-dialog v-model="visible" max-width="500">
-    <v-card>
-      <v-card-title>Share Campaign</v-card-title>
-      <v-card-text>
-        <p class="py-2">Copy this token to share your campaign:</p>
-        <v-textarea readonly auto-grow v-model="token" class="ma-0" />
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="closeModal">Cancel</v-btn>
-        <v-btn @click="copyToClipboard">Copy to clipboard</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 
   <template v-if="campaign">
     <template v-if="campaign.campaign === 'underkeep'">
@@ -414,7 +342,6 @@ import CampaignRunes from "@/components/CampaignRunes.vue";
 import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
-import { useToast } from "primevue/usetoast";
 import { useUserStore } from "@/store/UserStore";
 import axios from "axios";
 import { ref as vueRef } from "vue";
@@ -422,13 +349,15 @@ import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import SaveInstructions from "./SaveInstructions.vue";
 import LoadInstructions from "./LoadInstructions.vue";
+import RemovePlayersButton from "@/components/RemovePlayersButton.vue";
+import ShareCampaignButton from "./ShareCampaignButton.vue";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
-const toast = useToast();
 const userStore = useUserStore();
-
+const router = useRouter();
 const route = useRoute();
+
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isSequentialAdventure = ref(false);
@@ -441,8 +370,6 @@ const alertType = ref<"success" | "info" | "warning" | "error" | undefined>(
 );
 const showAlert = ref(false);
 const currentTab = ref("normal");
-const visible = ref(false);
-const token = ref("");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const showLoading = ref(false);
 const players = ref<
@@ -452,17 +379,10 @@ const players = ref<
     picture_hash: string | null;
   }>
 >([]);
-const removeDialog = ref(false);
-const confirmRemoveDialog = ref(false);
-const playerToRemove = ref<null | {
-  rl_campaigns_users_pk: number;
-  user_name: string;
-}>(null);
 const showSaveCampaignButton = ref(false);
 const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
-const removingLoading = ref(false);
 const expandedPanel = ref<number[]>([]);
 const instructionTab = ref<"save" | "load">("save");
 
@@ -501,59 +421,9 @@ const fetchRlCampaignsUsersListPlayers = async () => {
     });
 };
 
-const confirmPlayerRemoval = (player: {
-  rl_campaigns_users_pk: number;
-  user_name: string;
-}) => {
-  playerToRemove.value = player;
-  confirmRemoveDialog.value = true;
-};
-
 const openSavePanel = () => {
   expandedPanel.value = [0];
   instructionTab.value = "save";
-};
-
-const removePlayer = async () => {
-  if (!playerToRemove.value) return;
-
-  removingLoading.value = true;
-
-  await axios
-    .delete(
-      `rl_campaigns_users/${playerToRemove.value.rl_campaigns_users_pk}/delete/`,
-    )
-    .then(async () => {
-      setAlert(
-        "mdi-check",
-        "Sucesso",
-        "Player successfully removed",
-        "success",
-      );
-
-      await campaignPlayerListRef.value?.fetchPlayers();
-    })
-    .catch(() => {
-      setAlert("mdi-alert-circle", "Erro", "Failed to remove player", "error");
-      alertIcon.value = "mdi-alert-circle";
-      alertTitle.value = "Erro";
-      alertText.value = "Failed to remove player";
-      alertType.value = "error";
-    })
-    .finally(async () => {
-      removingLoading.value = false;
-      confirmRemoveDialog.value = false;
-      removeDialog.value = false;
-      await campaignPlayerListRef.value?.fetchPlayers();
-
-      await nextTick();
-      setAlert(
-        alertIcon.value,
-        alertTitle.value,
-        alertText.value || "Player successfully removed",
-        alertType.value,
-      );
-    });
 };
 
 const fetchRole = async () => {
@@ -585,6 +455,12 @@ const setAlert = (
   }, 1500);
 };
 
+const onPlayerRemoved = async () => {
+  setAlert("mdi-check", "Success", "Player successfully removed", "success");
+
+  await campaignPlayerListRef.value?.fetchPlayers();
+};
+
 const onCampPhase = () => {
   isSequentialAdventure.value = false;
 
@@ -600,40 +476,6 @@ const onSequentialAdventure = () => {
     savePutRef.value?.save();
   }, 0);
 };
-
-const openModal = () => {
-  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
-  token.value = `${prefix}${campaignId}`;
-  visible.value = true;
-};
-
-const copyToClipboard = () => {
-  navigator.clipboard
-    .writeText(token.value)
-    .then(() => {
-      toast.add({
-        severity: "success",
-        summary: "Success",
-        detail: "Token copied to clipboard",
-        life: 3000,
-      });
-      closeModal();
-    })
-    .catch(() => {
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to copy token",
-        life: 3000,
-      });
-    });
-};
-
-const closeModal = () => {
-  visible.value = false;
-};
-
-const router = useRouter();
 
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
