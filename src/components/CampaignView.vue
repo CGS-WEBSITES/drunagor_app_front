@@ -66,16 +66,16 @@
                   :campaignId="campaignId"
                   class="mx-1 my-1"
                 />
+                <v-btn
+                  variant="elevated"
+                  class="mx-1 my-1"
+                  rounded=""
+                  @click="toggleInstructions"
+                >
+                  <v-icon left>mdi-lightbulb-outline</v-icon>
+                  Instructions
+                </v-btn>
               </v-card-actions>
-              <v-btn
-                variant="elevated"
-                class="mx-1 my-1"
-                rounded=""
-                @click="toggleInstructions"
-              >
-                <v-icon left>mdi-help-circle-outline</v-icon>
-                Instructions
-              </v-btn>
             </v-card>
           </v-row>
         </v-card-actions>
@@ -101,7 +101,7 @@
             class="w-100 mb-4"
           >
             <v-expansion-panel>
-<!--               <v-expansion-panel-title class="d-flex align-center">
+              <!--               <v-expansion-panel-title class="d-flex align-center">
                 <span class="text-h6">Instructions</span>
               </v-expansion-panel-title> -->
               <v-expansion-panel-text>
