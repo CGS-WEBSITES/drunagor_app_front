@@ -1,9 +1,5 @@
 <template>
   <v-card class="pa-4" color="surface">
-    <v-card-title class="headline text-primary mb-4">
-      SAVING YOUR GAME
-    </v-card-title>
-
     <!-- Container scrollável -->
     <v-card-text class="scroll-container">
       <p class="text-body-1 mb-4">

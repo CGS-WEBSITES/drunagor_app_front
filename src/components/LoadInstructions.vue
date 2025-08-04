@@ -1,9 +1,5 @@
 <template>
   <v-card class="pa-4" color="surface">
-    <v-card-title class="headline text-primary mb-4">
-      LOADING YOUR GAME
-    </v-card-title>
-
     <v-card-text class="scroll-container">
       <p class="text-body-1 mb-4">
         We're glad to have you back, dear Adventurers! These instructions will
