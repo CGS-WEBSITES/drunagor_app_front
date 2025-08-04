@@ -67,65 +67,64 @@
                   class="mx-1 my-1"
                 />
               </v-card-actions>
+              <v-btn
+                variant="elevated"
+                class="mx-1 my-1"
+                rounded=""
+                @click="toggleInstructions"
+              >
+                <v-icon left>mdi-help-circle-outline</v-icon>
+                Instructions
+              </v-btn>
             </v-card>
           </v-row>
         </v-card-actions>
-        <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-          <v-row class="ml-0 mt-2 mb-2 justify-center">
-            <v-col cols="12" md="12" lg="12" xl="12">
-              <v-card-text v-if="showAlert" class="pa-2">
-                <BaseAlert
-                  v-model="showAlert"
-                  :icon="alertIcon"
-                  :title="alertTitle"
-                  :type="alertType"
-                  text
-                  density="compact"
-                  class="ma-2"
+
+        <v-card-text v-if="showAlert" class="pa-2">
+          <BaseAlert
+            v-model="showAlert"
+            :icon="alertIcon"
+            :title="alertTitle"
+            :type="alertType"
+            text
+            density="compact"
+            class="ma-2"
+          >
+            {{ alertText }}
+          </BaseAlert>
+        </v-card-text>
+
+        <v-card-text v-if="expandedPanel.length">
+          <v-expansion-panels
+            v-model="expandedPanel"
+            accordion
+            class="w-100 mb-4"
+          >
+            <v-expansion-panel>
+<!--               <v-expansion-panel-title class="d-flex align-center">
+                <span class="text-h6">Instructions</span>
+              </v-expansion-panel-title> -->
+              <v-expansion-panel-text>
+                <v-tabs
+                  v-model="instructionTab"
+                  background-color="surface"
+                  grow
                 >
-                  {{ alertText }}
-                </BaseAlert>
-              </v-card-text>
+                  <v-tab v-if="showSaveCampaignButton" value="save">
+                    Save Campaign
+                  </v-tab>
+                  <v-tab value="load">Load Campaign</v-tab>
+                </v-tabs>
 
-              <!-- Instruções de Save / Load -->
-              <v-row class="ml-0 justify-center">
-                <v-col cols="12" md="12" lg="12" xl="12">
-                  <v-expansion-panels
-                    v-model="expandedPanel"
-                    accordion
-                    class="w-100 mb-4"
-                  >
-                    <v-expansion-panel>
-                      <v-expansion-panel-title
-                        class="d-flex align-center justify-space-between"
-                      >
-                        <span class="text-h6">Instructions</span>
-                      </v-expansion-panel-title>
-                      <v-expansion-panel-text>
-                        <v-tabs
-                          v-model="instructionTab"
-                          background-color="surface"
-                          grow
-                        >
-                          <v-tab v-if="showSaveCampaignButton" value="save">
-                            Save Campaign
-                          </v-tab>
-                          <v-tab value="load">Load Campaign</v-tab>
-                        </v-tabs>
-
-                        <SaveInstructions
-                          v-if="instructionTab === 'save'"
-                          @save="handleSave"
-                        />
-                        <LoadInstructions v-else />
-                      </v-expansion-panel-text>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-card>
+                <SaveInstructions
+                  v-if="instructionTab === 'save'"
+                  @save="handleSave"
+                />
+                <LoadInstructions v-else />
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-card-text>
       </v-card>
     </v-col>
   </v-row>
@@ -390,6 +389,15 @@ const campaignPlayerListRef = vueRef<InstanceType<
 > | null>(null);
 const expandedPanel = ref<number[]>([]);
 const instructionTab = ref<"save" | "load">("save");
+
+const toggleInstructions = () => {
+  if (expandedPanel.value.length) {
+    expandedPanel.value = [];
+  } else {
+    expandedPanel.value = [0];
+    instructionTab.value = "save";
+  }
+};
 
 const handleSave = () => {
   savePutRef
