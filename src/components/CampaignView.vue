@@ -71,69 +71,6 @@
           </v-row>
         </v-card-actions>
       </v-card>
-
-      <!-- Players list and alerts -->
-      <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
-        <v-row class="ml-0 mt-2 justify-center">
-          <v-col cols="12" md="12" lg="12" xl="12">
-            <CampaignPlayerList
-              ref="campaignPlayerListRef"
-              :campaign-id="campaignId"
-              class="mb-0"
-            />
-          </v-col>
-        </v-row>
-
-        <v-card-text v-if="showAlert" class="pa-2">
-          <BaseAlert
-            v-model="showAlert"
-            :icon="alertIcon"
-            :title="alertTitle"
-            :type="alertType"
-            text
-            density="compact"
-            class="ma-2"
-          >
-            {{ alertText }}
-          </BaseAlert>
-        </v-card-text>
-
-        <v-row class="ml-0 justify-center">
-          <v-col cols="12" md="12" lg="12" xl="12">
-            <v-expansion-panels
-              v-model="expandedPanel"
-              accordion
-              class="w-100 mb-4"
-            >
-              <v-expansion-panel>
-                <v-expansion-panel-title
-                  class="d-flex align-center justify-space-between"
-                >
-                  <span class="text-h6">Instructions</span>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <v-tabs
-                    v-model="instructionTab"
-                    background-color="surface"
-                    grow
-                  >
-                    <v-tab v-if="showSaveCampaignButton" value="save"
-                      >Save Campaign</v-tab
-                    >
-                    <v-tab value="load">Load Campaign</v-tab>
-                  </v-tabs>
-
-                  <SaveInstructions
-                    v-if="instructionTab === 'save'"
-                    @save="handleSave"
-                  />
-                  <LoadInstructions v-else />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-col>
-        </v-row>
-      </v-card>
     </v-col>
   </v-row>
 
@@ -162,6 +99,18 @@
           <v-window v-model="currentTab">
             <v-window-item value="normal" class="pa-3">
               <fieldset :disabled="!showSaveCampaignButton">
+                <!-- Players list and alerts -->
+                <v-card class="mb-2 pa-1" color="primary" style="width: 100%">
+                  <v-row class="ml-0 mt-2 mb-2 justify-center">
+                    <v-col cols="12" md="12" lg="12" xl="12">
+                      <CampaignPlayerList
+                        ref="campaignPlayerListRef"
+                        :campaign-id="campaignId"
+                        class="mb-0"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-card>
                 <CampaignName :campaign-id="campaignId" class="mb-4" />
                 <v-row no-gutters class="d-flex justify-center mb-4">
                   <v-col cols="12">
