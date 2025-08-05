@@ -522,7 +522,7 @@ const syncPanelStateWithRoute = () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
@@ -537,9 +537,8 @@ onMounted(() => {
       "error",
     );
   }
-  fetchRole();
-  fetchRlCampaignsUsersListPlayers();
-  syncPanelStateWithRoute();
+  await fetchRole();
+  await fetchRlCampaignsUsersListPlayers();
 
   if (route.query.dialog) {
     showLoading.value = true;
@@ -552,6 +551,8 @@ onMounted(() => {
     router.replace({ query: {} });
   }
 });
+
+watch(() => route.query, syncPanelStateWithRoute, { immediate: true });
 
 watch(showSaveCampaignButton, (newVal) => {
   if (expandedPanel.value.length && newVal) {
