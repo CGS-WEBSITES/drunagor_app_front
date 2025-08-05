@@ -212,7 +212,7 @@ defineEmits(["save"]);
 }
 
 .scroll-container {
-  max-height: 15vh;
+  max-height: 20vh;
   overflow-y: auto;
   padding-right: 8px;
 }
