@@ -38,6 +38,19 @@
                       :campaign-id="campaignId"
                       class="mx-1 my-1"
                     />
+                    <SequentialAdventureButton
+                      v-if="false"
+                      :campaign-id="campaignId"
+                      @sequential-adventure="onSequentialAdventure"
+                      :disabled="isSequentialAdventure"
+                      class="mx-1 my-1"
+                    />
+                    <!-- <CampaignCampPhase
+                      :campaign-id="campaignId"
+                      @camp-phase="onCampPhase"
+                      class="mx-1 my-1"
+                      :disabled="!isSequentialAdventure"
+                    /> -->
                   </fieldset>
 
                   <CampaignSavePut
@@ -337,7 +350,7 @@ import { type Campaign } from "@/store/Campaign";
 /* import CampaignCampPhase from "@/components/CampaignCampPhase.vue"; */
 import { ref, onMounted, watch } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
-/* import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue"; */
+import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
 import { useUserStore } from "@/store/UserStore";
@@ -358,7 +371,7 @@ const route = useRoute();
 
 const campaignId = (route.params as { id: string }).id.toString();
 
-const isSequentialAdventure = ref(false);
+const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 const alertIcon = ref("");
 const alertText = ref("");
@@ -474,7 +487,7 @@ const onPlayerRemoved = async () => {
   setTimeout(() => {
     savePutRef.value?.save();
   }, 0);
-};
+}; */
 
 const onSequentialAdventure = () => {
   isSequentialAdventure.value = true;
@@ -482,13 +495,14 @@ const onSequentialAdventure = () => {
   setTimeout(() => {
     savePutRef.value?.save();
   }, 0);
-}; */
+};
 
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
-    isSequentialAdventure.value = foundCampaign.isSequentialAdventure ?? false;
+    foundCampaign.isSequentialAdventure = true
+    isSequentialAdventure.value = true
   } else {
     console.error(`Campaign with ID ${campaignId} not found.`);
     setAlert(
@@ -538,7 +552,7 @@ watch(
 }
 
 .campaign-content {
-  margin-top: 64px;
+  margin-top: 20px;
   overflow-y: auto;
   height: calc(100vh - 64px);
 }
