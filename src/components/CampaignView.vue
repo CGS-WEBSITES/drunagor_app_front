@@ -1,6 +1,6 @@
 <template>
   <v-row class="ml-0 justify-center">
-    <v-col cols="12" md="12" lg="6" xl="6">
+    <v-col cols="12" md="12" lg="10" xl="8">
       <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
         <BaseAlert
           :modelValue="true"
@@ -28,19 +28,12 @@
                   class="mx-1 my-1"
                 />
 
-                <RemovePlayersButton
-                  :campaignId="campaignId"
-                  :showSaveCampaignButton="showSaveCampaignButton"
-                  @playersRemoved="onPlayerRemoved"
-                  class="mx-1 my-1"
-                />
-
                 <fieldset
                   :disabled="!showSaveCampaignButton"
                   class="d-contents"
                 >
                   <CampaignExport :campaign-id="campaignId" class="mx-1 my-1" />
-                  <SequentialAdventureButton
+                  <!-- <SequentialAdventureButton
                     :campaign-id="campaignId"
                     @sequential-adventure="onSequentialAdventure"
                     :disabled="isSequentialAdventure"
@@ -51,7 +44,7 @@
                     @camp-phase="onCampPhase"
                     class="mx-1 my-1"
                     :disabled="!isSequentialAdventure"
-                  />
+                  /> -->
                 </fieldset>
 
                 <CampaignSavePut
@@ -165,6 +158,12 @@
                       />
                     </v-col>
                   </v-row>
+                  <RemovePlayersButton
+                    :campaignId="campaignId"
+                    :showSaveCampaignButton="showSaveCampaignButton"
+                    @playersRemoved="onPlayerRemoved"
+                    class="mx-1 my-1"
+                  />
                 </v-card>
                 <CampaignName :campaign-id="campaignId" class="mb-4" />
                 <v-row no-gutters class="d-flex justify-center mb-4">
@@ -340,10 +339,10 @@ import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { type Campaign } from "@/store/Campaign";
-import CampaignCampPhase from "@/components/CampaignCampPhase.vue";
+/* import CampaignCampPhase from "@/components/CampaignCampPhase.vue"; */
 import { ref, onMounted, watch } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
-import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue";
+/* import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue"; */
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
 import { useUserStore } from "@/store/UserStore";
@@ -474,7 +473,7 @@ const onPlayerRemoved = async () => {
   await campaignPlayerListRef.value?.fetchPlayers();
 };
 
-const onCampPhase = () => {
+/* const onCampPhase = () => {
   isSequentialAdventure.value = false;
 
   setTimeout(() => {
@@ -488,7 +487,7 @@ const onSequentialAdventure = () => {
   setTimeout(() => {
     savePutRef.value?.save();
   }, 0);
-};
+}; */
 
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
