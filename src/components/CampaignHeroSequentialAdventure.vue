@@ -252,10 +252,18 @@ function initSequentialAdventureState(): SequentialAdventureState {
 function saveAndGoBack() {
   if (savePutRef.value && savePutRef.value.save) {
     savePutRef.value.save().then(() => {
-      router.go(-1);
+      router.push({
+        name: "Campaign",
+        params: { id: campaignId },
+        query: { instructions: "open", tab: "save" }, 
+      });
     });
   } else {
-    router.go(-1);
+    router.push({
+      name: "Campaign",
+      params: { id: campaignId },
+      query: { instructions: "open", tab: "save" }, 
+    });
   }
 }
 

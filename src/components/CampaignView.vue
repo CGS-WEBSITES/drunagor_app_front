@@ -399,10 +399,21 @@ const instructionTab = ref<"save" | "load">("save");
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
-    expandedPanel.value = [];
+    router.replace({
+      query: {
+        ...route.query,
+        instructions: undefined,
+        tab: undefined,
+      },
+    });
   } else {
-    expandedPanel.value = [0];
-    instructionTab.value = "save";
+    router.replace({
+      query: {
+        ...route.query,
+        instructions: "open",
+        tab: instructionTab.value,
+      },
+    });
   }
 };
 
@@ -497,12 +508,21 @@ const onSequentialAdventure = () => {
   }, 0);
 };
 
+const syncPanelStateWithRoute = () => {
+  if (route.query.instructions === "open") {
+    expandedPanel.value = [0];
+    instructionTab.value = (route.query.tab as "save" | "load") || "save";
+  } else {
+    expandedPanel.value = [];
+  }
+};
+
 onMounted(() => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
-    foundCampaign.isSequentialAdventure = true
-    isSequentialAdventure.value = true
+    foundCampaign.isSequentialAdventure = true;
+    isSequentialAdventure.value = true;
   } else {
     console.error(`Campaign with ID ${campaignId} not found.`);
     setAlert(
@@ -525,6 +545,9 @@ onMounted(() => {
 
     router.replace({ query: {} });
   }
+
+  syncPanelStateWithRoute();
+  watch(() => route.query, syncPanelStateWithRoute);
 });
 
 watch(
