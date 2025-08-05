@@ -59,9 +59,9 @@
                 {{ t("label.skills") }}
               </div>
               <CampaignHeroSkills
-                :campaign-id="campaignId"
-                :hero-id="heroId"
-              ></CampaignHeroSkills>
+  :campaign-id="campaignId"
+  :hero-id="heroId"
+  :campaign="campaign"  :hero="hero"          ></CampaignHeroSkills>
             </v-col>
              <v-col cols="12">
               <v-divider></v-divider>
