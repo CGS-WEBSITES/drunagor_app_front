@@ -97,8 +97,8 @@
     </v-card>
   </v-dialog>
 
-  <v-dialog v-model="isViewSkillModalVisible" max-width="500" v-if="skillToView">
-    <v-card>
+  <v-dialog v-model="isViewSkillModalVisible" max-width="500">
+    <v-card v-if="skillToView">
       <v-card-title>{{ skillToView.name }}</v-card-title>
       <v-card-text>
         <v-img :src="skillToView.image" alt="Skill Card Detail"></v-img>
@@ -125,7 +125,6 @@ import {
   type SkillCard,
 } from "@/data/repository/campaign/underkeep/underkeepSkillData.ts";
 
-// Configuração Inicial (Intocada)
 const props = defineProps<{
   heroId: string;
   campaignId: string;
@@ -136,7 +135,6 @@ const { t } = useI18n();
 const heroStore = HeroStore();
 const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
 
-// Lógica Condicional Principal (Intocada)
 const useNewSkillSystem = computed(() => {
   const isUnderkeep = props.campaign.campaign === "underkeep";
   const specialHeroes = ["elros", "vorn", "lorelai", "maya", "jaheen"];
@@ -144,7 +142,6 @@ const useNewSkillSystem = computed(() => {
   return isUnderkeep && isSpecialHero;
 });
 
-// Lógica do Sistema Antigo e Watcher (Intocada)
 const generalSkills = [
   { id: "melee", name: "Melee", translationKey: "label.melee" },
   { id: "ranged", name: "Ranged", translationKey: "label.ranged" },
@@ -154,17 +151,19 @@ const generalSkills = [
 const selectedSkills = ref<string[]>([]);
 if (!campaignHero.skillIds) campaignHero.skillIds = [];
 selectedSkills.value = [...campaignHero.skillIds];
+
 watch(selectedSkills, (newSkills) => {
   heroStore.findInCampaign(props.heroId, props.campaignId).skillIds = newSkills;
 });
 
-// Lógica de Dungeon Role (Intocada)
 const isCubeColorModalVisible = ref(false);
 const selectedSkillId = ref("");
 const cubeColors: Array<string> = ["Yellow", "Red", "Green", "Blue"];
+
 if (typeof campaignHero.dungeonRoleSkillCubeColors === "undefined") {
   campaignHero.dungeonRoleSkillCubeColors = { rankOne: null, rankTwo: null };
 }
+
 function getSkillLabel(skillId: string, level: number): string {
   if (!skillId.startsWith("dungeon-role")) return `${t("label.level")} ${level}`;
   const selectedCubes = campaignHero.dungeonRoleSkillCubeColors;
@@ -173,6 +172,7 @@ function getSkillLabel(skillId: string, level: number): string {
     ? `${t("label.level")} ${level} (${t("label." + selectedCube.toLowerCase())})`
     : `${t("label.level")} ${level}`;
 }
+
 function onSkillSelect(skillId: string) {
   if (!skillId.startsWith("dungeon-role")) return;
   const wasSelected = selectedSkills.value.includes(skillId);
@@ -183,26 +183,24 @@ function onSkillSelect(skillId: string) {
     clearCubeColor(skillId);
   }
 }
+
 function clearCubeColor(skillId: string) {
   if (skillId === "dungeon-role-1") campaignHero.dungeonRoleSkillCubeColors.rankOne = null;
   else if (skillId === "dungeon-role-2") campaignHero.dungeonRoleSkillCubeColors.rankTwo = null;
 }
+
 function setSelectedCubeColor(color: string) {
   if (selectedSkillId.value === "dungeon-role-1") campaignHero.dungeonRoleSkillCubeColors.rankOne = color;
   else if (selectedSkillId.value === "dungeon-role-2") campaignHero.dungeonRoleSkillCubeColors.rankTwo = color;
   isCubeColorModalVisible.value = false;
 }
 
-// ======================================================
-// LÓGICA DO NOVO SISTEMA (COM CORREÇÕES E AJUSTES)
-// ======================================================
 const skillTypes: Array<'melee' | 'ranged' | 'agility' | 'wisdom'> = ['melee', 'ranged', 'agility', 'wisdom'];
 const isAddSkillModalVisible = ref(false);
 const isViewSkillModalVisible = ref(false);
 const currentSkillType = ref<'melee' | 'ranged' | 'agility' | 'wisdom'>('melee');
 const skillToView = ref<SkillCard | null>(null);
 
-// MUDANÇA 2: Mapeamento de cores para os títulos com v-icon
 const skillTypeColors: { [key: string]: string } = {
   melee: 'yellow',
   ranged: 'red',
@@ -210,8 +208,6 @@ const skillTypeColors: { [key: string]: string } = {
   wisdom: 'blue',
 };
 
-// MUDANÇA 3: CORREÇÃO DO BUG
-// A função agora lê de "selectedSkills.value" que é a fonte da verdade local e imediata
 function getSelectedSkillCard(skillType: string): SkillCard | undefined {
   const foundSkillId = selectedSkills.value.find(id => id.includes(`-${skillType}-`));
   if (!foundSkillId) return undefined;
@@ -233,7 +229,6 @@ function openViewSkillModal(card: SkillCard) {
 }
 
 function selectSkill(cardToSelect: SkillCard) {
-  // A lógica aqui já estava correta, pois lê e escreve em `selectedSkills.value`
   const otherSkills = selectedSkills.value.filter(id => !id.includes(`-${cardToSelect.skillType}-`));
   selectedSkills.value = [...otherSkills, cardToSelect.id];
   isAddSkillModalVisible.value = false;
@@ -241,12 +236,8 @@ function selectSkill(cardToSelect: SkillCard) {
 
 function deleteSkill() {
   if (!skillToView.value) return;
-  // A lógica de deleção agora também opera de forma consistente no `selectedSkills.value`
   const skillIdToDelete = skillToView.value.id;
-  const index = selectedSkills.value.findIndex(id => id === skillIdToDelete);
-  if (index > -1) {
-    selectedSkills.value.splice(index, 1);
-  }
+  selectedSkills.value = selectedSkills.value.filter(id => id !== skillIdToDelete);
   isViewSkillModalVisible.value = false;
   skillToView.value = null;
 }
