@@ -113,6 +113,8 @@ text:
   no-resources: No resources
   campaign-imported: Campaign imported
   campaign-removed: Campaign removed
+  campaign-removed-player: Remove Player
+  share-campaign: Share Campaign
 monster:
   wermuggdir: Wermuggdir
   abomination: Abomination
