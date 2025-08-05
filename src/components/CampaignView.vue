@@ -1,5 +1,4 @@
 <template>
-  <!-- MENU FIXO NO TOPO -->
   <div class="campaign-menu">
     <v-row class="ml-0 justify-center">
       <v-col cols="12" md="12" lg="10" xl="8">
@@ -127,7 +126,6 @@
     </v-row>
   </div>
 
-  <!-- CONTEÚDO PRINCIPAL ROLÁVEL -->
   <div class="campaign-content">
     <template v-if="campaign">
       <template v-if="campaign.campaign === 'underkeep'">
@@ -407,11 +405,14 @@ const toggleInstructions = () => {
       },
     });
   } else {
+    const tab = showSaveCampaignButton.value ? "save" : "load";
+    instructionTab.value = tab;
+
     router.replace({
       query: {
         ...route.query,
         instructions: "open",
-        tab: instructionTab.value,
+        tab: tab,
       },
     });
   }
@@ -511,7 +512,11 @@ const onSequentialAdventure = () => {
 const syncPanelStateWithRoute = () => {
   if (route.query.instructions === "open") {
     expandedPanel.value = [0];
-    instructionTab.value = (route.query.tab as "save" | "load") || "save";
+    if (showSaveCampaignButton.value) {
+      instructionTab.value = "save";
+    } else {
+      instructionTab.value = (route.query.tab as "save" | "load") || "load";
+    }
   } else {
     expandedPanel.value = [];
   }
@@ -534,6 +539,7 @@ onMounted(() => {
   }
   fetchRole();
   fetchRlCampaignsUsersListPlayers();
+  syncPanelStateWithRoute();
 
   if (route.query.dialog) {
     showLoading.value = true;
@@ -545,9 +551,18 @@ onMounted(() => {
 
     router.replace({ query: {} });
   }
+});
 
-  syncPanelStateWithRoute();
-  watch(() => route.query, syncPanelStateWithRoute);
+watch(showSaveCampaignButton, (newVal) => {
+  if (expandedPanel.value.length && newVal) {
+    instructionTab.value = "save";
+    router.replace({
+      query: {
+        ...route.query,
+        tab: "save",
+      },
+    });
+  }
 });
 
 watch(
@@ -598,7 +613,6 @@ watch(
   margin-bottom: 4px !important;
 }
 
-/* ESTILO PARA A ABA ATIVA PERSONALIZADA */
 .v-tabs .custom-active-tab {
   background-color: rgb(var(--v-theme-secondary)) !important;
   color: white !important;
