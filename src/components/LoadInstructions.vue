@@ -2,43 +2,49 @@
   <v-card class="pa-4" color="surface">
     <v-card-text class="scroll-container">
       <v-stepper mobile :items="steps">
-        
         <!-- Step 1: Welcome & Setup -->
         <template v-slot:item.1>
-          <v-card flat title="1 - Welcome & Setup">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">1 - Welcome & Setup</span>
+            </template>
             <p class="text-body-1 mb-4">
-              We're glad to have you back, dear Adventurers! These instructions will
-              help you restart the Campaign exactly where you left off.
+              We're glad to have you back, dear Adventurers! These instructions
+              will help you restart the Campaign exactly where you left off.
             </p>
             <v-alert type="info" variant="tonal" class="mb-4">
-              Make sure all Trays, Maps, and Doors of the Adventure are already set up
+              Make sure all Trays, Maps, and Doors of the Adventure are already
+              set up
             </v-alert>
           </v-card>
         </template>
 
         <!-- Step 2: Preparation Steps -->
         <template v-slot:item.2>
-          <v-card flat title="2 - Preparation Steps">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">2 - Preparation Steps</span>
+            </template>
             <p class="text-body-1 mb-2">
               Open the "Campaign Log" tab and gather the appropriate components:
             </p>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Model, Hero Board, Initiative card, Hero Skill cards, and Class
-                  Ability cards for each Hero
+                  Model, Hero Board, Initiative card, Hero Skill cards, and
+                  Class Ability cards for each Hero
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
-                  Draw the recorded number of Runes and place them on the Initiative
-                  Track
+                  Draw the recorded number of Runes and place them on the
+                  Initiative Track
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
-                  Place any recorded Rune, Game State Check-Up, and Game Mechanics
-                  cards on the Track
+                  Place any recorded Rune, Game State Check-Up, and Game
+                  Mechanics cards on the Track
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -50,8 +56,8 @@
                 <li>Game State Check-Up cards at the bottom</li>
               </ul>
               <div class="mt-2">
-                Exception: Monster Raid Game Mechanic card goes on top of the Rune
-                Slot
+                Exception: Monster Raid Game Mechanic card goes on top of the
+                Rune Slot
               </div>
             </v-alert>
           </v-card>
@@ -59,18 +65,26 @@
 
         <!-- Step 3: Assigning Hero Components -->
         <template v-slot:item.3>
-          <v-card flat title="3 - Assigning Hero Components">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6"
+                >3 - Assigning Hero Components</span
+              >
+            </template>
             <p class="text-body-1 mb-2">
               Use the "Manage Resources" button to assign:
             </p>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Resource tokens (SHIELDS, FOCUS, KI, FURY, FRUIT OF LIFE, etc.)
+                  Resource tokens (SHIELDS, FOCUS, KI, FURY, FRUIT OF LIFE,
+                  etc.)
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Consumable Items in Backpack</v-list-item-title>
+                <v-list-item-title
+                  >Consumable Items in Backpack</v-list-item-title
+                >
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>Equipment in each slot</v-list-item-title>
@@ -81,7 +95,12 @@
 
         <!-- Step 4: Assigning Skills & Abilities -->
         <template v-slot:item.4>
-          <v-card flat title="4 - Assigning Skills & Abilities">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6"
+                >4 - Assigning Skills & Abilities</span
+              >
+            </template>
             <p class="text-body-1 mb-2">
               Use the "Hero Skills and Class Skills" button to assign:
             </p>
@@ -104,13 +123,20 @@
 
         <!-- Step 5: Adjusting Hero Game State -->
         <template v-slot:item.5>
-          <v-card flat title="5 - Adjusting Hero Game State">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6"
+                >5 - Adjusting Hero Game State</span
+              >
+            </template>
             <p class="text-body-1 mb-2">For each Hero, adjust:</p>
             <v-row class="mb-4">
               <v-col cols="12" md="6">
                 <v-list density="compact">
                   <v-list-item>
-                    <v-list-item-title>Available Action Cubes</v-list-item-title>
+                    <v-list-item-title
+                      >Available Action Cubes</v-list-item-title
+                    >
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title>
@@ -138,11 +164,15 @@
 
         <!-- Step 6: Final Steps -->
         <template v-slot:item.6>
-          <v-card flat title="6 - Final Steps">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">6 - Final Steps</span>
+            </template>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Place Heroes within Range 1 of the "Next Door" (at least one adjacent)
+                  Place Heroes within Range 1 of the "Next Door" (at least one
+                  adjacent)
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
@@ -162,25 +192,24 @@
             </v-alert>
           </v-card>
         </template>
-
       </v-stepper>
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { defineEmits } from 'vue'
+import { defineEmits } from "vue";
 
 const steps = [
-  'Welcome & Setup',
-  'Preparation Steps',
-  'Assigning Hero Components',
-  'Assigning Skills & Abilities',
-  'Adjusting Hero Game State',
-  'Final Steps',
-]
+  "Welcome & Setup",
+  "Preparation Steps",
+  "Assigning Hero Components",
+  "Assigning Skills & Abilities",
+  "Adjusting Hero Game State",
+  "Final Steps",
+];
 
-defineEmits(['save'])
+defineEmits(["save"]);
 </script>
 
 <style scoped>
@@ -192,5 +221,59 @@ defineEmits(['save'])
 
 .v-list-item {
   min-height: 36px;
+}
+
+@media (max-width: 600px) {
+  .v-card-title {
+    padding: 8px 0 !important;
+    line-height: 1.3 !important;
+  }
+
+  .v-stepper__header {
+    overflow-x: auto !important;
+    padding-bottom: 0.5rem;
+  }
+
+  .v-stepper__header .v-stepper__step {
+    flex: 0 0 48px;
+    min-width: 48px;
+  }
+
+  .v-stepper__step {
+    padding: 4px 2px !important;
+  }
+
+  .v-stepper__label {
+    font-size: 0.65rem !important;
+    line-height: 1.1 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .scroll-container {
+    max-height: 20vh !important;
+  }
+
+  .v-list-item-title {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    font-size: 0.75rem;
+  }
+
+  ::v-deep .scroll-container p {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+
+  ::v-deep .v-alert,
+  ::v-deep .v-alert__content {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+
+  ::v-deep .v-alert ul li {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
 }
 </style>
