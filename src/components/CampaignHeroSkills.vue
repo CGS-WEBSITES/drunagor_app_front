@@ -1,16 +1,17 @@
 <template>
   <v-row no-gutters class="justify-space-around">
-    <v-col cols="12" md="2" lg="2" class="skill">
-      <h3>{{ t("label.dungeon-role") }}</h3>
-      <v-checkbox
-        v-for="level in 2"
-        :key="'dungeon-role-' + level"
-        v-model="selectedSkills"
-        :value="'dungeon-role-' + level"
-        :label="getSkillLabel('dungeon-role-' + level, level)"
-        @update:modelValue="onSkillSelect('dungeon-role-' + level)"
-      ></v-checkbox>
-    </v-col>
+    <v-col cols="12" class="skill">
+  <h3>{{ t("label.dungeon-role") }}</h3>
+  <div class="d-flex ga-4"> <v-checkbox
+      v-for="level in 2"
+      :key="'dungeon-role-' + level"
+      v-model="selectedSkills"
+      :value="'dungeon-role-' + level"
+      :label="getSkillLabel('dungeon-role-' + level, level)"
+      @update:modelValue="onSkillSelect('dungeon-role-' + level)"
+    ></v-checkbox>
+  </div>
+</v-col>
   </v-row>
   <v-divider class="my-4"></v-divider>
 
@@ -65,21 +66,21 @@
     </v-row>
   </template>
 
-  <v-dialog v-model="isCubeColorModalVisible" max-width="400">
-    <v-card>
-      <v-card-title>{{ t("text.select-action-cube-color") }}</v-card-title>
-      <v-card-text>
-        <v-list density="compact">
-          <v-list-item v-for="color in cubeColors" :key="color" @click="setSelectedCubeColor(color)">
-            <v-list-item-title class="d-flex align-center" style="gap: 16px">
-              <span>{{ t("label." + color.toLowerCase()) }}</span>
-              <CubeIcon :class="'h-5 w-5 ' + color.toLowerCase()" />
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+ <v-dialog v-model="isCubeColorModalVisible" max-width="400">
+  <v-card>
+    <v-card-title>{{ t("text.select-action-cube-color") }}</v-card-title>
+    <v-card-text>
+      <v-list density="compact">
+        <v-list-item v-for="color in cubeColors" :key="color" @click="setSelectedCubeColor(color)">
+          <v-list-item-title class="d-flex align-center" style="gap: 16px">
+            <span>{{ t("label." + color.toLowerCase()) }}</span>
+            <CubeIcon :style="{ height: '28px', width: '28px' }" :class="color.toLowerCase()" />
+          </v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-card-text>
+  </v-card>
+</v-dialog>
 
   <v-dialog v-model="isAddSkillModalVisible" max-width="700">
     <v-card>
