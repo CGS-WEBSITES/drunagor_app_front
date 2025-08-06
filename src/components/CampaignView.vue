@@ -543,6 +543,17 @@ onMounted(async () => {
   if (route.query.dialog) {
     showLoading.value = true;
   }
+  
+  expandedPanel.value = [0];
+  instructionTab.value = showSaveCampaignButton.value ? 'save' : 'load';
+
+  router.replace({
+    query: {
+      ...route.query,
+      instructions: 'open',
+      tab: instructionTab.value,
+    },
+  });
 
   if (route.query.openInstructions === "load") {
     expandedPanel.value = [0];
