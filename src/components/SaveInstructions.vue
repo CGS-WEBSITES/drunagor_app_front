@@ -4,7 +4,10 @@
       <v-stepper mobile :items="steps">
         <!-- Step 1 -->
         <template v-slot:item.1>
-          <v-card flat title="1 - Save Conditions">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">1 - Save Conditions</span>
+            </template>
             <p class="text-body-1 mb-4">
               You&apos;re done with this game session and it&apos;s time to save
               your Party&apos;s progress. To do so, ensure that:
@@ -29,7 +32,10 @@
 
         <!-- Step 2 -->
         <template v-slot:item.2>
-          <v-card flat title="2 - Adjusting the Board">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">2 - Adjusting the Board</span>
+            </template>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
@@ -49,7 +55,10 @@
 
         <!-- Step 3 -->
         <template v-slot:item.3>
-          <v-card flat title="3 - Game State Information">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">3 - Game State Information</span>
+            </template>
             <p class="text-body-1 mb-2">
               Open the "Campaign Log" tab and record:
             </p>
@@ -87,7 +96,10 @@
 
         <!-- Step 4 -->
         <template v-slot:item.4>
-          <v-card flat title="4 - Recording Hero Information">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">4 - Recording Hero Information</span>
+            </template>
             <p class="text-body-1 mb-2">For each Hero, record:</p>
             <v-row class="mb-4">
               <v-col cols="12" md="6">
@@ -128,7 +140,10 @@
 
         <!-- Step 5 -->
         <template v-slot:item.5>
-          <v-card flat title="5 - Resources & Equipment">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">5 - Resources & Equipment</span>
+            </template>
             <p class="text-body-1 mb-2">
               Use the "Manage Resources" button to register:
             </p>
@@ -153,7 +168,10 @@
 
         <!-- Step 6 -->
         <template v-slot:item.6>
-          <v-card flat title="6 - Skills & Abilities">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">6 - Skills & Abilities</span>
+            </template>
             <p class="text-body-1 mb-2">
               Register selected cards for each Hero:
             </p>
@@ -173,7 +191,10 @@
 
         <!-- Step 7 -->
         <template v-slot:item.7>
-          <v-card flat title="7 - Review & Save">
+          <v-card flat>
+            <template #title>
+              <span class="text-body-1 text-sm-h6">7 - Review & Save</span>
+            </template>
             <v-alert type="success" variant="tonal" class="mt-6">
               <strong>Final Step:</strong> When all information is complete,
               click “Save Changes”!
@@ -192,7 +213,6 @@
 </template>
 
 <script setup lang="ts">
-
 const steps = [
   "Save Conditions",
   "Adjusting the Board",
@@ -215,5 +235,54 @@ defineEmits(["save"]);
   max-height: 20vh;
   overflow-y: auto;
   padding-right: 8px;
+}
+
+@media (max-width: 600px) {
+  .v-card-title {
+    padding: 8px 0 !important;
+    line-height: 1.3 !important;
+  }
+  
+  .v-stepper__header {
+    overflow-x: auto !important;
+    padding-bottom: 0.5rem;
+  }
+
+  .v-stepper__header .v-stepper__step {
+    flex: 0 0 48px;
+    min-width: 48px;
+  }
+
+  .v-stepper__step {
+    padding: 4px 2px !important;
+  }
+  
+  .v-stepper__label {
+    font-size: 0.65rem !important;
+    line-height: 1.1 !important;
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  .scroll-container {
+    max-height: 20vh !important;
+  }
+
+  .v-list-item-title {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    font-size: 0.75rem;
+  }
+
+  ::v-deep .scroll-container p {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+
+  ::v-deep .v-alert,
+  ::v-deep .v-alert__content {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
 }
 </style>

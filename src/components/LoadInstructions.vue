@@ -193,4 +193,48 @@ defineEmits(['save'])
 .v-list-item {
   min-height: 36px;
 }
+
+@media (max-width: 600px) {
+  .v-stepper__header {
+    overflow-x: auto !important;
+    padding-bottom: 0.5rem;
+  }
+
+  .v-stepper__header .v-stepper__step {
+    flex: 0 0 48px;
+    min-width: 48px;
+  }
+
+  .v-stepper__label,
+  .v-stepper__step {
+    font-size: 0.75rem;
+    padding: 4px;
+  }
+
+  .scroll-container {
+    max-height: 20vh !important;
+  }
+
+  .v-list-item-title {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+    font-size: 0.75rem;
+  }
+
+  .v-stepper__step .v-stepper__label {
+    white-space: normal !important;
+    overflow-wrap: break-word !important;
+  }
+
+  ::v-deep .scroll-container p {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+
+  ::v-deep .v-alert,
+  ::v-deep .v-alert__content {
+    font-size: 0.75rem !important;
+    line-height: 1.2 !important;
+  }
+}
 </style>
