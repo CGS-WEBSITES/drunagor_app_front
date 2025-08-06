@@ -59,27 +59,38 @@
                 {{ t("label.skills") }}
               </div>
               <CampaignHeroSkills
-                :campaign-id="campaignId"
-                :hero-id="heroId"
-              ></CampaignHeroSkills>
+  :campaign-id="campaignId"
+  :hero-id="heroId"
+  :campaign="campaign"  :hero="hero"          ></CampaignHeroSkills>
             </v-col>
-             <v-col cols="12">
+            <v-col cols="12">
               <v-divider></v-divider>
               <div class="text-center text-h5 pt-4 pb-2">
                 {{ t("label.class-abilities", "Class Abilities") }}
               </div>
-              <div class="d-flex flex-wrap justify-center align-center pa-2 mb-2" style="gap: 8px">
+              <div
+                class="d-flex flex-wrap justify-center align-center pa-2 mb-2"
+                style="gap: 8px"
+              >
                 <v-chip
                   v-for="n in 8"
                   :key="n"
                   @click="setAbilityCount(n)"
-                  :variant="n <= localClassAbilityCount ? 'elevated' : 'outlined'"
-                  :color="n <= localClassAbilityCount ? 'amber-darken-2' : 'default'"
+                  :variant="
+                    n <= localClassAbilityCount ? 'elevated' : 'outlined'
+                  "
+                  :color="
+                    n <= localClassAbilityCount ? 'amber-darken-2' : 'default'
+                  "
                   size="large"
                   style="cursor: pointer"
                 >
                   <v-icon
-                    :icon="n <= localClassAbilityCount ? 'mdi-star-circle' : 'mdi-circle-outline'"
+                    :icon="
+                      n <= localClassAbilityCount
+                        ? 'mdi-star-circle'
+                        : 'mdi-circle-outline'
+                    "
                   ></v-icon>
                 </v-chip>
               </div>
@@ -177,10 +188,18 @@ function onStash() {
 function saveAndGoBack() {
   if (savePutRef.value && savePutRef.value.save) {
     savePutRef.value.save().then(() => {
-      router.go(-1);
+      router.push({
+        name: "Campaign",
+        params: { id: campaignId },
+        query: { instructions: "open", tab: "save" },
+      });
     });
   } else {
-    router.go(-1);
+    router.push({
+      name: "Campaign",
+      params: { id: campaignId },
+      query: { instructions: "open", tab: "save" },
+    });
   }
 }
 </script>

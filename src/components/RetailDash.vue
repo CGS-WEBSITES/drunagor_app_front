@@ -1,7 +1,5 @@
 <template>
-  <!-- Profile Section -->
   <v-main>
-    <!-- PC -->
     <v-row class="d-none d-md-flex justify-center align-center ml-16">
       <v-col cols="12" sm="10" md="8" class="px-6">
         <v-row no-gutters>
@@ -77,7 +75,6 @@
         <v-card color="secundary" class="move_topo pt-12">
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
             <v-col cols="12" sm="12" md="12" class="ml-5 pt-12">
-              <!-- Primeiro Carrossel para dispositivos móveis -->
               <v-carousel
                 :height="isMobile ? '400px' : 'auto'"
                 hide-delimiters
@@ -183,15 +180,26 @@
               </v-card>
             </v-col>
           </v-row>
+
+          <v-row no-gutters class="justify-center pb-6 px-6">
+            <v-col cols="12" md="12" lg="12">
+              <v-card
+                @click="router.push({ name: 'CommunityBuilds' })"
+                flat
+                style="cursor: pointer"
+              >
+                <v-img
+                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+                />
+              </v-card>
+            </v-col>
+          </v-row>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- Navigation Drawer -->
     <v-row class="move_topo2 d-md-none justify-center align-center">
       <v-col cols="12" sm="12" md="12" class="px-0">
-        <!-- Navigation Boxes Section -->
-
         <v-row
           class="d-sm justify-center align-center ma-0 w-100"
           justify="center"
@@ -219,7 +227,7 @@
           </v-col>
         </v-row>
 
-        <v-row no-gutters class="justify-center py-6">
+        <v-row no-gutters class="justify-center py-6 px-3">
           <v-col cols="12">
             <v-card class="mx-auto">
               <v-card-title class="mx-auto text-center">
@@ -227,10 +235,24 @@
                 create an event
               </v-card-title>
               <v-card-actions class="d-flex justify-center">
-                <v-btn color="primary" @click="router.push({ name: 'Events' })"
+                <v-btn color="secundary" @click="router.push({ name: 'Events' })"
                   >create Event</v-btn
                 >
               </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+
+        <v-row no-gutters class="justify-center pb-6 px-3">
+          <v-col cols="12">
+            <v-card
+              @click="router.push({ name: 'CommunityBuilds' })"
+              flat
+              style="cursor: pointer"
+            >
+              <v-img
+                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+              />
             </v-card>
           </v-col>
         </v-row>
