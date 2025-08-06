@@ -250,7 +250,6 @@ defineEmits(["save"]);
     padding: 8px 0 !important;
     line-height: 1.3 !important;
   }
-
   .v-stepper__header {
     overflow-x: auto !important;
     padding-bottom: 0.5rem;
@@ -264,7 +263,6 @@ defineEmits(["save"]);
   .v-stepper__step {
     padding: 4px 2px !important;
   }
-
   .v-stepper__label {
     font-size: 0.65rem !important;
     line-height: 1.1 !important;
