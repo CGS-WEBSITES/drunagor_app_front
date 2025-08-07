@@ -83,6 +83,7 @@
                 v-model="expandedPanel"
                 accordion
                 variant="accordion"
+                class="instructions-panel"
               >
                 <v-expansion-panel>
                   <v-expansion-panel-text class="pa-2">
@@ -607,7 +608,16 @@ watch(
   margin-bottom: 4px !important;
 }
 
+.instructions-panel :deep(.v-expansion-panel-text__wrapper) {
+  max-height: 35vh;
+  overflow-y: auto;
+}
+
 @media (max-width: 600px) {
+  .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
+    max-height: 30vh;
+  }
+
   .action-group {
     justify-content: center;
     width: 100%;
@@ -623,6 +633,10 @@ watch(
 }
 
 @media (max-width: 960px) {
+  .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
+    max-height: 32vh;
+  }
+
   .action-group {
     min-width: 45%;
   }
