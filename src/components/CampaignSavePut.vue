@@ -5,6 +5,7 @@
     rounded 
     @click="handleClick"
   >
+    <v-icon start>mdi-content-save-outline</v-icon>
     {{ t("label.save-campaign-put") }}
   </v-btn>
 </template>
