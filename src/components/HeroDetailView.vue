@@ -1,3 +1,8 @@
+// Funções para gerenciar o estado das instruções const getInstructionStateKey =
+() => `campaign_${campaignId}_instruction_state`; const getInstructionStepKey =
+(tab: string) => `campaign_${campaignId}_instruction_step_${tab}`; const
+getInstructionState = () => { if (typeof window !== "undefined") { try { const
+stateStr = localStorage.getItem(getInstructionStateKey()); if (stateStr) {
 <template>
   <v-row no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
@@ -59,9 +64,11 @@
                 {{ t("label.skills") }}
               </div>
               <CampaignHeroSkills
-  :campaign-id="campaignId"
-  :hero-id="heroId"
-  :campaign="campaign"  :hero="hero"          ></CampaignHeroSkills>
+                :campaign-id="campaignId"
+                :hero-id="heroId"
+                :campaign="campaign"
+                :hero="hero"
+              ></CampaignHeroSkills>
             </v-col>
             <v-col cols="12">
               <v-divider></v-divider>
@@ -185,20 +192,73 @@ function onStash() {
   stash.value += 1;
 }
 
+// Funções para gerenciar o estado das instruções
+const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
+const getInstructionStepKey = () => `campaign_${campaignId}_instruction_step`;
+
+const getInstructionState = () => {
+  if (typeof window !== "undefined") {
+    try {
+      const stateStr = localStorage.getItem(getInstructionStateKey());
+      const stepStr = localStorage.getItem(getInstructionStepKey());
+
+      if (stateStr) {
+        const state = JSON.parse(stateStr);
+        const now = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000; // 30 minutos em ms
+
+        // Se o estado foi salvo há menos de 30 minutos, retorna o estado
+        if (now - state.timestamp < thirtyMinutes) {
+          return {
+            expanded: state.expanded,
+            tab: state.tab,
+            step: stepStr ? parseInt(stepStr) : undefined,
+          };
+        } else {
+          // Remove estados expirados
+          localStorage.removeItem(getInstructionStateKey());
+          localStorage.removeItem(getInstructionStepKey());
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao obter estado das instruções:", error);
+    }
+  }
+  return null;
+};
+
 function saveAndGoBack() {
+  const instructionState = getInstructionState();
+
   if (savePutRef.value && savePutRef.value.save) {
     savePutRef.value.save().then(() => {
+      // Constrói a query preservando o estado das instruções se existir
+      const query: any = {};
+
+      if (instructionState && instructionState.expanded) {
+        query.instructions = "open";
+        query.tab = instructionState.tab;
+      }
+
       router.push({
         name: "Campaign",
         params: { id: campaignId },
-        query: { instructions: "open", tab: "save" },
+        query: query,
       });
     });
   } else {
+    // Constrói a query preservando o estado das instruções se existir
+    const query: any = {};
+
+    if (instructionState && instructionState.expanded) {
+      query.instructions = "open";
+      query.tab = instructionState.tab;
+    }
+
     router.push({
       name: "Campaign",
       params: { id: campaignId },
-      query: { instructions: "open", tab: "save" },
+      query: query,
     });
   }
 }
