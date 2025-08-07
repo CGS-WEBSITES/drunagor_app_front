@@ -9,8 +9,8 @@
               <span class="text-body-1 text-sm-h6">1 - Save Conditions</span>
             </template>
             <p class="text-body-1 mb-4">
-              You&apos;re done with this game session and it&apos;s time to save
-              your Party&apos;s progress. To do so, ensure that:
+              You're done with this game session and it's time to save your
+              Party's progress. To do so, ensure that:
             </p>
             <v-list density="compact" class="mb-4">
               <v-list-item>
@@ -19,13 +19,13 @@
               <v-list-item>
                 <v-list-item-title>
                   The Initiative marker is on the End of the Round Game State
-                  Check-Up card
+                  Check-Up card, at the end of the Initiative Track
                 </v-list-item-title>
               </v-list-item>
             </v-list>
             <v-alert type="info" variant="tonal" class="mb-4">
-              If both conditions are met, you can save your Party&apos;s
-              progress
+              If both conditions are met, you can save your Party's progress by
+              first adjusting the board
             </v-alert>
           </v-card>
         </template>
@@ -41,14 +41,14 @@
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Remove any Chests and Interaction tokens left on the board
-                  (they are lost forever)
+                  Remove any Chests and Interaction tokens (if any) left on the
+                  board. They are lost forever.
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
-                  Return any Runes on the board to the Initiative Track (stacks
-                  left behind cannot be recovered)
+                  Return any Runes that are on the board (if any) to the
+                  Initiative Track. Stacks left behind cannot be recovered.
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -64,34 +64,41 @@
               >
             </template>
             <p class="text-body-1 mb-2">
-              Open the "Campaign Log" tab and record:
+              Next, open the "Campaign Log" tab in your Chronicles of Drunagor
+              App and record the following Game State information:
             </p>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Next Adventure to be played (same if current not completed)
+                  Record which Adventure will be played in the next session. If
+                  this one hasn't been completed yet, it remains the same.
+                  Otherwise, it will be the next one.
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
-                  Next Door to be opened ("First Setup" if finishing adventure)
+                  Record which Door will be opened next by the Party in that
+                  Adventure. If you're finishing an Adventure now, select the
+                  "First Setup" of the next Adventure.
                 </v-list-item-title>
               </v-list-item>
             </v-list>
             <v-alert type="warning" variant="tonal" class="mb-4">
-              These two steps are only needed if saving between rooms in an
-              uncompleted adventure
+              These two steps should only be followed if you haven't completed
+              the current Adventure and are saving the game between rooms.
+              Otherwise, you may skip them.
             </v-alert>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Total number of Runes on the Initiative Track
+                  Record the number of Runes on the Initiative Track. You don't
+                  need to specify their color, only the total number.
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
-                  Specific Rune, Game State Check-Up, and Game Mechanics cards
-                  on the Track
+                  Record which Rune, Game State Check-Up, and Game Mechanics
+                  cards are on the Initiative Track.
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -102,24 +109,28 @@
         <template v-slot:item.4>
           <v-card flat>
             <template #title>
-              <span class="text-body-1 text-sm-h6"
-                >4 - Recording Hero Information</span
-              >
+              <span class="text-body-1 text-sm-h6">4 - Hero Information</span>
             </template>
-            <p class="text-body-1 mb-2">For each Hero, record:</p>
+            <p class="text-body-1 mb-2">
+              Then, record the following Hero information. The Party Leader must
+              fill out the fields for each Hero in the Party. Only the total
+              number is important:
+            </p>
             <v-row class="mb-4">
               <v-col cols="12" md="6">
                 <v-list density="compact">
                   <v-list-item>
-                    <v-list-item-title>Current Health</v-list-item-title>
+                    <v-list-item-title>Hero's current Health</v-list-item-title>
                   </v-list-item>
                   <v-list-item>
-                    <v-list-item-title>Number of Curse Cubes</v-list-item-title>
+                    <v-list-item-title
+                      >Number of Curse Cubes the Hero has</v-list-item-title
+                    >
                   </v-list-item>
                   <v-list-item>
-                    <v-list-item-title>
-                      Number of Trauma Cubes
-                    </v-list-item-title>
+                    <v-list-item-title
+                      >Number of Trauma Cubes the Hero has</v-list-item-title
+                    >
                   </v-list-item>
                 </v-list>
               </v-col>
@@ -127,16 +138,18 @@
                 <v-list density="compact">
                   <v-list-item>
                     <v-list-item-title>
-                      Available Action Cubes
+                      Number of Available Action Cubes the Hero has
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title>
-                      Action Cubes allocated/expended
+                      Number of Action Cubes allocated to Skills or Expended
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item>
-                    <v-list-item-title>Current Dungeon Role</v-list-item-title>
+                    <v-list-item-title
+                      >Which Dungeon Role the Hero is playing</v-list-item-title
+                    >
                   </v-list-item>
                 </v-list>
               </v-col>
@@ -153,22 +166,26 @@
               >
             </template>
             <p class="text-body-1 mb-2">
-              Use the "Manage Resources" button to register:
+              Continue by clicking the "Manage Resources" button to register the
+              Resource tokens and Equipment each Hero has:
             </p>
             <v-list density="compact" class="mb-4">
               <v-list-item>
                 <v-list-item-title>
-                  Resource tokens (SHIELDS, FOCUS, KI, FURY, FRUIT OF LIFE,
-                  etc.)
+                  Number of SHIELDS, FOCUS, KI, FURY, FRUIT OF LIFE, and any
+                  other tokens defined as Resources
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
                 <v-list-item-title>
-                  Consumable Items in Backpack
+                  Which Consumable Items (if any) are in the Hero's Backpack
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Equipment in each slot</v-list-item-title>
+                <v-list-item-title>
+                  Which Equipment the Hero is wielding in each of their
+                  equipment slots
+                </v-list-item-title>
               </v-list-item>
             </v-list>
           </v-card>
@@ -181,17 +198,24 @@
               <span class="text-body-1 text-sm-h6">6 - Skills & Abilities</span>
             </template>
             <p class="text-body-1 mb-2">
-              Register selected cards for each Hero:
+              Finally, also register the Hero Skills and Class Skills of each
+              Hero. These fields only indicate the cards that were chosen:
             </p>
             <v-list density="compact" class="mb-4">
               <v-list-item>
-                <v-list-item-title>Level 1 Skills</v-list-item-title>
+                <v-list-item-title
+                  >Which Level 1 Skills the Hero has</v-list-item-title
+                >
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Level 2 Skills</v-list-item-title>
+                <v-list-item-title
+                  >Which Level 2 Skills the Hero has</v-list-item-title
+                >
               </v-list-item>
               <v-list-item>
-                <v-list-item-title>Class Abilities</v-list-item-title>
+                <v-list-item-title
+                  >Which Class Abilities the Hero has</v-list-item-title
+                >
               </v-list-item>
             </v-list>
           </v-card>
@@ -201,11 +225,16 @@
         <template v-slot:item.7>
           <v-card flat>
             <template #title>
-              <span class="text-body-1 text-sm-h6">7 - Review & Save</span>
+              <span class="text-body-1 text-sm-h6">7 - Save Changes</span>
             </template>
+            <p class="text-body-1 mb-4">
+              Once all information for all Heroes is filled in, click "Save
+              Changes" and you're done! All the relevant information for your
+              Campaign has been recorded.
+            </p>
             <v-alert type="success" variant="tonal" class="mt-6">
               <strong>Final Step:</strong> When all information is complete,
-              click “Save Changes”!
+              click "Save Campaign"!
               <div class="mt-2">Until next time, dear Adventurer!</div>
             </v-alert>
             <v-card-actions class="justify-end mt-4">
@@ -225,10 +254,10 @@ const steps = [
   "Save Conditions",
   "Adjusting the Board",
   "Game State Information",
-  "Recording Hero Information",
+  "Hero Information",
   "Resources & Equipment",
   "Skills & Abilities",
-  "Review & Save",
+  "Save Changes",
 ];
 
 defineEmits(["save"]);
@@ -250,6 +279,7 @@ defineEmits(["save"]);
     padding: 8px 0 !important;
     line-height: 1.3 !important;
   }
+
   .v-stepper__header {
     overflow-x: auto !important;
     padding-bottom: 0.5rem;
@@ -263,6 +293,7 @@ defineEmits(["save"]);
   .v-stepper__step {
     padding: 4px 2px !important;
   }
+
   .v-stepper__label {
     font-size: 0.65rem !important;
     line-height: 1.1 !important;
