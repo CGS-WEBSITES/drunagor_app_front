@@ -384,7 +384,7 @@ const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
 const expandedPanel = ref<number[]>([]);
-const instructionTab = ref<"save" | "load">("save");
+const instructionTab = ref<"save" | "load">("load");
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
@@ -397,6 +397,7 @@ const toggleInstructions = () => {
       },
     });
   } else {
+    // Quando o usuário clica manualmente no botão, sempre abre na aba "load"
     instructionTab.value = "load";
     expandedPanel.value = [0];
     router.replace({
@@ -445,8 +446,16 @@ const fetchRlCampaignsUsersListPlayers = async () => {
 };
 
 const openSavePanel = () => {
+  // Esta função é chamada quando o usuário clica no botão "Save Campaign"
   expandedPanel.value = [0];
   instructionTab.value = "save";
+  router.replace({
+    query: {
+      ...route.query,
+      instructions: "open",
+      tab: "save",
+    },
+  });
 };
 
 const fetchRole = async () => {
@@ -493,11 +502,8 @@ const onPlayerRemoved = async () => {
 const syncPanelStateWithRoute = () => {
   if (route.query.instructions === "open") {
     expandedPanel.value = [0];
-    if (showSaveCampaignButton.value) {
-      instructionTab.value = "save";
-    } else {
-      instructionTab.value = (route.query.tab as "save" | "load") || "load";
-    }
+    // Respeita a aba definida na query, mas mantém "load" como padrão
+    instructionTab.value = (route.query.tab as "save" | "load") || "load";
   } else {
     expandedPanel.value = [];
   }
@@ -518,6 +524,7 @@ onMounted(async () => {
       "error",
     );
   }
+
   await fetchRole();
   await fetchRlCampaignsUsersListPlayers();
 
@@ -525,6 +532,8 @@ onMounted(async () => {
     showLoading.value = true;
   }
 
+  // MUDANÇA PRINCIPAL: Sempre abre as instruções na aba "load" quando entra na campanha
+  // Só não abre se já existir o parâmetro "instructions" na URL
   if (!route.query.instructions) {
     expandedPanel.value = [0];
     instructionTab.value = "load";
@@ -537,17 +546,8 @@ onMounted(async () => {
 
 watch(() => route.query, syncPanelStateWithRoute, { immediate: true });
 
-watch(showSaveCampaignButton, (newVal) => {
-  if (expandedPanel.value.length && newVal) {
-    instructionTab.value = "save";
-    router.replace({
-      query: {
-        ...route.query,
-        tab: "save",
-      },
-    });
-  }
-});
+// Removida a lógica que mudava automaticamente para "save" quando showSaveCampaignButton mudava
+// Agora a aba "save" só abre quando explicitamente chamada via openSavePanel()
 
 watch(
   campaign,
