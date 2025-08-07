@@ -345,7 +345,6 @@ import { CampaignStore } from "@/store/CampaignStore";
 import { type Campaign } from "@/store/Campaign";
 import { ref, onMounted, watch, nextTick } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
-/* import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue"; */
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
 import { useUserStore } from "@/store/UserStore";
@@ -357,6 +356,7 @@ import SaveInstructions from "./SaveInstructions.vue";
 import LoadInstructions from "./LoadInstructions.vue";
 import RemovePlayersButton from "@/components/RemovePlayersButton.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
+import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
@@ -377,14 +377,7 @@ const alertType = ref<"success" | "info" | "warning" | "error" | undefined>(
 const showAlert = ref(false);
 const currentTab = ref("normal");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
-const showLoading = ref(false);
-const players = ref<
-  Array<{
-    rl_campaigns_users_pk: number;
-    user_name: string;
-    picture_hash: string | null;
-  }>
->([]);
+/* const showLoading = ref(false); */
 const showSaveCampaignButton = ref(false);
 const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
@@ -398,12 +391,12 @@ const saveInstructionsRef = vueRef<InstanceType<
   typeof SaveInstructions
 > | null>(null);
 
-// Chaves para localStorage (separadas por aba)
+// --- LÓGICA DE ESTADO DAS INSTRUÇÕES ---
+
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
-const getInstructionStepKey = (tab: "save" | "load" = instructionTab.value) =>
+const getInstructionStepKey = (tab: string) =>
   `campaign_${campaignId}_instruction_step_${tab}`;
 
-// Função para salvar o estado no localStorage
 const saveInstructionState = () => {
   if (typeof window !== "undefined") {
     const state = {
@@ -415,7 +408,6 @@ const saveInstructionState = () => {
   }
 };
 
-// Função para salvar o passo atual da instrução
 const onInstructionChanged = (step: number) => {
   if (typeof window !== "undefined") {
     localStorage.setItem(
@@ -425,153 +417,116 @@ const onInstructionChanged = (step: number) => {
   }
 };
 
-// Função para restaurar o estado das instruções
 const restoreInstructionState = () => {
-  if (typeof window !== "undefined") {
-    try {
-      const stateStr = localStorage.getItem(getInstructionStateKey());
+  if (typeof window === "undefined") return;
 
-      if (stateStr) {
-        const state = JSON.parse(stateStr);
-        const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000; // 30 minutos em ms
+  try {
+    const stateStr = localStorage.getItem(getInstructionStateKey());
+    if (!stateStr) return;
 
-        // Se o estado foi salvo há menos de 30 minutos, restaura
-        if (now - state.timestamp < thirtyMinutes) {
-          if (state.expanded) {
-            expandedPanel.value = [0];
-            instructionTab.value = state.tab;
+    const state = JSON.parse(stateStr);
+    const now = Date.now();
+    const thirtyMinutes = 30 * 60 * 1000;
 
-            // Restaura o passo da instrução após o componente ser montado
-            const stepStr = localStorage.getItem(
-              getInstructionStepKey(state.tab),
-            );
-            if (stepStr) {
-              const step = parseInt(stepStr);
-              nextTick(() => {
-                if (
-                  state.tab === "load" &&
-                  loadInstructionsRef.value &&
-                  typeof loadInstructionsRef.value.setCurrentStep === "function"
-                ) {
-                  loadInstructionsRef.value.setCurrentStep(step);
-                } else if (
-                  state.tab === "save" &&
-                  saveInstructionsRef.value &&
-                  typeof saveInstructionsRef.value.setCurrentStep === "function"
-                ) {
-                  saveInstructionsRef.value.setCurrentStep(step);
-                }
-              });
-            }
+    if (now - state.timestamp < thirtyMinutes) {
+      if (state.expanded) {
+        expandedPanel.value = [0]; // Define a aba, com fallback para 'load' se 'save' não for possível
 
-            router.replace({
-              query: {
-                ...route.query,
-                instructions: "open",
-                tab: state.tab,
-              },
-            });
-            return true; // Estado restaurado
-          }
+        if (state.tab === "save" && showSaveCampaignButton.value) {
+          instructionTab.value = "save";
         } else {
-          // Remove estados expirados
-          localStorage.removeItem(getInstructionStateKey());
-          localStorage.removeItem(getInstructionStepKey("load"));
-          localStorage.removeItem(getInstructionStepKey("save"));
+          instructionTab.value = "load";
+        } // Restaura o passo para a aba correta
+
+        const stepStr = localStorage.getItem(
+          getInstructionStepKey(instructionTab.value),
+        );
+        if (stepStr) {
+          const step = parseInt(stepStr);
+          nextTick(() => {
+            if (instructionTab.value === "load" && loadInstructionsRef.value) {
+              loadInstructionsRef.value.setCurrentStep(step);
+            } else if (
+              instructionTab.value === "save" &&
+              saveInstructionsRef.value
+            ) {
+              saveInstructionsRef.value.setCurrentStep(step);
+            }
+          });
         }
+
+        // Mantém a URL sincronizada com o estado restaurado
+        router.replace({
+          query: { instructions: "open", tab: instructionTab.value },
+        });
       }
-    } catch (error) {
-      console.error("Erro ao restaurar estado das instruções:", error);
+    } else {
+      // Limpa o localStorage expirado
+      localStorage.removeItem(getInstructionStateKey());
+      localStorage.removeItem(getInstructionStepKey("load"));
+      localStorage.removeItem(getInstructionStepKey("save"));
     }
+  } catch (error) {
+    console.error("Erro ao restaurar estado das instruções:", error);
   }
-  return false; // Estado não restaurado
 };
+
+// --- Funções do Componente ---
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
     expandedPanel.value = [];
     router.replace({
-      query: {
-        ...route.query,
-        instructions: undefined,
-        tab: undefined,
-      },
+      query: { ...route.query, instructions: undefined, tab: undefined },
     });
   } else {
-    // Quando o usuário clica manualmente no botão, sempre abre na aba "load"
-    instructionTab.value = "load";
+    instructionTab.value = "load"; // Sempre abre na aba 'load' por padrão
     expandedPanel.value = [0];
     router.replace({
-      query: {
-        ...route.query,
-        instructions: "open",
-        tab: "load",
-      },
+      query: { ...route.query, instructions: "open", tab: "load" },
     });
   }
-  saveInstructionState();
+};
+
+const openSavePanel = () => {
+  expandedPanel.value = [0];
+  instructionTab.value = "save";
+  router.replace({
+    query: { ...route.query, instructions: "open", tab: "save" },
+  });
 };
 
 const handleSave = () => {
-  savePutRef
-    .value!.save()
-    .then(() => {
+  savePutRef.value
+    ?.save()
+    .then(() =>
       setAlert(
         "mdi-check",
         "Success",
         "The campaign was saved successfully!",
         "success",
-      );
-    })
-    .catch(() => {
+      ),
+    )
+    .catch(() =>
       setAlert(
         "mdi-alert-circle",
         "Error",
         "The campaign could not be saved.",
         "error",
-      );
-    });
-};
-
-const fetchRlCampaignsUsersListPlayers = async () => {
-  await axios
-    .get("rl_campaigns_users/list_players", {
-      params: { campaigns_fk: campaignId },
-    })
-    .then((response) => {
-      players.value = response.data.Users;
-      console.log("Fetched players:", response.data.Users);
-    })
-    .catch(() => {
-      showSaveCampaignButton.value = false;
-    });
-};
-
-const openSavePanel = () => {
-  // Esta função é chamada quando o usuário clica no botão "Save Campaign"
-  expandedPanel.value = [0];
-  instructionTab.value = "save";
-  router.replace({
-    query: {
-      ...route.query,
-      instructions: "open",
-      tab: "save",
-    },
-  });
-  saveInstructionState();
+      ),
+    );
 };
 
 const fetchRole = async () => {
-  axios
-    .get("rl_campaigns_users/search", {
+  try {
+    const response = await axios.get("rl_campaigns_users/search", {
       params: { users_fk: userStore.user.users_pk, campaigns_fk: campaignId },
-    })
-    .then((response) => {
-      showSaveCampaignButton.value = true
-        ? response.data.campaigns[0].party_role === "Admin"
-        : false;
     });
+    showSaveCampaignButton.value =
+      response.data.campaigns[0]?.party_role === "Admin";
+  } catch (error) {
+    showSaveCampaignButton.value = false;
+  }
 };
 
 const setAlert = (
@@ -585,7 +540,6 @@ const setAlert = (
   alertText.value = text;
   showAlert.value = true;
   alertType.value = type;
-
   setTimeout(() => {
     showAlert.value = false;
   }, 5000);
@@ -596,86 +550,14 @@ const onPlayerRemoved = async () => {
   await campaignPlayerListRef.value?.fetchPlayers();
 };
 
-const syncPanelStateWithRoute = () => {
-  if (route.query.instructions === "open") {
-    expandedPanel.value = [0];
-    instructionTab.value = (route.query.tab as "save" | "load") || "load";
-
-    // Se há um passo salvo para a aba atual, restaura ele
-    if (typeof window !== "undefined") {
-      const stepStr = localStorage.getItem(
-        getInstructionStepKey(instructionTab.value),
-      );
-      if (stepStr) {
-        const step = parseInt(stepStr);
-        nextTick(() => {
-          if (
-            instructionTab.value === "load" &&
-            loadInstructionsRef.value &&
-            typeof loadInstructionsRef.value.setCurrentStep === "function"
-          ) {
-            loadInstructionsRef.value.setCurrentStep(step);
-          } else if (
-            instructionTab.value === "save" &&
-            saveInstructionsRef.value &&
-            typeof saveInstructionsRef.value.setCurrentStep === "function"
-          ) {
-            saveInstructionsRef.value.setCurrentStep(step);
-          }
-        });
-      }
-    }
-  } else {
-    expandedPanel.value = [];
-  }
-  saveInstructionState();
-};
-
-// Watch para monitorar mudanças na aba de instrução e restaurar o passo
-watch(instructionTab, (newTab) => {
-  saveInstructionState();
-
-  // Se mudou para alguma aba e há um passo salvo, restaura ele
-  if (typeof window !== "undefined") {
-    const stepStr = localStorage.getItem(getInstructionStepKey(newTab));
-    if (stepStr) {
-      const step = parseInt(stepStr);
-      nextTick(() => {
-        if (
-          newTab === "load" &&
-          loadInstructionsRef.value &&
-          typeof loadInstructionsRef.value.setCurrentStep === "function"
-        ) {
-          loadInstructionsRef.value.setCurrentStep(step);
-        } else if (
-          newTab === "save" &&
-          saveInstructionsRef.value &&
-          typeof saveInstructionsRef.value.setCurrentStep === "function"
-        ) {
-          saveInstructionsRef.value.setCurrentStep(step);
-        }
-      });
-    }
-  }
-});
-
-// Watch para salvar estado quando houver mudanças no painel expandido
-watch(
-  expandedPanel,
-  () => {
-    saveInstructionState();
-  },
-  { deep: true },
-);
+// --- Lifecycle Hooks e Watchers ---
 
 onMounted(async () => {
+  // 1. Carrega dados básicos da campanha
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
-    foundCampaign.isSequentialAdventure = true;
-    isSequentialAdventure.value = true;
   } else {
-    console.error(`Campaign with ID ${campaignId} not found.`);
     setAlert(
       "mdi-alert-circle",
       "Error",
@@ -684,29 +566,34 @@ onMounted(async () => {
     );
   }
 
+  // 2. BUSCA DADOS ASSÍNCRONOS CRÍTICOS PRIMEIRO
   await fetchRole();
-  await fetchRlCampaignsUsersListPlayers();
 
-  if (route.query.dialog) {
-    showLoading.value = true;
-  }
-
-  // Tenta restaurar o estado anterior primeiro
-  const stateRestored = restoreInstructionState();
-
-  // Se não conseguiu restaurar o estado e não há parâmetros na URL,
-  // abre as instruções na aba "load" por padrão
-  if (!stateRestored && !route.query.instructions) {
-    expandedPanel.value = [0];
-    instructionTab.value = "load";
-    router.replace({
-      query: { instructions: "open", tab: "load" },
-    });
-    saveInstructionState();
-  }
+  // 3. AGORA, COM A UI ESTÁVEL, RESTAURA O ESTADO
+  // Como o retorno da outra página não tem mais query, esta função
+  // vai ler o localStorage e restaurar o estado corretamente.
+  restoreInstructionState();
 });
 
-watch(() => route.query, syncPanelStateWithRoute, { immediate: true });
+// Watcher para salvar o estado sempre que o painel ou a aba mudarem
+watch([expandedPanel, instructionTab], saveInstructionState, { deep: true });
+
+// Watcher para reagir a navegação do browser (botões voltar/avançar)
+watch(
+  () => route.query,
+  (newQuery) => {
+    if (newQuery.instructions === "open") {
+      const tab =
+        newQuery.tab === "save" && showSaveCampaignButton.value
+          ? "save"
+          : "load";
+      expandedPanel.value = [0];
+      instructionTab.value = tab;
+    } else {
+      expandedPanel.value = [];
+    }
+  },
+);
 
 watch(
   campaign,

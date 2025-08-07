@@ -1,8 +1,3 @@
-// Funções para gerenciar o estado das instruções const getInstructionStateKey =
-() => `campaign_${campaignId}_instruction_state`; const getInstructionStepKey =
-(tab: string) => `campaign_${campaignId}_instruction_step_${tab}`; const
-getInstructionState = () => { if (typeof window !== "undefined") { try { const
-stateStr = localStorage.getItem(getInstructionStateKey()); if (stateStr) {
 <template>
   <v-row no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
@@ -194,13 +189,13 @@ function onStash() {
 
 // Funções para gerenciar o estado das instruções
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
-const getInstructionStepKey = () => `campaign_${campaignId}_instruction_step`;
+const getInstructionStepKey = (tab: string) => 
+  `campaign_${campaignId}_instruction_step_${tab}`;
 
 const getInstructionState = () => {
   if (typeof window !== "undefined") {
     try {
       const stateStr = localStorage.getItem(getInstructionStateKey());
-      const stepStr = localStorage.getItem(getInstructionStepKey());
 
       if (stateStr) {
         const state = JSON.parse(stateStr);
@@ -209,6 +204,8 @@ const getInstructionState = () => {
 
         // Se o estado foi salvo há menos de 30 minutos, retorna o estado
         if (now - state.timestamp < thirtyMinutes) {
+          // Recupera o passo específico da aba salva
+          const stepStr = localStorage.getItem(getInstructionStepKey(state.tab));
           return {
             expanded: state.expanded,
             tab: state.tab,
@@ -217,7 +214,8 @@ const getInstructionState = () => {
         } else {
           // Remove estados expirados
           localStorage.removeItem(getInstructionStateKey());
-          localStorage.removeItem(getInstructionStepKey());
+          localStorage.removeItem(getInstructionStepKey("load"));
+          localStorage.removeItem(getInstructionStepKey("save"));
         }
       }
     } catch (error) {
