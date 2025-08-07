@@ -1,7 +1,13 @@
 <template>
   <v-card class="pa-4" color="surface">
     <v-card-text class="scroll-container">
-      <v-stepper mobile :items="steps" class="custom-stepper">
+      <v-stepper
+        mobile
+        :items="steps"
+        class="custom-stepper"
+        v-model="currentStep"
+        @update:model-value="onStepChange"
+      >
         <!-- Step 1 -->
         <template v-slot:item.1>
           <v-card flat>
@@ -248,6 +254,8 @@
 </template>
 
 <script setup lang="ts">
+import { defineEmits, ref, watch } from "vue";
+
 const steps = [
   "Save Conditions",
   "Adjusting the Board",
@@ -258,7 +266,42 @@ const steps = [
   "Save Changes",
 ];
 
-defineEmits(["save"]);
+const emit = defineEmits<{
+  save: [];
+  "instruction-changed": [step: number];
+}>();
+
+// Controle do passo atual
+const currentStep = ref(1);
+
+// Método público para definir o passo atual (chamado pelo componente pai)
+const setCurrentStep = (step: number) => {
+  if (step >= 1 && step <= steps.length) {
+    currentStep.value = step;
+  }
+};
+
+// Expor o método para o componente pai
+defineExpose({
+  setCurrentStep,
+});
+
+// Função chamada quando o passo muda no stepper
+const onStepChange = (value: unknown) => {
+  const step = Number(value);
+  if (!isNaN(step) && step >= 1 && step <= steps.length) {
+    emit("instruction-changed", step);
+  }
+};
+
+// Watch para emitir mudanças de passo
+watch(
+  currentStep,
+  (newStep) => {
+    emit("instruction-changed", newStep);
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>
