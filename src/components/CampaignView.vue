@@ -101,9 +101,15 @@
 
                     <SaveInstructions
                       v-if="instructionTab === 'save'"
+                      ref="saveInstructionsRef"
                       @save="handleSave"
+                      @instruction-changed="onInstructionChanged"
                     />
-                    <LoadInstructions v-else />
+                    <LoadInstructions
+                      v-else
+                      ref="loadInstructionsRef"
+                      @instruction-changed="onInstructionChanged"
+                    />
                   </v-expansion-panel-text>
                 </v-expansion-panel>
               </v-expansion-panels>
@@ -337,7 +343,7 @@ import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { type Campaign } from "@/store/Campaign";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, nextTick } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
 /* import SequentialAdventureButton from "@/components/SequentialAdventureButton.vue"; */
 import CampaignBook from "@/components/CampaignBook.vue";
@@ -385,6 +391,102 @@ const campaignPlayerListRef = vueRef<InstanceType<
 > | null>(null);
 const expandedPanel = ref<number[]>([]);
 const instructionTab = ref<"save" | "load">("load");
+const loadInstructionsRef = vueRef<InstanceType<
+  typeof LoadInstructions
+> | null>(null);
+const saveInstructionsRef = vueRef<InstanceType<
+  typeof SaveInstructions
+> | null>(null);
+
+// Chaves para localStorage (separadas por aba)
+const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
+const getInstructionStepKey = (tab: "save" | "load" = instructionTab.value) =>
+  `campaign_${campaignId}_instruction_step_${tab}`;
+
+// Função para salvar o estado no localStorage
+const saveInstructionState = () => {
+  if (typeof window !== "undefined") {
+    const state = {
+      expanded: expandedPanel.value.length > 0,
+      tab: instructionTab.value,
+      timestamp: Date.now(),
+    };
+    localStorage.setItem(getInstructionStateKey(), JSON.stringify(state));
+  }
+};
+
+// Função para salvar o passo atual da instrução
+const onInstructionChanged = (step: number) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(
+      getInstructionStepKey(instructionTab.value),
+      step.toString(),
+    );
+  }
+};
+
+// Função para restaurar o estado das instruções
+const restoreInstructionState = () => {
+  if (typeof window !== "undefined") {
+    try {
+      const stateStr = localStorage.getItem(getInstructionStateKey());
+
+      if (stateStr) {
+        const state = JSON.parse(stateStr);
+        const now = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000; // 30 minutos em ms
+
+        // Se o estado foi salvo há menos de 30 minutos, restaura
+        if (now - state.timestamp < thirtyMinutes) {
+          if (state.expanded) {
+            expandedPanel.value = [0];
+            instructionTab.value = state.tab;
+
+            // Restaura o passo da instrução após o componente ser montado
+            const stepStr = localStorage.getItem(
+              getInstructionStepKey(state.tab),
+            );
+            if (stepStr) {
+              const step = parseInt(stepStr);
+              nextTick(() => {
+                if (
+                  state.tab === "load" &&
+                  loadInstructionsRef.value &&
+                  typeof loadInstructionsRef.value.setCurrentStep === "function"
+                ) {
+                  loadInstructionsRef.value.setCurrentStep(step);
+                } else if (
+                  state.tab === "save" &&
+                  saveInstructionsRef.value &&
+                  typeof saveInstructionsRef.value.setCurrentStep === "function"
+                ) {
+                  saveInstructionsRef.value.setCurrentStep(step);
+                }
+              });
+            }
+
+            router.replace({
+              query: {
+                ...route.query,
+                instructions: "open",
+                tab: state.tab,
+              },
+            });
+            return true; // Estado restaurado
+          }
+        } else {
+          // Remove estados expirados
+          localStorage.removeItem(getInstructionStateKey());
+          localStorage.removeItem(getInstructionStepKey("load"));
+          localStorage.removeItem(getInstructionStepKey("save"));
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao restaurar estado das instruções:", error);
+    }
+  }
+  return false; // Estado não restaurado
+};
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
@@ -408,6 +510,7 @@ const toggleInstructions = () => {
       },
     });
   }
+  saveInstructionState();
 };
 
 const handleSave = () => {
@@ -456,6 +559,7 @@ const openSavePanel = () => {
       tab: "save",
     },
   });
+  saveInstructionState();
 };
 
 const fetchRole = async () => {
@@ -492,22 +596,77 @@ const onPlayerRemoved = async () => {
   await campaignPlayerListRef.value?.fetchPlayers();
 };
 
-/* const onSequentialAdventure = () => {
-  isSequentialAdventure.value = true;
-  setTimeout(() => {
-    savePutRef.value?.save();
-  }, 0);
-}; */
-
 const syncPanelStateWithRoute = () => {
   if (route.query.instructions === "open") {
     expandedPanel.value = [0];
-    // Respeita a aba definida na query, mas mantém "load" como padrão
     instructionTab.value = (route.query.tab as "save" | "load") || "load";
+
+    // Se há um passo salvo para a aba atual, restaura ele
+    if (typeof window !== "undefined") {
+      const stepStr = localStorage.getItem(
+        getInstructionStepKey(instructionTab.value),
+      );
+      if (stepStr) {
+        const step = parseInt(stepStr);
+        nextTick(() => {
+          if (
+            instructionTab.value === "load" &&
+            loadInstructionsRef.value &&
+            typeof loadInstructionsRef.value.setCurrentStep === "function"
+          ) {
+            loadInstructionsRef.value.setCurrentStep(step);
+          } else if (
+            instructionTab.value === "save" &&
+            saveInstructionsRef.value &&
+            typeof saveInstructionsRef.value.setCurrentStep === "function"
+          ) {
+            saveInstructionsRef.value.setCurrentStep(step);
+          }
+        });
+      }
+    }
   } else {
     expandedPanel.value = [];
   }
+  saveInstructionState();
 };
+
+// Watch para monitorar mudanças na aba de instrução e restaurar o passo
+watch(instructionTab, (newTab) => {
+  saveInstructionState();
+
+  // Se mudou para alguma aba e há um passo salvo, restaura ele
+  if (typeof window !== "undefined") {
+    const stepStr = localStorage.getItem(getInstructionStepKey(newTab));
+    if (stepStr) {
+      const step = parseInt(stepStr);
+      nextTick(() => {
+        if (
+          newTab === "load" &&
+          loadInstructionsRef.value &&
+          typeof loadInstructionsRef.value.setCurrentStep === "function"
+        ) {
+          loadInstructionsRef.value.setCurrentStep(step);
+        } else if (
+          newTab === "save" &&
+          saveInstructionsRef.value &&
+          typeof saveInstructionsRef.value.setCurrentStep === "function"
+        ) {
+          saveInstructionsRef.value.setCurrentStep(step);
+        }
+      });
+    }
+  }
+});
+
+// Watch para salvar estado quando houver mudanças no painel expandido
+watch(
+  expandedPanel,
+  () => {
+    saveInstructionState();
+  },
+  { deep: true },
+);
 
 onMounted(async () => {
   const foundCampaign = campaignStore.find(campaignId);
@@ -532,22 +691,22 @@ onMounted(async () => {
     showLoading.value = true;
   }
 
-  // MUDANÇA PRINCIPAL: Sempre abre as instruções na aba "load" quando entra na campanha
-  // Só não abre se já existir o parâmetro "instructions" na URL
-  if (!route.query.instructions) {
+  // Tenta restaurar o estado anterior primeiro
+  const stateRestored = restoreInstructionState();
+
+  // Se não conseguiu restaurar o estado e não há parâmetros na URL,
+  // abre as instruções na aba "load" por padrão
+  if (!stateRestored && !route.query.instructions) {
     expandedPanel.value = [0];
     instructionTab.value = "load";
-
     router.replace({
       query: { instructions: "open", tab: "load" },
     });
+    saveInstructionState();
   }
 });
 
 watch(() => route.query, syncPanelStateWithRoute, { immediate: true });
-
-// Removida a lógica que mudava automaticamente para "save" quando showSaveCampaignButton mudava
-// Agora a aba "save" só abre quando explicitamente chamada via openSavePanel()
 
 watch(
   campaign,
