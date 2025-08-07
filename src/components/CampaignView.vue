@@ -397,6 +397,7 @@ const instructionTab = ref<"save" | "load">("save");
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
+    expandedPanel.value = [];
     router.replace({
       query: {
         ...route.query,
@@ -405,18 +406,18 @@ const toggleInstructions = () => {
       },
     });
   } else {
-    const tab = showSaveCampaignButton.value ? "save" : "load";
-    instructionTab.value = tab;
-
+    instructionTab.value = 'load';
+    expandedPanel.value = [0];
     router.replace({
       query: {
         ...route.query,
-        instructions: "open",
-        tab: tab,
+        instructions: 'open',
+        tab: 'load',
       },
     });
   }
 };
+
 
 const handleSave = () => {
   savePutRef
@@ -543,23 +544,14 @@ onMounted(async () => {
   if (route.query.dialog) {
     showLoading.value = true;
   }
-  
-  expandedPanel.value = [0];
-  instructionTab.value = showSaveCampaignButton.value ? 'save' : 'load';
 
-  router.replace({
-    query: {
-      ...route.query,
-      instructions: 'open',
-      tab: instructionTab.value,
-    },
-  });
-
-  if (route.query.openInstructions === "load") {
+  if (!route.query.instructions) {
     expandedPanel.value = [0];
-    instructionTab.value = "load";
-
-    router.replace({ query: {} });
+    instructionTab.value = 'load';
+    
+    router.replace({
+      query: { instructions: 'open', tab: 'load' },
+    });
   }
 });
 
