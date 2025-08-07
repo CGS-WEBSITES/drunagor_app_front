@@ -262,7 +262,6 @@ defineEmits(["save"]);
 </script>
 
 <style scoped>
-/* Base styles */
 .custom-stepper {
   width: 100%;
 }
@@ -320,7 +319,6 @@ defineEmits(["save"]);
   min-width: 120px;
 }
 
-/* Tablet responsiveness */
 @media (max-width: 960px) {
   .step-title {
     font-size: 0.9rem;
@@ -339,7 +337,6 @@ defineEmits(["save"]);
   }
 }
 
-/* Mobile responsiveness */
 @media (max-width: 600px) {
   .v-card {
     padding: 8px !important;
@@ -382,7 +379,6 @@ defineEmits(["save"]);
     font-size: 0.8rem;
   }
 
-  /* Stepper specific mobile adjustments */
   :deep(.v-stepper__header) {
     overflow-x: auto;
     padding-bottom: 8px;
@@ -404,14 +400,12 @@ defineEmits(["save"]);
     max-width: 60px;
   }
 
-  /* Remove text truncation */
   :deep(.v-stepper__step .v-stepper__label) {
     text-overflow: unset !important;
     overflow: visible !important;
   }
 }
 
-/* Extra small screens */
 @media (max-width: 480px) {
   .step-title {
     font-size: 0.8rem;
@@ -440,13 +434,11 @@ defineEmits(["save"]);
   }
 }
 
-/* Ensure all text can wrap properly */
 * {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
-/* Force vuetify components to allow text wrapping */
 :deep(.v-list-item-title),
 :deep(.v-alert__content),
 :deep(.v-stepper__label) {
