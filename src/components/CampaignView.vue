@@ -662,6 +662,10 @@ watch(
 </script>
 
 <style scoped>
+.v-btn--slim {
+  padding: 0 15px !important;
+}
+
 .text-caption {
   font-size: 0.85rem !important;
   font-weight: 400;
