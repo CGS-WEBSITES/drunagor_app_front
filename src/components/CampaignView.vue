@@ -19,26 +19,35 @@
 
           <v-card class="mb-2" color="primary">
             <v-card-actions class="pa-2">
-              <div class="d-flex justify-space-around align-center w-100">
+              <div class="d-flex justify-center w-100">
                 <v-menu offset-y>
                   <template #activator="{ props }">
                     <v-btn v-bind="props" variant="elevated" rounded>
                       <v-icon start>mdi-cog</v-icon>
-                      Campaign Actions
+                        Campaign Actions
                       <v-icon end>mdi-chevron-down</v-icon>
                     </v-btn>
                   </template>
 
                   <v-list density="compact">
+                    <v-list-item
+                      v-if="showSaveCampaignButton"
+                      @click="openSavePanel"
+                      prepend-icon="mdi-content-save"
+                    >
+                      <v-list-item-title>Save Campaign</v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item
+                      @click="toggleInstructions"
+                      prepend-icon="mdi-lightbulb-on-outline"
+                    >
+                      <v-list-item-title>Instructions</v-list-item-title>
+                    </v-list-item>
+
+                    <v-divider class="my-1"></v-divider>
+
                     <div v-if="showSaveCampaignButton">
-                      <v-list-item>
-                        <CampaignSavePut
-                          ref="savePutRef"
-                          :campaign-id="campaignId"
-                          @open-save-panel="openSavePanel"
-                          block
-                        />
-                      </v-list-item>
                       <v-list-item>
                         <CampaignRemove :campaign-id="campaignId" block />
                       </v-list-item>
@@ -52,16 +61,12 @@
                         <CampaignExport :campaign-id="campaignId" block />
                       </fieldset>
                     </v-list-item>
+
                     <v-list-item>
                       <ShareCampaignButton :campaignId="campaignId" block />
                     </v-list-item>
                   </v-list>
                 </v-menu>
-
-                <v-btn variant="elevated" rounded @click="toggleInstructions">
-                  <v-icon size="small">mdi-lightbulb-outline</v-icon>
-                  <span class="d-none d-sm-inline ml-1">Instructions</span>
-                </v-btn>
               </div>
             </v-card-actions>
 
@@ -420,7 +425,7 @@ const restoreInstructionState = () => {
 
   expandedPanel.value = [0];
   instructionTab.value = "load";
-  
+
   try {
     const stepStr = localStorage.getItem(getInstructionStepKey("load"));
     if (stepStr) {
@@ -438,14 +443,14 @@ const restoreInstructionState = () => {
   router.replace({
     query: { instructions: "open", tab: "load" },
   });
-  
+
   try {
     const stateStr = localStorage.getItem(getInstructionStateKey());
     if (stateStr) {
       const state = JSON.parse(stateStr);
       const now = Date.now();
       const thirtyMinutes = 30 * 60 * 1000;
-      
+
       if (now - state.timestamp >= thirtyMinutes) {
         localStorage.removeItem(getInstructionStateKey());
         localStorage.removeItem(getInstructionStepKey("load"));
@@ -464,7 +469,7 @@ const toggleInstructions = () => {
       query: { ...route.query, instructions: undefined, tab: undefined },
     });
   } else {
-    instructionTab.value = "load"; 
+    instructionTab.value = "load";
     expandedPanel.value = [0];
     router.replace({
       query: { ...route.query, instructions: "open", tab: "load" },
