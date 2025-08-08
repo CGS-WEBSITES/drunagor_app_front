@@ -391,8 +391,6 @@ const saveInstructionsRef = vueRef<InstanceType<
   typeof SaveInstructions
 > | null>(null);
 
-// --- LÓGICA DE ESTADO DAS INSTRUÇÕES ---
-
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
 const getInstructionStepKey = (tab: string) =>
   `campaign_${campaignId}_instruction_step_${tab}`;
@@ -420,58 +418,44 @@ const onInstructionChanged = (step: number) => {
 const restoreInstructionState = () => {
   if (typeof window === "undefined") return;
 
+  expandedPanel.value = [0];
+  instructionTab.value = "load";
+  
+  try {
+    const stepStr = localStorage.getItem(getInstructionStepKey("load"));
+    if (stepStr) {
+      const step = parseInt(stepStr);
+      nextTick(() => {
+        if (loadInstructionsRef.value) {
+          loadInstructionsRef.value.setCurrentStep(step);
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Erro ao restaurar passo das instruções:", error);
+  }
+
+  router.replace({
+    query: { instructions: "open", tab: "load" },
+  });
+  
   try {
     const stateStr = localStorage.getItem(getInstructionStateKey());
-    if (!stateStr) return;
-
-    const state = JSON.parse(stateStr);
-    const now = Date.now();
-    const thirtyMinutes = 30 * 60 * 1000;
-
-    if (now - state.timestamp < thirtyMinutes) {
-      if (state.expanded) {
-        expandedPanel.value = [0]; // Define a aba, com fallback para 'load' se 'save' não for possível
-
-        if (state.tab === "save" && showSaveCampaignButton.value) {
-          instructionTab.value = "save";
-        } else {
-          instructionTab.value = "load";
-        } // Restaura o passo para a aba correta
-
-        const stepStr = localStorage.getItem(
-          getInstructionStepKey(instructionTab.value),
-        );
-        if (stepStr) {
-          const step = parseInt(stepStr);
-          nextTick(() => {
-            if (instructionTab.value === "load" && loadInstructionsRef.value) {
-              loadInstructionsRef.value.setCurrentStep(step);
-            } else if (
-              instructionTab.value === "save" &&
-              saveInstructionsRef.value
-            ) {
-              saveInstructionsRef.value.setCurrentStep(step);
-            }
-          });
-        }
-
-        // Mantém a URL sincronizada com o estado restaurado
-        router.replace({
-          query: { instructions: "open", tab: instructionTab.value },
-        });
+    if (stateStr) {
+      const state = JSON.parse(stateStr);
+      const now = Date.now();
+      const thirtyMinutes = 30 * 60 * 1000;
+      
+      if (now - state.timestamp >= thirtyMinutes) {
+        localStorage.removeItem(getInstructionStateKey());
+        localStorage.removeItem(getInstructionStepKey("load"));
+        localStorage.removeItem(getInstructionStepKey("save"));
       }
-    } else {
-      // Limpa o localStorage expirado
-      localStorage.removeItem(getInstructionStateKey());
-      localStorage.removeItem(getInstructionStepKey("load"));
-      localStorage.removeItem(getInstructionStepKey("save"));
     }
   } catch (error) {
     console.error("Erro ao restaurar estado das instruções:", error);
   }
 };
-
-// --- Funções do Componente ---
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
@@ -480,7 +464,7 @@ const toggleInstructions = () => {
       query: { ...route.query, instructions: undefined, tab: undefined },
     });
   } else {
-    instructionTab.value = "load"; // Sempre abre na aba 'load' por padrão
+    instructionTab.value = "load"; 
     expandedPanel.value = [0];
     router.replace({
       query: { ...route.query, instructions: "open", tab: "load" },
@@ -550,10 +534,7 @@ const onPlayerRemoved = async () => {
   await campaignPlayerListRef.value?.fetchPlayers();
 };
 
-// --- Lifecycle Hooks e Watchers ---
-
 onMounted(async () => {
-  // 1. Carrega dados básicos da campanha
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
@@ -566,19 +547,13 @@ onMounted(async () => {
     );
   }
 
-  // 2. BUSCA DADOS ASSÍNCRONOS CRÍTICOS PRIMEIRO
   await fetchRole();
 
-  // 3. AGORA, COM A UI ESTÁVEL, RESTAURA O ESTADO
-  // Como o retorno da outra página não tem mais query, esta função
-  // vai ler o localStorage e restaurar o estado corretamente.
   restoreInstructionState();
 });
 
-// Watcher para salvar o estado sempre que o painel ou a aba mudarem
 watch([expandedPanel, instructionTab], saveInstructionState, { deep: true });
 
-// Watcher para reagir a navegação do browser (botões voltar/avançar)
 watch(
   () => route.query,
   (newQuery) => {

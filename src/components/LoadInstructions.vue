@@ -244,22 +244,18 @@ const emit = defineEmits<{
   "instruction-changed": [step: number];
 }>();
 
-// Controle do passo atual
 const currentStep = ref(1);
 
-// Método público para definir o passo atual (chamado pelo componente pai)
 const setCurrentStep = (step: number) => {
   if (step >= 1 && step <= steps.length) {
     currentStep.value = step;
   }
 };
 
-// Expor o método para o componente pai
 defineExpose({
   setCurrentStep,
 });
 
-// Função chamada quando o passo muda no stepper
 const onStepChange = (value: unknown) => {
   const step = Number(value);
   if (!isNaN(step) && step >= 1 && step <= steps.length) {
@@ -267,7 +263,6 @@ const onStepChange = (value: unknown) => {
   }
 };
 
-// Watch para emitir mudanças de passo
 watch(
   currentStep,
   (newStep) => {

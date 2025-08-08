@@ -167,14 +167,10 @@ if (typeof campaignHero.classAbilityCount === "undefined") {
 const localClassAbilityCount = ref(campaignHero.classAbilityCount);
 
 watch(localClassAbilityCount, (newCount) => {
-  // A lógica de watch continua a mesma e é confiável
   campaignHero.classAbilityCount = Number(newCount) || 0;
 });
 
-// NOVA FUNÇÃO PARA A INTERFACE VISUAL
 function setAbilityCount(count: number) {
-  // Se o usuário clicar no mesmo chip que já está selecionado,
-  // interpretamos como um desejo de "desmarcar", voltando ao estado anterior.
   if (localClassAbilityCount.value === count) {
     localClassAbilityCount.value = count - 1;
   } else {
@@ -187,7 +183,6 @@ function onStash() {
   stash.value += 1;
 }
 
-// Funções para gerenciar o estado das instruções
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
 const getInstructionStepKey = (tab: string) => 
   `campaign_${campaignId}_instruction_step_${tab}`;
@@ -200,11 +195,9 @@ const getInstructionState = () => {
       if (stateStr) {
         const state = JSON.parse(stateStr);
         const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000; // 30 minutos em ms
+        const thirtyMinutes = 30 * 60 * 1000; 
 
-        // Se o estado foi salvo há menos de 30 minutos, retorna o estado
         if (now - state.timestamp < thirtyMinutes) {
-          // Recupera o passo específico da aba salva
           const stepStr = localStorage.getItem(getInstructionStepKey(state.tab));
           return {
             expanded: state.expanded,
@@ -212,7 +205,6 @@ const getInstructionState = () => {
             step: stepStr ? parseInt(stepStr) : undefined,
           };
         } else {
-          // Remove estados expirados
           localStorage.removeItem(getInstructionStateKey());
           localStorage.removeItem(getInstructionStepKey("load"));
           localStorage.removeItem(getInstructionStepKey("save"));
@@ -230,7 +222,6 @@ function saveAndGoBack() {
 
   if (savePutRef.value && savePutRef.value.save) {
     savePutRef.value.save().then(() => {
-      // Constrói a query preservando o estado das instruções se existir
       const query: any = {};
 
       if (instructionState && instructionState.expanded) {
@@ -245,7 +236,6 @@ function saveAndGoBack() {
       });
     });
   } else {
-    // Constrói a query preservando o estado das instruções se existir
     const query: any = {};
 
     if (instructionState && instructionState.expanded) {
