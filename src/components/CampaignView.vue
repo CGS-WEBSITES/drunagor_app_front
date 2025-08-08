@@ -24,7 +24,7 @@
                   <template #activator="{ props }">
                     <v-btn v-bind="props" variant="elevated" rounded>
                       <v-icon start>mdi-cog</v-icon>
-                        Campaign Actions
+                      Campaign Actions
                       <v-icon end>mdi-chevron-down</v-icon>
                     </v-btn>
                   </template>
@@ -382,7 +382,6 @@ const alertType = ref<"success" | "info" | "warning" | "error" | undefined>(
 const showAlert = ref(false);
 const currentTab = ref("normal");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
-/* const showLoading = ref(false); */
 const showSaveCampaignButton = ref(false);
 const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
@@ -423,42 +422,91 @@ const onInstructionChanged = (step: number) => {
 const restoreInstructionState = () => {
   if (typeof window === "undefined") return;
 
-  expandedPanel.value = [0];
-  instructionTab.value = "load";
+  if (route.query.instructions === "open") {
+    const queryTab = route.query.tab as string;
 
-  try {
-    const stepStr = localStorage.getItem(getInstructionStepKey("load"));
-    if (stepStr) {
-      const step = parseInt(stepStr);
-      nextTick(() => {
-        if (loadInstructionsRef.value) {
-          loadInstructionsRef.value.setCurrentStep(step);
-        }
+    if (queryTab === "save" && showSaveCampaignButton.value) {
+      expandedPanel.value = [0];
+      instructionTab.value = "save";
+
+      const stepStr = localStorage.getItem(getInstructionStepKey("save"));
+      if (stepStr) {
+        const step = parseInt(stepStr);
+        nextTick(() => saveInstructionsRef.value?.setCurrentStep(step));
+      }
+    } else if (queryTab === "load") {
+      expandedPanel.value = [0];
+      instructionTab.value = "load";
+
+      const stepStr = localStorage.getItem(getInstructionStepKey("load"));
+      if (stepStr) {
+        const step = parseInt(stepStr);
+        nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
+      }
+    } else {
+      expandedPanel.value = [0];
+      instructionTab.value = "load";
+
+      const stepStr = localStorage.getItem(getInstructionStepKey("load"));
+      if (stepStr) {
+        const step = parseInt(stepStr);
+        nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
+      }
+
+      router.replace({
+        query: { instructions: "open", tab: "load" },
       });
     }
-  } catch (error) {
-    console.error("Erro ao restaurar passo das instruções:", error);
-  }
+  } else {
+    try {
+      const stateStr = localStorage.getItem(getInstructionStateKey());
+      if (stateStr) {
+        const state = JSON.parse(stateStr);
+        const now = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000;
 
-  router.replace({
-    query: { instructions: "open", tab: "load" },
-  });
+        if (now - state.timestamp < thirtyMinutes) {
+          expandedPanel.value = [0];
+          instructionTab.value = "load";
 
-  try {
-    const stateStr = localStorage.getItem(getInstructionStateKey());
-    if (stateStr) {
-      const state = JSON.parse(stateStr);
-      const now = Date.now();
-      const thirtyMinutes = 30 * 60 * 1000;
+          const stepStr = localStorage.getItem(getInstructionStepKey("load"));
+          if (stepStr) {
+            const step = parseInt(stepStr);
+            nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
+          }
 
-      if (now - state.timestamp >= thirtyMinutes) {
-        localStorage.removeItem(getInstructionStateKey());
-        localStorage.removeItem(getInstructionStepKey("load"));
-        localStorage.removeItem(getInstructionStepKey("save"));
+          router.replace({
+            query: { instructions: "open", tab: "load" },
+          });
+        } else {
+          localStorage.removeItem(getInstructionStateKey());
+          localStorage.removeItem(getInstructionStepKey("load"));
+          localStorage.removeItem(getInstructionStepKey("save"));
+
+          expandedPanel.value = [0];
+          instructionTab.value = "load";
+
+          router.replace({
+            query: { instructions: "open", tab: "load" },
+          });
+        }
+      } else {
+        expandedPanel.value = [0];
+        instructionTab.value = "load";
+
+        router.replace({
+          query: { instructions: "open", tab: "load" },
+        });
       }
+    } catch (error) {
+      console.error("Error restoring state:", error);
+      expandedPanel.value = [0];
+      instructionTab.value = "load";
+
+      router.replace({
+        query: { instructions: "open", tab: "load" },
+      });
     }
-  } catch (error) {
-    console.error("Erro ao restaurar estado das instruções:", error);
   }
 };
 
@@ -559,16 +607,40 @@ onMounted(async () => {
 
 watch([expandedPanel, instructionTab], saveInstructionState, { deep: true });
 
+watch(instructionTab, (newTab) => {
+  if (expandedPanel.value.length) {
+    const tab =
+      newTab === "save" && showSaveCampaignButton.value ? "save" : "load";
+
+    router.replace({
+      query: { ...route.query, instructions: "open", tab },
+    });
+  }
+});
+
 watch(
   () => route.query,
   (newQuery) => {
     if (newQuery.instructions === "open") {
-      const tab =
-        newQuery.tab === "save" && showSaveCampaignButton.value
-          ? "save"
-          : "load";
-      expandedPanel.value = [0];
-      instructionTab.value = tab;
+      if (newQuery.tab === "save" && showSaveCampaignButton.value) {
+        expandedPanel.value = [0];
+        instructionTab.value = "save";
+
+        const stepStr = localStorage.getItem(getInstructionStepKey("save"));
+        if (stepStr) {
+          const step = parseInt(stepStr);
+          nextTick(() => saveInstructionsRef.value?.setCurrentStep(step));
+        }
+      } else if (newQuery.tab === "load") {
+        expandedPanel.value = [0];
+        instructionTab.value = "load";
+
+        const stepStr = localStorage.getItem(getInstructionStepKey("load"));
+        if (stepStr) {
+          const step = parseInt(stepStr);
+          nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
+        }
+      }
     } else {
       expandedPanel.value = [];
     }
