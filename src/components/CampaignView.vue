@@ -713,7 +713,7 @@ watch(
 
 @media (max-width: 600px) {
   .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-    max-height: 30vh;
+    max-height: 25vh;
   }
 
   .action-group {
@@ -732,7 +732,7 @@ watch(
 
 @media (max-width: 960px) {
   .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-    max-height: 32vh;
+    max-height: 25vh;
   }
 
   .action-group {
