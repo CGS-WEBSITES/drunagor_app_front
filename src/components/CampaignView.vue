@@ -633,6 +633,7 @@ const setAlert = (
   title: string,
   text: string,
   type: "success" | "info" | "warning" | "error" | undefined,
+  duration: number = 1500
 ) => {
   alertIcon.value = icon;
   alertTitle.value = title;
@@ -641,7 +642,7 @@ const setAlert = (
   alertType.value = type;
   setTimeout(() => {
     showAlert.value = false;
-  }, 5000);
+  }, duration);
 };
 
 const onPlayerRemoved = async () => {
