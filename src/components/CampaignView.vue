@@ -174,6 +174,12 @@
                     <v-col cols="12">
                       <SelectDoor :campaign-id="campaignId" />
                     </v-col>
+                    <v-col cols="12">
+                      <SelectRuneAndGM
+                        :campaign-id="campaignId"
+                        :on-save="handleSave" 
+                      />
+                    </v-col>
                   </v-row>
                   <v-row
                     v-if="isSequentialAdventure"
