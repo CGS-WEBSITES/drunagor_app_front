@@ -186,13 +186,14 @@
                           :campaign-id="campaignId"
                           density="compact"
                         />
-                        <div class="d-flex justify-end mt-2 flex-wrap">
+                        <div class="d-flex justify-space-between align-center mt-2 flex-wrap">
                           <v-btn
                             v-if="showSaveCampaignButton"
                             class="mx-1 my-1"
                             @click="openTransferDialog"
                             variant="elevated"
                             rounded
+                            prepend-icon="mdi-account-switch-outline"  
                           >
                             Transfer Drunagor Master
                           </v-btn>
