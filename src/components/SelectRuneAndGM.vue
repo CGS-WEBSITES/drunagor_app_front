@@ -69,10 +69,10 @@
             md="3"
           >
             <v-card
-              @click="toggleCardSelection(card.id)"
+              @click="toggleDraftSelection(card.id)"
               class="gallery-card"
-              :class="{ 'selected-card': isSelected(card.id) }"
-              :disabled="!isSelected(card.id) && selectedCardIds.length >= 2"
+              :class="{ 'selected-card': isDraftSelected(card.id) }"
+              :disabled="!isDraftSelected(card.id) && draftSelectedIds.length >= 2"
               variant="flat"
             >
               <v-img :src="getImageUrl(card.id)" aspect-ratio="0.7" cover>
@@ -103,51 +103,61 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, nextTick } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 
 const assets = "https://druna-assets.s3.us-east-2.amazonaws.com";
 
 const props = defineProps<{
   campaignId: string;
+  onSave: () => Promise<void>;
 }>();
 
 const isDialogOpen = ref(false);
+const draftSelectedIds = ref<number[]>([]);
 
 const campaignStore = CampaignStore();
-const campaign = campaignStore.find(props.campaignId);
+const campaign = computed(() => campaignStore.find(props.campaignId));
 
 const allCards = [
   { id: 1, title: "RECALL ACTIONS" }, { id: 2, title: "FOLDING DOORS" }, { id: 3, title: "INTERACTIONS" }, { id: 4, title: "HAIL TO HIS MAJESTY" }, { id: 5, "title": "AGE OF DARKNESS" }, { id: 6, title: "INTO THE UNDERKEEP" }, { id: 7, title: "END OF THE ROUND" }, { id: 8, title: "THE BARRICADE" }, { id: 9, title: "GROWING DARKNESS - SIDE A" }, { id: 10, title: "GROWING DARKNESS - SIDE B" }, { id: 11, title: "DARKNESS HUNTING - SIDE A" }, { id: 12, title: "DARKNESS HUNTING - SIDE B" }, { id: 13, title: "DRAINAGE (OPEN)" }, { id: 14, title: "DRAINAGE (CLOSED)" }, { id: 15, title: "MONSTER RAID - SIDE A" }, { id: 16, title: "MONSTER RAID - SIDE B" },
 ];
 
-const selectedCardIds = ref<number[]>(campaign?.runeCardIds || []);
+watch(isDialogOpen, (isOpen) => {
+  if (isOpen) {
+    draftSelectedIds.value = campaign.value ? [...campaign.value.runeCardIds] : [];
+  } else {
+    if (campaign.value) {
+      campaign.value.runeCardIds.length = 0;
+      campaign.value.runeCardIds.push(...draftSelectedIds.value);
+
+      nextTick(() => {
+        props.onSave();
+      });
+    }
+  }
+});
 
 const getImageUrl = (id: number) => {
   return assets + `/CampaignTracker/Runes%26GM/rune-${id}.jpg`;
 };
 
-const isSelected = (cardId: number) => {
-  return selectedCardIds.value.includes(cardId);
+const isDraftSelected = (cardId: number) => {
+  return draftSelectedIds.value.includes(cardId);
 };
 
-const toggleCardSelection = (cardId: number) => {
-  const isCurrentlySelected = isSelected(cardId);
+const toggleDraftSelection = (cardId: number) => {
+  const isCurrentlySelected = isDraftSelected(cardId);
   if (isCurrentlySelected) {
-    selectedCardIds.value = selectedCardIds.value.filter(id => id !== cardId);
-  } else if (selectedCardIds.value.length < 2) {
-    selectedCardIds.value.push(cardId);
+    draftSelectedIds.value = draftSelectedIds.value.filter(id => id !== cardId);
+  } else if (draftSelectedIds.value.length < 2) {
+    draftSelectedIds.value.push(cardId);
   }
 };
-
-watch(selectedCardIds, (newValue) => {
-  if (campaign) {
-    campaign.runeCardIds = newValue;
-  }
-});
 
 const detailedSelectedCards = computed(() => {
-  return selectedCardIds.value
+  if (!campaign.value) return [];
+  return campaign.value.runeCardIds
     .map(id => allCards.find(card => card.id === id))
     .filter((card): card is NonNullable<typeof card> => card !== undefined);
 });
