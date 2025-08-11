@@ -204,7 +204,6 @@
                         <SelectDoor :campaign-id="campaignId" />
                       </v-col>
                     </v-row>
-
                     <v-row v-if="isSequentialAdventure" class="mb-3" no-gutters>
                       <v-col cols="12">
                         <CampaignRunes :campaign-id="campaignId" />
