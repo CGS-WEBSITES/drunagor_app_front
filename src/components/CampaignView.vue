@@ -113,11 +113,13 @@
                       ref="saveInstructionsRef"
                       @save="handleSave"
                       @instruction-changed="onInstructionChanged"
+                      @close="closeInstructions"
                     />
                     <LoadInstructions
                       v-else
                       ref="loadInstructionsRef"
                       @instruction-changed="onInstructionChanged"
+                      @close="closeInstructions"
                     />
                   </v-expansion-panel-text>
                 </v-expansion-panel>
@@ -421,6 +423,13 @@ const onInstructionChanged = (step: number) => {
       step.toString(),
     );
   }
+};
+
+const closeInstructions = () => {
+  expandedPanel.value = [];
+  router.replace({
+    query: { ...route.query, instructions: undefined, tab: undefined },
+  });
 };
 
 const restoreInstructionState = () => {

@@ -1,5 +1,17 @@
 <template>
   <div class="scroll-container">
+    <div class="d-flex justify-end mb-3">
+      <v-btn
+        @click="$emit('close')"
+        variant="outlined"
+        size="small"
+        color="error"
+        prepend-icon="mdi-close"
+        class="close-btn"
+      >
+        Close Instructions
+      </v-btn>
+    </div>
     <v-stepper
       mobile
       :items="steps"
@@ -226,6 +238,7 @@ const steps = [
 const emit = defineEmits<{
   save: [];
   "instruction-changed": [step: number];
+  close: [];
 }>();
 
 const currentStep = ref(1);
@@ -257,6 +270,12 @@ watch(
 </script>
 
 <style scoped>
+.close-btn {
+  min-width: 140px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 .custom-stepper {
   width: 100%;
   background: transparent;
@@ -345,6 +364,11 @@ watch(
 }
 
 @media (max-width: 600px) {
+  .close-btn {
+    min-width: 100px;
+    font-size: 0.75rem;
+  }
+
   .step-content {
     padding: 8px !important;
   }
@@ -413,6 +437,11 @@ watch(
 }
 
 @media (max-width: 480px) {
+  .close-btn {
+    min-width: 80px;
+    font-size: 0.7rem;
+  }
+
   .step-title {
     font-size: 0.8rem;
   }
