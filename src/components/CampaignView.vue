@@ -34,7 +34,7 @@
                       v-if="showSaveCampaignButton"
                       @click="openSavePanel"
                     >
-                      <CampaignSavePut :campaign-id="campaignId" block class="mx-1 my-1" />
+                      <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" block class="mx-1 my-1" />
                     </v-list-item>
 
                     <v-list-item @click="toggleInstructions">
@@ -87,7 +87,7 @@
               </BaseAlert>
             </v-card-text>
 
-            <v-card-text v-if="expandedPanel.length" class="pa-2">
+            <v-card-text v-if="expandedPanel.length" class="pa-0">
               <v-expansion-panels
                 v-model="expandedPanel"
                 accordion
@@ -95,7 +95,7 @@
                 class="instructions-panel"
               >
                 <v-expansion-panel>
-                  <v-expansion-panel-text class="pa-2">
+                  <v-expansion-panel-text class="pa-0">
                     <v-tabs
                       v-model="instructionTab"
                       density="compact"
@@ -689,7 +689,6 @@ watch(
 }
 
 .campaign-content {
-  padding-top: 1rem;
   overflow-x: hidden;
 }
 
@@ -715,7 +714,7 @@ watch(
 }
 
 .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-  max-height: 35vh;
+  max-height: 25vh;
   overflow-y: auto;
 }
 
