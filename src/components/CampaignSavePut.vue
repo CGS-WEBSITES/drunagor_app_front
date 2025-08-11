@@ -5,6 +5,7 @@
     rounded 
     @click="handleClick"
   >
+    <v-icon start>mdi-content-save-outline</v-icon>
     {{ t("label.save-campaign-put") }}
   </v-btn>
 </template>
@@ -46,7 +47,7 @@ function compressCampaign(campaignId: string) {
 async function saveCampaign() {
   const party_name = compressCampaign(props.campaignId);
 
-  await axios
+  return await axios
     .put(`campaigns/alter/${props.campaignId}`, {
       tracker_hash: token.value,
       party_name: party_name,
@@ -57,7 +58,7 @@ async function saveCampaign() {
     })
     .catch((err) => {
       emit("fail");
-      return false;
+      throw err;
     });
 }
 
