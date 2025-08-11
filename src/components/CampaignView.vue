@@ -30,11 +30,17 @@
                   </template>
 
                   <v-list density="compact">
-                    <v-list-item
-                      v-if="showSaveCampaignButton"
-                      @click="openSavePanel"
-                    >
-                      <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" block class="mx-1 my-1" />
+                    <v-list-item v-if="showSaveCampaignButton">
+                      <v-btn
+                        variant="elevated"
+                        rounded
+                        prepend-icon="mdi-content-save-outline"
+                        block
+                        class="mx-1 my-1"
+                        @click="openSavePanel"
+                      >
+                        {{ t("label.save-campaign-put") || "Save Campaign" }}
+                      </v-btn>
                     </v-list-item>
 
                     <v-list-item @click="toggleInstructions">
@@ -71,6 +77,14 @@
                     </v-list-item>
                   </v-list>
                 </v-menu>
+              </div>
+              <div style="display: none">
+                <CampaignSavePut
+                  ref="savePutRef"
+                  :campaign-id="campaignId"
+                  @success="onSaveSuccess"
+                  @fail="onSaveFail"
+                />
               </div>
             </v-card-actions>
 
@@ -343,6 +357,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
@@ -375,7 +390,7 @@ const heroStore = HeroStore();
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
-
+const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isSequentialAdventure = ref(true);
@@ -563,25 +578,42 @@ const openSavePanel = () => {
   });
 };
 
-const handleSave = () => {
-  savePutRef.value
-    ?.save()
-    .then(() =>
-      setAlert(
-        "mdi-check",
-        "Success",
-        "The campaign was saved successfully!",
-        "success",
-      ),
-    )
-    .catch(() =>
-      setAlert(
-        "mdi-alert-circle",
-        "Error",
-        "The campaign could not be saved.",
-        "error",
-      ),
+const handleSave = async () => { 
+  if (!savePutRef.value) {
+    console.error("savePutRef não está disponível");
+    setAlert(
+      "mdi-alert-circle",
+      "Error",
+      "Save component not initialized. Please try again.",
+      "error"
     );
+    return;
+  }
+
+  try {
+    await savePutRef.value.save();
+  } catch (error) {
+    console.error("Erro ao salvar:", error);
+  }
+};
+
+const onSaveSuccess = () => {
+  setAlert(
+    "mdi-check",
+    "Success",
+    "The campaign was saved successfully!",
+    "success"
+  );
+  closeInstructions();
+};
+
+const onSaveFail = () => {
+  setAlert(
+    "mdi-alert-circle",
+    "Error",
+    "The campaign could not be saved.",
+    "error"
+  );
 };
 
 const fetchRole = async () => {
@@ -740,7 +772,7 @@ watch(
 }
 
 .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-  max-height: 25vh;
+  max-height: 30vh;
   overflow-y: auto;
 }
 

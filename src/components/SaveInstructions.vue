@@ -240,11 +240,14 @@
           </v-alert>
           <div class="d-flex justify-end mt-4">
             <v-btn
-              color="white"
-              @click="$emit('save')"
+              @click="handleSaveClick"
               class="save-btn"
               rounded
+              color="primary"
+              variant="elevated"
+              :loading="saving"
             >
+              <v-icon start>mdi-content-save</v-icon>
               Save Campaign
             </v-btn>
           </div>
@@ -274,6 +277,7 @@ const emit = defineEmits<{
 }>();
 
 const currentStep = ref(1);
+const saving = ref(false);
 
 const setCurrentStep = (step: number) => {
   if (step >= 1 && step <= steps.length) {
@@ -281,8 +285,18 @@ const setCurrentStep = (step: number) => {
   }
 };
 
+const handleSaveClick = () => {
+  saving.value = true;
+  emit("save");
+  
+  setTimeout(() => {
+    saving.value = false;
+  }, 5000);
+};
+
 defineExpose({
   setCurrentStep,
+  resetLoading: () => { saving.value = false; }
 });
 
 const onStepChange = (value: unknown) => {
