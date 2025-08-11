@@ -242,7 +242,7 @@
               <div class="mt-2">Until next time, dear Adventurer!</div>
             </v-alert>
             <v-card-actions class="justify-end mt-4">
-              <v-btn color="white" @click="$emit('save')" class="save-btn">
+              <v-btn color="white" @click="$emit('save')" class="save-btn" rounded>
                 Save Campaign
               </v-btn>
             </v-card-actions>

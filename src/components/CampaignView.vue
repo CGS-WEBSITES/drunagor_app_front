@@ -33,16 +33,20 @@
                     <v-list-item
                       v-if="showSaveCampaignButton"
                       @click="openSavePanel"
-                      prepend-icon="mdi-content-save"
                     >
-                      <v-list-item-title>Save Campaign</v-list-item-title>
+                      <CampaignSavePut :campaign-id="campaignId" block class="mx-1 my-1" />
                     </v-list-item>
 
-                    <v-list-item
-                      @click="toggleInstructions"
-                      prepend-icon="mdi-lightbulb-on-outline"
-                    >
-                      <v-list-item-title>Instructions</v-list-item-title>
+                    <v-list-item @click="toggleInstructions">
+                      <v-btn
+                        variant="elevated"
+                        rounded
+                        prepend-icon="mdi-lightbulb-on-outline"
+                        block
+                        class="mx-1 my-1"
+                      >
+                        Instructions
+                      </v-btn>
                     </v-list-item>
 
                     <v-divider class="my-1"></v-divider>
