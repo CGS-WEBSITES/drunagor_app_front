@@ -144,6 +144,7 @@
                 bg-color="surface"
                 class="mb-3 rounded"
                 slider-color="white"
+                @update:model-value="onTabChange"
               >
                 <v-tab value="normal" class="text-caption">
                   <v-icon size="small" class="mr-1"
@@ -518,6 +519,22 @@ const restoreInstructionState = () => {
 
       router.replace({
         query: { instructions: "open", tab: "load" },
+      });
+    }
+  }
+};
+
+const onTabChange = (newTab: string) => {
+  if (newTab === "book") {
+    if (expandedPanel.value.length > 0) {
+      closeInstructions();
+    }
+  } else if (newTab === "normal") {
+    if (expandedPanel.value.length === 0) {
+      instructionTab.value = "load";
+      expandedPanel.value = [0];
+      router.replace({
+        query: { ...route.query, instructions: "open", tab: "load" },
       });
     }
   }
