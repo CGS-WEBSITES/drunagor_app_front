@@ -186,7 +186,17 @@
                           :campaign-id="campaignId"
                           density="compact"
                         />
-                        <div class="d-flex justify-end mt-2">
+                        <div class="d-flex justify-space-between align-center mt-2 flex-wrap">
+                          <v-btn
+                            v-if="showSaveCampaignButton"
+                            class="mx-1 my-1"
+                            @click="openTransferDialog"
+                            variant="elevated"
+                            rounded
+                            prepend-icon="mdi-account-switch-outline"  
+                          >
+                            Transfer Drunagor Master
+                          </v-btn>
                           <RemovePlayersButton
                             :campaignId="campaignId"
                             :showSaveCampaignButton="showSaveCampaignButton"
@@ -204,6 +214,7 @@
                         <SelectDoor :campaign-id="campaignId" />
                       </v-col>
                     </v-row>
+
                     <v-row v-if="isSequentialAdventure" class="mb-3" no-gutters>
                       <v-col cols="12">
                         <CampaignRunes :campaign-id="campaignId" />
@@ -353,6 +364,71 @@
       </template>
     </v-container>
   </div>
+
+  <v-dialog v-model="transferDialogVisible" max-width="400px">
+    <v-card>
+      <v-card-title>Transfer Drunagor Master</v-card-title>
+      <v-card-text v-if="transferAlertVisible" class="pa-2">
+        <BaseAlert
+          v-model="transferAlertVisible"
+          :type="transferAlertType"
+          text
+          border="start"
+          variant="tonal"
+          closable
+        >
+          {{ transferAlertText }}
+        </BaseAlert>
+      </v-card-text>
+      <v-card-text>
+        <div v-if="transferLoading" class="d-flex justify-center pa-4">
+          <v-progress-circular indeterminate color="primary" />
+        </div>
+        <template v-else>
+          <v-list v-if="!confirmingTransfer">
+            <v-list-item
+              v-for="user in players"
+              :key="user.rl_campaigns_users_pk"
+              :disabled="user.party_roles_fk === 1"
+              @click="initTransfer(user)"
+            >
+              <v-list-item-title>
+                {{ user.user_name }} — {{ user.role_name }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+          <div v-else class="pa-4">
+            <p class="text-center">
+              Do you want to transfer Drunagor Master to
+              <strong>{{ selectedUser!.user_name }}</strong
+              >?
+            </p>
+          </div>
+        </template>
+      </v-card-text>
+      <v-card-actions v-if="!confirmingTransfer" class="d-flex justify-end">
+        <v-btn
+          variant="text"
+          @click="closeTransferDialog"
+          :disabled="transferLoading"
+        >
+          Close
+        </v-btn>
+      </v-card-actions>
+      <v-card-actions v-if="confirmingTransfer" class="d-flex justify-end">
+        <v-btn color="red" :disabled="transferLoading" @click="cancelTransfer">
+          No
+        </v-btn>
+        <v-btn
+          color="green"
+          :disabled="transferLoading"
+          @click="confirmTransfer"
+        >
+          Yes
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -369,7 +445,7 @@ import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { type Campaign } from "@/store/Campaign";
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref, onMounted, watch, nextTick, onBeforeUnmount } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
@@ -416,9 +492,133 @@ const saveInstructionsRef = vueRef<InstanceType<
   typeof SaveInstructions
 > | null>(null);
 
+// New refs and logic for Transfer Master feature
+const transferLoading = ref(false);
+const transferDialogVisible = ref(false);
+const players = ref<
+  Array<{
+    rl_campaigns_users_pk: number;
+    user_name: string;
+    role_name: string;
+    party_roles_fk: number;
+    users_fk: number;
+  }>
+>([]);
+const selectedUser = ref<(typeof players.value)[0] | null>(null);
+const confirmingTransfer = ref(false);
+const originalMaster = ref<(typeof players.value)[0] | null>(null);
+const transferAlertVisible = ref(false);
+const transferAlertText = ref("");
+const transferAlertType = ref<"success" | "error">("success");
+
+const initTransfer = (user: (typeof players.value)[0]) => {
+  selectedUser.value = user;
+  confirmingTransfer.value = true;
+};
+
+const openTransferDialog = () => {
+  transferDialogVisible.value = true;
+  transferLoading.value = true;
+  axios
+    .get("/rl_campaigns_users/list_players", {
+      params: { campaigns_fk: campaignId },
+    })
+    .then(({ data }) => {
+      players.value = data.Users;
+      originalMaster.value =
+        players.value.find((u) => u.party_roles_fk === 1) || null;
+    })
+    .catch((err) => {
+      console.error("Error fetching players:", err);
+    })
+    .finally(() => {
+      transferLoading.value = false;
+    });
+};
+
+const confirmTransfer = () => {
+  if (!selectedUser.value || !originalMaster.value) return;
+  transferLoading.value = true;
+  const promote = axios.put("/rl_campaigns_users/alter", {
+    rl_campaigns_users_pk: selectedUser.value.rl_campaigns_users_pk,
+    party_roles_fk: 1,
+  });
+  const demote = axios.put("/rl_campaigns_users/alter", {
+    rl_campaigns_users_pk: originalMaster.value.rl_campaigns_users_pk,
+    party_roles_fk: 2,
+  });
+  Promise.all([promote, demote])
+    .then(() => {
+      transferAlertText.value = "Transfer successful!";
+      transferAlertType.value = "success";
+      transferAlertVisible.value = true;
+      setTimeout(() => {
+        transferAlertVisible.value = false;
+        closeTransferDialog();
+        // Optional: force a refresh or navigate away since user is no longer the master
+        router.push({ name: 'Campaigns' }); 
+      }, 1500);
+    })
+    .catch((err) => {
+      const payload = err.response?.data;
+      transferAlertText.value =
+        payload?.message || JSON.stringify(payload?.errors || {});
+      transferAlertType.value = "error";
+      transferAlertVisible.value = true;
+      setTimeout(() => {
+        transferAlertVisible.value = false;
+      }, 1500);
+    })
+    .finally(() => {
+      transferLoading.value = false;
+      confirmingTransfer.value = false;
+      selectedUser.value = null;
+    });
+};
+
+const cancelTransfer = () => {
+  confirmingTransfer.value = false;
+  selectedUser.value = null;
+};
+
+const closeTransferDialog = () => {
+  transferDialogVisible.value = false;
+  confirmingTransfer.value = false;
+  selectedUser.value = null;
+};
+
+watch(transferAlertVisible, (newVal) => {
+  if (!newVal && transferAlertType.value === 'success') {
+    closeTransferDialog();
+  }
+});
+
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
 const getInstructionStepKey = (tab: string) =>
   `campaign_${campaignId}_instruction_step_${tab}`;
+const getSessionStateKey = () => `campaign_${campaignId}_session_state`;
+
+const saveSessionState = () => {
+  if (typeof window !== "undefined") {
+    const state = {
+      expanded: expandedPanel.value.length > 0,
+      tab: instructionTab.value,
+      currentTab: currentTab.value,
+      timestamp: Date.now(),
+      saveStep:
+        instructionTab.value === "save"
+          ? localStorage.getItem(getInstructionStepKey("save"))
+          : null,
+      loadStep:
+        instructionTab.value === "load"
+          ? localStorage.getItem(getInstructionStepKey("load"))
+          : null,
+    };
+    localStorage.setItem(getSessionStateKey(), JSON.stringify(state));
+
+    saveInstructionState();
+  }
+};
 
 const saveInstructionState = () => {
   if (typeof window !== "undefined") {
@@ -437,11 +637,18 @@ const onInstructionChanged = (step: number) => {
       getInstructionStepKey(instructionTab.value),
       step.toString(),
     );
+    saveSessionState();
   }
 };
 
 const closeInstructions = () => {
   expandedPanel.value = [];
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(getSessionStateKey());
+    localStorage.removeItem(getInstructionStateKey());
+    localStorage.removeItem(getInstructionStepKey("save"));
+    localStorage.removeItem(getInstructionStepKey("load"));
+  }
   router.replace({
     query: { ...route.query, instructions: undefined, tab: undefined },
   });
@@ -449,6 +656,53 @@ const closeInstructions = () => {
 
 const restoreInstructionState = () => {
   if (typeof window === "undefined") return;
+
+  const sessionStateStr = localStorage.getItem(getSessionStateKey());
+  if (sessionStateStr) {
+    try {
+      const sessionState = JSON.parse(sessionStateStr);
+      const now = Date.now();
+      const thirtyMinutes = 30 * 60 * 1000;
+
+      if (now - sessionState.timestamp < thirtyMinutes) {
+        if (sessionState.expanded) {
+          expandedPanel.value = [0];
+          instructionTab.value = sessionState.tab;
+
+          if (
+            campaign.value?.campaign === "underkeep" &&
+            sessionState.currentTab
+          ) {
+            currentTab.value = sessionState.currentTab;
+          }
+
+          nextTick(() => {
+            if (sessionState.tab === "save" && sessionState.saveStep) {
+              const step = parseInt(sessionState.saveStep);
+              saveInstructionsRef.value?.setCurrentStep(step);
+            } else if (sessionState.tab === "load" && sessionState.loadStep) {
+              const step = parseInt(sessionState.loadStep);
+              loadInstructionsRef.value?.setCurrentStep(step);
+            }
+          });
+
+          router.replace({
+            query: {
+              ...route.query,
+              instructions: "open",
+              tab: sessionState.tab,
+            },
+          });
+        }
+        return;
+      } else {
+        localStorage.removeItem(getSessionStateKey());
+      }
+    } catch (error) {
+      console.error("Error restoring session state:", error);
+      localStorage.removeItem(getSessionStateKey());
+    }
+  }
 
   if (route.query.instructions === "open") {
     const queryTab = route.query.tab as string;
@@ -541,9 +795,29 @@ const restoreInstructionState = () => {
 const onTabChange = (newTab: string) => {
   if (newTab === "book") {
     if (expandedPanel.value.length > 0) {
+      saveSessionState();
       closeInstructions();
     }
   } else if (newTab === "normal") {
+    const sessionStateStr = localStorage.getItem(getSessionStateKey());
+    if (sessionStateStr) {
+      try {
+        const sessionState = JSON.parse(sessionStateStr);
+        const now = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000;
+
+        if (
+          now - sessionState.timestamp < thirtyMinutes &&
+          sessionState.expanded
+        ) {
+          restoreInstructionState();
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking session state:", error);
+      }
+    }
+
     if (expandedPanel.value.length === 0) {
       instructionTab.value = "load";
       expandedPanel.value = [0];
@@ -556,10 +830,7 @@ const onTabChange = (newTab: string) => {
 
 const toggleInstructions = () => {
   if (expandedPanel.value.length) {
-    expandedPanel.value = [];
-    router.replace({
-      query: { ...route.query, instructions: undefined, tab: undefined },
-    });
+    closeInstructions();
   } else {
     instructionTab.value = "load";
     expandedPanel.value = [0];
@@ -577,14 +848,14 @@ const openSavePanel = () => {
   });
 };
 
-const handleSave = async () => { 
+const handleSave = async () => {
   if (!savePutRef.value) {
     console.error("savePutRef não está disponível");
     setAlert(
       "mdi-alert-circle",
       "Error",
       "Save component not initialized. Please try again.",
-      "error"
+      "error",
     );
     return;
   }
@@ -601,7 +872,7 @@ const onSaveSuccess = () => {
     "mdi-check",
     "Success",
     "The campaign was saved successfully!",
-    "success"
+    "success",
   );
   closeInstructions();
 };
@@ -611,7 +882,7 @@ const onSaveFail = () => {
     "mdi-alert-circle",
     "Error",
     "The campaign could not be saved.",
-    "error"
+    "error",
   );
 };
 
@@ -632,7 +903,7 @@ const setAlert = (
   title: string,
   text: string,
   type: "success" | "info" | "warning" | "error" | undefined,
-  duration: number = 1500
+  duration: number = 1500,
 ) => {
   alertIcon.value = icon;
   alertTitle.value = title;
@@ -648,6 +919,12 @@ const onPlayerRemoved = async () => {
   setAlert("mdi-check", "Success", "Player successfully removed", "success");
   await campaignPlayerListRef.value?.fetchPlayers();
 };
+
+onBeforeUnmount(() => {
+  if (expandedPanel.value.length > 0) {
+    saveSessionState();
+  }
+});
 
 onMounted(async () => {
   const foundCampaign = campaignStore.find(campaignId);
@@ -667,7 +944,15 @@ onMounted(async () => {
   restoreInstructionState();
 });
 
-watch([expandedPanel, instructionTab], saveInstructionState, { deep: true });
+watch(
+  [expandedPanel, instructionTab, currentTab],
+  () => {
+    if (expandedPanel.value.length > 0) {
+      saveSessionState();
+    }
+  },
+  { deep: true },
+);
 
 watch(instructionTab, (newTab) => {
   if (expandedPanel.value.length) {
@@ -677,6 +962,8 @@ watch(instructionTab, (newTab) => {
     router.replace({
       query: { ...route.query, instructions: "open", tab },
     });
+
+    saveSessionState();
   }
 });
 
