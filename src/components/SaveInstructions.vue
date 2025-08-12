@@ -3,10 +3,10 @@
     <div class="d-flex justify-end mb-3">
       <v-btn
         @click="$emit('close')"
-        variant="outlined"
         size="small"
         color="error"
         prepend-icon="mdi-close"
+        rounded="pill" 
         class="close-btn"
       >
         Close Instructions

@@ -2,10 +2,10 @@
   <div class="scroll-container">
     <v-btn
       @click="$emit('close')"
-      variant="outlined"
       size="small"
       color="error"
       prepend-icon="mdi-close"
+      rounded="pill" 
       class="close-btn"
     >
       Close Instructions
