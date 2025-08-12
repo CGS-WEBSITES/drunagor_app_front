@@ -12,8 +12,8 @@
               variant="tonal"
               :closable="false"
             >
-              Players can only view this campaign. Only a Drunagor Master can
-              save or delete a campaign.
+              Players can only view information for this campaign.
+              Only a Drunagor Master can save, edit, or delete a campaign.
             </BaseAlert>
           </v-card-text>
           <v-card class="mb-2" color="primary">
