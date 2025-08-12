@@ -223,7 +223,7 @@
 
                     <v-row class="mb-3" no-gutters>
                       <v-col cols="12">
-                        <v-card class="pa-2" color="surface-variant">
+                        <v-card class="pa-2" color="primary">
                           <div class="d-flex justify-center flex-wrap gap-2">
                             <CampaignLogAddHero
                               :campaign-id="campaignId"
