@@ -2,7 +2,7 @@
   <div class="campaign-menu">
     <v-container fluid class="pa-2">
       <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="10" xl="8">
+        <v-col cols="12" lg="9" xl="8">
           <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
             <BaseAlert
               :modelValue="true"
@@ -16,7 +16,6 @@
               save or delete a campaign.
             </BaseAlert>
           </v-card-text>
-
           <v-card class="mb-2" color="primary">
             <v-card-actions class="pa-2">
               <div class="d-flex justify-center w-100">
@@ -223,7 +222,7 @@
 
                     <v-row class="mb-3" no-gutters>
                       <v-col cols="12">
-                        <v-card class="pa-2" color="surface-variant">
+                        <v-card class="pa-2" color="primary">
                           <div class="d-flex justify-center flex-wrap gap-2">
                             <CampaignLogAddHero
                               :campaign-id="campaignId"
