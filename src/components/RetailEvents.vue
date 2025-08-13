@@ -1121,14 +1121,8 @@ const currentShowPast = computed({
 });
 
 const downloadPdf = (bookName) => {
-  const baseUrl = assets && typeof assets.value !== "undefined" ? assets.value : assets;
-  if (!baseUrl) {
-    console.error("URL base dos assets não definida.");
-    errorDialog.value = { show: true, message: "Could not find the download link." };
-    return;
-  }
-
-  const url = `${baseUrl}/book/${bookName}.pdf`;
+  const fileName = bookName.endsWith('.pdf') ? bookName : `${bookName}.pdf`;
+  const url = `https://druna-assets.s3.us-east-2.amazonaws.com/book/${fileName}`;
   window.open(url, '_blank');
   pdfDialog.value = false;
 };
