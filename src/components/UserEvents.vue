@@ -990,7 +990,6 @@ oneYearFromToday.setFullYear(today.getFullYear() + 1);
 
 const openDialog = (event) => {
   selectedEvent.value = event;
-  console.log("Selected event:", selectedEvent.value);
   dialog.value = true;
   fetchPlayers(event.events_pk);
 
@@ -1097,7 +1096,6 @@ const loadCampaign = () => {
     })
     .then(({ data }) => {
       campaigns.value = data.campaigns;
-      console.log("Campaigns loaded:", campaigns.value);
 
       selectedLoadCampaign.value = null;
       showLoadDialog.value = true;
@@ -1117,43 +1115,36 @@ const loadCampaign = () => {
 
 const confirmLoadCampaign = () => {
   if (!selectedLoadCampaign.value) return;
+  
   loading.value = true;
-  console.log("selectedLoadCampaign:", selectedLoadCampaign.value);
-  axios
-    .post("/rl_campaigns_users/cadastro", {
-      users_fk: userStore.user.users_pk,
-      campaigns_fk: selectedLoadCampaign.value,
-      party_roles_fk: 1,
-      skus_fk: BOX_ID,
-    })
-    .then(() => {
-      toast.add({
-        severity: "success",
-        summary: "Success",
-        detail: "Campaign selected!",
-      });
-      router.push({
-        path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
-        query: {
-          sku: String(BOX_ID),
-          openInstructions: 'load',
-        },
-      });
-    })
-    .catch((err) => {
-      console.error("Failed to select campaign:", err);
-      toast.add({
-        severity: "error",
-        summary: "Error",
-        detail: "Could not select campaign.",
-      });
-    })
-    .finally(() => {
-      loading.value = false;
-      showLoadDialog.value = false;
-      showCampaignDialog.value = false;
-      myDialog.value = false;
+  
+  try {
+    toast.add({
+      severity: "success",
+      summary: "Success",
+      detail: "Campaign loaded!",
     });
+    
+    router.push({
+      path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
+      query: {
+        sku: String(BOX_ID),
+        openInstructions: 'load',
+      },
+    });
+  } catch (err) {
+    console.error("Failed to load campaign:", err);
+    toast.add({
+      severity: "error",
+      summary: "Error",
+      detail: "Could not load campaign.",
+    });
+    loading.value = false;
+  } finally {
+    showLoadDialog.value = false;
+    showCampaignDialog.value = false;
+    myDialog.value = false;
+  }
 };
 
 const fetchPlayerEvents = async (past) => {

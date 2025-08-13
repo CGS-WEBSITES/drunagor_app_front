@@ -160,8 +160,19 @@ const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
 const heroStore = HeroStore();
 const campaignHero = heroStore.findInCampaign(heroId, campaignId);
 
-if (typeof campaignHero.classAbilityCount === "undefined") {
-  campaignHero.classAbilityCount = 0;
+if (campaignHero) {
+  if (!campaignHero.items) {
+    campaignHero.items = [];
+  }
+  if (!campaignHero.stash) {
+    campaignHero.stash = [];
+  }
+  if (!campaignHero.skills) {
+    campaignHero.skills = {};
+  }
+  if (typeof campaignHero.classAbilityCount === 'undefined') {
+    campaignHero.classAbilityCount = 0;
+  }
 }
 
 const localClassAbilityCount = ref(campaignHero.classAbilityCount);
@@ -184,7 +195,7 @@ function onStash() {
 }
 
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
-const getInstructionStepKey = (tab: string) => 
+const getInstructionStepKey = (tab: string) =>
   `campaign_${campaignId}_instruction_step_${tab}`;
 
 const getInstructionState = () => {
@@ -195,7 +206,7 @@ const getInstructionState = () => {
       if (stateStr) {
         const state = JSON.parse(stateStr);
         const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000; 
+        const thirtyMinutes = 30 * 60 * 1000;
 
         if (now - state.timestamp < thirtyMinutes) {
           const stepStr = localStorage.getItem(getInstructionStepKey(state.tab));

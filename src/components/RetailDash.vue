@@ -189,7 +189,7 @@
                 style="cursor: pointer"
               >
                 <v-img
-                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-desk.png"
                 />
               </v-card>
             </v-col>
@@ -251,7 +251,7 @@
               style="cursor: pointer"
             >
               <v-img
-                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-mobile.png"
               />
             </v-card>
           </v-col>

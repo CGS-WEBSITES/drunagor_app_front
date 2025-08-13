@@ -2,7 +2,7 @@
   <div class="campaign-menu">
     <v-container fluid class="pa-2">
       <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="10" xl="8">
+        <v-col cols="12" lg="9" xl="8">
           <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
             <BaseAlert
               :modelValue="true"
@@ -12,15 +12,14 @@
               variant="tonal"
               :closable="false"
             >
-              Players can only view this campaign. Only a Drunagor Master can
-              save or delete a campaign.
+              Players can only view information for this campaign. Only a
+              Drunagor Master can save, edit, or delete a campaign.
             </BaseAlert>
           </v-card-text>
-
           <v-card class="mb-2" color="primary">
             <v-card-actions class="pa-2">
               <div class="d-flex justify-center w-100">
-                <v-menu offset-y>
+                <v-menu v-model="menu" :close-on-content-click="false" offset-y>
                   <template #activator="{ props }">
                     <v-btn v-bind="props" variant="elevated" rounded>
                       <v-icon start>mdi-cog</v-icon>
@@ -57,24 +56,22 @@
 
                     <v-divider class="my-1"></v-divider>
 
-                    <div v-if="showSaveCampaignButton">
-                      <v-list-item>
-                        <CampaignRemove :campaign-id="campaignId" block />
-                      </v-list-item>
+                    <div v-if="showSaveCampaignButton" class="px-2 py-1">
+                      <CampaignRemove :campaign-id="campaignId" block />
                     </div>
 
-                    <v-list-item>
+                    <div class="px-2 py-1">
                       <fieldset
                         :disabled="!showSaveCampaignButton"
                         class="d-contents"
                       >
                         <CampaignExport :campaign-id="campaignId" block />
                       </fieldset>
-                    </v-list-item>
+                    </div>
 
-                    <v-list-item>
+                    <div class="px-2 py-1">
                       <ShareCampaignButton :campaignId="campaignId" block />
-                    </v-list-item>
+                    </div>
                   </v-list>
                 </v-menu>
               </div>
@@ -186,14 +183,16 @@
                           :campaign-id="campaignId"
                           density="compact"
                         />
-                        <div class="d-flex justify-space-between align-center mt-2 flex-wrap">
+                        <div
+                          class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                        >
                           <v-btn
                             v-if="showSaveCampaignButton"
                             class="mx-1 my-1"
                             @click="openTransferDialog"
                             variant="elevated"
                             rounded
-                            prepend-icon="mdi-account-switch-outline"  
+                            prepend-icon="mdi-account-switch-outline"
                           >
                             Transfer Drunagor Master
                           </v-btn>
@@ -223,7 +222,7 @@
 
                     <v-row class="mb-3" no-gutters>
                       <v-col cols="12">
-                        <v-card class="pa-2" color="surface-variant">
+                        <v-card class="pa-2" color="primary">
                           <div class="d-flex justify-center flex-wrap gap-2">
                             <CampaignLogAddHero
                               :campaign-id="campaignId"
@@ -510,6 +509,7 @@ const originalMaster = ref<(typeof players.value)[0] | null>(null);
 const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
+const menu = ref(false); 
 
 const initTransfer = (user: (typeof players.value)[0]) => {
   selectedUser.value = user;
@@ -556,7 +556,7 @@ const confirmTransfer = () => {
         transferAlertVisible.value = false;
         closeTransferDialog();
         // Optional: force a refresh or navigate away since user is no longer the master
-        router.push({ name: 'Campaigns' }); 
+        router.push({ name: "Campaigns" });
       }, 1500);
     })
     .catch((err) => {
@@ -588,7 +588,7 @@ const closeTransferDialog = () => {
 };
 
 watch(transferAlertVisible, (newVal) => {
-  if (!newVal && transferAlertType.value === 'success') {
+  if (!newVal && transferAlertType.value === "success") {
     closeTransferDialog();
   }
 });

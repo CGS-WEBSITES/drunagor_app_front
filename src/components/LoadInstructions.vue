@@ -1,17 +1,15 @@
 <template>
   <div class="scroll-container">
-    <div class="d-flex justify-end mb-3">
-      <v-btn
-        @click="$emit('close')"
-        variant="outlined"
-        size="small"
-        color="error"
-        prepend-icon="mdi-close"
-        class="close-btn"
-      >
-        Close Instructions
-      </v-btn>
-    </div>
+    <v-btn
+      @click="$emit('close')"
+      size="small"
+      color="error"
+      prepend-icon="mdi-close"
+      rounded="pill" 
+      class="close-btn"
+    >
+      Close Instructions
+    </v-btn>
     <v-stepper
       mobile
       :items="steps"
@@ -271,9 +269,14 @@ watch(
 
 <style scoped>
 .close-btn {
+  position: absolute; 
+  top: 16px;         
+  right: 16px;       
   min-width: 140px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 500;
+  z-index: 1000 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 .custom-stepper {
@@ -336,12 +339,19 @@ watch(
 }
 
 .scroll-container {
+  position: relative; 
+  padding-top: 56px;
   max-height: 70vh;
   overflow-y: auto;
   padding-right: 8px;
 }
 
 @media (max-width: 960px) {
+  .close-btn {
+    min-width: 120px;
+    font-size: 0.8rem;
+  }
+
   .step-title {
     font-size: 0.9rem;
   }
@@ -367,6 +377,12 @@ watch(
   .close-btn {
     min-width: 100px;
     font-size: 0.75rem;
+    top: 8px;         
+    right: 8px;       
+  }
+
+  .scroll-container {
+    padding-top: 48px; 
   }
 
   .step-content {
