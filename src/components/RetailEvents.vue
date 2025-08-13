@@ -1,4 +1,57 @@
 <template>
+  <v-dialog v-model="pdfDialog" max-width="500">
+  <v-card class="dark-background">
+    <v-card-text class="text-center pt-6">
+      <p>Please select which book you would like to download.</p>
+    </v-card-text>
+
+    <v-card-actions class="d-flex justify-center flex-column pa-4 pt-1">
+      <v-btn
+        color="secundary"
+        block
+        class="mb-4 font-weight-bold"
+        size="x-large"
+        height="72"
+        @click="downloadPdf('adventure_book')"
+      >
+        <v-icon start>mdi-book-open-page-variant-outline</v-icon>
+        ADVENTURE BOOK
+        <v-icon end>mdi-download</v-icon>
+      </v-btn>
+      <v-btn
+        color="secundary"
+        block
+        class="font-weight-bold"
+        size="x-large"
+        height="72"
+        @click="downloadPdf('tutorial_book')"
+      >
+        <v-icon start>mdi-book-open-page-variant-outline</v-icon>
+        TUTORIAL BOOK
+        <v-icon end>mdi-download</v-icon>
+      </v-btn>
+    </v-card-actions>
+
+    <v-card-actions>
+      <v-spacer />
+      <v-btn text @click="pdfDialog = false">Close</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+
+<v-btn
+  class="download-fab"
+  icon
+  color="primary"
+  size="large"
+  @click="pdfDialog = true"
+>
+  <v-icon>mdi-file-download-outline</v-icon>
+</v-btn>
+  
+  
+  
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
@@ -1028,6 +1081,7 @@ const errorDialog = ref({
   message: "",
 });
 const successDialog = ref(false);
+const pdfDialog = ref(false);
 
 const axios = inject("axios");
 if (!axios) {
@@ -1066,14 +1120,18 @@ const currentShowPast = computed({
   },
 });
 
-const pdfUrl = computed(() => {
-  const baseUrl =
-    assets && typeof assets.value !== "undefined" ? assets.value : assets;
+const downloadPdf = (bookName) => {
+  const baseUrl = assets && typeof assets.value !== "undefined" ? assets.value : assets;
   if (!baseUrl) {
-    return "#";
+    console.error("URL base dos assets não definida.");
+    errorDialog.value = { show: true, message: "Could not find the download link." };
+    return;
   }
-  return `${baseUrl}/book/test.pdf`;
-});
+
+  const url = `${baseUrl}/book/${bookName}.pdf`;
+  window.open(url, '_blank');
+  pdfDialog.value = false;
+};
 
 const mapUrl = computed(() => {
   const evt = selectedEvent.value;
