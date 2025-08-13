@@ -987,7 +987,6 @@ oneYearFromToday.setFullYear(today.getFullYear() + 1);
 
 const openDialog = (event) => {
   selectedEvent.value = event;
-  console.log("Selected event:", selectedEvent.value);
   dialog.value = true;
   fetchPlayers(event.events_pk);
 
@@ -1094,7 +1093,6 @@ const loadCampaign = () => {
     })
     .then(({ data }) => {
       campaigns.value = data.campaigns;
-      console.log("Campaigns loaded:", campaigns.value);
 
       selectedLoadCampaign.value = null;
       showLoadDialog.value = true;
@@ -1116,7 +1114,6 @@ const confirmLoadCampaign = () => {
   if (!selectedLoadCampaign.value) return;
   
   loading.value = true;
-  console.log("selectedLoadCampaign:", selectedLoadCampaign.value);
   
   try {
     toast.add({
@@ -1139,8 +1136,8 @@ const confirmLoadCampaign = () => {
       summary: "Error",
       detail: "Could not load campaign.",
     });
-  } finally {
     loading.value = false;
+  } finally {
     showLoadDialog.value = false;
     showCampaignDialog.value = false;
     myDialog.value = false;
