@@ -59,9 +59,11 @@
                 {{ t("label.skills") }}
               </div>
               <CampaignHeroSkills
-  :campaign-id="campaignId"
-  :hero-id="heroId"
-  :campaign="campaign"  :hero="hero"          ></CampaignHeroSkills>
+                :campaign-id="campaignId"
+                :hero-id="heroId"
+                :campaign="campaign"
+                :hero="hero"
+              ></CampaignHeroSkills>
             </v-col>
             <v-col cols="12">
               <v-divider></v-divider>
@@ -165,14 +167,10 @@ if (typeof campaignHero.classAbilityCount === "undefined") {
 const localClassAbilityCount = ref(campaignHero.classAbilityCount);
 
 watch(localClassAbilityCount, (newCount) => {
-  // A lógica de watch continua a mesma e é confiável
   campaignHero.classAbilityCount = Number(newCount) || 0;
 });
 
-// NOVA FUNÇÃO PARA A INTERFACE VISUAL
 function setAbilityCount(count: number) {
-  // Se o usuário clicar no mesmo chip que já está selecionado,
-  // interpretamos como um desejo de "desmarcar", voltando ao estado anterior.
   if (localClassAbilityCount.value === count) {
     localClassAbilityCount.value = count - 1;
   } else {
@@ -185,20 +183,70 @@ function onStash() {
   stash.value += 1;
 }
 
+const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
+const getInstructionStepKey = (tab: string) => 
+  `campaign_${campaignId}_instruction_step_${tab}`;
+
+const getInstructionState = () => {
+  if (typeof window !== "undefined") {
+    try {
+      const stateStr = localStorage.getItem(getInstructionStateKey());
+
+      if (stateStr) {
+        const state = JSON.parse(stateStr);
+        const now = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000; 
+
+        if (now - state.timestamp < thirtyMinutes) {
+          const stepStr = localStorage.getItem(getInstructionStepKey(state.tab));
+          return {
+            expanded: state.expanded,
+            tab: state.tab,
+            step: stepStr ? parseInt(stepStr) : undefined,
+          };
+        } else {
+          localStorage.removeItem(getInstructionStateKey());
+          localStorage.removeItem(getInstructionStepKey("load"));
+          localStorage.removeItem(getInstructionStepKey("save"));
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao obter estado das instruções:", error);
+    }
+  }
+  return null;
+};
+
 function saveAndGoBack() {
+  const instructionState = getInstructionState();
+
   if (savePutRef.value && savePutRef.value.save) {
     savePutRef.value.save().then(() => {
+      const query: any = {};
+
+      if (instructionState && instructionState.expanded) {
+        query.instructions = "open";
+        query.tab = instructionState.tab;
+      }
+
       router.push({
         name: "Campaign",
         params: { id: campaignId },
-        query: { instructions: "open", tab: "save" },
+        query: query,
       });
     });
   } else {
+    const query: any = {};
+
+    if (instructionState && instructionState.expanded) {
+      query.instructions = "open";
+      query.tab = instructionState.tab;
+    }
+
     router.push({
       name: "Campaign",
       params: { id: campaignId },
-      query: { instructions: "open", tab: "save" },
+      query: query,
     });
   }
 }

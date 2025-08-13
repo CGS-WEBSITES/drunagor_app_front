@@ -9,6 +9,7 @@ export class Campaign {
   public followerIds: string[] = [];
   public unfoldingIds: string[] = [];
   public backgroundAndTraitIds: string[] = [];
+  public runeCardIds: number[] = []; 
   public legacyTrail: {
     perseverance: number;
     tragedy: number;
