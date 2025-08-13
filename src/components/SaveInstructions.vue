@@ -3,10 +3,10 @@
     <div class="d-flex justify-end mb-3">
       <v-btn
         @click="$emit('close')"
-        variant="outlined"
         size="small"
         color="error"
         prepend-icon="mdi-close"
+        rounded="pill" 
         class="close-btn"
       >
         Close Instructions
@@ -316,6 +316,17 @@ watch(
 </script>
 
 <style scoped>
+.close-btn {
+  position: absolute; 
+  top: 16px;         
+  right: 16px;       
+  min-width: 140px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 1000 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
 .custom-stepper {
   width: 100%;
   background: transparent;
@@ -369,23 +380,26 @@ watch(
   overflow-wrap: break-word;
 }
 
+.alert-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
 .scroll-container {
+  position: relative; 
+  padding-top: 56px;
   max-height: 70vh;
   overflow-y: auto;
   padding-right: 8px;
 }
 
-.save-btn {
-  min-width: 120px;
-}
-
-.close-btn {
-  min-width: 140px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
 @media (max-width: 960px) {
+  .close-btn {
+    min-width: 120px;
+    font-size: 0.8rem;
+  }
+
   .step-title {
     font-size: 0.9rem;
   }
@@ -401,12 +415,22 @@ watch(
   .custom-alert {
     font-size: 0.8rem;
   }
+
+  .alert-title {
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 600px) {
   .close-btn {
     min-width: 100px;
     font-size: 0.75rem;
+    top: 8px;         
+    right: 8px;       
+  }
+
+  .scroll-container {
+    padding-top: 48px; 
   }
 
   .step-content {
@@ -435,6 +459,10 @@ watch(
     line-height: 1.2 !important;
   }
 
+  .alert-title {
+    font-size: 0.9rem;
+  }
+
   .custom-list-item {
     min-height: 32px;
     padding: 2px 0;
@@ -443,11 +471,6 @@ watch(
   .scroll-container {
     max-height: 60vh;
     padding-right: 4px;
-  }
-
-  .save-btn {
-    min-width: 100px;
-    font-size: 0.8rem;
   }
 
   :deep(.v-stepper__header) {
@@ -500,6 +523,10 @@ watch(
     font-size: 0.7rem !important;
   }
 
+  .alert-title {
+    font-size: 0.85rem;
+  }
+
   .scroll-container {
     max-height: 55vh;
   }
@@ -517,11 +544,18 @@ watch(
 
 :deep(.v-list-item-title),
 :deep(.v-alert__content),
-:deep(.v-stepper__label) {
+:deep(.v-stepper__label),
+:deep(.v-alert ul li) {
   white-space: normal !important;
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
   text-overflow: unset !important;
   overflow: visible !important;
+}
+
+:deep(.v-alert div),
+:deep(.v-alert strong) {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 </style>
