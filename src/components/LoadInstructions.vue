@@ -5,7 +5,7 @@
       size="small"
       color="error"
       prepend-icon="mdi-close"
-      rounded="pill" 
+      rounded="pill"
       class="close-btn"
     >
       Close Instructions
@@ -269,9 +269,9 @@ watch(
 
 <style scoped>
 .close-btn {
-  position: absolute; 
-  top: 16px;         
-  right: 16px;       
+  position: absolute;
+  top: 16px;
+  right: 16px;
   min-width: 140px;
   font-size: 0.8rem;
   font-weight: 500;
@@ -338,12 +338,12 @@ watch(
   line-height: 1.3;
 }
 
+/* ALTERAÇÃO PRINCIPAL AQUI */
 .scroll-container {
-  position: relative; 
-  padding-top: 56px;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding-right: 8px;
+  position: relative; /* Mantido para o posicionamento do botão 'close' */
+  padding-top: 56px; /* Mantido para evitar sobreposição do botão 'close' */
+  /* As propriedades max-height, overflow-y e padding-right foram removidas 
+     para eliminar a rolagem interna e usar a do container pai. */
 }
 
 @media (max-width: 960px) {
@@ -351,23 +351,18 @@ watch(
     min-width: 120px;
     font-size: 0.8rem;
   }
-
   .step-title {
     font-size: 0.9rem;
   }
-
   .step-description {
     font-size: 0.8rem;
   }
-
   .list-item-text {
     font-size: 0.8rem;
   }
-
   .custom-alert {
     font-size: 0.8rem;
   }
-
   .alert-title {
     font-size: 1rem;
   }
@@ -377,66 +372,50 @@ watch(
   .close-btn {
     min-width: 100px;
     font-size: 0.75rem;
-    top: 8px;         
-    right: 8px;       
+    top: 8px;
+    right: 8px;
   }
-
   .scroll-container {
-    padding-top: 48px; 
+    padding-top: 48px; /* max-height e padding-right removidos */
   }
-
   .step-content {
     padding: 8px !important;
   }
-
   .step-title {
     font-size: 0.85rem;
     line-height: 1.3;
   }
-
   .step-description {
     font-size: 0.75rem;
     line-height: 1.3;
   }
-
   .list-item-text {
     font-size: 0.75rem !important;
     line-height: 1.2 !important;
     padding-right: 8px;
   }
-
   .custom-alert,
   .custom-alert .v-alert__content {
     font-size: 0.75rem !important;
     line-height: 1.2 !important;
   }
-
   .alert-title {
     font-size: 0.9rem;
   }
-
   .custom-list-item {
     min-height: 32px;
     padding: 2px 0;
   }
-
-  .scroll-container {
-    max-height: 60vh;
-    padding-right: 4px;
-  }
-
   :deep(.v-stepper__header) {
     overflow-x: auto;
     padding-bottom: 8px;
     gap: 4px;
   }
-
   :deep(.v-stepper__step) {
     flex: 0 0 auto;
     min-width: 48px;
     padding: 4px 2px;
   }
-
   :deep(.v-stepper__label) {
     font-size: 0.65rem !important;
     line-height: 1.1 !important;
@@ -445,7 +424,6 @@ watch(
     text-align: center;
     max-width: 60px;
   }
-
   :deep(.v-stepper__step .v-stepper__label) {
     text-overflow: unset !important;
     overflow: visible !important;
@@ -457,32 +435,22 @@ watch(
     min-width: 80px;
     font-size: 0.7rem;
   }
-
   .step-title {
     font-size: 0.8rem;
   }
-
   .step-description {
     font-size: 0.7rem;
   }
-
   .list-item-text {
     font-size: 0.7rem !important;
   }
-
   .custom-alert,
   .custom-alert .v-alert__content {
     font-size: 0.7rem !important;
   }
-
   .alert-title {
     font-size: 0.85rem;
   }
-
-  .scroll-container {
-    max-height: 55vh;
-  }
-
   :deep(.v-stepper__label) {
     font-size: 0.6rem !important;
     max-width: 50px;
@@ -493,7 +461,6 @@ watch(
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
-
 :deep(.v-list-item-title),
 :deep(.v-alert__content),
 :deep(.v-stepper__label),
@@ -504,7 +471,6 @@ watch(
   text-overflow: unset !important;
   overflow: visible !important;
 }
-
 :deep(.v-alert div),
 :deep(.v-alert strong) {
   word-wrap: break-word;
