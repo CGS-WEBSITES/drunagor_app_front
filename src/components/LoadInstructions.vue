@@ -2,6 +2,7 @@
   <div class="scroll-container">
     <v-stepper
       mobile
+      dense
       :items="steps"
       class="custom-stepper"
       v-model="currentStep"

@@ -2,6 +2,7 @@
   <div class="scroll-container">
     <v-stepper
       mobile
+      dense
       :items="steps"
       class="custom-stepper"
       v-model="currentStep"
@@ -257,9 +258,7 @@
         <v-icon size="28">mdi-chevron-left</v-icon>
       </v-btn>
 
-      <div class="step-indicator">
-        {{ currentStep }} / {{ steps.length }}
-      </div>
+      <div class="step-indicator">{{ currentStep }} / {{ steps.length }}</div>
 
       <v-btn
         @click="nextStep"
@@ -318,7 +317,7 @@ const previousStep = () => {
 const handleSaveClick = () => {
   saving.value = true;
   emit("save");
-  
+
   setTimeout(() => {
     saving.value = false;
   }, 5000);
@@ -326,7 +325,9 @@ const handleSaveClick = () => {
 
 defineExpose({
   setCurrentStep,
-  resetLoading: () => { saving.value = false; }
+  resetLoading: () => {
+    saving.value = false;
+  },
 });
 
 const onStepChange = (value: unknown) => {
@@ -402,7 +403,7 @@ watch(
 }
 
 .scroll-container {
-  position: relative; 
+  position: relative;
   overflow-y: auto;
 }
 
@@ -632,5 +633,21 @@ watch(
 :deep(.v-alert strong) {
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+:deep(.v-stepper__header) {
+  padding: 8px 4px !important;
+  gap: 8px !important;
+}
+
+:deep(.v-stepper__step .v-stepper__avatar) {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 0.75rem !important;
+}
+
+:deep(.v-stepper__step:not(:last-child) .v-stepper__divider) {
+  margin: 0 4px !important;
+  min-width: 12px !important;
 }
 </style>
