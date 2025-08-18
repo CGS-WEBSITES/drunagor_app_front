@@ -585,10 +585,7 @@ const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
 
-// Speed Dial Actions Handler
 const handleSpeedDialAction = (action: string) => {
-  speedDialOpen.value = false;
-
   switch (action) {
     case "save":
       openSavePanel();
@@ -597,24 +594,23 @@ const handleSpeedDialAction = (action: string) => {
       toggleInstructions();
       break;
     case "export":
-      // Trigger export functionality
       if (campaignExportRef.value?.export) {
         campaignExportRef.value.export();
       }
       break;
     case "share":
-      // Trigger share functionality
       if (shareCampaignRef.value?.openDialog) {
         shareCampaignRef.value.openDialog();
       }
       break;
     case "remove":
-      // Trigger remove functionality
       if (campaignRemoveRef.value?.openDialog) {
         campaignRemoveRef.value.openDialog();
       }
       break;
   }
+
+  speedDialOpen.value = false;
 };
 
 const onCampaignRemoved = () => {

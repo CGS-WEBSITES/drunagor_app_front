@@ -4,7 +4,7 @@
     id="campaign-remove"
     class="px-6 my-2"
     rounded
-    @click="openModal"
+    @click="openDialog"
   >
     <v-icon start>mdi-delete</v-icon>
     {{ t("label.remove-campaign") }}
@@ -68,7 +68,6 @@ import axios from "axios";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const campaignStore = CampaignStore();
-console.log("CampaignStore initialized:", campaignStore);
 const heroStore = HeroStore();
 const router = useRouter();
 const { t } = useI18n();
@@ -83,10 +82,14 @@ const props = defineProps<{
   campaignId: string;
 }>();
 
-const openModal = () => {
+const openDialog = () => {
   alertVisible.value = false;
   visible.value = true;
 };
+
+defineExpose({
+  openDialog,
+});
 
 const closeModal = () => {
   visible.value = false;
