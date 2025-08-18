@@ -106,7 +106,17 @@
                 class="instructions-panel"
               >
                 <v-expansion-panel>
-                  <v-expansion-panel-text class="pa-0">
+                  <v-expansion-panel-text class="pa-0 position-relative">
+                    <v-btn
+                      @click="closeInstructions"
+                      icon
+                      size="small"
+                      variant="text"
+                      class="close-instructions-btn"
+                      aria-label="Close instructions"
+                    >
+                      <v-icon size="20">mdi-close</v-icon>
+                    </v-btn>
                     <v-tabs
                       v-model="instructionTab"
                       density="compact"
@@ -509,7 +519,7 @@ const originalMaster = ref<(typeof players.value)[0] | null>(null);
 const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
-const menu = ref(false); 
+const menu = ref(false);
 
 const initTransfer = (user: (typeof players.value)[0]) => {
   selectedUser.value = user;
@@ -1061,6 +1071,34 @@ watch(
 .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
   max-height: 30vh;
   overflow-y: auto;
+}
+
+.close-instructions-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 50% !important;
+  min-width: 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.close-instructions-btn:hover {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.close-instructions-btn .v-icon {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.close-instructions-btn:hover .v-icon {
+  color: white !important;
+}
+
+.position-relative {
+  position: relative;
 }
 
 @media (max-width: 600px) {

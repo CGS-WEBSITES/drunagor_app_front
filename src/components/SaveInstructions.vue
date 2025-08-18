@@ -1,17 +1,5 @@
 <template>
   <div class="scroll-container">
-    <div class="d-flex justify-end mb-3">
-      <v-btn
-        @click="$emit('close')"
-        size="small"
-        color="error"
-        prepend-icon="mdi-close"
-        rounded="pill" 
-        class="close-btn"
-      >
-        Close Instructions
-      </v-btn>
-    </div>
     <v-stepper
       mobile
       :items="steps"
