@@ -291,7 +291,7 @@
                 style="cursor: pointer"
               >
                 <v-img
-                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-desk.png"
                 />
               </v-card>
             </v-col>
@@ -452,7 +452,7 @@
           </v-col>
         </v-row>
         
-        <v-row no-gutters class="justify-center pb-6 px-3">
+        <v-row no-gutters class="move_topo3 justify-center pb-6 px-4">
           <v-col cols="12">
             <v-card
               @click="router.push({ name: 'CommunityBuilds' })"
@@ -460,7 +460,7 @@
               style="cursor: pointer"
             >
               <v-img
-                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-builds.png"
+                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-mobile.png"
               />
             </v-card>
           </v-col>
@@ -701,6 +701,11 @@ onBeforeMount(async () => {
   position: relative;
   transform: translateY(-180px) translateX(12px);
 }
+.move_topo3 {
+  position: relative;
+  transform: translateY(-110px);
+}
+
 .full-screen-card {
   width: 100vw;
   height: 24vh;
