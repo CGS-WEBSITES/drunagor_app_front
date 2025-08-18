@@ -369,7 +369,6 @@ watch(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
   background: rgba(var(--v-theme-surface), 0.95);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(var(--v-theme-outline), 0.12);
