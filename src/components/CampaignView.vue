@@ -107,6 +107,7 @@
               >
                 <v-expansion-panel>
                   <v-expansion-panel-text class="pa-0 position-relative">
+                    <!-- Botão de fechar no canto superior direito -->
                     <v-btn
                       @click="closeInstructions"
                       icon
@@ -117,6 +118,7 @@
                     >
                       <v-icon size="20">mdi-close</v-icon>
                     </v-btn>
+
                     <v-tabs
                       v-model="instructionTab"
                       density="compact"
@@ -1073,32 +1075,46 @@ watch(
   overflow-y: auto;
 }
 
-.close-instructions-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 10;
-  background-color: rgba(0, 0, 0, 0.1) !important;
-  border-radius: 50% !important;
-  min-width: 32px !important;
-  width: 32px !important;
-  height: 32px !important;
+.instructions-content {
+  padding-right: 60px !important;
+  padding-top: 8px !important;
 }
 
-.close-instructions-btn:hover {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-}
-
-.close-instructions-btn .v-icon {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.close-instructions-btn:hover .v-icon {
-  color: white !important;
+.instructions-wrapper {
+  position: relative;
 }
 
 .position-relative {
   position: relative;
+}
+
+.close-instructions-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 25;
+  background-color: rgba(244, 67, 54, 0.9) !important;
+  border-radius: 50% !important;
+  min-width: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.close-instructions-btn:hover {
+  background-color: rgba(244, 67, 54, 1) !important;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.close-instructions-btn .v-icon {
+  color: white !important;
+  font-size: 16px !important;
+}
+
+.close-instructions-btn:hover .v-icon {
+  color: white !important;
 }
 
 @media (max-width: 600px) {

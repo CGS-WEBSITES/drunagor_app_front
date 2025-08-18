@@ -258,17 +258,6 @@ watch(
 </script>
 
 <style scoped>
-.close-btn {
-  position: absolute; 
-  top: 16px;         
-  right: 16px;       
-  min-width: 140px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  z-index: 1000 !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
 .custom-stepper {
   width: 100%;
   background: transparent;
@@ -330,18 +319,12 @@ watch(
 
 .scroll-container {
   position: relative; 
-  padding-top: 56px;
   max-height: 70vh;
   overflow-y: auto;
   padding-right: 8px;
 }
 
 @media (max-width: 960px) {
-  .close-btn {
-    min-width: 120px;
-    font-size: 0.8rem;
-  }
-
   .step-title {
     font-size: 0.9rem;
   }
@@ -364,17 +347,6 @@ watch(
 }
 
 @media (max-width: 600px) {
-  .close-btn {
-    min-width: 100px;
-    font-size: 0.75rem;
-    top: 8px;         
-    right: 8px;       
-  }
-
-  .scroll-container {
-    padding-top: 48px; 
-  }
-
   .step-content {
     padding: 8px !important;
   }
@@ -443,11 +415,6 @@ watch(
 }
 
 @media (max-width: 480px) {
-  .close-btn {
-    min-width: 80px;
-    font-size: 0.7rem;
-  }
-
   .step-title {
     font-size: 0.8rem;
   }
