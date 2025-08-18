@@ -18,10 +18,11 @@
     <v-btn 
       variant="elevated" 
       id="share-campaign"
-      rounded 
+      class="px-6 my-2"
+      rounded
       @click="openModal"
     >
-      <v-icon left class="mr-2">mdi-share-variant</v-icon>
+      <v-icon left class="mr-4">mdi-share-variant</v-icon>
         Share Campaign
     </v-btn>
   </div>
