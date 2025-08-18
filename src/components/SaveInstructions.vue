@@ -1,23 +1,12 @@
 <template>
   <div class="scroll-container">
-    <div class="d-flex justify-end mb-3">
-      <v-btn
-        @click="$emit('close')"
-        size="small"
-        color="error"
-        prepend-icon="mdi-close"
-        rounded="pill" 
-        class="close-btn"
-      >
-        Close Instructions
-      </v-btn>
-    </div>
     <v-stepper
       mobile
       :items="steps"
       class="custom-stepper"
       v-model="currentStep"
       @update:model-value="onStepChange"
+      hide-actions
     >
       <!-- Step 1 -->
       <template v-slot:item.1>
@@ -254,6 +243,35 @@
         </div>
       </template>
     </v-stepper>
+
+    <!-- Custom Navigation Controls -->
+    <div class="navigation-controls">
+      <v-btn
+        @click="previousStep"
+        :disabled="currentStep === 1"
+        variant="elevated"
+        color="primary"
+        class="nav-btn nav-btn-mobile"
+        size="medium"
+      >
+        <v-icon size="28">mdi-chevron-left</v-icon>
+      </v-btn>
+
+      <div class="step-indicator">
+        {{ currentStep }} / {{ steps.length }}
+      </div>
+
+      <v-btn
+        @click="nextStep"
+        :disabled="currentStep === steps.length"
+        variant="elevated"
+        color="primary"
+        class="nav-btn nav-btn-mobile"
+        size="x-large"
+      >
+        <v-icon size="28">mdi-chevron-right</v-icon>
+      </v-btn>
+    </div>
   </div>
 </template>
 
@@ -282,6 +300,18 @@ const saving = ref(false);
 const setCurrentStep = (step: number) => {
   if (step >= 1 && step <= steps.length) {
     currentStep.value = step;
+  }
+};
+
+const nextStep = () => {
+  if (currentStep.value < steps.length) {
+    currentStep.value++;
+  }
+};
+
+const previousStep = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--;
   }
 };
 
@@ -316,24 +346,9 @@ watch(
 </script>
 
 <style scoped>
-.close-btn {
-  position: absolute; 
-  top: 16px;         
-  right: 16px;       
-  min-width: 140px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  z-index: 1000 !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
-}
-
 .custom-stepper {
   width: 100%;
   background: transparent;
-}
-
-.step-content {
-  padding: 16px;
 }
 
 .step-title {
@@ -388,18 +403,55 @@ watch(
 
 .scroll-container {
   position: relative; 
-  padding-top: 56px;
-  max-height: 70vh;
   overflow-y: auto;
-  padding-right: 8px;
+}
+
+.navigation-controls {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(var(--v-theme-surface), 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(var(--v-theme-outline), 0.12);
+  margin-top: 16px;
+  border-radius: 8px 8px 0 0;
+}
+
+.nav-btn {
+  min-width: 50px !important;
+  width: 50px;
+  height: 50px;
+  border-radius: 50% !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.nav-btn:hover:not(:disabled) {
+  transform: scale(1.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.nav-btn:disabled {
+  opacity: 0.4 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.step-indicator {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+  padding: 8px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--v-theme-primary), 0.2);
 }
 
 @media (max-width: 960px) {
-  .close-btn {
-    min-width: 120px;
-    font-size: 0.8rem;
-  }
-
   .step-title {
     font-size: 0.9rem;
   }
@@ -419,24 +471,23 @@ watch(
   .alert-title {
     font-size: 1rem;
   }
+
+  .navigation-controls {
+    padding: 5px 6px;
+  }
+
+  .nav-btn {
+    min-width: 50px !important;
+    width: 50px;
+    height: 50px;
+  }
+
+  .nav-btn-mobile .v-icon {
+    font-size: 22px !important;
+  }
 }
 
 @media (max-width: 600px) {
-  .close-btn {
-    min-width: 100px;
-    font-size: 0.75rem;
-    top: 8px;         
-    right: 8px;       
-  }
-
-  .scroll-container {
-    padding-top: 48px; 
-  }
-
-  .step-content {
-    padding: 8px !important;
-  }
-
   .step-title {
     font-size: 0.85rem;
     line-height: 1.3;
@@ -468,9 +519,23 @@ watch(
     padding: 2px 0;
   }
 
-  .scroll-container {
-    max-height: 60vh;
-    padding-right: 4px;
+  .navigation-controls {
+    padding: 8px 10px;
+  }
+
+  .nav-btn {
+    min-width: 46px !important;
+    width: 46px;
+    height: 46px;
+  }
+
+  .nav-btn-mobile .v-icon {
+    font-size: 20px !important;
+  }
+
+  .step-indicator {
+    font-size: 0.8rem;
+    padding: 4px 10px;
   }
 
   :deep(.v-stepper__header) {
@@ -501,11 +566,6 @@ watch(
 }
 
 @media (max-width: 480px) {
-  .close-btn {
-    min-width: 80px;
-    font-size: 0.7rem;
-  }
-
   .step-title {
     font-size: 0.8rem;
   }
@@ -527,8 +587,23 @@ watch(
     font-size: 0.85rem;
   }
 
-  .scroll-container {
-    max-height: 55vh;
+  .navigation-controls {
+    padding: 6px 8px;
+  }
+
+  .nav-btn {
+    min-width: 42px !important;
+    width: 42px;
+    height: 42px;
+  }
+
+  .nav-btn-mobile .v-icon {
+    font-size: 18px !important;
+  }
+
+  .step-indicator {
+    font-size: 0.75rem;
+    padding: 4px 8px;
   }
 
   :deep(.v-stepper__label) {
