@@ -23,5 +23,4 @@ const app = createApp(App);
 
 registerPlugins(app,"test");
 
-
 app.mount("#app");

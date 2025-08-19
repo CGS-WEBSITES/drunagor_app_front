@@ -1,244 +1,225 @@
 <template>
-  <div class="scroll-container">
-    <v-stepper
-      mobile
-      dense
-      :items="steps"
-      class="custom-stepper"
-      v-model="currentStep"
-      @update:model-value="onStepChange"
-      hide-actions
-    >
-      <!-- Step 1: Initial Setup -->
-      <template v-slot:item.1>
-        <div class="step-content">
-          <h3 class="step-title">1 - Initial Setup</h3>
-          <p class="step-description mb-4">
-            We're glad to have you back, dear Adventurers! These instructions
-            will help you restart the Campaign exactly where you left off.
-          </p>
-          <v-alert type="info" variant="tonal" class="mb-4 custom-alert">
-            Make sure all Trays, Maps, and Doors of the Adventure are already
-            set up in their respective places.
-          </v-alert>
-          <p class="step-description mb-2">
-            Open the "Campaign Log" tab in your Chronicles of Drunagor App,
-            check which Heroes are in your Party, and gather the appropriate
-            components:
-          </p>
-          <v-list density="compact" class="mb-4 custom-list">
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Model, Hero Board, Initiative card, Hero Skill cards, and Class
-                Ability cards for each Hero in your Party
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </div>
-      </template>
+  <!-- Progress (dots) -->
+  <v-progress-linear :model-value="(currentStep / (steps.length)) * 100" height="4" color="white" rounded />
 
-      <!-- Step 2: Initiative Track Setup -->
-      <template v-slot:item.2>
-        <div class="step-content">
-          <h3 class="step-title">2 - Initiative Track Setup</h3>
-          <v-list density="compact" class="mb-4 custom-list">
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                If there is a record of Runes on the Initiative Track, draw the
-                indicated number of Runes and place them back on the Track
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                If there are any Rune, Game State Check-Up, and/or Game
-                Mechanics cards, place them in the appropriate positions on the
-                Initiative Track
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-          <v-alert type="warning" variant="tonal" class="mb-4 custom-alert">
-            <strong>Card Placement Rules:</strong>
-            <div class="mt-2">
-              All cards go at the bottom end of the Track, in the Rune Slot,
-              except for the Monster Raid Game Mechanic card, which goes on top
-              of this same Slot.
-            </div>
-            <div class="mt-2">
-              <strong>Correct order:</strong> Game Mechanics go on top of Rune
-              cards, which in turn go on top of Game State Check-Up cards.
-            </div>
-          </v-alert>
-        </div>
-      </template>
-
-      <!-- Step 3: Manage Resources -->
-      <template v-slot:item.3>
-        <div class="step-content">
-          <h3 class="step-title">3 - Manage Resources</h3>
-          <p class="step-description mb-2">
-            Click the "Manage Resources" button and assign the following
-            components to each Hero:
-          </p>
-          <v-list density="compact" class="mb-4 custom-list">
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Number of SHIELDS, FOCUS, KI, FURY, FRUIT OF LIFE, and any other
-                tokens defined as Resources
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Which Consumable Items (if any) are in the Hero's Backpack
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Which Equipment the Hero is wielding in each of their equipment
-                slots
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </div>
-      </template>
-
-      <!-- Step 4: Hero Skills and Class Skills -->
-      <template v-slot:item.4>
-        <div class="step-content">
-          <h3 class="step-title">4 - Hero Skills and Class Skills</h3>
-          <p class="step-description mb-2">
-            Click the "Hero Skills and Class Skills" button and assign each Hero
-            the Abilities they've learned in previous sessions:
-          </p>
-          <v-list density="compact" class="mb-4 custom-list">
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Which Dungeon Role the Hero is fulfilling
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Which Level 1 Skills the Hero has
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Which Level 2 Skills the Hero has
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Which Class Abilities the Hero has
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </div>
-      </template>
-
-      <!-- Step 5: Adjust Hero Game State -->
-      <template v-slot:item.5>
-        <div class="step-content">
-          <h3 class="step-title">5 - Adjust Hero Game State</h3>
-          <p class="step-description mb-2">
-            Adjust each Hero's Game State as recorded in the Campaign Log:
-          </p>
-          <v-list density="compact" class="mb-4 custom-list">
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                <strong>Available Action Cubes:</strong> Check their Initiative
-                card to see their starting amount, then give them the
-                appropriate Cubes based on the Hero Skills they've learned
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                <strong>Action Cubes allocation:</strong> How many Action Cubes
-                are allocated to Skills or Expended. You may place all of them
-                in the Expended Cube Box. Heroes resume the game with all Hero
-                Skills unassigned
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                <strong>Curse and Trauma Cubes:</strong> How many Curse and
-                Trauma Cubes the Hero has. Curse Cubes or Trauma Cubes can be
-                placed in any Hero or Role Skill. No need to repeat those
-                selected in the previous session
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Hero's current Health
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </div>
-      </template>
-
-      <!-- Step 6: Final Setup and Resume -->
-      <template v-slot:item.6>
-        <div class="step-content">
-          <h3 class="step-title">6 - Final Setup and Resume</h3>
-          <p class="step-description mb-2">Once all Hero information is set:</p>
-          <v-list density="compact" class="mb-4 custom-list">
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Place Heroes back on the board. Each Hero may reposition their
-                Model to a space within Range 1 of the Door listed as "Next
-                Door" in their Campaign Log
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                At least one Hero must be adjacent to the Next Door to open it
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Open that Door and build its Setup
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item class="custom-list-item">
-              <v-list-item-title class="list-item-text">
-                Return the Initiative marker to the first card on the Track
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-          <v-alert type="success" variant="tonal" class="mt-6 custom-alert">
-            <div class="alert-title">Resume the game!</div>
-            <div class="mt-2">That's it! Resume the game!</div>
-          </v-alert>
-        </div>
-      </template>
-    </v-stepper>
-
-    <!-- Custom Navigation Controls -->
-    <div class="navigation-controls">
-      <v-btn
-        @click="previousStep"
-        :disabled="currentStep === 1"
-        variant="elevated"
-        color="primary"
-        class="nav-btn nav-btn-mobile"
-        size="small"
-      >
-        <v-icon size="20">mdi-chevron-left</v-icon>
-      </v-btn>
-
-      <div class="step-indicator">
-        {{ currentStep }} / {{ steps.length }}
+  <!-- Step content -->
+  <v-window v-model="currentStep" class="mt-2">
+    <v-window-item :value="1">
+      <div class="step-content">
+        <h3 class="step-title">1 - Initial Setup</h3>
+        <p class="step-description mb-4">
+          We're glad to have you back, dear Adventurers! These instructions
+          will help you restart the Campaign exactly where you left off.
+        </p>
+        <v-alert type="info" variant="tonal" class="mb-4 custom-alert">
+          Make sure all Trays, Maps, and Doors of the Adventure are already
+          set up in their respective places.
+        </v-alert>
+        <p class="step-description mb-2">
+          Open the "Campaign Log" tab in your Chronicles of Drunagor App,
+          check which Heroes are in your Party, and gather the appropriate
+          components:
+        </p>
+        <v-list density="compact" class="mb-4 custom-list">
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Model, Hero Board, Initiative card, Hero Skill cards, and Class
+              Ability cards for each Hero in your Party
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
       </div>
+    </v-window-item>
 
-      <v-btn
-        @click="nextStep"
-        :disabled="currentStep === steps.length"
-        variant="elevated"
-        color="primary"
-        class="nav-btn nav-btn-mobile"
-        size="small"
-      >
-        <v-icon size="20">mdi-chevron-right</v-icon>
-      </v-btn>
+    <!-- Step 2: Initiative Track Setup -->
+    <v-window-item :value="2">
+      <div class="step-content">
+        <h3 class="step-title">2 - Initiative Track Setup</h3>
+        <v-list density="compact" class="mb-4 custom-list">
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              If there is a record of Runes on the Initiative Track, draw the
+              indicated number of Runes and place them back on the Track
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              If there are any Rune, Game State Check-Up, and/or Game
+              Mechanics cards, place them in the appropriate positions on the
+              Initiative Track
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <v-alert type="warning" variant="tonal" class="mb-4 custom-alert">
+          <strong>Card Placement Rules:</strong>
+          <div class="mt-2">
+            All cards go at the bottom end of the Track, in the Rune Slot,
+            except for the Monster Raid Game Mechanic card, which goes on top
+            of this same Slot.
+          </div>
+          <div class="mt-2">
+            <strong>Correct order:</strong> Game Mechanics go on top of Rune
+            cards, which in turn go on top of Game State Check-Up cards.
+          </div>
+        </v-alert>
+      </div>
+    </v-window-item>
+
+    <!-- Step 3: Manage Resources -->
+    <v-window-item :value="3">
+      <div class="step-content">
+        <h3 class="step-title">3 - Manage Resources</h3>
+        <p class="step-description mb-2">
+          Click the "Manage Resources" button and assign the following
+          components to each Hero:
+        </p>
+        <v-list density="compact" class="mb-4 custom-list">
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Number of SHIELDS, FOCUS, KI, FURY, FRUIT OF LIFE, and any other
+              tokens defined as Resources
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Which Consumable Items (if any) are in the Hero's Backpack
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Which Equipment the Hero is wielding in each of their equipment
+              slots
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </div>
+    </v-window-item>
+
+    <!-- Step 4: Hero Skills and Class Skills -->
+    <v-window-item :value="4">
+      <div class="step-content">
+        <h3 class="step-title">4 - Hero Skills and Class Skills</h3>
+        <p class="step-description mb-2">
+          Click the "Hero Skills and Class Skills" button and assign each Hero
+          the Abilities they've learned in previous sessions:
+        </p>
+        <v-list density="compact" class="mb-4 custom-list">
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Which Dungeon Role the Hero is fulfilling
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Which Level 1 Skills the Hero has
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Which Level 2 Skills the Hero has
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Which Class Abilities the Hero has
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </div>
+    </v-window-item>
+
+    <!-- Step 5: Adjust Hero Game State -->
+    <v-window-item :value="5">
+      <div class="step-content">
+        <h3 class="step-title">5 - Adjust Hero Game State</h3>
+        <p class="step-description mb-2">
+          Adjust each Hero's Game State as recorded in the Campaign Log:
+        </p>
+        <v-list density="compact" class="mb-4 custom-list">
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              <strong>Available Action Cubes:</strong> Check their Initiative
+              card to see their starting amount, then give them the
+              appropriate Cubes based on the Hero Skills they've learned
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              <strong>Action Cubes allocation:</strong> How many Action Cubes
+              are allocated to Skills or Expended. You may place all of them
+              in the Expended Cube Box. Heroes resume the game with all Hero
+              Skills unassigned
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              <strong>Curse and Trauma Cubes:</strong> How many Curse and
+              Trauma Cubes the Hero has. Curse Cubes or Trauma Cubes can be
+              placed in any Hero or Role Skill. No need to repeat those
+              selected in the previous session
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Hero's current Health
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </div>
+    </v-window-item>
+
+    <!-- Step 6: Final Setup and Resume -->
+    <v-window-item :value="6">
+      <div class="step-content">
+        <h3 class="step-title">6 - Final Setup and Resume</h3>
+        <p class="step-description mb-2">Once all Hero information is set:</p>
+        <v-list density="compact" class="mb-4 custom-list">
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Place Heroes back on the board. Each Hero may reposition their
+              Model to a space within Range 1 of the Door listed as "Next
+              Door" in their Campaign Log
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              At least one Hero must be adjacent to the Next Door to open it
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Open that Door and build its Setup
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item class="custom-list-item">
+            <v-list-item-title class="list-item-text">
+              Return the Initiative marker to the first card on the Track
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+        <v-alert type="success" variant="tonal" class="mt-6 custom-alert">
+          <div class="alert-title">Resume the game!</div>
+          <div class="mt-2">That's it! Resume the game!</div>
+        </v-alert>
+      </div>
+    </v-window-item>
+  </v-window>
+
+  <!-- Custom Navigation Controls -->
+  <div class="navigation-controls">
+    <v-btn @click="previousStep" :disabled="currentStep === 1" variant="elevated" color="primary"
+      class="nav-btn nav-btn-mobile" size="x-small">
+      <v-icon size="14">mdi-chevron-left</v-icon>
+    </v-btn>
+
+    <div class="step-indicator">
+      {{ currentStep }} / {{ steps.length }}
     </div>
+
+    <v-btn @click="nextStep" :disabled="currentStep === steps.length" variant="elevated" color="primary"
+      class="nav-btn nav-btn-mobile" size="x-small">
+      <v-icon size="14">mdi-chevron-right</v-icon>
+    </v-btn>
   </div>
 </template>
 
@@ -357,7 +338,7 @@ watch(
 }
 
 .scroll-container {
-  position: relative; 
+  position: relative;
   overflow-y: auto;
 }
 
@@ -373,7 +354,6 @@ watch(
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(var(--v-theme-outline), 0.12);
   margin-top: 16px;
-  border-radius: 8px 8px 0 0;
 }
 
 .nav-btn {

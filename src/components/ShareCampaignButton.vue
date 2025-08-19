@@ -5,8 +5,10 @@
         <v-card-title>Invite Player</v-card-title>
         <v-card-text>
           <p class="py-2">Invite players to play:</p>
-          <v-textarea readonly auto-grow v-model="token" class="ma-0" />
+          <v-text-field readonly auto-grow v-model="token" class="ma-0" />
+          <p class="py-2">Paste this number into the <em>Join Campaign option</em> in the Campaigns menu.</p>
         </v-card-text>
+
         <v-card-actions>
           <v-spacer />
           <v-btn @click="closeModal">Cancel</v-btn>
