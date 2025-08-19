@@ -234,6 +234,7 @@
                           Transfer Drunagor Master
                         </v-btn>
                         <RemovePlayersButton
+                          v-if="showSaveCampaignButton"
                           :campaignId="campaignId"
                           :showSaveCampaignButton="showSaveCampaignButton"
                           @playersRemoved="onPlayerRemoved"
@@ -243,7 +244,7 @@
                     </v-card-text>
                   </v-card>
 
-                  <div :class="{ 'player-view': !showSaveCampaignButton }">
+                  <div>
                     <CampaignName :campaign-id="campaignId" class="mb-3" />
 
                     <v-row class="mb-3" no-gutters>
@@ -323,7 +324,7 @@
         </template>
 
         <template v-else>
-          <div :class="{ 'player-view': !showSaveCampaignButton }">
+          <div>
             <v-row justify="center" no-gutters>
               <v-col cols="12" lg="10" xl="8">
                 <div class="pa-2">
@@ -352,7 +353,7 @@
                     </v-sheet>
                   </div>
 
-                  <v-row class="mb-3" no-gutters v-if="showSaveCampaignButton">
+                  <v-row v-if="showSaveCampaignButton" class="mb-3" no-gutters>
                     <v-col cols="12">
                       <div class="d-flex justify-center flex-wrap gap-2">
                         <CampaignLogAddHero
