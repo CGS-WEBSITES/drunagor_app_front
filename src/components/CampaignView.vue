@@ -1163,7 +1163,7 @@ watch(
 }
 
 .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-  max-height: 30vh;
+  max-height: 32vh;
   overflow-y: auto;
 }
 

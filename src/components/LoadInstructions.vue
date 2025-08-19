@@ -360,7 +360,7 @@ watch(
   position: absolute;
   bottom: 0;
   left: 15px;
-  right: 25px;
+  right: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
