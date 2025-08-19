@@ -402,6 +402,7 @@ watch(
   line-height: 1.3;
 }
 
+/* ALTERAÇÃO PRINCIPAL AQUI */
 .scroll-container {
   position: relative;
   overflow-y: auto;
@@ -455,19 +456,15 @@ watch(
   .step-title {
     font-size: 0.9rem;
   }
-
   .step-description {
     font-size: 0.8rem;
   }
-
   .list-item-text {
     font-size: 0.8rem;
   }
-
   .custom-alert {
     font-size: 0.8rem;
   }
-
   .alert-title {
     font-size: 1rem;
   }
@@ -492,28 +489,23 @@ watch(
     font-size: 0.85rem;
     line-height: 1.3;
   }
-
   .step-description {
     font-size: 0.75rem;
     line-height: 1.3;
   }
-
   .list-item-text {
     font-size: 0.75rem !important;
     line-height: 1.2 !important;
     padding-right: 8px;
   }
-
   .custom-alert,
   .custom-alert .v-alert__content {
     font-size: 0.75rem !important;
     line-height: 1.2 !important;
   }
-
   .alert-title {
     font-size: 0.9rem;
   }
-
   .custom-list-item {
     min-height: 32px;
     padding: 2px 0;
@@ -537,19 +529,16 @@ watch(
     font-size: 0.8rem;
     padding: 4px 10px;
   }
-
   :deep(.v-stepper__header) {
     overflow-x: auto;
     padding-bottom: 8px;
     gap: 4px;
   }
-
   :deep(.v-stepper__step) {
     flex: 0 0 auto;
     min-width: 48px;
     padding: 4px 2px;
   }
-
   :deep(.v-stepper__label) {
     font-size: 0.65rem !important;
     line-height: 1.1 !important;
@@ -558,7 +547,6 @@ watch(
     text-align: center;
     max-width: 60px;
   }
-
   :deep(.v-stepper__step .v-stepper__label) {
     text-overflow: unset !important;
     overflow: visible !important;
@@ -569,20 +557,16 @@ watch(
   .step-title {
     font-size: 0.8rem;
   }
-
   .step-description {
     font-size: 0.7rem;
   }
-
   .list-item-text {
     font-size: 0.7rem !important;
   }
-
   .custom-alert,
   .custom-alert .v-alert__content {
     font-size: 0.7rem !important;
   }
-
   .alert-title {
     font-size: 0.85rem;
   }
@@ -616,7 +600,6 @@ watch(
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
-
 :deep(.v-list-item-title),
 :deep(.v-alert__content),
 :deep(.v-stepper__label),
@@ -627,7 +610,6 @@ watch(
   text-overflow: unset !important;
   overflow: visible !important;
 }
-
 :deep(.v-alert div),
 :deep(.v-alert strong) {
   word-wrap: break-word;
