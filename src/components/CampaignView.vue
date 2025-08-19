@@ -20,7 +20,6 @@
         </v-btn>
       </template>
 
-      <!-- Save Campaign -->
       <v-btn
         v-if="showSaveCampaignButton"
         key="save"
@@ -36,7 +35,6 @@
         </v-tooltip>
       </v-btn>
 
-      <!-- Instructions -->
       <v-btn
         key="instructions"
         size="small"
@@ -51,7 +49,6 @@
         </v-tooltip>
       </v-btn>
 
-      <!-- Export Campaign -->
       <v-btn
         key="export"
         size="small"
@@ -67,7 +64,6 @@
         </v-tooltip>
       </v-btn>
 
-      <!-- Share Campaign -->
       <v-btn
         key="share"
         size="small"
@@ -82,7 +78,6 @@
         </v-tooltip>
       </v-btn>
 
-      <!-- Remove Campaign -->
       <v-btn
         v-if="showSaveCampaignButton"
         key="remove"
@@ -218,7 +213,7 @@
 
               <v-window v-model="currentTab">
                 <v-window-item value="normal">
-                  <fieldset :disabled="!showSaveCampaignButton">
+                  <div :class="{ 'player-view': !showSaveCampaignButton }">
                     <v-card class="mb-3" color="primary">
                       <v-card-text class="pa-3">
                         <CampaignPlayerList
@@ -312,7 +307,7 @@
                         </v-sheet>
                       </v-col>
                     </v-row>
-                  </fieldset>
+                  </div>
                 </v-window-item>
 
                 <v-window-item value="book">
@@ -324,7 +319,7 @@
         </template>
 
         <template v-else>
-          <fieldset :disabled="!showSaveCampaignButton">
+          <div :class="{ 'player-view': !showSaveCampaignButton }">
             <v-row justify="center" no-gutters>
               <v-col cols="12" lg="10" xl="8">
                 <div class="pa-2">
@@ -392,7 +387,7 @@
                 </div>
               </v-col>
             </v-row>
-          </fieldset>
+          </div>
         </template>
       </template>
 
@@ -407,7 +402,6 @@
     </v-container>
   </div>
 
-  <!-- Transfer Dialog -->
   <v-dialog v-model="transferDialogVisible" max-width="400px">
     <v-card>
       <v-card-title>Transfer Drunagor Master</v-card-title>
@@ -473,7 +467,6 @@
     </v-card>
   </v-dialog>
 
-  <!-- Components ocultos para funcionalidades -->
   <div style="display: none">
     <CampaignSavePut
       ref="savePutRef"
@@ -1311,15 +1304,8 @@ watch(
   gap: 8px;
 }
 
-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-fieldset:disabled {
+.player-view {
   pointer-events: none;
-  opacity: 0.6;
 }
 
 .v-tabs .v-tab--selected {
