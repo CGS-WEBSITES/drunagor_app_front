@@ -1,5 +1,103 @@
 <template>
   <div class="campaign-menu">
+    <v-speed-dial
+      v-model="speedDialOpen"
+      :transition="'fade-transition'"
+      class="campaign-actions-speed-dial"
+    >
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn
+          v-bind="activatorProps"
+          color="primary"
+          size="large"
+          icon
+          class="speed-dial-activator"
+          elevation="8"
+        >
+          <v-icon>{{
+            speedDialOpen ? "mdi-close" : "mdi-script-text-outline"
+          }}</v-icon>
+        </v-btn>
+      </template>
+
+      <!-- Save Campaign -->
+      <v-btn
+        v-if="showSaveCampaignButton"
+        key="save"
+        size="small"
+        color="success"
+        icon
+        class="speed-dial-item"
+        @click="handleSpeedDialAction('save')"
+      >
+        <v-icon>mdi-content-save-outline</v-icon>
+        <v-tooltip activator="parent" location="start">
+          {{ t("label.save-campaign-put") || "Save Campaign" }}
+        </v-tooltip>
+      </v-btn>
+
+      <!-- Instructions -->
+      <v-btn
+        key="instructions"
+        size="small"
+        color="info"
+        icon
+        class="speed-dial-item"
+        @click="handleSpeedDialAction('instructions')"
+      >
+        <v-icon>mdi-lightbulb-on-outline</v-icon>
+        <v-tooltip activator="parent" location="start">
+          Instructions
+        </v-tooltip>
+      </v-btn>
+
+      <!-- Export Campaign -->
+      <v-btn
+        key="export"
+        size="small"
+        color="orange"
+        icon
+        class="speed-dial-item"
+        :disabled="!showSaveCampaignButton"
+        @click="handleSpeedDialAction('export')"
+      >
+        <v-icon>mdi-download</v-icon>
+        <v-tooltip activator="parent" location="start">
+          Export Campaign
+        </v-tooltip>
+      </v-btn>
+
+      <!-- Share Campaign -->
+      <v-btn
+        key="share"
+        size="small"
+        color="secondary"
+        icon
+        class="speed-dial-item"
+        @click="handleSpeedDialAction('share')"
+      >
+        <v-icon>mdi-share-variant</v-icon>
+        <v-tooltip activator="parent" location="start">
+          Invite Player
+        </v-tooltip>
+      </v-btn>
+
+      <!-- Remove Campaign -->
+      <v-btn
+        v-if="showSaveCampaignButton"
+        key="remove"
+        size="small"
+        color="error"
+        icon
+        class="speed-dial-item"
+        @click="handleSpeedDialAction('remove')"
+      >
+        <v-icon>mdi-delete-outline</v-icon>
+        <v-tooltip activator="parent" location="start">
+          Remove Campaign
+        </v-tooltip>
+      </v-btn>
+    </v-speed-dial>
     <v-container fluid class="pa-2">
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="9" xl="8">
@@ -306,106 +404,6 @@
           </v-col>
         </v-row>
       </template>
-
-      <v-speed-dial
-        v-model="speedDialOpen"
-        location="top center"
-        :transition="'fade-transition'"
-        class="campaign-actions-speed-dial"
-      >
-        <template v-slot:activator="{ props: activatorProps }">
-          <v-btn
-            v-bind="activatorProps"
-            color="primary"
-            size="large"
-            icon
-            class="speed-dial-activator"
-            elevation="8"
-          >
-            <v-icon>{{
-              speedDialOpen ? "mdi-close" : "mdi-script-text-outline"
-            }}</v-icon>
-          </v-btn>
-        </template>
-
-        <!-- Save Campaign -->
-        <v-btn
-          v-if="showSaveCampaignButton"
-          key="save"
-          size="small"
-          color="success"
-          icon
-          class="speed-dial-item"
-          @click="handleSpeedDialAction('save')"
-        >
-          <v-icon>mdi-content-save-outline</v-icon>
-          <v-tooltip activator="parent" location="start">
-            {{ t("label.save-campaign-put") || "Save Campaign" }}
-          </v-tooltip>
-        </v-btn>
-
-        <!-- Instructions -->
-        <v-btn
-          key="instructions"
-          size="small"
-          color="info"
-          icon
-          class="speed-dial-item"
-          @click="handleSpeedDialAction('instructions')"
-        >
-          <v-icon>mdi-lightbulb-on-outline</v-icon>
-          <v-tooltip activator="parent" location="start">
-            Instructions
-          </v-tooltip>
-        </v-btn>
-
-        <!-- Export Campaign -->
-        <v-btn
-          key="export"
-          size="small"
-          color="orange"
-          icon
-          class="speed-dial-item"
-          :disabled="!showSaveCampaignButton"
-          @click="handleSpeedDialAction('export')"
-        >
-          <v-icon>mdi-download</v-icon>
-          <v-tooltip activator="parent" location="start">
-            Export Campaign
-          </v-tooltip>
-        </v-btn>
-
-        <!-- Share Campaign -->
-        <v-btn
-          key="share"
-          size="small"
-          color="secondary"
-          icon
-          class="speed-dial-item"
-          @click="handleSpeedDialAction('share')"
-        >
-          <v-icon>mdi-share-variant</v-icon>
-          <v-tooltip activator="parent" location="start">
-            Share Campaign
-          </v-tooltip>
-        </v-btn>
-
-        <!-- Remove Campaign -->
-        <v-btn
-          v-if="showSaveCampaignButton"
-          key="remove"
-          size="small"
-          color="error"
-          icon
-          class="speed-dial-item"
-          @click="handleSpeedDialAction('remove')"
-        >
-          <v-icon>mdi-delete-outline</v-icon>
-          <v-tooltip activator="parent" location="start">
-            Remove Campaign
-          </v-tooltip>
-        </v-btn>
-      </v-speed-dial>
     </v-container>
   </div>
 
@@ -1212,7 +1210,6 @@ watch(
   position: fixed !important;
   right: 24px;
   top: 80px;
-  transform: translateY(-50%);
   z-index: 999;
 }
 
