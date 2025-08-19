@@ -219,9 +219,9 @@
         variant="elevated"
         color="primary"
         class="nav-btn nav-btn-mobile"
-        size="medium"
+        size="small"
       >
-        <v-icon size="28">mdi-chevron-left</v-icon>
+        <v-icon size="20">mdi-chevron-left</v-icon>
       </v-btn>
 
       <div class="step-indicator">
@@ -234,9 +234,9 @@
         variant="elevated"
         color="primary"
         class="nav-btn nav-btn-mobile"
-        size="x-large"
+        size="small"
       >
-        <v-icon size="28">mdi-chevron-right</v-icon>
+        <v-icon size="20">mdi-chevron-right</v-icon>
       </v-btn>
     </div>
   </div>
@@ -377,16 +377,15 @@ watch(
 }
 
 .nav-btn {
-  min-width: 50px !important;
-  width: 50px;
-  height: 50px;
+  min-width: 40px !important;
+  width: 40px;
+  height: 40px;
   border-radius: 50% !important;
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 .nav-btn:hover:not(:disabled) {
-  transform: scale(1.15);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
@@ -431,13 +430,13 @@ watch(
   }
 
   .nav-btn {
-    min-width: 50px !important;
-    width: 50px;
-    height: 50px;
+    min-width: 38px !important;
+    width: 38px;
+    height: 38px;
   }
 
   .nav-btn-mobile .v-icon {
-    font-size: 22px !important;
+    font-size: 18px !important;
   }
 }
 
@@ -478,13 +477,13 @@ watch(
   }
 
   .nav-btn {
-    min-width: 46px !important;
-    width: 46px;
-    height: 46px;
+    min-width: 36px !important;
+    width: 36px;
+    height: 36px;
   }
 
   .nav-btn-mobile .v-icon {
-    font-size: 20px !important;
+    font-size: 16px !important;
   }
 
   .step-indicator {
@@ -546,13 +545,13 @@ watch(
   }
 
   .nav-btn {
-    min-width: 42px !important;
-    width: 42px;
-    height: 42px;
+    min-width: 34px !important;
+    width: 34px;
+    height: 34px;
   }
 
   .nav-btn-mobile .v-icon {
-    font-size: 18px !important;
+    font-size: 14px !important;
   }
 
   .step-indicator {
