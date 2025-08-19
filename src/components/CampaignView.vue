@@ -1177,8 +1177,8 @@ watch(
 
 .close-instructions-btn[data-v-9901feaa] {
   position: absolute;
-  top: 50px;
-  right: 40px;
+  top: 47px;
+  right: 29px;
   z-index: 25;
   background-color: rgba(244, 67, 54, 0.9) !important;
   border-radius: 50% !important;

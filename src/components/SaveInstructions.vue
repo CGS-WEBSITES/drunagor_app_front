@@ -336,7 +336,6 @@ watch(
 </script>
 
 <style scoped>
-/* ESTILOS COPIADOS DIRETAMENTE DE LoadInstructions.vue PARA GARANTIR CONSISTÊNCIA */
 .custom-stepper {
   width: 100%;
   background: transparent;
