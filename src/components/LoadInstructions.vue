@@ -1,24 +1,28 @@
 <template>
   <!-- Progress (dots) -->
-  <v-progress-linear :model-value="(currentStep / (steps.length)) * 100" height="4" color="white" rounded />
+  <v-progress-linear
+    :model-value="(currentStep / steps.length) * 100"
+    height="4"
+    color="white"
+    rounded
+  />
 
   <!-- Step content -->
-  <v-window v-model="currentStep" class="mt-2">
+  <v-window v-model="currentStep" class="mt-2 content-area">
     <v-window-item :value="1">
       <div class="step-content">
         <h3 class="step-title">1 - Initial Setup</h3>
         <p class="step-description mb-4">
-          We're glad to have you back, dear Adventurers! These instructions
-          will help you restart the Campaign exactly where you left off.
+          We're glad to have you back, dear Adventurers! These instructions will
+          help you restart the Campaign exactly where you left off.
         </p>
         <v-alert type="info" variant="tonal" class="mb-4 custom-alert">
-          Make sure all Trays, Maps, and Doors of the Adventure are already
-          set up in their respective places.
+          Make sure all Trays, Maps, and Doors of the Adventure are already set
+          up in their respective places.
         </v-alert>
         <p class="step-description mb-2">
-          Open the "Campaign Log" tab in your Chronicles of Drunagor App,
-          check which Heroes are in your Party, and gather the appropriate
-          components:
+          Open the "Campaign Log" tab in your Chronicles of Drunagor App, check
+          which Heroes are in your Party, and gather the appropriate components:
         </p>
         <v-list density="compact" class="mb-4 custom-list">
           <v-list-item class="custom-list-item">
@@ -44,9 +48,9 @@
           </v-list-item>
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
-              If there are any Rune, Game State Check-Up, and/or Game
-              Mechanics cards, place them in the appropriate positions on the
-              Initiative Track
+              If there are any Rune, Game State Check-Up, and/or Game Mechanics
+              cards, place them in the appropriate positions on the Initiative
+              Track
             </v-list-item-title>
           </v-list-item>
         </v-list>
@@ -54,8 +58,8 @@
           <strong>Card Placement Rules:</strong>
           <div class="mt-2">
             All cards go at the bottom end of the Track, in the Rune Slot,
-            except for the Monster Raid Game Mechanic card, which goes on top
-            of this same Slot.
+            except for the Monster Raid Game Mechanic card, which goes on top of
+            this same Slot.
           </div>
           <div class="mt-2">
             <strong>Correct order:</strong> Game Mechanics go on top of Rune
@@ -139,24 +143,24 @@
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
               <strong>Available Action Cubes:</strong> Check their Initiative
-              card to see their starting amount, then give them the
-              appropriate Cubes based on the Hero Skills they've learned
+              card to see their starting amount, then give them the appropriate
+              Cubes based on the Hero Skills they've learned
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
               <strong>Action Cubes allocation:</strong> How many Action Cubes
-              are allocated to Skills or Expended. You may place all of them
-              in the Expended Cube Box. Heroes resume the game with all Hero
-              Skills unassigned
+              are allocated to Skills or Expended. You may place all of them in
+              the Expended Cube Box. Heroes resume the game with all Hero Skills
+              unassigned
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
-              <strong>Curse and Trauma Cubes:</strong> How many Curse and
-              Trauma Cubes the Hero has. Curse Cubes or Trauma Cubes can be
-              placed in any Hero or Role Skill. No need to repeat those
-              selected in the previous session
+              <strong>Curse and Trauma Cubes:</strong> How many Curse and Trauma
+              Cubes the Hero has. Curse Cubes or Trauma Cubes can be placed in
+              any Hero or Role Skill. No need to repeat those selected in the
+              previous session
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
@@ -177,8 +181,8 @@
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
               Place Heroes back on the board. Each Hero may reposition their
-              Model to a space within Range 1 of the Door listed as "Next
-              Door" in their Campaign Log
+              Model to a space within Range 1 of the Door listed as "Next Door"
+              in their Campaign Log
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
@@ -207,17 +211,27 @@
 
   <!-- Custom Navigation Controls -->
   <div class="navigation-controls">
-    <v-btn @click="previousStep" :disabled="currentStep === 1" variant="elevated" color="primary"
-      class="nav-btn nav-btn-mobile" size="x-small">
+    <v-btn
+      @click="previousStep"
+      :disabled="currentStep === 1"
+      variant="elevated"
+      color="primary"
+      class="nav-btn nav-btn-mobile"
+      size="x-small"
+    >
       <v-icon size="14">mdi-chevron-left</v-icon>
     </v-btn>
 
-    <div class="step-indicator">
-      {{ currentStep }} / {{ steps.length }}
-    </div>
+    <div class="step-indicator">{{ currentStep }} / {{ steps.length }}</div>
 
-    <v-btn @click="nextStep" :disabled="currentStep === steps.length" variant="elevated" color="primary"
-      class="nav-btn nav-btn-mobile" size="x-small">
+    <v-btn
+      @click="nextStep"
+      :disabled="currentStep === steps.length"
+      variant="elevated"
+      color="primary"
+      class="nav-btn nav-btn-mobile"
+      size="x-small"
+    >
       <v-icon size="14">mdi-chevron-right</v-icon>
     </v-btn>
   </div>
@@ -342,15 +356,16 @@ watch(
   overflow-y: auto;
 }
 
-.navigation-controls {
-  position: sticky;
+.navigation-controls[data-v-3891221b] {
+  position: absolute;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 15px;
+  right: 25px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(var(--v-theme-surface), 0.95);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(var(--v-theme-outline), 0.12);
   margin-top: 16px;
