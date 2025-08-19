@@ -213,37 +213,37 @@
 
               <v-window v-model="currentTab">
                 <v-window-item value="normal">
-                  <div :class="{ 'player-view': !showSaveCampaignButton }">
-                    <v-card class="mb-3" color="primary">
-                      <v-card-text class="pa-3">
-                        <CampaignPlayerList
-                          ref="campaignPlayerListRef"
-                          :campaign-id="campaignId"
-                          density="compact"
-                        />
-                        <div
-                          class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                  <v-card class="mb-3" color="primary">
+                    <v-card-text class="pa-3">
+                      <CampaignPlayerList
+                        ref="campaignPlayerListRef"
+                        :campaign-id="campaignId"
+                        density="compact"
+                      />
+                      <div
+                        class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                      >
+                        <v-btn
+                          v-if="showSaveCampaignButton"
+                          class="mx-1 my-1"
+                          @click="openTransferDialog"
+                          variant="elevated"
+                          rounded
+                          prepend-icon="mdi-account-switch-outline"
                         >
-                          <v-btn
-                            v-if="showSaveCampaignButton"
-                            class="mx-1 my-1"
-                            @click="openTransferDialog"
-                            variant="elevated"
-                            rounded
-                            prepend-icon="mdi-account-switch-outline"
-                          >
-                            Transfer Drunagor Master
-                          </v-btn>
-                          <RemovePlayersButton
-                            :campaignId="campaignId"
-                            :showSaveCampaignButton="showSaveCampaignButton"
-                            @playersRemoved="onPlayerRemoved"
-                            class="mx-1 my-1"
-                          />
-                        </div>
-                      </v-card-text>
-                    </v-card>
+                          Transfer Drunagor Master
+                        </v-btn>
+                        <RemovePlayersButton
+                          :campaignId="campaignId"
+                          :showSaveCampaignButton="showSaveCampaignButton"
+                          @playersRemoved="onPlayerRemoved"
+                          class="mx-1 my-1"
+                        />
+                      </div>
+                    </v-card-text>
+                  </v-card>
 
+                  <div :class="{ 'player-view': !showSaveCampaignButton }">
                     <CampaignName :campaign-id="campaignId" class="mb-3" />
 
                     <v-row class="mb-3" no-gutters>
@@ -258,7 +258,11 @@
                       </v-col>
                     </v-row>
 
-                    <v-row class="mb-3" no-gutters>
+                    <v-row
+                      class="mb-3"
+                      no-gutters
+                      v-if="showSaveCampaignButton"
+                    >
                       <v-col cols="12">
                         <v-card class="pa-2" color="primary">
                           <div class="d-flex justify-center flex-wrap gap-2">
@@ -348,7 +352,7 @@
                     </v-sheet>
                   </div>
 
-                  <v-row class="mb-3" no-gutters>
+                  <v-row class="mb-3" no-gutters v-if="showSaveCampaignButton">
                     <v-col cols="12">
                       <div class="d-flex justify-center flex-wrap gap-2">
                         <CampaignLogAddHero
