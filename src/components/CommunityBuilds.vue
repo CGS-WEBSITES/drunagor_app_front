@@ -1,6 +1,5 @@
 <template>
   <div class="page-background d-flex align-center justify-center pl-lg-16">
-    <v-container>
       <v-sheet
         class="pa-4"
         border
@@ -128,7 +127,6 @@
           </v-list-item>
         </v-list>
       </v-sheet>
-    </v-container>
 
     <v-snackbar
       v-model="snackbar.show"
