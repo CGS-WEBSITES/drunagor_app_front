@@ -8,7 +8,7 @@
   />
 
   <!-- Step content -->
-  <v-window v-model="currentStep" class="mt-2 content-area">
+  <v-window v-model="currentStep" class="mt-2 mb-9">
     <v-window-item :value="1">
       <div class="step-content">
         <h3 class="step-title">1 - Initial Setup</h3>
@@ -392,7 +392,7 @@ watch(
 .step-indicator {
   font-size: 0.9rem;
   font-weight: 500;
-  color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-secndary));
   background: rgba(var(--v-theme-primary), 0.1);
   padding: 8px 16px;
   border-radius: 16px;
