@@ -1457,7 +1457,7 @@ onBeforeUnmount(() => {
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
-  margin: 5vh auto;
+  margin: 1vh auto;
 }
 
 .book-page {
