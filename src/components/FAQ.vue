@@ -12,15 +12,15 @@
             bg-color="primary"
             class="mb-6"
             align-tabs="center"
-            :grow="!mobile"
+            grow
           >
             <v-tab value="faq">
               <v-icon start>mdi-frequently-asked-questions</v-icon>
-              FAQ
+              <span class="d-none d-sm-inline mr-1">FAQ</span>
             </v-tab>
             <v-tab value="retailer">
               <v-icon start>mdi-book-open-variant</v-icon>
-              Retailer Book
+              <span class="d-none d-sm-inline mr-1">Retailer Book</span>
             </v-tab>
           </v-tabs>
 
@@ -55,14 +55,11 @@
 <script setup>
 import { ref } from "vue";
 import { useDisplay } from "vuetify";
-import RetailerBook from "./RetailerBook.vue"; // Importa o novo componente
+import RetailerBook from "./RetailerBook.vue";
 
-// Helper do Vuetify para responsividade
 const { mobile } = useDisplay();
 
 const currentTab = ref("faq");
-
-// A lista antiga de retailerBooks não é mais necessária aqui.
 
 const faqData = ref([
   {
