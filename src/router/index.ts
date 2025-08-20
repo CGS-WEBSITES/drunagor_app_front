@@ -62,6 +62,18 @@ const router = createRouter({
       },
     },
     {
+      path: "/FAQforRetailers",
+      name: "FAQ",
+      component: () => import("@/components/FAQ.vue"),
+
+      beforeEnter(to, from, next) {
+        if (isSignedIn()) {
+          next()
+          return
+        }
+      },
+    },
+    {
       path: "/dashboard",
       name: "Dashboard",
       component: () => import("@/pages/Dashboard.vue"),
