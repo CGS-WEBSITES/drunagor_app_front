@@ -93,6 +93,7 @@ declare module 'vue' {
     RandomizerView: typeof import('./components/RandomizerView.vue')['default']
     RemovePlayersButton: typeof import('./components/RemovePlayersButton.vue')['default']
     RetailDash: typeof import('./components/RetailDash.vue')['default']
+    RetailerBook: typeof import('./components/RetailerBook.vue')['default']
     RetailEvents: typeof import('./components/RetailEvents.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

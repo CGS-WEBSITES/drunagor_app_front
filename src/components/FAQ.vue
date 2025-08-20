@@ -20,7 +20,7 @@
             </v-tab>
             <v-tab value="retailer">
               <v-icon start>mdi-book-open-variant</v-icon>
-              Retailer Books
+              Retailer Book
             </v-tab>
           </v-tabs>
 
@@ -43,31 +43,7 @@
             </v-window-item>
 
             <v-window-item value="retailer">
-              <v-card>
-                <v-card-title class="font-weight-bold">
-                  Downloadable Content
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-text>
-                  <v-list bg-color="transparent">
-                    <v-list-item
-                      v-for="(book, i) in retailerBooks"
-                      :key="i"
-                      :href="book.url"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      prepend-icon="mdi-book-open-page-variant-outline"
-                    >
-                      <v-list-item-title class="readable-title">{{
-                        book.title
-                      }}</v-list-item-title>
-                      <template #append>
-                        <v-icon>mdi-download</v-icon>
-                      </template>
-                    </v-list-item>
-                  </v-list>
-                </v-card-text>
-              </v-card>
+              <RetailerBook />
             </v-window-item>
           </v-window>
         </v-col>
@@ -79,18 +55,14 @@
 <script setup>
 import { ref } from "vue";
 import { useDisplay } from "vuetify";
+import RetailerBook from "./RetailerBook.vue"; // Importa o novo componente
 
 // Helper do Vuetify para responsividade
 const { mobile } = useDisplay();
 
 const currentTab = ref("faq");
 
-const retailerBooks = ref([
-  {
-    title: "RETAILER QUESTIONS BOOK",
-    url: "https://druna-assets.s3.us-east-2.amazonaws.com/book/retailers_book.pdf",
-  },
-]);
+// A lista antiga de retailerBooks não é mais necessária aqui.
 
 const faqData = ref([
   {
