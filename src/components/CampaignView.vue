@@ -3,7 +3,7 @@
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
-        color="info"
+        :color="speedDialOpen ? 'red' : 'green'"
         size="large"
         icon
         class="speed-dial-activator"
@@ -128,7 +128,6 @@
                   icon
                   size="small"
                   variant="text"
-                  class="close-instructions-btn"
                   aria-label="Close instructions"
                 >
                   <v-icon size="20">mdi-close</v-icon>
@@ -162,12 +161,14 @@
                         @save="handleSave"
                         @instruction-changed="onInstructionChanged"
                         @close="closeInstructions"
+                        style="max-height:25vh !important"
                       />
                       <LoadInstructions
                         v-else
                         ref="loadInstructionsRef"
                         @instruction-changed="onInstructionChanged"
                         @close="closeInstructions"
+                        style="max-height:25vh !important"
                       />
                     </v-expansion-panel-text>
                   </v-expansion-panel>
@@ -551,7 +552,7 @@ const saveInstructionsRef = vueRef<InstanceType<
 > | null>(null);
 
 // Speed Dial refs
-const speedDialOpen = ref(false);
+const speedDialOpen = ref(true);
 const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
   null,
 );
