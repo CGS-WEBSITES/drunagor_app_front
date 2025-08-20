@@ -1,50 +1,75 @@
 <template>
   <div class="page-background pa-4 pa-md-8">
     <v-container>
-      <h2 class="text-h4 font-weight-bold mb-6">Frequently Asked Questions (FAQ)</h2>
+      <v-row justify="center">
+        <v-col cols="12" md="11" lg="10">
+          <h2 class="text-h5 text-md-h4 font-weight-bold mb-6 text-center">
+            Help Center
+          </h2>
 
-      <v-row>
-        <v-col cols="12" md="9">
-          <v-expansion-panels>
-            <v-expansion-panel
-              v-for="(item, i) in faqData"
-              :key="i"
-              elevation="2"
-            >
-              <v-expansion-panel-title expand-icon="mdi-chevron-down">
-                <span class="font-weight-bold">Q: {{ item.question }}</span>
-              </v-expansion-panel-title>
-              <v-expansion-panel-text>
-                <div class="answer-content" v-html="item.answer"></div>
-              </v-expansion-panel-text>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-col>
+          <v-tabs
+            v-model="currentTab"
+            bg-color="primary"
+            class="mb-6"
+            align-tabs="center"
+            :grow="!mobile"
+          >
+            <v-tab value="faq">
+              <v-icon start>mdi-frequently-asked-questions</v-icon>
+              FAQ
+            </v-tab>
+            <v-tab value="retailer">
+              <v-icon start>mdi-book-open-variant</v-icon>
+              Retailer Books
+            </v-tab>
+          </v-tabs>
 
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-title class="font-weight-bold">
-              RETAILERS BOOKS
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-card-text>
-              <v-list bg-color="transparent">
-                <v-list-item
-                  v-for="(book, i) in retailerBooks"
+          <v-window v-model="currentTab">
+            <v-window-item value="faq">
+              <v-expansion-panels>
+                <v-expansion-panel
+                  v-for="(item, i) in faqData"
                   :key="i"
-                  :href="book.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  prepend-icon="mdi-book-open-page-variant-outline"
+                  elevation="2"
                 >
-                  <v-list-item-title class="readable-title">{{ book.title }}</v-list-item-title>
-                  <template #append>
-                      <v-icon>mdi-download</v-icon>
-                  </template>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
+                  <v-expansion-panel-title expand-icon="mdi-chevron-down">
+                    <span class="font-weight-bold">Q: {{ item.question }}</span>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <div class="answer-content" v-html="item.answer"></div>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-window-item>
+
+            <v-window-item value="retailer">
+              <v-card>
+                <v-card-title class="font-weight-bold">
+                  Downloadable Content
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-card-text>
+                  <v-list bg-color="transparent">
+                    <v-list-item
+                      v-for="(book, i) in retailerBooks"
+                      :key="i"
+                      :href="book.url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      prepend-icon="mdi-book-open-page-variant-outline"
+                    >
+                      <v-list-item-title class="readable-title">{{
+                        book.title
+                      }}</v-list-item-title>
+                      <template #append>
+                        <v-icon>mdi-download</v-icon>
+                      </template>
+                    </v-list-item>
+                  </v-list>
+                </v-card-text>
+              </v-card>
+            </v-window-item>
+          </v-window>
         </v-col>
       </v-row>
     </v-container>
@@ -52,23 +77,29 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
+import { useDisplay } from "vuetify";
+
+// Helper do Vuetify para responsividade
+const { mobile } = useDisplay();
+
+const currentTab = ref("faq");
 
 const retailerBooks = ref([
   {
-    title: 'RETAILER QUESTIONS BOOK',
-    url: 'https://druna-assets.s3.us-east-2.amazonaws.com/book/retailers_book.pdf'
-  }
+    title: "RETAILER QUESTIONS BOOK",
+    url: "https://druna-assets.s3.us-east-2.amazonaws.com/book/retailers_book.pdf",
+  },
 ]);
 
 const faqData = ref([
   {
     question: "I CAN’T FIND THE “COMMANDER GUARDIAN” CARD",
-    answer: `<p>There is a typo on the Commander Guardian card. His name is printed as “Fallen Guardian” instead of simply “Guardian.” The Commander Fallen Guardian card is in the Kit and represents this Commander.</p>`
+    answer: `<p>There is a typo on the Commander Guardian card. His name is printed as “Fallen Guardian” instead of simply “Guardian.” The Commander Fallen Guardian card is in the Kit and represents this Commander.</p>`,
   },
   {
     question: "WHERE ARE MAYA’S PET CARDS?",
-    answer: `<p>Due to an oversight, we didn’t include extra copies of the Pet cards in Season 01 of the Organized Play Kit. However, copies of this card are in the Age of Darkness Corebox. The retailer will need to look for them there—they’re easy to spot by the Eagle and Wolf artwork. Starting with Season 02, the Kits will include copies of these cards to address this issue.</p>`
+    answer: `<p>Due to an oversight, we didn’t include extra copies of the Pet cards in Season 01 of the Organized Play Kit. However, copies of this card are in the Age of Darkness Corebox. The retailer will need to look for them there—they’re easy to spot by the Eagle and Wolf artwork. Starting with Season 02, the Kits will include copies of these cards to address this issue.</p>`,
   },
   {
     question: "HOW DO I SAVE MY CAMPAIGN PROGRESS?",
@@ -110,7 +141,7 @@ const faqData = ref([
         <li>Which Class Abilities the Hero has.</li>
       </ul>
       <p>Once all information for all Heroes is filled in, click “Save Changes” and you’re done! All the relevant information for your Campaign has been recorded. Until next time, dear Adventurer!</p>
-    `
+    `,
   },
   {
     question: "HOW DO I LOAD MY CAMPAIGN?",
@@ -143,10 +174,11 @@ const faqData = ref([
         <li>Hero’s current Health.</li>
       </ul>
       <p>Once all Hero information is set, place them back on the board. Each Hero may reposition their Model to a space within Range 1 of the Door listed as “Next Door” in their Campaign Log. At least one Hero, however, must be adjacent to it to open it. Open that Door, build its Setup, return the Initiative marker to the first card on the Track, and that’s it! Resume the game!</p>
-    `
+    `,
   },
   {
-    question: "WHAT’S THE DIFFERENCE BETWEEN DRUNAGOR NIGHTS GAMEPLAY AND THE AGE OF DARKNESS COREBOX?",
+    question:
+      "WHAT’S THE DIFFERENCE BETWEEN DRUNAGOR NIGHTS GAMEPLAY AND THE AGE OF DARKNESS COREBOX?",
     answer: `
       <p>Drunagor Nights isn’t exactly a “demo” of the Corebox. The Adventures in both products follow a similar structure but are not set in the same universe. The Drunagor Nights Adventures are exclusive to this event and are not part of the official Age of Darkness campaign, so it serves both newcomers and veteran CoD players.</p>
       <p>Regarding gameplay, the core rules are the same in both games. The difference lies in how certain effects are written. Drunagor Nights uses simpler, clearer effects to make it more accessible, which means the wording reads differently from Age of Darkness. For example:</p>
@@ -162,8 +194,8 @@ const faqData = ref([
       <p>Each of these instructions is explained in the Corebox Rulebook, pages 24–28, with many written and visual examples.</p>
       <p>The phrasing of Interactions is also different in the Corebox. They don’t include a “Proceed with the Adventure” command, but players should do so whenever they finish reading a resolution.</p>
       <p>One last note — the Heroes’ Skills are a bit different there as well. The ones borrowed for Drunagor Nights are simpler, with effects that use fewer Keywords and with attacks that favor hit bonuses rather than damage bonuses to be more accessible to new players. However, don’t worry — the Heroes’ concept and gameplay are the same. The difference is in the complexity of the effects and in the number of Keywords.</p>
-    `
-  }
+    `,
+  },
 ]);
 </script>
 
@@ -189,12 +221,12 @@ const faqData = ref([
 }
 
 .v-expansion-panel-title {
-    line-height: 1.4;
+  line-height: 1.4;
 }
 
 .readable-title {
   white-space: normal;
   line-height: 1.25rem;
-  height: auto; 
+  height: auto;
 }
 </style>
