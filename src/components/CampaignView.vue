@@ -1,5 +1,95 @@
 <template>
-  <div class="campaign-menu">
+  <v-speed-dial v-model="speedDialOpen" transition="fade-transition">
+    <template v-slot:activator="{ props: activatorProps }">
+      <v-btn
+        v-bind="activatorProps"
+        color="info"
+        size="large"
+        icon
+        class="speed-dial-activator"
+        elevation="14"
+      >
+        <v-icon>{{
+          speedDialOpen ? "mdi-close" : "mdi-script-text-outline"
+        }}</v-icon>
+      </v-btn>
+    </template>
+
+    <v-btn
+      v-if="showSaveCampaignButton"
+      key="save"
+      size="small"
+      color="success"
+      icon
+      class="speed-dial-item"
+      @click="handleSpeedDialAction('save')"
+    >
+      <v-icon>mdi-content-save-outline</v-icon>
+      <v-tooltip activator="parent" location="start">
+        {{ t("label.save-campaign-put") || "Save Campaign" }}
+      </v-tooltip>
+    </v-btn>
+
+    <v-btn
+      key="instructions"
+      size="small"
+      color="info"
+      icon
+      class="speed-dial-item"
+      @click="handleSpeedDialAction('instructions')"
+    >
+      <v-icon>mdi-lightbulb-on-outline</v-icon>
+      <v-tooltip activator="parent" location="start"> Instructions </v-tooltip>
+    </v-btn>
+
+    <v-btn
+      key="export"
+      size="small"
+      color="orange"
+      icon
+      class="speed-dial-item"
+      :disabled="!showSaveCampaignButton"
+      @click="handleSpeedDialAction('export')"
+    >
+      <v-icon>mdi-export</v-icon>
+      <v-tooltip activator="parent" location="start">
+        Export Campaign
+      </v-tooltip>
+    </v-btn>
+
+    <v-btn
+      key="share"
+      size="small"
+      color="secondary"
+      icon
+      class="speed-dial-item"
+      @click="handleSpeedDialAction('share')"
+    >
+      <v-icon>mdi-account-group</v-icon>
+      <v-tooltip activator="parent" location="start"> Invite Player </v-tooltip>
+    </v-btn>
+
+    <v-btn
+      v-if="showSaveCampaignButton"
+      key="remove"
+      size="small"
+      color="error"
+      icon
+      class="speed-dial-item"
+      @click="handleSpeedDialAction('remove')"
+    >
+      <v-icon>mdi-delete-outline</v-icon>
+      <v-tooltip activator="parent" location="start">
+        Remove Campaign
+      </v-tooltip>
+    </v-btn>
+  </v-speed-dial>
+  <v-card
+    class="campaign-menu pa-0 mx-2"
+    color="transparent"
+    elevation="0"
+    v-if="expandedPanel.length"
+  >
     <v-container fluid class="pa-2">
       <v-row justify="center" no-gutters>
         <v-col cols="12" lg="9" xl="8">
@@ -10,81 +100,14 @@
               text
               border="start"
               variant="tonal"
-              :closable="false"
+              :closable="true"
             >
               Players can only view information for this campaign. Only a
               Drunagor Master can save, edit, or delete a campaign.
             </BaseAlert>
           </v-card-text>
+
           <v-card class="mb-2" color="primary">
-            <v-card-actions class="pa-2">
-              <div class="d-flex justify-center w-100">
-                <v-menu v-model="menu" :close-on-content-click="false" offset-y>
-                  <template #activator="{ props }">
-                    <v-btn v-bind="props" variant="elevated" rounded>
-                      <v-icon start>mdi-cog</v-icon>
-                      Campaign Actions
-                      <v-icon end>mdi-chevron-down</v-icon>
-                    </v-btn>
-                  </template>
-
-                  <v-list density="compact">
-                    <v-list-item v-if="showSaveCampaignButton">
-                      <v-btn
-                        variant="elevated"
-                        rounded
-                        prepend-icon="mdi-content-save-outline"
-                        block
-                        class="mx-1 my-1"
-                        @click="openSavePanel"
-                      >
-                        {{ t("label.save-campaign-put") || "Save Campaign" }}
-                      </v-btn>
-                    </v-list-item>
-
-                    <v-list-item @click="toggleInstructions">
-                      <v-btn
-                        variant="elevated"
-                        rounded
-                        prepend-icon="mdi-lightbulb-on-outline"
-                        block
-                        class="mx-1 my-1"
-                      >
-                        Instructions
-                      </v-btn>
-                    </v-list-item>
-
-                    <v-divider class="my-1"></v-divider>
-
-                    <div v-if="showSaveCampaignButton" class="px-2 py-1">
-                      <CampaignRemove :campaign-id="campaignId" block />
-                    </div>
-
-                    <div class="px-2 py-1">
-                      <fieldset
-                        :disabled="!showSaveCampaignButton"
-                        class="d-contents"
-                      >
-                        <CampaignExport :campaign-id="campaignId" block />
-                      </fieldset>
-                    </div>
-
-                    <div class="px-2 py-1">
-                      <ShareCampaignButton :campaignId="campaignId" block />
-                    </div>
-                  </v-list>
-                </v-menu>
-              </div>
-              <div style="display: none">
-                <CampaignSavePut
-                  ref="savePutRef"
-                  :campaign-id="campaignId"
-                  @success="onSaveSuccess"
-                  @fail="onSaveFail"
-                />
-              </div>
-            </v-card-actions>
-
             <v-card-text v-if="showAlert" class="pa-2">
               <BaseAlert
                 v-model="showAlert"
@@ -98,49 +121,64 @@
               </BaseAlert>
             </v-card-text>
 
-            <v-card-text v-if="expandedPanel.length" class="pa-0">
-              <v-expansion-panels
-                v-model="expandedPanel"
-                accordion
-                variant="accordion"
-                class="instructions-panel"
-              >
-                <v-expansion-panel>
-                  <v-expansion-panel-text class="pa-0">
-                    <v-tabs
-                      v-model="instructionTab"
-                      density="compact"
-                      grow
-                      class="mb-3"
+            <v-card-text class="pa-0">
+              <div class="position-relative instructions-wrapper">
+                <v-btn
+                  @click="closeInstructions"
+                  icon
+                  size="small"
+                  variant="text"
+                  class="close-instructions-btn"
+                  aria-label="Close instructions"
+                >
+                  <v-icon size="20">mdi-close</v-icon>
+                </v-btn>
+                <v-expansion-panels
+                  v-model="expandedPanel"
+                  accordion
+                  variant="accordion"
+                  class="instructions-panel"
+                >
+                  <v-expansion-panel>
+                    <v-expansion-panel-text
+                      class="pa-0"
+                      style="padding: 0px !important"
                     >
-                      <v-tab v-if="showSaveCampaignButton" value="save">
-                        Save Campaign
-                      </v-tab>
-                      <v-tab value="load">Load Campaign</v-tab>
-                    </v-tabs>
+                      <v-tabs
+                        v-model="instructionTab"
+                        density="compact"
+                        grow
+                        class="mb-3"
+                      >
+                        <v-tab v-if="showSaveCampaignButton" value="save">
+                          Save Campaign
+                        </v-tab>
+                        <v-tab value="load">Load Campaign</v-tab>
+                      </v-tabs>
 
-                    <SaveInstructions
-                      v-if="instructionTab === 'save'"
-                      ref="saveInstructionsRef"
-                      @save="handleSave"
-                      @instruction-changed="onInstructionChanged"
-                      @close="closeInstructions"
-                    />
-                    <LoadInstructions
-                      v-else
-                      ref="loadInstructionsRef"
-                      @instruction-changed="onInstructionChanged"
-                      @close="closeInstructions"
-                    />
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+                      <SaveInstructions
+                        v-if="instructionTab === 'save'"
+                        ref="saveInstructionsRef"
+                        @save="handleSave"
+                        @instruction-changed="onInstructionChanged"
+                        @close="closeInstructions"
+                      />
+                      <LoadInstructions
+                        v-else
+                        ref="loadInstructionsRef"
+                        @instruction-changed="onInstructionChanged"
+                        @close="closeInstructions"
+                      />
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
     </v-container>
-  </div>
+  </v-card>
 
   <div class="campaign-content">
     <v-container fluid>
@@ -175,37 +213,38 @@
 
               <v-window v-model="currentTab">
                 <v-window-item value="normal">
-                  <fieldset :disabled="!showSaveCampaignButton">
-                    <v-card class="mb-3" color="primary">
-                      <v-card-text class="pa-3">
-                        <CampaignPlayerList
-                          ref="campaignPlayerListRef"
-                          :campaign-id="campaignId"
-                          density="compact"
-                        />
-                        <div
-                          class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                  <v-card class="mb-3" color="primary">
+                    <v-card-text class="pa-3">
+                      <CampaignPlayerList
+                        ref="campaignPlayerListRef"
+                        :campaign-id="campaignId"
+                        density="compact"
+                      />
+                      <div
+                        class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                      >
+                        <v-btn
+                          v-if="showSaveCampaignButton"
+                          class="mx-1 my-1"
+                          @click="openTransferDialog"
+                          variant="elevated"
+                          rounded
+                          prepend-icon="mdi-account-switch-outline"
                         >
-                          <v-btn
-                            v-if="showSaveCampaignButton"
-                            class="mx-1 my-1"
-                            @click="openTransferDialog"
-                            variant="elevated"
-                            rounded
-                            prepend-icon="mdi-account-switch-outline"
-                          >
-                            Transfer Drunagor Master
-                          </v-btn>
-                          <RemovePlayersButton
-                            :campaignId="campaignId"
-                            :showSaveCampaignButton="showSaveCampaignButton"
-                            @playersRemoved="onPlayerRemoved"
-                            class="mx-1 my-1"
-                          />
-                        </div>
-                      </v-card-text>
-                    </v-card>
+                          Transfer Drunagor Master
+                        </v-btn>
+                        <RemovePlayersButton
+                          v-if="showSaveCampaignButton"
+                          :campaignId="campaignId"
+                          :showSaveCampaignButton="showSaveCampaignButton"
+                          @playersRemoved="onPlayerRemoved"
+                          class="mx-1 my-1"
+                        />
+                      </div>
+                    </v-card-text>
+                  </v-card>
 
+                  <div>
                     <CampaignName :campaign-id="campaignId" class="mb-3" />
 
                     <v-row class="mb-3" no-gutters>
@@ -220,7 +259,11 @@
                       </v-col>
                     </v-row>
 
-                    <v-row class="mb-3" no-gutters>
+                    <v-row
+                      class="mb-3"
+                      no-gutters
+                      v-if="showSaveCampaignButton"
+                    >
                       <v-col cols="12">
                         <v-card class="pa-2" color="primary">
                           <div class="d-flex justify-center flex-wrap gap-2">
@@ -269,7 +312,7 @@
                         </v-sheet>
                       </v-col>
                     </v-row>
-                  </fieldset>
+                  </div>
                 </v-window-item>
 
                 <v-window-item value="book">
@@ -281,7 +324,7 @@
         </template>
 
         <template v-else>
-          <fieldset :disabled="!showSaveCampaignButton">
+          <div>
             <v-row justify="center" no-gutters>
               <v-col cols="12" lg="10" xl="8">
                 <div class="pa-2">
@@ -310,7 +353,7 @@
                     </v-sheet>
                   </div>
 
-                  <v-row class="mb-3" no-gutters>
+                  <v-row v-if="showSaveCampaignButton" class="mb-3" no-gutters>
                     <v-col cols="12">
                       <div class="d-flex justify-center flex-wrap gap-2">
                         <CampaignLogAddHero
@@ -349,7 +392,7 @@
                 </div>
               </v-col>
             </v-row>
-          </fieldset>
+          </div>
         </template>
       </template>
 
@@ -428,6 +471,22 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <div style="display: none">
+    <CampaignSavePut
+      ref="savePutRef"
+      :campaign-id="campaignId"
+      @success="onSaveSuccess"
+      @fail="onSaveFail"
+    />
+    <CampaignRemove
+      ref="campaignRemoveRef"
+      :campaign-id="campaignId"
+      @removed="onCampaignRemoved"
+    />
+    <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
+    <ShareCampaignButton ref="shareCampaignRef" :campaignId="campaignId" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -491,6 +550,18 @@ const saveInstructionsRef = vueRef<InstanceType<
   typeof SaveInstructions
 > | null>(null);
 
+// Speed Dial refs
+const speedDialOpen = ref(false);
+const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
+  null,
+);
+const campaignExportRef = vueRef<InstanceType<typeof CampaignExport> | null>(
+  null,
+);
+const shareCampaignRef = vueRef<InstanceType<
+  typeof ShareCampaignButton
+> | null>(null);
+
 // New refs and logic for Transfer Master feature
 const transferLoading = ref(false);
 const transferDialogVisible = ref(false);
@@ -509,7 +580,39 @@ const originalMaster = ref<(typeof players.value)[0] | null>(null);
 const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
-const menu = ref(false); 
+
+const handleSpeedDialAction = (action: string) => {
+  switch (action) {
+    case "save":
+      openSavePanel();
+      break;
+    case "instructions":
+      toggleInstructions();
+      break;
+    case "export":
+      if (campaignExportRef.value?.export) {
+        campaignExportRef.value.export();
+      }
+      break;
+    case "share":
+      if (shareCampaignRef.value?.openDialog) {
+        shareCampaignRef.value.openDialog();
+      }
+      break;
+    case "remove":
+      if (campaignRemoveRef.value?.openDialog) {
+        campaignRemoveRef.value.openDialog();
+      }
+      break;
+  }
+
+  speedDialOpen.value = false;
+};
+
+const onCampaignRemoved = () => {
+  setAlert("mdi-check", "Success", "Campaign removed successfully", "success");
+  router.push({ name: "Campaigns" });
+};
 
 const initTransfer = (user: (typeof players.value)[0]) => {
   selectedUser.value = user;
@@ -1034,6 +1137,7 @@ watch(
 }
 
 .campaign-content {
+  position: relative;
   overflow-x: hidden;
 }
 
@@ -1059,8 +1163,103 @@ watch(
 }
 
 .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-  max-height: 30vh;
+  max-height: 32vh;
   overflow-y: auto;
+}
+
+.instructions-wrapper {
+  position: relative;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.close-instructions-btn[data-v-9901feaa] {
+  position: absolute;
+  top: 47px;
+  right: 29px;
+  z-index: 25;
+  background-color: rgba(244, 67, 54, 0.9) !important;
+  border-radius: 50% !important;
+  min-width: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.close-instructions-btn:hover {
+  background-color: rgba(244, 67, 54, 1) !important;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+.close-instructions-btn .v-icon {
+  color: white !important;
+  font-size: 16px !important;
+}
+
+.close-instructions-btn:hover .v-icon {
+  color: white !important;
+}
+
+.speed-dial-activator {
+  position: fixed;
+  right: 24px; /* tweak spacing as you like */
+  bottom: 62px;
+  z-index: 2000; /* keep it above sheets/cards/dialogs */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.speed-dial-activator:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4) !important;
+}
+
+.speed-dial-item {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  margin-bottom: 12px !important;
+  transition: all 0.2s ease !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+.speed-dial-item:hover {
+  transform: scale(1.15) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.speed-dial-item:disabled {
+  opacity: 0.5 !important;
+  transform: none !important;
+}
+
+@media (max-width: 960px) {
+  .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
+    max-height: 25vh;
+  }
+
+  .action-group {
+    min-width: 45%;
+  }
+
+  .campaign-actions-speed-dial {
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .speed-dial-activator {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .speed-dial-item {
+    width: 44px !important;
+    height: 44px !important;
+  }
 }
 
 @media (max-width: 600px) {
@@ -1080,15 +1279,21 @@ watch(
   .v-tab {
     min-width: 80px;
   }
-}
 
-@media (max-width: 960px) {
-  .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-    max-height: 25vh;
+  .campaign-actions-speed-dial {
+    bottom: 16px;
+    right: 16px;
   }
 
-  .action-group {
-    min-width: 45%;
+  .speed-dial-activator {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .speed-dial-item {
+    width: 40px !important;
+    height: 40px !important;
+    margin-bottom: 8px !important;
   }
 }
 
@@ -1100,15 +1305,8 @@ watch(
   gap: 8px;
 }
 
-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-fieldset:disabled {
+.player-view {
   pointer-events: none;
-  opacity: 0.6;
 }
 
 .v-tabs .v-tab--selected {
@@ -1122,5 +1320,9 @@ fieldset:disabled {
 
 .v-container {
   max-width: 100%;
+}
+
+.v-speed-dial .v-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 </style>

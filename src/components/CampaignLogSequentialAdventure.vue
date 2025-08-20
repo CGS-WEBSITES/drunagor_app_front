@@ -2,8 +2,11 @@
   <v-row
     no-gutters
     id="seq-adv"
-    @click="openSequentialStateEditor"
-    class="cursor-pointer justify-center"
+    :class="{
+      'cursor-pointer': isAdmin && !loading,
+      'justify-center': true
+    }"
+    @click="isAdmin && !loading ? openSequentialStateEditor() : null"
   >
     <v-col cols="12" class="px-2">
       <v-sheet
@@ -134,7 +137,7 @@
       </v-sheet>
     </v-col>
 
-    <v-col cols="12" class="px-2 pb-4">
+    <v-col v-if="isAdmin && !loading" cols="12" class="px-2 pb-4">
       <v-btn
         @click.stop="openSequentialStateEditor"
         variant="elevated"
@@ -148,12 +151,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { HeroStore } from "@/store/HeroStore";
+import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { SequentialAdventureState } from "@/store/Hero";
 import type { HeroData } from "@/data/repository/HeroData";
 import { useI18n } from "vue-i18n";
+import axios from "axios";
 
 const props = defineProps<{
   hero: HeroData;
@@ -161,8 +166,12 @@ const props = defineProps<{
 }>();
 
 const heroStore = HeroStore();
+const userStore = useUserStore();
 const router = useRouter();
 const { t } = useI18n();
+
+const isAdmin = ref(false);
+const loading = ref(true);
 
 const resourceDisplay = computed(() => {
   const resources = sequentialAdventureState.value?.resources;
@@ -184,19 +193,53 @@ sequentialAdventureState.value =
   heroStore.findInCampaign(props.hero.id, props.campaignId)
     ?.sequentialAdventureState ?? new SequentialAdventureState();
 
-// A constante resourceIcons foi removida daqui
+const checkUserRole = async () => {
+  try {
+    const response = await axios.get("rl_campaigns_users/search", {
+      params: { 
+        users_fk: userStore.user?.users_pk, 
+        campaigns_fk: props.campaignId 
+      },
+    });
+    
+    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";    
+  } catch (error) {
+    console.error("SequentialAdventureState - Error fetching user role:", error);
+    isAdmin.value = false;
+  } finally {
+    loading.value = false;
+  }
+};
 
 function openSequentialStateEditor() {
+  if (!isAdmin.value) {
+    console.log('SequentialAdventureState - Cannot navigate - not admin');
+    return;
+  }
+
   router.push({
     name: "HeroSequentialState",
     params: { campaignId: props.campaignId, heroId: props.hero.id },
   });
 }
+
+onMounted(async () => {
+  await checkUserRole();
+});
 </script>
 
 <style scoped>
 .faded-cubes {
   opacity: 0.6;
   filter: grayscale(40%);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
 }
 </style>

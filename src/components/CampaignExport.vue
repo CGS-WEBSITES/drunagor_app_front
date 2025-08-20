@@ -4,7 +4,7 @@
     id="campaign-export"
     class="px-6 my-2"
     rounded
-    @click="openModal"
+    @click="exportCampaign"
   >
     <v-icon start>mdi-export</v-icon>
     {{ t("label.export-campaign") }}
@@ -18,9 +18,6 @@
       </v-card-text>
     </v-card>
     <v-card>
-      <!-- <v-btn variant="elevated" @click="saveCampaign">{{
-        t("save")
-      }}</v-btn> -->
       <v-btn variant="elevated" @click="copyToClipboard">{{
         t("label.copy-to-clipboard")
       }}</v-btn>
@@ -49,11 +46,8 @@ import { useToast } from "primevue/usetoast";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
-// import { useRoute } from "vue-router";
-// import axios from "axios";
 
 const toast = useToast();
-// const route = useRoute();
 
 const props = defineProps<{
   campaignId: string;
@@ -66,9 +60,7 @@ const heroStore = HeroStore();
 const token = ref("");
 const { t } = useI18n();
 
-// const boxSku = computed(() => route.query.sku || "");
-
-function openModal() {
+function exportCampaign() {
   const campaignCopy = JSON.parse(
     JSON.stringify(campaignStore.find(props.campaignId)),
   );
@@ -88,6 +80,10 @@ function openModal() {
 
   visible.value = true;
 }
+
+defineExpose({
+  export: exportCampaign,
+});
 
 function copyToClipboard() {
   navigator.clipboard.writeText(token.value);

@@ -28,8 +28,8 @@
     </v-col>
   </v-row>
 
-  <v-row no-gutters class="mt-4">
-    <v-col cols="12" class="d-flex  flex-wrap" style="gap: 8px">
+  <v-row v-if="isAdmin && !loading" no-gutters>
+    <v-col cols="12">
       <v-btn
         variant="elevated"
         rounded
@@ -52,6 +52,9 @@ import CampaignLogStatus from "@/components/CampaignLogStatus.vue";
 import { CampaignLogStatusRepository } from "@/data/repository/campaign/underkeep/CampaignLogStatusRepository";
 import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/underkeep/CampaignLogOutcomeRepository";
 import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
+import { useUserStore } from "@/store/UserStore";
+import { ref, onMounted } from "vue";
+import axios from "axios";
 
 const props = defineProps<{
   heroId: string;
@@ -61,4 +64,28 @@ const props = defineProps<{
 const statusRepository = new CampaignLogStatusRepository();
 const outcomeRepository = new CampaignLogOutcomeRepository();
 const { t } = useI18n();
+const userStore = useUserStore();
+const isAdmin = ref(false);
+const loading = ref(true);
+
+const checkUserRole = async () => {
+  try {
+    const response = await axios.get("rl_campaigns_users/search", {
+      params: { 
+        users_fk: userStore.user?.users_pk, 
+        campaigns_fk: props.campaignId 
+      },
+    });
+    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";    
+  } catch (error) {
+    console.error("CampaignLog - Error fetching user role:", error);
+    isAdmin.value = false;
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(async () => {
+  await checkUserRole();
+});
 </script>

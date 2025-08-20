@@ -2,11 +2,13 @@
   <div>
     <v-dialog v-model="visible" max-width="500">
       <v-card>
-        <v-card-title>Share Campaign</v-card-title>
+        <v-card-title>Invite Player</v-card-title>
         <v-card-text>
-          <p class="py-2">Copy this token to share your campaign:</p>
-          <v-textarea readonly auto-grow v-model="token" class="ma-0" />
+          <p class="py-2">Invite players to play:</p>
+          <v-text-field readonly auto-grow v-model="token" class="ma-0" />
+          <p class="py-2">Paste this number into the <em>Join Campaign option</em> in the Campaigns menu.</p>
         </v-card-text>
+
         <v-card-actions>
           <v-spacer />
           <v-btn @click="closeModal">Cancel</v-btn>
@@ -15,15 +17,14 @@
       </v-card>
     </v-dialog>
 
-    <v-btn 
-      variant="elevated" 
+    <v-btn
+      variant="elevated"
       id="share-campaign"
-      class="px-6 my-2"
       rounded
-      @click="openModal"
+      @click="openDialog"
     >
-      <v-icon left class="mr-4">mdi-share-variant</v-icon>
-        Share Campaign
+      <v-icon left class="mr-2">mdi-share-variant</v-icon>
+      Invite Player
     </v-btn>
   </div>
 </template>
@@ -37,11 +38,15 @@ const visible = ref(false);
 const token = ref("");
 const toast = useToast();
 
-const openModal = () => {
+const openDialog = () => {
   const prefix = Math.floor(1000 + Math.random() * 9000).toString();
   token.value = `${prefix}${props.campaignId}`;
   visible.value = true;
 };
+
+defineExpose({
+  openDialog,
+});
 
 const closeModal = () => {
   visible.value = false;
