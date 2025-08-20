@@ -31,6 +31,7 @@
     </v-btn>
 
     <v-btn
+      v-if="campaign?.campaign === 'underkeep'"
       key="instructions"
       size="small"
       color="info"
@@ -84,11 +85,12 @@
       </v-tooltip>
     </v-btn>
   </v-speed-dial>
+
   <v-card
     class="campaign-menu pa-0 mx-2"
     color="transparent"
     elevation="0"
-    v-if="expandedPanel.length"
+    v-if="expandedPanel.length && campaign?.campaign === 'underkeep'"
   >
     <v-container fluid class="pa-2">
       <v-row justify="center" no-gutters>
@@ -161,14 +163,14 @@
                         @save="handleSave"
                         @instruction-changed="onInstructionChanged"
                         @close="closeInstructions"
-                        style="max-height:25vh !important"
+                        style="max-height: 25vh !important"
                       />
                       <LoadInstructions
                         v-else
                         ref="loadInstructionsRef"
                         @instruction-changed="onInstructionChanged"
                         @close="closeInstructions"
-                        style="max-height:25vh !important"
+                        style="max-height: 25vh !important"
                       />
                     </v-expansion-panel-text>
                   </v-expansion-panel>
@@ -585,7 +587,14 @@ const transferAlertType = ref<"success" | "error">("success");
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
-      openSavePanel();
+      // Check if the campaign is 'underkeep'
+      if (campaign.value?.campaign === "underkeep") {
+        // If so, open the instructions panel for saving
+        openSavePanel();
+      } else {
+        // Otherwise, call the save function directly
+        handleSave();
+      }
       break;
     case "instructions":
       toggleInstructions();
@@ -978,7 +987,9 @@ const onSaveSuccess = () => {
     "The campaign was saved successfully!",
     "success",
   );
-  closeInstructions();
+  if (campaign.value?.campaign === "underkeep") {
+    closeInstructions();
+  }
 };
 
 const onSaveFail = () => {
@@ -1031,6 +1042,10 @@ onBeforeUnmount(() => {
 });
 
 onMounted(async () => {
+  if (!campaignId) {
+    setAlert("mdi-alert-circle", "Error", "Campaign ID is missing.", "error");
+    return;
+  }
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
@@ -1044,8 +1059,9 @@ onMounted(async () => {
   }
 
   await fetchRole();
-
-  restoreInstructionState();
+  if (campaign.value?.campaign === "underkeep") {
+    restoreInstructionState();
+  }
 });
 
 watch(
