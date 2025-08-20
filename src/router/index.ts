@@ -65,13 +65,6 @@ const router = createRouter({
       path: "/FAQforRetailers",
       name: "FAQ",
       component: () => import("@/components/FAQ.vue"),
-
-      beforeEnter(to, from, next) {
-        if (isSignedIn()) {
-          next()
-          return
-        }
-      },
     },
     {
       path: "/dashboard",
@@ -88,12 +81,6 @@ const router = createRouter({
       path: "/community-builds",
       name: "CommunityBuilds",
       component: () => import("@/components/CommunityBuilds.vue"),
-      beforeEnter(to, from, next) {
-        if (isSignedIn()) {
-          next()
-          return
-        }
-      },
     },
     {
       path: "/tracker-parent",
