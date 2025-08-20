@@ -501,22 +501,22 @@ const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
 const carouselItems = ref([
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-companion-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-campaigns-2.0.png",
     label: "COMPANION",
     route: { name: "Campaign Overview" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-2.0.png",
     label: "LIBRARY",
     route: { name: "Library" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-2.0.png",
     label: "EVENTS",
     route: { name: "Events" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-2.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
   },
