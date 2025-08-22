@@ -235,7 +235,9 @@
                 create an event
               </v-card-title>
               <v-card-actions class="d-flex justify-center">
-                <v-btn color="secundary" @click="router.push({ name: 'Events' })"
+                <v-btn
+                  color="secundary"
+                  @click="router.push({ name: 'Events' })"
                   >create Event</v-btn
                 >
               </v-card-actions>
@@ -357,22 +359,22 @@ const campFig = (campName: string) => {
 // Dados do carrossel
 const carouselItems = ref([
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-campaignmanager-1.0-min.png",
-    label: "CAMPAIGN MANAGER",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-faq-1.0.png",
+    label: "FAQ",
     route: { name: "FAQ" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-skusmannager+(1)-min.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-skus-2.0.png",
     label: "SKUS MANAGER",
     route: { name: "Library" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-2.0.png",
     label: "EVENTS",
     route: { name: "Events" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-2.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
   },
