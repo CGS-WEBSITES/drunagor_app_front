@@ -299,12 +299,24 @@ import VectorIcon from "@/assets/Vector.png";
 
 const menuItems = computed(() => {
   return [
-    {
-      title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
-      iconImage: VectorIcon,
-      to: { name: "Campaign Overview" },
-      disabled: false,
-    },
+    ...(role.value === 3
+      ? [
+          {
+            title: "FAQ & Books",
+            icon: "mdi-help-circle-outline",
+            to: { name: "FAQ" },
+            disabled: false,
+          },
+        ]
+      : [
+          {
+            title: "Companion",
+            iconImage: VectorIcon,
+            to: { name: "Campaign Overview" },
+            disabled: false,
+          },
+        ]),
+
     {
       title: role.value === 3 ? "SKUS MANAGER" : "Library",
       icon: "mdi-book",
