@@ -73,6 +73,11 @@ const router = createRouter({
       },
     },
     {
+      path: "/emailEditor",
+      name: "EmailEditor",
+      component: () => import("@/components/EmailEditor.vue"),
+    },
+    {
       path: "/community-builds",
       name: "CommunityBuilds",
       component: () => import("@/components/CommunityBuilds.vue"),
