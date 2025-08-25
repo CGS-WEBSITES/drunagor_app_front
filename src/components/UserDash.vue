@@ -451,7 +451,7 @@
             </div>
           </v-col>
         </v-row>
-        
+
         <v-row no-gutters class="move_topo3 justify-center pb-6 px-4">
           <v-col cols="12">
             <v-card
@@ -501,22 +501,22 @@ const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
 const carouselItems = ref([
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-companion-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-campaigns-2.0.png",
     label: "COMPANION",
     route: { name: "Campaign Overview" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-library-2.0.png",
     label: "LIBRARY",
     route: { name: "Library" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-2.0.png",
     label: "EVENTS",
     route: { name: "Events" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-1.0.png",
+    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-2.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
   },
@@ -576,7 +576,7 @@ function addLoadingError(message: string) {
 }
 
 function removeErrorById(id: number) {
-  loadingErrors.value = loadingErrors.value.filter(e => e.id !== id);
+  loadingErrors.value = loadingErrors.value.filter((e) => e.id !== id);
 }
 
 function importCampaign(token: string) {
