@@ -7,6 +7,7 @@ import Vue from '@vitejs/plugin-vue'
 import VueRouter from 'unplugin-vue-router/vite'
 import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import { VitePWA } from 'vite-plugin-pwa'
 
 // Utilities
 import { defineConfig } from 'vite'
@@ -42,6 +43,38 @@ export default defineConfig({
     Vue({
       template: { transformAssetUrls },
     }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      manifest: {
+        name: 'Drunagor App',
+        short_name: 'Drunagor App',
+        description: 'Drunagor App',
+        theme_color: '#363636',
+        background_color: '#363636',
+        display: 'standalone',
+        scope: '/',
+        start_url: '/',
+        icons: [
+          {
+            src: 'android-chrome-192x192.png', 
+            sizes: '192x192',
+            type: 'image/png'
+          },
+           {
+            src: 'android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          },
+          {
+            src: 'maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ]
+      }
+    }),
     vueDevTools(),
     Fonts({
       google: {
@@ -53,8 +86,8 @@ export default defineConfig({
     }),
   ],
   build: {
-    manifest: true, // Generates a manifest file for advanced caching
-    outDir: 'dist', // Default output directory
+    manifest: true,
+    outDir: 'dist',
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name].[hash].js',
@@ -83,16 +116,5 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["@/locales/**/*.yaml"],
-  },
-  build: {
-    manifest: true, // Generates a manifest file for advanced caching
-    outDir: 'dist', // Default output directory
-    rollupOptions: {
-      output: {
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]',
-      },
-    },
   },
 })
