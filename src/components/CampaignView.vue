@@ -517,6 +517,7 @@ import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import SaveInstructions from "./SaveInstructions.vue";
 import LoadInstructions from "./LoadInstructions.vue";
+import { SequentialAdventureState } from "@/store/Hero";
 import RemovePlayersButton from "@/components/RemovePlayersButton.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
@@ -1049,6 +1050,16 @@ onMounted(async () => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
+    if (!campaign.value.isSequentialAdventure) {
+      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
+      campaign.value.isSequentialAdventure = true;
+      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
+
+      // Para cada herói na campanha, inicia o estado da Aventura Sequencial.
+      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
+        hero.sequentialAdventureState = new SequentialAdventureState();
+      });
+    }
   } else {
     setAlert(
       "mdi-alert-circle",
