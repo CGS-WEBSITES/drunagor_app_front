@@ -2,7 +2,7 @@
   <v-text-field
     :label="t('text.party-name')"
     variant="outlined"
-    v-model="name"
+    v-model="partyName"
     :readonly="!isAdmin"
     :disabled="!isAdmin"
     :loading="loading"
@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { CampaignStore } from "@/store/CampaignStore";
 import { useUserStore } from "@/store/UserStore";
-import { ref, watch, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
 
@@ -24,12 +24,22 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 
-const campaign = campaignStore.find(props.campaignId);
-const name = ref(campaign?.name || '');
 const isAdmin = ref(false);
 const loading = ref(true);
 
+const partyName = computed({
+  get() {
+    return campaignStore.find(props.campaignId)?.name ?? '';
+  },
+  set(newValue) {
+    if (isAdmin.value) {
+      campaignStore.updateCampaignProperty(props.campaignId, 'name', newValue);
+    }
+  },
+});
+
 const checkUserRole = async () => {
+  loading.value = true;
   try {
     const response = await axios.get("rl_campaigns_users/search", {
       params: { 
@@ -37,7 +47,6 @@ const checkUserRole = async () => {
         campaigns_fk: props.campaignId 
       },
     });
-    
     isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
   } catch (error) {
     console.error("Error fetching user role:", error);
@@ -47,17 +56,5 @@ const checkUserRole = async () => {
   }
 };
 
-watch(name, (newName) => {
-  if (isAdmin.value && campaign) {
-    campaign.name = newName;
-  } else {
-    console.log('Cannot update - not admin or no campaign');
-  }
-});
-
-onMounted(async () => {
-  await checkUserRole();
-});
+onMounted(checkUserRole);
 </script>
-
-<style scoped></style>

@@ -9,12 +9,12 @@
     variant="outlined"
     id="runes"
     :min="0"
-    v-model="runesValue"
+    v-model="runes"
   ></v-number-input>
 
   <v-text-field
     v-else-if="!loading"
-    :model-value="runesValue"
+    :model-value="runes"
     :label="t('text.number-of-runes')"
     variant="outlined"
     readonly
@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { CampaignStore } from "@/store/CampaignStore";
 import { useUserStore } from "@/store/UserStore";
-import { ref, watch, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
 
@@ -47,10 +47,19 @@ const { t } = useI18n();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 
-const campaign = campaignStore.find(props.campaignId);
 const isAdmin = ref(false);
 const loading = ref(true);
-const runesValue = ref(campaign?.sequentialAdventureRunes || 0);
+
+const runes = computed({
+  get() {
+    return campaignStore.find(props.campaignId)?.sequentialAdventureRunes ?? 0;
+  },
+  set(newValue) {
+    if (isAdmin.value) {
+      campaignStore.updateCampaignProperty(props.campaignId, 'sequentialAdventureRunes', newValue);
+    }
+  },
+});
 
 const checkUserRole = async () => {
   try {
@@ -69,17 +78,5 @@ const checkUserRole = async () => {
   }
 };
 
-watch(runesValue, (newValue) => {
-  if (isAdmin.value && campaign) {
-    campaign.sequentialAdventureRunes = newValue;
-  } else {
-    console.log('CampaignRunes - Cannot update - not admin or no campaign');
-  }
-});
-
-onMounted(async () => {
-  await checkUserRole();
-});
+onMounted(checkUserRole);
 </script>
-
-<style scoped></style>
