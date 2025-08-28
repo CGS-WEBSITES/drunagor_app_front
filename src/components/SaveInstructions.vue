@@ -331,11 +331,15 @@ watch(
   (newStep) => {
     emit("instruction-changed", newStep);
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
 <style scoped>
+.content-area {
+  padding-bottom: 30px;
+}
+
 .custom-stepper {
   width: 100%;
   background: transparent;
