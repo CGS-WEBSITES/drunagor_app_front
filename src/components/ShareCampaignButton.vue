@@ -6,7 +6,10 @@
         <v-card-text>
           <p class="py-2">Invite players to play:</p>
           <v-text-field readonly auto-grow v-model="token" class="ma-0" />
-          <p class="py-2">Paste this number into the <em>Join Campaign option</em> in the Campaigns menu.</p>
+          <p class="py-2">
+            Paste this number into the <em>Join Campaign option</em> in the
+            Campaigns menu.
+          </p>
         </v-card-text>
 
         <v-card-actions>
@@ -22,6 +25,7 @@
       id="share-campaign"
       rounded
       @click="openDialog"
+      style="display: none"
     >
       <v-icon left class="mr-2">mdi-share-variant</v-icon>
       Invite Player
@@ -30,18 +34,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useToast } from "primevue/usetoast";
 
-const props = defineProps<{ campaignId: string }>();
+const props = defineProps<{
+  campaignId: string;
+  inviteCode: string | null;
+}>();
+
 const visible = ref(false);
-const token = ref("");
+const token = ref(props.inviteCode || "");
 const toast = useToast();
 
+watch(
+  () => props.inviteCode,
+  (newCode) => {
+    if (newCode) {
+      token.value = newCode;
+    }
+  },
+);
+
 const openDialog = () => {
-  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
-  token.value = `${prefix}${props.campaignId}`;
-  visible.value = true;
+  if (props.inviteCode) {
+    token.value = props.inviteCode;
+    visible.value = true;
+  } else {
+    toast.add({
+      severity: "warn",
+      summary: "Warning",
+      detail: "Invite code not available yet.",
+    });
+  }
 };
 
 defineExpose({
