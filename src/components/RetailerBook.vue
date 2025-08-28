@@ -6,9 +6,11 @@
           expand-on-hover
           rail
           permanent
-          rail-width="72"
+          rail-width="56"
+          width="280"
           class="nav-drawer"
           :floating="false"
+          :mobile-breakpoint="0"
         >
           <v-list density="compact" nav v-model:opened="openGroups">
             <v-list-group
@@ -205,7 +207,7 @@
                   v-if="isFullScreenWithBackground"
                   class="background-overlay"
                 ></div>
-                <v-container class="pa-3 ml-2">
+                <v-container class="pa-2 pa-sm-3 ml-0 ml-sm-2">
                   <v-row>
                     <v-col cols="12">
                       <div
@@ -226,11 +228,14 @@
                             {{ item.title }}
                           </h2>
                         </div>
-                        <div class="body-text mt-3" v-html="item.body"></div>
+                        <div
+                          class="body-text mt-2 mt-sm-3"
+                          v-html="item.body"
+                        ></div>
 
                         <v-card
                           v-if="item.instruction"
-                          class="instruction-card mt-6 py-0"
+                          class="instruction-card mt-3 mt-sm-6 py-0"
                           flat
                         >
                           <v-card-text v-html="item.instruction" />
@@ -238,7 +243,10 @@
 
                         <v-card-text v-html="item.setup" />
 
-                        <div v-if="item.instruction" class="pt-5 px-16">
+                        <div
+                          v-if="item.instruction"
+                          class="pt-3 pt-sm-5 px-4 px-sm-16"
+                        >
                           <v-img src="@/assets/Barra.png"></v-img>
                         </div>
                       </div>
@@ -258,7 +266,7 @@
 
             <div
               v-else-if="currentView === 'tutorial'"
-              class="book-page ma-5"
+              class="book-page ma-3 ma-sm-5"
               :style="{
                 backgroundColor: '#ffffff',
                 color: '#212121',
@@ -268,7 +276,7 @@
                   '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)',
               }"
             >
-              <v-container fluid class="pa-3">
+              <v-container fluid class="pa-2 pa-sm-3">
                 <v-row>
                   <v-col cols="12">
                     <template
@@ -296,7 +304,9 @@
                             {{ chapter.chapterTitle }}
                           </h2>
                         </div>
-                        <div class="body-text-mechanics pa-4 mt-3">
+                        <div
+                          class="body-text-mechanics pa-3 pa-sm-4 mt-2 mt-sm-3"
+                        >
                           <template
                             v-for="(
                               tutorial, tutorialIndex
@@ -305,7 +315,7 @@
                           >
                             <section
                               :id="`tutorial-section-${chapter.chapterTitle}-${tutorialIndex}`"
-                              class="mb-4"
+                              class="mb-3 mb-sm-4"
                             >
                               <h3 class="tutorial-section-title">
                                 {{ tutorial.title }}
@@ -323,7 +333,7 @@
 
             <div
               v-else-if="currentView === 'combatGuide'"
-              class="book-page ma-5"
+              class="book-page ma-3 ma-sm-5"
               :style="{
                 backgroundColor: '#ffffff',
                 color: '#212121',
@@ -333,10 +343,10 @@
                   '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)',
               }"
             >
-              <v-container fluid class="pa-3">
+              <v-container fluid class="pa-2 pa-sm-3">
                 <v-row>
                   <v-col cols="12">
-                    <div class="content-block ml-4">
+                    <div class="content-block ml-2 ml-sm-4">
                       <div class="header-banner">
                         <div
                           class="d-flex align-center justify-space-between pa-0 pb-0"
@@ -349,19 +359,24 @@
                           {{ gameMechanicsBook.chapterTitle }}
                         </h2>
                       </div>
-                      <div class="body-text-mechanics pa-4 mt-3">
+                      <div
+                        class="body-text-mechanics pa-3 pa-sm-4 mt-2 mt-sm-3"
+                      >
                         <template
                           v-for="(
                             mechanic, index
                           ) in gameMechanicsBook.mechanics"
                           :key="mechanic.title"
                         >
-                          <section :id="`mechanic-item-${index}`" class="mb-4">
+                          <section
+                            :id="`mechanic-item-${index}`"
+                            class="mb-3 mb-sm-4"
+                          >
                             <h3 class="mechanic-title">{{ mechanic.title }}</h3>
                             <div v-html="mechanic.bodyHTML"></div>
                           </section>
                           <div
-                            class="pt-5 px-16"
+                            class="pt-3 pt-sm-5 px-4 px-sm-16"
                             v-if="
                               index < gameMechanicsBook.mechanics.length - 1
                             "
@@ -378,7 +393,7 @@
 
             <div
               v-else-if="currentView === 'explorationTips'"
-              class="book-page ma-5"
+              class="book-page ma-3 ma-sm-5"
               :style="{
                 backgroundColor: '#ffffff',
                 color: '#212121',
@@ -388,7 +403,7 @@
                   '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)',
               }"
             >
-              <v-container class="pa-3">
+              <v-container class="pa-2 pa-sm-3">
                 <v-row>
                   <v-col cols="12">
                     <template
@@ -398,7 +413,7 @@
                       :key="chapter.chapterTitle"
                     >
                       <div
-                        class="content-block ml-4"
+                        class="content-block ml-2 ml-sm-4"
                         :class="{
                           'mb-6':
                             chapterIdx <
@@ -417,14 +432,16 @@
                             {{ chapter.chapterTitle }}
                           </h2>
                         </div>
-                        <div class="body-text-mechanics pa-4 mt-3">
+                        <div
+                          class="body-text-mechanics pa-3 pa-sm-4 mt-2 mt-sm-3"
+                        >
                           <template
                             v-for="(section, sectionIdx) in chapter.sections"
                             :key="section.title"
                           >
                             <section
                               :id="`1st-enc-section-${chapterIdx}-${sectionIdx}`"
-                              class="mb-4"
+                              class="mb-3 mb-sm-4"
                             >
                               <h3 class="tutorial-section-title">
                                 {{ section.title }}
@@ -432,7 +449,7 @@
                               <div v-html="section.bodyHTML"></div>
                             </section>
                             <div
-                              class="pt-5 px-16"
+                              class="pt-3 pt-sm-5 px-4 px-sm-16"
                               v-if="sectionIdx < chapter.sections.length - 1"
                             >
                               <v-img src="@/assets/Barra.png"></v-img>
@@ -448,7 +465,7 @@
 
             <div
               v-else-if="currentView === 'charProgression'"
-              class="book-page ma-5"
+              class="book-page ma-3 ma-sm-5"
               :style="{
                 backgroundColor: '#ffffff',
                 color: '#212121',
@@ -458,7 +475,7 @@
                   '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)',
               }"
             >
-              <v-container class="pa-3">
+              <v-container class="pa-2 pa-sm-3">
                 <v-row>
                   <v-col cols="12">
                     <template
@@ -468,7 +485,7 @@
                       :key="chapter.chapterTitle"
                     >
                       <div
-                        class="content-block ml-4"
+                        class="content-block ml-2 ml-sm-4"
                         :class="{
                           'mb-6':
                             chapterIdx <
@@ -487,14 +504,16 @@
                             {{ chapter.chapterTitle }}
                           </h2>
                         </div>
-                        <div class="body-text-mechanics pa-4 mt-3">
+                        <div
+                          class="body-text-mechanics pa-3 pa-sm-4 mt-2 mt-sm-3"
+                        >
                           <template
                             v-for="(section, sectionIdx) in chapter.sections"
                             :key="section.title"
                           >
                             <section
                               :id="`2nd-enc-section-${chapterIdx}-${sectionIdx}`"
-                              class="mb-4"
+                              class="mb-3 mb-sm-4"
                             >
                               <h3 class="tutorial-section-title">
                                 {{ section.title }}
@@ -502,7 +521,7 @@
                               <div v-html="section.bodyHTML"></div>
                             </section>
                             <div
-                              class="pt-5 px-16"
+                              class="pt-3 pt-sm-5 px-4 px-sm-16"
                               v-if="sectionIdx < chapter.sections.length - 1"
                             >
                               <v-img src="@/assets/Barra.png"></v-img>
@@ -518,7 +537,7 @@
 
             <div v-else-if="currentView === 'interactions'">
               <v-container
-                class="py-2 px-4"
+                class="py-2 px-3 px-sm-4"
                 style="flex: 1; display: flex; flex-direction: column"
               >
                 <v-row
@@ -541,11 +560,12 @@
                           icon
                           @click="resetScan"
                           class="close-btn header-close"
+                          size="small"
                         >
                           <v-icon>mdi-close</v-icon>
                         </v-btn>
                       </div>
-                      <v-col cols="11">
+                      <v-col cols="12" sm="11">
                         <p
                           class="interaction-subtitle"
                           v-html="currentInteractionConfig?.subtitle"
@@ -555,14 +575,20 @@
                   </template>
                   <template v-else>
                     <v-btn
-                      class="back-btn text-white mt-4"
+                      class="back-btn text-white mt-2 mt-sm-4"
                       color="grey darken-2"
                       @click="backToTitles"
+                      size="small"
                     >
                       <v-icon start>mdi-arrow-left</v-icon>
-                      Back to Options
+                      <span class="d-none d-sm-inline">Back to Options</span>
                     </v-btn>
-                    <v-btn icon @click="resetScan" class="close-btn">
+                    <v-btn
+                      icon
+                      @click="resetScan"
+                      class="close-btn"
+                      size="small"
+                    >
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </template>
@@ -573,17 +599,20 @@
                 >
                   <video
                     id="qr-video"
-                    class="qr-video mb-4"
+                    class="qr-video mb-3 mb-sm-4"
                     autoplay
                     muted
                     playsinline
                   ></video>
-                  <p class="mt-4 text-white">Point the camera at the QR Code</p>
+                  <p class="mt-3 mt-sm-4 text-white">
+                    Point the camera at the QR Code
+                  </p>
 
-                  <div class="or-separator my-4">OR</div>
+                  <div class="or-separator my-3 my-sm-4">OR</div>
                   <v-btn
                     @click="goToInteractionList"
-                    class="interaction-list-btn mb-4"
+                    class="interaction-list-btn mb-3 mb-sm-4"
+                    size="small"
                   >
                     <v-icon start>mdi-view-list</v-icon>
                     Interactions List
@@ -594,9 +623,10 @@
                   class="interaction-list-container"
                 >
                   <v-btn
-                    class="back-btn text-white mb-4"
+                    class="back-btn text-white mb-3 mb-sm-4"
                     color="grey-darken-2"
                     @click="resetScan"
+                    size="small"
                   >
                     <v-icon start>mdi-arrow-left</v-icon>
                     Back to Scanner
@@ -639,6 +669,7 @@
                           block
                           @click="selectInteraction(item)"
                           overflow
+                          size="small"
                         >
                           {{ item.title }}
                         </v-btn>
@@ -656,9 +687,9 @@
                   >
                     <div
                       :id="activeInteraction.id"
-                      class="interaction-detail pa-4"
+                      class="interaction-detail pa-3 pa-sm-4"
                     >
-                      <h2 class="chapter-title-interactions mb-4">
+                      <h2 class="chapter-title-interactions mb-3 mb-sm-4">
                         {{ activeInteraction.title }}
                       </h2>
                       <div class="body-text-interactions">
@@ -669,7 +700,7 @@
                         ></p>
                       </div>
                       <div
-                        class="interaction-actions pa-4"
+                        class="interaction-actions pa-3 pa-sm-4"
                         v-if="availableActions.length > 0"
                       >
                         <v-btn
@@ -677,6 +708,7 @@
                           :key="index"
                           @click="executeAction(action)"
                           class="ma-1 action-btn-dynamic"
+                          size="small"
                         >
                           {{ action.text }}
                         </v-btn>
@@ -1401,14 +1433,17 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Base styles */
 .body-text {
   font-style: italic;
 }
+
 .interaction-actions {
   border-top: 1px solid #5c4a42;
   margin-top: 16px;
   text-align: center;
 }
+
 .action-btn-dynamic,
 .manual-load-btn {
   background-color: #f0e6d2 !important;
@@ -1452,19 +1487,23 @@ onBeforeUnmount(() => {
 
 .book-dialog {
   position: relative;
-  width: 1000px;
+  width: 100%;
+  max-width: 1000px;
   box-shadow:
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
-  margin: 1vh auto;
+  margin: 0 auto;
+  height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
 }
 
 .book-page {
   background-color: #ffffff;
   color: #212121;
   border: 1px solid #1e1e1e;
-  margin: 20px; /* ma-5 equivalent */
+  margin: 20px;
   box-shadow:
     0 0 10px rgba(94, 69, 57, 0.3),
     inset 0 0 20px rgba(94, 69, 57, 0.2);
@@ -1476,50 +1515,46 @@ onBeforeUnmount(() => {
   background-image: url("@/assets/booktop.png");
   background-size: cover;
   background-repeat: no-repeat;
-  background-position: top center;
-  padding: 12px 14px 10px;
+  background-position: center center;
+  padding: 2rem 1rem;
   position: relative;
   z-index: 1;
-  color: #212121;
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 200px;
+  border-bottom: 2px solid #5c4a42;
+  margin-bottom: 1rem;
 }
 
 .header-banner .d-flex {
-  cursor: move;
+  width: 100%;
 }
 
 .section-title {
-  font-size: 0.7rem;
-  color: white;
-  padding: 10px 125px 20px;
+  font-size: 0.8rem;
+  color: #f0e6d2;
   margin: 0;
+  padding: 0;
   text-transform: uppercase;
   font-weight: bold;
+  letter-spacing: 2px;
+  opacity: 0.8;
 }
 
 .chapter-title-banner {
   font-family: "Cinzel Decorative", cursive;
-  font-size: 1.8rem;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-  margin-top: 1px;
-  margin-bottom: 66px;
-  padding-left: 126px;
-  padding-right: 44px;
-  text-align: left;
-}
-
-@media (max-width: 1023px) {
-  .section-title {
-    padding: 0px 90px 20px;
-  }
-  .chapter-title-banner {
-    font-size: 1.8rem;
-    padding-left: 86px;
-    padding-right: 0px;
-    margin-bottom: 20px;
-  }
+  font-size: 2.5rem;
+  color: #ffffff;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+  margin: 0.25rem 0 0 0;
+  padding: 0 1rem;
+  line-height: 1.2;
+  width: 100%;
 }
 
 .close-btn {
@@ -1529,6 +1564,7 @@ onBeforeUnmount(() => {
   border-radius: 50%;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
+
 .header-close {
   position: absolute;
   top: 10px;
@@ -1564,6 +1600,7 @@ onBeforeUnmount(() => {
   border: 1px solid #212121 !important;
 }
 
+/* Navigation drawer */
 .nav-drawer {
   background: #1a120f !important;
   border-right: 2px solid #212121 !important;
@@ -1704,22 +1741,22 @@ onBeforeUnmount(() => {
     margin-left 0.3s ease;
 }
 
-/* Width for expanded state on hover is now controlled by 'width' prop and this :hover rule */
-.v-navigation-drawer--rail:hover {
-  width: 300px !important; /* Matches the 'width' prop on v-navigation-drawer */
-}
-
+/* Main content */
 .main-content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  min-height: 500px;
-  height: calc(140vh - 40px);
+  height: calc(100vh - 120px);
+  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .scrollable-content {
   overflow-y: auto;
+  overflow-x: hidden;
   flex-grow: 1;
+  height: 100%;
+  max-height: calc(100vh - 120px);
 }
 
 .content-block {
@@ -1743,8 +1780,8 @@ onBeforeUnmount(() => {
   margin-bottom: 16px;
 }
 
-.body-text.mt-3 {
-  margin-top: 1rem !important;
+.body-text.mt-2,
+.body-text.mt-sm-3 {
   padding: 0 16px;
 }
 
@@ -1754,6 +1791,7 @@ onBeforeUnmount(() => {
   width: calc(100% - 32px);
 }
 
+/* Dialogs and interactions */
 .dialog-title {
   text-align: center;
   width: 100%;
@@ -1761,12 +1799,14 @@ onBeforeUnmount(() => {
   font-family: "Cinzel Decorative", cursive;
   font-size: 1.5rem;
 }
+
 .interaction-header {
   width: 100%;
   color: #f0e6d2;
   padding: 0 10px;
   position: relative;
 }
+
 .interaction-main-title {
   font-family: "Cinzel Decorative", cursive;
   font-size: 1.3rem;
@@ -1774,6 +1814,7 @@ onBeforeUnmount(() => {
   line-height: 1.2;
   padding-right: 40px;
 }
+
 .interaction-subtitle {
   font-family: "EB Garamond", serif;
   font-size: 0.9rem;
@@ -1781,9 +1822,11 @@ onBeforeUnmount(() => {
   opacity: 0.9;
   margin-bottom: 16px;
 }
+
 .scan-page {
   flex-grow: 1;
 }
+
 .qr-video {
   width: 80%;
   max-width: 300px;
@@ -1791,6 +1834,7 @@ onBeforeUnmount(() => {
   border-radius: 8px;
   background-color: #000;
 }
+
 .titles-container {
   display: flex;
   flex-direction: column;
@@ -1800,20 +1844,10 @@ onBeforeUnmount(() => {
 
 .image-display {
   width: 100%;
-  height: 597px;
+  height: min(597px, 50vh);
   background-size: cover;
   background-position: center;
   border-radius: 8px;
-}
-
-@media (max-width: 600px) {
-  .image-display {
-    width: 100%;
-    height: 224px;
-    background-size: cover;
-    background-position: center;
-    border-radius: 8px;
-  }
 }
 
 .buttons-container {
@@ -1822,6 +1856,7 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 900px;
 }
+
 .interaction-btn {
   background-color: #3a2e29 !important;
   color: #f0e6d2 !important;
@@ -1836,14 +1871,17 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   color: #f0e6d2;
 }
+
 .content-wrapper-interactions {
   padding: 10px;
 }
+
 .chapter-title-interactions {
   font-family: "Cinzel Decorative", cursive;
   font-size: 1.5rem;
   color: #f5e1a9;
 }
+
 .body-text-interactions p {
   font-family: "EB Garamond", serif;
   font-size: 1rem;
@@ -1851,13 +1889,8 @@ onBeforeUnmount(() => {
   color: #d4be94;
   margin-bottom: 1em;
 }
-.back-btn {
-  /* font-family property removed */
-}
 
-.body-text-mechanics {
-}
-
+/* Mechanics text styles */
 .body-text-mechanics :deep(p) {
   font-family: "EB Garamond", serif;
   font-size: 1rem;
@@ -1865,9 +1898,6 @@ onBeforeUnmount(() => {
   text-indent: 2em;
   margin-bottom: 1em;
   color: #191919 !important;
-}
-
-.body-text-mechanics :deep(p:first-of-type) {
 }
 
 .body-text-mechanics :deep(ul) {
@@ -1894,9 +1924,6 @@ onBeforeUnmount(() => {
   top: 0.1em;
   color: #212121;
   font-size: 1.2em;
-}
-
-.body-text-mechanics :deep(li.custom-bullet) {
 }
 
 .body-text-mechanics :deep(li.custom-bullet::before) {
@@ -1958,232 +1985,6 @@ onBeforeUnmount(() => {
   text-align: left;
 }
 
-@media (max-width: 1023px) {
-  .book-dialog {
-    width: 96vw !important;
-    max-height: 85vh !important;
-    margin: 2.5vh auto;
-  }
-
-  .main-content,
-  .scrollable-content {
-    height: calc(85vh - 40px);
-  }
-  .book-page {
-    min-height: unset;
-    height: auto;
-    margin: 16px;
-  }
-
-  .section-title {
-    padding: 0px 100px 14px;
-  }
-
-  .chapter-title-banner {
-    font-size: 1.5rem !important;
-    padding-left: 98px;
-    padding-right: 0px;
-    margin-bottom: 45px;
-  }
-
-  .body-text p {
-    font-size: 1rem !important;
-    line-height: 1.5;
-  }
-  .content-block .header-banner,
-  .body-text.mt-3,
-  .body-text-mechanics.pa-4 {
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-  }
-  .body-text-mechanics.pa-4 {
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-  }
-
-  .instruction-card {
-    margin-left: 12px;
-    margin-right: 12px;
-    width: calc(100% - 24px);
-  }
-  .mechanic-title,
-  .tutorial-section-title {
-    font-size: 1.3rem;
-  }
-  .clarification-chapter-title {
-    font-size: 1.4rem;
-  }
-  .mechanic-title {
-    padding-left: 1.5em;
-  }
-  .mechanic-title::before {
-    left: 0.4em;
-  }
-}
-
-@media (max-width: 600px) {
-  .book-dialog {
-    width: 95vw !important;
-    max-height: 90vh !important;
-    overflow: hidden;
-    margin: 2vh auto;
-  }
-
-  .main-content,
-  .scrollable-content {
-    height: calc(90vh - 70px);
-  }
-
-  .d-flex.justify-end {
-    position: sticky;
-    bottom: 0;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      #f0e6d299 20%,
-      #f0e6d2 60%
-    );
-    padding: 16px 0;
-    z-index: 100;
-  }
-
-  .v-navigation-drawer--rail:hover {
-    /* Ensure this matches the 'width' prop for consistency */
-    width: 300px !important;
-  }
-
-  .header-banner {
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-  .header-banner .d-flex {
-    cursor: default;
-  }
-
-  .section-title {
-    font-size: 0.5rem !important;
-    padding: 0px 0px 15px 10px !important;
-  }
-
-  .chapter-title-banner {
-    font-size: 1rem !important;
-    padding-left: 10px !important;
-    padding-right: 10px !important;
-    padding-bottom: 12px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-  }
-
-  .body-text p {
-    font-size: 0.9rem !important;
-    text-indent: 1em;
-    line-height: 1.4;
-  }
-
-  .v-btn {
-    font-size: 0.8rem !important;
-    padding: 8px 10px !important;
-    margin: 4px !important;
-  }
-  .interaction-btn {
-    font-size: 0.62rem !important;
-  }
-
-  .book-page {
-    margin: 10px !important;
-    min-height: unset;
-  }
-
-  .content-block .header-banner,
-  .body-text.mt-3,
-  .body-text-mechanics.pa-4 {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-  }
-  .body-text-mechanics.pa-4 {
-    padding-top: 8px !important;
-    padding-bottom: 8px !important;
-  }
-
-  .instruction-card {
-    font-size: 0.85rem !important;
-    padding: 12px !important;
-    margin-left: 8px;
-    margin-right: 8px;
-    width: calc(100% - 16px);
-  }
-
-  .content-block:not(:last-child) {
-    margin-bottom: 16px;
-  }
-
-  .mechanic-title,
-  .tutorial-section-title {
-    font-size: 1.2rem;
-  }
-  .clarification-chapter-title {
-    font-size: 1.3rem;
-  }
-  .mechanic-title {
-    padding-left: 1.4em;
-  }
-  .mechanic-title::before {
-    left: 0.3em;
-  }
-}
-
-@media (max-width: 400px) {
-  .d-flex.justify-end {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .v-btn {
-    width: 100% !important;
-    justify-content: center;
-  }
-
-  .book-dialog {
-    width: 98vw !important;
-    max-height: 95vh !important;
-    margin: auto;
-  }
-
-  .main-content,
-  .scrollable-content {
-    height: calc(95vh - 60px);
-  }
-
-  .header-banner {
-    margin-bottom: 0;
-  }
-
-  .section-title {
-    padding: 10px 8px 2px 8px !important;
-    font-size: 0.55rem !important;
-  }
-
-  .chapter-title-banner {
-    font-size: 1.3rem !important;
-    padding-left: 8px !important;
-    padding-right: 8px !important;
-    margin-bottom: 5px;
-  }
-  .mechanic-title,
-  .tutorial-section-title {
-    font-size: 1.1rem;
-  }
-  .clarification-chapter-title {
-    font-size: 1.2rem;
-  }
-  .mechanic-title {
-    padding-left: 1.3em;
-  }
-  .mechanic-title::before {
-    left: 0.2em;
-  }
-}
-
 .or-separator {
   font-size: 1.2rem;
   font-weight: bold;
@@ -2223,5 +2024,399 @@ onBeforeUnmount(() => {
   width: auto;
   vertical-align: middle;
   margin-bottom: 0.2em;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 1280px) {
+  .book-dialog {
+    width: 100%;
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+    margin: 0;
+    border-radius: 8px;
+  }
+
+  .main-content,
+  .scrollable-content {
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+  }
+
+  .book-page {
+    min-height: calc(100vh - 140px);
+    margin: 16px;
+  }
+
+  .header-banner {
+    min-height: 180px;
+  }
+
+  .chapter-title-banner {
+    font-size: 2rem !important;
+  }
+}
+
+@media (max-width: 960px) {
+  .nav-drawer {
+    width: 56px !important;
+  }
+
+  .nav-drawer:hover {
+    width: 280px !important;
+  }
+
+  .book-dialog {
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+  }
+
+  .main-content,
+  .scrollable-content {
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+  }
+
+  .book-page {
+    margin: 10px;
+    min-height: calc(100vh - 120px);
+  }
+
+  .chapter-title-banner {
+    font-size: 1.8rem !important;
+  }
+
+  .body-text p {
+    font-size: 0.95rem !important;
+  }
+
+  .content-block .header-banner,
+  .body-text.mt-2,
+  .body-text.mt-sm-3,
+  .body-text-mechanics.pa-3,
+  .body-text-mechanics.pa-sm-4 {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .instruction-card {
+    margin-left: 12px;
+    margin-right: 12px;
+    width: calc(100% - 24px);
+    font-size: 0.9rem;
+  }
+
+  .mechanic-title,
+  .tutorial-section-title {
+    font-size: 1.2rem;
+  }
+
+  .image-display {
+    height: min(400px, 40vh);
+  }
+
+  .interaction-main-title {
+    font-size: 1.1rem;
+  }
+
+  .interaction-subtitle {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .book-dialog {
+    height: calc(100vh - 90px);
+    max-height: calc(100vh - 90px);
+  }
+
+  .nav-drawer {
+    width: 48px !important;
+    rail-width: 48px !important;
+  }
+
+  .nav-drawer:hover {
+    width: 240px !important;
+  }
+
+  .main-content,
+  .scrollable-content {
+    height: calc(100vh - 90px);
+    max-height: calc(100vh - 90px);
+  }
+
+  .book-page {
+    margin: 8px !important;
+    min-height: calc(100vh - 106px);
+  }
+
+  .header-banner {
+    padding: 1rem 0.5rem;
+    min-height: 150px;
+  }
+
+  .section-title {
+    font-size: 0.7rem !important;
+    letter-spacing: 1.5px;
+  }
+
+  .chapter-title-banner {
+    font-size: 1.5rem !important;
+    line-height: 1.2;
+    padding: 0 0.5rem;
+  }
+
+  .body-text p {
+    font-size: 0.85rem !important;
+    text-indent: 1em;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+  }
+
+  .v-btn {
+    font-size: 0.75rem !important;
+    padding: 6px 8px !important;
+    min-height: 32px !important;
+  }
+
+  .interaction-btn {
+    font-size: 0.7rem !important;
+  }
+
+  .body-text-mechanics.pa-3,
+  .body-text-mechanics.pa-sm-4 {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+  }
+
+  .instruction-card {
+    font-size: 0.75rem !important;
+    padding: 8px !important;
+    margin-left: 8px;
+    margin-right: 8px;
+    width: calc(100% - 16px);
+  }
+
+  .content-block:not(:last-child) {
+    margin-bottom: 16px;
+  }
+
+  .mechanic-title,
+  .tutorial-section-title {
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .clarification-chapter-title {
+    font-size: 1.1rem;
+  }
+
+  .mechanic-title {
+    padding-left: 1.3em;
+  }
+
+  .mechanic-title::before {
+    left: 0.2em;
+  }
+
+  .image-display {
+    height: min(250px, 30vh);
+  }
+
+  .qr-video {
+    width: 70%;
+    max-width: 200px;
+  }
+
+  .interaction-main-title {
+    font-size: 1rem;
+    padding-right: 30px;
+  }
+
+  .interaction-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .dialog-title {
+    font-size: 1.2rem;
+  }
+
+  .chapter-title-interactions {
+    font-size: 1.2rem;
+  }
+
+  .body-text-interactions p {
+    font-size: 0.85rem;
+  }
+
+  .header-close {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+
+  .header-close .v-icon {
+    font-size: 18px !important;
+  }
+
+  .close-btn {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+  }
+
+  .close-btn .v-icon {
+    font-size: 18px !important;
+  }
+
+  .back-btn {
+    font-size: 0.7rem !important;
+    padding: 6px 10px !important;
+  }
+
+  .interaction-list-btn {
+    font-size: 0.75rem !important;
+  }
+
+  .v-container {
+    padding: 4px !important;
+  }
+
+  .pt-3.pt-sm-5 {
+    padding-top: 8px !important;
+  }
+
+  .px-4.px-sm-16 {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .drawer-section-header :deep(.v-list-item__title) {
+    font-size: 0.7rem !important;
+  }
+
+  .drawer-item-index :deep(.v-list-item__title) {
+    font-size: 0.65rem !important;
+  }
+
+  .numbered-avatar {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+  }
+
+  .numbered-avatar .text-caption {
+    font-size: 0.6rem !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .book-dialog {
+    box-shadow: none;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+  }
+
+  .main-content,
+  .scrollable-content {
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+  }
+
+  .nav-drawer {
+    width: 44px !important;
+    rail-width: 44px !important;
+  }
+
+  .nav-drawer:hover {
+    width: 200px !important;
+  }
+
+  .book-page {
+    margin: 5px !important;
+    min-height: calc(100vh - 90px);
+  }
+
+  .header-banner {
+    padding: 0.75rem 0.5rem 1.5rem 0.5rem;
+    min-height: 120px;
+  }
+
+  .section-title {
+    font-size: 0.6rem !important;
+  }
+
+  .chapter-title-banner {
+    font-size: 1.2rem !important;
+  }
+
+  .body-text p {
+    font-size: 0.75rem !important;
+    margin-bottom: 0.75rem;
+  }
+
+  .mechanic-title,
+  .tutorial-section-title {
+    font-size: 0.9rem;
+  }
+
+  .clarification-chapter-title {
+    font-size: 1rem;
+  }
+
+  .image-display {
+    height: min(200px, 25vh);
+  }
+
+  .qr-video {
+    width: 60%;
+    max-width: 150px;
+  }
+
+  .interaction-btn {
+    font-size: 0.6rem !important;
+    padding: 4px 6px !important;
+    min-height: 28px !important;
+  }
+
+  .action-btn-dynamic {
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .nav-drawer {
+    display: none !important;
+  }
+
+  .book-dialog {
+    width: 100% !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .scrollable-content {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  .book-page {
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  .close-btn {
+    display: none !important;
+  }
 }
 </style>
