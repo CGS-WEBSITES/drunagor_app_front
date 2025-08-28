@@ -1046,21 +1046,33 @@ onMounted(async () => {
     setAlert("mdi-alert-circle", "Error", "Campaign ID is missing.", "error");
     return;
   }
-  const foundCampaign = campaignStore.find(campaignId);
-  if (foundCampaign) {
-    campaign.value = foundCampaign;
-  } else {
+
+  try {
+    // Tenta encontrar a campanha na store primeiro.
+    let foundCampaign = campaignStore.find(campaignId); // Se não encontrar, busca os dados da API.
+
+    if (!foundCampaign) {
+      await campaignStore.fetchCampaigns(); // Supondo que você tenha uma action para buscar os dados
+      foundCampaign = campaignStore.find(campaignId);
+    }
+
+    if (foundCampaign) {
+      campaign.value = foundCampaign;
+      await fetchRole();
+      if (campaign.value?.campaign === "underkeep") {
+        restoreInstructionState();
+      }
+    } else {
+      // Se ainda não encontrar após buscar, o ID é inválido.
+      throw new Error(`Campaign with ID ${campaignId} not found.`);
+    }
+  } catch (error) {
     setAlert(
       "mdi-alert-circle",
       "Error",
-      `Campaign with ID ${campaignId} not found.`,
+      error.message || `Campaign with ID ${campaignId} not found.`,
       "error",
     );
-  }
-
-  await fetchRole();
-  if (campaign.value?.campaign === "underkeep") {
-    restoreInstructionState();
   }
 });
 
