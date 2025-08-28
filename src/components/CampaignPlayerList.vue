@@ -15,12 +15,11 @@
             sm="12"
           >
             <v-card
-              class="pa-1 cursor-pointer"
+              class="pa-1"
               style="position: relative"
               rounded="lg"
               elevation="6"
               height="82px"
-              @click="navigateToUser(item.users_fk)"
             >
               <div
                 class="background-overlay"
@@ -31,11 +30,29 @@
                 }"
               ></div>
 
+              <v-btn
+                v-if="
+                  props.showRemoveButton && item.role_name !== 'Drunagor Master'
+                "
+                icon
+                size="x-small"
+                color="red"
+                variant="tonal"
+                class="remove-player-btn"
+                @click.stop="removePlayer(item)"
+              >
+                <v-icon>mdi-close</v-icon>
+                <v-tooltip activator="parent" location="start"
+                  >Remove Player</v-tooltip
+                >
+              </v-btn>
+
               <v-row
                 align="center"
                 no-gutters
-                class="fill-height"
+                class="fill-height cursor-pointer"
                 style="position: relative; z-index: 1"
+                @click="navigateToUser(item.users_fk)"
               >
                 <v-col
                   cols="4"
@@ -90,6 +107,11 @@ import axios from "axios";
 
 const props = defineProps<{
   campaignId: string;
+  showRemoveButton?: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: "player-removed"): void;
 }>();
 
 const router = useRouter();
@@ -106,9 +128,6 @@ const fetchPlayers = async () => {
   try {
     const response = await axios.get("/rl_campaigns_users/list_players", {
       params: { campaigns_fk: props.campaignId },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
     });
 
     const playerData = response.data.Users || [];
@@ -122,6 +141,18 @@ const fetchPlayers = async () => {
   } catch (error) {
     console.error("Error fetching campaign players:", error);
     players.value = [];
+  }
+};
+
+const removePlayer = async (player: any) => {
+  if (!confirm(`Are you sure you want to remove ${player.user_name}?`)) return;
+  try {
+    await axios.delete(
+      `/rl_campaigns_users/delete/${player.rl_campaigns_users_pk}`,
+    );
+    emit("player-removed");
+  } catch (error) {
+    console.error("Error removing player:", error);
   }
 };
 
@@ -147,5 +178,12 @@ onMounted(fetchPlayers);
   border-radius: inherit;
   z-index: 0;
   filter: brightness(0.8);
+}
+
+.remove-player-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
 }
 </style>
