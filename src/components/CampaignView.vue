@@ -58,7 +58,7 @@
       </v-tooltip>
     </v-btn>
 
-    <!-- <v-btn
+    <v-btn
       key="share"
       size="small"
       color="secondary"
@@ -68,7 +68,7 @@
     >
       <v-icon>mdi-account-group</v-icon>
       <v-tooltip activator="parent" location="start"> Invite Player </v-tooltip>
-    </v-btn> -->
+    </v-btn>
 
     <v-btn
       v-if="showSaveCampaignButton"
@@ -243,21 +243,24 @@
                           v-if="showSaveCampaignButton"
                           class="mx-1 my-1 d-flex align-center"
                         >
-                          <span class="text-caption font-weight-bold mr-2"
-                            >PARTY CODE:</span
+                          <div class="mr-3">
+                            <span class="text-caption font-weight-bold d-block"
+                              >PARTY CODE:</span
+                            >
+                            <span class="info-text d-block"
+                              >Use this code to invite your friends</span
+                            >
+                          </div>
+                          <v-chip
+                            v-if="partyCode"
+                            label
+                            size="large"
                           >
-                          <v-chip v-if="partyCode" label>
                             {{ partyCode }}
                           </v-chip>
-                          <v-chip v-else label> Generating... </v-chip>
-                          <v-tooltip location="top">
-                            <template v-slot:activator="{ props }">
-                              <v-icon v-bind="props" size="small" class="ml-1"
-                                >mdi-information-outline</v-icon
-                              >
-                            </template>
-                            <span>Use this code to invite your friends</span>
-                          </v-tooltip>
+                          <v-chip v-else label size="large">
+                            Generating...
+                          </v-chip>
                         </div>
                       </div>
                     </v-card-text>
@@ -935,7 +938,7 @@ onMounted(async () => {
   }
 
   await fetchRole();
-  generatePartyCode(); // Gera o código ao montar o componente
+  generatePartyCode();
   if (campaign.value?.campaign === "underkeep") {
     restoreInstructionState();
   }
@@ -1008,6 +1011,12 @@ watch(
 </script>
 
 <style scoped>
+.info-text {
+  font-size: 0.6rem !important;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.2;
+}
+
 .v-btn--slim {
   padding: 0 15px !important;
 }
