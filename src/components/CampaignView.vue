@@ -1064,14 +1064,9 @@ onMounted(async () => {
     setAlert(
       "mdi-alert-circle",
       "Error",
-      `Campaign with ID ${campaignId} not found.`,
+      error.message || `Campaign with ID ${campaignId} not found.`,
       "error",
     );
-  }
-
-  await fetchRole();
-  if (campaign.value?.campaign === "underkeep") {
-    restoreInstructionState();
   }
 });
 
