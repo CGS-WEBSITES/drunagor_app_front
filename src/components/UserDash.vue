@@ -706,6 +706,12 @@ onBeforeMount(async () => {
   transform: translateY(-110px);
 }
 
+@media (min-width: 600px) {
+  .move_topo3 {
+    transform: translateY(0px);
+  }
+}
+
 .full-screen-card {
   width: 100vw;
   height: 24vh;
