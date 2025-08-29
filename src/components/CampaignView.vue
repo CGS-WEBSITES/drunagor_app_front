@@ -221,6 +221,8 @@
                       <CampaignPlayerList
                         ref="campaignPlayerListRef"
                         :campaign-id="campaignId"
+                        :show-remove-button="showSaveCampaignButton"
+                        @player-removed="onPlayerRemoved"
                         density="compact"
                       />
                       <div
@@ -236,13 +238,30 @@
                         >
                           Transfer Drunagor Master
                         </v-btn>
-                        <RemovePlayersButton
+
+                        <div
                           v-if="showSaveCampaignButton"
-                          :campaignId="campaignId"
-                          :showSaveCampaignButton="showSaveCampaignButton"
-                          @playersRemoved="onPlayerRemoved"
-                          class="mx-1 my-1"
-                        />
+                          class="mx-1 my-1 d-flex align-center"
+                        >
+                          <div class="mr-3">
+                            <span class="text-caption font-weight-bold d-block"
+                              >PARTY CODE:</span
+                            >
+                            <span class="info-text d-block"
+                              >Use this code to invite your friends</span
+                            >
+                          </div>
+                          <v-chip
+                            v-if="partyCode"
+                            label
+                            size="large"
+                          >
+                            {{ partyCode }}
+                          </v-chip>
+                          <v-chip v-else label size="large">
+                            Generating...
+                          </v-chip>
+                        </div>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -325,155 +344,9 @@
             </v-col>
           </v-row>
         </template>
-
-        <template v-else>
-          <div>
-            <v-row justify="center" no-gutters>
-              <v-col cols="12" lg="10" xl="8">
-                <div class="pa-2">
-                  <CampaignName :campaign-id="campaignId" class="mb-3" />
-
-                  <div v-if="isSequentialAdventure" class="mb-3">
-                    <CampaignRunes :campaign-id="campaignId" />
-                  </div>
-
-                  <div
-                    v-if="
-                      campaign.campaign === 'awakenings' ||
-                      campaign.campaign === 'apocalypse'
-                    "
-                    class="mb-3"
-                  >
-                    <StoryRecord :campaign-id="campaignId" />
-                  </div>
-
-                  <div v-if="campaign.campaign === 'apocalypse'" class="mb-3">
-                    <v-sheet rounded border="md" class="pa-3 text-white">
-                      <p class="text-center text-caption">
-                        Apocalypse campaign specific content (e.g., Legacy
-                        Trail, Background & Trait) would appear here.
-                      </p>
-                    </v-sheet>
-                  </div>
-
-                  <v-row v-if="showSaveCampaignButton" class="mb-3" no-gutters>
-                    <v-col cols="12">
-                      <div class="d-flex justify-center flex-wrap gap-2">
-                        <CampaignLogAddHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogRemoveHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                      </div>
-                    </v-col>
-                  </v-row>
-
-                  <v-sheet rounded border="md" class="text-white pa-2">
-                    <div
-                      v-if="
-                        heroStore.findAllInCampaign(campaignId).length === 0
-                      "
-                      class="text-center pa-4"
-                    >
-                      No heroes added to this campaign yet.
-                    </div>
-                    <div
-                      v-for="hero in heroStore.findAllInCampaign(campaignId)"
-                      :key="hero.heroId"
-                      class="mb-2"
-                    >
-                      <CampaignLog
-                        :campaign-id="campaignId"
-                        :hero-id="hero.heroId"
-                        :is-sequential-adventure="isSequentialAdventure"
-                      />
-                    </div>
-                  </v-sheet>
-                </div>
-              </v-col>
-            </v-row>
-          </div>
-        </template>
-      </template>
-
-      <template v-else-if="!campaign && !showAlert">
-        <v-row justify="center">
-          <v-col cols="12" md="8" class="text-center pa-5">
-            <p>Loading campaign data...</p>
-            <v-progress-circular indeterminate color="primary" class="mt-4" />
-          </v-col>
-        </v-row>
       </template>
     </v-container>
   </div>
-
-  <v-dialog v-model="transferDialogVisible" max-width="400px">
-    <v-card>
-      <v-card-title>Transfer Drunagor Master</v-card-title>
-      <v-card-text v-if="transferAlertVisible" class="pa-2">
-        <BaseAlert
-          v-model="transferAlertVisible"
-          :type="transferAlertType"
-          text
-          border="start"
-          variant="tonal"
-          closable
-        >
-          {{ transferAlertText }}
-        </BaseAlert>
-      </v-card-text>
-      <v-card-text>
-        <div v-if="transferLoading" class="d-flex justify-center pa-4">
-          <v-progress-circular indeterminate color="primary" />
-        </div>
-        <template v-else>
-          <v-list v-if="!confirmingTransfer">
-            <v-list-item
-              v-for="user in players"
-              :key="user.rl_campaigns_users_pk"
-              :disabled="user.party_roles_fk === 1"
-              @click="initTransfer(user)"
-            >
-              <v-list-item-title>
-                {{ user.user_name }} — {{ user.role_name }}
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-          <div v-else class="pa-4">
-            <p class="text-center">
-              Do you want to transfer Drunagor Master to
-              <strong>{{ selectedUser!.user_name }}</strong
-              >?
-            </p>
-          </div>
-        </template>
-      </v-card-text>
-      <v-card-actions v-if="!confirmingTransfer" class="d-flex justify-end">
-        <v-btn
-          variant="text"
-          @click="closeTransferDialog"
-          :disabled="transferLoading"
-        >
-          Close
-        </v-btn>
-      </v-card-actions>
-      <v-card-actions v-if="confirmingTransfer" class="d-flex justify-end">
-        <v-btn color="red" :disabled="transferLoading" @click="cancelTransfer">
-          No
-        </v-btn>
-        <v-btn
-          color="green"
-          :disabled="transferLoading"
-          @click="confirmTransfer"
-        >
-          Yes
-        </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 
   <div style="display: none">
     <CampaignSavePut
@@ -488,7 +361,11 @@
       @removed="onCampaignRemoved"
     />
     <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
-    <ShareCampaignButton ref="shareCampaignRef" :campaignId="campaignId" />
+    <ShareCampaignButton
+      ref="shareCampaignRef"
+      :campaignId="campaignId"
+      :inviteCode="partyCode"
+    />
   </div>
 </template>
 
@@ -517,8 +394,6 @@ import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import SaveInstructions from "./SaveInstructions.vue";
 import LoadInstructions from "./LoadInstructions.vue";
-import { SequentialAdventureState } from "@/store/Hero";
-import RemovePlayersButton from "@/components/RemovePlayersButton.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 
@@ -530,6 +405,7 @@ const route = useRoute();
 const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
+const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 const alertIcon = ref("");
@@ -585,15 +461,18 @@ const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
 
+const generatePartyCode = () => {
+  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
+  partyCode.value = `${prefix}${campaignId}`;
+};
+
+// ... (o restante do script permanece o mesmo)
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
-      // Check if the campaign is 'underkeep'
       if (campaign.value?.campaign === "underkeep") {
-        // If so, open the instructions panel for saving
         openSavePanel();
       } else {
-        // Otherwise, call the save function directly
         handleSave();
       }
       break;
@@ -669,7 +548,6 @@ const confirmTransfer = () => {
       setTimeout(() => {
         transferAlertVisible.value = false;
         closeTransferDialog();
-        // Optional: force a refresh or navigate away since user is no longer the master
         router.push({ name: "Campaigns" });
       }, 1500);
     })
@@ -1068,6 +946,12 @@ onMounted(async () => {
       "error",
     );
   }
+
+  await fetchRole();
+  generatePartyCode();
+  if (campaign.value?.campaign === "underkeep") {
+    restoreInstructionState();
+  }
 });
 
 watch(
@@ -1137,6 +1021,12 @@ watch(
 </script>
 
 <style scoped>
+.info-text {
+  font-size: 0.6rem !important;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.2;
+}
+
 .v-btn--slim {
   padding: 0 15px !important;
 }
@@ -1229,9 +1119,9 @@ watch(
 
 .speed-dial-activator {
   position: fixed;
-  right: 24px; /* tweak spacing as you like */
+  right: 24px;
   bottom: 62px;
-  z-index: 2000; /* keep it above sheets/cards/dialogs */
+  z-index: 2000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   width: 56px !important;
   height: 56px !important;
