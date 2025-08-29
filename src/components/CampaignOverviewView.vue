@@ -22,21 +22,21 @@
     >
       <v-card-actions>
         <CampaignNew />
+
         <CampaignImport />
+
         <v-btn variant="elevated" rounded @click="onJoinCampaign">
           Join Campaign
         </v-btn>
       </v-card-actions>
     </v-card>
+
     <v-card class="d-md-none justify-center pa-3 elevation-0">
-      <v-card-actions class="d-flex justify-center">
+      <v-card-actions class="d-flex justify-center flex-wrap ga-2">
         <CampaignNew />
-        <v-btn variant="elevated" rounded @click="onJoinCampaign">
-          Join Campaign
-        </v-btn>
-      </v-card-actions>
-      <v-card-actions class="d-flex justify-center">
+
         <CampaignImport />
+
         <v-btn variant="elevated" rounded @click="onJoinCampaign">
           Join Campaign
         </v-btn>
@@ -74,18 +74,21 @@
               max-height="200"
               cover
             />
+
             <v-img
               v-else-if="campaign.campaign === 'apocalypse'"
               src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
               max-height="200"
               cover
             />
+
             <v-img
               v-else-if="campaign.campaign === 'awakenings'"
               src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
               max-height="200"
               cover
             />
+
             <v-img
               v-else-if="campaign.campaign === 'underkeep'"
               src="@/assets/underkeep.png"
@@ -97,8 +100,10 @@
               <span class="text-h5 font-weight-bold mb-0">{{
                 campaign.name
               }}</span>
+
               <span class="text-subtitle-1 mt-0">{{ campaign.wing }}</span>
             </v-card-title>
+
             <v-card-text>
               <v-row no-gutters>
                 <v-col
@@ -131,14 +136,17 @@
             color="primary"
           />
         </div>
+
         <v-card-title class="d-flex justify-space-between align-center pa-0">
           <span class="text-h6 ml-4">Enter Campaign ID</span>
+
           <v-card-actions class="pa-0">
             <v-btn icon @click="showJoinCampaignDialog = false">
               <v-icon color="red">mdi-close</v-icon>
             </v-btn>
           </v-card-actions>
         </v-card-title>
+
         <v-card-text>
           <v-text-field
             v-model="joinCampaignId"
@@ -147,6 +155,7 @@
             dense
           />
         </v-card-text>
+
         <v-card-actions>
           <v-btn
             block
@@ -179,19 +188,16 @@ import type { HeroData } from "@/data/repository/HeroData";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { useToast } from "primevue/usetoast";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
-
 import { customAlphabet } from "nanoid";
 import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
 const toastUser = useUserStore();
-
 const partyStore = PartyStore();
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const toast = useToast();
-
 const nanoid = customAlphabet("1234567890", 5);
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
@@ -202,7 +208,6 @@ const BOX_ID = 38;
 
 const allCampaigns = computed(() => campaignStore.findAll());
 const avatarSize = computed(() => (route.meta.mdAndUp ? 120 : 70));
-
 const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
@@ -214,12 +219,15 @@ const getBoxName = (boxId: number) => {
     34: "Awakenings",
     38: "Underkeep Drunagor Nights",
   };
+
   return map[boxId] || `Unknown Box (ID: ${boxId})`;
 };
 
 const addLoadingError = (text: string) => {
   const id = Date.now();
+
   loadingErrors.value.push({ id, text });
+
   setTimeout(() => {
     loadingErrors.value = loadingErrors.value.filter((e) => e.id !== id);
   }, 5000);
@@ -227,13 +235,18 @@ const addLoadingError = (text: string) => {
 
 const importCampaign = (token: string, overrideId?: string) => {
   const data = JSON.parse(atob(token));
+
   if (!data.campaignData) return;
+
   const camp = data.campaignData;
+
   if (overrideId) camp.campaignId = overrideId;
+
   campaignStore.add(camp);
 
   data.heroes.forEach((h: any) => {
     h.campaignId = overrideId ?? h.campaignId;
+
     heroStore.add(h);
   });
 };
@@ -244,6 +257,7 @@ const goToCampaign = (id: string) => {
 
 const heroAvatars = (campId: string): HeroData[] => {
   const repo = new HeroDataRepository();
+
   return heroStore
     .findAllInCampaign(campId)
     .map((h) => repo.find(h.heroId))
@@ -252,6 +266,7 @@ const heroAvatars = (campId: string): HeroData[] => {
 
 const avatarCols = (campId: string) => {
   const count = heroAvatars(campId).length;
+
   return route.meta.mdAndUp && count <= 4 ? 3 : undefined;
 };
 
@@ -260,8 +275,10 @@ const onJoinCampaign = () => {
 };
 
 // Confirmação de entrar na campanha
+
 const confirmJoinCampaign = () => {
   if (!parsedCampaignFk.value) return;
+
   loading.value = true;
 
   axios
@@ -273,6 +290,7 @@ const confirmJoinCampaign = () => {
         party_roles_fk: 2,
         skus_fk: BOX_ID,
       },
+
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -281,6 +299,7 @@ const confirmJoinCampaign = () => {
     )
     .then(() => {
       showJoinCampaignDialog.value = false;
+
       router.push({
         path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
         query: { sku: String(BOX_ID) },
@@ -315,6 +334,7 @@ onBeforeMount(() => {
         } catch {
           const boxName = getBoxName(el.box);
           const partyName = el.party_name || "Unnamed Party";
+
           addLoadingError(
             `Could not load the campaign "${partyName}" from the "${boxName}". ` +
               `Data seems corrupted. Please contact support.`,
@@ -327,6 +347,7 @@ onBeforeMount(() => {
     })
     .finally(() => {
       const legacy = partyStore.findAll();
+
       if (legacy.length) {
         const id = nanoid();
         campaignStore.add(new Campaign(id, "core"));

@@ -928,11 +928,21 @@ onMounted(async () => {
   const foundCampaign = campaignStore.find(campaignId);
   if (foundCampaign) {
     campaign.value = foundCampaign;
+    if (!campaign.value.isSequentialAdventure) {
+      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
+      campaign.value.isSequentialAdventure = true;
+      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
+
+      // Para cada herói na campanha, inicia o estado da Aventura Sequencial.
+      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
+        hero.sequentialAdventureState = new SequentialAdventureState();
+      });
+    }
   } else {
     setAlert(
       "mdi-alert-circle",
       "Error",
-      `Campaign with ID ${campaignId} not found.`,
+      error.message || `Campaign with ID ${campaignId} not found.`,
       "error",
     );
   }

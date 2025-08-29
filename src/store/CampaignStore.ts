@@ -44,6 +44,11 @@ export const CampaignStore = defineStore("campaign", () => {
     campaign.name = newName;
   }
 
+  function updateCampaignProperty(campaignId: string, property: string, value: any) {
+    const campaign = find(campaignId);
+    (campaign as any)[property] = value;
+  }
+
   function reset() {
     campaigns.value = [];
   }
@@ -57,5 +62,6 @@ export const CampaignStore = defineStore("campaign", () => {
     remove,
     rename,
     reset,
+    updateCampaignProperty,
   };
 });
