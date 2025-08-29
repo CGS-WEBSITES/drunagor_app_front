@@ -1,7 +1,7 @@
 <template>
   <template v-if="isAdmin && !loading">
     <v-select
-      v-model="selectedWing"
+      v-model="wing"
       label="Select Wing"
       :items="campaignOptions"
       variant="outlined"
@@ -10,18 +10,18 @@
     />
 
     <v-select
-      v-model="selectedDoor"
+      v-model="door"
       :label="'Select Door'"
       :items="filteredDoors"
       variant="outlined"
-      :disabled="!selectedWing"
+      :disabled="!wing"
       clearable
     />
   </template>
 
   <template v-else-if="!loading">
     <v-text-field
-      :model-value="selectedWing"
+      :model-value="wing"
       label="Wing"
       variant="outlined"
       class="mb-4"
@@ -31,7 +31,7 @@
     />
 
     <v-text-field
-      :model-value="selectedDoor"
+      :model-value="door"
       label="Door"
       variant="outlined"
       readonly
@@ -63,19 +63,16 @@
 <script setup lang="ts">
 import { CampaignStore } from "@/store/CampaignStore";
 import { useUserStore } from "@/store/UserStore";
-import { ref, watch, computed, onMounted } from "vue";
-import { useI18n } from "vue-i18n";
+import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
 const props = defineProps<{
   campaignId: string;
 }>();
 
-const { t } = useI18n();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 
-const campaign = campaignStore.find(props.campaignId);
 const isAdmin = ref(false);
 const loading = ref(true);
 
@@ -86,37 +83,43 @@ const campaignOptions = [
 ];
 
 const allDoorOptions = [
-  "FIRST SETUP",
-  "DOOR 1 - THE BARRICADED PATH",
-  "DOOR 2 - THE KEEP'S COURTYARD",
-  "DOOR 3 - THE ENTRY HALL",
-  "DOOR 4 - THE GREAT HALL",
-  "FIRST SETUP",
-  "DOOR 1 - THE BARRICADED PATH",
-  "DOOR 2 - THE KEEP'S COURTYARD",
-  "DOOR 3 - THE ENTRY HALL",
-  "DOOR 4 - THE GREAT HALL",
-  "FIRST SETUP",
-  "DOOR 1 - THE GREAT CISTERN",
-  "DOOR 2 - THE DUNGEONS OF OBLIVION",
-  "DOOR 3 - THE ALCHEMY LAB",
-  "DOOR 4 - THE BURIED ARMORY",
-  "DOOR 5 - THERE AND BACK AGAIN",
+  "FIRST SETUP", "DOOR 1 - THE BARRICADED PATH", "DOOR 2 - THE KEEP'S COURTYARD", "DOOR 3 - THE ENTRY HALL", "DOOR 4 - THE GREAT HALL",
+  "FIRST SETUP", "DOOR 1 - THE BARRICADED PATH", "DOOR 2 - THE KEEP'S COURTYARD", "DOOR 3 - THE ENTRY HALL", "DOOR 4 - THE GREAT HALL",
+  "FIRST SETUP", "DOOR 1 - THE GREAT CISTERN", "DOOR 2 - THE DUNGEONS OF OBLIVION", "DOOR 3 - THE ALCHEMY LAB", "DOOR 4 - THE BURIED ARMORY", "DOOR 5 - THERE AND BACK AGAIN",
 ];
 
-const selectedWing = ref(campaign?.wing || "");
-const selectedDoor = ref(campaign?.door || "");
+const wing = computed({
+  get() {
+    return campaignStore.find(props.campaignId)?.wing ?? "";
+  },
+  set(newValue) {
+    if (isAdmin.value) {
+      campaignStore.updateCampaignProperty(props.campaignId, 'wing', newValue);
+      const currentDoor = campaignStore.find(props.campaignId)?.door;
+      if (currentDoor && !filteredDoors.value.includes(currentDoor)) {
+        campaignStore.updateCampaignProperty(props.campaignId, 'door', "");
+      }
+    }
+  },
+});
+
+const door = computed({
+  get() {
+    return campaignStore.find(props.campaignId)?.door ?? "";
+  },
+  set(newValue) {
+    if (isAdmin.value) {
+      campaignStore.updateCampaignProperty(props.campaignId, 'door', newValue);
+    }
+  },
+});
 
 const filteredDoors = computed(() => {
-  switch (selectedWing.value) {
-    case "Wing 1 - Tutorial":
-      return allDoorOptions.slice(0, 5);
-    case "Wing 1 - Advanced":
-      return allDoorOptions.slice(5, 10);
-    case "Wing 2 - Advanced":
-      return allDoorOptions.slice(10, 15);
-    default:
-      return [];
+  switch (wing.value) {
+    case "Wing 1 - Tutorial": return allDoorOptions.slice(0, 5);
+    case "Wing 1 - Advanced": return allDoorOptions.slice(5, 10);
+    case "Wing 2 - Advanced": return allDoorOptions.slice(10, 16); // Corrected to 16 to include the last door
+    default: return [];
   }
 });
 
@@ -128,7 +131,6 @@ const checkUserRole = async () => {
         campaigns_fk: props.campaignId 
       },
     });
-    
     isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
   } catch (error) {
     isAdmin.value = false;
@@ -137,25 +139,5 @@ const checkUserRole = async () => {
   }
 };
 
-watch(selectedWing, (newValue) => {
-  if (isAdmin.value && campaign) {
-    campaign.wing = newValue;
-    if (selectedDoor.value && !filteredDoors.value.includes(selectedDoor.value)) {
-      selectedDoor.value = "";
-      campaign.door = "";
-    }
-  }
-});
-
-watch(selectedDoor, (newValue) => {
-  if (isAdmin.value && campaign) {
-    campaign.door = newValue;
-  }
-});
-
-onMounted(async () => {
-  await checkUserRole();
-});
+onMounted(checkUserRole);
 </script>
-
-<style scoped></style>

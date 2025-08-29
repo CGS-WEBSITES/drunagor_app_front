@@ -1,8 +1,8 @@
 <template>
-  <v-btn 
-    variant="elevated" 
-    id="campaign-export" 
-    rounded 
+  <v-btn
+    variant="elevated"
+    id="campaign-export"
+    rounded
     @click="handleClick"
   >
     <v-icon start>mdi-content-save-outline</v-icon>
@@ -26,9 +26,7 @@ const { t } = useI18n();
 
 function compressCampaign(campaignId: string) {
   const campaign = campaignStore.find(campaignId);
-
   const campaignCopy = JSON.parse(JSON.stringify(campaign));
-
   const heroes = heroStore.findAllInCampaign(campaignId);
 
   const data = {
@@ -40,7 +38,6 @@ function compressCampaign(campaignId: string) {
   };
 
   token.value = btoa(JSON.stringify(data));
-
   return campaign.name;
 }
 
@@ -62,8 +59,12 @@ async function saveCampaign() {
     });
 }
 
-function handleClick() {
-  emit('open-save-panel');
+async function handleClick() {
+  try {
+    await saveCampaign();
+    emit('open-save-panel');
+  } catch (error) {
+  }
 }
 
 defineExpose({ save: saveCampaign });
