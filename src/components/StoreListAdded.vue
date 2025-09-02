@@ -39,8 +39,8 @@
               class="background-overlay"
               :style="{
                 backgroundImage: item.background_hash
-                  ? `url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${item.background_hash})`
-                  : 'url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
+                  ? `url(https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${item.background_hash})`
+                  : 'url(https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
@@ -164,8 +164,8 @@ const fetchFriends = async () => {
           ? friend.recipient_users_fk
           : friend.invite_users_fk,
       image: friend.picture_hash
-        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
-        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+        ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
+        : `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/user.png`,
       background_hash: friend.background_hash,
       accepted: true,
     }));
@@ -193,8 +193,8 @@ const fetchRequests = async () => {
       user_name: friend.user_name,
       friends_id: friend.invite_users_fk,
       image: friend.picture_hash
-        ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
-        : `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png`,
+        ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${friend.picture_hash}`
+        : `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/user.png`,
       background_hash: friend.background_hash,
       accepted: false,
     }));

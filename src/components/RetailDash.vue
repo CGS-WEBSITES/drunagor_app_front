@@ -189,7 +189,7 @@
                 style="cursor: pointer"
               >
                 <v-img
-                  src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-desk.png"
+                  src="https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-desk.png"
                 />
               </v-card>
             </v-col>
@@ -253,7 +253,7 @@
               style="cursor: pointer"
             >
               <v-img
-                src="https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-mobile.png"
+                src="https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-mobile.png"
               />
             </v-card>
           </v-col>
@@ -359,22 +359,22 @@ const campFig = (campName: string) => {
 // Dados do carrossel
 const carouselItems = ref([
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-faq-1.0.png",
+    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-faq-1.0.png",
     label: "FAQ",
     route: { name: "FAQ" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-skus-2.0.png",
+    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-skus-2.0.png",
     label: "SKUS MANAGER",
     route: { name: "Library" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-events-2.0.png",
+    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-events-2.0.png",
     label: "EVENTS",
     route: { name: "Events" },
   },
   {
-    img: "https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-2.0.png",
+    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-2.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
   },

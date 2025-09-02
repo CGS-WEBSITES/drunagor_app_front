@@ -144,7 +144,7 @@ import { ref, reactive } from 'vue';
 
 const applications = ref([
   {
-    imageSrc: 'https://druna-assets.s3.us-east-2.amazonaws.com/community-forge/logo.png',
+    imageSrc: 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/community-forge/logo.png',
     title: 'Drunagor Turn Tracker',
     url: 'https://jcarlosorte.github.io/drunagor-turn-tracker/',
     discord: 'darkfidodido',
@@ -163,7 +163,7 @@ const applications = ref([
 
 const bggChip = {
   color: '#443f64',
-  iconUrl: 'https://druna-assets.s3.us-east-2.amazonaws.com/community-forge/bgg.png'
+  iconUrl: 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/community-forge/bgg.png'
 };
 
 const snackbar = reactive({

@@ -216,7 +216,7 @@
                   <v-img
                     :src="
                       selectedEvent?.picture_hash
-                        ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
                         : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
@@ -266,7 +266,7 @@
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
                     <v-img
-                      :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                      :src="`https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
                     />
                   </v-avatar>
                 </v-col>
@@ -522,7 +522,7 @@
                         <template #prepend>
                           <v-avatar size="32">
                             <v-img
-                              :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`"
+                              :src="`https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`"
                             />
                           </v-avatar>
                         </template>
@@ -540,7 +540,7 @@
                       >
                         <v-avatar start size="24">
                           <v-img
-                            :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`"
+                            :src="`https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${item.raw.picture_hash}`"
                           />
                         </v-avatar>
                         {{ item.raw.name }}
@@ -708,7 +708,7 @@
                             <v-img
                               :src="
                                 selectedEvent?.picture_hash
-                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                                  ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
                                   : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                               "
                               class="event-img"
@@ -756,7 +756,7 @@
                           <v-col cols="3" md="2">
                             <v-avatar>
                               <v-img
-                                :src="`https://druna-assets.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                                :src="`https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
                               />
                             </v-avatar>
                           </v-col>
@@ -845,7 +845,7 @@
                             <v-img
                               :src="
                                 player.picture_hash
-                                  ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
+                                  ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
                                   : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
                               "
                               alt="Player Image"
@@ -1434,7 +1434,7 @@ const fetchPlayerEvents = async (past) => {
           const rewards = rewardsResponse.data.rewards || [];
           const formattedRewards = rewards.map((r) => ({
             ...r,
-            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
+            image: `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
           }));
           return { ...event, rewards: formattedRewards };
         } catch (rewardError) {
@@ -1490,7 +1490,7 @@ const fetchUserCreatedEvents = async (past) => {
           const rewards = rewardsResponse.data.rewards || [];
           const formattedRewards = rewards.map((r) => ({
             ...r,
-            image: `https://druna-assets.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
+            image: `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
           }));
 
           return { ...event, rewards: formattedRewards };
