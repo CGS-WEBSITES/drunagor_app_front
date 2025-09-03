@@ -363,7 +363,7 @@ const contentStyle = computed(() => {
         }
       : {
           "background-image":
-            "url('https://assets.drunagor.app.s3.us-east-2.amazonaws.com/backgrounds/mblogin-background.png')",
+            "url('https://assets.drunagor.app/backgrounds/mblogin-background.png')",
           "background-size": "cover",
           "background-position": "center",
           "background-repeat": "no-repeat",

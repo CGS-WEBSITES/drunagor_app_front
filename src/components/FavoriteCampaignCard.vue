@@ -8,7 +8,7 @@
     >
       <!-- Imagem -->
       <v-img
-        src="https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"
+        src="https://assets.drunagor.app/Dashboard/img-campaigncore.png"
         alt="Campaign Image"
         max-width="800"
         class="rounded-lg"

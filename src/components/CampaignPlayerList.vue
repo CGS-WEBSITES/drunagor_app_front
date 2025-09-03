@@ -25,8 +25,8 @@
                 class="background-overlay"
                 :style="{
                   backgroundImage: item.background_hash
-                    ? `url(https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${item.background_hash})`
-                    : 'url(https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
+                    ? `url(https://assets.drunagor.app/Profile/${item.background_hash})`
+                    : 'url(https://assets.drunagor.app/Profile/profile-bg-warriors-transparent.png)',
                 }"
               ></div>
 
@@ -135,8 +135,8 @@ const fetchPlayers = async () => {
     players.value = playerData.map((player: any) => ({
       ...player,
       image: player.picture_hash
-        ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${player.picture_hash}`
-        : "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/user.png",
+        ? `https://assets.drunagor.app/Profile/${player.picture_hash}`
+        : "https://assets.drunagor.app/Profile/user.png",
     }));
   } catch (error) {
     console.error("Error fetching campaign players:", error);

@@ -1,4 +1,4 @@
-const baseUrl = "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/CampaignTracker/hero_skills/underkeep_S1";
+const baseUrl = "https://assets.drunagor.app/CampaignTracker/hero_skills/underkeep_S1";
 
 export interface SkillCard {
   id: string;

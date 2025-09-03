@@ -90,7 +90,7 @@ const fetchUserRewards = async () => {
     });
 
     userRewards.value = (response.data.rewards || []).map((reward) => ({
-      image: `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${reward.picture_hash}`,
+      image: `https://assets.drunagor.app/${reward.picture_hash}`,
       title: reward.name,
       description: "",
       date: new Date(reward.date).toLocaleDateString(),

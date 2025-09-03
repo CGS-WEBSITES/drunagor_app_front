@@ -231,7 +231,7 @@
                   <v-img
                     :src="
                       selectedEvent?.picture_hash
-                        ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${selectedEvent.picture_hash}`
+                        ? `https://assets.drunagor.app/${selectedEvent.picture_hash}`
                         : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
@@ -278,7 +278,7 @@
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
                     <v-img
-                      :src="`https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                      :src="`https://assets.drunagor.app/${reward.picture_hash}`"
                     />
                   </v-avatar>
                 </v-col>
@@ -542,7 +542,7 @@
                   <v-img
                     :src="
                       selectedMyEvent?.picture_hash
-                        ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${selectedMyEvent.picture_hash}`
+                        ? `https://assets.drunagor.app/${selectedMyEvent.picture_hash}`
                         : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
                     class="event-img"
@@ -587,7 +587,7 @@
                 <v-col cols="3" md="2">
                   <v-avatar size="60">
                     <v-img
-                      :src="`https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${reward.picture_hash}`"
+                      :src="`https://assets.drunagor.app/${reward.picture_hash}`"
                     />
                   </v-avatar>
                 </v-col>
@@ -1175,7 +1175,7 @@ const fetchPlayerEvents = async (past) => {
           );
           const formattedRewards = (rewardsRes.data.rewards || []).map((r) => ({
             ...r,
-            image: `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
+            image: `https://assets.drunagor.app/${r.picture_hash}`,
           }));
           return { ...event, rewards: formattedRewards };
         } catch (error) {
@@ -1223,7 +1223,7 @@ const fetchMyEvents = async (past) => {
           );
           const formattedRewards = (rewardsRes.data.rewards || []).map((r) => ({
             ...r,
-            image: `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${r.picture_hash}`,
+            image: `https://assets.drunagor.app/${r.picture_hash}`,
           }));
           return { ...event, rewards: formattedRewards };
         } catch (error) {

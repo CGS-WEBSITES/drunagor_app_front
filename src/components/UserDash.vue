@@ -291,7 +291,7 @@
                 style="cursor: pointer"
               >
                 <v-img
-                  src="https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-desk.png"
+                  src="https://assets.drunagor.app/Dashboard/btn-CB-desk.png"
                 />
               </v-card>
             </v-col>
@@ -460,7 +460,7 @@
               style="cursor: pointer"
             >
               <v-img
-                src="https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-CB-mobile.png"
+                src="https://assets.drunagor.app/Dashboard/btn-CB-mobile.png"
               />
             </v-card>
           </v-col>
@@ -501,22 +501,22 @@ const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
 const carouselItems = ref([
   {
-    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-campaigns-2.0.png",
+    img: "https://assets.drunagor.app/Dashboard/btn-campaigns-2.0.png",
     label: "COMPANION",
     route: { name: "Campaign Overview" },
   },
   {
-    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-library-2.0.png",
+    img: "https://assets.drunagor.app/Dashboard/btn-library-2.0.png",
     label: "LIBRARY",
     route: { name: "Library" },
   },
   {
-    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-events-2.0.png",
+    img: "https://assets.drunagor.app/Dashboard/btn-events-2.0.png",
     label: "EVENTS",
     route: { name: "Events" },
   },
   {
-    img: "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/btn-profile-2.0.png",
+    img: "https://assets.drunagor.app/Dashboard/btn-profile-2.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
   },
