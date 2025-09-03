@@ -8,7 +8,7 @@
     <div class="position-relative">
       <v-img :src="user.background_hash
           ? assets + '/Profile/' + user.background_hash
-          : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
+          : 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png'
         " alt="Background Image" max-height="529px" max-width="100%" cover style="position: relative;">
 
         <v-btn icon="mdi-arrow-left" class="position-absolute top-0 left-0 ma-2" color="rgba(0, 0, 0, 0.6)"

@@ -91,7 +91,7 @@
       <v-card-title class="font-weight-bold text-h4">
         {{ cardName }}
       </v-card-title>
-      <v-img src="https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
+      <v-img src="https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Library/box-corebox.png" class="my-4"
         height="200"></v-img>
 
       <v-col cols="12">

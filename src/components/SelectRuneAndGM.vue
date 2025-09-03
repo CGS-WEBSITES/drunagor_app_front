@@ -106,7 +106,7 @@
 import { ref, watch, computed, nextTick } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 
-const assets = "https://druna-assets.s3.us-east-2.amazonaws.com";
+const assets = "https://assets.drunagor.app.s3.us-east-2.amazonaws.com";
 
 const props = defineProps<{
   campaignId: string;

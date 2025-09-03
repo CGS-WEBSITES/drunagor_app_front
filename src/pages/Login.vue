@@ -598,7 +598,7 @@ onBeforeMount(() => {
 }
 
 .login-page {
-  background-image: url("https://druna-assets.s3.us-east-2.amazonaws.com/backgrounds/login-background.png");
+  background-image: url("https://assets.drunagor.app.s3.us-east-2.amazonaws.com/backgrounds/login-background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
