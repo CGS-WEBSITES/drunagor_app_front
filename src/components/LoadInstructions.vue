@@ -356,11 +356,11 @@ watch(
   overflow-y: auto;
 }
 
-.navigation-controls[data-v-3891221b] {
+.navigation-controls {
   position: absolute;
   bottom: 0;
-  left: 15px;
-  right: 20px;
+  left: 25px;
+  right: 35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
