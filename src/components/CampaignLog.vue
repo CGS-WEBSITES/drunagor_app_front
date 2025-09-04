@@ -174,7 +174,7 @@ onMounted(async () => {
 .manage-resources-btn {
   position: absolute;
   bottom: 16px;
-  right: 16px;
+  left: 7px;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
