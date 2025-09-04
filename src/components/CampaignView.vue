@@ -244,18 +244,28 @@
                           class="mx-1 my-1 d-flex align-center"
                         >
                           <div class="mr-3">
-                            <span class="text-caption font-weight-bold d-block"
-                              >PARTY CODE:</span
-                            >
-                            <span class="info-text d-block"
-                              >Use this code to invite your friends</span
-                            >
+                            <div class="d-flex align-center">
+                              <span class="text-caption font-weight-bold mr-1"
+                                >CAMPAIGN ID:</span
+                              >
+                              <v-tooltip location="top">
+                                <template v-slot:activator="{ props }">
+                                  <v-icon
+                                    v-bind="props"
+                                    size="small"
+                                    color="info"
+                                    class="cursor-pointer"
+                                  >
+                                    mdi-information-outline
+                                  </v-icon>
+                                </template>
+                                <span
+                                  >Use this code to invite your friends</span
+                                >
+                              </v-tooltip>
+                            </div>
                           </div>
-                          <v-chip
-                            v-if="partyCode"
-                            label
-                            size="large"
-                          >
+                          <v-chip v-if="partyCode" label size="large">
                             {{ partyCode }}
                           </v-chip>
                           <v-chip v-else label size="large">
@@ -929,15 +939,17 @@ onMounted(async () => {
   if (foundCampaign) {
     campaign.value = foundCampaign;
     if (!campaign.value.isSequentialAdventure) {
-      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
-      campaign.value.isSequentialAdventure = true;
-      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
+      console.log(
+        `Ativando Aventura Sequencial para a campanha: ${campaignId}`,
+      );
+      campaign.value.isSequentialAdventure = true;
+      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
+      // Para cada herói na campanha, inicia o estado da Aventura Sequencial.
 
-      // Para cada herói na campanha, inicia o estado da Aventura Sequencial.
-      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
-        hero.sequentialAdventureState = new SequentialAdventureState();
-      });
-    }
+      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
+        hero.sequentialAdventureState = new SequentialAdventureState();
+      });
+    }
   } else {
     setAlert(
       "mdi-alert-circle",
