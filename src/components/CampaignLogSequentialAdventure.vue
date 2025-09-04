@@ -137,7 +137,8 @@
       </v-sheet>
     </v-col>
 
-    <v-col v-if="isAdmin && !loading" cols="12" class="px-2 pb-4">
+    <!-- Botão Manage Resources - apenas se não estiver oculto -->
+    <v-col v-if="!hideManageButton && isAdmin && !loading" cols="12" class="px-2 pb-4">
       <v-btn
         @click.stop="openSequentialStateEditor"
         variant="elevated"
@@ -163,6 +164,7 @@ import axios from "axios";
 const props = defineProps<{
   hero: HeroData;
   campaignId: string;
+  hideManageButton?: boolean; // Nova prop para ocultar o botão
 }>();
 
 const heroStore = HeroStore();
