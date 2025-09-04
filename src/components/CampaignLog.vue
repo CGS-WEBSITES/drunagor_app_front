@@ -38,6 +38,26 @@
               >
                 {{ t("Manage Resources") }}
               </v-btn>
+
+              <!-- Botão Equipment Skills sobreposto -->
+              <v-btn
+                v-if="
+                  (campaign.campaign == 'core' ||
+                    campaign.campaign == 'awakenings' ||
+                    campaign.campaign == 'apocalypse' ||
+                    campaign.campaign == 'underkeep') &&
+                  isAdmin &&
+                  !loading
+                "
+                @click.stop="openHeroEquipmentSkills"
+                variant="elevated"
+                color="primary"
+                rounded
+                class="equipment-skills-btn"
+                size="small"
+              >
+                {{ t("label.equipment-skills") }}
+              </v-btn>
             </v-col>
           </v-row>
         </v-card-text>
@@ -58,6 +78,7 @@
                 v-if="campaign.campaign == 'core'"
                 :campaign-id="props.campaignId"
                 :hero-id="props.heroId"
+                :hide-equipment-button="true"
               />
             </v-col>
 
@@ -66,6 +87,7 @@
                 v-if="campaign.campaign == 'awakenings'"
                 :campaign-id="props.campaignId"
                 :hero-id="props.heroId"
+                :hide-equipment-button="true"
               />
             </v-col>
 
@@ -74,6 +96,7 @@
                 v-if="campaign.campaign == 'apocalypse'"
                 :campaign-id="props.campaignId"
                 :hero-id="props.heroId"
+                :hide-equipment-button="true"
               />
             </v-col>
 
@@ -82,6 +105,7 @@
                 v-if="campaign.campaign == 'underkeep'"
                 :campaign-id="props.campaignId"
                 :hero-id="props.heroId"
+                :hide-equipment-button="true"
               />
             </v-col>
           </v-row>
@@ -154,6 +178,18 @@ function openSequentialStateEditor() {
   });
 }
 
+function openHeroEquipmentSkills() {
+  if (!isAdmin.value) {
+    console.log("CampaignLog - Cannot navigate - not admin");
+    return;
+  }
+
+  router.push({
+    name: "Hero",
+    params: { campaignId: props.campaignId, heroId: props.heroId },
+  });
+}
+
 onMounted(async () => {
   await checkUserRole();
 });
@@ -175,6 +211,14 @@ onMounted(async () => {
   position: absolute;
   bottom: 16px;
   left: 16px;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.equipment-skills-btn {
+  position: absolute;
+  bottom: 16px;
+  left: 190px;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
