@@ -27,7 +27,7 @@
     </v-col>
   </v-row>
 
-  <v-row v-if="isAdmin && !loading" no-gutters>
+  <v-row v-if="!props.hideEquipmentButton && isAdmin && !loading" no-gutters>
     <v-col cols="12">
       <v-btn
         variant="elevated"
@@ -59,6 +59,7 @@ import axios from "axios";
 const props = defineProps<{
   heroId: string;
   campaignId: string;
+  hideEquipmentButton?: boolean;
 }>();
 
 const statusRepository = new CampaignLogStatusRepository();
