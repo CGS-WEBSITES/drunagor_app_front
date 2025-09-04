@@ -280,36 +280,90 @@ const confirmJoinCampaign = () => {
   if (!parsedCampaignFk.value) return;
 
   loading.value = true;
+  const usersPk = toastUser.user!.users_pk;
 
   axios
-    .post(
-      "/rl_campaigns_users/cadastro",
-      {
-        users_fk: toastUser.user!.users_pk,
+    .get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: usersPk,
         campaigns_fk: parsedCampaignFk.value,
-        party_roles_fk: 2,
-        skus_fk: BOX_ID,
       },
-
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    )
-    .then(() => {
-      showJoinCampaignDialog.value = false;
+    })
+    .then((response) => {
+      if (response.data.campaigns && response.data.campaigns.length > 0) {
+        console.log("Relação já existe, redirecionando...");
+        
+        showJoinCampaignDialog.value = false;
 
-      router.push({
-        path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
-        query: { sku: String(BOX_ID) },
-      });
+        router.push({
+          path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
+          query: { sku: String(BOX_ID) },
+        });
+
+        toast.add({
+          severity: "info",
+          summary: "Info",
+          detail: "You are already part of this campaign!",
+        });
+      } else {
+        return axios.post(
+          "/rl_campaigns_users/cadastro",
+          {
+            users_fk: usersPk,
+            campaigns_fk: parsedCampaignFk.value,
+            party_roles_fk: 2,
+            skus_fk: BOX_ID,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          }
+        );
+      }
+    })
+    .then((response) => {
+      if (response) {
+        showJoinCampaignDialog.value = false;
+
+        router.push({
+          path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
+          query: { sku: String(BOX_ID) },
+        });
+
+        toast.add({
+          severity: "success",
+          summary: "Success",
+          detail: "You have successfully joined the campaign!",
+        });
+      }
     })
     .catch((err) => {
+      console.error("Erro ao verificar/criar relação:", err);
+      
+      let errorMessage = "Error joining campaign.";
+      let severity = "error";
+      
+      if (err.response?.data?.message?.includes("already exists") || 
+          err.response?.data?.message?.includes("já existe")) {
+        errorMessage = "You are already part of this campaign!";
+        severity = "info";
+        
+        showJoinCampaignDialog.value = false;
+        
+        router.push({
+          path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
+          query: { sku: String(BOX_ID) },
+        });
+      }
+      
       toast.add({
-        severity: "error",
-        summary: "Erro",
-        detail: err.message,
+        severity: severity as any,
+        summary: severity === "info" ? "Info" : "Error",
+        detail: errorMessage,
       });
     })
     .finally(() => {
