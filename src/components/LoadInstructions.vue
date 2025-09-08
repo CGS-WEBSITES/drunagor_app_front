@@ -173,21 +173,23 @@
     </v-window-item>
 
     <!-- Step 6: Final Setup and Resume -->
-    <v-window-item :value="6">
+       <v-window-item :value="6">
       <div class="step-content">
         <h3 class="step-title">6 - Final Setup and Resume</h3>
-        <p class="step-description mb-2">Once all Hero information is set:</p>
+        <p class="step-description mb-2">
+          Once all Hero information is set:
+        </p>
         <v-list density="compact" class="mb-4 custom-list">
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
-              Place Heroes back on the board. Each Hero may reposition their
-              Model to a space within Range 1 of the Door listed as "Next Door"
-              in their Campaign Log
+              Place them back on the board. Each Hero may reposition their
+              Model to a space within Range 1 of the Door listed as “Selected
+              Door” in their Campaign Log
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
-              At least one Hero must be adjacent to the Next Door to open it
+              At least one Hero, however, must be adjacent to it to open it
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
@@ -203,7 +205,7 @@
         </v-list>
         <v-alert type="success" variant="tonal" class="mt-6 custom-alert">
           <div class="alert-title">Resume the game!</div>
-          <div class="mt-2">That's it! Resume the game!</div>
+          <div class="mt-2">That's it! You are ready to resume the game!</div>
         </v-alert>
       </div>
     </v-window-item>
