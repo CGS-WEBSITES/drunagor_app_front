@@ -267,22 +267,21 @@
                   </v-card>
 
                   <div>
-                    <CampaignName :campaign-id="campaignId" class="mb-3" />
-
-                    <v-row class="mb-3" no-gutters>
-                      <v-col cols="12">
-                        <SelectDoor :campaign-id="campaignId" />
+                    <v-row no-gutters>
+              
+                      <v-col cols="12" md="6" class="pr-md-2">
+                        <CampaignName :campaign-id="campaignId" class="mb-3" />
+                        <SelectDoor :campaign-id="campaignId" class="mb-3" />
+                        <CampaignRunes v-if="isSequentialAdventure" :campaign-id="campaignId" class="mb-3"/>
                       </v-col>
-                    </v-row>
 
-                    <v-row v-if="isSequentialAdventure" class="mb-3" no-gutters>
-                      <v-col cols="12">
-                        <CampaignRunes :campaign-id="campaignId" />
+                      <v-col cols="12" md="6" class="pl-md-2">
+                        <CampaignRuneCards v-if="isSequentialAdventure" :campaign-id="campaignId" class="mb-3"/>
                       </v-col>
                     </v-row>
 
                     <v-row
-                      class="mb-3"
+                      class="my-3"
                       no-gutters
                       v-if="showSaveCampaignButton"
                     >
@@ -396,6 +395,7 @@ import SaveInstructions from "./SaveInstructions.vue";
 import LoadInstructions from "./LoadInstructions.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
+import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
@@ -929,20 +929,20 @@ onMounted(async () => {
   if (foundCampaign) {
     campaign.value = foundCampaign;
     if (!campaign.value.isSequentialAdventure) {
-      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
-      campaign.value.isSequentialAdventure = true;
-      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
+      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
+      campaign.value.isSequentialAdventure = true;
+      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
 
-      // Para cada herói na campanha, inicia o estado da Aventura Sequencial.
-      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
-        hero.sequentialAdventureState = new SequentialAdventureState();
-      });
-    }
+      // Para cada herói na campanha, inicia o estado da Aventura Sequencial.
+      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
+        hero.sequentialAdventureState = new SequentialAdventureState();
+      });
+    }
   } else {
     setAlert(
       "mdi-alert-circle",
       "Error",
-      error.message || `Campaign with ID ${campaignId} not found.`,
+      `Campaign with ID ${campaignId} not found.`,
       "error",
     );
   }
@@ -1239,3 +1239,4 @@ watch(
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 </style>
+
