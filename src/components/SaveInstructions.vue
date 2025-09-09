@@ -6,7 +6,7 @@
     rounded
   />
 
-  <v-window v-model="currentStep" class="mt-2 content-area">
+  <v-window v-model="currentStep" class="mt-2 mb-9">
     <v-window-item :value="1">
       <div class="step-content">
         <h3 class="step-title">1 - Save Conditions</h3>
@@ -336,10 +336,6 @@ watch(
 </script>
 
 <style scoped>
-.content-area {
-  padding-bottom: 30px;
-}
-
 .custom-stepper {
   width: 100%;
   background: transparent;
@@ -403,12 +399,13 @@ watch(
 .navigation-controls {
   position: absolute;
   bottom: 0;
-  left: 15px;
-  right: 20px;
+  left: 25px;
+  right: 35px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: rgba(var(--v-theme-surface), 0.95);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(var(--v-theme-outline), 0.12);
   margin-top: 16px;
@@ -435,7 +432,7 @@ watch(
 .step-indicator {
   font-size: 0.9rem;
   font-weight: 500;
-  color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-secndary));
   background: rgba(var(--v-theme-primary), 0.1);
   padding: 8px 16px;
   border-radius: 16px;
