@@ -31,7 +31,7 @@
               </template>
 
               <template #text>
-                {{ keyword.description }}
+                <div v-html="keyword.description"></div>
 
                 <div
                   v-if="keyword.icon"
@@ -92,4 +92,12 @@ let filteredKeyword = computed(() =>
 query.value = preselectedKeyword;
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.inline-icon) {
+  height: 1.2em;
+  vertical-align: -0.2em;
+
+  /* LINHA ADICIONADA: Muda a cor para branco */
+  filter: brightness(0) invert(1);
+}
+</style>
