@@ -148,8 +148,8 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
 const heroBackgroundStyle = computed(() => ({
   backgroundImage: `url(${hero.images?.trackerInfo || hero.images?.background})`,
-  backgroundSize: 'auto 100%',       
-  backgroundPosition: 'left center', 
+  backgroundSize: '100% auto',       // Largura 100%, altura automática
+  backgroundPosition: 'center top',  // Centralizada no topo
   backgroundRepeat: 'no-repeat'
 }));
 
@@ -290,7 +290,7 @@ onMounted(async () => {
 .hero-background-title {
   position: relative;
   overflow: hidden;
-  min-height: 100px !important;
+  min-height: 280px !important;
 }
 
 .hero-background-title > .d-flex {
@@ -299,7 +299,7 @@ onMounted(async () => {
 }
 
 :deep(.v-expansion-panel-title) {
-  min-height: 80px;
+  min-height: 280px; 
   position: relative;
   overflow: hidden;
 }
@@ -328,23 +328,86 @@ onMounted(async () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    90deg, 
-    rgba(0, 0, 0, 0.2) 0%,      
-    rgba(0, 0, 0, 0.3) 30%,     
-    rgba(0, 0, 0, 0.6) 70%,    
-    rgba(0, 0, 0, 0.8) 100%     
-  );
   z-index: 1;
 }
 
 :deep(.v-expansion-panel-title:hover .hero-background-title::before) {
   background: linear-gradient(
     90deg, 
-    rgba(0, 0, 0, 0.1) 0%,      
+    rgba(0, 0, 0, 0.1) 0%,     
     rgba(0, 0, 0, 0.2) 30%, 
     rgba(0, 0, 0, 0.5) 70%,
     rgba(0, 0, 0, 0.7) 100%
   );
+}
+
+@media (max-width: 768px) {
+  .hero-background-title {
+    min-height: 250px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 414px) {
+  .hero-background-title {
+    min-height: 130px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 130px;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-background-title {
+    min-height: 130px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 130px;
+  }
+}
+
+@media (max-width: 540px) {
+  .hero-background-title {
+    min-height: 180px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 412px) {
+  .hero-background-title {
+    min-height: 130px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 130px;
+  }
+}
+
+@media (max-width: 344px) {
+  .hero-background-title {
+    min-height: 100px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 100px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-background-title {
+    min-height: 350px !important;
+  }
+  
+  :deep(.v-expansion-panel-title) {
+    min-height: 350px;
+  }
 }
 </style>
