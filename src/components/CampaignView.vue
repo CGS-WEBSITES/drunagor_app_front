@@ -442,7 +442,6 @@ const saveInstructionsRef = vueRef<InstanceType<
   typeof SaveInstructions
 > | null>(null);
 
-// Speed Dial refs
 const speedDialOpen = ref(true);
 const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
   null,
@@ -454,7 +453,6 @@ const shareCampaignRef = vueRef<InstanceType<
   typeof ShareCampaignButton
 > | null>(null);
 
-// New refs and logic for Transfer Master feature
 const transferLoading = ref(false);
 const transferDialogVisible = ref(false);
 const players = ref<
@@ -478,12 +476,94 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
-// Nova função para lidar com as ações das instruções
-const handleInstructionAction = (action: string) => {
-  // Fechar as instruções primeiro para melhor UX
-  closeInstructions();
+const getNavigationStateKey = () => `campaign_${campaignId}_navigation_state`;
+
+const saveNavigationState = () => {
+  if (typeof window === "undefined") return;
   
-  // Aguardar um pequeno delay para garantir que a UI se atualize
+  const currentStep = instructionTab.value === 'save' 
+    ? localStorage.getItem(getInstructionStepKey("save"))
+    : localStorage.getItem(getInstructionStepKey("load"));
+
+  const navigationState = {
+    expanded: expandedPanel.value.length > 0,
+    instructionTab: instructionTab.value,
+    currentTab: currentTab.value,
+    currentStep: currentStep ? parseInt(currentStep) : 1,
+    timestamp: Date.now(),
+    returnFromNavigation: true
+  };
+
+  localStorage.setItem(getNavigationStateKey(), JSON.stringify(navigationState));
+};
+
+const restoreNavigationState = () => {
+  if (typeof window === "undefined") return false;
+
+  const stateStr = localStorage.getItem(getNavigationStateKey());
+  if (!stateStr) return false;
+
+  try {
+    const state = JSON.parse(stateStr);
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+
+    if (now - state.timestamp > oneHour) {
+      localStorage.removeItem(getNavigationStateKey());
+      return false;
+    }
+
+    if (!state.returnFromNavigation) return false;
+
+    if (state.expanded) {
+      expandedPanel.value = [0];
+      instructionTab.value = state.instructionTab;
+      currentTab.value = state.currentTab;
+
+      nextTick(() => {
+        if (state.instructionTab === 'save' && saveInstructionsRef.value) {
+          saveInstructionsRef.value.setCurrentStep(state.currentStep);
+        } else if (state.instructionTab === 'load' && loadInstructionsRef.value) {
+          loadInstructionsRef.value.setCurrentStep(state.currentStep);
+        }
+
+        localStorage.setItem(
+          getInstructionStepKey(state.instructionTab),
+          state.currentStep.toString()
+        );
+      });
+
+      router.replace({
+        query: {
+          ...route.query,
+          instructions: "open",
+          tab: state.instructionTab,
+        },
+      });
+
+      const clearedState = { ...state, returnFromNavigation: false };
+      localStorage.setItem(getNavigationStateKey(), JSON.stringify(clearedState));
+
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error restoring navigation state:", error);
+    localStorage.removeItem(getNavigationStateKey());
+    return false;
+  }
+};
+
+const clearNavigationState = () => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(getNavigationStateKey());
+  }
+};
+
+const handleInstructionAction = (action: string) => {
+  saveNavigationState();
+  
   setTimeout(() => {
     if (action === 'manage-resources') {
       handleManageResourcesAction();
@@ -494,7 +574,6 @@ const handleInstructionAction = (action: string) => {
 };
 
 const handleManageResourcesAction = () => {
-  // Verificar se há heróis na campanha
   const heroes = heroStore.findAllInCampaign(campaignId);
   
   if (heroes.length === 0) {
@@ -507,18 +586,15 @@ const handleManageResourcesAction = () => {
     return;
   }
 
-  // Se há apenas um herói, navegar diretamente
   if (heroes.length === 1) {
     navigateToHeroSequentialState(heroes[0].heroId);
     return;
   }
 
-  // Se há múltiplos heróis, mostrar alerta com opções
   showHeroSelectionAlert('manage-resources', heroes);
 };
 
 const handleEquipmentSkillsAction = () => {
-  // Verificar se há heróis na campanha
   const heroes = heroStore.findAllInCampaign(campaignId);
   
   if (heroes.length === 0) {
@@ -531,18 +607,15 @@ const handleEquipmentSkillsAction = () => {
     return;
   }
 
-  // Se há apenas um herói, navegar diretamente
   if (heroes.length === 1) {
     navigateToHeroEquipmentSkills(heroes[0].heroId);
     return;
   }
 
-  // Se há múltiplos heróis, mostrar alerta com opções
   showHeroSelectionAlert('equipment-skills', heroes);
 };
 
 const showHeroSelectionAlert = (action: string, heroes: any[]) => {
-  // Criar uma string com todos os heróis disponíveis
   const heroList = heroes.map(hero => hero.name || `Hero ${hero.heroId}`).join(', ');
   
   const actionText = action === 'manage-resources' ? 'Manage Resources' : 'Equipment & Skills';
@@ -555,14 +628,12 @@ const showHeroSelectionAlert = (action: string, heroes: any[]) => {
     5000
   );
   
-  // Scroll suavemente para a seção dos heróis
   setTimeout(() => {
     scrollToHeroSection();
   }, 500);
 };
 
 const scrollToHeroSection = () => {
-  // Encontrar a seção dos heróis (v-sheet com os heróis)
   const heroSection = document.querySelector('.v-sheet.rounded.border-md');
   if (heroSection) {
     heroSection.scrollIntoView({ 
@@ -570,7 +641,6 @@ const scrollToHeroSection = () => {
       block: 'start' 
     });
     
-    // Adicionar um highlight temporário para chamar atenção
     heroSection.style.transition = 'box-shadow 0.3s ease';
     heroSection.style.boxShadow = '0 0 20px rgba(var(--v-theme-primary), 0.5)';
     
@@ -581,7 +651,6 @@ const scrollToHeroSection = () => {
 };
 
 const navigateToHeroSequentialState = (heroId: string) => {
-  // Verificar se o usuário é admin antes de navegar
   if (!showSaveCampaignButton.value) {
     setAlert(
       "mdi-alert-circle",
@@ -599,7 +668,6 @@ const navigateToHeroSequentialState = (heroId: string) => {
 };
 
 const navigateToHeroEquipmentSkills = (heroId: string) => {
-  // Verificar se o usuário é admin antes de navegar
   if (!showSaveCampaignButton.value) {
     setAlert(
       "mdi-alert-circle",
@@ -784,6 +852,7 @@ const onInstructionChanged = (step: number) => {
 
 const closeInstructions = () => {
   expandedPanel.value = [];
+  clearNavigationState(); 
   if (typeof window !== "undefined") {
     localStorage.removeItem(getSessionStateKey());
     localStorage.removeItem(getInstructionStateKey());
@@ -797,6 +866,10 @@ const closeInstructions = () => {
 
 const restoreInstructionState = () => {
   if (typeof window === "undefined") return;
+
+  if (restoreNavigationState()) {
+    return; 
+  }
 
   const sessionStateStr = localStorage.getItem(getSessionStateKey());
   if (sessionStateStr) {
@@ -1078,7 +1151,6 @@ onMounted(async () => {
   if (foundCampaign) {
     campaign.value = foundCampaign;
     if (!campaign.value.isSequentialAdventure) {
-      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
       campaign.value.isSequentialAdventure = true;
       campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
       heroStore.findAllInCampaign(campaignId).forEach((hero) => {
@@ -1297,7 +1369,6 @@ watch(
   transform: none !important;
 }
 
-/* Highlight temporário para a seção dos heróis */
 .hero-highlight {
   transition: box-shadow 0.3s ease;
 }
@@ -1306,7 +1377,6 @@ watch(
   box-shadow: 0 0 20px rgba(var(--v-theme-primary), 0.5) !important;
 }
 
-/* Melhorar a visibilidade dos botões de ação nos heróis */
 :deep(.action-buttons-container) {
   position: relative;
   z-index: 10;
