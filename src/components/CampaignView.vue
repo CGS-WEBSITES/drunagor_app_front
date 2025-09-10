@@ -162,6 +162,7 @@
                         ref="saveInstructionsRef"
                         @save="handleSave"
                         @instruction-changed="onInstructionChanged"
+                        @action-click="handleInstructionAction"
                         @close="closeInstructions"
                         style="max-height: 25vh !important"
                       />
@@ -169,6 +170,7 @@
                         v-else
                         ref="loadInstructionsRef"
                         @instruction-changed="onInstructionChanged"
+                        @action-click="handleInstructionAction"
                         @close="closeInstructions"
                         style="max-height: 25vh !important"
                       />
@@ -476,7 +478,144 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
-// ... (o restante do script permanece o mesmo)
+// Nova função para lidar com as ações das instruções
+const handleInstructionAction = (action: string) => {
+  // Fechar as instruções primeiro para melhor UX
+  closeInstructions();
+  
+  // Aguardar um pequeno delay para garantir que a UI se atualize
+  setTimeout(() => {
+    if (action === 'manage-resources') {
+      handleManageResourcesAction();
+    } else if (action === 'equipment-skills') {
+      handleEquipmentSkillsAction();
+    }
+  }, 100);
+};
+
+const handleManageResourcesAction = () => {
+  // Verificar se há heróis na campanha
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  
+  if (heroes.length === 0) {
+    setAlert(
+      "mdi-information-outline",
+      "Info",
+      "No heroes found in this campaign. Please add heroes first.",
+      "info"
+    );
+    return;
+  }
+
+  // Se há apenas um herói, navegar diretamente
+  if (heroes.length === 1) {
+    navigateToHeroSequentialState(heroes[0].heroId);
+    return;
+  }
+
+  // Se há múltiplos heróis, mostrar alerta com opções
+  showHeroSelectionAlert('manage-resources', heroes);
+};
+
+const handleEquipmentSkillsAction = () => {
+  // Verificar se há heróis na campanha
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  
+  if (heroes.length === 0) {
+    setAlert(
+      "mdi-information-outline",
+      "Info", 
+      "No heroes found in this campaign. Please add heroes first.",
+      "info"
+    );
+    return;
+  }
+
+  // Se há apenas um herói, navegar diretamente
+  if (heroes.length === 1) {
+    navigateToHeroEquipmentSkills(heroes[0].heroId);
+    return;
+  }
+
+  // Se há múltiplos heróis, mostrar alerta com opções
+  showHeroSelectionAlert('equipment-skills', heroes);
+};
+
+const showHeroSelectionAlert = (action: string, heroes: any[]) => {
+  // Criar uma string com todos os heróis disponíveis
+  const heroList = heroes.map(hero => hero.name || `Hero ${hero.heroId}`).join(', ');
+  
+  const actionText = action === 'manage-resources' ? 'Manage Resources' : 'Equipment & Skills';
+  
+  setAlert(
+    "mdi-account-multiple-outline",
+    "Multiple Heroes Found",
+    `Multiple heroes found in this campaign: ${heroList}. Please scroll down to select the "${actionText}" button for the specific hero you want to manage.`,
+    "info",
+    5000
+  );
+  
+  // Scroll suavemente para a seção dos heróis
+  setTimeout(() => {
+    scrollToHeroSection();
+  }, 500);
+};
+
+const scrollToHeroSection = () => {
+  // Encontrar a seção dos heróis (v-sheet com os heróis)
+  const heroSection = document.querySelector('.v-sheet.rounded.border-md');
+  if (heroSection) {
+    heroSection.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+    
+    // Adicionar um highlight temporário para chamar atenção
+    heroSection.style.transition = 'box-shadow 0.3s ease';
+    heroSection.style.boxShadow = '0 0 20px rgba(var(--v-theme-primary), 0.5)';
+    
+    setTimeout(() => {
+      heroSection.style.boxShadow = '';
+    }, 2000);
+  }
+};
+
+const navigateToHeroSequentialState = (heroId: string) => {
+  // Verificar se o usuário é admin antes de navegar
+  if (!showSaveCampaignButton.value) {
+    setAlert(
+      "mdi-alert-circle",
+      "Access Denied",
+      "Only the Drunagor Master can access this feature.",
+      "error"
+    );
+    return;
+  }
+
+  router.push({
+    name: "HeroSequentialState",
+    params: { campaignId: campaignId, heroId: heroId },
+  });
+};
+
+const navigateToHeroEquipmentSkills = (heroId: string) => {
+  // Verificar se o usuário é admin antes de navegar
+  if (!showSaveCampaignButton.value) {
+    setAlert(
+      "mdi-alert-circle",
+      "Access Denied", 
+      "Only the Drunagor Master can access this feature.",
+      "error"
+    );
+    return;
+  }
+
+  router.push({
+    name: "Hero",
+    params: { campaignId: campaignId, heroId: heroId },
+  });
+};
+
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
@@ -1158,6 +1297,31 @@ watch(
   transform: none !important;
 }
 
+/* Highlight temporário para a seção dos heróis */
+.hero-highlight {
+  transition: box-shadow 0.3s ease;
+}
+
+.hero-highlight.highlighted {
+  box-shadow: 0 0 20px rgba(var(--v-theme-primary), 0.5) !important;
+}
+
+/* Melhorar a visibilidade dos botões de ação nos heróis */
+:deep(.action-buttons-container) {
+  position: relative;
+  z-index: 10;
+}
+
+:deep(.action-btn) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease;
+}
+
+:deep(.action-btn:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
 @media (max-width: 960px) {
   .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
     max-height: 25vh;
@@ -1247,4 +1411,3 @@ watch(
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 </style>
-
