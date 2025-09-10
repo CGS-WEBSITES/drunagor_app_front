@@ -4,7 +4,7 @@
     id="seq-adv"
     :class="{
       'cursor-pointer': isAdmin && !loading,
-      'justify-center': true
+      'justify-center': true,
     }"
     @click="isAdmin && !loading ? openSequentialStateEditor() : null"
   >
@@ -137,7 +137,12 @@
       </v-sheet>
     </v-col>
 
-    <v-col v-if="isAdmin && !loading" cols="12" class="px-2 pb-4">
+    <!-- Botão Manage Resources - apenas se não estiver oculto -->
+    <v-col
+      v-if="!props.hideManageButton && isAdmin && !loading"
+      cols="12"
+      class="px-2 pb-4"
+    >
       <v-btn
         @click.stop="openSequentialStateEditor"
         variant="elevated"
@@ -163,6 +168,7 @@ import axios from "axios";
 const props = defineProps<{
   hero: HeroData;
   campaignId: string;
+  hideManageButton?: boolean; // Nova prop para ocultar o botão
 }>();
 
 const heroStore = HeroStore();
@@ -196,15 +202,18 @@ sequentialAdventureState.value =
 const checkUserRole = async () => {
   try {
     const response = await axios.get("rl_campaigns_users/search", {
-      params: { 
-        users_fk: userStore.user?.users_pk, 
-        campaigns_fk: props.campaignId 
+      params: {
+        users_fk: userStore.user?.users_pk,
+        campaigns_fk: props.campaignId,
       },
     });
-    
-    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";    
+
+    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
   } catch (error) {
-    console.error("SequentialAdventureState - Error fetching user role:", error);
+    console.error(
+      "SequentialAdventureState - Error fetching user role:",
+      error,
+    );
     isAdmin.value = false;
   } finally {
     loading.value = false;
@@ -213,7 +222,7 @@ const checkUserRole = async () => {
 
 function openSequentialStateEditor() {
   if (!isAdmin.value) {
-    console.log('SequentialAdventureState - Cannot navigate - not admin');
+    console.log("SequentialAdventureState - Cannot navigate - not admin");
     return;
   }
 
