@@ -1159,37 +1159,6 @@ const backgroundStyle = computed<CSSProperties>(() => {
   return s;
 });
 
-const getCurrentCameraName = computed(() => {
-  if (
-    !availableCameras.value.length ||
-    currentCameraIndex.value >= availableCameras.value.length
-  ) {
-    return "Câmera";
-  }
-
-  const device = availableCameras.value[currentCameraIndex.value];
-  const label = device.label;
-
-  if (label) {
-    if (
-      label.toLowerCase().includes("back") ||
-      label.toLowerCase().includes("rear") ||
-      label.toLowerCase().includes("environment")
-    ) {
-      return "Traseira";
-    } else if (
-      label.toLowerCase().includes("front") ||
-      label.toLowerCase().includes("user") ||
-      label.toLowerCase().includes("selfie")
-    ) {
-      return "Frontal";
-    }
-    return label.length > 20 ? label.substring(0, 20) + "..." : label;
-  }
-
-  return `Câmera ${currentCameraIndex.value + 1}`;
-});
-
 // --- MÉTODOS ---
 const findRearCamera = (devices: MediaDeviceInfo[]): number => {
   const rearKeywords = ["back", "rear", "environment", "world", "traseira"];
