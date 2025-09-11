@@ -97,7 +97,7 @@
             ></v-img>
           </v-btn>
         -->
-          
+
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">
@@ -117,11 +117,7 @@
 
           <v-menu open-on-click offset-y>
             <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                text
-                class="px-3"
-              >
+              <v-btn v-bind="props" text class="px-3">
                 <span class="pr-1">{{ user.user_name }}</span>
                 <v-avatar size="35" class="mr-2">
                   <v-img
@@ -191,7 +187,11 @@
     <router-view :style="contentStyle" />
 
     <!-- Footer Section -->
-    <v-footer class="footer black bg-black pb-12" padless>
+    <v-footer
+      v-if="['Login', 'RetailerRegistration', 'Home'].includes(route.name)"
+      class="footer black bg-black pb-12"
+      padless
+    >
       <v-row justify="center" align="center" class="text-center">
         <v-col cols="12" sm="4">
           <v-img
@@ -400,16 +400,14 @@ onMounted(() => {
 });
 
 onBeforeMount(() => {
-  const token = localStorage.getItem('accessToken');
+  const token = localStorage.getItem("accessToken");
 
   if (token) {
     setToken(token);
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 });
-
-
 </script>
 
 <style>
