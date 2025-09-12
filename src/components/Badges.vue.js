@@ -17,7 +17,7 @@ const __VLS_props = defineProps({
         required: true,
         default: () => [
             {
-                image: 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
+                image: 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
                 title: 'Early Adopter',
                 description: 'Joined DrunagorAPP in its testing phase.',
                 date: '',
@@ -222,7 +222,7 @@ const __VLS_self = (await import('vue')).defineComponent({
             required: true,
             default: () => [
                 {
-                    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
+                    image: 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
                     title: 'Early Adopter',
                     description: 'Joined DrunagorAPP in its testing phase.',
                     date: '',
@@ -253,7 +253,7 @@ export default (await import('vue')).defineComponent({
             required: true,
             default: () => [
                 {
-                    image: 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
+                    image: 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/cgs-bagde.png',
                     title: 'Early Adopter',
                     description: 'Joined DrunagorAPP in its testing phase.',
                     date: '',

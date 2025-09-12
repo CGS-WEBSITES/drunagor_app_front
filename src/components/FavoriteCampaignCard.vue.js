@@ -71,14 +71,14 @@ function __VLS_template() {
     /** @type { [typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ] } */ ;
     // @ts-ignore
     const __VLS_14 = __VLS_asFunctionalComponent(__VLS_13, new __VLS_13({
-        src: ("https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"),
+        src: ("https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"),
         alt: ("Campaign Image"),
         maxWidth: ("800"),
         ...{ class: ("rounded-lg") },
         contain: (true),
     }));
     const __VLS_15 = __VLS_14({
-        src: ("https://druna-assets.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"),
+        src: ("https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Dashboard/img-campaigncore.png"),
         alt: ("Campaign Image"),
         maxWidth: ("800"),
         ...{ class: ("rounded-lg") },

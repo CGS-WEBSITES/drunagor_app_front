@@ -703,12 +703,12 @@ function __VLS_template() {
     /** @type { [typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ] } */ ;
     // @ts-ignore
     const __VLS_168 = __VLS_asFunctionalComponent(__VLS_167, new __VLS_167({
-        src: ("https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png"),
+        src: ("https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Library/box-corebox.png"),
         ...{ class: ("my-4") },
         height: ("200"),
     }));
     const __VLS_169 = __VLS_168({
-        src: ("https://druna-assets.s3.us-east-2.amazonaws.com/Library/box-corebox.png"),
+        src: ("https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Library/box-corebox.png"),
         ...{ class: ("my-4") },
         height: ("200"),
     }, ...__VLS_functionalComponentArgsRest(__VLS_168));
