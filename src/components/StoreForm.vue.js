@@ -786,13 +786,13 @@ function __VLS_template() {
             // @ts-ignore
             const __VLS_192 = __VLS_asFunctionalComponent(__VLS_191, new __VLS_191({
                 src: ((store.picture_hash
-                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${store.picture_hash}`
+                    ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${store.picture_hash}`
                     : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png')),
                 ...{ class: ("event-img") },
             }));
             const __VLS_193 = __VLS_192({
                 src: ((store.picture_hash
-                    ? `https://druna-assets.s3.us-east-2.amazonaws.com/${store.picture_hash}`
+                    ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/${store.picture_hash}`
                     : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png')),
                 ...{ class: ("event-img") },
             }, ...__VLS_functionalComponentArgsRest(__VLS_192));

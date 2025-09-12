@@ -125,7 +125,7 @@ function __VLS_template() {
     const __VLS_7 = __VLS_asFunctionalComponent(__VLS_6, new __VLS_6({
         src: ((__VLS_ctx.user.background_hash
             ? __VLS_ctx.assets + '/Profile/' + __VLS_ctx.user.background_hash
-            : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png')),
+            : 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png')),
         alt: ("Background Image"),
         maxHeight: ("529px"),
         maxWidth: ("100%"),
@@ -135,7 +135,7 @@ function __VLS_template() {
     const __VLS_8 = __VLS_7({
         src: ((__VLS_ctx.user.background_hash
             ? __VLS_ctx.assets + '/Profile/' + __VLS_ctx.user.background_hash
-            : 'https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png')),
+            : 'https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png')),
         alt: ("Background Image"),
         maxHeight: ("529px"),
         maxWidth: ("100%"),
