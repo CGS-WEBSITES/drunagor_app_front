@@ -205,7 +205,7 @@
                   v-if="isFullScreenWithBackground"
                   class="background-overlay"
                 ></div>
-                <v-container class="pa-3 ml-2">
+                <v-container class="pa-3">
                   <v-row>
                     <v-col cols="12">
                       <div
@@ -1519,12 +1519,14 @@ onBeforeUnmount(() => {
 }
 .book-dialog {
   position: relative;
-  width: 1000px;
+  width: 100%;
+  max-height: 80vh;
   box-shadow:
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
   margin: 5vh auto;
+  overflow: hidden;
 }
 .book-page {
   background-color: #ffffff;
@@ -1535,7 +1537,9 @@ onBeforeUnmount(() => {
     0 0 10px rgba(94, 69, 57, 0.3),
     inset 0 0 20px rgba(94, 69, 57, 0.2);
   border-radius: 12px;
-  min-height: calc(90vh - 40px);
+  min-height: 400px;
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
 }
 .header-banner {
   background-image: url("@/assets/booktop.png");
@@ -1743,14 +1747,17 @@ onBeforeUnmount(() => {
 }
 .main-content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  min-height: 500px;
-  height: calc(140vh - 40px);
+  min-height: 400px;
+  max-height: calc(80vh - 40px);
+  height: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .scrollable-content {
   overflow-y: auto;
   flex-grow: 1;
+  max-height: 100%;
 }
 .content-block {
   background-color: #fff;
@@ -2011,16 +2018,17 @@ onBeforeUnmount(() => {
 @media (max-width: 1023px) {
   .book-dialog {
     width: 96vw !important;
+    height: 85vh !important;
     max-height: 85vh !important;
     margin: 2.5vh auto;
   }
   .main-content,
   .scrollable-content {
-    height: calc(85vh - 40px);
+    height: 100%;
   }
   .book-page {
     min-height: unset;
-    height: auto;
+    height: calc(100% - 32px);
     margin: 16px;
   }
   .section-title {
@@ -2074,7 +2082,7 @@ onBeforeUnmount(() => {
   }
   .main-content,
   .scrollable-content {
-    height: calc(90vh - 70px);
+    max-height: calc(90vh - 70px);
   }
   .d-flex.justify-end {
     position: sticky;
@@ -2177,7 +2185,7 @@ onBeforeUnmount(() => {
   }
   .main-content,
   .scrollable-content {
-    height: calc(95vh - 60px);
+    max-height: calc(95vh - 60px);
   }
   .header-banner {
     margin-bottom: 0;
