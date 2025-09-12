@@ -1520,12 +1520,12 @@ onBeforeUnmount(() => {
 .book-dialog {
   position: relative;
   width: 100%;
-  max-height: 80vh;
+  max-height: 90vh !important;
   box-shadow:
     15px 0 15px -5px rgba(0, 0, 0, 0.3),
     0 10px 20px rgba(0, 0, 0, 0.5),
     inset 5px 0 10px rgba(255, 255, 255, 0.1);
-  margin: 5vh auto;
+  margin: 7vh auto;
   overflow: hidden;
 }
 .book-page {
@@ -1747,7 +1747,7 @@ onBeforeUnmount(() => {
 }
 .main-content {
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  min-height: 400px;
+  min-height: 416px;
   max-height: calc(80vh - 40px);
   height: auto;
   display: flex;
