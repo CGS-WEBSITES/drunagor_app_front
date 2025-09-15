@@ -72,7 +72,7 @@
     <v-row class="mt-4 d-none d-md-flex justify-center align-center ma-0 w-100">
       <v-col cols="12" sm="12" md="8" class="px-6">
         <v-card color="primary" height="116px" class="move_topo pt-12"></v-card>
-        <v-card color="secundary" class="move_topo pt-12">
+        <v-card color="background" class="move_topo pt-12">
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
             <v-col cols="12" sm="12" md="12" class="ml-5 pt-12">
               <v-carousel
@@ -162,24 +162,11 @@
             </v-col>
           </v-row>
 
-          <v-row no-gutters class="justify-center py-6">
-            <v-col cols="12">
-              <v-card class="mx-auto">
-                <v-card-title class="mx-auto text-center">
-                  You don't have any events created yet. Click on the following
-                  to create an event
-                </v-card-title>
-                <v-card-actions class="d-flex justify-center">
-                  <v-btn
-                    variant="elevated"
-                    color="primary"
-                    @click="router.push({ name: 'Events' })"
-                    >create Event</v-btn
-                  >
-                </v-card-actions>
-              </v-card>
-            </v-col>
-          </v-row>
+          <v-row class="justify-center pb-6 px-0 pl-5 mt-6">
+  <v-col cols="12">
+    <RetailerDashboardEvents />
+  </v-col>
+</v-row>
 
           <v-row no-gutters class="justify-center pb-6 px-6">
             <v-col cols="12" md="12" lg="12">
@@ -227,23 +214,11 @@
           </v-col>
         </v-row>
 
-        <v-row no-gutters class="justify-center py-6 px-3">
-          <v-col cols="12">
-            <v-card class="mx-auto">
-              <v-card-title class="mx-auto text-center">
-                You don't have any events created yet. Click on the following to
-                create an event
-              </v-card-title>
-              <v-card-actions class="d-flex justify-center">
-                <v-btn
-                  color="secundary"
-                  @click="router.push({ name: 'Events' })"
-                  >create Event</v-btn
-                >
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
+              <v-row class="justify-center pb-6 ml-1 mt-">
+  <v-col cols="12">
+    <RetailerDashboardEvents />
+  </v-col>
+</v-row>
 
         <v-row no-gutters class="justify-center pb-6 px-3">
           <v-col cols="12">
