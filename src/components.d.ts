@@ -96,6 +96,7 @@ declare module 'vue' {
     RemovePlayersButton: typeof import('./components/RemovePlayersButton.vue')['default']
     RetailDash: typeof import('./components/RetailDash.vue')['default']
     RetailerBook: typeof import('./components/RetailerBook.vue')['default']
+    RetailerDashboardEvents: typeof import('./components/RetailerDashboardEvents.vue')['default']
     RetailEvents: typeof import('./components/RetailEvents.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
