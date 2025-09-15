@@ -1338,8 +1338,8 @@ watch(
 
 .speed-dial-activator {
   position: fixed;
-  right: 24px;
-  bottom: 62px;
+  right: 10px;
+  bottom: 80px;
   z-index: 2000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   width: 56px !important;
