@@ -202,11 +202,34 @@
 
             <!-- Keywords View -->
             <div v-else-if="currentView === 'keywords'" key="keywords">
+              <!-- Back Button for Keywords -->
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
               <KeywordView />
             </div>
 
             <!-- Interactions View -->
             <div v-else-if="currentView === 'interactions'" key="interactions">
+              <!-- Back Button for Interactions -->
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
+              
               <v-card class="content-card" elevation="0">
                 <!-- QR Scanner -->
                 <div v-if="interPage === 'scan'" class="scanner-container">
@@ -827,6 +850,13 @@ interface EncounterClarificationsBook {
   chapters: ClarificationChapter[];
 }
 
+interface LastBookState {
+  view: string;
+  index: number;
+  activeItemId: string | null;
+  openGroups: string[];
+}
+
 // Reactive State
 const mobileMenuSheet = ref(false);
 const mobileNavValue = ref("chapters");
@@ -838,6 +868,14 @@ const isFullscreen = ref(false);
 const fullscreenSupported = ref(false);
 const showCameraDeniedDialog = ref(false);
 const scrollableContentRef = ref<HTMLElement | null>(null);
+
+// Last book state storage
+const lastBookState = ref<LastBookState>({
+  view: "player",
+  index: 0,
+  activeItemId: null,
+  openGroups: []
+});
 
 // Interaction State
 const interPage = ref<"scan" | "titles" | "content" | "list">("scan");
@@ -918,6 +956,68 @@ const initializeInteractionConfigs = () => {
     };
   }
   interactionConfigs.value = configs;
+};
+
+// Store current book state before leaving books
+const saveCurrentBookState = () => {
+  if (currentView.value === "player" || 
+      currentView.value === "tutorial" || 
+      currentView.value === "combatGuide" || 
+      currentView.value === "explorationTips" || 
+      currentView.value === "charProgression") {
+    lastBookState.value = {
+      view: currentView.value,
+      index: currentIndex.value,
+      activeItemId: activeItemId.value,
+      openGroups: [...openGroups.value]
+    };
+  }
+};
+
+// Return to books with last state
+const goBackToBooks = async () => {
+  try {
+    // Stop camera if coming from interactions
+    if (currentView.value === "interactions") {
+      codeReader.reset();
+    }
+    
+    // Restore the last book state
+    currentView.value = lastBookState.value.view;
+    currentIndex.value = lastBookState.value.index;
+    activeItemId.value = lastBookState.value.activeItemId;
+    openGroups.value = [...lastBookState.value.openGroups];
+    
+    // Update navigation to show books
+    mobileNavValue.value = "menu";
+    
+    // Wait for view to update
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    
+    // Scroll to previous position if there was an active item
+    if (lastBookState.value.activeItemId) {
+      const navigationItem = navigationItems.value.find(
+        item => item.id === lastBookState.value.activeItemId
+      );
+      
+      if (navigationItem?.originalId) {
+        await scrollToTarget(navigationItem.originalId);
+      } else if (navigationItem?.targetId) {
+        await scrollToTarget(navigationItem.targetId);
+      } else {
+        scrollToTop();
+      }
+    } else {
+      scrollToTop();
+    }
+  } catch (error) {
+    console.error("Error returning to books:", error);
+    // Fallback to simple books view
+    currentView.value = "player";
+    mobileNavValue.value = "menu";
+    scrollToTop();
+  }
 };
 
 // Computed Properties
@@ -1499,9 +1599,13 @@ watch(mobileNavValue, (newVal) => {
     currentView.value = "player";
     if (currentIndex.value < 0) currentIndex.value = 0;
   } else if (newVal === "interactions") {
+    // Save current state before leaving books
+    saveCurrentBookState();
     currentView.value = "interactions";
     ensureCameraPermission();
   } else if (newVal === "keywords") {
+    // Save current state before leaving books
+    saveCurrentBookState();
     currentView.value = "keywords";
   }
 });
@@ -2024,6 +2128,18 @@ onBeforeUnmount(() => {
   margin-bottom: 16px;
 }
 
+.back-button-container {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.back-button {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: none !important;
+}
+
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.3s ease;
@@ -2079,6 +2195,10 @@ onBeforeUnmount(() => {
   .interaction-choice-btn {
     min-height: 48px;
     font-size: 0.9rem;
+  }
+
+  .back-button-container {
+    padding: 12px;
   }
 }
 
@@ -2152,6 +2272,14 @@ onBeforeUnmount(() => {
 
   .v-btn.v-btn--density-default {
     height: calc(var(--v-btn-height) + 20px) !important;
+  }
+
+  .back-button-container {
+    padding: 8px;
+  }
+
+  .back-button {
+    font-size: 0.875rem;
   }
 }
 
