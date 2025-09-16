@@ -1697,6 +1697,16 @@ onBeforeUnmount(() => {
   margin-inline-start: 7px !important;
 }
 
+.v-card-text {
+  flex: 1 1 auto;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.0178571429em;
+  opacity: var(--v-card-text-opacity, 1);
+  padding: 0 !important;
+  text-transform: none;
+}
+
 .section-title {
   font-size: 0.7rem;
   color: white;
@@ -2142,7 +2152,7 @@ onBeforeUnmount(() => {
 
   .v-btn.v-btn--density-default {
     height: calc(var(--v-btn-height) + 20px) !important;
-}
+  }
 }
 
 .text-h6,
