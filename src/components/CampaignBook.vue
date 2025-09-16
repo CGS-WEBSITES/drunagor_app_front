@@ -1693,6 +1693,10 @@ onBeforeUnmount(() => {
   cursor: move;
 }
 
+.v-toolbar__content > .v-toolbar-title {
+  margin-inline-start: 7px !important;
+}
+
 .section-title {
   font-size: 0.7rem;
   color: white;
@@ -2053,15 +2057,15 @@ onBeforeUnmount(() => {
   .interaction-text-content {
     padding: 16px !important;
   }
-  
+
   .interaction-title {
     font-size: 1.5rem !important;
   }
-  
+
   .interaction-subtitle {
     font-size: 0.9rem;
   }
-  
+
   .interaction-choice-btn {
     min-height: 48px;
     font-size: 0.9rem;
@@ -2109,22 +2113,36 @@ onBeforeUnmount(() => {
   .interaction-hero {
     height: 250px !important;
   }
-  
+
   .interaction-text-content {
     padding: 12px !important;
   }
-  
+
   .interaction-title {
     font-size: 1.3rem !important;
   }
-  
+
   .interaction-subtitle {
     font-size: 0.85rem;
   }
-  
+
   .interaction-choices {
     margin-top: 16px;
   }
+
+  .v-toolbar__content > .v-toolbar-title {
+    font-size: 0.875rem !important;
+  }
+
+  .v-btn__content {
+    grid-area: content;
+    justify-content: center;
+    white-space: normal !important;
+  }
+
+  .v-btn.v-btn--density-default {
+    height: calc(var(--v-btn-height) + 20px) !important;
+}
 }
 
 .text-h6,
