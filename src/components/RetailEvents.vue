@@ -42,6 +42,24 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
+      
+      <v-dialog v-model="turnAwayConfirmDialog.show" max-width="500" persistent>
+        <v-card>
+          <v-card-title class="headline">Are you sure?</v-card-title>
+          <v-card-text>
+            This action will turn the player away and cannot be undone.
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn text @click="turnAwayConfirmDialog.show = false">
+              Cancel
+            </v-btn>
+            <v-btn color="red" text @click="executeTurnAway">
+              Confirm
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
 
       <v-row no-gutters>
         <v-col cols="12">
@@ -907,11 +925,11 @@
                                 size="x-small"
                                 class="mt-2"
                                 block
-                                @click="
-                                  updatePlayerStatus(player, turnedAwayStatus)
-                                "
+                                @click="confirmTurnAway(player)"
                               >
-                                <v-icon start>mdi-close-circle-outline</v-icon>
+                                <v-icon start
+                                  >mdi-close-circle-outline</v-icon
+                                >
                                 Turn Away
                               </v-btn>
                             </template>
@@ -966,7 +984,9 @@
                                   updatePlayerStatus(player, grantedStatus)
                                 "
                               >
-                                <v-icon start>mdi-check-circle-outline</v-icon>
+                                <v-icon start
+                                  >mdi-check-circle-outline</v-icon
+                                >
                                 Grant Passage
                               </v-btn>
                               <v-btn
@@ -974,11 +994,11 @@
                                 size="x-small"
                                 class="mt-2"
                                 block
-                                @click="
-                                  updatePlayerStatus(player, turnedAwayStatus)
-                                "
+                                @click="confirmTurnAway(player)"
                               >
-                                <v-icon start>mdi-close-circle-outline</v-icon>
+                                <v-icon start
+                                  >mdi-close-circle-outline</v-icon
+                                >
                                 Turn Away
                               </v-btn>
                             </template>
@@ -1069,10 +1089,35 @@ const errorDialog = ref({
 });
 const successDialog = ref(false);
 
+// ADICIONADO APENAS ESTA VARIÁVEL
+const turnAwayConfirmDialog = ref({
+  show: false,
+  player: null,
+});
+
 const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
+
+// ADICIONADAS APENAS ESTAS DUAS FUNÇÕES
+const confirmTurnAway = (player) => {
+  turnAwayConfirmDialog.value = {
+    show: true,
+    player: player,
+  };
+};
+
+const executeTurnAway = () => {
+  if (turnAwayConfirmDialog.value.player) {
+    updatePlayerStatus(
+      turnAwayConfirmDialog.value.player,
+      turnedAwayStatus.value,
+    );
+    turnAwayConfirmDialog.value = { show: false, player: null };
+  }
+};
+
 
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
