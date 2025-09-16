@@ -1,5 +1,9 @@
 <template>
-  <v-speed-dial v-model="speedDialOpen" transition="fade-transition">
+  <v-speed-dial
+    v-if="currentTab !== 'book'" 
+    v-model="speedDialOpen" 
+    transition="fade-transition"
+  >
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
@@ -1338,8 +1342,8 @@ watch(
 
 .speed-dial-activator {
   position: fixed;
-  right: 24px;
-  bottom: 62px;
+  right: 10px;
+  bottom: 80px;
   z-index: 2000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   width: 56px !important;
