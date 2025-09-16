@@ -1919,6 +1919,12 @@ onBeforeUnmount(() => {
   margin-bottom: 1.5rem;
 }
 
+.v-btn__content {
+  grid-area: content;
+  justify-content: center;
+  white-space: normal !important;
+}
+
 .body-text p strong {
   font-style: normal;
   font-weight: bold;
