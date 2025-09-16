@@ -270,45 +270,59 @@
                 <!-- Interaction Content -->
                 <div
                   v-else-if="interPage === 'titles' && currentInteractionConfig"
+                  class="interaction-content"
                 >
+                  <!-- Imagem sem overlay -->
                   <v-img
                     :src="currentInteractionConfig.background"
                     height="300"
                     cover
                     class="interaction-hero"
-                  >
-                    <div class="interaction-overlay">
-                      <h2 class="interaction-title">
+                    gradient="to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)"
+                  />
+
+                  <!-- Conteúdo do texto abaixo da imagem -->
+                  <v-card-text class="interaction-text-content">
+                    <div class="text-center mb-4">
+                      <h2 class="interaction-title mb-2">
                         {{ currentInteractionConfig.title }}
                       </h2>
-                      <p class="interaction-subtitle">
+                      <p class="interaction-subtitle text-medium-emphasis">
                         {{ currentInteractionConfig.subtitle }}
                       </p>
                     </div>
-                  </v-img>
 
-                  <v-card-text>
-                    <v-row>
+                    <!-- Botões de escolha organizados -->
+                    <v-row class="interaction-choices" justify="center">
                       <v-col
                         v-for="item in interactionChoices"
                         :key="item.id"
                         cols="12"
                         sm="6"
+                        md="4"
+                        class="d-flex"
                       >
                         <v-btn
                           @click="selectInteraction(item)"
                           block
                           size="large"
-                          variant="tonal"
+                          variant="elevated"
+                          class="interaction-choice-btn"
+                          :ripple="true"
                         >
-                          {{ item.title }}
+                          <span class="text-wrap">{{ item.title }}</span>
                         </v-btn>
                       </v-col>
                     </v-row>
                   </v-card-text>
 
-                  <v-card-actions>
-                    <v-btn @click="resetScan" prepend-icon="mdi-close">
+                  <!-- Ações do rodapé -->
+                  <v-card-actions class="justify-center pa-4">
+                    <v-btn
+                      @click="resetScan"
+                      prepend-icon="mdi-close"
+                      variant="outlined"
+                    >
                       Close
                     </v-btn>
                   </v-card-actions>
@@ -383,7 +397,8 @@
                           class="content-block"
                           :class="{
                             'mb-6':
-                              chapterIndex < playerTutorials.chapters.length - 1,
+                              chapterIndex <
+                              playerTutorials.chapters.length - 1,
                           }"
                         >
                           <div class="header-banner">
@@ -460,8 +475,13 @@
                             ) in gameMechanicsBook.mechanics"
                             :key="mechanic.title"
                           >
-                            <section :id="`mechanic-item-${index}`" class="mb-4">
-                              <h3 class="mechanic-title">{{ mechanic.title }}</h3>
+                            <section
+                              :id="`mechanic-item-${index}`"
+                              class="mb-4"
+                            >
+                              <h3 class="mechanic-title">
+                                {{ mechanic.title }}
+                              </h3>
                               <div v-html="mechanic.bodyHTML"></div>
                             </section>
                             <div
@@ -654,9 +674,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn @click="showCameraDeniedDialog = false">
-            OK
-          </v-btn>
+          <v-btn @click="showCameraDeniedDialog = false"> OK </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -711,7 +729,7 @@ import InteractionTheStoneGuardian from "@/assets/json/InteractionTheStoneGuardi
 import InteractionTheReservoir from "@/assets/json/InteractionTheReservoir.json";
 import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasuresOfAForgottenAge.json";
 
-import { useDisplay } from 'vuetify';
+import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
 
 // Type Interfaces
@@ -904,7 +922,11 @@ const initializeInteractionConfigs = () => {
 
 // Computed Properties
 const showFullscreenButton = computed(() => {
-  return smAndDown.value && fullscreenSupported.value && currentView.value === "player";
+  return (
+    smAndDown.value &&
+    fullscreenSupported.value &&
+    currentView.value === "player"
+  );
 });
 
 const currentPage = computed(() => {
@@ -1114,70 +1136,59 @@ const otherBookGroups = computed(() => {
   return result;
 });
 
-// **SCROLL METHODS - CORRIGIDOS**
 const scrollToTop = (): void => {
   const container = scrollableContentRef.value;
   if (container) {
-    container.scrollTo({ 
-      top: 0, 
-      behavior: "smooth" 
+    container.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
-    console.log('Scrolling to top');
   } else {
-    console.warn('scrollableContentRef não encontrado');
+    console.warn("scrollableContentRef não encontrado");
   }
 };
 
 const scrollToTarget = async (targetId: string, retries = 3): Promise<void> => {
   return new Promise((resolve) => {
     const container = scrollableContentRef.value;
-    
+
     if (!container) {
-      console.warn('Container de scroll não encontrado');
+      console.warn("Container de scroll não encontrado");
       resolve();
       return;
     }
 
     const attemptScroll = () => {
       const target = document.getElementById(targetId);
-      
+
       if (!target) {
         if (retries > 0) {
-          console.log(`Tentativa ${4 - retries}/3 para encontrar elemento ${targetId}`);
           setTimeout(() => {
             scrollToTarget(targetId, retries - 1).then(resolve);
           }, 150);
         } else {
-          console.warn(`Elemento com ID "${targetId}" não encontrado após 3 tentativas`);
+          console.warn(
+            `Elemento com ID "${targetId}" não encontrado após 3 tentativas`,
+          );
           resolve();
         }
         return;
       }
 
-      // Debug: log informações do scroll
-      console.log('Container scroll info:', {
-        scrollTop: container.scrollTop,
-        scrollHeight: container.scrollHeight,
-        clientHeight: container.clientHeight
-      });
-
-      // Calcular posição de scroll
       const containerRect = container.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
       const currentScroll = container.scrollTop;
       const marginTop = 20;
-      
-      const targetPosition = currentScroll + (targetRect.top - containerRect.top) - marginTop;
+
+      const targetPosition =
+        currentScroll + (targetRect.top - containerRect.top) - marginTop;
       const finalPosition = Math.max(0, targetPosition);
-      
-      console.log('Scrolling to position:', finalPosition);
-      
-      // Fazer o scroll
-      container.scrollTo({ 
-        top: finalPosition, 
-        behavior: "smooth" 
+
+      container.scrollTo({
+        top: finalPosition,
+        behavior: "smooth",
       });
-      
+
       setTimeout(() => resolve(), 300);
     };
 
@@ -1185,11 +1196,10 @@ const scrollToTarget = async (targetId: string, retries = 3): Promise<void> => {
   });
 };
 
-const navigateToSection = async (item: NavigationItemExtended): Promise<void> => {
+const navigateToSection = async (
+  item: NavigationItemExtended,
+): Promise<void> => {
   try {
-    console.log('Navegando para:', item);
-    
-    // Atualizar estado
     currentView.value = item.viewType;
     activeItemId.value = item.id;
     openGroups.value = [item.sectionTitle];
@@ -1197,11 +1207,10 @@ const navigateToSection = async (item: NavigationItemExtended): Promise<void> =>
     if (item.viewType === "player") {
       if (typeof item.sectionIndex === "number" && item.sectionIndex >= 0) {
         currentIndex.value = item.sectionIndex;
-        
-        // Aguardar renderização completa
+
         await nextTick();
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
         if (item.originalId) {
           await scrollToTarget(item.originalId);
         } else {
@@ -1214,8 +1223,8 @@ const navigateToSection = async (item: NavigationItemExtended): Promise<void> =>
     } else {
       // Para outras views
       await nextTick();
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
       if (item.targetId) {
         await scrollToTarget(item.targetId);
       } else {
@@ -1223,36 +1232,24 @@ const navigateToSection = async (item: NavigationItemExtended): Promise<void> =>
       }
     }
   } catch (error) {
-    console.error('Erro na navegação:', error);
+    console.error("Erro na navegação:", error);
   }
 };
 
 const debugScroll = () => {
   const container = scrollableContentRef.value;
   if (container) {
-    console.log('=== DEBUG SCROLL ===');
-    console.log('Container:', container);
-    console.log('ScrollTop atual:', container.scrollTop);
-    console.log('ScrollHeight total:', container.scrollHeight);
-    console.log('ClientHeight visível:', container.clientHeight);
-    console.log('Pode scrollar:', container.scrollHeight > container.clientHeight);
-    
-    // Teste de scroll para baixo
-    console.log('Testando scroll para baixo...');
-    container.scrollTo({ top: 200, behavior: 'smooth' });
-    
-    setTimeout(() => {
-      console.log('ScrollTop após teste:', container.scrollTop);
-    }, 1000);
+    container.scrollTo({ top: 200, behavior: "smooth" });
+
+    setTimeout(() => {}, 1000);
   } else {
-    console.error('scrollableContentRef é null!');
+    console.error("scrollableContentRef é null!");
   }
 };
 
 const onScroll = (event: Event) => {
   const target = event.target as HTMLElement;
-  // Debug opcional do scroll
-  // console.log('Scroll event:', target.scrollTop);
+  console.log("Scroll event:", target.scrollTop);
 };
 
 // Other Methods
@@ -1510,8 +1507,6 @@ watch(mobileNavValue, (newVal) => {
 });
 
 watch(currentView, async (newView, oldView) => {
-  console.log(`View mudou de ${oldView} para ${newView}`);
-  
   if (isFullscreen.value && newView !== "player") {
     await toggleFullscreen();
   }
@@ -1527,11 +1522,11 @@ watch(currentView, async (newView, oldView) => {
   } else if (oldView === "interactions") {
     codeReader.reset();
   }
-  
+
   // Reset scroll position quando mudar de view
   if (oldView !== newView) {
     await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
     scrollToTop();
   }
 });
@@ -1546,9 +1541,7 @@ onMounted(() => {
   document.addEventListener("mozfullscreenchange", handleFullscreenChange);
   document.addEventListener("MSFullscreenChange", handleFullscreenChange);
 
-  // Debug inicial
   nextTick(() => {
-    console.log('Componente montado, verificando scroll...');
     setTimeout(() => {
       debugScroll();
     }, 1000);
@@ -1573,9 +1566,12 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* =========================== */
-/* LAYOUT PRINCIPAL - CORRIGIDO */
-/* =========================== */
+.interaction-content {
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--v-theme-surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
 .book-container {
   height: 100vh;
@@ -1593,7 +1589,6 @@ onBeforeUnmount(() => {
   padding-top: 0 !important;
 }
 
-/* Container de navegação com altura fixa */
 .navigation-container {
   flex-shrink: 0;
   height: 80px;
@@ -1627,10 +1622,6 @@ onBeforeUnmount(() => {
   margin: 0 4px;
 }
 
-/* =========================== */
-/* CONTAINER DE SCROLL CORRIGIDO */
-/* =========================== */
-
 .scroll-root {
   flex: 1;
   overflow-y: auto;
@@ -1640,13 +1631,11 @@ onBeforeUnmount(() => {
   background: var(--v-theme-background);
 }
 
-/* Suporte para scroll em dispositivos touch */
 .scroll-root {
   -webkit-overflow-scrolling: touch;
   scroll-padding-top: 20px;
 }
 
-/* Margem para elementos com ID */
 [id] {
   scroll-margin-top: 20px;
 }
@@ -1657,10 +1646,6 @@ onBeforeUnmount(() => {
   padding: 16px;
   min-height: 100%;
 }
-
-/* =========================== */
-/* MOBILE MENU STYLES */
-/* =========================== */
 
 .mobile-menu-card {
   max-height: 70vh;
@@ -1679,10 +1664,6 @@ onBeforeUnmount(() => {
   padding-left: 32px !important;
 }
 
-/* =========================== */
-/* BOOK PAGE STYLES ORIGINAIS */
-/* =========================== */
-
 .book-page {
   background-color: #ffffff;
   color: #212121;
@@ -1693,7 +1674,6 @@ onBeforeUnmount(() => {
     inset 0 0 20px rgba(94, 69, 57, 0.2);
   border-radius: 12px;
   min-height: 400px;
-  /* Removido max-height que causava problemas */
 }
 
 .header-banner {
@@ -1782,9 +1762,6 @@ onBeforeUnmount(() => {
   text-indent: 0em !important;
 }
 
-.body-text-mechanics {
-}
-
 .body-text-mechanics :deep(p) {
   font-family: "EB Garamond", serif;
   font-size: 1rem;
@@ -1818,9 +1795,6 @@ onBeforeUnmount(() => {
   top: 0.1em;
   color: #212121;
   font-size: 1.2em;
-}
-
-.body-text-mechanics :deep(li.custom-bullet) {
 }
 
 .body-text-mechanics :deep(li.custom-bullet::before) {
@@ -1876,7 +1850,6 @@ onBeforeUnmount(() => {
   border: 2px solid #212121 !important;
   color: #1a120f !important;
   box-shadow: 3px 3px 0px #212121;
-  padding: 16px;
   margin-top: 1rem;
   margin-left: 16px;
   margin-right: 16px;
@@ -1893,10 +1866,6 @@ onBeforeUnmount(() => {
   margin-bottom: 0.5em;
   color: #1a120f !important;
 }
-
-/* =========================== */
-/* FULLSCREEN STYLES */
-/* =========================== */
 
 .book-page-fullscreen {
   margin: 0 !important;
@@ -1923,7 +1892,6 @@ onBeforeUnmount(() => {
   padding-right: 60px !important;
 }
 
-/* Fullscreen FAB */
 .fullscreen-fab {
   position: fixed !important;
   top: 16px;
@@ -1931,17 +1899,12 @@ onBeforeUnmount(() => {
   z-index: 1000;
 }
 
-/* Debug FAB */
 .debug-fab {
   position: fixed !important;
   bottom: 16px;
   left: 16px;
   z-index: 1000;
 }
-
-/* =========================== */
-/* INTERACTION STYLES */
-/* =========================== */
 
 .scanner-container {
   padding: 24px;
@@ -1974,6 +1937,12 @@ onBeforeUnmount(() => {
 
 .interaction-hero {
   position: relative;
+  border-radius: 0;
+}
+
+.interaction-text-content {
+  padding: 24px !important;
+  background: var(--v-theme-surface);
 }
 
 .interaction-overlay {
@@ -1987,19 +1956,50 @@ onBeforeUnmount(() => {
 }
 
 .interaction-title {
-  font-size: 1.75rem;
+  font-size: 1.75rem !important;
   font-weight: 600;
-  margin-bottom: 8px;
+  color: var(--v-theme-on-surface);
+  line-height: 1.3;
 }
 
 .interaction-subtitle {
   font-size: 1rem;
-  opacity: 0.9;
+  line-height: 1.5;
+  color: var(--v-theme-on-surface-variant);
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .interaction-body {
   margin-bottom: 16px;
   line-height: 1.6;
+}
+
+.interaction-choices {
+  margin-top: 24px;
+}
+
+.interaction-choice-btn {
+  height: auto !important;
+  min-height: 56px;
+  padding: 12px 16px !important;
+  border-radius: 12px !important;
+  font-weight: 500;
+  text-transform: none !important;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.interaction-choice-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+
+.interaction-choice-btn .text-wrap {
+  white-space: normal;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .content-card {
@@ -2009,10 +2009,6 @@ onBeforeUnmount(() => {
   background: white;
   margin-bottom: 16px;
 }
-
-/* =========================== */
-/* TRANSITIONS */
-/* =========================== */
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
@@ -2029,19 +2025,15 @@ onBeforeUnmount(() => {
   transform: translateY(-20px);
 }
 
-/* =========================== */
-/* RESPONSIVE DESIGN */
-/* =========================== */
-
 @media (max-width: 768px) {
   .navigation-container {
     height: 70px;
   }
-  
+
   .content-container {
     padding: 8px;
   }
-  
+
   .book-page {
     margin: 10px;
   }
@@ -2056,6 +2048,23 @@ onBeforeUnmount(() => {
 
   .mobile-section-header {
     padding: 16px 16px !important;
+  }
+
+  .interaction-text-content {
+    padding: 16px !important;
+  }
+  
+  .interaction-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .interaction-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .interaction-choice-btn {
+    min-height: 48px;
+    font-size: 0.9rem;
   }
 }
 
@@ -2096,11 +2105,27 @@ onBeforeUnmount(() => {
   .navigation-buttons .v-btn .ml-2 {
     margin-left: 4px !important;
   }
-}
 
-/* =========================== */
-/* MISC STYLES */
-/* =========================== */
+  .interaction-hero {
+    height: 250px !important;
+  }
+  
+  .interaction-text-content {
+    padding: 12px !important;
+  }
+  
+  .interaction-title {
+    font-size: 1.3rem !important;
+  }
+  
+  .interaction-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .interaction-choices {
+    margin-top: 16px;
+  }
+}
 
 .text-h6,
 .text-subtitle-1 {
@@ -2119,7 +2144,6 @@ onBeforeUnmount(() => {
   margin-bottom: 0.2em;
 }
 
-/* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .content-card {
     background: var(--v-theme-surface);
