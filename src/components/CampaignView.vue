@@ -1,5 +1,9 @@
 <template>
-  <v-speed-dial v-model="speedDialOpen" transition="fade-transition">
+  <v-speed-dial
+    v-if="currentTab !== 'book'" 
+    v-model="speedDialOpen" 
+    transition="fade-transition"
+  >
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
@@ -162,6 +166,7 @@
                         ref="saveInstructionsRef"
                         @save="handleSave"
                         @instruction-changed="onInstructionChanged"
+                        @action-click="handleInstructionAction"
                         @close="closeInstructions"
                         style="max-height: 25vh !important"
                       />
@@ -169,6 +174,7 @@
                         v-else
                         ref="loadInstructionsRef"
                         @instruction-changed="onInstructionChanged"
+                        @action-click="handleInstructionAction"
                         @close="closeInstructions"
                         style="max-height: 25vh !important"
                       />
@@ -440,7 +446,6 @@ const saveInstructionsRef = vueRef<InstanceType<
   typeof SaveInstructions
 > | null>(null);
 
-// Speed Dial refs
 const speedDialOpen = ref(true);
 const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
   null,
@@ -452,7 +457,6 @@ const shareCampaignRef = vueRef<InstanceType<
   typeof ShareCampaignButton
 > | null>(null);
 
-// New refs and logic for Transfer Master feature
 const transferLoading = ref(false);
 const transferDialogVisible = ref(false);
 const players = ref<
@@ -476,7 +480,214 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
-// ... (o restante do script permanece o mesmo)
+const getNavigationStateKey = () => `campaign_${campaignId}_navigation_state`;
+
+const saveNavigationState = () => {
+  if (typeof window === "undefined") return;
+  
+  const currentStep = instructionTab.value === 'save' 
+    ? localStorage.getItem(getInstructionStepKey("save"))
+    : localStorage.getItem(getInstructionStepKey("load"));
+
+  const navigationState = {
+    expanded: expandedPanel.value.length > 0,
+    instructionTab: instructionTab.value,
+    currentTab: currentTab.value,
+    currentStep: currentStep ? parseInt(currentStep) : 1,
+    timestamp: Date.now(),
+    returnFromNavigation: true
+  };
+
+  localStorage.setItem(getNavigationStateKey(), JSON.stringify(navigationState));
+};
+
+const restoreNavigationState = () => {
+  if (typeof window === "undefined") return false;
+
+  const stateStr = localStorage.getItem(getNavigationStateKey());
+  if (!stateStr) return false;
+
+  try {
+    const state = JSON.parse(stateStr);
+    const now = Date.now();
+    const oneHour = 60 * 60 * 1000;
+
+    if (now - state.timestamp > oneHour) {
+      localStorage.removeItem(getNavigationStateKey());
+      return false;
+    }
+
+    if (!state.returnFromNavigation) return false;
+
+    if (state.expanded) {
+      expandedPanel.value = [0];
+      instructionTab.value = state.instructionTab;
+      currentTab.value = state.currentTab;
+
+      nextTick(() => {
+        if (state.instructionTab === 'save' && saveInstructionsRef.value) {
+          saveInstructionsRef.value.setCurrentStep(state.currentStep);
+        } else if (state.instructionTab === 'load' && loadInstructionsRef.value) {
+          loadInstructionsRef.value.setCurrentStep(state.currentStep);
+        }
+
+        localStorage.setItem(
+          getInstructionStepKey(state.instructionTab),
+          state.currentStep.toString()
+        );
+      });
+
+      router.replace({
+        query: {
+          ...route.query,
+          instructions: "open",
+          tab: state.instructionTab,
+        },
+      });
+
+      const clearedState = { ...state, returnFromNavigation: false };
+      localStorage.setItem(getNavigationStateKey(), JSON.stringify(clearedState));
+
+      return true;
+    }
+
+    return false;
+  } catch (error) {
+    console.error("Error restoring navigation state:", error);
+    localStorage.removeItem(getNavigationStateKey());
+    return false;
+  }
+};
+
+const clearNavigationState = () => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(getNavigationStateKey());
+  }
+};
+
+const handleInstructionAction = (action: string) => {
+  saveNavigationState();
+  
+  setTimeout(() => {
+    if (action === 'manage-resources') {
+      handleManageResourcesAction();
+    } else if (action === 'equipment-skills') {
+      handleEquipmentSkillsAction();
+    }
+  }, 100);
+};
+
+const handleManageResourcesAction = () => {
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  
+  if (heroes.length === 0) {
+    setAlert(
+      "mdi-information-outline",
+      "Info",
+      "No heroes found in this campaign. Please add heroes first.",
+      "info"
+    );
+    return;
+  }
+
+  if (heroes.length === 1) {
+    navigateToHeroSequentialState(heroes[0].heroId);
+    return;
+  }
+
+  showHeroSelectionAlert('manage-resources', heroes);
+};
+
+const handleEquipmentSkillsAction = () => {
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  
+  if (heroes.length === 0) {
+    setAlert(
+      "mdi-information-outline",
+      "Info", 
+      "No heroes found in this campaign. Please add heroes first.",
+      "info"
+    );
+    return;
+  }
+
+  if (heroes.length === 1) {
+    navigateToHeroEquipmentSkills(heroes[0].heroId);
+    return;
+  }
+
+  showHeroSelectionAlert('equipment-skills', heroes);
+};
+
+const showHeroSelectionAlert = (action: string, heroes: any[]) => {
+  const heroList = heroes.map(hero => hero.name || `Hero ${hero.heroId}`).join(', ');
+  
+  const actionText = action === 'manage-resources' ? 'Manage Resources' : 'Equipment & Skills';
+  
+  setAlert(
+    "mdi-account-multiple-outline",
+    "Multiple Heroes Found",
+    `Multiple heroes found in this campaign: ${heroList}. Please scroll down to select the "${actionText}" button for the specific hero you want to manage.`,
+    "info",
+    5000
+  );
+  
+  setTimeout(() => {
+    scrollToHeroSection();
+  }, 500);
+};
+
+const scrollToHeroSection = () => {
+  const heroSection = document.querySelector('.v-sheet.rounded.border-md');
+  if (heroSection) {
+    heroSection.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+    
+    heroSection.style.transition = 'box-shadow 0.3s ease';
+    heroSection.style.boxShadow = '0 0 20px rgba(var(--v-theme-primary), 0.5)';
+    
+    setTimeout(() => {
+      heroSection.style.boxShadow = '';
+    }, 2000);
+  }
+};
+
+const navigateToHeroSequentialState = (heroId: string) => {
+  if (!showSaveCampaignButton.value) {
+    setAlert(
+      "mdi-alert-circle",
+      "Access Denied",
+      "Only the Drunagor Master can access this feature.",
+      "error"
+    );
+    return;
+  }
+
+  router.push({
+    name: "HeroSequentialState",
+    params: { campaignId: campaignId, heroId: heroId },
+  });
+};
+
+const navigateToHeroEquipmentSkills = (heroId: string) => {
+  if (!showSaveCampaignButton.value) {
+    setAlert(
+      "mdi-alert-circle",
+      "Access Denied", 
+      "Only the Drunagor Master can access this feature.",
+      "error"
+    );
+    return;
+  }
+
+  router.push({
+    name: "Hero",
+    params: { campaignId: campaignId, heroId: heroId },
+  });
+};
+
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
@@ -645,6 +856,7 @@ const onInstructionChanged = (step: number) => {
 
 const closeInstructions = () => {
   expandedPanel.value = [];
+  clearNavigationState(); 
   if (typeof window !== "undefined") {
     localStorage.removeItem(getSessionStateKey());
     localStorage.removeItem(getInstructionStateKey());
@@ -658,6 +870,10 @@ const closeInstructions = () => {
 
 const restoreInstructionState = () => {
   if (typeof window === "undefined") return;
+
+  if (restoreNavigationState()) {
+    return; 
+  }
 
   const sessionStateStr = localStorage.getItem(getSessionStateKey());
   if (sessionStateStr) {
@@ -939,7 +1155,6 @@ onMounted(async () => {
   if (foundCampaign) {
     campaign.value = foundCampaign;
     if (!campaign.value.isSequentialAdventure) {
-      console.log(`Ativando Aventura Sequencial para a campanha: ${campaignId}`);
       campaign.value.isSequentialAdventure = true;
       campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
       heroStore.findAllInCampaign(campaignId).forEach((hero) => {
@@ -1127,8 +1342,8 @@ watch(
 
 .speed-dial-activator {
   position: fixed;
-  right: 24px;
-  bottom: 62px;
+  right: 10px;
+  bottom: 80px;
   z-index: 2000;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   width: 56px !important;
@@ -1156,6 +1371,29 @@ watch(
 .speed-dial-item:disabled {
   opacity: 0.5 !important;
   transform: none !important;
+}
+
+.hero-highlight {
+  transition: box-shadow 0.3s ease;
+}
+
+.hero-highlight.highlighted {
+  box-shadow: 0 0 20px rgba(var(--v-theme-primary), 0.5) !important;
+}
+
+:deep(.action-buttons-container) {
+  position: relative;
+  z-index: 10;
+}
+
+:deep(.action-btn) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease;
+}
+
+:deep(.action-btn:hover) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
 @media (max-width: 960px) {
@@ -1247,4 +1485,3 @@ watch(
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 </style>
-

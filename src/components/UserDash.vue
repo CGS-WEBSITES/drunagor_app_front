@@ -75,7 +75,7 @@
           height="116px"
           class="move_topouser pt-12"
         ></v-card>
-        <v-card color="secundary" class="move_topouser pt-12">
+        <v-card color="background" class="move_topouser pt-12">
           <v-row class="mt-2 d-flex justify-center align-center ma-0 w-100">
             <v-col cols="12" sm="12" md="12" class="ml-5 pt-12">
               <v-carousel
@@ -160,6 +160,12 @@
               </v-row>
             </v-col>
           </v-row>
+
+          <v-row class="justify-center pb-6 px-0 pl-5 mt-6">
+  <v-col cols="12">
+    <DashboardEvents />
+  </v-col>
+</v-row>
 
           <v-row
             class="mt-4 d-flex justify-center align-center py-6"
@@ -328,6 +334,12 @@
             </v-hover>
           </v-col>
         </v-row>
+
+        <v-row class="justify-center pb-6 ml-1 mt-">
+  <v-col cols="12">
+    <DashboardEvents />
+  </v-col>
+</v-row>
 
         <v-row class="d-flex justify-center align-center w-100" no-gutters>
           <v-col cols="12" sm="12" md="12" class="px-0 mb-0">

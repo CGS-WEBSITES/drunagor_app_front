@@ -154,8 +154,16 @@
       <div class="step-content">
         <h3 class="step-title">5 - Resources & Equipment</h3>
         <p class="step-description mb-2">
-          Continue by clicking the "Manage Resources" button to register the
-          Resource tokens and Equipment each Hero has:
+          Continue by clicking the 
+          <span 
+            class="action-link" 
+            @click="handleActionClick('manage-resources')"
+            @keydown.enter="handleActionClick('manage-resources')"
+            tabindex="0"
+          >
+            "Manage Resources"
+          </span> 
+          button to register the Resource tokens and Equipment each Hero has:
         </p>
         <v-list density="compact" class="mb-4 custom-list">
           <v-list-item class="custom-list-item">
@@ -183,8 +191,16 @@
       <div class="step-content">
         <h3 class="step-title">6 - Skills & Abilities</h3>
         <p class="step-description mb-2">
-          Finally, also register the Hero Skills and Class Skills of each Hero.
-          These fields only indicate the cards that were chosen:
+          Finally, also register the Hero Skills and Class Skills of each Hero by clicking the 
+          <span 
+            class="action-link" 
+            @click="handleActionClick('equipment-skills')"
+            @keydown.enter="handleActionClick('equipment-skills')"
+            tabindex="0"
+          >
+            "Equipment & Skills"
+          </span> 
+          button. These fields only indicate the cards that were chosen:
         </p>
         <v-list density="compact" class="mb-4 custom-list">
           <v-list-item class="custom-list-item">
@@ -280,6 +296,7 @@ const emit = defineEmits<{
   save: [];
   "instruction-changed": [step: number];
   close: [];
+  "action-click": [action: string];
 }>();
 
 const currentStep = ref(1);
@@ -312,19 +329,16 @@ const handleSaveClick = () => {
   }, 5000);
 };
 
+const handleActionClick = (action: string) => {
+  emit("action-click", action);
+};
+
 defineExpose({
   setCurrentStep,
   resetLoading: () => {
     saving.value = false;
   },
 });
-
-const onStepChange = (value: unknown) => {
-  const step = Number(value);
-  if (!isNaN(step) && step >= 1 && step <= steps.length) {
-    emit("instruction-changed", step);
-  }
-};
 
 watch(
   currentStep,
@@ -437,6 +451,33 @@ watch(
   padding: 8px 16px;
   border-radius: 16px;
   border: 1px solid rgba(var(--v-theme-primary), 0.2);
+}
+
+.action-link {
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  display: inline-block;
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.action-link:hover {
+  background: rgba(var(--v-theme-primary), 0.2);
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+.action-link:focus {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+}
+
+.action-link:active {
+  transform: translateY(0);
+  background: rgba(var(--v-theme-primary), 0.3);
 }
 
 @media (max-width: 960px) {

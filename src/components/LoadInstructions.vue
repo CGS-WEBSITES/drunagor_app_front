@@ -74,8 +74,16 @@
       <div class="step-content">
         <h3 class="step-title">3 - Manage Resources</h3>
         <p class="step-description mb-2">
-          Click the "Manage Resources" button and assign the following
-          components to each Hero:
+          Click the 
+          <span 
+            class="action-link" 
+            @click="handleActionClick('manage-resources')"
+            @keydown.enter="handleActionClick('manage-resources')"
+            tabindex="0"
+          >
+            "Manage Resources"
+          </span> 
+          button and assign the following components to each Hero:
         </p>
         <v-list density="compact" class="mb-4 custom-list">
           <v-list-item class="custom-list-item">
@@ -104,8 +112,16 @@
       <div class="step-content">
         <h3 class="step-title">4 - Hero Skills and Class Skills</h3>
         <p class="step-description mb-2">
-          Click the "Hero Skills and Class Skills" button and assign each Hero
-          the Abilities they've learned in previous sessions:
+          Click the 
+          <span 
+            class="action-link" 
+            @click="handleActionClick('equipment-skills')"
+            @keydown.enter="handleActionClick('equipment-skills')"
+            tabindex="0"
+          >
+            "Equipment & Skills"
+          </span> 
+          button and assign each Hero the Abilities they've learned in previous sessions:
         </p>
         <v-list density="compact" class="mb-4 custom-list">
           <v-list-item class="custom-list-item">
@@ -183,8 +199,8 @@
           <v-list-item class="custom-list-item">
             <v-list-item-title class="list-item-text">
               Place them back on the board. Each Hero may reposition their
-              Model to a space within Range 1 of the Door listed as “Selected
-              Door” in their Campaign Log
+              Model to a space within Range 1 of the Door listed as "Selected
+              Door" in their Campaign Log
             </v-list-item-title>
           </v-list-item>
           <v-list-item class="custom-list-item">
@@ -255,6 +271,7 @@ const emit = defineEmits<{
   save: [];
   "instruction-changed": [step: number];
   close: [];
+  "action-click": [action: string];
 }>();
 
 const currentStep = ref(1);
@@ -277,16 +294,13 @@ const previousStep = () => {
   }
 };
 
+const handleActionClick = (action: string) => {
+  emit("action-click", action);
+};
+
 defineExpose({
   setCurrentStep,
 });
-
-const onStepChange = (value: unknown) => {
-  const step = Number(value);
-  if (!isNaN(step) && step >= 1 && step <= steps.length) {
-    emit("instruction-changed", step);
-  }
-};
 
 watch(
   currentStep,
@@ -399,6 +413,33 @@ watch(
   padding: 8px 16px;
   border-radius: 16px;
   border: 1px solid rgba(var(--v-theme-primary), 0.2);
+}
+
+.action-link {
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 2px 4px;
+  display: inline-block;
+  background: rgba(var(--v-theme-primary), 0.1);
+}
+
+.action-link:hover {
+  background: rgba(var(--v-theme-primary), 0.2);
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+.action-link:focus {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+}
+
+.action-link:active {
+  transform: translateY(0);
+  background: rgba(var(--v-theme-primary), 0.3);
 }
 
 @media (max-width: 960px) {

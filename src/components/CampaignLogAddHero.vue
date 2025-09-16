@@ -18,8 +18,8 @@
       <v-card-text>
         <v-list lines="one">
           <v-list-item id="party-random-hero" @click="addRandomHeroToCampaign">
-            <v-img :src="RandomImage"
-          /></v-list-item>
+            <v-img :src="RandomImage" />
+          </v-list-item>
 
           <v-list-item
             v-for="hero in filteredHeroes"
@@ -39,6 +39,7 @@ import { ref, computed } from "vue";
 import BaseList from "@/components/BaseList.vue";
 import BaseListItem from "@/components/BaseListItem.vue";
 import { EnabledHeroes } from "@/repository/EnabledHeroes";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { RandomizeHero } from "@/service/RandomizeHero";
 import { useToast } from "primevue/usetoast";
 import RandomImage from "@/assets/hero/trackerimage/RandomAvatar.png";
@@ -61,6 +62,7 @@ const visible = ref(false);
 function openModal() {
   visible.value = true;
 }
+
 function closeModal() {
   visible.value = false;
 }
@@ -69,6 +71,7 @@ const heroStore = HeroStore();
 const campaignStore = CampaignStore();
 
 const campaign = computed(() => campaignStore.find(props.campaignId));
+console.log('Campaign:', campaign.value);
 
 const MAX_HEROES = 4;
 const campaignHeroesCount = computed(
@@ -85,9 +88,21 @@ const isLimitReached = computed(() => {
   return false;
 });
 
-const heroes = new EnabledHeroes().findAll();
+const availableHeroes = computed(() => {
+  if (!campaign.value) {
+    return [];
+  }
+  
+  if (campaign.value.campaign === 'underkeep') {
+    const heroRepository = new HeroDataRepository();
+    const allHeroes = heroRepository.findAll();
+    return allHeroes.filter((hero: HeroData) => hero.content === 'core');
+  } else {
+    return new EnabledHeroes().findAll();
+  }
+});
 
-let filteredHeroes = computed(() => heroes.filter(filterHero));
+let filteredHeroes = computed(() => availableHeroes.value.filter(filterHero));
 
 function filterHero(hero: HeroData) {
   if (heroStore.hasInCampaign(hero.id, props.campaignId)) {
@@ -125,6 +140,7 @@ function addRandomHeroToCampaign() {
 
   const randomHero = new RandomizeHero().randomize(
     _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
+    availableHeroes.value 
   );
 
   if (randomHero === null) {

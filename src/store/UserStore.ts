@@ -32,6 +32,8 @@ export const useUserStore = defineStore('user', () => {
 
   const setUser = (newUser: User) => {
     user.value = newUser;
+
+    localStorage.setItem("app_user", JSON.stringify(newUser));
   };
 
   return { user, setUser };

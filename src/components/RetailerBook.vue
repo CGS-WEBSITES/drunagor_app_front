@@ -597,15 +597,38 @@
                   v-if="interPage === 'scan' && !scanned"
                   class="scan-page d-flex flex-column align-center justify-center"
                 >
-                  <video
-                    id="qr-video"
-                    class="qr-video mb-3 mb-sm-4"
-                    autoplay
-                    muted
-                    playsinline
-                  ></video>
+                  <!-- Video container with toggle button -->
+                  <div class="video-container">
+                    <video
+                      id="qr-video"
+                      class="qr-video mb-3 mb-sm-4"
+                      autoplay
+                      muted
+                      playsinline
+                    ></video>
+                    
+                    <!-- Camera toggle button (only displayed if there are multiple cameras) -->
+                    <v-btn
+                      v-if="isCameraSwitchVisible"
+                      @click="switchCamera"
+                      class="camera-switch-btn"
+                      icon
+                      size="small"
+                      color="white"
+                    >
+                      <v-icon>mdi-camera-flip</v-icon>
+                      <v-tooltip activator="parent" location="top">
+                        Switch camera
+                      </v-tooltip>
+                    </v-btn>
+                  </div>
+
                   <p class="mt-3 mt-sm-4 text-white">
                     Point the camera at the QR Code
+                  </p>
+                  
+                  <p v-if="isCameraSwitchVisible" class="camera-indicator text-white">
+                    Usando: {{ getCurrentCameraName }}
                   </p>
 
                   <div class="or-separator my-3 my-sm-4">OR</div>
@@ -898,7 +921,10 @@ const activeInteraction = ref<InteractionItem | null>(null);
 const availableActions = ref<GameAction[]>([]);
 const showCameraDeniedDialog = ref(false);
 
-// --- PROCESSAMENTO E INICIALIZAÇÃO DOS DADOS JSON ---
+const availableCameras = ref<MediaDeviceInfo[]>([]);
+const currentCameraIndex = ref(0);
+const isCameraSwitchVisible = ref(false);
+
 const pages = ref<PageSection[]>(bookPagesData as PageSection[]);
 
 const importedImageAssets: Record<string, string> = {
@@ -965,7 +991,6 @@ const secondEncounterClarifications = ref<EncounterClarificationsBook>(
 );
 
 // --- PROPRIEDADES COMPUTADAS ---
-
 const interactionChoices = computed(() => {
   if (!currentInteractionConfig.value) {
     return [];
@@ -1169,7 +1194,41 @@ const backgroundStyle = computed<CSSProperties>(() => {
   return s;
 });
 
+const getCurrentCameraName = computed(() => {
+  if (!availableCameras.value.length || currentCameraIndex.value >= availableCameras.value.length) {
+    return 'Câmera';
+  }
+  
+  const device = availableCameras.value[currentCameraIndex.value];
+  const label = device.label;
+  
+  if (label) {
+    if (label.toLowerCase().includes('back') || label.toLowerCase().includes('rear') || label.toLowerCase().includes('environment')) {
+      return 'Traseira';
+    } else if (label.toLowerCase().includes('front') || label.toLowerCase().includes('user') || label.toLowerCase().includes('selfie')) {
+      return 'Frontal';
+    }
+    return label.length > 20 ? label.substring(0, 20) + '...' : label;
+  }
+  
+  return `Câmera ${currentCameraIndex.value + 1}`;
+});
+
 // --- MÉTODOS ---
+const findRearCamera = (devices: MediaDeviceInfo[]): number => {
+  const rearKeywords = ['back', 'rear', 'environment', 'world', 'traseira'];
+  
+  for (let i = 0; i < devices.length; i++) {
+    const device = devices[i];
+    const label = device.label.toLowerCase();
+    
+    if (rearKeywords.some(keyword => label.includes(keyword))) {
+      return i;
+    }
+  }
+  return devices.length > 1 ? devices.length - 1 : 0;
+};
+
 const ensureCameraPermission = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -1181,6 +1240,7 @@ const ensureCameraPermission = async () => {
     showCameraDeniedDialog.value = true;
   }
 };
+
 const getSectionIcon = (sectionName: string) => {
   if (sectionName === tutorialSectionTitle.value) return "mdi-school-outline";
   if (sectionName === gameMechanicsSectionTitle.value) return "mdi-sword-cross";
@@ -1265,12 +1325,22 @@ async function startScanner() {
       console.error("[BookScript] Elemento de vídeo QR não encontrado.");
       return;
     }
+    
     const devices = await codeReader.listVideoInputDevices();
     if (!devices.length) {
       console.error("[BookScript] Nenhuma câmera encontrada.");
       return;
     }
-    const deviceId = devices[0].deviceId;
+    
+    availableCameras.value = devices;
+    isCameraSwitchVisible.value = devices.length > 1;
+    
+    if (currentCameraIndex.value >= devices.length) {
+      currentCameraIndex.value = findRearCamera(devices);
+    }
+    
+    const deviceId = devices[currentCameraIndex.value].deviceId;
+    
     codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
       if (result) {
         const raw = result.getText().trim();
@@ -1311,12 +1381,27 @@ async function startScanner() {
   }
 }
 
+function switchCamera() {
+  if (availableCameras.value.length <= 1) return;
+  
+  codeReader.reset?.();
+  currentCameraIndex.value = (currentCameraIndex.value + 1) % availableCameras.value.length;
+  
+  nextTick(() => {
+    startScanner();
+  });
+}
+
 function resetScan() {
   interPage.value = "scan";
   scanned.value = false;
   currentInteractionConfig.value = null;
   interactions.value = [];
   activeInteraction.value = null;
+  isCameraSwitchVisible.value = false;
+  availableCameras.value = [];
+  currentCameraIndex.value = 0;
+  
   if (currentView.value === "interactions") {
     nextTick(() => {
       codeReader.reset?.();
@@ -1828,11 +1913,35 @@ onBeforeUnmount(() => {
 }
 
 .qr-video {
-  width: 80%;
   max-width: 300px;
   border: 2px solid #f0e6d2;
   border-radius: 8px;
   background-color: #000;
+}
+
+/* --- NOVOS ESTILOS PARA OS ELEMENTOS DA CÂMERA --- */
+.video-container {
+  position: relative;
+  display: inline-block;
+}
+
+.camera-switch-btn {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid #f0e6d2 !important;
+  z-index: 10;
+}
+
+.camera-switch-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+.camera-indicator {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 8px;
 }
 
 .titles-container {
@@ -2224,8 +2333,16 @@ onBeforeUnmount(() => {
   }
 
   .qr-video {
-    width: 70%;
     max-width: 200px;
+  }
+  
+  .camera-switch-btn {
+    top: 8px !important;
+    right: 8px !important;
+  }
+  
+  .camera-indicator {
+    font-size: 0.8rem;
   }
 
   .interaction-main-title {
@@ -2369,8 +2486,12 @@ onBeforeUnmount(() => {
   }
 
   .qr-video {
-    width: 60%;
     max-width: 150px;
+  }
+  
+  .camera-switch-btn {
+    top: 6px !important;
+    right: 6px !important;
   }
 
   .interaction-btn {

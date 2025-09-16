@@ -787,6 +787,7 @@ import { useI18n } from "vue-i18n";
 import { Campaign } from "@/store/Campaign";
 import { useDebounceFn } from "@vueuse/core";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
+import DashboardEvents from '@/components/DashboardEvents.vue';
 
 const router = useRouter();
 const toast = useToast();

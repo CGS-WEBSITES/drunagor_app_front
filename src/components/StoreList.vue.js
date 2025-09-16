@@ -41,8 +41,8 @@ const fetchUsers = async () => {
             user_name: user.user_name || "User not found",
             join_date: user.join_date || "Date not available",
             picture_hash: user.picture_hash
-                ? `https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${user.picture_hash}`
-                : "https://druna-assets.s3.us-east-2.amazonaws.com/Profile/user.png",
+                ? `https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${user.picture_hash}`
+                : "https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/user.png",
             background_hash: user.background_hash,
         }));
     }
@@ -136,8 +136,8 @@ function __VLS_template() {
             ...{ class: ("background-overlay") },
             ...{ style: (({
                     backgroundImage: user.background_hash
-                        ? `url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/${user.background_hash})`
-                        : 'url(https://druna-assets.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
+                        ? `url(https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/${user.background_hash})`
+                        : 'url(https://assets.drunagor.app.s3.us-east-2.amazonaws.com/Profile/profile-bg-warriors-transparent.png)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
