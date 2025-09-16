@@ -561,6 +561,8 @@ function getBoxName(boxId: number): string {
       return "Awakenings";
     case 38:
       return "Underkeep Drunagor Nights";
+    case 39:
+      return "Underkeep Drunagor Nights Season 2";
     default:
       return `Unknown Box (ID: ${boxId})`;
   }
