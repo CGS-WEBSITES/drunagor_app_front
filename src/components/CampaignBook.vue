@@ -396,6 +396,18 @@
 
             <!-- Tutorial View -->
             <div v-else-if="currentView === 'tutorial'" key="tutorial">
+              <!-- Back Button for Tutorial -->
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -464,6 +476,18 @@
 
             <!-- Combat Guide View -->
             <div v-else-if="currentView === 'combatGuide'" key="combatGuide">
+              <!-- Back Button for Combat Guide -->
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -529,6 +553,18 @@
               v-else-if="currentView === 'explorationTips'"
               key="explorationTips"
             >
+              <!-- Back Button for Exploration Tips -->
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -604,6 +640,18 @@
               v-else-if="currentView === 'charProgression'"
               key="charProgression"
             >
+              <!-- Back Button for Character Progression -->
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
+              
               <div
                 class="book-page ma-5"
                 :style="{
