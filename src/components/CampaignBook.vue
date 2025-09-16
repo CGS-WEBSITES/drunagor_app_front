@@ -109,14 +109,14 @@
       <!-- Scroll Container -->
       <div class="scroll-root" ref="scrollableContentRef" @scroll="onScroll">
         <!-- Fullscreen Toggle -->
-        <v-fab
+        <!-- <v-fab
           v-if="showFullscreenButton"
           :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
           @click="toggleFullscreen"
           size="small"
           class="fullscreen-fab"
           location="top end"
-        />
+        /> -->
 
         <!-- Content Container -->
         <v-container fluid class="content-container pa-0">

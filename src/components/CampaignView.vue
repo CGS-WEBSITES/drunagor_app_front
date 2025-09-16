@@ -1,5 +1,9 @@
 <template>
-  <v-speed-dial v-model="speedDialOpen" transition="fade-transition">
+  <v-speed-dial
+    v-if="currentTab !== 'book'" 
+    v-model="speedDialOpen" 
+    transition="fade-transition"
+  >
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
