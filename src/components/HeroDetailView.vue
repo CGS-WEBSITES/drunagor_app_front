@@ -149,7 +149,7 @@ if (campaign.campaign === "core") {
   repository = new ApocalypseItemDataRepository();
 } else if (campaign.campaign === "awakenings") {
   repository = new AwakeningsItemDataRepository();
-} else if (campaign.campaign === "underkeep") {
+} else if (['underkeep', 'underkeep2'].includes(campaign.campaign)) {
   repository = new UnderKeepItemDataRepository();
 } else {
   throw new Error("Unknown campaign");

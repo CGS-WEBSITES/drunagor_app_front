@@ -133,7 +133,7 @@ import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import CampaignLogCore from "./CampaignLogCore.vue";
 import CampaignLogUnderKeep from "./CampaignLogUnderKeep.vue";
-import CampaignLogUnderKeep2 from "./CampaignLogUnderKeep.vue";
+import CampaignLogUnderKeep2 from "./CampaignLogUnderKeep2.vue";
 import CampaignLogAwakenings from "./CampaignLogAwakenings.vue";
 import CampaignLogApocalypse from "./CampaignLogApocalypse.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
