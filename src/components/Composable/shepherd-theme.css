@@ -1,9 +1,3 @@
-/* styles/shepherd-theme.css */
-
-/* Import Shepherd's base styles */
-@import 'shepherd.js/dist/css/shepherd.css';
-
-/* Custom Theme Variables */
 :root {
   --shepherd-primary-color: #4a90e2;
   --shepherd-success-color: #52c41a;
@@ -17,13 +11,11 @@
   --shepherd-mobile-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Dark theme support */
 [data-theme="dark"] {
   --shepherd-bg-color: #2d3748;
   --shepherd-border-color: #4a5568;
 }
 
-/* Shepherd Element Styles */
 .shepherd-element {
   background: rgba(45, 55, 72, 0.98) !important;
   border-radius: var(--shepherd-border-radius);
@@ -37,7 +29,6 @@
   min-width: 320px;
 }
 
-/* Header Styles */
 .shepherd-header {
   background: var(--shepherd-header-bg);
   padding: 16px 20px;
@@ -52,6 +43,11 @@
   margin: 0;
   padding-right: 30px;
   line-height: 1.4;
+}
+
+.shepherd-has-title .shepherd-content .shepherd-header {
+  background: var(--shepherd-header-bg) !important;
+  padding: 1em;
 }
 
 .shepherd-cancel-icon {
@@ -71,7 +67,6 @@
   border-radius: 50%;
 }
 
-/* Content Styles */
 .shepherd-text {
   color: var(--shepherd-text-color);
   font-size: 0.95rem;
@@ -99,7 +94,6 @@
   border-radius: 3px;
 }
 
-/* Custom Content Elements */
 .shepherd-checklist {
   list-style: none;
   padding: 0;
@@ -168,7 +162,6 @@
   font-size: 1.1rem;
 }
 
-/* Footer Styles */
 .shepherd-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 16px 20px;
@@ -186,7 +179,6 @@
   font-style: italic;
 }
 
-/* Button Styles */
 .shepherd-button {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
@@ -249,7 +241,6 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Inline Action Buttons */
 .shepherd-inline-button,
 .shepherd-save-button {
   display: inline-block;
@@ -288,13 +279,11 @@
   box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4);
 }
 
-/* Action Container */
 .shepherd-action {
   margin: 16px 0;
   text-align: center;
 }
 
-/* Arrow Styles */
 .shepherd-arrow {
   width: 16px;
   height: 16px;
@@ -307,13 +296,11 @@
   display: none;
 }
 
-/* Modal Overlay */
 .shepherd-modal-overlay {
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
 }
 
-/* Highlight Effect */
 .shepherd-highlight {
   position: relative;
   z-index: 9998;
@@ -334,7 +321,6 @@
   }
 }
 
-/* Tablet Styles (max-width: 960px) */
 @media (max-width: 960px) {
   .shepherd-element {
     max-width: 380px;
@@ -365,7 +351,6 @@
   }
 }
 
-/* Mobile Styles (max-width: 600px) */
 @media (max-width: 600px) {
   .shepherd-element {
     max-width: calc(100vw - 32px);
@@ -431,7 +416,6 @@
     border-radius: 4px;
   }
 
-  /* Mobile specific button styles */
   .shepherd-button-back-mobile {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -449,13 +433,11 @@
     font-size: 0.9rem;
   }
 
-  /* Adjust arrow for mobile */
   .shepherd-arrow {
     width: 12px;
     height: 12px;
   }
 
-  /* Mobile positioning adjustments */
   .shepherd-element[data-popper-placement^="bottom"] {
     margin-top: 8px !important;
   }
@@ -473,7 +455,6 @@
   }
 }
 
-/* Small Mobile Styles (max-width: 480px) */
 @media (max-width: 480px) {
   .shepherd-element {
     max-width: calc(100vw - 24px);
@@ -504,7 +485,6 @@
   }
 }
 
-/* Animations */
 .shepherd-element {
   animation: shepherdFadeIn 0.3s ease-in-out;
 }
@@ -520,7 +500,6 @@
   }
 }
 
-/* Accessibility */
 .shepherd-button:focus,
 .shepherd-inline-button:focus,
 .shepherd-save-button:focus {
@@ -532,7 +511,6 @@
   outline: none;
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .shepherd-element {
     border: 2px solid white;
@@ -543,7 +521,6 @@
   }
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .shepherd-element,
   .shepherd-button,
@@ -553,7 +530,6 @@
   }
 }
 
-/* Print styles */
 @media print {
   .shepherd-element,
   .shepherd-modal-overlay {

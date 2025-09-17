@@ -18,7 +18,6 @@ export function useSaveCampaignTour({
   const currentStepIndex = ref(0);
   const isActive = ref(false);
 
-  // Botões responsivos
   const getButtonConfig = () => {
     const isMobile = typeof window !== "undefined" ? window.innerWidth < 600 : false;
 
@@ -63,7 +62,6 @@ export function useSaveCampaignTour({
 
     const buttons = getButtonConfig();
 
-    // 1) Save Conditions
     newTour.addStep({
       id: "save-conditions",
       title: "1 - Save Conditions",
@@ -86,7 +84,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    // 2) Adjusting the Board
     newTour.addStep({
       id: "adjusting-board",
       title: "2 - Adjusting the Board",
@@ -107,7 +104,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    // 3) Game State Info
     newTour.addStep({
       id: "game-state-info",
       title: "3 - Game State Information",
@@ -141,7 +137,6 @@ export function useSaveCampaignTour({
       },
     });
 
-    // 4) Runes (se existir)
     if (typeof document !== "undefined" && document.querySelector(".shepherd-runes")) {
       newTour.addStep({
         id: "runes-info",
@@ -167,7 +162,6 @@ export function useSaveCampaignTour({
       });
     }
 
-    // 5) Ações de herói
     newTour.addStep({
       id: "hero-management",
       title: "5 - Hero Information",
@@ -195,7 +189,6 @@ export function useSaveCampaignTour({
       },
     });
 
-    // 6) Status dos heróis
     newTour.addStep({
       id: "hero-stats",
       title: "6 - Hero Status",
@@ -243,7 +236,6 @@ export function useSaveCampaignTour({
       },
     });
 
-    // 7) Resources & Equipment
     newTour.addStep({
       id: "resources-equipment",
       title: "7 - Resources & Equipment",
@@ -272,7 +264,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    // 8) Skills & Abilities
     newTour.addStep({
       id: "skills-abilities",
       title: "8 - Skills & Abilities",
@@ -300,7 +291,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    // 9) Final Save
     newTour.addStep({
       id: "final-save",
       title: "9 - Save Campaign",
@@ -335,7 +325,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    // Globais para botões inline
     (window as any).shepherdManageResources = () => {
       newTour.cancel();
       onManageResourcesClick();
@@ -349,7 +338,6 @@ export function useSaveCampaignTour({
       onSaveClick();
     };
 
-    // Eventos
     newTour.on("cancel", () => {
       isActive.value = false;
       cleanupGlobalFunctions();
@@ -414,7 +402,6 @@ export function useSaveCampaignTour({
     const savedStep = restoreProgress();
     tour.value.start();
     if (savedStep !== null && savedStep > 0) {
-      // Shepherd aceita índice numérico em show(index)
       try { tour.value.show(savedStep); } catch {}
     }
   };
@@ -430,7 +417,6 @@ export function useSaveCampaignTour({
 
   onBeforeUnmount(() => destroyTour());
 
-  // Responsividade: se redimensionar, recria tour mantendo índice atual
   const handleResize = () => {
     if (tour.value && isActive.value) {
       const currentStep = tour.value.getCurrentStep?.();
