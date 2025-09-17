@@ -257,7 +257,11 @@
                     <v-row no-gutters>
                       <v-col cols="12" md="6" class="pr-md-2">
                         <CampaignName :campaign-id="campaignId" class="mb-3" />
-                        <SelectDoor :campaign-id="campaignId" class="mb-3" />
+                        <SelectDoor 
+                            :campaign-id="campaignId" 
+                            :campaign-type="campaign.campaign" 
+                            class="mb-3" 
+                          />
                         <CampaignRunes v-if="isSequentialAdventure" :campaign-id="campaignId" class="mb-3"/>
                       </v-col>
                       <v-col cols="12" md="6" class="pl-md-2">
