@@ -265,7 +265,11 @@
                         <CampaignRunes v-if="isSequentialAdventure" :campaign-id="campaignId" class="mb-3"/>
                       </v-col>
                       <v-col cols="12" md="6" class="pl-md-2">
-                        <CampaignRuneCards v-if="isSequentialAdventure" :campaign-id="campaignId" class="mb-3"/>
+                       <CampaignRuneCards
+                            v-if="isSequentialAdventure"
+                            :campaign-id="campaignId"
+                            :campaign-type="campaign.campaign" class="mb-3"
+                          />
                       </v-col>
                     </v-row>
                     <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
