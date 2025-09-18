@@ -1,4 +1,4 @@
-const baseUrl = "https://assets.drunagor.app/CampaignTracker/hero_skills/underkeep_S1";
+const baseUrl = "https://assets.drunagor.app/CampaignTracker/hero_skills/underkeep_S2";
 
 export interface SkillCard {
   id: string;
@@ -8,7 +8,7 @@ export interface SkillCard {
   image: string;
 }
 
-export const underkeepSkillCards: SkillCard[] = [
+export const underkeep2SkillCards: SkillCard[] = [
   { id: 'elros-melee-1', heroId: 'elros', skillType: 'melee', name: 'Elros Melee Lv1', image: `${baseUrl}/elros-melee-1.jpg` },
   { id: 'elros-melee-2', heroId: 'elros', skillType: 'melee', name: 'Elros Melee Lv2', image: `${baseUrl}/elros-melee-2.jpg` },
   { id: 'elros-ranged-1', heroId: 'elros', skillType: 'ranged', name: 'Elros Ranged Lv1', image: `${baseUrl}/elros-ranged-1.jpg` },
@@ -52,5 +52,5 @@ export const underkeepSkillCards: SkillCard[] = [
 ];
 
 export function findSkillsFor(heroId: string, skillType: 'melee' | 'ranged' | 'agility' | 'wisdom'): SkillCard[] {
-  return underkeepSkillCards.filter(card => card.heroId === heroId && card.skillType === skillType);
+  return underkeep2SkillCards.filter(card => card.heroId === heroId && card.skillType === skillType);
 }
