@@ -1,5 +1,12 @@
 ---
 weapon:
+  underkeep2:
+    tools-of-the-trade: Tools of The Trade
+    amiran-hammer: Amiran Hammer
+    magicians-staff: Magician's Staff
+    robins-crossbow: Robin's Crossbow
+    dwarven-warhammer: Dwarven Warhammer
+    weapon-of-the-ancients: Weapon of the Ancients
   underkeep:
     tools-of-the-trade: Tools of The Trade
     amiran-hammer: Amiran Hammer
@@ -11,11 +18,11 @@ weapon:
     elanian-crossbow: Elanian Crossbow
     elven-speellblade: Elven Spellblade
     stone-gladius: Stone Gladius
-    lost-claymore: Lost Claymore  
+    lost-claymore: Lost Claymore
     lost-claymore-gem: Lost Claymore (Cosmic Gem)
     draconian-scimitar: Draconian Scimitar
     draconian-scimitar-gem: Draconian Scimitar (Cosmic Gem)
-    lorelanian-longbow: Lorelanian Longbow  
+    lorelanian-longbow: Lorelanian Longbow
     lorelanian-longbow-gem: Lorelanian Longbow (Cosmic Gem)
     redwood-staff: Redwood Staff
     redwood-staff-gem: Redwood Staff (Cosmic Gem)
@@ -119,6 +126,8 @@ weapon:
     ultimate-arcabalest: Ultimate Arcabalest
     war-bow: War Bow
 trinket:
+  underkeep2:
+    dragon-gem: Dragon Gem
   underkeep: 
     locket-of-safeguard: Locket Of Safeguard
     silver-helmet: Silver Helmet
@@ -225,6 +234,16 @@ trinket:
     ultimate-cornucopia: Ultimate Cornucopia
     ultimate-grimoire: Ultimate Grimoire
 armor:
+  underkeep2:
+    smugglers-vest: Smuggler's Vest
+    clerics-mail: Cleric's Mail
+    elvensilk-robe: Elvensilk Robe
+    hunters-cuirass: Hunter's Cuirass
+    dwarven-plate: Dwarven Plate
+    dawn-silverchain: Dawn Silverchain
+    noon-plate: Noon Plate
+    twilight-leather: Twilight Leather
+    night-plate: Night Plate
   underkeep:
     smugglers-vest: Smuggler's Vest
     clerics-mail: Cleric's Mail
@@ -304,6 +323,19 @@ armor:
     ultimate-exquisite-mail: Ultimate Exquisite Mail
     ultimate-quilted-doublet: Ultimate Quilted Doublet
 consumable:
+  underkeep2:
+    dragon-gem: Dragon Gem
+    callix-malt: Callix Malt
+    searing-wort: Searing Wort
+    zullan-malt: Zullan Malt
+    refreshing-wort: Refreshing Wort
+    aral-malt: Aral Malt
+    strong-wort: Strong Wort
+    breath-of-summer: Breath of Summer
+    breath-of-winter: Breath of Winter
+    callix-red-beer: Callix Red Beer
+    zullan-weiss-beer: Zullan Weiss Beer
+    aral-stout-beer: Aral Stout Beer
   underkeep:
     cosmic-ruby: Cosmic Ruby
     scroll-of-incinerate: Scroll of Incinerate
