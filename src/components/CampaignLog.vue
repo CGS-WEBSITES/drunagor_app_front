@@ -33,7 +33,7 @@
                   variant="elevated"
                   color="secondary"
                   rounded
-                  class="action-btn manage-btn"
+                  class="action-btn manage-btn shepherd-btn-manage-resources"
                   size="small"
                 >
                   {{ t("Manage Resources") }}
@@ -50,7 +50,7 @@
                   variant="elevated"
                   color="primary"
                   rounded
-                  class="action-btn equipment-btn ml-2"
+                  class="action-btn equipment-btn ml-2 shepherd-btn-equipment-skills"
                   size="small"
                 >
                   {{ t("label.equipment-skills") }}

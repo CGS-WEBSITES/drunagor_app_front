@@ -457,7 +457,7 @@
 
 @media (max-width: 480px) {
   .shepherd-element {
-    max-width: calc(100vw - 24px);
+    max-width: calc(100vw - 90px);
     margin: 12px;
   }
 
