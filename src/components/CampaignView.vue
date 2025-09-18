@@ -591,11 +591,13 @@ function handleEquipmentSkillsAction() {
   showHeroSelectionAlert("equipment-skills", heroes);
 }
 
-/** ========= Shepherd tour ========= **/
 const {
   startSaveTour,
   destroyTour,
   isActive: tourActive,
+  pauseTourForNavigation,
+  shouldResumeAfterNav,
+  consumeResumeFlag,
 } = useSaveCampaignTour({
   onSaveClick: handleSave,
   onManageResourcesClick: handleManageResourcesAction,
@@ -603,7 +605,6 @@ const {
   campaignId,
 });
 
-/** ========= resto ========= **/
 const generatePartyCode = () => {
   const prefix = Math.floor(1000 + Math.random() * 9000).toString();
   partyCode.value = `${prefix}${campaignId}`;
@@ -623,7 +624,9 @@ const saveNavigationState = () => {
 };
 
 const handleInstructionAction = (action: string) => {
+  console.log('[CampaignView] Ação de instrução:', action);
   saveNavigationState();
+  pauseTourForNavigation(action === "manage-resources" ? "manage-resources" : "equipment-skills");
   setTimeout(() => {
     if (action === "manage-resources") handleManageResourcesAction();
     else if (action === "equipment-skills") handleEquipmentSkillsAction();
@@ -811,7 +814,7 @@ const onPlayerRemoved = async () => {
   await campaignPlayerListRef.value?.fetchPlayers();
 };
 
-onBeforeUnmount(() => destroyTour());
+onBeforeUnmount(() => destroyTour({ keepProgress: true }));
 
 onMounted(async () => {
   if (!campaignId) {
@@ -840,6 +843,38 @@ onMounted(async () => {
   await fetchRole();
   generatePartyCode();
   if (campaign.value?.campaign === "underkeep") restoreInstructionState();
+
+  if (campaign.value?.campaign === "underkeep") {
+    restoreInstructionState();
+    
+    if (typeof window !== "undefined") {
+      const key = `campaign_${campaignId}_navigation_state`;
+      const raw = localStorage.getItem(key);
+      
+      const tourStep = localStorage.getItem(`campaign_${campaignId}_save_tour_step`);
+      const shouldResume = shouldResumeAfterNav();
+      
+      if ((raw && shouldResume) || tourStep) {
+        await nextTick();
+        
+        if (raw) {
+          const nav = JSON.parse(raw);
+          if (nav?.returnFromNavigation) {
+            expandedPanel.value = [0];
+            router.replace({ query: { ...route.query, instructions: "open" } });
+          }
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        await startSaveTour();
+        
+        if (raw) {
+          localStorage.removeItem(key);
+        }
+        consumeResumeFlag();
+      }
+    }
+  }
 });
 
 watch(

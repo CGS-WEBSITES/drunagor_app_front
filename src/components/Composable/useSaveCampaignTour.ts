@@ -1,4 +1,4 @@
-import { ref, onBeforeUnmount, computed } from "vue";
+import { ref, onBeforeUnmount, computed, nextTick } from "vue";
 import Shepherd from "shepherd.js";
 
 interface UseSaveCampaignTourOptions {
@@ -18,7 +18,10 @@ export function useSaveCampaignTour({
   const currentStepIndex = ref(0);
   const isActive = ref(false);
 
-  /* ========= timing & DOM helpers ========= */
+  const LS_STEP = `campaign_${campaignId}_save_tour_step`;
+  const LS_TS = `campaign_${campaignId}_save_tour_timestamp`;
+  const LS_RESUME = `campaign_${campaignId}_save_tour_resume`;
+
   const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const nextFrame = () =>
     new Promise<void>((r) => requestAnimationFrame(() => r()));
@@ -92,7 +95,6 @@ export function useSaveCampaignTour({
     }
   };
 
-  /* ========= footer buttons ========= */
   const getButtonConfig = () => ({
     back: {
       text: isMobile() ? "←" : "Back",
@@ -114,13 +116,50 @@ export function useSaveCampaignTour({
     },
   });
 
-  /* ========= tour ========= */
+  const saveProgress = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LS_STEP, currentStepIndex.value.toString());
+      localStorage.setItem(LS_TS, Date.now().toString());
+    }
+  };
+
+  const clearProgress = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(LS_STEP);
+      localStorage.removeItem(LS_TS);
+    }
+  };
+
+  const restoreProgress = (): number | null => {
+    if (typeof window === "undefined") return null;
+    const stepStr = localStorage.getItem(LS_STEP);
+    const tsStr = localStorage.getItem(LS_TS);
+    if (!stepStr || !tsStr) return null;
+    const ts = parseInt(tsStr, 10);
+    if (Date.now() - ts > 30 * 60 * 1000) {
+      clearProgress();
+      return null;
+    }
+    return parseInt(stepStr, 10);
+  };
+
+  const markResume = (reason: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(LS_RESUME, reason || "nav");
+    }
+  };
+  const hasResume = () =>
+    typeof window !== "undefined" && !!localStorage.getItem(LS_RESUME);
+  const consumeResume = () => {
+    if (typeof window !== "undefined") localStorage.removeItem(LS_RESUME);
+  };
+
   const createTour = () => {
     const newTour = new Shepherd.Tour({
       useModalOverlay: true,
       defaultStepOptions: {
         cancelIcon: { enabled: true },
-        scrollTo: false, // a gente controla o scroll
+        scrollTo: false,
         modalOverlayOpeningRadius: 8,
         modalOverlayOpeningPadding: 4,
         popperOptions: {
@@ -143,7 +182,6 @@ export function useSaveCampaignTour({
 
     const buttons = getButtonConfig();
 
-    /* 1) Save Conditions */
     newTour.addStep({
       id: "save-conditions",
       title: "1 - Save Conditions",
@@ -176,7 +214,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    /* 2) Board */
     newTour.addStep({
       id: "adjusting-board",
       title: "2 - Adjusting the Board",
@@ -218,7 +255,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    /* 3) Game State */
     newTour.addStep({
       id: "game-state-info",
       title: "3 - Game State Information",
@@ -270,7 +306,6 @@ export function useSaveCampaignTour({
       },
     });
 
-    /* 4) Runes (se houver) */
     if (
       typeof document !== "undefined" &&
       document.querySelector(".shepherd-runes")
@@ -317,7 +352,6 @@ export function useSaveCampaignTour({
       });
     }
 
-    /* 5) Hero actions */
     newTour.addStep({
       id: "hero-management",
       title: "5 - Hero Information",
@@ -366,7 +400,6 @@ export function useSaveCampaignTour({
       },
     });
 
-    /* 6) Hero status */
     newTour.addStep({
       id: "hero-stats",
       title: "6 - Hero Status",
@@ -435,7 +468,6 @@ export function useSaveCampaignTour({
       },
     });
 
-    /* 7) Manage Resources — com beforeShowPromise */
     newTour.addStep({
       id: "resources-equipment",
       title: "7 - Resources & Equipment",
@@ -450,12 +482,10 @@ export function useSaveCampaignTour({
           </ul>
         </div>
       `,
-      // Aponta DIRETO para o botão (tem classe no seu CampaignLog)
       attachTo: {
         element: ".shepherd-btn-manage-resources",
         on: isMobile() ? "top" : "bottom",
       },
-      // Garante que o botão esteja visível/medível ANTES do step aparecer
       beforeShowPromise: async () => {
         const hero = getFirstHeroRoot();
         if (!hero) return;
@@ -499,7 +529,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    /* 8) Equipment & Skills — com beforeShowPromise */
     newTour.addStep({
       id: "skills-abilities",
       title: "8 - Skills & Abilities",
@@ -560,7 +589,6 @@ export function useSaveCampaignTour({
       ],
     });
 
-    /* 9) Final Save */
     newTour.addStep({
       id: "final-save",
       title: "9 - Save Campaign",
@@ -597,9 +625,9 @@ export function useSaveCampaignTour({
       ],
     });
 
-    /* eventos extras para estabilidade */
     newTour.on("show", async (event: any) => {
       currentStepIndex.value = newTour.steps.indexOf(event.step);
+      saveProgress();
       await nextFrames(2);
       try {
         event.step.tour?.updateStepPosition?.();
@@ -617,7 +645,6 @@ export function useSaveCampaignTour({
       window.removeEventListener("scroll", onScroll),
     );
 
-    /* fallbacks globais (se alguém clicar nos botões inline antigos) */
     (window as any).shepherdManageResources = () => {
       onManageResourcesClick();
     };
@@ -629,7 +656,6 @@ export function useSaveCampaignTour({
       onSaveClick();
     };
 
-    /* persistência */
     newTour.on("cancel", () => {
       isActive.value = false;
       saveProgress();
@@ -642,73 +668,84 @@ export function useSaveCampaignTour({
     return newTour;
   };
 
-  /* ========= persistência & lifecycle ========= */
-  const saveProgress = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        `campaign_${campaignId}_save_tour_step`,
-        currentStepIndex.value.toString(),
-      );
-      localStorage.setItem(
-        `campaign_${campaignId}_save_tour_timestamp`,
-        Date.now().toString(),
-      );
-    }
-  };
-
-  const clearProgress = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(`campaign_${campaignId}_save_tour_step`);
-      localStorage.removeItem(`campaign_${campaignId}_save_tour_timestamp`);
-    }
-  };
-
-  const restoreProgress = (): number | null => {
-    if (typeof window === "undefined") return null;
-    const stepStr = localStorage.getItem(
-      `campaign_${campaignId}_save_tour_step`,
-    );
-    const tsStr = localStorage.getItem(
-      `campaign_${campaignId}_save_tour_timestamp`,
-    );
-    if (!stepStr || !tsStr) return null;
-    const ts = parseInt(tsStr, 10);
-    if (Date.now() - ts > 30 * 60 * 1000) {
-      clearProgress();
-      return null;
-    }
-    return parseInt(stepStr, 10);
-  };
-
-  const startSaveTour = () => {
+  const startSaveTour = async () => {
     if (tour.value) {
       try {
         tour.value.complete();
       } catch {}
     }
+
     tour.value = createTour();
     isActive.value = true;
 
     const savedStep = restoreProgress();
+
     tour.value.start();
+
     if (savedStep !== null && savedStep > 0) {
+      await nextTick();
+      await wait(700);
+
       try {
+        if (savedStep >= 6 && savedStep <= 7) {
+          console.log(
+            "[Tour] Preparando painel do herói para passo",
+            savedStep + 1,
+          );
+          const hero = getFirstHeroRoot();
+          if (hero) {
+            await scrollIntoViewWithOffset(hero, 200);
+            await expandHeroPanel(hero);
+            await nextFrames(3);
+          }
+        }
         tour.value.show(savedStep);
-      } catch {}
+
+        await nextFrames(2);
+        tour.value.getCurrentStep()?.updatePosition?.();
+      } catch (e) {
+        console.error("[Tour] Erro ao restaurar passo:", e);
+        await wait(1000);
+        try {
+          tour.value.show(savedStep);
+        } catch {
+          tour.value.show(0);
+        }
+      }
     }
   };
 
-  const destroyTour = () => {
+  const pauseTourForNavigation = (
+    reason?: "manage-resources" | "equipment-skills" | "nav",
+  ) => {
+    saveProgress();
+    markResume(reason || "nav");
+
     if (tour.value) {
+      try {
+        tour.value.cancel();
+      } catch (e) {
+        console.error("[Tour] Erro ao pausar tour:", e);
+      }
+    }
+  };
+
+  const destroyTour = (opts?: { keepProgress?: boolean }) => {
+    if (!tour.value) return;
+    if (opts?.keepProgress) {
+      try {
+        tour.value.cancel();
+      } catch {}
+    } else {
       try {
         tour.value.complete();
       } catch {}
-      tour.value = null;
-      isActive.value = false;
     }
+    tour.value = null;
+    isActive.value = false;
   };
 
-  onBeforeUnmount(() => destroyTour());
+  onBeforeUnmount(() => destroyTour({ keepProgress: true }));
 
   const handleResize = () => {
     if (tour.value && isActive.value) {
@@ -734,5 +771,9 @@ export function useSaveCampaignTour({
     isActive,
     currentStep: computed(() => currentStepIndex.value + 1),
     totalSteps: computed(() => tour.value?.steps.length || 0),
+
+    pauseTourForNavigation,
+    shouldResumeAfterNav: hasResume,
+    consumeResumeFlag: consumeResume,
   };
 }
