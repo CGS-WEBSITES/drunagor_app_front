@@ -49,8 +49,8 @@
 import { useI18n } from "vue-i18n";
 import CampaignLogOutcome from "@/components/CampaignLogOutcome.vue";
 import CampaignLogStatus from "@/components/CampaignLogStatus.vue";
-import { CampaignLogStatusRepository } from "@/data/repository/campaign/underkeep/CampaignLogStatusRepository";
-import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/underkeep/CampaignLogOutcomeRepository";
+import { CampaignLogStatusRepository } from "@/data/repository/campaign/underkeep2/CampaignLogStatusRepository";
+import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/underkeep2/CampaignLogOutcomeRepository";
 import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
 import { useUserStore } from "@/store/UserStore";
 import { ref, onMounted } from "vue";
