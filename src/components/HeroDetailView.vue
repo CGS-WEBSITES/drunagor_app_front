@@ -123,6 +123,7 @@ import { ref, watch } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
 import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
+import { UnderKeep2ItemDataRepository } from "@/data/repository/campaign/underkeep2/UnderKeep2ItemDataRepository";
 import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
@@ -151,6 +152,8 @@ if (campaign.campaign === "core") {
   repository = new AwakeningsItemDataRepository();
 } else if (campaign.campaign === "underkeep") {
   repository = new UnderKeepItemDataRepository();
+} else if (campaign.campaign === "underkeep2") {
+  repository = new UnderKeep2ItemDataRepository();
 } else {
   throw new Error("Unknown campaign");
 }

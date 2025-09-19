@@ -1,6 +1,6 @@
 export class Campaign {
   public campaignId: string;
-  public campaign: "core" | "apocalypse" | "awakenings" | "underkeep";
+  public campaign: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2";
   public name: string = "";
   public door: string = "";
   public wing: string = "";
@@ -26,7 +26,7 @@ export class Campaign {
 
   constructor(
     campaignId: string,
-    campaign: "core" | "apocalypse" | "awakenings" | "underkeep",
+    campaign: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2",
   ) {
     this.campaignId = campaignId;
     if (campaign) {

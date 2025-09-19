@@ -76,7 +76,7 @@
                 </v-card>
               </v-col>
 
-              <!-- 
+              
               <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
@@ -87,7 +87,18 @@
                   <v-img :src="UnderKeepLogo.toString()" width="280" height="100" contain></v-img>
                 </v-card>
               </v-col>
-              -->
+
+              <v-col cols="12" sm="6">
+                <v-card
+                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
+                  @click="newCampaign('underkeep2')"
+                  hover
+                  height="200"
+                >
+                  <v-img :src="UnderKeep2Logo.toString()" width="280" height="100" contain></v-img>
+                </v-card>
+              </v-col>
+              
             </v-row>
           </v-container>
         </v-card-text>
@@ -105,6 +116,7 @@ import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
 import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
 import UnderKeepLogo from "@/assets/logo/underkeep.png";
+import UnderKeep2Logo from "@/assets/logo/underkeep2.png";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { Campaign } from "@/store/Campaign";
@@ -177,7 +189,7 @@ async function addRelationship(
 }
 
 async function newCampaign(
-  type: "core" | "apocalypse" | "awakenings" | "underkeep",
+  type: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2",
 ) {
   loading.value = true;
 
@@ -193,6 +205,7 @@ async function newCampaign(
     apocalypse: "Apocalypse",
     awakenings: "Awakenings",
     underkeep: "underkeep",
+    underkeep2: "underkeep2",
   }[type];
 
   const selectedSku = skuList.find(

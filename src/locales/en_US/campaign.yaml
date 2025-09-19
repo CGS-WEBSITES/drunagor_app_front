@@ -570,6 +570,17 @@ statuses:
         name: Blackriver Survivors
       - id: blackriver-monsters
         name: Blackriver Monsters
+
+  underkeep2:
+    campaign:
+      - id: boil-fast
+        name: Boil Fast
+      - id: ferment-fast
+        name: Ferment-Fast
+      - id: boil-slow
+        name: Boil Slow
+      - id: ferment-slow
+        name: Ferment-Slow
   
   core:
     campaign:

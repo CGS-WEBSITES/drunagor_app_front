@@ -68,6 +68,7 @@ import axios from "axios";
 
 const props = defineProps<{
   campaignId: string;
+  campaignType: string;
 }>();
 
 const userStore = useUserStore();
@@ -76,17 +77,32 @@ const campaignStore = CampaignStore();
 const isAdmin = ref(false);
 const loading = ref(true);
 
-const campaignOptions = [
+const underkeepWings = [
   "Wing 1 - Tutorial",
   "Wing 1 - Advanced",
   "Wing 2 - Advanced",
 ];
+const underkeepDoors = {
+  "Wing 1 - Tutorial": ["FIRST SETUP", "DOOR 1 - THE BARRICADED PATH", "DOOR 2 - THE KEEP'S COURTYARD", "DOOR 3 - THE ENTRY HALL", "DOOR 4 - THE GREAT HALL"],
+  "Wing 1 - Advanced": ["FIRST SETUP", "DOOR 1 - THE BARRICADED PATH", "DOOR 2 - THE KEEP'S COURTYARD", "DOOR 3 - THE ENTRY HALL", "DOOR 4 - THE GREAT HALL"],
+  "Wing 2 - Advanced": ["FIRST SETUP", "DOOR 1 - THE GREAT CISTERN", "DOOR 2 - THE DUNGEONS OF OBLIVION", "DOOR 3 - THE ALCHEMY LAB", "DOOR 4 - THE BURIED ARMORY", "DOOR 5 - THERE AND BACK AGAIN"],
+};
 
-const allDoorOptions = [
-  "FIRST SETUP", "DOOR 1 - THE BARRICADED PATH", "DOOR 2 - THE KEEP'S COURTYARD", "DOOR 3 - THE ENTRY HALL", "DOOR 4 - THE GREAT HALL",
-  "FIRST SETUP", "DOOR 1 - THE BARRICADED PATH", "DOOR 2 - THE KEEP'S COURTYARD", "DOOR 3 - THE ENTRY HALL", "DOOR 4 - THE GREAT HALL",
-  "FIRST SETUP", "DOOR 1 - THE GREAT CISTERN", "DOOR 2 - THE DUNGEONS OF OBLIVION", "DOOR 3 - THE ALCHEMY LAB", "DOOR 4 - THE BURIED ARMORY", "DOOR 5 - THERE AND BACK AGAIN",
+const underkeep2Wings = [
+  "WING 3 - ADVANCED",
+  "WING 4 - ADVANCED",
 ];
+const underkeep2Doors = {
+  "WING 3 - ADVANCED": ["DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"],
+  "WING 4 - ADVANCED": ["DRACONIC CHAPEL", "CRYPTS", "LIBRARY", "LABORATORY"],
+};
+
+const campaignOptions = computed(() => {
+  if (props.campaignType === 'underkeep2') {
+    return underkeep2Wings;
+  }
+  return underkeepWings;
+});
 
 const wing = computed({
   get() {
@@ -115,12 +131,15 @@ const door = computed({
 });
 
 const filteredDoors = computed(() => {
-  switch (wing.value) {
-    case "Wing 1 - Tutorial": return allDoorOptions.slice(0, 5);
-    case "Wing 1 - Advanced": return allDoorOptions.slice(5, 10);
-    case "Wing 2 - Advanced": return allDoorOptions.slice(10, 16); // Corrected to 16 to include the last door
-    default: return [];
+  const selectedWing = wing.value;
+  if (!selectedWing) {
+    return [];
   }
+
+  if (props.campaignType === 'underkeep2') {
+    return underkeep2Doors[selectedWing as keyof typeof underkeep2Doors] || [];
+  } 
+  return underkeepDoors[selectedWing as keyof typeof underkeepDoors] || [];
 });
 
 const checkUserRole = async () => {
