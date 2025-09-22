@@ -1,8 +1,11 @@
 <template>
   <v-expansion-panels variant="accordion" class="mb-2">
     <v-expansion-panel elevation="16" rounded style="background-color: #1f2937">
-      <v-expansion-panel-title class="pa-3 hero-background-title" :style="heroBackgroundStyle">
-      <!--  <div class="d-flex align-center w-100">
+      <v-expansion-panel-title
+        class="pa-3 hero-background-title"
+        :style="heroBackgroundStyle"
+      >
+        <!--  <div class="d-flex align-center w-100">
           <v-avatar
             :image="hero.images?.avatar"
             size="48"
@@ -41,10 +44,10 @@
 
                 <v-btn
                   v-if="
-                    (campaign.campaign == 'core' ||
-                      campaign.campaign == 'awakenings' ||
-                      campaign.campaign == 'apocalypse' ||
-                      campaign.campaign == 'underkeep')
+                    campaign.campaign == 'core' ||
+                    campaign.campaign == 'awakenings' ||
+                    campaign.campaign == 'apocalypse' ||
+                    campaign.campaign == 'underkeep'
                   "
                   @click.stop="openHeroEquipmentSkills"
                   variant="elevated"
@@ -148,9 +151,9 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
 const heroBackgroundStyle = computed(() => ({
   backgroundImage: `url(${hero.images?.trackerInfo || hero.images?.background})`,
-  backgroundSize: '100% auto',       // Largura 100%, altura automática
-  backgroundPosition: 'center top',  // Centralizada no topo
-  backgroundRepeat: 'no-repeat'
+  backgroundSize: "100% auto", 
+  backgroundPosition: "center top", 
+  backgroundRepeat: "no-repeat",
 }));
 
 const checkUserRole = async () => {
@@ -204,7 +207,7 @@ onMounted(async () => {
 .action-buttons-container {
   margin-top: 10px;
   display: flex;
-  flex-direction: row; 
+  flex-direction: row;
   align-items: flex-start;
   flex-wrap: wrap;
   margin-left: 15px;
@@ -215,7 +218,7 @@ onMounted(async () => {
   min-width: auto !important;
   white-space: nowrap;
   transition: all 0.2s ease;
-  flex: 0 0 auto; 
+  flex: 0 0 auto;
 }
 
 .action-btn:hover {
@@ -230,7 +233,7 @@ onMounted(async () => {
     width: calc(100% - 8px);
     gap: 4px;
   }
-  
+
   .action-btn {
     flex: 0 0 auto;
     max-width: 85px;
@@ -299,7 +302,7 @@ onMounted(async () => {
 }
 
 :deep(.v-expansion-panel-title) {
-  min-height: 280px; 
+  min-height: 280px;
   position: relative;
   overflow: hidden;
 }
@@ -322,7 +325,7 @@ onMounted(async () => {
 }
 
 .hero-background-title::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -333,9 +336,9 @@ onMounted(async () => {
 
 :deep(.v-expansion-panel-title:hover .hero-background-title::before) {
   background: linear-gradient(
-    90deg, 
-    rgba(0, 0, 0, 0.1) 0%,     
-    rgba(0, 0, 0, 0.2) 30%, 
+    90deg,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.2) 30%,
     rgba(0, 0, 0, 0.5) 70%,
     rgba(0, 0, 0, 0.7) 100%
   );
@@ -345,7 +348,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 250px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 250px;
   }
@@ -355,7 +358,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 130px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 130px;
   }
@@ -365,7 +368,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 130px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 130px;
   }
@@ -375,7 +378,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 180px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 180px;
   }
@@ -385,7 +388,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 130px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 130px;
   }
@@ -395,7 +398,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 100px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 100px;
   }
@@ -405,7 +408,7 @@ onMounted(async () => {
   .hero-background-title {
     min-height: 350px !important;
   }
-  
+
   :deep(.v-expansion-panel-title) {
     min-height: 350px;
   }

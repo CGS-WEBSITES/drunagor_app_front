@@ -1,17 +1,15 @@
-/* ===== Companion / Tour (Shepherd) — Dark app palette ===== */
 :root {
-  /* Ajuste só aqui para casar com o teu tema */
-  --app-bg-0: #0d0f12; /* fundo da página */
-  --app-bg-1: #12151b; /* surface principal (cards) */
-  --app-bg-2: #181c25; /* header / ênfase sutil */
-  --app-outline: #2a2f3a; /* borda / divisória */
+  --app-bg-0: #0d0f12; 
+  --app-bg-1: #12151b; 
+  --app-bg-2: #181c25; 
+  --app-outline: #2a2f3a;
   --app-overlay: rgba(0, 0, 0, 0.6);
 
   --app-text-strong: #e7e9ee;
   --app-text: #cbd3df;
   --app-text-muted: #98a3b3;
 
-  --app-primary: #60a5fa; /* azul do app (ajuste se tiver outro) */
+  --app-primary: #60a5fa; 
   --app-primary-2: #3b82f6;
 
   --app-success: #22c55e;
@@ -23,7 +21,6 @@
   --shepherd-shadow: 0 12px 44px rgba(0, 0, 0, 0.45);
   --shepherd-mobile-shadow: 0 8px 26px rgba(0, 0, 0, 0.4);
 
-  /* Herdar para os componentes */
   --shepherd-text-color: var(--app-text);
   --shepherd-header-bg: linear-gradient(
     180deg,
@@ -37,7 +34,6 @@
   --shepherd-border-color: var(--app-outline);
 }
 
-/* Card/base */
 .shepherd-element {
   background: color-mix(in oklab, var(--app-bg-1) 96%, black 4%) !important;
   border-radius: var(--shepherd-border-radius);
@@ -52,7 +48,6 @@
   min-width: 320px;
 }
 
-/* Header */
 .shepherd-header {
   background: var(--shepherd-header-bg) !important;
   padding: 16px 20px;
@@ -83,7 +78,6 @@
   border-radius: 50%;
 }
 
-/* Corpo */
 .shepherd-text {
   color: var(--shepherd-text-color);
   font-size: 0.95rem;
@@ -107,7 +101,6 @@
   border-radius: 3px;
 }
 
-/* Listas/grades */
 .shepherd-checklist {
   list-style: none;
   padding: 0;
@@ -138,7 +131,6 @@
   font-size: 0.85rem;
 }
 
-/* Info states alinhados ao tema */
 .shepherd-info,
 .shepherd-warning,
 .shepherd-success {
@@ -169,7 +161,6 @@
   font-size: 1.05rem;
 }
 
-/* Footer (corrige duplicidade e mantém layout de ações) */
 .shepherd-footer {
   border-top: 1px solid color-mix(in oklab, var(--app-outline) 70%, transparent);
   padding: 14px 16px;
@@ -179,7 +170,6 @@
   flex-wrap: wrap;
 }
 
-/* Botões no padrão do app (primário azul discreto, secundário ghost) */
 .shepherd-button {
   border: 1px solid color-mix(in oklab, var(--app-outline) 75%, transparent);
   background: color-mix(in oklab, var(--app-bg-2) 92%, black 8%);
@@ -249,7 +239,6 @@
   color: #071a0e;
 }
 
-/* Botão “pular” como ghost */
 .shepherd-button-skip {
   background: transparent;
   color: var(--app-text-muted);
@@ -260,7 +249,6 @@
   border-color: color-mix(in oklab, var(--app-outline) 90%, transparent);
 }
 
-/* Arrow e overlay combinando com o card */
 .shepherd-arrow {
   width: 16px;
   height: 16px;
@@ -277,7 +265,6 @@
   backdrop-filter: blur(2px);
 }
 
-/* Destaque do alvo com glow azul do app */
 .shepherd-highlight {
   position: relative;
   z-index: 9998;
@@ -286,7 +273,6 @@
   border-radius: 8px;
 }
 
-/* Animações */
 @keyframes shepherdPulse {
   0% {
     box-shadow: 0 0 18px
@@ -312,7 +298,6 @@
   }
 }
 
-/* Responsivo (mantive tua lógica, só herda as novas cores) */
 @media (max-width: 960px) {
   .shepherd-element {
     max-width: 380px;
