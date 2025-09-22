@@ -96,6 +96,13 @@
               cover
             />
 
+            <v-img
+              v-else-if="campaign.campaign === 'underkeep2'"
+              src="@/assets/underkeep2.png"
+              max-height="200"
+              cover
+            />
+
             <v-card-title class="d-flex flex-column text-uppercase">
               <span class="text-h5 font-weight-bold mb-0">{{
                 campaign.name
@@ -218,6 +225,7 @@ const getBoxName = (boxId: number) => {
     23: "Apocalypse",
     34: "Awakenings",
     38: "Underkeep Drunagor Nights",
+    39: "Underkeep Drunagor Nights Season 2",
   };
 
   return map[boxId] || `Unknown Box (ID: ${boxId})`;

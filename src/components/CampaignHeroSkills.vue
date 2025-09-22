@@ -137,7 +137,7 @@ const heroStore = HeroStore();
 const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
 
 const useNewSkillSystem = computed(() => {
-  const isUnderkeep = props.campaign.campaign === "underkeep";
+  const isUnderkeep = ['underkeep', 'underkeep2'].includes(props.campaign.campaign);
   const specialHeroes = ["elros", "vorn", "lorelai", "maya", "jaheen"];
   const isSpecialHero = specialHeroes.includes(props.heroId);
   return isUnderkeep && isSpecialHero;
