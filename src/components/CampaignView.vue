@@ -1,4 +1,117 @@
 <template>
+  <v-snackbar
+    v-model="snackbarVisible"
+    :timeout="snackbarTimeout"
+    :color="snackbarColor"
+    location="top"
+    elevation="24"
+    rounded="lg"
+    multi-line
+    class="global-snackbar"
+  >
+    <div class="d-flex align-center">
+      <v-icon :color="snackbarIconColor" class="mr-3">{{
+        snackbarIcon
+      }}</v-icon>
+      <div>
+        <div v-if="snackbarTitle" class="font-weight-bold">
+          {{ snackbarTitle }}
+        </div>
+        <div>{{ snackbarText }}</div>
+      </div>
+    </div>
+  </v-snackbar>
+
+  <v-dialog v-model="transferDialogVisible" max-width="500px">
+    <v-card>
+      <v-card-title>
+        <span class="text-h5">Transfer Drunagor Master</span>
+      </v-card-title>
+      <v-card-text>
+        <v-container>
+          <v-alert
+            v-if="transferAlertVisible"
+            :type="transferAlertType"
+            class="mb-4"
+            closable
+            @click:close="transferAlertVisible = false"
+          >
+            {{ transferAlertText }}
+          </v-alert>
+
+          <div v-if="transferLoading" class="text-center py-8">
+            <v-progress-circular indeterminate color="primary" />
+            <p class="mt-4">Loading players...</p>
+          </div>
+
+          <div v-else-if="!confirmingTransfer">
+            <p class="mb-4">
+              Select the player who will become the new Drunagor Master:
+            </p>
+            <v-list>
+              <v-list-item
+                v-for="player in players.filter((p) => p.party_roles_fk !== 1)"
+                :key="player.rl_campaigns_users_pk"
+                @click="initTransfer(player)"
+                class="mb-2"
+                rounded
+                color="primary"
+              >
+                <v-list-item-title>{{ player.user_name }}</v-list-item-title>
+                <v-list-item-subtitle>{{
+                  player.role_name
+                }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </div>
+
+          <div v-else>
+            <v-alert type="warning" class="mb-4">
+              <strong>Confirm Transfer</strong>
+              <p class="mt-2">
+                Are you sure you want to transfer Drunagor Master role to
+                <strong>{{ selectedUser?.user_name }}</strong
+                >?
+              </p>
+              <p class="mt-2 text-caption">
+                You will become a regular player and lose editing privileges.
+              </p>
+            </v-alert>
+          </div>
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          v-if="!confirmingTransfer"
+          color="grey"
+          variant="text"
+          @click="closeTransferDialog"
+        >
+          Cancel
+        </v-btn>
+        <template v-else>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="cancelTransfer"
+            :disabled="transferLoading"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="elevated"
+            @click="confirmTransfer"
+            :loading="transferLoading"
+          >
+            Confirm Transfer
+          </v-btn>
+        </template>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <v-speed-dial
     v-if="currentTab !== 'book'"
     v-model="speedDialOpen"
@@ -116,19 +229,6 @@
           </v-card-text>
 
           <v-card class="mb-2" color="primary">
-            <v-card-text v-if="showAlert" class="pa-2">
-              <BaseAlert
-                v-model="showAlert"
-                :icon="alertIcon"
-                :title="alertTitle"
-                :type="alertType"
-                text
-                density="compact"
-              >
-                {{ alertText }}
-              </BaseAlert>
-            </v-card-text>
-
             <v-card-text class="pa-0">
               <div class="position-relative instructions-wrapper">
                 <v-btn
@@ -419,9 +519,6 @@ import { useUserStore } from "@/store/UserStore";
 import { type Campaign } from "@/store/Campaign";
 import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
 
-// const import opcional se precisar; mantive como no seu projeto original
-// import { SequentialAdventureState } from "@/store/SequentialAdventureState";
-
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const userStore = useUserStore();
@@ -435,13 +532,13 @@ const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 
-const alertIcon = ref("");
-const alertText = ref("");
-const alertTitle = ref("");
-const alertType = ref<"success" | "info" | "warning" | "error" | undefined>(
-  undefined,
-);
-const showAlert = ref(false);
+const snackbarVisible = ref(false);
+const snackbarText = ref("");
+const snackbarTitle = ref("");
+const snackbarIcon = ref("mdi-check");
+const snackbarColor = ref("success");
+const snackbarIconColor = ref("white");
+const snackbarTimeout = ref(3000);
 
 const currentTab = ref("normal");
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
@@ -489,16 +586,28 @@ function setAlert(
   title: string,
   text: string,
   type: "success" | "info" | "warning" | "error" | undefined,
-  duration: number = 1500,
+  duration: number = 3000,
 ) {
-  alertIcon.value = icon;
-  alertTitle.value = title;
-  alertText.value = text;
-  showAlert.value = true;
-  alertType.value = type;
-  setTimeout(() => {
-    showAlert.value = false;
-  }, duration);
+  const colorMap = {
+    success: { bg: "success", icon: "white" },
+    info: { bg: "info", icon: "white" },
+    warning: { bg: "warning", icon: "black" },
+    error: { bg: "error", icon: "white" },
+  };
+
+  const colors = colorMap[type || "info"];
+
+  snackbarIcon.value = icon;
+  snackbarTitle.value = title;
+  snackbarText.value = text;
+  snackbarColor.value = colors.bg;
+  snackbarIconColor.value = colors.icon;
+  snackbarTimeout.value = duration;
+  snackbarVisible.value = true;
+
+  if (type === "success" && duration >= 1500) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 }
 
 function scrollToHeroSection() {
@@ -624,9 +733,11 @@ const saveNavigationState = () => {
 };
 
 const handleInstructionAction = (action: string) => {
-  console.log('[CampaignView] Ação de instrução:', action);
+  console.log("[CampaignView] Ação de instrução:", action);
   saveNavigationState();
-  pauseTourForNavigation(action === "manage-resources" ? "manage-resources" : "equipment-skills");
+  pauseTourForNavigation(
+    action === "manage-resources" ? "manage-resources" : "equipment-skills",
+  );
   setTimeout(() => {
     if (action === "manage-resources") handleManageResourcesAction();
     else if (action === "equipment-skills") handleEquipmentSkillsAction();
@@ -785,8 +896,13 @@ const onSaveSuccess = () => {
     "Success",
     "The campaign was saved successfully!",
     "success",
+    4000,
   );
-  if (tourActive.value) destroyTour();
+  if (tourActive.value) {
+    setTimeout(() => {
+      destroyTour();
+    }, 500);
+  }
 };
 
 const onSaveFail = () => {
@@ -795,6 +911,7 @@ const onSaveFail = () => {
     "Error",
     "The campaign could not be saved.",
     "error",
+    4000,
   );
 };
 
@@ -827,9 +944,6 @@ onMounted(async () => {
     if (!campaign.value.isSequentialAdventure) {
       campaign.value.isSequentialAdventure = true;
       campaign.value.sequentialAdventureRunes = 0;
-      // heroStore.findAllInCampaign(campaignId).forEach(h => {
-      //   h.sequentialAdventureState = new SequentialAdventureState();
-      // });
     }
   } else {
     setAlert(
@@ -846,17 +960,19 @@ onMounted(async () => {
 
   if (campaign.value?.campaign === "underkeep") {
     restoreInstructionState();
-    
+
     if (typeof window !== "undefined") {
       const key = `campaign_${campaignId}_navigation_state`;
       const raw = localStorage.getItem(key);
-      
-      const tourStep = localStorage.getItem(`campaign_${campaignId}_save_tour_step`);
+
+      const tourStep = localStorage.getItem(
+        `campaign_${campaignId}_save_tour_step`,
+      );
       const shouldResume = shouldResumeAfterNav();
-      
+
       if ((raw && shouldResume) || tourStep) {
         await nextTick();
-        
+
         if (raw) {
           const nav = JSON.parse(raw);
           if (nav?.returnFromNavigation) {
@@ -864,10 +980,10 @@ onMounted(async () => {
             router.replace({ query: { ...route.query, instructions: "open" } });
           }
         }
-        
-        await new Promise(resolve => setTimeout(resolve, 300));
+
+        await new Promise((resolve) => setTimeout(resolve, 300));
         await startSaveTour();
-        
+
         if (raw) {
           localStorage.removeItem(key);
         }
@@ -897,6 +1013,19 @@ watch(
 </script>
 
 <style scoped>
+.global-snackbar {
+  z-index: 9999 !important;
+}
+
+:deep(.v-snackbar__wrapper) {
+  min-width: 344px;
+  max-width: 500px;
+}
+
+:deep(.v-snackbar__content) {
+  padding: 16px !important;
+}
+
 .info-text {
   font-size: 0.6rem !important;
   color: rgba(255, 255, 255, 0.7);

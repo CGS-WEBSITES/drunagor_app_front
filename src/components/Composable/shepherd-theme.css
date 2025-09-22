@@ -1,494 +1,306 @@
+/* ===== Companion / Tour (Shepherd) — Dark app palette ===== */
 :root {
-  --shepherd-primary-color: #4a90e2;
-  --shepherd-success-color: #52c41a;
-  --shepherd-danger-color: #f5222d;
-  --shepherd-warning-color: #faad14;
-  --shepherd-text-color: #ffffff;
-  --shepherd-header-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Ajuste só aqui para casar com o teu tema */
+  --app-bg-0: #0d0f12; /* fundo da página */
+  --app-bg-1: #12151b; /* surface principal (cards) */
+  --app-bg-2: #181c25; /* header / ênfase sutil */
+  --app-outline: #2a2f3a; /* borda / divisória */
+  --app-overlay: rgba(0, 0, 0, 0.6);
+
+  --app-text-strong: #e7e9ee;
+  --app-text: #cbd3df;
+  --app-text-muted: #98a3b3;
+
+  --app-primary: #60a5fa; /* azul do app (ajuste se tiver outro) */
+  --app-primary-2: #3b82f6;
+
+  --app-success: #22c55e;
+  --app-warning: #f59e0b;
+  --app-danger: #ef4444;
+
   --shepherd-border-radius: 12px;
   --shepherd-mobile-radius: 8px;
-  --shepherd-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  --shepherd-mobile-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+  --shepherd-shadow: 0 12px 44px rgba(0, 0, 0, 0.45);
+  --shepherd-mobile-shadow: 0 8px 26px rgba(0, 0, 0, 0.4);
+
+  /* Herdar para os componentes */
+  --shepherd-text-color: var(--app-text);
+  --shepherd-header-bg: linear-gradient(
+    180deg,
+    var(--app-bg-2) 0%,
+    var(--app-bg-1) 100%
+  );
 }
 
 [data-theme="dark"] {
-  --shepherd-bg-color: #2d3748;
-  --shepherd-border-color: #4a5568;
+  --shepherd-bg-color: var(--app-bg-1);
+  --shepherd-border-color: var(--app-outline);
 }
 
+/* Card/base */
 .shepherd-element {
-  background: rgba(45, 55, 72, 0.98) !important;
+  background: color-mix(in oklab, var(--app-bg-1) 96%, black 4%) !important;
   border-radius: var(--shepherd-border-radius);
   box-shadow: var(--shepherd-shadow);
   max-width: 420px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in oklab, var(--app-outline) 80%, transparent);
+  animation: shepherdFadeIn 0.3s ease-in-out;
 }
 
 .shepherd-element.shepherd-has-title {
   min-width: 320px;
 }
 
+/* Header */
 .shepherd-header {
-  background: var(--shepherd-header-bg);
+  background: var(--shepherd-header-bg) !important;
   padding: 16px 20px;
   border-radius: var(--shepherd-border-radius) var(--shepherd-border-radius) 0 0;
   position: relative;
 }
-
 .shepherd-title {
-  color: var(--shepherd-text-color);
-  font-size: 1.2rem;
+  color: var(--app-text-strong);
+  font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
   padding-right: 30px;
-  line-height: 1.4;
+  line-height: 1.35;
 }
-
-.shepherd-has-title .shepherd-content .shepherd-header {
-  background: var(--shepherd-header-bg) !important;
-  padding: 1em;
-}
-
 .shepherd-cancel-icon {
   color: rgba(255, 255, 255, 0.8);
   font-size: 20px;
   padding: 4px;
-  transition: all 0.2s ease;
   position: absolute;
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
+  transition: all 0.2s;
 }
-
 .shepherd-cancel-icon:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 50%;
 }
 
+/* Corpo */
 .shepherd-text {
   color: var(--shepherd-text-color);
   font-size: 0.95rem;
   line-height: 1.6;
-  padding: 20px;
+  padding: 18px 20px;
 }
-
 .shepherd-text-content {
   max-height: 400px;
   overflow-y: auto;
   padding-right: 5px;
 }
-
 .shepherd-text-content::-webkit-scrollbar {
   width: 6px;
 }
-
 .shepherd-text-content::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
-
 .shepherd-text-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 3px;
 }
 
+/* Listas/grades */
 .shepherd-checklist {
   list-style: none;
   padding: 0;
   margin: 12px 0;
 }
-
 .shepherd-checklist li {
   padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid
+    color-mix(in oklab, var(--app-outline) 70%, transparent);
   font-size: 0.9rem;
 }
-
 .shepherd-checklist li:last-child {
   border-bottom: none;
 }
-
 .shepherd-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin: 16px 0;
 }
-
 .shepherd-grid ul {
   list-style: none;
   padding: 0;
   margin: 8px 0;
 }
-
 .shepherd-grid li {
   padding: 4px 0;
   font-size: 0.85rem;
 }
 
+/* Info states alinhados ao tema */
 .shepherd-info,
-.shepherd-warning {
+.shepherd-warning,
+.shepherd-success {
   padding: 12px;
   border-radius: 8px;
   margin: 12px 0;
   font-size: 0.9rem;
   line-height: 1.4;
+  background: color-mix(in oklab, var(--app-bg-2) 85%, transparent);
+  border: 1px solid color-mix(in oklab, var(--app-outline) 80%, transparent);
 }
-
 .shepherd-info {
-  background: rgba(74, 144, 226, 0.15);
-  border: 1px solid rgba(74, 144, 226, 0.3);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--app-primary) 25%, transparent);
 }
-
 .shepherd-warning {
-  background: rgba(250, 173, 20, 0.15);
-  border: 1px solid rgba(250, 173, 20, 0.3);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--app-warning) 25%, transparent);
 }
-
 .shepherd-success {
-  background: rgba(82, 196, 26, 0.15);
-  border: 1px solid rgba(82, 196, 26, 0.3);
-  padding: 16px;
-  border-radius: 8px;
-  margin: 12px 0;
+  box-shadow: inset 0 0 0 1px
+    color-mix(in oklab, var(--app-success) 25%, transparent);
   text-align: center;
 }
-
 .shepherd-success h3 {
-  margin: 0 0 8px 0;
-  color: #52c41a;
-  font-size: 1.1rem;
+  margin: 0 0 8px;
+  color: var(--app-success);
+  font-size: 1.05rem;
 }
 
+/* Footer (corrige duplicidade e mantém layout de ações) */
 .shepherd-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 16px 20px;
+  border-top: 1px solid color-mix(in oklab, var(--app-outline) 70%, transparent);
+  padding: 14px 16px;
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.shepherd-footer {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: center;
-  margin-top: 16px;
-  font-style: italic;
-}
-
+/* Botões no padrão do app (primário azul discreto, secundário ghost) */
 .shepherd-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  border-radius: 6px;
-  color: white;
+  border: 1px solid color-mix(in oklab, var(--app-outline) 75%, transparent);
+  background: color-mix(in oklab, var(--app-bg-2) 92%, black 8%);
+  color: var(--app-text-strong);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  padding: 10px 20px;
-  transition: all 0.3s ease;
-  min-width: 70px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  padding: 10px 18px;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s,
+    background 0.2s,
+    border-color 0.2s;
+  min-width: 72px;
 }
-
 .shepherd-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+  border-color: color-mix(in oklab, var(--app-outline) 95%, transparent);
+}
+.shepherd-button:focus {
+  outline: 2px solid color-mix(in oklab, var(--app-primary) 50%, transparent);
+  outline-offset: 2px;
 }
 
 .shepherd-button-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--app-primary) 85%, var(--app-primary-2) 15%) 0%,
+    var(--app-primary-2) 100%
+  );
+  border-color: color-mix(in oklab, var(--app-primary-2) 70%, transparent);
+  color: #0b1220;
+  box-shadow: 0 2px 10px
+    color-mix(in oklab, var(--app-primary-2) 30%, transparent);
+}
+.shepherd-button-primary:hover {
+  box-shadow: 0 4px 14px
+    color-mix(in oklab, var(--app-primary-2) 40%, transparent);
 }
 
 .shepherd-button-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(5px);
+  background: transparent;
+  border: 1px solid color-mix(in oklab, var(--app-outline) 80%, transparent);
+  color: var(--app-text);
 }
-
 .shepherd-button-secondary:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: color-mix(in oklab, var(--app-bg-2) 70%, transparent);
 }
 
 .shepherd-button-cancel {
-  background: rgba(245, 34, 45, 0.15);
-  border: 1px solid rgba(245, 34, 45, 0.3);
+  background: transparent;
+  border: 1px solid color-mix(in oklab, var(--app-danger) 45%, transparent);
+  color: color-mix(in oklab, var(--app-danger) 85%, white 15%);
 }
-
 .shepherd-button-cancel:hover {
-  background: rgba(245, 34, 45, 0.25);
+  background: color-mix(in oklab, var(--app-danger) 12%, transparent);
 }
 
 .shepherd-button-complete {
-  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
-  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--app-success) 80%, white 20%) 0%,
+    var(--app-success) 100%
+  );
+  border-color: color-mix(in oklab, var(--app-success) 60%, transparent);
+  color: #071a0e;
 }
 
-.shepherd-button-complete:hover {
-  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4);
-}
-
+/* Botão “pular” como ghost */
 .shepherd-button-skip {
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  border: 1px dashed rgba(255, 255, 255, 0.3);
+  color: var(--app-text-muted);
+  border: 1px dashed color-mix(in oklab, var(--app-outline) 70%, transparent);
 }
-
 .shepherd-button-skip:hover {
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.5);
+  color: var(--app-text);
+  border-color: color-mix(in oklab, var(--app-outline) 90%, transparent);
 }
 
-.shepherd-inline-button,
-.shepherd-save-button {
-  display: inline-block;
-  padding: 8px 16px;
-  margin: 8px 0;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  width: 100%;
-}
-
-.shepherd-inline-button {
-  background: rgba(74, 144, 226, 0.2);
-  color: #4a90e2;
-  border: 1px solid rgba(74, 144, 226, 0.3);
-}
-
-.shepherd-inline-button:hover {
-  background: rgba(74, 144, 226, 0.3);
-  transform: translateY(-1px);
-}
-
-.shepherd-save-button {
-  background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
-  color: white;
-  font-size: 1rem;
-  padding: 12px 24px;
-  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
-}
-
-.shepherd-save-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4);
-}
-
-.shepherd-action {
-  margin: 16px 0;
-  text-align: center;
-}
-
+/* Arrow e overlay combinando com o card */
 .shepherd-arrow {
   width: 16px;
   height: 16px;
-  background: rgba(45, 55, 72, 0.98);
   transform: rotate(45deg);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in oklab, var(--app-bg-1) 96%, black 4%);
+  border: 1px solid color-mix(in oklab, var(--app-outline) 80%, transparent);
 }
-
 .shepherd-arrow::before {
   display: none;
 }
 
 .shepherd-modal-overlay {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--app-overlay);
   backdrop-filter: blur(2px);
 }
 
+/* Destaque do alvo com glow azul do app */
 .shepherd-highlight {
   position: relative;
   z-index: 9998;
   animation: shepherdPulse 2s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.6) !important;
+  box-shadow: 0 0 18px color-mix(in oklab, var(--app-primary) 60%, transparent) !important;
   border-radius: 8px;
 }
 
+/* Animações */
 @keyframes shepherdPulse {
   0% {
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 0 18px
+      color-mix(in oklab, var(--app-primary) 55%, transparent);
   }
   50% {
-    box-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+    box-shadow: 0 0 28px
+      color-mix(in oklab, var(--app-primary) 75%, transparent);
   }
   100% {
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 0 18px
+      color-mix(in oklab, var(--app-primary) 55%, transparent);
   }
 }
-
-@media (max-width: 960px) {
-  .shepherd-element {
-    max-width: 380px;
-    border-radius: var(--shepherd-mobile-radius);
-  }
-
-  .shepherd-title {
-    font-size: 1.1rem;
-  }
-
-  .shepherd-text {
-    font-size: 0.9rem;
-    padding: 16px;
-  }
-
-  .shepherd-text-content {
-    max-height: 350px;
-  }
-
-  .shepherd-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  .shepherd-button {
-    padding: 9px 18px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .shepherd-element {
-    max-width: calc(100vw - 32px);
-    margin: 16px;
-    border-radius: var(--shepherd-mobile-radius);
-    box-shadow: var(--shepherd-mobile-shadow);
-  }
-
-  .shepherd-element.shepherd-has-title {
-    min-width: unset;
-  }
-
-  .shepherd-header {
-    padding: 12px 16px;
-    border-radius: var(--shepherd-mobile-radius) var(--shepherd-mobile-radius) 0 0;
-  }
-
-  .shepherd-title {
-    font-size: 1rem;
-    padding-right: 25px;
-  }
-
-  .shepherd-cancel-icon {
-    font-size: 18px;
-    right: 10px;
-  }
-
-  .shepherd-text {
-    font-size: 0.85rem;
-    padding: 12px 16px;
-    line-height: 1.5;
-  }
-
-  .shepherd-text-content {
-    max-height: 280px;
-  }
-
-  .shepherd-checklist li {
-    font-size: 0.85rem;
-    padding: 6px 0;
-  }
-
-  .shepherd-grid li {
-    font-size: 0.8rem;
-  }
-
-  .shepherd-info,
-  .shepherd-warning,
-  .shepherd-success {
-    padding: 10px;
-    font-size: 0.85rem;
-  }
-
-  .shepherd-footer {
-    padding: 12px 16px;
-    gap: 6px;
-  }
-
-  .shepherd-button {
-    padding: 8px 14px;
-    font-size: 0.8rem;
-    min-width: 60px;
-    border-radius: 4px;
-  }
-
-  .shepherd-button-back-mobile {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    min-width: 40px;
-  }
-
-  .shepherd-inline-button {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-  }
-
-  .shepherd-save-button {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-  }
-
-  .shepherd-arrow {
-    width: 12px;
-    height: 12px;
-  }
-
-  .shepherd-element[data-popper-placement^="bottom"] {
-    margin-top: 8px !important;
-  }
-
-  .shepherd-element[data-popper-placement^="top"] {
-    margin-bottom: 8px !important;
-  }
-
-  .shepherd-element[data-popper-placement^="left"] {
-    margin-right: 8px !important;
-  }
-
-  .shepherd-element[data-popper-placement^="right"] {
-    margin-left: 8px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .shepherd-element {
-    max-width: calc(100vw - 90px);
-    margin: 12px;
-  }
-
-  .shepherd-header {
-    padding: 10px 14px;
-  }
-
-  .shepherd-title {
-    font-size: 0.95rem;
-  }
-
-  .shepherd-text {
-    padding: 10px 14px;
-    font-size: 0.8rem;
-  }
-
-  .shepherd-text-content {
-    max-height: 240px;
-  }
-
-  .shepherd-button {
-    padding: 6px 10px;
-    font-size: 0.75rem;
-    min-width: 50px;
-  }
-}
-
-.shepherd-element {
-  animation: shepherdFadeIn 0.3s ease-in-out;
-}
-
 @keyframes shepherdFadeIn {
   from {
     opacity: 0;
@@ -500,27 +312,108 @@
   }
 }
 
-.shepherd-button:focus,
-.shepherd-inline-button:focus,
-.shepherd-save-button:focus {
-  outline: 2px solid rgba(102, 126, 234, 0.5);
-  outline-offset: 2px;
+/* Responsivo (mantive tua lógica, só herda as novas cores) */
+@media (max-width: 960px) {
+  .shepherd-element {
+    max-width: 380px;
+    border-radius: var(--shepherd-mobile-radius);
+  }
+  .shepherd-title {
+    font-size: 1.05rem;
+  }
+  .shepherd-text {
+    font-size: 0.9rem;
+    padding: 16px;
+  }
+  .shepherd-text-content {
+    max-height: 350px;
+  }
+  .shepherd-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .shepherd-button {
+    padding: 9px 16px;
+    font-size: 0.85rem;
+  }
 }
-
-.shepherd-element:focus {
-  outline: none;
+@media (max-width: 600px) {
+  .shepherd-element {
+    max-width: calc(100vw - 32px);
+    margin: 16px;
+    border-radius: var(--shepherd-mobile-radius);
+    box-shadow: var(--shepherd-mobile-shadow);
+  }
+  .shepherd-element.shepherd-has-title {
+    min-width: unset;
+  }
+  .shepherd-header {
+    padding: 12px 16px;
+  }
+  .shepherd-title {
+    font-size: 1rem;
+    padding-right: 25px;
+  }
+  .shepherd-cancel-icon {
+    font-size: 18px;
+    right: 10px;
+  }
+  .shepherd-text {
+    font-size: 0.85rem;
+    padding: 12px 16px;
+    line-height: 1.5;
+  }
+  .shepherd-text-content {
+    max-height: 280px;
+  }
+  .shepherd-checklist li {
+    font-size: 0.85rem;
+    padding: 6px 0;
+  }
+  .shepherd-grid li {
+    font-size: 0.8rem;
+  }
+  .shepherd-info,
+  .shepherd-warning,
+  .shepherd-success {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+  .shepherd-footer {
+    padding: 12px 16px;
+    gap: 6px;
+  }
+  .shepherd-button {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    min-width: 60px;
+    border-radius: 6px;
+  }
+  .shepherd-arrow {
+    width: 12px;
+    height: 12px;
+  }
+  .shepherd-element[data-popper-placement^="bottom"] {
+    margin-top: 8px !important;
+  }
+  .shepherd-element[data-popper-placement^="top"] {
+    margin-bottom: 8px !important;
+  }
+  .shepherd-element[data-popper-placement^="left"] {
+    margin-right: 8px !important;
+  }
+  .shepherd-element[data-popper-placement^="right"] {
+    margin-left: 8px !important;
+  }
 }
-
 @media (prefers-contrast: high) {
   .shepherd-element {
-    border: 2px solid white;
+    border: 2px solid #fff;
   }
-
   .shepherd-button {
-    border: 1px solid white;
+    border: 1px solid #fff;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .shepherd-element,
   .shepherd-button,
@@ -529,7 +422,6 @@
     transition: none;
   }
 }
-
 @media print {
   .shepherd-element,
   .shepherd-modal-overlay {

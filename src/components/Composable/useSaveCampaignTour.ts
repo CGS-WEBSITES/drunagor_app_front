@@ -617,13 +617,28 @@ export function useSaveCampaignTour({
         {
           text: buttons.complete.text,
           classes: buttons.complete.classes,
-          action() {
+          async action() {
             this.complete();
-            onSaveClick();
+            await nextFrame();
+            try {
+              await onSaveClick();
+            } catch (error) {
+              console.error("[Tour] Erro ao salvar:", error);
+            }
           },
         },
       ],
     });
+
+    (window as any).shepherdSaveCampaign = async () => {
+      try {
+        newTour.complete();
+        await wait(100);
+        await onSaveClick();
+      } catch (error) {
+        console.error("[Tour] Erro ao salvar via botão:", error);
+      }
+    };
 
     newTour.on("show", async (event: any) => {
       currentStepIndex.value = newTour.steps.indexOf(event.step);
