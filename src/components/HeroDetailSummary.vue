@@ -9,7 +9,7 @@
     <div class="mb-2">
       <div class="text-overline">Class Abilities</div>
       <v-divider class="my-1"></v-divider>
-      <div class="d-flex flex-wrap  pa-1" style="gap: 8px">
+      <div class="d-flex flex-wrap pa-1" style="gap: 8px">
         <v-chip v-if="classAbilityCount === 0" variant="text" size="small">No abilities unlocked</v-chip>
         <v-chip
           v-for="n in classAbilityCount"
@@ -103,6 +103,10 @@ import { HeroStore } from "@/store/HeroStore";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
 import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
+import { UnderKeep2ItemDataRepository } from "@/data/repository/campaign/underkeep2/UnderKeep2ItemDataRepository";
+import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
+import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
+import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { underkeepSkillCards } from "@/data/repository/campaign/underkeep/underkeepSkillData";
 
 const props = defineProps<{
@@ -114,9 +118,22 @@ const heroStore = HeroStore();
 const campaignStore = CampaignStore();
 const campaign = campaignStore.find(props.campaignId);
 
-const itemRepository = campaign?.campaign === 'underkeep'
-  ? new UnderKeepItemDataRepository()
-  : new CoreItemDataRepository();
+let itemRepository: ItemDataRepository;
+
+if (campaign.campaign === "core") {
+  itemRepository = new CoreItemDataRepository();
+} else if (campaign.campaign === "apocalypse") {
+  itemRepository = new ApocalypseItemDataRepository();
+} else if (campaign.campaign === "awakenings") {
+  itemRepository = new AwakeningsItemDataRepository();
+} else if (campaign.campaign === "underkeep") {
+  itemRepository = new UnderKeepItemDataRepository();
+} else if (campaign.campaign === "underkeep2") {
+  itemRepository = new UnderKeep2ItemDataRepository();
+} else {
+  itemRepository = new CoreItemDataRepository();
+  console.error("Unknown campaign type for Item Repository:", campaign.campaign);
+}
 
 const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
 

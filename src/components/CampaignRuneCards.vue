@@ -93,6 +93,7 @@ interface RuneCard {
 
 const props = defineProps<{
   campaignId: string;
+  campaignType: string;
 }>();
 
 const { t } = useI18n();
@@ -104,12 +105,7 @@ const loading = ref(true);
 const isModalVisible = ref(false);
 const editingSlotIndex = ref<number | null>(null);
 
-const allRuneCards = ref<RuneCard[]>(
-  Array.from({ length: 16 }, (_, i) => ({
-    id: i + 1,
-    image: `https://assets.drunagor.app/CampaignTracker/Runes%26GM/rune-${i + 1}.jpg`
-  }))
-);
+const allRuneCards = ref<RuneCard[]>([]); 
 
 const selectedRuneCardIds = computed({
   get() {
@@ -144,8 +140,8 @@ const openAddCardModal = (slotIndex: number) => {
 };
 
 const viewOrChangeCard = (slotIndex: number) => {
-    editingSlotIndex.value = slotIndex;
-    isModalVisible.value = true;
+  editingSlotIndex.value = slotIndex;
+  isModalVisible.value = true;
 }
 
 const selectCard = (cardId: number) => {
@@ -175,7 +171,6 @@ const removeCardByIndex = (index: number) => {
   selectedRuneCardIds.value = newSelection;
 };
 
-
 const checkUserRole = async () => {
   try {
     const response = await axios.get("rl_campaigns_users/search", {
@@ -193,7 +188,20 @@ const checkUserRole = async () => {
   }
 };
 
-onMounted(checkUserRole);
+onMounted(() => {
+  checkUserRole();
+
+  const baseUrl = 'https://assets.drunagor.app/CampaignTracker/';
+  const isSeason2 = props.campaignType === 'underkeep2';
+  
+  const folder = isSeason2 ? 'Runes&GM2' : 'Runes&GM';
+  const cardCount = isSeason2 ? 44 : 16;
+
+  allRuneCards.value = Array.from({ length: cardCount }, (_, i) => ({
+    id: i + 1,
+    image: `${baseUrl}${folder}/rune-${i + 1}.jpg`
+  }));
+});
 </script>
 
 <style scoped>
