@@ -1,0 +1,201 @@
+[
+  {
+    "id": "the-seed-intro",
+    "type": "intro",
+    "title": "THE SEED FROM ANOTHER WORLD",
+    "body": [
+      "You have never encountered anything more alien to you than this floating cube. It’s made from plates of a strange metallic alloy, with runic engravings that shimmer with pulsing emerald energy. The closer you get, the more your ears ring, and you can see the black smoke pouring out of it. Whispering promises of power into your mind, it makes your heart race…",
+      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes.",
+      "<br><br><b>RULE – CONTINUOUS INTERACTION</b><br>The same Hero may interact with this scene more than once per turn if desired. As a Cube Action, a Hero may EXPEND 1 AC to interact with this scene again. They may also choose to interact with it by simply using their Minor Action as normal."
+    ]
+  },
+  {
+    "id": "interaction-3.1",
+    "type": "choice",
+    "title": "3.1 – EXAMINE THE RUNIC ENGRAVINGS",
+    "body": [
+      "Six silver plates, gleaming like mirrors, guard an irregular sphere, perhaps even oval-shaped. The nearly perfect seams still allow an emerald glow to escape, throbbing like a heartbeat, but it’s not only the seams that shimmer: The runic engravings—sometimes sharp and straight, other times rounded—also emit the macabre green light...<br><br>",
+      "If you follow the <span style=\"color: #ff99ff;\">Path of Mystics</span>, proceed to resolution 3.5. Otherwise, continue reading below:<br><br>",
+      "...but to your eyes, the symbols make no sense at all. Truth be told, they don’t even look like they were written using any known alphabet from this world. Is this box really from Drunagor? If not, where could it have come from?<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If you follow the Path of Mystics - (interaction 3.5)",
+        "type": "PROCEED",
+        "target": "interaction-3.5"
+      },
+      {
+        "text": "If you DON'T follow the Path of Mystics",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.2",
+    "type": "choice",
+    "title": "3.2 – STRIKE THE CUBE WITH YOUR WEAPON",
+    "body": [
+      "You know what? Enough talk. Whether or not this is a dangerous artifact, your gut tells you that destroying it is the right call. It’s a questionable feeling, to say the least, but you’re willing to take the risk...<br><br>",
+      "Check the Weapon you’re wielding and proceed to the appropriate resolution: Heavy Weapon – 3.6; Light Weapon – 3.7; Ranged Weapon – 3.8; Implement Weapon – 3.9."
+    ],
+    "actions": [
+      {
+        "text": "If you wield a Heavy Weapon - (interaction 3.6)",
+        "type": "PROCEED",
+        "target": "interaction-3.6"
+      },
+      {
+        "text": "If you wield a Light Weapon - (interaction 3.7)",
+        "type": "PROCEED",
+        "target": "interaction-3.7"
+      },
+      {
+        "text": "If you wield a Ranged Weapon - (interaction 3.8)",
+        "type": "PROCEED",
+        "target": "interaction-3.8"
+      },
+      {
+        "text": "If you wield an Implement Weapon - (interaction 3.9)",
+        "type": "PROCEED",
+        "target": "interaction-3.9"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.3",
+    "type": "choice",
+    "title": "3.3 – STRIKE THE CUBE WITH A SPELL",
+    "body": [
+      "If this is a magical artifact, perhaps the best way to destroy it is with a spell. Many adventurers, even those more seasoned than you, might argue that trying to detonate a relic from another world is never a good idea, but the time for caution has passed. It’s time to take drastic action...<br><br>",
+      "Check your Hero board: If you have any Skill, Equipment, or Consumable Item that allows you to perform a 1, you may spend that resource appropriately (if it’s a Skill, you must assign a Cube, for instance) as a Free Action and proceed to resolution 3.10. If not, or if you choose not to, continue reading below:<br><br>",
+      "...perhaps someone else should try instead. <br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If you can perform a 1",
+        "type": "PROCEED",
+        "target": "interaction-3.10"
+      },
+      {
+        "text": "If you can't or choose not to",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.4",
+    "type": "choice",
+    "title": "3.4 – BACK AWAY CAREFULLY",
+    "body": [
+      "On second thought, maybe it’s best to leave things as they are. It’s clear this cube is the source of Blackriver’s nightmare, but now is the time to be cautious. You know what it does, but not exactly how it works. Disturbing it might only make things worse...<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.5",
+    "type": "resolution",
+    "title": "3.5 – YOU ARE VERSED IN THE ARCANE ARTS",
+    "body": [
+      "...and that glow draws you in like a flame lures a moth. Your hand reaches for the object involuntarily, and a whirlwind of memories floods your mind. For an instant, you see through the eyes of the Undead King and everything becomes clear: this is a Seed of Darkness, an artifact built millennia ago by Dragons from an unknown world. It is a necrotic battery, designed to absorb souls and burn them as fuel to power supernatural forces... That’s all you see before your brain screams at you to pull your hand back.<br><br>",
+      "You gain <span style=\"color: #ff99ff;\">FOCUS 2</span> and suffer <span style=\"color: #ff99ff;\">CURSE 1</span>.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.6",
+    "type": "resolution",
+    "title": "3.6 – YOU WIELD A HEAVY WEAPON",
+    "body": [
+      "What better tool than a hunk of heavy metal to smash such a fragile object? You take a deep breath, tighten your grip, raise your arms overhead, and bring the weapon down with the strength of a raging bull. As the mirrored plate is struck, an emerald flash floods the room and a sound like a ringing bell throws everyone back and shakes the walls. Yet the piece remains intact—which is more than can be said for you...<br><br>",
+      "Deal 2 non-preventable damage to each Hero at Any Range.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.7",
+    "type": "resolution",
+    "title": "3.7 – YOU WIELD A LIGHT WEAPON",
+    "body": [
+      "Analyzing the piece as a target, it seems a sharp point or a well-placed pommel strike in one of the seams might disrupt the mystical energy binding the plates in place. With the poise of someone who knows what they’re doing, you make a quick, precise strike, but the mirrored surface deflects it immediately. Over time and after several failed attempts, you realize: a thin layer of mystical energy, like a mage’s barrier, seals the cube’s edges.<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.8",
+    "type": "resolution",
+    "title": "3.8 – YOU WIELD A RANGED WEAPON",
+    "body": [
+      "...however, the weapon you wield seems ill-suited for the task. A stock bash, maybe? You’re more likely to break your weapon than scratch the piece if the alien alloy proves too strong. Your intentions are clear, but maybe someone else should express your feelings to the artifact... <br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.9",
+    "type": "resolution",
+    "title": "3.9 – YOU WIELD AN IMPLEMENT WEAPON",
+    "body": [
+      "...and you probably have the best weapon for the job! You brace your feet to channel arcane energy through your body and focus, gathering all the power you can into an explosive blast strong enough to pierce armor. Casting the spell requires so much power, it knocks you to the ground—which is perhaps for the best: the mirrored surface reflects the spell, causing it to ricochet dangerously around the room...<br><br>",
+      "Evenly divide the numbers 1 through 20 among all Party members and roll a D20: The selected Hero suffers non-preventable damage equal to your Weapon’s Base Damage.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-3.10",
+    "type": "resolution",
+    "title": "3.10 – THIS WASN’T YOUR BRIGHTEST IDEA...",
+    "body": [
+      "...without thinking twice, you recite the arcane words that have served you well in battle, calling upon their power once more. However, as soon as the energy leaves your hands and strikes the target, the six plates expand in the blink of an eye, and the pulsating emerald heart—seen for just an instant—absorbs the energy and feeds on it. You fall to your knees, screaming in pain, feeling a part of yourself being pulled into the artifact as you wonder if this really was a good idea...<br><br>",
+      "You suffer <span style=\"color: #ff99ff;\">CURSE 1</span> and write down the “<span style=\"color: #ff99ff;\">Drained</span>” Status on your Campaign Log. As long as it is noted there, you may never CLEANSE the Curse Cube received from this effect.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  }
+]
