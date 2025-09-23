@@ -1934,7 +1934,7 @@ onBeforeUnmount(() => {
 .section-title {
   font-size: 0.7rem;
   color: white;
-  padding: 10px 125px 20px;
+  padding: 10px 155px 20px;
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
@@ -1947,7 +1947,7 @@ onBeforeUnmount(() => {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
   margin-top: 1px;
   margin-bottom: 66px;
-  padding-left: 126px;
+  padding-left: 156px;
   padding-right: 44px;
   text-align: left;
 }
