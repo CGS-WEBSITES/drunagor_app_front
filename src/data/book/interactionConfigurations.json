@@ -52,5 +52,11 @@
     "subtitle": "The dungeons hold another surprise: a giant forge, of dwarven architecture, lies cold in the dark.",
     "backgroundImportName": "GargoyleImg",
     "itemsImportName": "InteractionTheForge"
+  },
+  "https://qr1.be/9G1Y": {
+    "title": "INTERACTION 10 - DRACONIAN ALTAR",
+    "subtitle": "A statue of Narang’Erel, the altruistic goddess, awaits a sacrifice to be reborn.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionDraconianAltar"
   }
 }
