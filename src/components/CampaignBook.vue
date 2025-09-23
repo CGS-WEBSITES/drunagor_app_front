@@ -1,6 +1,5 @@
 <template>
   <div class="book-container">
-    <!-- Menu Sheet (All Screens) -->
     <v-bottom-sheet v-model="mobileMenuSheet">
       <v-card class="mobile-menu-card">
         <v-toolbar dark>
@@ -11,7 +10,6 @@
         </v-toolbar>
 
         <v-list class="mobile-menu-list" v-model:opened="openGroups">
-          <!-- Wing Groups -->
           <v-list-group
             v-for="(sectionItems, sectionName) in wingGroups"
             :key="sectionName.toString()"
@@ -42,7 +40,6 @@
             </v-list-item>
           </v-list-group>
 
-          <!-- Other Groups -->
           <template v-if="Object.keys(otherBookGroups).length > 0">
             <v-divider class="my-2" />
             <v-list-group
@@ -79,9 +76,7 @@
       </v-card>
     </v-bottom-sheet>
 
-    <!-- Main Content Area -->
     <v-main class="main-content">
-      <!-- Navigation Container -->
       <div class="navigation-container">
         <v-card flat class="navigation-card">
           <v-btn-toggle
@@ -106,21 +101,8 @@
         </v-card>
       </div>
 
-      <!-- Scroll Container -->
       <div class="scroll-root" ref="scrollableContentRef" @scroll="onScroll">
-        <!-- Fullscreen Toggle -->
-        <!-- <v-fab
-          v-if="showFullscreenButton"
-          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-          @click="toggleFullscreen"
-          size="small"
-          class="fullscreen-fab"
-          location="top end"
-        /> -->
-
-        <!-- Content Container -->
         <v-container fluid class="content-container pa-0">
-          <!-- Player View -->
           <transition name="fade-slide" mode="out-in">
             <div
               v-if="currentView === 'player' && currentPage"
@@ -200,9 +182,7 @@
               </v-sheet>
             </div>
 
-            <!-- Keywords View -->
             <div v-else-if="currentView === 'keywords'" key="keywords">
-              <!-- Back Button for Keywords -->
               <div class="back-button-container">
                 <v-btn
                   @click="goBackToBooks"
@@ -216,9 +196,7 @@
               <KeywordView />
             </div>
 
-            <!-- Interactions View -->
             <div v-else-if="currentView === 'interactions'" key="interactions">
-              <!-- Back Button for Interactions -->
               <div class="back-button-container">
                 <v-btn
                   @click="goBackToBooks"
@@ -229,9 +207,8 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <v-card class="content-card" elevation="0">
-                <!-- QR Scanner -->
                 <div v-if="interPage === 'scan'" class="scanner-container">
                   <v-card-title class="text-center">
                     <v-icon start>mdi-qrcode-scan</v-icon>
@@ -269,7 +246,6 @@
                   </v-card-text>
                 </div>
 
-                <!-- Interaction List -->
                 <div v-else-if="interPage === 'list'" class="interaction-list">
                   <v-toolbar color="transparent" flat>
                     <v-btn icon @click="resetScan">
@@ -290,12 +266,10 @@
                   </v-list>
                 </div>
 
-                <!-- Interaction Content -->
                 <div
                   v-else-if="interPage === 'titles' && currentInteractionConfig"
                   class="interaction-content"
                 >
-                  <!-- Imagem sem overlay -->
                   <v-img
                     :src="currentInteractionConfig.background"
                     height="300"
@@ -304,7 +278,6 @@
                     gradient="to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)"
                   />
 
-                  <!-- Conteúdo do texto abaixo da imagem -->
                   <v-card-text class="interaction-text-content">
                     <div class="text-center mb-4">
                       <h2 class="interaction-title mb-2">
@@ -315,7 +288,6 @@
                       </p>
                     </div>
 
-                    <!-- Botões de escolha organizados -->
                     <v-row class="interaction-choices" justify="center">
                       <v-col
                         v-for="item in interactionChoices"
@@ -339,7 +311,6 @@
                     </v-row>
                   </v-card-text>
 
-                  <!-- Ações do rodapé -->
                   <v-card-actions class="justify-center pa-4">
                     <v-btn
                       @click="resetScan"
@@ -351,7 +322,6 @@
                   </v-card-actions>
                 </div>
 
-                <!-- Interaction Detail -->
                 <div v-else-if="interPage === 'content' && activeInteraction">
                   <v-toolbar color="transparent" flat>
                     <v-btn icon @click="backToTitles">
@@ -394,9 +364,7 @@
               </v-card>
             </div>
 
-            <!-- Tutorial View -->
             <div v-else-if="currentView === 'tutorial'" key="tutorial">
-              <!-- Back Button for Tutorial -->
               <div class="back-button-container">
                 <v-btn
                   @click="goBackToBooks"
@@ -407,7 +375,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -474,9 +442,7 @@
               </div>
             </div>
 
-            <!-- Combat Guide View -->
             <div v-else-if="currentView === 'combatGuide'" key="combatGuide">
-              <!-- Back Button for Combat Guide -->
               <div class="back-button-container">
                 <v-btn
                   @click="goBackToBooks"
@@ -487,7 +453,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -548,12 +514,10 @@
               </div>
             </div>
 
-            <!-- Exploration Tips View -->
             <div
               v-else-if="currentView === 'explorationTips'"
               key="explorationTips"
             >
-              <!-- Back Button for Exploration Tips -->
               <div class="back-button-container">
                 <v-btn
                   @click="goBackToBooks"
@@ -564,7 +528,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -635,12 +599,10 @@
               </div>
             </div>
 
-            <!-- Character Progression View -->
             <div
               v-else-if="currentView === 'charProgression'"
               key="charProgression"
             >
-              <!-- Back Button for Character Progression -->
               <div class="back-button-container">
                 <v-btn
                   @click="goBackToBooks"
@@ -651,7 +613,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -722,7 +684,91 @@
               </div>
             </div>
 
-            <!-- Empty State -->
+            <div
+              v-else-if="currentView === 'dragonClarifications'"
+              key="dragonClarifications"
+            >
+              <div class="back-button-container">
+                <v-btn
+                  @click="goBackToBooks"
+                  prepend-icon="mdi-arrow-left"
+                  variant="outlined"
+                  class="back-button"
+                >
+                  Back to Books
+                </v-btn>
+              </div>
+
+              <div
+                class="book-page ma-5"
+                :style="{
+                  backgroundColor: '#ffffff',
+                  color: '#212121',
+                  borderRadius: '12px',
+                  border: '1px solid #1e1e1e',
+                  boxShadow:
+                    '0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2)',
+                }"
+              >
+                <v-container class="pa-3">
+                  <v-row>
+                    <v-col cols="12">
+                      <template
+                        v-for="(
+                          chapter, chapterIdx
+                        ) in dragonClarifications.chapters"
+                        :key="chapter.chapterTitle"
+                      >
+                        <div
+                          class="content-block ml-4"
+                          :class="{
+                            'mb-6':
+                              chapterIdx <
+                              dragonClarifications.chapters.length - 1,
+                          }"
+                        >
+                          <div class="header-banner">
+                            <div
+                              class="d-flex align-center justify-space-between pa-0 pb-0"
+                            >
+                              <h4 class="section-title">
+                                {{ dragonClarifications.pageTitle }}
+                              </h4>
+                            </div>
+                            <h2 class="chapter-title-banner">
+                              {{ chapter.chapterTitle }}
+                            </h2>
+                          </div>
+                          <div class="body-text-mechanics pa-4 mt-3">
+                            <template
+                              v-for="(section, sectionIdx) in chapter.sections"
+                              :key="section.title"
+                            >
+                              <section
+                                :id="`dragon-clarifications-section-${chapterIdx}-${sectionIdx}`"
+                                class="mb-4"
+                              >
+                                <h3 class="tutorial-section-title">
+                                  {{ section.title }}
+                                </h3>
+                                <div v-html="section.bodyHTML"></div>
+                              </section>
+                              <div
+                                class="pt-5 px-16"
+                                v-if="sectionIdx < chapter.sections.length - 1"
+                              >
+                                <v-img src="@/assets/Barra.png"></v-img>
+                              </div>
+                            </template>
+                          </div>
+                        </div>
+                      </template>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </div>
+            </div>
+
             <div v-else key="empty">
               <div
                 class="text-center pa-5 fill-height d-flex align-center justify-center"
@@ -735,7 +781,6 @@
       </div>
     </v-main>
 
-    <!-- Camera Permission Dialog -->
     <v-dialog v-model="showCameraDeniedDialog" max-width="400">
       <v-card>
         <v-card-title>Camera Permission Required</v-card-title>
@@ -750,7 +795,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Debug Button (Remover em produção) -->
     <v-fab
       v-if="false"
       icon="mdi-bug"
@@ -783,6 +827,7 @@ import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
 import firstEncounterClarificationsData from "@/data/book/firstEncounterClarifications.json";
 import secondEncounterClarificationsData from "@/data/book/secondEncounterClarifications.json";
+import dragonClarificationsData from "@/data/book/dragonClarifications.json";
 
 // Import Images
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
@@ -850,6 +895,7 @@ interface NavigationItemExtended {
     | "combatGuide"
     | "explorationTips"
     | "charProgression"
+    | "dragonClarifications"
     | "keywords"
     | "interactions";
   sectionIndex?: number;
@@ -950,6 +996,9 @@ const firstEncounterClarifications = ref<EncounterClarificationsBook>(
 const secondEncounterClarifications = ref<EncounterClarificationsBook>(
   secondEncounterClarificationsData as EncounterClarificationsBook,
 );
+const dragonClarifications = ref<EncounterClarificationsBook>(
+  dragonClarificationsData as EncounterClarificationsBook,
+);
 
 // Assets Maps
 const importedImageAssets: Record<string, string> = {
@@ -1008,11 +1057,12 @@ const initializeInteractionConfigs = () => {
 
 // Store current book state before leaving books
 const saveCurrentBookState = () => {
-  if (currentView.value === "player" || 
-      currentView.value === "tutorial" || 
-      currentView.value === "combatGuide" || 
-      currentView.value === "explorationTips" || 
-      currentView.value === "charProgression") {
+  if (currentView.value === "player" ||
+      currentView.value === "tutorial" ||
+      currentView.value === "combatGuide" ||
+      currentView.value === "explorationTips" ||
+      currentView.value === "charProgression" ||
+      currentView.value === "dragonClarifications") {
     lastBookState.value = {
       view: currentView.value,
       index: currentIndex.value,
@@ -1029,26 +1079,26 @@ const goBackToBooks = async () => {
     if (currentView.value === "interactions") {
       codeReader.reset();
     }
-    
+
     // Restore the last book state
     currentView.value = lastBookState.value.view;
     currentIndex.value = lastBookState.value.index;
     activeItemId.value = lastBookState.value.activeItemId;
     openGroups.value = [...lastBookState.value.openGroups];
-    
+
     // Update navigation to show books
     mobileNavValue.value = "menu";
-    
+
     // Wait for view to update
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 200));
-    
+
     // Scroll to previous position if there was an active item
     if (lastBookState.value.activeItemId) {
       const navigationItem = navigationItems.value.find(
         item => item.id === lastBookState.value.activeItemId
       );
-      
+
       if (navigationItem?.originalId) {
         await scrollToTarget(navigationItem.originalId);
       } else if (navigationItem?.targetId) {
@@ -1225,6 +1275,23 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     );
   }
 
+  // Dragon Clarifications
+  if (dragonClarifications.value && dragonClarifications.value.chapters) {
+    const sectionGroupTitle =
+      dragonClarifications.value.pageTitle || "Dragon Clarifications";
+    dragonClarifications.value.chapters.forEach((chapter, chapterIdx) => {
+      chapter.sections.forEach((section, sectionIdx) => {
+        items.push({
+          sectionTitle: sectionGroupTitle,
+          title: section.title,
+          id: `nav-dragon-clarifications-chap${chapterIdx}-sec${sectionIdx}`,
+          viewType: "dragonClarifications",
+          targetId: `dragon-clarifications-section-${chapterIdx}-${sectionIdx}`,
+        });
+      });
+    });
+  }
+
   return items;
 });
 
@@ -1266,12 +1333,16 @@ const secondEncounterSectionTitle = computed(
     secondEncounterClarifications.value.pageTitle ||
     "2nd Encounter Clarifications",
 );
+const dragonClarificationsTitle = computed(
+  () => dragonClarifications.value.pageTitle || "Dragon Clarifications",
+);
 
 const otherBookGroupTitlesInOrder = computed(() => [
   tutorialSectionTitle.value,
   gameMechanicsSectionTitle.value,
   firstEncounterSectionTitle.value,
   secondEncounterSectionTitle.value,
+  dragonClarificationsTitle.value,
 ]);
 
 const otherBookGroups = computed(() => {
@@ -1458,6 +1529,7 @@ const getSectionIcon = (sectionName: string) => {
     return "mdi-numeric-1-box-outline";
   if (sectionName === secondEncounterSectionTitle.value)
     return "mdi-numeric-2-box-outline";
+  if (sectionName === dragonClarificationsTitle.value) return "mdi-fire-breathing-dragon";
   if (sectionName.toLowerCase().includes("wing"))
     return "mdi-book-open-page-variant";
   return "mdi-book-open-variant";
