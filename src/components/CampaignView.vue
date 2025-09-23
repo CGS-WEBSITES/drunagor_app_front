@@ -605,9 +605,6 @@ const {
   startSaveTour,
   destroyTour: destroySaveTour,
   isActive: saveTourActive,
-  pauseTourForNavigation: pauseSaveTourForNavigation,
-  shouldResumeAfterNav: shouldResumeSaveAfterNav,
-  consumeResumeFlag: consumeSaveResumeFlag,
 } = useSaveCampaignTour({
   onSaveClick: handleSave,
   onManageResourcesClick: handleManageResourcesAction,
@@ -619,9 +616,6 @@ const {
   startLoadTour,
   destroyTour: destroyLoadTour,
   isActive: loadTourActive,
-  pauseTourForNavigation: pauseLoadTourForNavigation,
-  shouldResumeAfterNav: shouldResumeLoadAfterNav,
-  consumeResumeFlag: consumeLoadResumeFlag,
 } = useLoadCampaignTour({
   onManageResourcesClick: handleManageResourcesAction,
   onEquipmentSkillsClick: handleEquipmentSkillsAction,
@@ -633,45 +627,12 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
-const saveNavigationState = () => {
-  if (typeof window === "undefined") return;
-  const navigationState = {
-    timestamp: Date.now(),
-    returnFromNavigation: true,
-  };
-  localStorage.setItem(
-    `campaign_${campaignId}_navigation_state`,
-    JSON.stringify(navigationState),
-  );
-};
-
-const handleInstructionAction = (action: string) => {
-  console.log("[CampaignView] Ação de instrução:", action);
-  saveNavigationState();
-
-  if (saveTourActive.value) {
-    pauseSaveTourForNavigation(
-      action === "manage-resources" ? "manage-resources" : "equipment-skills",
-    );
-  }
-
-  if (loadTourActive.value) {
-    pauseLoadTourForNavigation(
-      action === "manage-resources" ? "manage-resources" : "equipment-skills",
-    );
-  }
-
-  setTimeout(() => {
-    if (action === "manage-resources") handleManageResourcesAction();
-    else if (action === "equipment-skills") handleEquipmentSkillsAction();
-  }, 100);
-};
-
+// Função simplificada para lidar com ações do speed dial
 function handleSpeedDialAction(action: string) {
   switch (action) {
     case "save":
-      if (campaign.value?.campaign === "underkeep") startSaveTour();
-      else handleSave();
+      // Sempre inicia o tour quando clicar em save
+      startSaveTour();
       break;
     case "load-instructions":
       startLoadTour();
@@ -833,11 +794,13 @@ onBeforeUnmount(() => {
   destroyLoadTour({ keepProgress: true });
 });
 
+// onMounted simplificado - apenas lógica essencial
 onMounted(async () => {
   if (!campaignId) {
     setAlert("mdi-alert-circle", "Error", "Campaign ID is missing.", "error");
     return;
   }
+
   const found = campaignStore.find(campaignId);
   if (found) {
     campaign.value = found;
@@ -858,46 +821,16 @@ onMounted(async () => {
   generatePartyCode();
 
   const openInstructions = route.query.openInstructions;
-  showLoadInstructions.value = openInstructions === 'load';
+  showLoadInstructions.value = openInstructions === "load";
 
-  if (campaign.value?.campaign === "underkeep") {
-    if (typeof window !== "undefined") {
-      const key = `campaign_${campaignId}_navigation_state`;
-      const raw = localStorage.getItem(key);
-
-      const saveTourStep = localStorage.getItem(
-        `campaign_${campaignId}_save_tour_step`,
-      );
-      const loadTourStep = localStorage.getItem(
-        `campaign_${campaignId}_load_tour_step`,
-      );
-      const shouldResumeSave = shouldResumeSaveAfterNav();
-      const shouldResumeLoad = shouldResumeLoadAfterNav();
-
-      if (
-        (raw && (shouldResumeSave || shouldResumeLoad)) ||
-        saveTourStep ||
-        loadTourStep ||
-        openInstructions === 'load' 
-      ) {
-        await nextTick();
-        await new Promise((resolve) => setTimeout(resolve, 300));
-
-        if (saveTourStep || shouldResumeSave) {
-          await startSaveTour();
-          if (shouldResumeSave) consumeSaveResumeFlag();
-        } else if (loadTourStep || shouldResumeLoad || openInstructions === 'load') {
-          await startLoadTour();
-          if (shouldResumeLoad) consumeLoadResumeFlag();
-        }
-
-        if (raw) {
-          localStorage.removeItem(key);
-        }
-      }
-    }
+  // Apenas iniciar load tour se especificamente solicitado
+  if (campaign.value?.campaign === "underkeep" && openInstructions === "load") {
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await startLoadTour();
   }
 
+  // Remove query parameter se existir
   if (openInstructions === "load") {
     router.replace({
       path: route.path,
