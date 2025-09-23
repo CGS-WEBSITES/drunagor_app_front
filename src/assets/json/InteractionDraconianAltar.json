@@ -1,0 +1,177 @@
+[
+  {
+    "id": "draconian-altar-intro",
+    "type": "intro",
+    "title": "10 – DRACONIAN ALTAR",
+    "body": [
+      "The statue of a slender woman lies displayed in an alcove carefully crafted to serve as an altar. You can feel it: it’s Narang’Erel, the altruistic goddess of the Church of the Setting Sun, in her humanoid form. At her base, carved into a stone altar, four sockets eagerly await to be filled with something. ‘The guardians walk in a line, with the Sun chasing the Moon’ is how the instructions translate from Ancient Elvish.",
+      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes.",
+      "<br><br><b>RULE – CONTINUOUS INTERACTION</b><br>The same Hero may interact with this scene more than once per turn if desired. As a Cube Action, a Hero may EXPEND 1 AC to interact with this scene again. They may also choose to interact with it by simply using their Minor Action as normal."
+    ]
+  },
+  {
+    "id": "interaction-1.1",
+    "type": "choice",
+    "title": "1.1 – PLACE THE GEMS ON THE ALTAR",
+    "body": [
+      "If the 4 <span style=\"color: #1E90FF;\">Dragon Gem</span> Adventure Item cards are set aside, proceed to resolution 1.2. Otherwise, continue reading below.<br><br>",
+      "The perfectly sculpted groove would fit a gem the size of a fist perfectly. Certainly, an enchantment will be triggered when all are placed, and feeding the altar with fewer stones than it deserves is pointless. Find all the gems first...<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If all 4 Dragon Gems are set aside - (interaction 1.2)",
+        "type": "PROCEED",
+        "target": "interaction-1.2"
+      },
+      {
+        "text": "If you don't have all the gems",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.2",
+    "type": "choice",
+    "title": "1.2 – YOU HAVE ALL FOUR GEMS",
+    "body": [
+      "You examine the altar again. Four perfectly aligned oval sockets each await their treasure. The engravings depict the Sun in all its splendor, skimming the Earth like an arc. The Doctrine, the religion of the Church of the Setting Sun, draws inspiration from the Sun beyond appearances. Deducing that the first stone to be placed is the purple one is easy. The stars reveal that it is night, but what about the others?<br><br>",
+      "Align the gems in the order you deem correct and proceed to the resolution that matches your chosen sequence.",
+      "<br>1.3 – ORANGE, YELLOW, AND PINK",
+      "1.4 – ORANGE, PINK, AND YELLOW",
+      "1.5 – YELLOW, ORANGE, AND PINK",
+      "1.6 – YELLOW, PINK AND ORANGE",
+      "1.7 – PINK, ORANGE AND YELLOW",
+      "1.8 – PINK, YELLOW, AND ORANGE"
+    ],
+    "actions": [
+      {
+        "text": "ORANGE, YELLOW, AND PINK - (interaction 1.3)",
+        "type": "PROCEED",
+        "target": "interaction-1.3"
+      },
+      {
+        "text": "ORANGE, PINK, AND YELLOW - (interaction 1.4)",
+        "type": "PROCEED",
+        "target": "interaction-1.4"
+      },
+      {
+        "text": "YELLOW, ORANGE, AND PINK - (interaction 1.5)",
+        "type": "PROCEED",
+        "target": "interaction-1.5"
+      },
+      {
+        "text": "YELLOW, PINK AND ORANGE - (interaction 1.6)",
+        "type": "PROCEED",
+        "target": "interaction-1.6"
+      },
+      {
+        "text": "PINK, ORANGE AND YELLOW - (interaction 1.7)",
+        "type": "PROCEED",
+        "target": "interaction-1.7"
+      },
+      {
+        "text": "PINK, YELLOW, AND ORANGE - (interaction 1.8)",
+        "type": "PROCEED",
+        "target": "interaction-1.8"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.3",
+    "type": "resolution",
+    "title": "1.3 – ORANGE, YELLOW, AND PINK",
+    "body": [
+      "Purple, orange, yellow, and pink… The gem order seems harmonious at first, but so briefly that the inscriptions flash in recognition, the first and last sockets flicker from blue to red. A trembling buzz, like the vibration of an earthquake, reverberates as an uncomfortable electric discharge fires, repelling you like a dog.<br><br>",
+      "You take 6 damage. Only you may react to this effect.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.4",
+    "type": "resolution",
+    "title": "1.4 – ORANGE, PINK, AND YELLOW",
+    "body": [
+      "Purple, orange, pink, and yellow… The gem order seems harmonious at first, but so briefly that the inscriptions flash in recognition, all sockets flicker from blue to red. A trembling buzz, like the vibration of an earthquake, reverberates as a painful electric discharge fires, repelling you like a dog.<br><br>",
+      "You take 9 damage. Only you may react to this effect.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.5",
+    "type": "resolution",
+    "title": "1.5 – YELLOW, ORANGE, AND PINK",
+    "body": [
+      "Purple, yellow, orange, and pink… The gem order seems harmonious at first, but so briefly that the inscriptions flash in recognition, all sockets flicker from blue to red. A trembling buzz, like the vibration of an earthquake, reverberates as a painful electric discharge fires, repelling you like a dog.<br><br>",
+      "You take 9 damage. Only you may react to this effect.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.6",
+    "type": "resolution",
+    "title": "1.6 – YELLOW, PINK, AND ORANGE",
+    "body": [
+      "Purple, yellow, pink, and orange… The gem order seems harmonious at first, but so briefly that the inscriptions flash in recognition, the first two sockets flicker from blue to red. A trembling buzz, like the vibration of an earthquake, reverberates as a deadly electric discharge fires, repelling you like a dog.<br><br>",
+      "You take 6 damage. Only you may react to this effect.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.7",
+    "type": "resolution",
+    "title": "1.7 – PINK, ORANGE, AND YELLOW",
+    "body": [
+      "Purple, pink, orange, and yellow… The gem order seems harmonious at first, but so briefly that the inscriptions flash in recognition, the last two sockets flicker from blue to red. A trembling buzz, like the vibration of an earthquake, reverberates as a deadly electric discharge fires, repelling you like a dog.<br><br>",
+      "You take 6 damage. Only you may react to this effect.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.8",
+    "type": "resolution",
+    "title": "1.8 – PINK, YELLOW, AND ORANGE",
+    "body": [
+      "Purple, pink, yellow, and orange… The gem order resembles the colors the sky takes on throughout the day from dawn to dusk. So briefly after the last gem is placed, the inscriptions in Ancient Elvish glow light blue and the sound of trembling walls echoes through the hall’s perfect acoustics. A protruding stone drawer scrapes from the base of the statue, revealing the treasures of each of the Dragons...<br><br>",
+      "Return the 4 <span style=\"color: #1E90FF;\">Dragon Gem</span> Adventure Item cards to the box.<br>Take the <span style=\"color: #1E90FF;\">Dawn Silverchain</span>, <span style=\"color: #1E90FF;\">Noon Plate</span>, <span style=\"color: #1E90FF;\">Twilight Leather</span> and <span style=\"color: #1E90FF;\">Night Plate</span> Adventure Item cards and distribute them among the Party as desired. Players may freely rearrange their inventory at this time, including Equipping or Unequipping Items. Then, any Equipment not equipped by a Hero or in a Hero’s bag must be placed in the Party’s Stash.<br>Remove this token from the board and proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  }
+]
