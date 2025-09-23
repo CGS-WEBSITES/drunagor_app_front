@@ -284,9 +284,9 @@
                       <h2 class="interaction-title mb-2">
                         {{ currentInteractionConfig.title }}
                       </h2>
-                      <p class="interaction-subtitle text-medium-emphasis">
-                        {{ currentInteractionConfig.subtitle }}
-                      </p>
+                      <div class="body-text mt-3">
+                            <div v-html="getInteractionIntroBody()"></div>
+                        </div>
                     </div>
 
                     <v-row class="interaction-choices" justify="center">
@@ -848,6 +848,7 @@ import InteractionWeaponsTable from "@/assets/json/InteractionWeaponsTable.json"
 import InteractionTheStoneGuardian from "@/assets/json/InteractionTheStoneGuardian.json";
 import InteractionTheReservoir from "@/assets/json/InteractionTheReservoir.json";
 import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasuresOfAForgottenAge.json";
+import InteractionThePrisoner from "@/assets/json/InteractionThePrisoner.json";
 
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
@@ -1021,6 +1022,7 @@ const importedItemAssets: Record<string, InteractionItem[]> = {
   InteractionTheStoneGuardian,
   InteractionTheReservoir,
   InteractionTreasuresOfAForgottenAge,
+  InteractionThePrisoner,
 };
 
 const interactionConfigs = ref<Record<string, InteractionConfig>>({});
@@ -1808,6 +1810,25 @@ onBeforeUnmount(() => {
 
   codeReader.reset();
 });
+
+const getInteractionIntroBody = () => {
+    if (!currentInteractionConfig.value) {
+        return '';
+    }
+
+    const introItem = currentInteractionConfig.value.items.find(item => item.type === 'intro');
+    if (introItem) {
+        return introItem.body.join('');
+    }
+
+    if (currentInteractionConfig.value.items.length > 0) {
+        return currentInteractionConfig.value.items[0].body.join('');
+    }
+
+    return '';
+};
+
+
 </script>
 
 <style scoped>
