@@ -58,5 +58,17 @@
     "subtitle": "A statue of Narang’Erel, the altruistic goddess, awaits a sacrifice to be reborn.",
     "backgroundImportName": "GargoyleImg",
     "itemsImportName": "InteractionDraconianAltar"
+  },
+  "https://qr1.be/3A5D": {
+    "title": "INTERACTION 11 - THE FANTASTIC BEER FACTORY",
+    "subtitle": "A miraculous beer factory, empowered by magic, awaits its master brewer.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionBeerFactory"
+  },
+  "https://qr1.be/5T8Z": {
+    "title": "INTERACTION 12 - THE RUNIC CIRCLE",
+    "subtitle": "Engravings of a runic circle decorate the cold stone slabs, large enough to accommodate even a dragon.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionTheRunic"
   }
 }
