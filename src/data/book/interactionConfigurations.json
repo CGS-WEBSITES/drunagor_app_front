@@ -46,5 +46,11 @@
     "subtitle": "A mysterious cube emanates dark energy and whispers promises of power.",
     "backgroundImportName": "GargoyleImg",
     "itemsImportName": "InteractionTheSeed"
+  },
+  "https://qr1.be/8F0X": {
+    "title": "INTERACTION 9 - THE FORGOTTEN FORGE",
+    "subtitle": "The dungeons hold another surprise: a giant forge, of dwarven architecture, lies cold in the dark.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionTheForge"
   }
 }
