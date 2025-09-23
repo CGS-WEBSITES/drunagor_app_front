@@ -850,6 +850,7 @@ import InteractionTheReservoir from "@/assets/json/InteractionTheReservoir.json"
 import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasuresOfAForgottenAge.json";
 import InteractionThePrisoner from "@/assets/json/InteractionThePrisoner.json";
 import InteractionTheSeed from "@/assets/json/InteractionTheSeed.json";
+import InteractionTheForge from "@/assets/json/InteractionTheForge.json";
 
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
@@ -1025,6 +1026,7 @@ const importedItemAssets: Record<string, InteractionItem[]> = {
   InteractionTreasuresOfAForgottenAge,
   InteractionThePrisoner,
   InteractionTheSeed,
+  InteractionTheForge,
 };
 
 const interactionConfigs = ref<Record<string, InteractionConfig>>({});
