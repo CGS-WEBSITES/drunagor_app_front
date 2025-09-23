@@ -34,5 +34,11 @@
     "subtitle": "Weapons that seem to have been crafted by the most skilled hands you’ve ever seenarmor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in timehidden in darkness. Does the Count even know that his fortress sits atop a trove like this?",
     "backgroundImportName": "TreasuresImg",
     "itemsImportName": "InteractionTreasuresOfAForgottenAge"
+  },
+  "https://qr1.be/Y4aZP": {
+    "title": "INTERACTION 7 - THE PRISONER",
+    "subtitle": "A man's agony becomes a test of your resolve.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionThePrisoner"
   }
 }
