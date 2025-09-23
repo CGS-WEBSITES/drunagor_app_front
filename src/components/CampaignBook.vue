@@ -132,6 +132,7 @@
                       >
                         <div
                           class="header-banner"
+                          :style="headerBannerStyle"
                           :class="{ 'header-banner-fullscreen': isFullscreen }"
                         >
                           <div
@@ -207,7 +208,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <v-card class="content-card" elevation="0">
                 <div v-if="interPage === 'scan'" class="scanner-container">
                   <v-card-title class="text-center">
@@ -404,7 +405,7 @@
                               playerTutorials.chapters.length - 1,
                           }"
                         >
-                          <div class="header-banner">
+                          <div class="header-banner" :style="headerBannerStyle">
                             <div
                               class="d-flex align-center justify-space-between pa-0 pb-0"
                             >
@@ -469,7 +470,7 @@
                   <v-row>
                     <v-col cols="12">
                       <div class="content-block ml-4">
-                        <div class="header-banner">
+                        <div class="header-banner" :style="headerBannerStyle">
                           <div
                             class="d-flex align-center justify-space-between pa-0 pb-0"
                           >
@@ -557,7 +558,7 @@
                               firstEncounterClarifications.chapters.length - 1,
                           }"
                         >
-                          <div class="header-banner">
+                          <div class="header-banner" :style="headerBannerStyle">
                             <div
                               class="d-flex align-center justify-space-between pa-0 pb-0"
                             >
@@ -639,10 +640,11 @@
                           :class="{
                             'mb-6':
                               chapterIdx <
-                              secondEncounterClarifications.chapters.length - 1,
+                              secondEncounterClarifications.chapters.length -
+                                1,
                           }"
                         >
-                          <div class="header-banner">
+                          <div class="header-banner" :style="headerBannerStyle">
                             <div
                               class="d-flex align-center justify-space-between pa-0 pb-0"
                             >
@@ -727,7 +729,7 @@
                               dragonClarifications.chapters.length - 1,
                           }"
                         >
-                          <div class="header-banner">
+                          <div class="header-banner" :style="headerBannerStyle">
                             <div
                               class="d-flex align-center justify-space-between pa-0 pb-0"
                             >
@@ -830,6 +832,8 @@ import secondEncounterClarificationsData from "@/data/book/secondEncounterClarif
 import dragonClarificationsData from "@/data/book/dragonClarifications.json";
 
 // Import Images
+import booktopImg from '@/assets/booktop.png';
+import booktops2Img from '@/assets/booktops2.png';
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
 import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
@@ -1168,6 +1172,22 @@ const backgroundStyle = computed<CSSProperties>(() => {
   return s;
 });
 
+const headerBannerStyle = computed(() => {
+  let imageUrl = booktopImg; // Default image
+
+  if (currentView.value === 'dragonClarifications') {
+    imageUrl = booktops2Img;
+  } else if (currentView.value === 'player' && currentPage.value) {
+    const sectionName = currentPage.value.section || "";
+    if (sectionName.includes("WING 3") || sectionName.includes("WING 4")) {
+      imageUrl = booktops2Img;
+    }
+  }
+  
+  return { backgroundImage: `url(${imageUrl})` };
+});
+
+
 const interactionChoices = computed(() => {
   if (!currentInteractionConfig.value) return [];
   return currentInteractionConfig.value.items.filter(
@@ -1275,7 +1295,7 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     );
   }
 
-  // Dragon Clarifications
+   // Dragon Clarifications
   if (dragonClarifications.value && dragonClarifications.value.chapters) {
     const sectionGroupTitle =
       dragonClarifications.value.pageTitle || "Dragon Clarifications";
@@ -1336,6 +1356,7 @@ const secondEncounterSectionTitle = computed(
 const dragonClarificationsTitle = computed(
   () => dragonClarifications.value.pageTitle || "Dragon Clarifications",
 );
+
 
 const otherBookGroupTitlesInOrder = computed(() => [
   tutorialSectionTitle.value,
@@ -1901,7 +1922,7 @@ onBeforeUnmount(() => {
 }
 
 .header-banner {
-  background-image: url("@/assets/booktop.png");
+  /* background-image is now handled by a dynamic :style binding */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: top center;
@@ -1931,10 +1952,11 @@ onBeforeUnmount(() => {
   text-transform: none;
 }
 
+/* Desktop Styles */
 .section-title {
   font-size: 0.7rem;
   color: white;
-  padding: 10px 125px 20px;
+  padding: 10px 155px 20px;
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
@@ -1947,10 +1969,11 @@ onBeforeUnmount(() => {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
   margin-top: 1px;
   margin-bottom: 66px;
-  padding-left: 126px;
+  padding-left: 156px;
   padding-right: 44px;
   text-align: left;
 }
+
 
 .content-block {
   background-color: #fff;
@@ -2281,6 +2304,20 @@ onBeforeUnmount(() => {
   transform: translateY(-20px);
 }
 
+/* Tablet Styles */
+@media (max-width: 1024px) {
+  .section-title {
+    padding: 10px 100px 5px;
+  }
+  .chapter-title-banner {
+    font-size: 1.5rem;
+    padding-left: 100px;
+    padding-right: 30px;
+    margin-bottom: 50px;
+  }
+}
+
+
 @media (max-width: 768px) {
   .navigation-container {
     height: 70px;
@@ -2328,6 +2365,7 @@ onBeforeUnmount(() => {
   }
 }
 
+/* Mobile Styles */
 @media (max-width: 480px) {
   .navigation-container {
     height: 60px;
@@ -2339,18 +2377,21 @@ onBeforeUnmount(() => {
 
   .header-banner {
     padding: 8px 10px 6px;
+    
+    background-position: left;
+    
   }
 
   .chapter-title-banner {
     font-size: 1.25rem;
-    padding-left: 60px;
+    padding-left: 80px;
     padding-right: 20px;
     margin-bottom: 40px;
   }
 
   .section-title {
     font-size: 0.6rem;
-    padding: 8px 60px 15px;
+    padding: 8px 80px 15px;
   }
 
   .body-text p {
