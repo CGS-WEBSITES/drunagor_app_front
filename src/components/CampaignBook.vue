@@ -121,7 +121,7 @@
                   v-if="isFullScreenWithBackground"
                   class="background-overlay"
                 ></div>
-                <v-container class="pa-3">
+                <v-container class="pa-0 pt-2 ml-3">
                   <v-row>
                     <v-col cols="12">
                       <div
@@ -2384,14 +2384,17 @@ onBeforeUnmount(() => {
 
   .chapter-title-banner {
     font-size: 1.25rem;
-    padding-left: 80px;
+    padding-left: 00px;
+    margin-left: 130px;
+    margin-top: 5px;
     padding-right: 20px;
     margin-bottom: 40px;
   }
 
   .section-title {
     font-size: 0.6rem;
-    padding: 8px 80px 15px;
+    padding: 8px 0px 15px;
+    margin-left: 130px;
   }
 
   .body-text p {
