@@ -40,5 +40,11 @@
     "subtitle": "A man's agony becomes a test of your resolve.",
     "backgroundImportName": "GargoyleImg",
     "itemsImportName": "InteractionThePrisoner"
+  },
+  "https://qr1.be/23V7": {
+    "title": "INTERACTION 8 - THE SEED FROM ANOTHER WORLD",
+    "subtitle": "A mysterious cube emanates dark energy and whispers promises of power.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionTheSeed"
   }
 }
