@@ -144,7 +144,7 @@
     </v-btn>
 
     <v-btn
-      v-if="campaign?.campaign === 'underkeep'"
+      v-if="campaign?.campaign === 'underkeep' && showLoadInstructions"
       key="load-instructions"
       size="small"
       color="info"
@@ -479,6 +479,7 @@ const originalMaster = ref<(typeof players.value)[0] | null>(null);
 const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
+const showLoadInstructions = ref(false);
 
 /** ========= helpers ========= **/
 function setAlert(
@@ -856,6 +857,9 @@ onMounted(async () => {
   await fetchRole();
   generatePartyCode();
 
+  const openInstructions = route.query.openInstructions;
+  showLoadInstructions.value = openInstructions === 'load';
+
   if (campaign.value?.campaign === "underkeep") {
     if (typeof window !== "undefined") {
       const key = `campaign_${campaignId}_navigation_state`;
@@ -873,16 +877,16 @@ onMounted(async () => {
       if (
         (raw && (shouldResumeSave || shouldResumeLoad)) ||
         saveTourStep ||
-        loadTourStep
+        loadTourStep ||
+        openInstructions === 'load' 
       ) {
         await nextTick();
-
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         if (saveTourStep || shouldResumeSave) {
           await startSaveTour();
           if (shouldResumeSave) consumeSaveResumeFlag();
-        } else if (loadTourStep || shouldResumeLoad) {
+        } else if (loadTourStep || shouldResumeLoad || openInstructions === 'load') {
           await startLoadTour();
           if (shouldResumeLoad) consumeLoadResumeFlag();
         }
@@ -892,6 +896,13 @@ onMounted(async () => {
         }
       }
     }
+  }
+
+  if (openInstructions === "load") {
+    router.replace({
+      path: route.path,
+      query: { ...route.query, openInstructions: undefined },
+    });
   }
 });
 
