@@ -207,7 +207,7 @@
                   Back to Books
                 </v-btn>
               </div>
-
+              
               <v-card class="content-card" elevation="0">
                 <div v-if="interPage === 'scan'" class="scanner-container">
                   <v-card-title class="text-center">
@@ -375,7 +375,7 @@
                   Back to Books
                 </v-btn>
               </div>
-
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -453,7 +453,7 @@
                   Back to Books
                 </v-btn>
               </div>
-
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -528,7 +528,7 @@
                   Back to Books
                 </v-btn>
               </div>
-
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -613,7 +613,7 @@
                   Back to Books
                 </v-btn>
               </div>
-
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -684,7 +684,7 @@
               </div>
             </div>
 
-            <div
+             <div
               v-else-if="currentView === 'dragonClarifications'"
               key="dragonClarifications"
             >
@@ -698,7 +698,7 @@
                   Back to Books
                 </v-btn>
               </div>
-
+              
               <div
                 class="book-page ma-5"
                 :style="{
@@ -1057,10 +1057,10 @@ const initializeInteractionConfigs = () => {
 
 // Store current book state before leaving books
 const saveCurrentBookState = () => {
-  if (currentView.value === "player" ||
-      currentView.value === "tutorial" ||
-      currentView.value === "combatGuide" ||
-      currentView.value === "explorationTips" ||
+  if (currentView.value === "player" || 
+      currentView.value === "tutorial" || 
+      currentView.value === "combatGuide" || 
+      currentView.value === "explorationTips" || 
       currentView.value === "charProgression" ||
       currentView.value === "dragonClarifications") {
     lastBookState.value = {
@@ -1079,26 +1079,26 @@ const goBackToBooks = async () => {
     if (currentView.value === "interactions") {
       codeReader.reset();
     }
-
+    
     // Restore the last book state
     currentView.value = lastBookState.value.view;
     currentIndex.value = lastBookState.value.index;
     activeItemId.value = lastBookState.value.activeItemId;
     openGroups.value = [...lastBookState.value.openGroups];
-
+    
     // Update navigation to show books
     mobileNavValue.value = "menu";
-
+    
     // Wait for view to update
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 200));
-
+    
     // Scroll to previous position if there was an active item
     if (lastBookState.value.activeItemId) {
       const navigationItem = navigationItems.value.find(
         item => item.id === lastBookState.value.activeItemId
       );
-
+      
       if (navigationItem?.originalId) {
         await scrollToTarget(navigationItem.originalId);
       } else if (navigationItem?.targetId) {
@@ -1529,7 +1529,7 @@ const getSectionIcon = (sectionName: string) => {
     return "mdi-numeric-1-box-outline";
   if (sectionName === secondEncounterSectionTitle.value)
     return "mdi-numeric-2-box-outline";
-  if (sectionName === dragonClarificationsTitle.value) return "mdi-fire-breathing-dragon";
+  if (sectionName === dragonClarificationsTitle.value) return "mdi-alpha-d-box-outline";
   if (sectionName.toLowerCase().includes("wing"))
     return "mdi-book-open-page-variant";
   return "mdi-book-open-variant";
@@ -1934,7 +1934,7 @@ onBeforeUnmount(() => {
 .section-title {
   font-size: 0.7rem;
   color: white;
-  padding: 10px 155px 20px;
+  padding: 10px 125px 20px;
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
@@ -1947,7 +1947,7 @@ onBeforeUnmount(() => {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
   margin-top: 1px;
   margin-bottom: 66px;
-  padding-left: 156px;
+  padding-left: 126px;
   padding-right: 44px;
   text-align: left;
 }
