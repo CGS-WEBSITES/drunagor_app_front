@@ -1,0 +1,271 @@
+[
+  {
+    "id": "runic-circle-intro",
+    "type": "intro",
+    "title": "THE RUNIC CIRCLE",
+    "body": [
+      "Engravings of a runic circle decorate the cold stone slabs, large enough to accommodate even a dragon. By now, you’re experienced enough to know there’s some enchantment here, waiting to be awakened. What kind of magic could it be? A path back home?",
+      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction has no truth charges. Therefore, unless a resolution determines that the token should be removed, it remains on the board. Additionally, the options in this Interaction are not exclusive. They can be repeated and, sometimes, the game situation leads to different outcomes.",
+      "<br><br><b>RULE – CONTINUOUS INTERACTION</b><br>The same Hero can interact with this scene more than once per turn if desired. As a Cube Action, Heroes may EXPEND 1 AC to interact with this scene again. They may also choose to interact with it by simply using their Minor Action normally."
+    ]
+  },
+  {
+    "id": "interaction-1.1",
+    "type": "choice",
+    "title": "1.1 – EXAMINE THE RUNIC CIRCLE",
+    "body": [
+      "Concentric circles carved into the stone slabs surround runic drawings, with inscriptions in Ancient Elven filling the empty spaces between the rings. You’ve seen others like these before: costly enchantments that give laymen a taste of the gods’ power—if they know how to awaken it...<br><br>",
+      "Make a Wisdom (blue) Attribute Test with Difficulty 15. Each Wisdom cube you have grants a +2 bonus to your roll. If you follow the Path of Mystics, you succeed without rolling. If successful, proceed to resolution 1.8. Otherwise, continue reading below.<br><br>",
+      "...but to your eyes, the symbols are all jumbled, as if the words were written crossing over one another. The inspection yields no results, but one thing you’re sure of: the secret is there.<br><br>",
+      "Discard all your Wisdom cubes.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed in Wisdom Test (or follow Path of Mystics) - (interaction 1.8)",
+        "type": "PROCEED",
+        "target": "interaction-1.8"
+      },
+      {
+        "text": "Fail Wisdom Test",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.2",
+    "type": "choice",
+    "title": "1.2 – SPEAK THE WORDS OF POWER",
+    "body": [
+      "Perennial enchantments are triggered, among other things, through the correct pronunciation of the words of power composing the spell. But speech alone is not enough. Commanding the forces of the universe requires preparation, and you plant your feet, adjust your posture, and clear your throat…<br><br>",
+      "If the Party has the Journal 6 and 7 Game Mechanic cards, proceed to resolution 1.9. Otherwise, continue reading below.<br><br>",
+      "...but the truth is you have no idea what these words are. You could always guess something generic, of course. Like the branches of a tree, spells from each source of power usually have a common trunk.<br><br>",
+      "Even without knowing the right words, you may attempt to recite a verse associated with a power source. Choose one and proceed to the appropriate resolution.",
+      "<br>1.3 – Recite verses about Strength",
+      "1.4 – Recite verses about Cunning",
+      "1.5 – Recite verses about the Divine",
+      "1.6 – Recite verses about the Occult",
+      "1.7 – Recite verses about the Primordial"
+    ],
+    "actions": [
+      {
+        "text": "If you have Journal 6 and 7 - (interaction 1.9)",
+        "type": "PROCEED",
+        "target": "interaction-1.9"
+      },
+      {
+        "text": "Recite verses about Strength - (interaction 1.3)",
+        "type": "PROCEED",
+        "target": "interaction-1.3"
+      },
+      {
+        "text": "Recite verses about Cunning - (interaction 1.4)",
+        "type": "PROCEED",
+        "target": "interaction-1.4"
+      },
+      {
+        "text": "Recite verses about the Divine - (interaction 1.5)",
+        "type": "PROCEED",
+        "target": "interaction-1.5"
+      },
+      {
+        "text": "Recite verses about the Occult - (interaction 1.6)",
+        "type": "PROCEED",
+        "target": "interaction-1.6"
+      },
+      {
+        "text": "Recite verses about the Primordial - (interaction 1.7)",
+        "type": "PROCEED",
+        "target": "interaction-1.7"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.3",
+    "type": "resolution",
+    "title": "1.3 – RECITE VERSES ABOUT STRENGTH",
+    "body": [
+      "The path of Strength is the most volatile source of power. The stronger someone’s willpower, pride, and might, the greater their mastery over it. You clear your throat and recite the words like a general barking a command, making the runes flicker light blue. The result, however, is a disaster: the enchantment rejects your authority and you feel a tight grip seize your body, like a wyrm’s deadly embrace…<br><br>",
+      "You gain FOCUS 2.<br>Discard all your Melee cubes. You take X non-preventable damage, where X equals 12 minus 3 for each cube discarded this way.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.4",
+    "type": "resolution",
+    "title": "1.4 – RECITE VERSES ABOUT CUNNING",
+    "body": [
+      "Spells are tools crafted by intelligence to manipulate the universe’s power. At its core, everything begins and ends with reason. Confident, you recite the words, and the runes flicker light blue, kindled like embers. The result, however, is a disaster: overwhelming memories flood your mind—recollections of lives not your own—causing your nose to bleed and your brain to melt in pain...<br><br>",
+      "You gain FOCUS 2.<br>Discard all your Agility cubes. You take X non-preventable damage, where X equals 12 minus 3 for each cube discarded this way.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.5",
+    "type": "resolution",
+    "title": "1.5 – RECITE VERSES ABOUT THE DIVINE",
+    "body": [
+      "What power path better deals with what lies beyond us than the Divine? Who but the gods hear mortal pleas in their most desperate hour? You recite the words and the runes flicker light blue, stoked like embers. The result, however, is a disaster: your bones begin to heat beneath your skin, and you feel your flesh burn from within. The circle demands your soul—one way or another…<br><br>",
+      "You gain FOCUS 2.<br>Discard all your Ranged cubes. You take X non-preventable damage, where X equals 12 minus 3 for each cube discarded this way.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.6",
+    "type": "resolution",
+    "title": "1.6 – RECITE VERSES ABOUT THE OCCULT",
+    "body": [
+      "The path of power that draws from the universe's incomprehensible forces such as the stars, the void, and the supernatural is the Occult—feared by many, yet undeniably rewarding. A description that matches everything you’ve seen and experienced in this place. Confident, you recite the words and the runes flicker light blue, stoked like embers…<br><br>",
+      "Make a Wisdom Attribute Test (blue) with Difficulty 21. Each Wisdom cube you have grants a +2 bonus to your roll. If you succeed, proceed to resolution 1.S. Otherwise, continue reading below.<br><br>",
+      "...but the result is a disaster: a whirlwind of invisible energy dances once, twice around the runic circle, then in a flash, darts toward your unsuspecting chest. An excruciating pain grips you for a moment, making your body tremble and your heart skip a beat.<br><br>",
+      "You gain FOCUS 2.<br>You receive as many Curse Cubes as you want between 0 and 6. Then, take X non-preventable damage, where X equals 24 minus 4 for each cube received this way. Note that receiving a Curse Cube is not the same as suffering from CURSE and affects even Heroes immune to it.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed in Wisdom Test - (interaction 1.S)",
+        "type": "PROCEED",
+        "target": "interaction-1.S"
+      },
+      {
+        "text": "Fail Wisdom Test",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.7",
+    "type": "resolution",
+    "title": "1.7 – RECITE VERSES ABOUT THE PRIMORDIAL",
+    "body": [
+      "Life is power, and no source is more abundant than the force capable of transforming the sterile void of the universe into a paradise of abundance. The power emanating from nature, born when everything was still nothing, must be enough. You recite the words and the runes flicker light blue, stoked like embers—but only for a moment. Life has long been drained from this place, and the void still thirsts…<br><br>",
+      "You gain FOCUS 2.<br>Discard all your Wisdom cubes. You take X non-preventable damage, where X equals 12 minus 3 for each cube discarded this way.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.8",
+    "type": "resolution",
+    "title": "1.8 – YOU DECRYPT THE INSTRUCTIONS",
+    "body": [
+      "The translation isn’t easy, but the enchantment’s secrets unfold: when someone recites the words of power over the Glyph of Power, it channels a magical torrent to be cast upon the Void Stone, held by someone standing on the Glyph of Resistance. It’s not too hard, as long as all the pieces are in place…<br><br>",
+      "If this is the first time a Hero reaches this resolution in this Adventure, you gain FOCUS 2.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.9",
+    "type": "resolution",
+    "title": "1.9 – YOU SPOKE THE RIGHT WORDS",
+    "body": [
+      "...and you knew what you were doing! As the words leave your mouth, a sparkling glow spreads along every line of the circle like a spiderweb, growing stronger. A vortex begins to form around the runes, indicating that the cosmos’s energy is gathered and ready to be channeled…<br><br>",
+      "If you are on the Square with the xSHAPE marking, proceed to resolution 1.10. Otherwise, continue reading below.<br>",
+      "...but it doesn’t come. The power dances around the runic circle, ignoring your call, for something is still wrong. Shutting your mouth does no good. As if it had a will of its own, the energy keeps swirling and growing until it finally bursts in a shockwave that sweeps all of you like a tide. That was close…<br><br>",
+      "Each Character at Any Range suffers KNOCK DOWN.<br>You gain FOCUS 2 and take an Unwilling Recall Action, receiving the appropriate Curse Cube penalty.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If on the xSHAPE Square - (interaction 1.10)",
+        "type": "PROCEED",
+        "target": "interaction-1.10"
+      },
+      {
+        "text": "If NOT on the xSHAPE Square",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.10",
+    "type": "resolution",
+    "title": "1.10 – THE ENERGY IS IN YOUR HANDS",
+    "body": [
+      "...the power pulses under your skin, inside your veins, and you reach out to the sky calling for it. And the universe obeys. Forces from the cosmos's edges dance around you, and you feel the gods’ power in the palms of your hands—but only for a moment. You’re merely a conduit. The Void Stone is what will expand the spell and tear through time and space…<br><br>",
+      "If another Hero is on the Square with the xSHAPE marking, proceed to resolution 1.11. Otherwise, continue reading below.<br><br>",
+      "...the crackling energy whirlwind enters your body and bursts from your hands like lightning toward the artifact, but no one is there in the required position! The energy hits the stone floor and an unimaginable surge courses through your body in an instant. You’ll be lucky to come out of this alive…<br><br>",
+      "You are Knocked Out and receive 1 Trauma Cube.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If another Hero is on the xSHAPE Square - (interaction 1.11)",
+        "type": "PROCEED",
+        "target": "interaction-1.11"
+      },
+      {
+        "text": "If NOT another Hero is on the xSHAPE Square",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.11",
+    "type": "resolution",
+    "title": "1.11 – THERE IS A CONDUIT IN POSITION",
+    "body": [
+      "...the crackling energy whirlwind enters your body and bursts from your hands like lightning toward the artifact, striking one of your allies along the way. The spectacle of lights, energy, and sound is breathtaking and for a moment, time stops. Is this safe?<br><br>",
+      "If the Hero on the Square with the xSHAPE marking is holding the Void Stone Adventure Item, proceed to resolution 1.12. Otherwise, continue reading below.<br><br>",
+      "No. Of course not. The visual spectacle resembling a fireworks display is as painful as it is impressive. The victim lets out a scream so impactful it momentarily silences the Arcane lightning, leaving the rest of you speechless. They’ll be lucky to survive this.<br><br>",
+      "The Hero on the Square with the xSHAPE marking is Knocked Out and receives 1 Trauma Cube.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If Hero has Void Stone - (interaction 1.12)",
+        "type": "PROCEED",
+        "target": "interaction-1.12"
+      },
+      {
+        "text": "If Hero does NOT have Void Stone",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.12",
+    "type": "resolution",
+    "title": "1.12 – THE STONE COMPLETES THE RITUAL",
+    "body": [
+      "The eyes see an innocent person encased in a cage of Arcane lightning, but the mind struggles to comprehend that not a single hair is out of place. The Void Stone absorbs the energy completely and a vortex begins forming from it. The artifact no longer needs to be held—it floats in the air—and the magical energy no longer spreads chaotically throughout the hall. You’ve done it. The magic is ready!<br><br>",
+      "The Party successfully casts the Planar Travel spell!<br>Replace the Growing Darkness Rune card with the No Way Back Scene Trigger card on the Initiative Track.<br>Return the Void Stone Adventure Item (regardless of who holds it) to the box.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  }
+]

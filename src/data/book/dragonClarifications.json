@@ -1,0 +1,56 @@
+{
+  "pageTitle": "DRAGON CLARIFICATIONS",
+  "chapters": [
+    {
+      "chapterTitle": "CORE ABILITIES",
+      "sections": [
+        {
+          "title": "KINETIC SHIELD",
+          "bodyHTML": "<p>Each turn, when the Guardian’s Health is reduced by 3 or more, increase the Kinetic Shield marker by 1 point on the track. Then, it gains SHIELD equal to that amount. SHIELDS gained this way can exceed the limit of 4 stacks. At the end of each turn, reset the marker back to 0, but the Guardian does not lose the SHIELD tokens it gained that turn. The pets’ turns are still considered part of their masters’ turns.</p>"
+        },
+        {
+          "title": "BERSERK BEHAVIOR",
+          "bodyHTML": "<p>MANIFEST a Rune. The Dragon FLIES TO that Rune on the board (Reposition its model over the Rune, occupying the 4 spaces it intersects. Characters caught in this movement are subject to damage caused by OVERSIZED).</p>"
+        },
+        {
+          "title": "OVERSIZED",
+          "bodyHTML": "<p>The Dragon is huge and it can enter areas and occupy spaces containing Heroes or Pets. When it steps into a space occupied by these Characters, it deals 2 non-preventable damage to each of them. If the Dragon ends its movement in an area with them, those Characters are PUSHED, square by square, until they leave the areas occupied by the Dragon. They suffer 2 non-preventable damage for each square moved this way. Example: deal 4 damage to a Hero who had to be PUSHED twice to leave the Dragon’s area.</p>"
+        }
+      ]
+    },
+    {
+      "chapterTitle": "DRAGON MOVEMENTS",
+      "sections": [
+        {
+          "title": "FACE",
+          "bodyHTML": "<p>The Dragon turns its snout in the indicated direction. If the targeted Character is diagonally positioned relative to the Dragon, the Party chooses which of the two possible positions the snout will face.</p>"
+        },
+        {
+          "title": "MOVE TOWARD",
+          "bodyHTML": "<p>Moves orthogonally toward the indicated Hero, up to the number of spaces described, attempting to occupy the space that Hero is in. Characters caught in this movement are subject to damage caused by OVERSIZED. At the end of the movement, the Dragon FACES that Hero.</p><img src='https://assets.drunagor.app/book/books2/005.png' style='max-width: 100%; height: auto; display: block; margin: 1em auto;' alt='Dragon moves toward Vorn example'><p><em>The Dragon moves toward Vorn.</em></p><img src='https://assets.drunagor.app/book/books2/006.png' style='max-width: 100%; height: auto; display: block; margin: 1em auto;' alt='Vorn is pushed example'><p><em>Vorn is PUSHED, suffering 2 non-preventable damage. Since he left the areas occupied by the Dragon on the first step, he suffered no further damage.</em></p><img src='https://assets.drunagor.app/book/books2/007.png' style='max--width: 100%; height: auto; display: block; margin: 1em auto;' alt='Dragon faces Vorn example'><p><em>The Dragon Faces Vorn.</em></p><p><strong>NOTE:</strong> If the Dragon changes Board Level while performing this movement, it corrects its position by advancing one additional space, as if the movement had become “MOVE 2” instead of “MOVE 1”.</p>"
+        },
+        {
+          "title": "FLY TO",
+          "bodyHTML": "<p>Reposition the Dragon’s model over the indicated Rune, occupying the 4 spaces it intersects. Characters caught in this movement are subject to damage caused by OVERSIZED.</p><img src='https://assets.drunagor.app/book/books2/008.png' style='max-width: 100%; height: auto; display: block; margin: 1em auto;' alt='Fly to rune example'><p><em>This is the example of a Fly To the orange Rune.</em></p>"
+        }
+      ]
+    },
+    {
+      "chapterTitle": "ATTACKS REACHS",
+      "sections": [
+        {
+          "title": "CLAW'S REACH",
+          "bodyHTML": "<p>The 4 areas in front of the Dragon’s Face.</p><img src='https://assets.drunagor.app/book/books2/009.png' style='max-width: 100%; height: auto; display: block; margin: 1em auto;' alt='Claws Reach Diagram'>"
+        },
+        {
+          "title": "WINGS'S REACH",
+          "bodyHTML": "<p>The 4 areas in each of the Dragon’s Flanks.</p><img src='https://assets.drunagor.app/book/books2/010.png' style='max-width: 100%; height: auto; display: block; margin: 1em auto;' alt='Wings Reach Diagram'>"
+        },
+        {
+          "title": "TAIL REACH",
+          "bodyHTML": "<p>The 4 areas behind the Dragon’s Rear.</p><img src='https://assets.drunagor.app/book/books2/011.png' style='max-width: 100%; height: auto; display: block; margin: 1em auto;' alt='Tail Reach Diagram'>"
+        }
+      ]
+    }
+  ]
+}

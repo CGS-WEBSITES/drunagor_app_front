@@ -34,5 +34,41 @@
     "subtitle": "Weapons that seem to have been crafted by the most skilled hands you’ve ever seenarmor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in timehidden in darkness. Does the Count even know that his fortress sits atop a trove like this?",
     "backgroundImportName": "TreasuresImg",
     "itemsImportName": "InteractionTreasuresOfAForgottenAge"
+  },
+  "https://qr1.be/Y4aZP": {
+    "title": "INTERACTION 7 - THE PRISONER",
+    "subtitle": "A man's agony becomes a test of your resolve.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionThePrisoner"
+  },
+  "https://qr1.be/23V7": {
+    "title": "INTERACTION 8 - THE SEED FROM ANOTHER WORLD",
+    "subtitle": "A mysterious cube emanates dark energy and whispers promises of power.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionTheSeed"
+  },
+  "https://qr1.be/8F0X": {
+    "title": "INTERACTION 9 - THE FORGOTTEN FORGE",
+    "subtitle": "The dungeons hold another surprise: a giant forge, of dwarven architecture, lies cold in the dark.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionTheForge"
+  },
+  "https://qr1.be/9G1Y": {
+    "title": "INTERACTION 10 - DRACONIAN ALTAR",
+    "subtitle": "A statue of Narang’Erel, the altruistic goddess, awaits a sacrifice to be reborn.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionDraconianAltar"
+  },
+  "https://qr1.be/3A5D": {
+    "title": "INTERACTION 11 - THE FANTASTIC BEER FACTORY",
+    "subtitle": "A miraculous beer factory, empowered by magic, awaits its master brewer.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionBeerFactory"
+  },
+  "https://qr1.be/5T8Z": {
+    "title": "INTERACTION 12 - THE RUNIC CIRCLE",
+    "subtitle": "Engravings of a runic circle decorate the cold stone slabs, large enough to accommodate even a dragon.",
+    "backgroundImportName": "GargoyleImg",
+    "itemsImportName": "InteractionTheRunic"
   }
 }
