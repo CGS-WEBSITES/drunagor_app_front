@@ -683,49 +683,66 @@ export function useSaveCampaignTour({
     return newTour;
   };
 
+  const waitForElement = async (selector: string, timeout = 4000) => {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (el) return el;
+      await wait(100);
+    }
+    return null;
+  };
+
   const startSaveTour = async () => {
     if (tour.value) {
       try {
         tour.value.complete();
       } catch {}
     }
-
+  
     tour.value = createTour();
     isActive.value = true;
-
+  
     const savedStep = restoreProgress();
-
+    const resumeReason = hasResume() ? localStorage.getItem(LS_RESUME) : null;
+  
     tour.value.start();
-
+  
     if (savedStep !== null && savedStep > 0) {
       await nextTick();
       await wait(700);
-
+  
       try {
-        if (savedStep >= 6 && savedStep <= 7) {
-          console.log(
-            "[Tour] Preparando painel do herói para passo",
-            savedStep + 1,
-          );
+        if (resumeReason === "manage-resources") {
+          await waitForElement(".shepherd-btn-manage-resources", 5000);
           const hero = getFirstHeroRoot();
           if (hero) {
-            await scrollIntoViewWithOffset(hero, 200);
             await expandHeroPanel(hero);
-            await nextFrames(3);
+            await wait(500);
+          }
+        } else if (resumeReason === "equipment-skills") {
+          await waitForElement(".shepherd-btn-equipment-skills", 5000);
+          const hero = getFirstHeroRoot();
+          if (hero) {
+            await expandHeroPanel(hero);
+            await wait(500);
           }
         }
+  
         tour.value.show(savedStep);
-
         await nextFrames(2);
-        tour.value.getCurrentStep()?.updatePosition?.();
+        
+        const currentStep = tour.value.getCurrentStep();
+        if (currentStep) {
+          currentStep.updatePosition?.();
+        }
+        
+        if (resumeReason) {
+          consumeResume();
+        }
       } catch (e) {
         console.error("[Tour] Erro ao restaurar passo:", e);
-        await wait(1000);
-        try {
-          tour.value.show(savedStep);
-        } catch {
-          tour.value.show(0);
-        }
+        tour.value.show(0);
       }
     }
   };
@@ -734,8 +751,11 @@ export function useSaveCampaignTour({
     reason?: "manage-resources" | "equipment-skills" | "nav",
   ) => {
     saveProgress();
-    markResume(reason || "nav");
-
+    
+    if (reason) {
+      localStorage.setItem(LS_RESUME, reason);
+    }
+    
     if (tour.value) {
       try {
         tour.value.cancel();
@@ -743,6 +763,8 @@ export function useSaveCampaignTour({
         console.error("[Tour] Erro ao pausar tour:", e);
       }
     }
+    
+    isActive.value = false;
   };
 
   const destroyTour = (opts?: { keepProgress?: boolean }) => {
@@ -780,15 +802,75 @@ export function useSaveCampaignTour({
     onBeforeUnmount(() => window.removeEventListener("resize", handleResize));
   }
 
+  const hasPendingResume = () => {
+    if (typeof window === "undefined") return false;
+
+    const step = localStorage.getItem(LS_STEP);
+    const timestamp = localStorage.getItem(LS_TS);
+    const resume = localStorage.getItem(LS_RESUME);
+
+    if (!step || !timestamp || !resume) return false;
+
+    const ts = parseInt(timestamp, 10);
+    if (Date.now() - ts > 30 * 60 * 1000) {
+      clearProgress();
+      return false;
+    }
+
+    return true;
+  };
+
+  const tryAutoResume = async () => {
+    const savedStep = restoreProgress();
+    
+    if (savedStep === null || savedStep === 0) {
+      consumeResume(); 
+
+      return false;
+    }
+    
+    const hasResumeFlag = hasResume();
+    const hasRecentProgress = savedStep > 0;
+    
+    if (hasRecentProgress || hasResumeFlag) {
+      try {
+        await startSaveTour();
+        return true;
+      } catch (error) {
+        console.error('[Tour] Erro ao auto-retomar:', error);
+        return false;
+      }
+    }
+    
+    return false;
+  };
+  
+  const hasPausedTour = () => {
+    const step = localStorage.getItem(LS_STEP);
+    const timestamp = localStorage.getItem(LS_TS);
+    
+    if (!step || !timestamp) return false;
+    
+    const stepNum = parseInt(step, 10);
+    const ts = parseInt(timestamp, 10);
+    
+    const isRecent = Date.now() - ts < 30 * 60 * 1000;
+    const isValidStep = stepNum > 0;
+    
+    return isRecent && isValidStep;
+  };
+  
   return {
     startSaveTour,
     destroyTour,
     isActive,
     currentStep: computed(() => currentStepIndex.value + 1),
     totalSteps: computed(() => tour.value?.steps.length || 0),
-
     pauseTourForNavigation,
     shouldResumeAfterNav: hasResume,
     consumeResumeFlag: consumeResume,
+    hasPendingResume,
+    tryAutoResume,
+    hasPausedTour, 
   };
 }

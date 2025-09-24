@@ -655,6 +655,11 @@ const {
   startSaveTour,
   destroyTour: destroySaveTour,
   isActive: saveTourActive,
+  pauseTourForNavigation,
+  shouldResumeAfterNav,
+  consumeResumeFlag,
+  tryAutoResume,
+  hasPausedTour,
 } = useSaveCampaignTour({
   onSaveClick: handleSave,
   onManageResourcesClick: handleManageResourcesAction,
@@ -671,6 +676,15 @@ const {
   onEquipmentSkillsClick: handleEquipmentSkillsAction,
   campaignId,
 });
+
+const checkAndResumeTour = async () => {
+  await nextTick();
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  if (hasPausedTour()) {
+    await tryAutoResume();
+  }
+};
 
 function setAlert(
   icon: string,
@@ -735,6 +749,14 @@ function navigateToHeroSequentialState(heroId: string) {
     );
     return;
   }
+
+  if (saveTourActive.value) {
+    console.log(
+      "[CampaignView] Pausando tour para navegação - manage resources",
+    );
+    pauseTourForNavigation("manage-resources");
+  }
+
   router.push({
     name: "HeroSequentialState",
     params: { campaignId: campaignId, heroId },
@@ -751,6 +773,14 @@ function navigateToHeroEquipmentSkills(heroId: string) {
     );
     return;
   }
+
+  if (saveTourActive.value) {
+    console.log(
+      "[CampaignView] Pausando tour para navegação - equipment skills",
+    );
+    pauseTourForNavigation("equipment-skills");
+  }
+
   router.push({ name: "Hero", params: { campaignId: campaignId, heroId } });
 }
 
@@ -798,7 +828,10 @@ const generatePartyCode = () => {
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
-      if (campaign.value && ['underkeep', 'underkeep2'].includes(campaign.value.campaign)) {
+      if (
+        campaign.value &&
+        ["underkeep", "underkeep2"].includes(campaign.value.campaign)
+      ) {
         startSaveTour();
       } else {
         handleSave();
@@ -973,7 +1006,24 @@ watch(
   { deep: true },
 );
 
+watch(
+  () => route.path,
+  async (newPath, oldPath) => {
+    const isReturningFromHero = oldPath && 
+      (oldPath.includes('/hero-sequential-state/') || oldPath.includes('/hero/')) && 
+      newPath.includes(`/campaign/${campaignId}`);
+    
+    if (isReturningFromHero) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await checkAndResumeTour();
+    }
+  },
+  { immediate: false }
+);
+
 onBeforeUnmount(() => {
+  window.removeEventListener('pageshow', () => {});
+
   destroySaveTour({ keepProgress: true });
   destroyLoadTour({ keepProgress: true });
 });
@@ -1006,10 +1056,27 @@ onMounted(async () => {
   const openInstructions = route.query.openInstructions;
   showLoadInstructions.value = openInstructions === "load";
 
-  if (campaign.value?.campaign === "underkeep" && openInstructions === "load") {
+  const isUnderkeepCampaign = campaign.value && 
+    ['underkeep', 'underkeep2'].includes(campaign.value.campaign);
+
+    window.addEventListener('pageshow', async (event) => {
+    
+    if (isUnderkeepCampaign && hasPausedTour()) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await checkAndResumeTour();
+    }
+  });
+
+  if (isUnderkeepCampaign && openInstructions === "load") {
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 300));
     await startLoadTour();
+  } 
+  else if (isUnderkeepCampaign) {
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    await checkAndResumeTour();
   }
 
   if (openInstructions === "load") {
@@ -1018,7 +1085,7 @@ onMounted(async () => {
       query: { ...route.query, openInstructions: undefined },
     });
   }
-});
+  });
 </script>
 
 <style scoped>
