@@ -44,10 +44,11 @@
 
                 <v-btn
                   v-if="
-                    campaign.campaign == 'core' ||
-                    campaign.campaign == 'awakenings' ||
-                    campaign.campaign == 'apocalypse' ||
-                    campaign.campaign == 'underkeep'
+                    (campaign.campaign == 'core' ||
+                      campaign.campaign == 'awakenings' ||
+                      campaign.campaign == 'apocalypse' ||
+                      campaign.campaign == 'underkeep' ||
+                      campaign.campaign == 'underkeep2')
                   "
                   @click.stop="openHeroEquipmentSkills"
                   variant="elevated"
@@ -109,6 +110,16 @@
                 :hide-equipment-button="true"
               />
             </v-col>
+
+            <v-col cols="12">
+              <CampaignLogUnderKeep2
+                v-if="campaign.campaign == 'underkeep2'"
+                :campaign-id="props.campaignId"
+                :hero-id="props.heroId"
+                :hide-equipment-button="true"
+              />
+            </v-col>
+
           </v-row>
         </v-card-actions>
       </v-expansion-panel-text>
@@ -125,6 +136,7 @@ import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import CampaignLogCore from "./CampaignLogCore.vue";
 import CampaignLogUnderKeep from "./CampaignLogUnderKeep.vue";
+import CampaignLogUnderKeep2 from "./CampaignLogUnderKeep2.vue";
 import CampaignLogAwakenings from "./CampaignLogAwakenings.vue";
 import CampaignLogApocalypse from "./CampaignLogApocalypse.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";

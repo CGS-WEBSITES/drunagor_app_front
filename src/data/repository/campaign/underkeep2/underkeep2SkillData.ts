@@ -1,0 +1,56 @@
+const baseUrl = "https://assets.drunagor.app/CampaignTracker/hero_skills/underkeep_S2";
+
+export interface SkillCard {
+  id: string;
+  heroId: string;
+  skillType: 'melee' | 'ranged' | 'agility' | 'wisdom';
+  name: string;
+  image: string;
+}
+
+export const underkeep2SkillCards: SkillCard[] = [
+  { id: 'elros-melee-1', heroId: 'elros', skillType: 'melee', name: 'Elros Melee Lv1', image: `${baseUrl}/elros-melee-1.jpg` },
+  { id: 'elros-melee-2', heroId: 'elros', skillType: 'melee', name: 'Elros Melee Lv2', image: `${baseUrl}/elros-melee-2.jpg` },
+  { id: 'elros-ranged-1', heroId: 'elros', skillType: 'ranged', name: 'Elros Ranged Lv1', image: `${baseUrl}/elros-ranged-1.jpg` },
+  { id: 'elros-ranged-2', heroId: 'elros', skillType: 'ranged', name: 'Elros Ranged Lv2', image: `${baseUrl}/elros-ranged-2.jpg` },
+  { id: 'elros-agility-1', heroId: 'elros', skillType: 'agility', name: 'Elros Agility Lv1', image: `${baseUrl}/elros-agility-1.jpg` },
+  { id: 'elros-agility-2', heroId: 'elros', skillType: 'agility', name: 'Elros Agility Lv2', image: `${baseUrl}/elros-agility-2.jpg` },
+  { id: 'elros-wisdom-1', heroId: 'elros', skillType: 'wisdom', name: 'Elros Wisdom Lv1', image: `${baseUrl}/elros-wisdom-1.jpg` },
+  { id: 'elros-wisdom-2', heroId: 'elros', skillType: 'wisdom', name: 'Elros Wisdom Lv2', image: `${baseUrl}/elros-wisdom-2.jpg` },
+  { id: 'vorn-melee-1', heroId: 'vorn', skillType: 'melee', name: 'Vorn Melee Lv1', image: `${baseUrl}/vorn-melee-1.jpg` },
+  { id: 'vorn-melee-2', heroId: 'vorn', skillType: 'melee', name: 'Vorn Melee Lv2', image: `${baseUrl}/vorn-melee-2.jpg` },
+  { id: 'vorn-ranged-1', heroId: 'vorn', skillType: 'ranged', name: 'Vorn Ranged Lv1', image: `${baseUrl}/vorn-ranged-1.jpg` },
+  { id: 'vorn-ranged-2', heroId: 'vorn', skillType: 'ranged', name: 'Vorn Ranged Lv2', image: `${baseUrl}/vorn-ranged-2.jpg` },
+  { id: 'vorn-agility-1', heroId: 'vorn', skillType: 'agility', name: 'Vorn Agility Lv1', image: `${baseUrl}/vorn-agility-1.jpg` },
+  { id: 'vorn-agility-2', heroId: 'vorn', skillType: 'agility', name: 'Vorn Agility Lv2', image: `${baseUrl}/vorn-agility-2.jpg` },
+  { id: 'vorn-wisdom-1', heroId: 'vorn', skillType: 'wisdom', name: 'Vorn Wisdom Lv1', image: `${baseUrl}/vorn-wisdom-1.jpg` },
+  { id: 'vorn-wisdom-2', heroId: 'vorn', skillType: 'wisdom', name: 'Vorn Wisdom Lv2', image: `${baseUrl}/vorn-wisdom-2.jpg` },
+  { id: 'lorelai-melee-1', heroId: 'lorelai', skillType: 'melee', name: 'Lorelai Melee Lv1', image: `${baseUrl}/lorelai-melee-1.jpg` },
+  { id: 'lorelai-melee-2', heroId: 'lorelai', skillType: 'melee', name: 'Lorelai Melee Lv2', image: `${baseUrl}/lorelai-melee-2.jpg` },
+  { id: 'lorelai-ranged-1', heroId: 'lorelai', skillType: 'ranged', name: 'Lorelai Ranged Lv1', image: `${baseUrl}/lorelai-ranged-1.jpg` },
+  { id: 'lorelai-ranged-2', heroId: 'lorelai', skillType: 'ranged', name: 'Lorelai Ranged Lv2', image: `${baseUrl}/lorelai-ranged-2.jpg` },
+  { id: 'lorelai-agility-1', heroId: 'lorelai', skillType: 'agility', name: 'Lorelai Agility Lv1', image: `${baseUrl}/lorelai-agility-1.jpg` },
+  { id: 'lorelai-agility-2', heroId: 'lorelai', skillType: 'agility', name: 'Lorelai Agility Lv2', image: `${baseUrl}/lorelai-agility-2.jpg` },
+  { id: 'lorelai-wisdom-1', heroId: 'lorelai', skillType: 'wisdom', name: 'Lorelai Wisdom Lv1', image: `${baseUrl}/lorelai-wisdom-1.jpg` },
+  { id: 'lorelai-wisdom-2', heroId: 'lorelai', skillType: 'wisdom', name: 'Lorelai Wisdom Lv2', image: `${baseUrl}/lorelai-wisdom-2.jpg` },
+  { id: 'maya-melee-1', heroId: 'maya', skillType: 'melee', name: 'Maya Melee Lv1', image: `${baseUrl}/maya-melee-1.jpg` },
+  { id: 'maya-melee-2', heroId: 'maya', skillType: 'melee', name: 'Maya Melee Lv2', image: `${baseUrl}/maya-melee-2.jpg` },
+  { id: 'maya-ranged-1', heroId: 'maya', skillType: 'ranged', name: 'Maya Ranged Lv1', image: `${baseUrl}/maya-ranged-1.jpg` },
+  { id: 'maya-ranged-2', heroId: 'maya', skillType: 'ranged', name: 'Maya Ranged Lv2', image: `${baseUrl}/maya-ranged-2.jpg` },
+  { id: 'maya-agility-1', heroId: 'maya', skillType: 'agility', name: 'Maya Agility Lv1', image: `${baseUrl}/maya-agility-1.jpg` },
+  { id: 'maya-agility-2', heroId: 'maya', skillType: 'agility', name: 'Maya Agility Lv2', image: `${baseUrl}/maya-agility-2.jpg` },
+  { id: 'maya-wisdom-1', heroId: 'maya', skillType: 'wisdom', name: 'Maya Wisdom Lv1', image: `${baseUrl}/maya-wisdom-1.jpg` },
+  { id: 'maya-wisdom-2', heroId: 'maya', skillType: 'wisdom', name: 'Maya Wisdom Lv2', image: `${baseUrl}/maya-wisdom-2.jpg` },
+  { id: 'jaheen-melee-1', heroId: 'jaheen', skillType: 'melee', name: 'Jaheen Melee Lv1', image: `${baseUrl}/jaheen-melee-1.jpg` },
+  { id: 'jaheen-melee-2', heroId: 'jaheen', skillType: 'melee', name: 'Jaheen Melee Lv2', image: `${baseUrl}/jaheen-melee-2.jpg` },
+  { id: 'jaheen-ranged-1', heroId: 'jaheen', skillType: 'ranged', name: 'Jaheen Ranged Lv1', image: `${baseUrl}/jaheen-ranged-1.jpg` },
+  { id: 'jaheen-ranged-2', heroId: 'jaheen', skillType: 'ranged', name: 'Jaheen Ranged Lv2', image: `${baseUrl}/jaheen-ranged-2.jpg` },
+  { id: 'jaheen-agility-1', heroId: 'jaheen', skillType: 'agility', name: 'Jaheen Agility Lv1', image: `${baseUrl}/jaheen-agility-1.jpg` },
+  { id: 'jaheen-agility-2', heroId: 'jaheen', skillType: 'agility', name: 'Jaheen Agility Lv2', image: `${baseUrl}/jaheen-agility-2.jpg` },
+  { id: 'jaheen-wisdom-1', heroId: 'jaheen', skillType: 'wisdom', name: 'Jaheen Wisdom Lv1', image: `${baseUrl}/jaheen-wisdom-1.jpg` },
+  { id: 'jaheen-wisdom-2', heroId: 'jaheen', skillType: 'wisdom', name: 'Jaheen Wisdom Lv2', image: `${baseUrl}/jaheen-wisdom-2.jpg` },
+];
+
+export function findSkillsFor(heroId: string, skillType: 'melee' | 'ranged' | 'agility' | 'wisdom'): SkillCard[] {
+  return underkeep2SkillCards.filter(card => card.heroId === heroId && card.skillType === skillType);
+}
