@@ -1444,97 +1444,86 @@ const getEventStatusInfo = (status) => {
 };
 
 const confirmJoinCampaign = () => {
-  if (!parsedCampaignFk.value) return;
-  loading.value = true;
+    if (!parsedCampaignFk.value) return;
 
-  const usersPk = userStore.user.users_pk;
+    loading.value = true;
+    const usersPk = toastUser.user.users_pk;
+    const campaignId = parsedCampaignFk.value;
 
-  axios
-    .get("/rl_campaigns_users/search", {
-      params: {
+    axios.post("/rl_campaigns_users/cadastro", {
         users_fk: usersPk,
-        campaigns_fk: parsedCampaignFk.value,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+        campaigns_fk: campaignId,
+        party_roles_fk: 2,
+        skus_fk: BOX_ID,
+    }, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
     })
-    .then((response) => {
-      if (response.data.campaigns && response.data.campaigns.length > 0) {
-        showJoinCampaignDialog.value = false;
-        showCampaignDialog.value = false;
-
-        router.push({
-          path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
-          query: { sku: String(BOX_ID) },
-        });
-
-        toast.add({
-          severity: "info",
-          summary: "Info",
-          detail: "Você já está participando desta campanha!",
-        });
-      } else {
-        return axios.post(
-          "/rl_campaigns_users/cadastro",
-          {
-            users_fk: usersPk,
-            campaigns_fk: parsedCampaignFk.value,
-            party_roles_fk: 2,
-            skus_fk: BOX_ID,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+    .then(() => {
+        return axios.get("/rl_campaigns_users/search", {
+            params: {
+                users_fk: usersPk,
+                campaigns_fk: campaignId,
             },
-          }
-        );
-      }
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
     })
-    .then((response) => {
-      if (response) {
-        showJoinCampaignDialog.value = false;
-        showCampaignDialog.value = false;
-
-        router.push({
-          path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
-          query: { sku: String(BOX_ID) },
-        });
-
-        toast.add({
-          severity: "success",
-          summary: "Sucesso",
-          detail: "Você entrou na campanha com sucesso!",
-        });
-      }
+    .then((campaignResponse) => {
+        const campaignData = campaignResponse.data.campaigns[0];
+        
+        if (campaignData && campaignData.tracker_hash) {
+            const data = JSON.parse(atob(campaignData.tracker_hash));
+            const camp = data.campaignData;
+            camp.campaignId = String(campaignData.campaigns_fk);
+            campaignStore.add(camp);
+            data.heroes.forEach((h) => {
+                h.campaignId = String(campaignData.campaigns_fk);
+                heroStore.add(h);
+            });
+            
+            router.push({
+                path: `/campaign-tracker/campaign/${campaignId}`,
+                query: { sku: String(BOX_ID) },
+            });
+            
+            toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: "You have successfully joined the campaign!",
+            });
+        } else {
+            throw new Error("Failed to retrieve campaign data after joining.");
+        }
     })
     .catch((err) => {
-      console.error("Erro ao verificar/criar relação:", err);
-      
-      let errorMessage = "Erro ao entrar na campanha.";
-      
-      if (err.response?.data?.message?.includes("already exists") || 
-          err.response?.data?.message?.includes("já existe")) {
-        errorMessage = "Você já está participando desta campanha!";
+        console.error("Error during join process:", err);
+        let errorMessage = "Error joining campaign.";
+        let severity = "error";
+
+        if (err.response?.data?.message?.includes("already exists") ||
+            err.response?.data?.message?.includes("já existe")) {
+            errorMessage = "You are already part of this campaign!";
+            severity = "info";
+            
+            router.push({
+                path: `/campaign-tracker/campaign/${campaignId}`,
+                query: { sku: String(BOX_ID) },
+            });
+        }
         
-        showJoinCampaignDialog.value = false;
-        showCampaignDialog.value = false;
-        
-        router.push({
-          path: `/campaign-tracker/campaign/${parsedCampaignFk.value}`,
-          query: { sku: String(BOX_ID) },
+        toast.add({
+            severity: severity,
+            summary: severity === "info" ? "Info" : "Error",
+            detail: errorMessage,
         });
-      }
-      
-      toast.add({ 
-        severity: err.response?.data?.message?.includes("already exists") ? "info" : "error", 
-        summary: err.response?.data?.message?.includes("already exists") ? "Info" : "Erro", 
-        detail: errorMessage 
-      });
     })
     .finally(() => {
-      loading.value = false;
-      joinCampaignId.value = "";
+        loading.value = false;
+        joinCampaignId.value = "";
+        showJoinCampaignDialog.value = false;
     });
 };
 
