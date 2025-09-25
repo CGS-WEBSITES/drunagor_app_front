@@ -275,6 +275,10 @@
                 <v-window-item value="normal">
                   <v-card class="mb-3" color="primary">
                     <v-card-text class="pa-3">
+                       <CampaignName
+                          :campaign-id="campaignId"
+                          class="mb-0 shepherd-campaign-name"
+                        />
                       <CampaignPlayerList
                         ref="campaignPlayerListRef"
                         :campaign-id="campaignId"
@@ -335,10 +339,7 @@
                   <div>
                     <v-row no-gutters>
                       <v-col cols="12" md="6" class="pr-md-2">
-                        <CampaignName
-                          :campaign-id="campaignId"
-                          class="mb-3 shepherd-campaign-name"
-                        />
+                       
                         <SelectDoor
                           :campaign-id="campaignId"
                           :campaign-type="campaign.campaign"
@@ -347,8 +348,16 @@
                         <CampaignRunes
                           v-if="isSequentialAdventure"
                           :campaign-id="campaignId"
-                          class="mb-3 shepherd-runes"
+                          class="mb-0 shepherd-runes"
                         />
+                        <v-row v-if="campaign && campaign.campaign === 'underkeep2'" no-gutters class="mt-0">
+                          <v-col cols="12">
+                              <SelectCompanion 
+                                  :campaign-id="campaignId" 
+                                  :is-admin="showSaveCampaignButton" 
+                              />
+                          </v-col>
+                      </v-row>
                       </v-col>
                       <v-col cols="12" md="6" class="pl-md-2">
                         <CampaignRuneCards
@@ -595,6 +604,7 @@ import { useUserStore } from "@/store/UserStore";
 import { type Campaign } from "@/store/Campaign";
 import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
 import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
+import SelectCompanion from "@/components/SelectCompanion.vue";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
