@@ -1,7 +1,7 @@
 <template>
   <v-text-field
     :label="t('text.party-name')"
-    variant="outlined"
+    variant="solo-filled"
     v-model="partyName"
     :readonly="!isAdmin"
     :disabled="!isAdmin"

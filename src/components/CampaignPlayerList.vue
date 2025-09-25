@@ -4,7 +4,7 @@
       <v-expansion-panel-title
         class="d-flex align-center justify-space-between"
       >
-        <span class="text-h6">Players</span>
+        <span class="text-subtitle">Players</span>
       </v-expansion-panel-title>
       <v-expansion-panel-text>
         <v-row v-if="players.length > 0" dense>
