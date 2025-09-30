@@ -1,6 +1,18 @@
 <template>
-  <!-- MOBILE -->
-  <v-container class="d-sm-none pa-4">
+  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-start">
+    <v-btn
+      class="mx-1 ml-md-6"
+      rounded
+      @click="goBack"
+      variant="elevated"
+      :size="isMobile ? 'small' : 'default'"
+    >
+      <v-icon class="mr-2" style="font-size: 24px">mdi-arrow-left</v-icon>
+      <span> Return to Campaign List </span>
+    </v-btn>
+  </v-container>
+
+  <v-container v-else class="d-sm-none pa-4">
     <v-card
       color="primary"
       rounded="lg"
@@ -38,8 +50,8 @@
     </v-card>
   </v-container>
 
-  <!-- DESKTOP -->
   <v-container
+    v-else
     max-width="800"
     style="min-width: 360px"
     class="d-none d-sm-flex"
@@ -81,24 +93,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 
 const { t, locale } = useI18n();
 
-// Roteador
 const router = useRouter();
+const route = useRoute();
 
-// Estado do botão ativo
-const activeButton = ref<string | null>(null);
+const isCampaignRoute = computed(() => route.name === 'Campaign');
 
-// Função de navegação
 const navigateTo = (route: string) => {
   router.push(route);
 };
 
-// Grupos de botões (divididos em 3 grupos)
+const goBack = () => {
+  router.push({ name: 'Campaign Overview' });
+};
+
+
 const buttons = ref([
   {
     iconType: "image",
@@ -130,87 +144,3 @@ const buttons = ref([
   },
 ]);
 </script>
-
-<!-- const router = useRouter();
-
-const items = ref(getMenuItems());
-
-function getMenuItems() {
-  return [
-    {
-      label: t("menu.random-monster"),
-      icon: "mdi-help",
-      command: () => {
-        router.push({ name: "CampaignTracker" });
-      },
-    },
-    {
-      label: t("menu.campaign"),
-      icon: "mdi-account-group",
-      command: () => {
-        router.push({ name: "Campaign Overview" });
-      },
-    },
-    {
-      label: t("menu.keyword"),
-      icon: "mdi-magnify",
-      command: () => {
-        router.push({ name: "Keyword" });
-      },
-    },
-    {
-      label: t("menu.settings"),
-      icon: "mdi-cog",
-      command: () => {
-        router.push({ name: "Configuration" });
-      },
-    },
-  ];
-}
-
-watch(locale, () => {
-  items.value = getMenuItems();
-});
--->
-
-<!--
-<template>
-  
-  <div class="card sticky top-0 z-20">
-    <v-container max-width="800" style="min-width: 360px;" class="d-none d-md-flex">
-      <v-card rounded="lg" elevation="3" class="mx-auto py-4 px-6 d-flex justify-center ">
-    <v-tool-bar density="compact" class="d-flex justify-center">
-      <v-btn
-        color="black"
-        class="mx-1 elevation-4"
-        v-for="(item, i) in items"
-        :key="i"
-        @click="item.command()"
-        :prepend-icon="item.icon"
-        >{{ item.label }}
-      </v-btn>
-    </v-tool-bar>
-  </v-card>
-</v-container>
-
-
-<v-container class="d-md-none">
-    <v-row justify="space-between" align="center" class="ml-1 pb-4" style="max-width: 800px;">
-      <v-btn
-        color="black"
-        class="mx-1 elevation-0"
-        v-for="(item, i) in items"
-        :key="i"
-        @click="item.command()"
-        :prepend-icon="item.icon"
-        > 
-      </v-btn>
-  </v-row>
-</v-container>
-
-
-
-    
-  </div>
-</template>
--->

@@ -1,0 +1,238 @@
+[
+  {
+    "id": "the-forgotten-forge-intro",
+    "type": "intro",
+    "title": "THE FORGOTTEN FORGE",
+    "body": [
+      "The dungeons hold another surprise: a giant forge, of dwarven architecture, lies cold in the dark. This was no creation of the enemy. On the contrary, it belongs to those who once fought against it. You’ve heard the stories—or rather, the legends—of a distant past when Dwarves, Elves, and Draconians fought together against the Darkness in a war that shaped the fate of Daren. Could it be that Blackriver was built upon the bones of a fortress from that era?",
+      "<br><br><b>GAME MECHANIC – <span style=\"color: #1E90FF;\">FORGE</span></b><br>Each time a Hero interacts with this token, if there is no <span style=\"color: #1E90FF;\">Forge</span> Game Mechanic card on the Initiative Track, place the <span style=\"color: #1E90FF;\">Forge (Cold)</span> Game Mechanic card at the bottom end of the Initiative Track, in the Rune card slot, just above the Rune card.",
+      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes.",
+      "<br><br><b>RULE – CONTINUOUS INTERACTION</b><br>The same Hero may interact with this scene more than once per turn if desired. As a Cube Action, a Hero may EXPEND 1 AC to interact with this scene again. They may also choose to interact with it by simply using their Minor Action as normal."
+    ]
+  },
+  {
+    "id": "interaction-1.1",
+    "type": "choice",
+    "title": "1.1 – REKINDLE THE FORGE",
+    "body": [
+      "First, if the <span style=\"color: #1E90FF;\">Forge (Hot)</span> Game Mechanic card is already on the Initiative Track, the forge is already lit and nothing special happens. You may choose another option as part of the same Interaction. Otherwise, continue reading below:<br><br>",
+      "You can feel it in your heart: the forge’s coal is fueled by mystical energy. In the past, alchemy and sorcery combined to create miraculous reagents from rudimentary elements, and the right words had the power to bring them to life. It’s not fire that lights this forge, but a song. Knowledge perhaps lost through the ages.<br><br>",
+      "Make a <span style=\"color: #1E90FF;\">Wisdom (blue)</span> Skill Challenge of Difficulty 15. Each Wisdom cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.10. Otherwise, continue reading below. If you follow the <span style=\"color: #ff99ff;\">Path of Nature</span>, you succeed without the need to roll.<br><br>",
+      "Although the required verses are inscribed on the walls around the forge, you find that understanding them is one thing, but reciting them in the correct rhythm is quite another. The ember tries to do its part, glowing red when it hears a verse or two sung in the right key, but your twisted tongue sounds like a lullaby to ancient enchantments. The fire doesn’t catch, and the coal falls back to sleep...<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If Forge is already Hot",
+        "type": "RETURN_TO_CHOICES"
+      },
+      {
+        "text": "Succeed in Wisdom Challenge (or follow Path of Nature) - (interaction 1.10)",
+        "type": "PROCEED",
+        "target": "interaction-1.10"
+      },
+      {
+        "text": "Fail Wisdom Challenge",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.2",
+    "type": "choice",
+    "title": "1.2 – STOKE THE FLAMES",
+    "body": [
+      "Giant leather and wood bellows are connected to the structure, just like in any other forge. Lighting the ember may not be easy, but at least fanning it doesn’t seem too hard...<br><br>",
+      "First, if the <span style=\"color: #1E90FF;\">Forge (Hot)</span> Game Mechanic card is already on the Initiative Track, proceed to resolution 1.9. Otherwise, continue reading below:<br><br>",
+      "Excited, you grab the oversized bellows and pump it once, twice, three times, but all you manage to do is throw a cloud of dust into the air, making everyone cough. You did everything right, except for lighting the ember first...<br><br>",
+      "Place 2 Time tokens on your Initiative card on the track. From now on, each time the marker reaches your card again, remove 1 of these tokens before starting your turn. The following Game Mechanic is in effect while these tokens are present:<br><br>",
+      "<b>GAME MECHANIC – HINDERED SIGHT</b><br>A cloud of dust fills the hall, obstructing the Heroes’ vision. Consider the Range of all <img src=\"/icons/2-melee-dmg.svg\" class=\"inline-icon\" style=\"filter: invert(1);\" alt=\"Melee Damage\">, Skills, Class Abilities, Consumable Items, and Focus Abilities with Unlimited Range reduced to 1. Range bonuses granted as \"RANGE +1\" also have no effect.",
+      "<br><br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If Forge is Hot - (interaction 1.9)",
+        "type": "PROCEED",
+        "target": "interaction-1.9"
+      },
+      {
+        "text": "If Forge is Cold",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.3",
+    "type": "choice",
+    "title": "1.3 – FEED THE CRUCIBLE",
+    "body": [
+      "If there is any <span style=\"color: #1E90FF;\">Gift</span> Equipment card that was set aside by an earlier instruction from this interaction, the crucible is already full and you cannot add more material to it. Choose another resolution as part of this same Interaction action. Otherwise, continue reading below:<br><br>",
+      "The crucible is ready to endure infernal heat, but it’s empty, hungry for any piece of metal and magic, as suggested by the usage instructions written in Elvish around the furnace’s mouth. You can’t help but wonder though: why does a dwarven forge carry Elvish script?<br><br>",
+      "You may set aside a <span style=\"color: #1E90FF;\">Gift</span> Equipment card you are currently carrying, sacrificing it to use as raw material to forge a new item (the card remains yours but will be returned to your Stash and can no longer be equipped by your Characters in Drunagor Nights sessions). If you wish to do so, proceed to resolution 1.11. Otherwise, continue reading below:<br><br>",
+      "The crucible is hungry, but you won’t be the one to part with something that has already proven useful, just to feed it in hopes that it will regurgitate something helpful for your journey. You do find comfort in remembering one thing, though: it is said that in the past, Dwarves served the Elves. Perhaps that is why even Dwarven forges were made for them...<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If crucible is full",
+        "type": "RETURN_TO_CHOICES"
+      },
+      {
+        "text": "Sacrifice a Gift Equipment card - (interaction 1.11)",
+        "type": "PROCEED",
+        "target": "interaction-1.11"
+      },
+      {
+        "text": "Don't sacrifice an item",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.4",
+    "type": "choice",
+    "title": "1.4 – FILL THE MOLD",
+    "body": [
+      "Carefully carved grooves run and branch out across a stone table like the delta of a river. But they do not empty into the sea—they lead to a single, curious mold. A bladed shaft? A steel bow? The channels seem eager to feel the rush of molten iron and put your curiosity to rest…<br><br>",
+      "If there is any <span style=\"color: #1E90FF;\">Gift</span> Equipment card set aside with a Time token on it, you may attempt to forge a <span style=\"color: #1E90FF;\">Weapon of the Ancients</span> and proceed to resolution 1.7. Otherwise, continue reading below:<br><br>",
+      "But it will not be you who quenches the forge’s thirst. Its enchantments crave molten iron—and nothing else will suffice…<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "If a Gift Equipment card is set aside with a Time token - (interaction 1.7)",
+        "type": "PROCEED",
+        "target": "interaction-1.7"
+      },
+      {
+        "text": "If no card is set aside with a Time token",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.5",
+    "type": "choice",
+    "title": "1.5 – EMPTY THE CRUCIBLE",
+    "body": [
+      "Thinking about the forces that might be involved in this forge, you’d rather ensure that no more items can be made from these molds lost to time…<br><br>",
+      "If there are any Equipment cards set aside, empty the crucible by retrieving those that do not have a Time token on them. Cards with Time tokens on them are destroyed. They must be returned to their owners’ Stashes and can no longer be equipped during Drunagor Nights sessions. Either way, continue reading below:<br><br>",
+      "Your heart can rest easy, as there is no more raw material in the crucible. Even if the fire burns with the sun’s heat, nothing else will emerge from it…<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.6",
+    "type": "choice",
+    "title": "1.6 – LEAVE THE FORGE AS IT IS",
+    "body": [
+      "On second thought, things are fine the way they are…<br><br>",
+      "Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.7",
+    "type": "resolution",
+    "title": "1.7 – YOU DECIDE TO FORGE THE WEAPON",
+    "body": [
+      "The furnace is well fed by the fire and ancient enchantments that melt iron as if it were butter. However, pouring the molten liquid from the crucible at just the right moment and rhythm only seems easier than it really is. The iron tongs are brutish and demand hands that are both heavy and graceful. Qualities that will now be put to the test…<br><br>",
+      "Make a <span style=\"color: #1E90FF;\">Strength (yellow)</span> Skill Challenge of Difficulty 15. Each Melee cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.8. Otherwise, continue reading below. If you follow the <span style=\"color: #ff99ff;\">Path of Strength</span>, you succeed without the need to roll.<br><br>",
+      "…and this task proves too challenging for you. Your arms quickly grow tired, and the trembling in your hands causes molten iron to spill everywhere. Fortunately, some of it still runs through the grooves of the mold, casting sparks that shimmer in every color of the rainbow and radiating power. The material then cools in an instant—but it is not enough. A stillborn weapon…<br><br>",
+      "You gain <span style=\"color: #ff99ff;\">FOCUS 2</span>.<br>Remove the Time token from the set-aside <span style=\"color: #1E90FF;\">Gift</span> Equipment card, but do not retrieve it. It still belongs to the player who owns it, but it can no longer be equipped during Drunagor Nights sessions. While it remains set aside, it may be melted again, but once the Party finishes this Adventure, it must be returned to its owner’s Stash.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Succeed in Strength Challenge (or follow Path of Strength) - (interaction 1.8)",
+        "type": "PROCEED",
+        "target": "interaction-1.8"
+      },
+      {
+        "text": "Fail Strength Challenge",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.8",
+    "type": "resolution",
+    "title": "1.8 – YOU MASTER THE TECHNIQUE",
+    "body": [
+      "…a difficult task for most, but not for you. Training with the pommels of swords, axes, spears, and staves has given your fingers and forearms the strength required. Carefully, you allow the molten iron to flow through the grooves, casting sparks that shimmer in every color of the rainbow and radiating power. The material then cools in an instant, giving life to a treasure forged by the power of ages and worlds. A true masterpiece…<br><br>",
+      "Take one <span style=\"color: #1E90FF;\">Weapon of the Ancients</span> Adventure Item card of your choice (up to 4 of them may be crafted).<br>The player who owns the set-aside <span style=\"color: #1E90FF;\">Gift</span> Equipment card with the Time token on it must store it in their Stash. It still belongs to that player, but it can no longer be equipped during Drunagor Nights sessions.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.9",
+    "type": "resolution",
+    "title": "1.9 – A PYROTECHNIC PERFORMANCE",
+    "body": [
+      "Fortunately, it’s always easier to feed a flame than to start one, and that’s exactly what the large leather and wood bellows are for. You pump the massive object once, twice, three times—and the fire responds immediately, flaring up as if it’s come to life. The forge is now hotter than ever…<br><br>",
+      "Flip the <span style=\"color: #1E90FF;\">Forge (Hot)</span> Game Mechanic card to face B.<br>Each Character on Maps DNB10-B and DNB11-B (on the two trays of this Setup) suffers BURN 2 and must then trigger the effects of any BURN Condition stacks they’re afflicted with. If one or more Monsters die or a Hero’s Health is reduced to 0 because of this effect, you may take 1 Curse Cube to receive <span style=\"color: #ff99ff;\">FOCUS 2</span>.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.10",
+    "type": "resolution",
+    "title": "1.10 – YOU CHANT THE ANCIENT SPELLS",
+    "body": [
+      "The verses are inscribed on the walls around the forge and serve as an instruction manual. In the past, Magic and Nature walked side by side—two forces sustained in symbiosis—and spells weren’t cast through arcane mutterings. They were songs. Melodies that even animals and trees could sing. Like a flower blooming at just the right moment, the coal burns red at the sound of your voice, and the forge awakens once more…<br><br>",
+      "You gain <span style=\"color: #ff99ff;\">FOCUS 2</span>.<br>Replace the <span style=\"color: #1E90FF;\">Forge (Cold)</span> Game Mechanic card with the <span style=\"color: #1E90FF;\">Forge (Hot)</span> card, with face A up.<br>Flip Maps DNB10-F and DNB11-F (on the two trays of this Setup). Characters on these Maps are caught by the fire as if stepping on it (they suffer BURN 2).<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  },
+  {
+    "id": "interaction-1.11",
+    "type": "resolution",
+    "title": "1.11 – YOU FEED THE CRUCIBLE",
+    "body": [
+      "The thrill of forging an item using ancient spells makes your arm hairs stand on end—and you can’t resist the temptation. Pounds and pounds of raw material may go into the crucible, but the funnel that pours molten iron into the mold is narrow and delicate. What comes out will be small, but shaped by fire and pressure worthy of the sun itself…<br><br>",
+      "You gain <span style=\"color: #ff99ff;\">FOCUS 2</span>.<br>Set aside one <span style=\"color: #1E90FF;\">Gift</span> Equipment card, keeping it near your Hero board. Note that this choice is permanent.<br>Proceed with the Adventure."
+    ],
+    "actions": [
+      {
+        "text": "Proceed with the Adventure",
+        "type": "PROCEED",
+        "target": "adventure-continue"
+      }
+    ]
+  }
+]

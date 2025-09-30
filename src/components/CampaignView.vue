@@ -1,9 +1,115 @@
 <template>
-  <v-speed-dial
-    v-if="currentTab !== 'book'" 
-    v-model="speedDialOpen" 
-    transition="fade-transition"
+  <v-snackbar
+    v-model="snackbarVisible"
+    :timeout="snackbarTimeout"
+    :color="snackbarColor"
+    location="top"
+    elevation="24"
+    rounded="lg"
+    multi-line
+    class="global-snackbar"
   >
+    <div class="d-flex align-center">
+      <v-icon :color="snackbarIconColor" class="mr-3">{{
+        snackbarIcon
+      }}</v-icon>
+      <div>
+        <div v-if="snackbarTitle" class="font-weight-bold">
+          {{ snackbarTitle }}
+        </div>
+        <div>{{ snackbarText }}</div>
+      </div>
+    </div>
+  </v-snackbar>
+
+  <v-dialog v-model="transferDialogVisible" max-width="500px">
+    <v-card>
+      <v-card-title>
+        <span class="text-h5">Transfer Drunagor Master</span>
+      </v-card-title>
+      <v-card-text>
+        <v-container>
+          <v-alert
+            v-if="transferAlertVisible"
+            :type="transferAlertType"
+            class="mb-4"
+            closable
+            @click:close="transferAlertVisible = false"
+          >
+            {{ transferAlertText }}
+          </v-alert>
+          <div v-if="transferLoading" class="text-center py-8">
+            <v-progress-circular indeterminate color="primary" />
+            <p class="mt-4">Loading players...</p>
+          </div>
+          <div v-else-if="!confirmingTransfer">
+            <p class="mb-4">
+              Select the player who will become the new Drunagor Master:
+            </p>
+            <v-list>
+              <v-list-item
+                v-for="player in players.filter((p) => p.party_roles_fk !== 1)"
+                :key="player.rl_campaigns_users_pk"
+                @click="initTransfer(player)"
+                class="mb-2"
+                rounded
+                color="primary"
+              >
+                <v-list-item-title>{{ player.user_name }}</v-list-item-title>
+                <v-list-item-subtitle>{{
+                  player.role_name
+                }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+          </div>
+          <div v-else>
+            <v-alert type="warning" class="mb-4">
+              <strong>Confirm Transfer</strong>
+              <p class="mt-2">
+                Are you sure you want to transfer Drunagor Master role to
+                <strong>{{ selectedUser?.user_name }}</strong
+                >?
+              </p>
+              <p class="mt-2 text-caption">
+                You will become a regular player and lose editing privileges.
+              </p>
+            </v-alert>
+          </div>
+        </v-container>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          v-if="!confirmingTransfer"
+          color="grey"
+          variant="text"
+          @click="closeTransferDialog"
+        >
+          Cancel
+        </v-btn>
+        <template v-else>
+          <v-btn
+            color="grey"
+            variant="text"
+            @click="cancelTransfer"
+            :disabled="transferLoading"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="elevated"
+            @click="confirmTransfer"
+            :loading="transferLoading"
+          >
+            Confirm Transfer
+          </v-btn>
+        </template>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <v-speed-dial v-model="speedDialOpen" transition="fade-transition">
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
@@ -35,16 +141,22 @@
     </v-btn>
 
     <v-btn
-      v-if="campaign && ['underkeep', 'underkeep2'].includes(campaign.campaign)"
-      key="instructions"
+      v-if="
+        campaign &&
+        ['underkeep', 'underkeep2'].includes(campaign.campaign) &&
+        showLoadInstructions
+      "
+      key="load-instructions"
       size="small"
       color="info"
       icon
       class="speed-dial-item"
-      @click="handleSpeedDialAction('instructions')"
+      @click="handleSpeedDialAction('load-instructions')"
     >
       <v-icon>mdi-lightbulb-on-outline</v-icon>
-      <v-tooltip activator="parent" location="start"> Instructions </v-tooltip>
+      <v-tooltip activator="parent" location="start">
+        Load Instructions
+      </v-tooltip>
     </v-btn>
 
     <v-btn
@@ -90,135 +202,83 @@
     </v-btn>
   </v-speed-dial>
 
-  <v-card
-    class="campaign-menu pa-0 mx-2"
-    color="transparent"
-    elevation="0"
-    v-if="expandedPanel.length && campaign && ['underkeep', 'underkeep2'].includes(campaign.campaign)"
-  >
-    <v-container fluid class="pa-2">
-      <v-row justify="center" no-gutters>
-        <v-col cols="12" lg="9" xl="8">
-          <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
-            <BaseAlert
-              :modelValue="true"
-              type="warning"
-              text
-              border="start"
-              variant="tonal"
-              :closable="true"
-            >
-              Players can only view information for this campaign. Only a
-              Drunagor Master can save, edit, or delete a campaign.
-            </BaseAlert>
-          </v-card-text>
-
-          <v-card class="mb-2" color="primary">
-            <v-card-text v-if="showAlert" class="pa-2">
-              <BaseAlert
-                v-model="showAlert"
-                :icon="alertIcon"
-                :title="alertTitle"
-                :type="alertType"
-                text
-                density="compact"
-              >
-                {{ alertText }}
-              </BaseAlert>
-            </v-card-text>
-
-            <v-card-text class="pa-0">
-              <div class="position-relative instructions-wrapper">
-                <v-btn
-                  @click="closeInstructions"
-                  icon
-                  size="small"
-                  variant="text"
-                  aria-label="Close instructions"
-                >
-                  <v-icon size="20">mdi-close</v-icon>
-                </v-btn>
-                <v-expansion-panels
-                  v-model="expandedPanel"
-                  accordion
-                  variant="accordion"
-                  class="instructions-panel"
-                >
-                  <v-expansion-panel>
-                    <v-expansion-panel-text
-                      class="pa-0"
-                      style="padding: 0px !important"
-                    >
-                      <v-tabs
-                        v-model="instructionTab"
-                        density="compact"
-                        grow
-                        class="mb-3"
-                      >
-                        <v-tab v-if="showSaveCampaignButton" value="save">
-                          Save Campaign
-                        </v-tab>
-                        <v-tab value="load">Load Campaign</v-tab>
-                      </v-tabs>
-
-                      <SaveInstructions
-                        v-if="instructionTab === 'save'"
-                        ref="saveInstructionsRef"
-                        @save="handleSave"
-                        @instruction-changed="onInstructionChanged"
-                        @action-click="handleInstructionAction"
-                        @close="closeInstructions"
-                        style="max-height: 25vh !important"
-                      />
-                      <LoadInstructions
-                        v-else
-                        ref="loadInstructionsRef"
-                        @instruction-changed="onInstructionChanged"
-                        @action-click="handleInstructionAction"
-                        @close="closeInstructions"
-                        style="max-height: 25vh !important"
-                      />
-                    </v-expansion-panel-text>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-card>
-
+  <!-- Main Content -->
   <div class="campaign-content">
     <v-container fluid>
       <template v-if="campaign">
         <v-row justify="center" no-gutters>
           <v-col cols="12" lg="9" xl="8">
-            <template v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)">
+            <!-- Player View Alert for non-underkeep campaigns -->
+            <v-card-text
+              v-if="
+                !showSaveCampaignButton &&
+                !['underkeep', 'underkeep2'].includes(campaign.campaign)
+              "
+              class="pa-2"
+            >
+              <BaseAlert
+                :modelValue="true"
+                type="warning"
+                text
+                border="start"
+                variant="tonal"
+                :closable="true"
+              >
+                Players can only view information for this campaign. Only a
+                Drunagor Master can save, edit, or delete a campaign.
+              </BaseAlert>
+            </v-card-text>
+
+            <template
+              v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
+            >
+              <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
+                <BaseAlert
+                  :modelValue="true"
+                  type="warning"
+                  text
+                  border="start"
+                  variant="tonal"
+                  :closable="true"
+                >
+                  Players can only view information for this campaign. Only a
+                  Drunagor Master can save, edit, or delete a campaign.
+                </BaseAlert>
+              </v-card-text>
+
               <v-tabs
                 v-model="currentTab"
                 density="compact"
                 grow
                 bg-color="surface"
-                class="mb-3 rounded"
+                class="mb-3 rounded shepherd-campaign-tabs"
                 slider-color="white"
-                @update:model-value="onTabChange"
               >
                 <v-tab value="normal" class="text-caption">
-                  <v-icon size="small" class="mr-1">mdi-clipboard-text-outline</v-icon>
+                  <v-icon size="small" class="mr-1"
+                    >mdi-clipboard-text-outline</v-icon
+                  >
                   <span class="d-none d-sm-inline">Campaign Log</span>
                   <span class="d-sm-none">Log</span>
                 </v-tab>
                 <v-tab value="book" class="text-caption">
-                  <v-icon size="small" class="mr-1">mdi-book-open-variant</v-icon>
+                  <v-icon size="small" class="mr-1"
+                    >mdi-book-open-variant</v-icon
+                  >
                   <span class="d-none d-sm-inline">Campaign Book</span>
                   <span class="d-sm-none">Book</span>
                 </v-tab>
               </v-tabs>
+
               <v-window v-model="currentTab">
+                <!-- Campaign Log Tab -->
                 <v-window-item value="normal">
                   <v-card class="mb-3" color="primary">
                     <v-card-text class="pa-3">
+                       <CampaignName
+                          :campaign-id="campaignId"
+                          class="mb-0 shepherd-campaign-name"
+                        />
                       <CampaignPlayerList
                         ref="campaignPlayerListRef"
                         :campaign-id="campaignId"
@@ -226,7 +286,9 @@
                         @player-removed="onPlayerRemoved"
                         density="compact"
                       />
-                      <div class="d-flex justify-space-between align-center mt-2 flex-wrap">
+                      <div
+                        class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                      >
                         <v-btn
                           v-if="showSaveCampaignButton"
                           class="mx-1 my-1"
@@ -237,74 +299,146 @@
                         >
                           Transfer Drunagor Master
                         </v-btn>
-                        <div v-if="showSaveCampaignButton" class="mx-1 my-1 d-flex align-center">
+                        <div
+                          v-if="showSaveCampaignButton"
+                          class="mx-1 my-1 d-flex align-center"
+                        >
                           <div class="mr-3">
                             <div class="d-flex align-center">
-                              <span class="text-caption font-weight-bold mr-1">CAMPAIGN ID:</span>
+                              <span class="text-caption font-weight-bold mr-1"
+                                >CAMPAIGN ID:</span
+                              >
                               <v-tooltip location="top">
                                 <template v-slot:activator="{ props }">
-                                  <v-icon v-bind="props" size="small" color="info" class="cursor-pointer">
+                                  <v-icon
+                                    v-bind="props"
+                                    size="small"
+                                    color="info"
+                                    class="cursor-pointer"
+                                  >
                                     mdi-information-outline
                                   </v-icon>
                                 </template>
-                                <span>Use this code to invite your friends</span>
+                                <span
+                                  >Use this code to invite your friends</span
+                                >
                               </v-tooltip>
                             </div>
                           </div>
-                          <v-chip v-if="partyCode" label size="large">{{ partyCode }}</v-chip>
-                          <v-chip v-else label size="large">Generating...</v-chip>
+                          <v-chip v-if="partyCode" label size="large">{{
+                            partyCode
+                          }}</v-chip>
+                          <v-chip v-else label size="large"
+                            >Generating...</v-chip
+                          >
                         </div>
                       </div>
                     </v-card-text>
                   </v-card>
+
                   <div>
                     <v-row no-gutters>
                       <v-col cols="12" md="6" class="pr-md-2">
-                        <CampaignName :campaign-id="campaignId" class="mb-3" />
-                        <SelectDoor 
-                            :campaign-id="campaignId" 
-                            :campaign-type="campaign.campaign" 
-                            class="mb-3" 
-                          />
-                        <CampaignRunes v-if="isSequentialAdventure" :campaign-id="campaignId" class="mb-3"/>
+                       
+                        <SelectDoor
+                          :campaign-id="campaignId"
+                          :campaign-type="campaign.campaign"
+                          class="mb-3 shepherd-select-door"
+                        />
+                        <CampaignRunes
+                          v-if="isSequentialAdventure"
+                          :campaign-id="campaignId"
+                          class="mb-0 shepherd-runes"
+                        />
+                        <v-row v-if="campaign && campaign.campaign === 'underkeep2'" no-gutters class="mt-0">
+                          <v-col cols="12">
+                              <SelectCompanion 
+                                  :campaign-id="campaignId" 
+                                  :is-admin="showSaveCampaignButton" 
+                              />
+                          </v-col>
+                      </v-row>
                       </v-col>
                       <v-col cols="12" md="6" class="pl-md-2">
-                       <CampaignRuneCards
-                            v-if="isSequentialAdventure"
-                            :campaign-id="campaignId"
-                            :campaign-type="campaign.campaign" class="mb-3"
-                          />
+                        <CampaignRuneCards
+                          v-if="isSequentialAdventure"
+                          :campaign-id="campaignId"
+                          :campaign-type="campaign.campaign"
+                          class="mb-3 shepherd-rune-cards"
+                        />
                       </v-col>
                     </v-row>
-                    <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
+
+                    <v-row
+                      class="my-3"
+                      no-gutters
+                      v-if="showSaveCampaignButton"
+                    >
                       <v-col cols="12">
-                        <v-card class="pa-2" color="primary">
+                        <v-card
+                          class="pa-2 shepherd-hero-actions"
+                          color="primary"
+                        >
                           <div class="d-flex justify-center flex-wrap gap-2">
-                            <CampaignLogAddHero :campaign-id="campaignId" class="mx-1 my-1"/>
-                            <CampaignLogImportHero :campaign-id="campaignId" class="mx-1 my-1"/>
-                            <CampaignLogRemoveHero :campaign-id="campaignId" class="mx-1 my-1"/>
+                            <CampaignLogAddHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                            <CampaignLogImportHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                            <CampaignLogRemoveHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
                           </div>
                         </v-card>
                       </v-col>
                     </v-row>
+
                     <v-row no-gutters>
                       <v-col cols="12">
-                        <v-sheet rounded border="md" class="text-white pa-2">
-                          <div v-if="heroStore.findAllInCampaign(campaignId).length === 0" class="text-center pa-4">No heroes added to this campaign yet.</div>
-                          <div v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId" class="mb-2">
-                            <CampaignLog :campaign-id="campaignId" :hero-id="hero.heroId" :is-sequential-adventure="isSequentialAdventure"/>
+                        <v-sheet
+                          rounded
+                          border="md"
+                          class="text-white pa-2 shepherd-heroes-list"
+                        >
+                          <div
+                            v-if="
+                              heroStore.findAllInCampaign(campaignId).length ===
+                              0
+                            "
+                            class="text-center pa-4"
+                          >
+                            No heroes added to this campaign yet.
+                          </div>
+                          <div
+                            v-for="hero in heroStore.findAllInCampaign(
+                              campaignId,
+                            )"
+                            :key="hero.heroId"
+                            class="mb-2"
+                          >
+                            <CampaignLog
+                              :campaign-id="campaignId"
+                              :hero-id="hero.heroId"
+                              :is-sequential-adventure="isSequentialAdventure"
+                              :class="`shepherd-hero-${hero.heroId}`"
+                            />
                           </div>
                         </v-sheet>
                       </v-col>
                     </v-row>
                   </div>
                 </v-window-item>
+
                 <v-window-item value="book">
                   <CampaignBook :campaign-id="campaignId" />
                 </v-window-item>
               </v-window>
             </template>
-            
+
             <template v-else>
               <v-card class="mb-3" color="primary">
                 <v-card-text class="pa-3">
@@ -315,7 +449,9 @@
                     @player-removed="onPlayerRemoved"
                     density="compact"
                   />
-                  <div class="d-flex justify-space-between align-center mt-2 flex-wrap">
+                  <div
+                    class="d-flex justify-space-between align-center mt-2 flex-wrap"
+                  >
                     <v-btn
                       v-if="showSaveCampaignButton"
                       class="mx-1 my-1"
@@ -326,13 +462,23 @@
                     >
                       Transfer Drunagor Master
                     </v-btn>
-                    <div v-if="showSaveCampaignButton" class="mx-1 my-1 d-flex align-center">
+                    <div
+                      v-if="showSaveCampaignButton"
+                      class="mx-1 my-1 d-flex align-center"
+                    >
                       <div class="mr-3">
                         <div class="d-flex align-center">
-                          <span class="text-caption font-weight-bold mr-1">CAMPAIGN ID:</span>
+                          <span class="text-caption font-weight-bold mr-1"
+                            >CAMPAIGN ID:</span
+                          >
                           <v-tooltip location="top">
                             <template v-slot:activator="{ props }">
-                              <v-icon v-bind="props" size="small" color="info" class="cursor-pointer">
+                              <v-icon
+                                v-bind="props"
+                                size="small"
+                                color="info"
+                                class="cursor-pointer"
+                              >
                                 mdi-information-outline
                               </v-icon>
                             </template>
@@ -340,35 +486,64 @@
                           </v-tooltip>
                         </div>
                       </div>
-                      <v-chip v-if="partyCode" label size="large">{{ partyCode }}</v-chip>
+                      <v-chip v-if="partyCode" label size="large">{{
+                        partyCode
+                      }}</v-chip>
                       <v-chip v-else label size="large">Generating...</v-chip>
                     </div>
                   </div>
                 </v-card-text>
               </v-card>
+
               <div>
                 <v-row no-gutters>
                   <v-col cols="12">
                     <CampaignName :campaign-id="campaignId" class="mb-3" />
                   </v-col>
                 </v-row>
+
                 <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
                   <v-col cols="12">
                     <v-card class="pa-2" color="primary">
                       <div class="d-flex justify-center flex-wrap gap-2">
-                        <CampaignLogAddHero :campaign-id="campaignId" class="mx-1 my-1"/>
-                        <CampaignLogImportHero :campaign-id="campaignId" class="mx-1 my-1"/>
-                        <CampaignLogRemoveHero :campaign-id="campaignId" class="mx-1 my-1"/>
+                        <CampaignLogAddHero
+                          :campaign-id="campaignId"
+                          class="mx-1 my-1"
+                        />
+                        <CampaignLogImportHero
+                          :campaign-id="campaignId"
+                          class="mx-1 my-1"
+                        />
+                        <CampaignLogRemoveHero
+                          :campaign-id="campaignId"
+                          class="mx-1 my-1"
+                        />
                       </div>
                     </v-card>
                   </v-col>
                 </v-row>
+
                 <v-row no-gutters>
                   <v-col cols="12">
                     <v-sheet rounded border="md" class="text-white pa-2">
-                      <div v-if="heroStore.findAllInCampaign(campaignId).length === 0" class="text-center pa-4">No heroes added to this campaign yet.</div>
-                      <div v-for="hero in heroStore.findAllInCampaign(campaignId)" :key="hero.heroId" class="mb-2">
-                        <CampaignLog :campaign-id="campaignId" :hero-id="hero.heroId" :is-sequential-adventure="isSequentialAdventure"/>
+                      <div
+                        v-if="
+                          heroStore.findAllInCampaign(campaignId).length === 0
+                        "
+                        class="text-center pa-4"
+                      >
+                        No heroes added to this campaign yet.
+                      </div>
+                      <div
+                        v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                        :key="hero.heroId"
+                        class="mb-2"
+                      >
+                        <CampaignLog
+                          :campaign-id="campaignId"
+                          :hero-id="hero.heroId"
+                          :is-sequential-adventure="isSequentialAdventure"
+                        />
                       </div>
                     </v-sheet>
                   </v-col>
@@ -400,36 +575,40 @@
       :inviteCode="partyCode"
     />
   </div>
+
+  <v-col class="pb-12">
+
+  </v-col>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
+import { ref, onMounted, watch, nextTick, onBeforeUnmount } from "vue";
+import { ref as vueRef } from "vue";
+import axios from "axios";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
-import { useRoute, useRouter } from "vue-router";
-import { HeroStore } from "@/store/HeroStore";
 import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
-import StoryRecord from "@/components/StoryRecord.vue";
 import CampaignName from "@/components/CampaignName.vue";
-import { CampaignStore } from "@/store/CampaignStore";
-import { type Campaign } from "@/store/Campaign";
-import { ref, onMounted, watch, nextTick, onBeforeUnmount } from "vue";
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
-import { useUserStore } from "@/store/UserStore";
-import axios from "axios";
-import { ref as vueRef } from "vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
-import SaveInstructions from "./SaveInstructions.vue";
-import LoadInstructions from "./LoadInstructions.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
+import { CampaignStore } from "@/store/CampaignStore";
+import { HeroStore } from "@/store/HeroStore";
+import { useUserStore } from "@/store/UserStore";
+import { type Campaign } from "@/store/Campaign";
+import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
+import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
+import SelectCompanion from "@/components/SelectCompanion.vue";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
@@ -442,29 +621,22 @@ const campaignId = (route.params as { id: string }).id.toString();
 const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
-const alertIcon = ref("");
-const alertText = ref("");
-const alertTitle = ref("");
-const alertType = ref<"success" | "info" | "warning" | "error" | undefined>(
-  undefined,
-);
-const showAlert = ref(false);
 const currentTab = ref("normal");
-const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const showSaveCampaignButton = ref(false);
+const showLoadInstructions = ref(false);
+const snackbarVisible = ref(false);
+const snackbarText = ref("");
+const snackbarTitle = ref("");
+const snackbarIcon = ref("mdi-check");
+const snackbarColor = ref("success");
+const snackbarIconColor = ref("white");
+const snackbarTimeout = ref(3000);
+const speedDialOpen = ref(true);
+
+const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
-const expandedPanel = ref<number[]>([]);
-const instructionTab = ref<"save" | "load">("load");
-const loadInstructionsRef = vueRef<InstanceType<
-  typeof LoadInstructions
-> | null>(null);
-const saveInstructionsRef = vueRef<InstanceType<
-  typeof SaveInstructions
-> | null>(null);
-
-const speedDialOpen = ref(true);
 const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
   null,
 );
@@ -493,254 +665,252 @@ const transferAlertVisible = ref(false);
 const transferAlertText = ref("");
 const transferAlertType = ref<"success" | "error">("success");
 
-const generatePartyCode = () => {
-  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
-  partyCode.value = `${prefix}${campaignId}`;
+const {
+  startSaveTour,
+  destroyTour: destroySaveTour,
+  isActive: saveTourActive,
+  pauseTourForNavigation,
+  shouldResumeAfterNav,
+  consumeResumeFlag,
+  tryAutoResume,
+  hasPausedTour,
+} = useSaveCampaignTour({
+  onSaveClick: handleSave,
+  onManageResourcesClick: handleManageResourcesAction,
+  onEquipmentSkillsClick: handleEquipmentSkillsAction,
+  campaignId,
+});
+
+const {
+  startLoadTour,
+  destroyTour: destroyLoadTour,
+  isActive: loadTourActive,
+} = useLoadCampaignTour({
+  onManageResourcesClick: handleManageResourcesAction,
+  onEquipmentSkillsClick: handleEquipmentSkillsAction,
+  campaignId,
+});
+
+const checkAndResumeTour = async () => {
+  await nextTick();
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
+  if (hasPausedTour()) {
+    await tryAutoResume();
+  }
 };
 
-const getNavigationStateKey = () => `campaign_${campaignId}_navigation_state`;
-
-const saveNavigationState = () => {
-  if (typeof window === "undefined") return;
-
-  const currentStep = instructionTab.value === 'save'
-    ? localStorage.getItem(getInstructionStepKey("save"))
-    : localStorage.getItem(getInstructionStepKey("load"));
-
-  const navigationState = {
-    expanded: expandedPanel.value.length > 0,
-    instructionTab: instructionTab.value,
-    currentTab: currentTab.value,
-    currentStep: currentStep ? parseInt(currentStep) : 1,
-    timestamp: Date.now(),
-    returnFromNavigation: true
+function setAlert(
+  icon: string,
+  title: string,
+  text: string,
+  type: "success" | "info" | "warning" | "error" | undefined,
+  duration: number = 3000,
+) {
+  const colorMap = {
+    success: { bg: "success", icon: "white" },
+    info: { bg: "info", icon: "white" },
+    warning: { bg: "warning", icon: "black" },
+    error: { bg: "error", icon: "white" },
   };
+  const colors = colorMap[type || "info"];
 
-  localStorage.setItem(getNavigationStateKey(), JSON.stringify(navigationState));
-};
+  snackbarIcon.value = icon;
+  snackbarTitle.value = title;
+  snackbarText.value = text;
+  snackbarColor.value = colors.bg;
+  snackbarIconColor.value = colors.icon;
+  snackbarTimeout.value = duration;
+  snackbarVisible.value = true;
 
-const restoreNavigationState = () => {
-  if (typeof window === "undefined") return false;
-
-  const stateStr = localStorage.getItem(getNavigationStateKey());
-  if (!stateStr) return false;
-
-  try {
-    const state = JSON.parse(stateStr);
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-
-    if (now - state.timestamp > oneHour) {
-      localStorage.removeItem(getNavigationStateKey());
-      return false;
-    }
-
-    if (!state.returnFromNavigation) return false;
-
-    if (state.expanded) {
-      expandedPanel.value = [0];
-      instructionTab.value = state.instructionTab;
-      currentTab.value = state.currentTab;
-
-      nextTick(() => {
-        if (state.instructionTab === 'save' && saveInstructionsRef.value) {
-          saveInstructionsRef.value.setCurrentStep(state.currentStep);
-        } else if (state.instructionTab === 'load' && loadInstructionsRef.value) {
-          loadInstructionsRef.value.setCurrentStep(state.currentStep);
-        }
-
-        localStorage.setItem(
-          getInstructionStepKey(state.instructionTab),
-          state.currentStep.toString()
-        );
-      });
-
-      router.replace({
-        query: {
-          ...route.query,
-          instructions: "open",
-          tab: state.instructionTab,
-        },
-      });
-
-      const clearedState = { ...state, returnFromNavigation: false };
-      localStorage.setItem(getNavigationStateKey(), JSON.stringify(clearedState));
-
-      return true;
-    }
-
-    return false;
-  } catch (error) {
-    console.error("Error restoring navigation state:", error);
-    localStorage.removeItem(getNavigationStateKey());
-    return false;
+  if (type === "success" && duration >= 1500) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
-};
+}
 
-const clearNavigationState = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(getNavigationStateKey());
-  }
-};
+function scrollToHeroSection() {
+  const heroSection = document.querySelector(
+    ".v-sheet.rounded.border-md",
+  ) as HTMLElement | null;
+  if (!heroSection) return;
+  heroSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  heroSection.style.transition = "box-shadow 0.3s ease";
+  heroSection.style.boxShadow = "0 0 20px rgba(var(--v-theme-primary), 0.5)";
+  setTimeout(() => (heroSection.style.boxShadow = ""), 2000);
+}
 
-const handleInstructionAction = (action: string) => {
-  saveNavigationState();
-
-  setTimeout(() => {
-    if (action === 'manage-resources') {
-      handleManageResourcesAction();
-    } else if (action === 'equipment-skills') {
-      handleEquipmentSkillsAction();
-    }
-  }, 100);
-};
-
-const handleManageResourcesAction = () => {
-  const heroes = heroStore.findAllInCampaign(campaignId);
-
-  if (heroes.length === 0) {
-    setAlert(
-      "mdi-information-outline",
-      "Info",
-      "No heroes found in this campaign. Please add heroes first.",
-      "info"
-    );
-    return;
-  }
-
-  if (heroes.length === 1) {
-    navigateToHeroSequentialState(heroes[0].heroId);
-    return;
-  }
-
-  showHeroSelectionAlert('manage-resources', heroes);
-};
-
-const handleEquipmentSkillsAction = () => {
-  const heroes = heroStore.findAllInCampaign(campaignId);
-
-  if (heroes.length === 0) {
-    setAlert(
-      "mdi-information-outline",
-      "Info",
-      "No heroes found in this campaign. Please add heroes first.",
-      "info"
-    );
-    return;
-  }
-
-  if (heroes.length === 1) {
-    navigateToHeroEquipmentSkills(heroes[0].heroId);
-    return;
-  }
-
-  showHeroSelectionAlert('equipment-skills', heroes);
-};
-
-const showHeroSelectionAlert = (action: string, heroes: any[]) => {
-  const heroList = heroes.map(hero => hero.name || `Hero ${hero.heroId}`).join(', ');
-
-  const actionText = action === 'manage-resources' ? 'Manage Resources' : 'Equipment & Skills';
-
+function showHeroSelectionAlert(action: string, heroes: any[]) {
+  const heroList = heroes.map((h) => h.name || `Hero ${h.heroId}`).join(", ");
+  const actionText =
+    action === "manage-resources" ? "Manage Resources" : "Equipment & Skills";
   setAlert(
     "mdi-account-multiple-outline",
     "Multiple Heroes Found",
     `Multiple heroes found in this campaign: ${heroList}. Please scroll down to select the "${actionText}" button for the specific hero you want to manage.`,
     "info",
-    5000
+    5000,
   );
+  setTimeout(() => scrollToHeroSection(), 500);
+}
 
-  setTimeout(() => {
-    scrollToHeroSection();
-  }, 500);
-};
-
-const scrollToHeroSection = () => {
-  const heroSection = document.querySelector('.v-sheet.rounded.border-md');
-  if (heroSection) {
-    heroSection.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
-
-    heroSection.style.transition = 'box-shadow 0.3s ease';
-    heroSection.style.boxShadow = '0 0 20px rgba(var(--v-theme-primary), 0.5)';
-
-    setTimeout(() => {
-      heroSection.style.boxShadow = '';
-    }, 2000);
-  }
-};
-
-const navigateToHeroSequentialState = (heroId: string) => {
+function navigateToHeroSequentialState(heroId: string) {
   if (!showSaveCampaignButton.value) {
     setAlert(
       "mdi-alert-circle",
       "Access Denied",
       "Only the Drunagor Master can access this feature.",
-      "error"
+      "error",
     );
     return;
+  }
+
+  if (saveTourActive.value) {
+    console.log(
+      "[CampaignView] Pausando tour para navegação - manage resources",
+    );
+    pauseTourForNavigation("manage-resources");
   }
 
   router.push({
     name: "HeroSequentialState",
-    params: { campaignId: campaignId, heroId: heroId },
+    params: { campaignId: campaignId, heroId },
   });
-};
+}
 
-const navigateToHeroEquipmentSkills = (heroId: string) => {
+function navigateToHeroEquipmentSkills(heroId: string) {
   if (!showSaveCampaignButton.value) {
     setAlert(
       "mdi-alert-circle",
       "Access Denied",
       "Only the Drunagor Master can access this feature.",
-      "error"
+      "error",
     );
     return;
   }
 
-  router.push({
-    name: "Hero",
-    params: { campaignId: campaignId, heroId: heroId },
-  });
+  if (saveTourActive.value) {
+    console.log(
+      "[CampaignView] Pausando tour para navegação - equipment skills",
+    );
+    pauseTourForNavigation("equipment-skills");
+  }
+
+  router.push({ name: "Hero", params: { campaignId: campaignId, heroId } });
+}
+
+function handleManageResourcesAction() {
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  if (heroes.length === 0) {
+    setAlert(
+      "mdi-information-outline",
+      "Info",
+      "No heroes found in this campaign. Please add heroes first.",
+      "info",
+    );
+    return;
+  }
+  if (heroes.length === 1) {
+    navigateToHeroSequentialState(heroes[0].heroId);
+    return;
+  }
+  showHeroSelectionAlert("manage-resources", heroes);
+}
+
+function handleEquipmentSkillsAction() {
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  if (heroes.length === 0) {
+    setAlert(
+      "mdi-information-outline",
+      "Info",
+      "No heroes found in this campaign. Please add heroes first.",
+      "info",
+    );
+    return;
+  }
+  if (heroes.length === 1) {
+    navigateToHeroEquipmentSkills(heroes[0].heroId);
+    return;
+  }
+  showHeroSelectionAlert("equipment-skills", heroes);
+}
+
+const generatePartyCode = () => {
+  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
+  partyCode.value = `${prefix}${campaignId}`;
 };
 
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
-      if (campaign.value && ['underkeep', 'underkeep2'].includes(campaign.value.campaign)) {
-        openSavePanel();
+      if (
+        campaign.value &&
+        ["underkeep", "underkeep2"].includes(campaign.value.campaign)
+      ) {
+        startSaveTour();
       } else {
         handleSave();
       }
+      startSaveTour();
       break;
-    case "instructions":
-      toggleInstructions();
+    case "load-instructions":
+      startLoadTour();
       break;
     case "export":
-      if (campaignExportRef.value?.export) {
-        campaignExportRef.value.export();
-      }
+      campaignExportRef.value?.export?.();
       break;
     case "share":
-      if (shareCampaignRef.value?.openDialog) {
-        shareCampaignRef.value.openDialog();
-      }
+      shareCampaignRef.value?.openDialog?.();
       break;
     case "remove":
-      if (campaignRemoveRef.value?.openDialog) {
-        campaignRemoveRef.value.openDialog();
-      }
+      campaignRemoveRef.value?.openDialog?.();
       break;
   }
-
   speedDialOpen.value = false;
 };
 
-const onCampaignRemoved = () => {
-  setAlert("mdi-check", "Success", "Campaign removed successfully", "success");
-  router.push({ name: "Campaigns" });
+async function handleSave() {
+  if (!savePutRef.value) {
+    console.error("savePutRef não está disponível");
+    setAlert(
+      "mdi-alert-circle",
+      "Error",
+      "Save component not initialized. Please try again.",
+      "error",
+    );
+    return;
+  }
+
+  try {
+    await savePutRef.value.save();
+  } catch (error) {
+    console.error("Erro ao salvar:", error);
+  }
+}
+
+const onSaveSuccess = () => {
+  setAlert(
+    "mdi-check",
+    "Success",
+    "The campaign was saved successfully!",
+    "success",
+    4000,
+  );
+
+  if (saveTourActive.value) {
+    setTimeout(() => {
+      destroySaveTour();
+    }, 500);
+  }
+};
+
+const onSaveFail = () => {
+  setAlert(
+    "mdi-alert-circle",
+    "Error",
+    "The campaign could not be saved.",
+    "error",
+    4000,
+  );
 };
 
 const initTransfer = (user: (typeof players.value)[0]) => {
@@ -760,12 +930,8 @@ const openTransferDialog = () => {
       originalMaster.value =
         players.value.find((u) => u.party_roles_fk === 1) || null;
     })
-    .catch((err) => {
-      console.error("Error fetching players:", err);
-    })
-    .finally(() => {
-      transferLoading.value = false;
-    });
+    .catch((err) => console.error("Error fetching players:", err))
+    .finally(() => (transferLoading.value = false));
 };
 
 const confirmTransfer = () => {
@@ -796,9 +962,7 @@ const confirmTransfer = () => {
         payload?.message || JSON.stringify(payload?.errors || {});
       transferAlertType.value = "error";
       transferAlertVisible.value = true;
-      setTimeout(() => {
-        transferAlertVisible.value = false;
-      }, 1500);
+      setTimeout(() => (transferAlertVisible.value = false), 1500);
     })
     .finally(() => {
       transferLoading.value = false;
@@ -818,339 +982,20 @@ const closeTransferDialog = () => {
   selectedUser.value = null;
 };
 
-watch(transferAlertVisible, (newVal) => {
-  if (!newVal && transferAlertType.value === "success") {
-    closeTransferDialog();
-  }
-});
-
-const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
-const getInstructionStepKey = (tab: string) =>
-  `campaign_${campaignId}_instruction_step_${tab}`;
-const getSessionStateKey = () => `campaign_${campaignId}_session_state`;
-
-const saveSessionState = () => {
-  if (typeof window !== "undefined") {
-    const state = {
-      expanded: expandedPanel.value.length > 0,
-      tab: instructionTab.value,
-      currentTab: currentTab.value,
-      timestamp: Date.now(),
-      saveStep:
-        instructionTab.value === "save"
-          ? localStorage.getItem(getInstructionStepKey("save"))
-          : null,
-      loadStep:
-        instructionTab.value === "load"
-          ? localStorage.getItem(getInstructionStepKey("load"))
-          : null,
-    };
-    localStorage.setItem(getSessionStateKey(), JSON.stringify(state));
-
-    saveInstructionState();
-  }
-};
-
-const saveInstructionState = () => {
-  if (typeof window !== "undefined") {
-    const state = {
-      expanded: expandedPanel.value.length > 0,
-      tab: instructionTab.value,
-      timestamp: Date.now(),
-    };
-    localStorage.setItem(getInstructionStateKey(), JSON.stringify(state));
-  }
-};
-
-const onInstructionChanged = (step: number) => {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(
-      getInstructionStepKey(instructionTab.value),
-      step.toString(),
-    );
-    saveSessionState();
-  }
-};
-
-const closeInstructions = () => {
-  expandedPanel.value = [];
-  clearNavigationState();
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(getSessionStateKey());
-    localStorage.removeItem(getInstructionStateKey());
-    localStorage.removeItem(getInstructionStepKey("save"));
-    localStorage.removeItem(getInstructionStepKey("load"));
-  }
-  router.replace({
-    query: { ...route.query, instructions: undefined, tab: undefined },
-  });
-};
-
-const restoreInstructionState = () => {
-  if (typeof window === "undefined") return;
-
-  if (restoreNavigationState()) {
-    return;
-  }
-
-  const sessionStateStr = localStorage.getItem(getSessionStateKey());
-  if (sessionStateStr) {
-    try {
-      const sessionState = JSON.parse(sessionStateStr);
-      const now = Date.now();
-      const thirtyMinutes = 30 * 60 * 1000;
-
-      if (now - sessionState.timestamp < thirtyMinutes) {
-        if (sessionState.expanded) {
-          expandedPanel.value = [0];
-          instructionTab.value = sessionState.tab;
-
-          if (
-            campaign.value && ['underkeep', 'underkeep2'].includes(campaign.value.campaign) &&
-            sessionState.currentTab
-          ) {
-            currentTab.value = sessionState.currentTab;
-          }
-
-          nextTick(() => {
-            if (sessionState.tab === "save" && sessionState.saveStep) {
-              const step = parseInt(sessionState.saveStep);
-              saveInstructionsRef.value?.setCurrentStep(step);
-            } else if (sessionState.tab === "load" && sessionState.loadStep) {
-              const step = parseInt(sessionState.loadStep);
-              loadInstructionsRef.value?.setCurrentStep(step);
-            }
-          });
-
-          router.replace({
-            query: {
-              ...route.query,
-              instructions: "open",
-              tab: sessionState.tab,
-            },
-          });
-        }
-        return;
-      } else {
-        localStorage.removeItem(getSessionStateKey());
-      }
-    } catch (error) {
-      console.error("Error restoring session state:", error);
-      localStorage.removeItem(getSessionStateKey());
-    }
-  }
-
-  if (route.query.instructions === "open") {
-    const queryTab = route.query.tab as string;
-
-    if (queryTab === "save" && showSaveCampaignButton.value) {
-      expandedPanel.value = [0];
-      instructionTab.value = "save";
-
-      const stepStr = localStorage.getItem(getInstructionStepKey("save"));
-      if (stepStr) {
-        const step = parseInt(stepStr);
-        nextTick(() => saveInstructionsRef.value?.setCurrentStep(step));
-      }
-    } else if (queryTab === "load") {
-      expandedPanel.value = [0];
-      instructionTab.value = "load";
-
-      const stepStr = localStorage.getItem(getInstructionStepKey("load"));
-      if (stepStr) {
-        const step = parseInt(stepStr);
-        nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
-      }
-    } else {
-      expandedPanel.value = [0];
-      instructionTab.value = "load";
-
-      const stepStr = localStorage.getItem(getInstructionStepKey("load"));
-      if (stepStr) {
-        const step = parseInt(stepStr);
-        nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
-      }
-
-      router.replace({
-        query: { instructions: "open", tab: "load" },
-      });
-    }
-  } else {
-    try {
-      const stateStr = localStorage.getItem(getInstructionStateKey());
-      if (stateStr) {
-        const state = JSON.parse(stateStr);
-        const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000;
-
-        if (now - state.timestamp < thirtyMinutes) {
-          expandedPanel.value = [0];
-          instructionTab.value = "load";
-
-          const stepStr = localStorage.getItem(getInstructionStepKey("load"));
-          if (stepStr) {
-            const step = parseInt(stepStr);
-            nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
-          }
-
-          router.replace({
-            query: { instructions: "open", tab: "load" },
-          });
-        } else {
-          localStorage.removeItem(getInstructionStateKey());
-          localStorage.removeItem(getInstructionStepKey("load"));
-          localStorage.removeItem(getInstructionStepKey("save"));
-
-          expandedPanel.value = [0];
-          instructionTab.value = "load";
-
-          router.replace({
-            query: { instructions: "open", tab: "load" },
-          });
-        }
-      } else {
-        expandedPanel.value = [0];
-        instructionTab.value = "load";
-
-        router.replace({
-          query: { instructions: "open", tab: "load" },
-        });
-      }
-    } catch (error) {
-      console.error("Error restoring state:", error);
-      expandedPanel.value = [0];
-      instructionTab.value = "load";
-
-      router.replace({
-        query: { instructions: "open", tab: "load" },
-      });
-    }
-  }
-};
-
-const onTabChange = (newTab: string) => {
-  if (newTab === "book") {
-    if (expandedPanel.value.length > 0) {
-      saveSessionState();
-      closeInstructions();
-    }
-  } else if (newTab === "normal") {
-    const sessionStateStr = localStorage.getItem(getSessionStateKey());
-    if (sessionStateStr) {
-      try {
-        const sessionState = JSON.parse(sessionStateStr);
-        const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000;
-
-        if (
-          now - sessionState.timestamp < thirtyMinutes &&
-          sessionState.expanded
-        ) {
-          restoreInstructionState();
-          return;
-        }
-      } catch (error) {
-        console.error("Error checking session state:", error);
-      }
-    }
-
-    if (expandedPanel.value.length === 0) {
-      instructionTab.value = "load";
-      expandedPanel.value = [0];
-      router.replace({
-        query: { ...route.query, instructions: "open", tab: "load" },
-      });
-    }
-  }
-};
-
-const toggleInstructions = () => {
-  if (expandedPanel.value.length) {
-    closeInstructions();
-  } else {
-    instructionTab.value = "load";
-    expandedPanel.value = [0];
-    router.replace({
-      query: { ...route.query, instructions: "open", tab: "load" },
-    });
-  }
-};
-
-const openSavePanel = () => {
-  expandedPanel.value = [0];
-  instructionTab.value = "save";
-  router.replace({
-    query: { ...route.query, instructions: "open", tab: "save" },
-  });
-};
-
-const handleSave = async () => {
-  if (!savePutRef.value) {
-    console.error("savePutRef não está disponível");
-    setAlert(
-      "mdi-alert-circle",
-      "Error",
-      "Save component not initialized. Please try again.",
-      "error",
-    );
-    return;
-  }
-
-  try {
-    await savePutRef.value.save();
-  } catch (error) {
-    console.error("Erro ao salvar:", error);
-  }
-};
-
-const onSaveSuccess = () => {
-  setAlert(
-    "mdi-check",
-    "Success",
-    "The campaign was saved successfully!",
-    "success",
-  );
-  if (campaign.value && ['underkeep', 'underkeep2'].includes(campaign.value.campaign)) {
-    closeInstructions();
-  }
-};
-
-const onSaveFail = () => {
-  setAlert(
-    "mdi-alert-circle",
-    "Error",
-    "The campaign could not be saved.",
-    "error",
-  );
+const onCampaignRemoved = () => {
+  setAlert("mdi-check", "Success", "Campaign removed successfully", "success");
+  router.push({ name: "Campaigns" });
 };
 
 const fetchRole = async () => {
   try {
-    const response = await axios.get("rl_campaigns_users/search", {
+    const { data } = await axios.get("rl_campaigns_users/search", {
       params: { users_fk: userStore.user.users_pk, campaigns_fk: campaignId },
     });
-    showSaveCampaignButton.value =
-      response.data.campaigns[0]?.party_role === "Admin";
-  } catch (error) {
+    showSaveCampaignButton.value = data.campaigns[0]?.party_role === "Admin";
+  } catch {
     showSaveCampaignButton.value = false;
   }
-};
-
-const setAlert = (
-  icon: string,
-  title: string,
-  text: string,
-  type: "success" | "info" | "warning" | "error" | undefined,
-  duration: number = 1500,
-) => {
-  alertIcon.value = icon;
-  alertTitle.value = title;
-  alertText.value = text;
-  showAlert.value = true;
-  alertType.value = type;
-  setTimeout(() => {
-    showAlert.value = false;
-  }, duration);
 };
 
 const onPlayerRemoved = async () => {
@@ -1158,10 +1003,43 @@ const onPlayerRemoved = async () => {
   await campaignPlayerListRef.value?.fetchPlayers();
 };
 
+watch(transferAlertVisible, (v) => {
+  if (!v && transferAlertType.value === "success") closeTransferDialog();
+});
+
+watch(
+  campaign,
+  (c) => {
+    if (c) {
+      isSequentialAdventure.value = c.isSequentialAdventure ?? false;
+      if (!["underkeep", "underkeep2"].includes(c.campaign)) {
+        currentTab.value = "normal";
+      }
+    }
+  },
+  { deep: true },
+);
+
+watch(
+  () => route.path,
+  async (newPath, oldPath) => {
+    const isReturningFromHero = oldPath && 
+      (oldPath.includes('/hero-sequential-state/') || oldPath.includes('/hero/')) && 
+      newPath.includes(`/campaign/${campaignId}`);
+    
+    if (isReturningFromHero) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await checkAndResumeTour();
+    }
+  },
+  { immediate: false }
+);
+
 onBeforeUnmount(() => {
-  if (expandedPanel.value.length > 0) {
-    saveSessionState();
-  }
+  window.removeEventListener('pageshow', () => {});
+
+  destroySaveTour({ keepProgress: true });
+  destroyLoadTour({ keepProgress: true });
 });
 
 onMounted(async () => {
@@ -1169,15 +1047,13 @@ onMounted(async () => {
     setAlert("mdi-alert-circle", "Error", "Campaign ID is missing.", "error");
     return;
   }
-  const foundCampaign = campaignStore.find(campaignId);
-  if (foundCampaign) {
-    campaign.value = foundCampaign;
+
+  const found = campaignStore.find(campaignId);
+  if (found) {
+    campaign.value = found;
     if (!campaign.value.isSequentialAdventure) {
       campaign.value.isSequentialAdventure = true;
-      campaign.value.sequentialAdventureRunes = 0; // Inicia as runas com 0
-      heroStore.findAllInCampaign(campaignId).forEach((hero) => {
-        hero.sequentialAdventureState = new SequentialAdventureState();
-      });
+      campaign.value.sequentialAdventureRunes = 0;
     }
   } else {
     setAlert(
@@ -1190,78 +1066,56 @@ onMounted(async () => {
 
   await fetchRole();
   generatePartyCode();
-  if (campaign.value && ['underkeep', 'underkeep2'].includes(campaign.value.campaign)) {
-    restoreInstructionState();
-  }
-});
 
-watch(
-  [expandedPanel, instructionTab, currentTab],
-  () => {
-    if (expandedPanel.value.length > 0) {
-      saveSessionState();
+  const openInstructions = route.query.openInstructions;
+  showLoadInstructions.value = openInstructions === "load";
+
+  const isUnderkeepCampaign = campaign.value && 
+    ['underkeep', 'underkeep2'].includes(campaign.value.campaign);
+
+    window.addEventListener('pageshow', async (event) => {
+    
+    if (isUnderkeepCampaign && hasPausedTour()) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await checkAndResumeTour();
     }
-  },
-  { deep: true },
-);
+  });
 
-watch(instructionTab, (newTab) => {
-  if (expandedPanel.value.length) {
-    const tab =
-      newTab === "save" && showSaveCampaignButton.value ? "save" : "load";
+  if (isUnderkeepCampaign && openInstructions === "load") {
+    await nextTick();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await startLoadTour();
+  } 
+  else if (isUnderkeepCampaign) {
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    await checkAndResumeTour();
+  }
 
+  if (openInstructions === "load") {
     router.replace({
-      query: { ...route.query, instructions: "open", tab },
+      path: route.path,
+      query: { ...route.query, openInstructions: undefined },
     });
-
-    saveSessionState();
   }
-});
-
-watch(
-  () => route.query,
-  (newQuery) => {
-    if (newQuery.instructions === "open") {
-      if (newQuery.tab === "save" && showSaveCampaignButton.value) {
-        expandedPanel.value = [0];
-        instructionTab.value = "save";
-
-        const stepStr = localStorage.getItem(getInstructionStepKey("save"));
-        if (stepStr) {
-          const step = parseInt(stepStr);
-          nextTick(() => saveInstructionsRef.value?.setCurrentStep(step));
-        }
-      } else if (newQuery.tab === "load") {
-        expandedPanel.value = [0];
-        instructionTab.value = "load";
-
-        const stepStr = localStorage.getItem(getInstructionStepKey("load"));
-        if (stepStr) {
-          const step = parseInt(stepStr);
-          nextTick(() => loadInstructionsRef.value?.setCurrentStep(step));
-        }
-      }
-    } else {
-      expandedPanel.value = [];
-    }
-  },
-);
-
-watch(
-  campaign,
-  (newCampaign) => {
-    if (newCampaign) {
-      isSequentialAdventure.value = newCampaign.isSequentialAdventure ?? false;
-      if (!['underkeep', 'underkeep2'].includes(newCampaign.campaign)) {
-        currentTab.value = "normal";
-      }
-    }
-  },
-  { deep: true },
-);
+  });
 </script>
 
 <style scoped>
+.global-snackbar {
+  z-index: 9999 !important;
+}
+
+:deep(.v-snackbar__wrapper) {
+  min-width: 344px;
+  max-width: 500px;
+}
+
+:deep(.v-snackbar__content) {
+  padding: 16px !important;
+}
+
 .info-text {
   font-size: 0.6rem !important;
   color: rgba(255, 255, 255, 0.7);
@@ -1279,15 +1133,6 @@ watch(
   letter-spacing: 0.0333333333em !important;
   font-family: "Roboto", sans-serif;
   text-transform: none !important;
-}
-
-.campaign-menu {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .campaign-content {
@@ -1314,48 +1159,6 @@ watch(
 .my-1 {
   margin-top: 4px !important;
   margin-bottom: 4px !important;
-}
-
-.instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-  max-height: 32vh;
-  overflow-y: auto;
-}
-
-.instructions-wrapper {
-  position: relative;
-}
-
-.position-relative {
-  position: relative;
-}
-
-.close-instructions-btn[data-v-9901feaa] {
-  position: absolute;
-  top: 47px;
-  right: 29px;
-  z-index: 25;
-  background-color: rgba(244, 67, 54, 0.9) !important;
-  border-radius: 50% !important;
-  min-width: 28px !important;
-  width: 28px !important;
-  height: 28px !important;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.close-instructions-btn:hover {
-  background-color: rgba(244, 67, 54, 1) !important;
-  transform: scale(1.15);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-}
-
-.close-instructions-btn .v-icon {
-  color: white !important;
-  font-size: 16px !important;
-}
-
-.close-instructions-btn:hover .v-icon {
-  color: white !important;
 }
 
 .speed-dial-activator {
@@ -1414,11 +1217,24 @@ watch(
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
-@media (max-width: 960px) {
-  .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-    max-height: 25vh;
-  }
+.v-tabs .v-tab--selected {
+  background-color: rgb(var(--v-theme-secondary)) !important;
+  color: white !important;
+}
 
+.v-sheet {
+  max-height: none;
+}
+
+.v-container {
+  max-width: 100%;
+}
+
+.v-speed-dial .v-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+@media (max-width: 960px) {
   .action-group {
     min-width: 45%;
   }
@@ -1440,10 +1256,6 @@ watch(
 }
 
 @media (max-width: 600px) {
-  .instructions-panel :deep(.v-expansion-panel-text__wrapper) {
-    max-height: 25vh;
-  }
-
   .action-group {
     justify-content: center;
     width: 100%;
@@ -1484,22 +1296,5 @@ watch(
 
 .player-view {
   pointer-events: none;
-}
-
-.v-tabs .v-tab--selected {
-  background-color: rgb(var(--v-theme-secondary)) !important;
-  color: white !important;
-}
-
-.v-sheet {
-  max-height: none;
-}
-
-.v-container {
-  max-width: 100%;
-}
-
-.v-speed-dial .v-btn {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 </style>
