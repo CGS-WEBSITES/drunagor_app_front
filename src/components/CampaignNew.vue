@@ -76,7 +76,6 @@
                 </v-card>
               </v-col>
 
-              <!--
               <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
@@ -98,7 +97,6 @@
                   <v-img :src="UnderKeep2Logo.toString()" width="280" height="100" contain></v-img>
                 </v-card>
               </v-col>
-            -->
               
             </v-row>
           </v-container>
