@@ -37,3 +37,5 @@ src/components.d.ts
 src/typed-router.d.ts
 
 *.zip
+
+deploy.sh
