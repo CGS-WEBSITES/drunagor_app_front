@@ -575,6 +575,10 @@
       :inviteCode="partyCode"
     />
   </div>
+
+  <v-col class="pb-12">
+
+  </v-col>
 </template>
 
 <script setup lang="ts">
