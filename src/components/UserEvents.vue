@@ -259,23 +259,23 @@
             </v-card>
 
             <v-card color="primary" class="mr-4 mt-4 event-card">
-              <v-responsive
-                style="width: 100%; height: 200px"
-                aspect-ratio="16/9"
-              >
-                <iframe
-                  v-if="selectedEvent?.latitude"
-                  :src="
-                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                    `&z=15&output=embed`
-                  "
-                  frameborder="0"
-                  style="border: 0; width: 100%; height: 100%"
-                  allowfullscreen
-                  loading="lazy"
-                />
-              </v-responsive>
-            </v-card>
+          <v-responsive
+            style="width: 100%; height: 200px"
+            aspect-ratio="16/9"
+          >
+            <iframe
+              v-if="selectedEvent?.latitude"
+              :src="
+                `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                `&z=15&output=embed`
+              "
+              frameborder="0"
+              style="border: 0; width: 100%; height: 100%"
+              allowfullscreen
+              loading="lazy"
+            />
+          </v-responsive>
+        </v-card>
 
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
@@ -574,23 +574,23 @@
               </v-row>
             </v-card>
             <v-card color="primary" class="mr-4 mt-4 event-card">
-              <v-responsive
-                style="width: 100%; height: 200px"
-                aspect-ratio="16/9"
-              >
-                <iframe
-                  v-if="selectedMyEvent?.latitude"
-                  :src="
-                    `https://www.google.com/maps?q=${selectedMyEvent.latitude},${selectedMyEvent.longitude}` +
-                    `&z=15&output=embed`
-                  "
-                  frameborder="0"
-                  style="border: 0; width: 100%; height: 100%"
-                  allowfullscreen
-                  loading="lazy"
-                />
-              </v-responsive>
-            </v-card>
+          <v-responsive
+            style="width: 100%; height: 200px"
+            aspect-ratio="16/9"
+          >
+            <iframe
+              v-if="selectedEvent?.latitude"
+              :src="
+                `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                `&z=15&output=embed`
+              "
+              frameborder="0"
+              style="border: 0; width: 100%; height: 100%"
+              allowfullscreen
+              loading="lazy"
+            />
+          </v-responsive>
+        </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
               <v-row
@@ -679,7 +679,7 @@
                 class="mb-2"
                 @click="
                   () => {
-                    handleNewCampaign('underkeep');
+                    handleNewCampaign();
                     showCampaignDialog = false;
                   }
                 "
@@ -1041,10 +1041,27 @@ const compressCampaign = (campaignId) => {
   );
 };
 
-const handleNewCampaign = (type) => {
+const handleNewCampaign = () => {
+  if (!selectedMyEvent.value) return;
+
+  const seasonFk = selectedMyEvent.value.seasons_fk;
+  let campaignType = '';
+
+  if (seasonFk == 2) {
+    campaignType = 'underkeep';
+  } else if (seasonFk == 3) {
+    campaignType = 'underkeep2';
+  } else {
+    toast.add({
+      severity: "warn",
+      summary: "Warning",
+      detail: "Cannot create campaign for this event season.",
+    });
+    return;
+  }
+
   loading.value = true;
   const usersPk = userStore.user?.users_pk;
-  const nameMap = { underkeep: "underkeep" };
   let selectedSku;
   let campaignFk;
 
@@ -1055,10 +1072,10 @@ const handleNewCampaign = (type) => {
         ? data.skus
         : Object.values(data.skus);
       selectedSku = skuList.find(
-        (s) => s.name?.toLowerCase() === nameMap[type].toLowerCase(),
+        (s) => s.name?.toLowerCase() === campaignType.toLowerCase(),
       );
       if (!selectedSku) {
-        return Promise.reject(new Error("SKU não encontrado"));
+        return Promise.reject(new Error(`SKU for ${campaignType} not found`));
       }
       return axios.post("/campaigns/cadastro", {
         tracker_hash:
@@ -1069,7 +1086,7 @@ const handleNewCampaign = (type) => {
     })
     .then(({ data }) => {
       campaignFk = data.campaign.campaigns_pk;
-      const newCamp = new Campaign(String(campaignFk), type);
+      const newCamp = new Campaign(String(campaignFk), campaignType);
       campaignStore.add(newCamp);
       return axios.put(`/campaigns/alter/${campaignFk}`, {
         tracker_hash:
