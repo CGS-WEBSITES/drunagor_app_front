@@ -107,6 +107,11 @@
                 class="pt-0 event-card"
                 @click="openDialog(event)"
               >
+                <v-img
+                  v-if="getSeasonInfo(event.seasons_fk).flag"
+                  :src="getSeasonInfo(event.seasons_fk).flag"
+                  class="season-flag"
+                />
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
                     <div
@@ -208,6 +213,10 @@
               <p>
                 <v-icon>mdi-sword-cross</v-icon> Scenario:
                 {{ selectedEvent?.scenario }}
+              </p>
+              <p v-if="getSeasonInfo(selectedEvent?.seasons_fk).name">
+                <v-icon>mdi-shield-sun</v-icon> Season:
+                {{ getSeasonInfo(selectedEvent.seasons_fk).name }}
               </p>
               <p class="text-end scheduled-box">
                 Sheduled for:
@@ -410,7 +419,6 @@
                           <v-icon color="red">mdi-sword-cross</v-icon>
                           Scenario: {{ event.scenario }}
                         </p>
-                        
 
                         <p
                           class="text-caption ml-3"
@@ -477,7 +485,7 @@
                     variant="outlined"
                   />
                 </v-col>
-                 <v-col cols="12" md="6">
+                <v-col cols="12" md="6">
                   <v-select
                     v-model="newEvent.seats"
                     :items="[1, 2, 3, 4]"
@@ -1057,6 +1065,8 @@ import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
 import { set } from "lodash-es";
+import s1flag from '@/assets/s1flag.png';
+import s2flag from '@/assets/s2flag.png';
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
@@ -1113,6 +1123,16 @@ const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
+
+const getSeasonInfo = (fk) => {
+  if (fk == 2) {
+    return { flag: s1flag, name: 'Season 1' };
+  }
+  if (fk == 3) {
+    return { flag: s2flag, name: 'Season 2' };
+  }
+  return { flag: null, name: '' };
+};
 
 const confirmTurnAway = (player) => {
   turnAwayConfirmDialog.value = {
@@ -1658,7 +1678,7 @@ const addEvent = () => {
   successDialog.value = false;
 
   const userId = userStore.user.users_pk;
-  
+ 
 
   if (
     !newEvent.value.date ||
@@ -2136,10 +2156,8 @@ watch(
 
 .list-container {
   min-height: 400px;
-  /* adjust as needed to prevent shrinking */
 }
 
-/* Event Card */
 .event-card {
   display: flex;
   align-items: center;
@@ -2149,14 +2167,12 @@ watch(
   background-color: #292929;
 }
 
-/* Event Image */
 .event-img {
   width: 110px;
   height: 110px;
   border-radius: 4px;
 }
 
-/* Sort Buttons */
 .sort-btn {
   font-weight: bold;
   text-transform: uppercase;
@@ -2169,26 +2185,25 @@ watch(
 
 .scheduled-box {
   display: inline-block;
-  /* Faz o fundo se ajustar ao tamanho do conteúdo */
   background-color: white;
-  /* Fundo branco */
   padding: 6px 12px;
-  /* Espaçamento interno */
   border-radius: 20px;
-  /* Bordas arredondadas */
   font-size: 14px;
-  /* Tamanho do texto */
   font-weight: 500;
-  /* Peso do texto */
   color: black;
-  /* Cor do texto */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Sombra leve para destacar */
 }
 
 .scheduled-box strong {
   font-weight: bold;
-  /* Deixa "SCHEDULED FOR:" em negrito */
+}
+.season-flag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
 }
 </style>
 
@@ -2216,6 +2231,8 @@ watch(
 }
 
 .event-card {
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
   transition: 0.2s ease-in-out;
 }
