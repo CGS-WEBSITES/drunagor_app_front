@@ -57,6 +57,11 @@
                 class="pt-0 event-card"
                 @click="openDialog(event)"
               >
+                <v-img
+                  v-if="getSeasonInfo(event.seasons_fk).flag"
+                  :src="getSeasonInfo(event.seasons_fk).flag"
+                  class="season-flag"
+                />
                 <v-row no-gutters align="center">
                   <v-col cols="4" sm="2">
                     <div
@@ -205,6 +210,10 @@
                 <v-icon>mdi-sword-cross</v-icon> Scenario:
                 {{ selectedEvent?.scenario }}
               </p>
+              <p v-if="getSeasonInfo(selectedEvent?.seasons_fk).name">
+                <v-icon>mdi-shield-sun</v-icon> Season:
+                {{ getSeasonInfo(selectedEvent.seasons_fk).name }}
+              </p>
               <p class="text-end scheduled-box">
                 Scheduled for:
                 {{
@@ -336,6 +345,27 @@
                 class="pt-0 event-card"
                 @click="openMyEventsDialog(evt)"
               >
+                <v-img
+                  v-if="getSeasonInfo(evt.seasons_fk).flag"
+                  :src="getSeasonInfo(evt.seasons_fk).flag"
+                  class="season-flag"
+                />
+                <div class="status-icon-container">
+                  <v-tooltip
+                    :text="getEventStatusInfo(evt.status).tooltip"
+                    location="top"
+                  >
+                    <template #activator="{ props }">
+                      <v-icon
+                        v-bind="props"
+                        :color="getEventStatusInfo(evt.status).color"
+                        size="large"
+                      >
+                        {{ getEventStatusInfo(evt.status).icon }}
+                      </v-icon>
+                    </template>
+                  </v-tooltip>
+                </div>
                 <v-row no-gutters align="center">
                   <v-col cols="4" sm="2">
                     <div
@@ -363,7 +393,7 @@
                       </p>
                     </div>
                   </v-col>
-                  <v-col cols="8" sm="9" class="pt-2">
+                  <v-col cols="8" sm="10" class="pt-2 pr-10">
                     <h3 class="pb-1">
                       <v-icon class="pr-1" size="small" color="black"
                         >mdi-chess-rook</v-icon
@@ -399,22 +429,6 @@
                         </v-col>
                       </v-row>
                     </p>
-                  </v-col>
-                  <v-col cols="1" class="d-flex align-center justify-end pr-2">
-                    <v-tooltip
-                      :text="getEventStatusInfo(evt.status).tooltip"
-                      location="top"
-                    >
-                      <template #activator="{ props }">
-                        <v-icon
-                          v-bind="props"
-                          :color="getEventStatusInfo(evt.status).color"
-                          size="large"
-                        >
-                          {{ getEventStatusInfo(evt.status).icon }}
-                        </v-icon>
-                      </template>
-                    </v-tooltip>
                   </v-col>
                 </v-row>
               </v-card>
@@ -788,6 +802,8 @@ import { Campaign } from "@/store/Campaign";
 import { useDebounceFn } from "@vueuse/core";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import DashboardEvents from '@/components/DashboardEvents.vue';
+import s1flag from '@/assets/s1flag.png';
+import s2flag from '@/assets/s2flag.png';
 
 const router = useRouter();
 const toast = useToast();
@@ -873,6 +889,16 @@ const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
+
+const getSeasonInfo = (fk) => {
+  if (fk == 2) {
+    return { flag: s1flag, name: 'Season 1' };
+  }
+  if (fk == 3) {
+    return { flag: s2flag, name: 'Season 2' };
+  }
+  return { flag: null, name: '' };
+};
 
 const user = computed(() => userStore.user);
 const boxSku = computed(() => route.query.sku || "");
@@ -1658,12 +1684,33 @@ watch(
 }
 
 .event-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   border-radius: 8px;
   padding: 10px;
   margin-left: 18px;
   background-color: #292929;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.season-flag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
+}
+
+.status-icon-container {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
 }
 
 .event-img {
@@ -1717,11 +1764,6 @@ watch(
   position: relative;
   transform: translateY(-8px) translateX(12px);
   background-color: #292929;
-}
-
-.event-card {
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
 }
 
 .event-card:hover {
