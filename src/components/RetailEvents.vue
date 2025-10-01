@@ -840,14 +840,6 @@
                   <v-col>
                     <p class="pb-3 font-weight-bold">
                       PLAYERS INTERESTED
-                      <v-btn
-                        icon
-                        size="medium"
-                        variant="text"
-                        @click="refreshInterestedPlayers(selectedEvent)"
-                      >
-                        <v-icon class="mb-1" color="white">mdi-refresh</v-icon>
-                      </v-btn>
                     </p>
                   </v-col>
                   <v-row>
@@ -1038,7 +1030,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, inject } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
@@ -1088,8 +1080,9 @@ const errorDialog = ref({
   message: "",
 });
 const successDialog = ref(false);
+const eventsInterval = ref(null);
+const playersInterval = ref(null);
 
-// ADICIONADO APENAS ESTA VARIÁVEL
 const turnAwayConfirmDialog = ref({
   show: false,
   player: null,
@@ -1100,7 +1093,6 @@ if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-// ADICIONADAS APENAS ESTAS DUAS FUNÇÕES
 const confirmTurnAway = (player) => {
   turnAwayConfirmDialog.value = {
     show: true,
@@ -1234,6 +1226,11 @@ const openEditDialog = (event, editable = false) => {
       });
       fetchPlayersForEvent(event.events_pk);
       fetchStatuses();
+      
+      clearInterval(playersInterval.value); 
+      playersInterval.value = setInterval(() => {
+        fetchPlayersForEvent(event.events_pk);
+      }, 5000);
     });
   }
 
@@ -1449,8 +1446,8 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const fetchPlayerEvents = async (past) => {
-  loading.value = true;
+const fetchPlayerEvents = async (past, isPolling = false) => {
+  if (!isPolling) loading.value = true;
   lastFetchPastAll.value = past;
   try {
     const { data } = await axios.get("/events/list_events/", {
@@ -1496,12 +1493,12 @@ const fetchPlayerEvents = async (past) => {
     console.error("❌ Error fetching player events:", err);
     events.value = [];
   } finally {
-    loading.value = false;
+    if (!isPolling) loading.value = false;
   }
 };
 
-const fetchUserCreatedEvents = async (past) => {
-  loading.value = true;
+const fetchUserCreatedEvents = async (past, isPolling = false) => {
+  if (!isPolling) loading.value = true;
   lastFetchPastMine.value = past;
   try {
     const params = {
@@ -1554,7 +1551,7 @@ const fetchUserCreatedEvents = async (past) => {
     console.error("Error fetching my events:", error);
     userCreatedEvents.value = [];
   } finally {
-    loading.value = false;
+    if (!isPolling) loading.value = false;
   }
 };
 
@@ -1969,30 +1966,6 @@ const copyLink = (link) => {
     });
 };
 
-const refreshInterestedPlayers = async (event) => {
-  if (!event || !event.events_pk) {
-    console.error("Refresh failed: Event data is missing.");
-    return;
-  }
-
-  try {
-    selectedEvent.value = event;
-
-    await fetchPlayersForEvent(event.events_pk);
-    fetchStatuses();
-    await fetchAllRewards();
-    const rewardsFromRelation = await fetchEventRewards(event.events_pk);
-    eventRewards.value = rewardsFromRelation;
-    if (editableEvent.value) {
-      editableEvent.value.rewards = availableRewards.value.filter((ar) =>
-        rewardsFromRelation.some((rr) => rr.rewards_pk === ar.rewards_pk),
-      );
-    }
-  } catch (error) {
-    console.error("An error occurred while refreshing event data:", error);
-  }
-};
-
 onMounted(() => {
   axios
     .get("/stores/list", {
@@ -2019,7 +1992,21 @@ onMounted(() => {
   fetchAllRewards();
   fetchPlayerEvents(showPast.value);
   fetchUserCreatedEvents(showPast.value);
+
+  eventsInterval.value = setInterval(() => {
+    if (activeTab.value === 1) {
+      fetchPlayerEvents(showPast.value, true);
+    } else {
+      fetchUserCreatedEvents(showPast.value, true);
+    }
+  }, 5000);
 });
+
+onUnmounted(() => {
+  clearInterval(eventsInterval.value);
+  clearInterval(playersInterval.value);
+});
+
 
 watch(showPast, async (novo) => {
   if (activeTab.value == 1) {
@@ -2055,6 +2042,14 @@ watch(
     }
   },
 );
+
+watch(editEventDialog, (isOpen) => {
+  if (!isOpen) {
+    clearInterval(playersInterval.value);
+    playersInterval.value = null;
+  }
+});
+
 </script>
 
 <style scoped>
@@ -2082,10 +2077,8 @@ watch(
 
 .list-container {
   min-height: 400px;
-  /* adjust as needed to prevent shrinking */
 }
 
-/* Event Card */
 .event-card {
   display: flex;
   align-items: center;
@@ -2095,14 +2088,12 @@ watch(
   background-color: #292929;
 }
 
-/* Event Image */
 .event-img {
   width: 110px;
   height: 110px;
   border-radius: 4px;
 }
 
-/* Sort Buttons */
 .sort-btn {
   font-weight: bold;
   text-transform: uppercase;
@@ -2115,26 +2106,17 @@ watch(
 
 .scheduled-box {
   display: inline-block;
-  /* Faz o fundo se ajustar ao tamanho do conteúdo */
   background-color: white;
-  /* Fundo branco */
   padding: 6px 12px;
-  /* Espaçamento interno */
   border-radius: 20px;
-  /* Bordas arredondadas */
   font-size: 14px;
-  /* Tamanho do texto */
   font-weight: 500;
-  /* Peso do texto */
   color: black;
-  /* Cor do texto */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Sombra leve para destacar */
 }
 
 .scheduled-box strong {
   font-weight: bold;
-  /* Deixa "SCHEDULED FOR:" em negrito */
 }
 </style>
 
