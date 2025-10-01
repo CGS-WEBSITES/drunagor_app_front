@@ -102,6 +102,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SaveInstructions: typeof import('./components/SaveInstructions.vue')['default']
+    SelectCompanion: typeof import('./components/SelectCompanion.vue')['default']
     SelectDoor: typeof import('./components/SelectDoor.vue')['default']
     SelectRuneAndGM: typeof import('./components/SelectRuneAndGM.vue')['default']
     SequentialAdventureButton: typeof import('./components/SequentialAdventureButton.vue')['default']
