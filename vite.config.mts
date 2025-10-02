@@ -46,6 +46,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        globPatterns: ['**/*.{js,ts,mjs,mts,css,html,ico,png,svg,vue}'],
+      },
+      
       manifest: {
         name: 'Drunagor App',
         short_name: 'Drunagor App',
@@ -61,7 +67,7 @@ export default defineConfig({
             sizes: '192x192',
             type: 'image/png'
           },
-           {
+            {
             src: 'android-chrome-512x512.png',
             sizes: '512x512',
             type: 'image/png'
