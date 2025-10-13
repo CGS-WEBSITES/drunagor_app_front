@@ -13,9 +13,7 @@
             offset-x="8"
             offset-y="8"
           >
-            <v-tab :value="'requests'" class="text-h5 text-bold"
-              >Requests</v-tab
-            >
+            <v-tab :value="'requests'" class="text-h5 text-bold">Requests</v-tab>
           </v-badge>
         </v-tabs>
       </v-col>
@@ -102,22 +100,24 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, inject } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
+import { getSocket } from "@/composables/useSocket";
 
 const axios = inject("axios");
 const apiUrl = inject("apiUrl");
 const userStore = useUserStore();
-const userId = userStore.user.users_pk;
 const router = useRouter();
+
+const userId = userStore.user?.users_pk;
 
 // Estados
 const activeTab = ref("friends");
 const searchQuery = ref("");
 const friends = ref([]);
 const requests = ref([]);
-const processingRequest = ref(null); // Controla o estado de loading
+const processingRequest = ref(null); // loading por item
 
 const filteredList = computed(() => {
   const list = activeTab.value === "friends" ? friends.value : requests.value;
@@ -139,28 +139,26 @@ const navigateToUser = (userId) => {
 
 const fetchFriends = async () => {
   try {
-    const userStore = useUserStore();
-    const userId = userStore.user?.users_pk;
-
-    if (!userId) {
+    const uid = userStore.user?.users_pk;
+    if (!uid) {
       console.error("❌ Erro: Usuário não identificado.");
       return;
     }
 
     const response = await axios.get(`${apiUrl}/friends/list_friends`, {
-      params: { invite_users_fk: userId, accepted: true },
+      params: { invite_users_fk: uid, accepted: true },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
 
-    const friendData = response.data.friends;
+    const friendData = response.data.friends || [];
 
     friends.value = friendData.map((friend) => ({
       friends_pk: friend.friends_pk,
       user_name: friend.user_name,
       friends_id:
-        friend.invite_users_fk === userId
+        friend.invite_users_fk === uid
           ? friend.recipient_users_fk
           : friend.invite_users_fk,
       image: friend.picture_hash
@@ -187,7 +185,6 @@ const fetchRequests = async () => {
     });
 
     const friendRequests = response.data.friends || [];
-
     requests.value = friendRequests.map((friend) => ({
       friends_pk: friend.friends_pk,
       user_name: friend.user_name,
@@ -215,13 +212,13 @@ const acceptFriend = async (requestItem) => {
   const { friends_pk } = requestItem;
   processingRequest.value = friends_pk;
 
+  // Optimistic UI
   const requestIndex = requests.value.findIndex(
     (r) => r.friends_pk === friends_pk,
   );
   if (requestIndex > -1) {
     requests.value.splice(requestIndex, 1);
   }
-
   const newFriend = { ...requestItem, accepted: true };
   friends.value.unshift(newFriend);
 
@@ -256,6 +253,7 @@ const declineFriend = async (friends_pk) => {
 
   processingRequest.value = friends_pk;
 
+  // Optimistic UI
   const requestIndex = requests.value.findIndex(
     (r) => r.friends_pk === friends_pk,
   );
@@ -280,9 +278,59 @@ const declineFriend = async (friends_pk) => {
   }
 };
 
+// === SOCKET HANDLERS ===
+function onNewRequest(evt) {
+  // Só interessa se o pedido é para mim
+  if (evt.recipient_users_fk !== userId) return;
+
+  // Evita duplicar
+  if (requests.value.some((r) => r.friends_pk === evt.friends_pk)) return;
+
+  // Busca atualizado (garante consistência)
+  fetchRequests();
+}
+
+function onAccepted(evt) {
+  // Interessa se sou uma das pontas
+  if (evt.invite_users_fk !== userId && evt.recipient_users_fk !== userId) return;
+
+  // Remove da lista de requests, se existir
+  const ix = requests.value.findIndex((r) => r.friends_pk === evt.friends_pk);
+  if (ix > -1) requests.value.splice(ix, 1);
+
+  // Recarrega amigos
+  fetchFriends();
+}
+
+function onRemoved(evt) {
+  // Remove de ambas as listas se presente
+  const ixReq = requests.value.findIndex((r) => r.friends_pk === evt.friends_pk);
+  if (ixReq > -1) requests.value.splice(ixReq, 1);
+  const ixFrd = friends.value.findIndex((r) => r.friends_pk === evt.friends_pk);
+  if (ixFrd > -1) friends.value.splice(ixFrd, 1);
+}
+
 onMounted(() => {
   fetchRequests();
   fetchFriends();
+
+  const s = getSocket();
+  if (s) {
+    s.on("friends:new_request", onNewRequest);
+    s.on("friends:accepted", onAccepted);
+    s.on("friends:removed", onRemoved);
+  } else {
+    console.warn("[friends] socket não disponível ainda");
+  }
+});
+
+onBeforeUnmount(() => {
+  const s = getSocket();
+  if (s) {
+    s.off("friends:new_request", onNewRequest);
+    s.off("friends:accepted", onAccepted);
+    s.off("friends:removed", onRemoved);
+  }
 });
 
 watch(activeTab, (newTab) => {
@@ -295,7 +343,6 @@ watch(activeTab, (newTab) => {
 </script>
 
 <style scoped>
-/* REGRA DE CSS MAIS FORTE PARA GARANTIR QUE NADA SEJA CORTADO */
 .overflow-visible-tabs :deep(.v-slide-group__container),
 .overflow-visible-tabs :deep(.v-slide-group__content) {
   overflow: visible !important;
