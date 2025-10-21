@@ -107,6 +107,11 @@
                 class="pt-0 event-card"
                 @click="openDialog(event)"
               >
+                <v-img
+                  v-if="getSeasonInfo(event.seasons_fk).flag"
+                  :src="getSeasonInfo(event.seasons_fk).flag"
+                  class="season-flag"
+                />
                 <v-row no-gutters>
                   <v-col cols="4" sm="2">
                     <div
@@ -208,6 +213,10 @@
               <p>
                 <v-icon>mdi-sword-cross</v-icon> Scenario:
                 {{ selectedEvent?.scenario }}
+              </p>
+              <p v-if="getSeasonInfo(selectedEvent?.seasons_fk).name">
+                <v-icon>mdi-shield-sun</v-icon> Season:
+                {{ getSeasonInfo(selectedEvent.seasons_fk).name }}
               </p>
               <p class="text-end scheduled-box">
                 Sheduled for:
@@ -468,7 +477,7 @@
             </div>
             <v-card-text>
               <v-row>
-                <v-col cols="12" md="12">
+                <v-col cols="12" md="6">
                   <v-select
                     v-model="newEvent.store"
                     :items="stores.map((store) => store.name)"
@@ -484,14 +493,27 @@
                     variant="outlined"
                   ></v-select>
                 </v-col>
-                <v-col cols="6" md="6">
+                
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="newEvent.season"
+                    :items="seasons"
+                    item-title="name"
+                    item-value="seasons_pk"
+                    label="SEASON"
+                    variant="outlined"
+                  ></v-select>
+                </v-col>
+                <v-col cols="12" md="6">
                   <v-select
                     v-model="newEvent.scenario"
-                    :items="sceneries"
+                    :items="filteredScenarios"
                     item-title="name"
                     item-value="sceneries_pk"
                     label="SCENARIO"
                     variant="outlined"
+                    :disabled="!newEvent.season"
+                    no-data-text="Select a season first"
                   ></v-select>
                 </v-col>
                 <v-col cols="6" md="4">
@@ -1043,6 +1065,8 @@ import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
 import { set } from "lodash-es";
+import s1flag from '@/assets/s1flag.png';
+import s2flag from '@/assets/s2flag.png';
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
@@ -1089,18 +1113,27 @@ const errorDialog = ref({
 });
 const successDialog = ref(false);
 
-// ADICIONADO APENAS ESTA VARIÁVEL
 const turnAwayConfirmDialog = ref({
   show: false,
   player: null,
 });
+const seasons = ref([]);
 
 const axios = inject("axios");
 if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-// ADICIONADAS APENAS ESTAS DUAS FUNÇÕES
+const getSeasonInfo = (fk) => {
+  if (fk == 2) {
+    return { flag: s1flag, name: 'Season 1' };
+  }
+  if (fk == 3) {
+    return { flag: s2flag, name: 'Season 2' };
+  }
+  return { flag: null, name: '' };
+};
+
 const confirmTurnAway = (player) => {
   turnAwayConfirmDialog.value = {
     show: true,
@@ -1125,6 +1158,22 @@ const sortedEvents = computed(() => {
   }
   return events.value;
 });
+
+const filteredScenarios = computed(() => {
+  if (!newEvent.value.season) {
+    return []; 
+  }
+
+  if (newEvent.value.season === 2) { 
+    return sceneries.value.filter(s => [2, 3, 4].includes(s.sceneries_pk));
+  }
+  if (newEvent.value.season === 3) { 
+    return sceneries.value.filter(s => [5, 6].includes(s.sceneries_pk));
+  }
+
+  return []; 
+});
+
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
@@ -1562,6 +1611,20 @@ const fetchMyEventsDebounced = useDebounceFn(() => {
   fetchUserCreatedEvents();
 }, 100);
 
+const fetchSeasons = async () => {
+  try {
+    const { data } = await axios.get("/seasons/search", {
+      params: { active: true },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    seasons.value = data.seasons || [];
+  } catch (error) {
+    console.error("❌ Erro ao buscar seasons:", error);
+  }
+};
+
 const fetchSceneries = async () => {
   await axios
     .get("/sceneries/search", {
@@ -1615,11 +1678,14 @@ const addEvent = () => {
   successDialog.value = false;
 
   const userId = userStore.user.users_pk;
+ 
+
   if (
     !newEvent.value.date ||
     !newEvent.value.hour ||
     !newEvent.value.store ||
     !newEvent.value.seats ||
+    !newEvent.value.season || 
     !newEvent.value.scenario ||
     !userId
   ) {
@@ -1627,6 +1693,7 @@ const addEvent = () => {
       show: true,
       message: "Please fill in all fields before creating the event.",
     };
+    loading.value = false;
     return;
   }
 
@@ -1681,7 +1748,7 @@ const addEvent = () => {
         "/events/cadastro",
         {
           seats_number: newEvent.value.seats,
-          seasons_fk: 2,
+          seasons_fk: newEvent.value.season,
           sceneries_fk: newEvent.value.scenario,
           date,
           stores_fk: storesFk,
@@ -1736,8 +1803,9 @@ const addEvent = () => {
         hour: "",
         ampm: "AM",
         store: "",
-        seats: "",
-        scenario: "",
+        seats: null,
+        season: null,
+        scenario: null,
       };
       selectedRewards.value = [];
     })
@@ -2014,12 +2082,18 @@ onMounted(() => {
 
   stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
 
+  fetchSeasons();
   fetchStatuses();
   fetchSceneries();
   fetchAllRewards();
   fetchPlayerEvents(showPast.value);
   fetchUserCreatedEvents(showPast.value);
 });
+
+watch(() => newEvent.value.season, (newSeasonValue) => {
+  newEvent.value.scenario = null;
+});
+
 
 watch(showPast, async (novo) => {
   if (activeTab.value == 1) {
@@ -2082,10 +2156,8 @@ watch(
 
 .list-container {
   min-height: 400px;
-  /* adjust as needed to prevent shrinking */
 }
 
-/* Event Card */
 .event-card {
   display: flex;
   align-items: center;
@@ -2095,14 +2167,12 @@ watch(
   background-color: #292929;
 }
 
-/* Event Image */
 .event-img {
   width: 110px;
   height: 110px;
   border-radius: 4px;
 }
 
-/* Sort Buttons */
 .sort-btn {
   font-weight: bold;
   text-transform: uppercase;
@@ -2115,26 +2185,25 @@ watch(
 
 .scheduled-box {
   display: inline-block;
-  /* Faz o fundo se ajustar ao tamanho do conteúdo */
   background-color: white;
-  /* Fundo branco */
   padding: 6px 12px;
-  /* Espaçamento interno */
   border-radius: 20px;
-  /* Bordas arredondadas */
   font-size: 14px;
-  /* Tamanho do texto */
   font-weight: 500;
-  /* Peso do texto */
   color: black;
-  /* Cor do texto */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  /* Sombra leve para destacar */
 }
 
 .scheduled-box strong {
   font-weight: bold;
-  /* Deixa "SCHEDULED FOR:" em negrito */
+}
+.season-flag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
 }
 </style>
 
@@ -2162,6 +2231,8 @@ watch(
 }
 
 .event-card {
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
   transition: 0.2s ease-in-out;
 }
