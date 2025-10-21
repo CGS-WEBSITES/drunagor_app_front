@@ -813,7 +813,7 @@ const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const eventStore = useEventStore();
 const route = useRoute();
-
+const toastUser = useUserStore();
 const loading = ref(true);
 const activeTab = ref(1);
 const events = ref([]);

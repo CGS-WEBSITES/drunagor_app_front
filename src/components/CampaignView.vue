@@ -22,6 +22,47 @@
     </div>
   </v-snackbar>
 
+  <v-dialog v-model="playerListDialogVisible" max-width="600px">
+    <v-card>
+      <v-card-title class="d-flex justify-space-between align-center">
+        <span class="text-h5">Player List</span>
+        <v-btn icon="mdi-close" variant="text" @click="playerListDialogVisible = false"></v-btn>
+      </v-card-title>
+      <v-card-text>
+        <CampaignPlayerList
+          ref="campaignPlayerListRef"
+          :campaign-id="campaignId"
+          :show-remove-button="showSaveCampaignButton"
+          @player-removed="onPlayerRemoved"
+          density="compact"
+        />
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions class="d-flex flex-wrap justify-space-around pa-4">
+        <v-btn
+            @click="shareCampaignRef?.openDialog?.()"
+            variant="elevated"
+            rounded
+            prepend-icon="mdi-account-plus-outline"
+            class="my-2"
+        >
+            Invite Player
+        </v-btn>
+        <v-btn
+          v-if="showSaveCampaignButton"
+          class="my-2"
+          @click="openTransferDialog"
+          variant="elevated"
+          rounded
+          prepend-icon="mdi-account-switch-outline"
+        >
+          Transfer Drunagor Master
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+
   <v-dialog v-model="transferDialogVisible" max-width="500px">
     <v-card>
       <v-card-title>
@@ -175,15 +216,15 @@
     </v-btn>
 
     <v-btn
-      key="share"
+      key="player-list"
       size="small"
       color="secondary"
       icon
       class="speed-dial-item"
-      @click="handleSpeedDialAction('share')"
+      @click="openPlayerListDialog"
     >
       <v-icon>mdi-account-group</v-icon>
-      <v-tooltip activator="parent" location="start"> Invite Player </v-tooltip>
+      <v-tooltip activator="parent" location="start"> Player List </v-tooltip>
     </v-btn>
 
     <v-btn
@@ -202,13 +243,11 @@
     </v-btn>
   </v-speed-dial>
 
-  <!-- Main Content -->
   <div class="campaign-content">
     <v-container fluid>
       <template v-if="campaign">
         <v-row justify="center" no-gutters>
           <v-col cols="12" lg="9" xl="8">
-            <!-- Player View Alert for non-underkeep campaigns -->
             <v-card-text
               v-if="
                 !showSaveCampaignButton &&
@@ -225,7 +264,7 @@
                 :closable="true"
               >
                 Players can only view information for this campaign. Only a
-                Drunagor Master can save, edit, or delete a campaign.
+                Dunagor Master can save, edit, or delete a campaign.
               </BaseAlert>
             </v-card-text>
 
@@ -271,75 +310,46 @@
               </v-tabs>
 
               <v-window v-model="currentTab">
-                <!-- Campaign Log Tab -->
                 <v-window-item value="normal">
                   <v-card class="mb-3" color="primary">
-                    <v-card-text class="pa-3">
-                       <CampaignName
-                          :campaign-id="campaignId"
-                          class="mb-0 shepherd-campaign-name"
-                        />
-                      <CampaignPlayerList
-                        ref="campaignPlayerListRef"
-                        :campaign-id="campaignId"
-                        :show-remove-button="showSaveCampaignButton"
-                        @player-removed="onPlayerRemoved"
-                        density="compact"
-                      />
-                      <div
-                        class="d-flex justify-space-between align-center mt-2 flex-wrap"
-                      >
-                        <v-btn
-                          v-if="showSaveCampaignButton"
-                          class="mx-1 my-1"
-                          @click="openTransferDialog"
-                          variant="elevated"
-                          rounded
-                          prepend-icon="mdi-account-switch-outline"
-                        >
-                          Transfer Drunagor Master
-                        </v-btn>
-                        <div
-                          v-if="showSaveCampaignButton"
-                          class="mx-1 my-1 d-flex align-center"
-                        >
-                          <div class="mr-3">
-                            <div class="d-flex align-center">
-                              <span class="text-caption font-weight-bold mr-1"
-                                >CAMPAIGN ID:</span
-                              >
-                              <v-tooltip location="top">
-                                <template v-slot:activator="{ props }">
-                                  <v-icon
-                                    v-bind="props"
-                                    size="small"
-                                    color="info"
-                                    class="cursor-pointer"
-                                  >
-                                    mdi-information-outline
-                                  </v-icon>
-                                </template>
-                                <span
-                                  >Use this code to invite your friends</span
-                                >
-                              </v-tooltip>
-                            </div>
-                          </div>
-                          <v-chip v-if="partyCode" label size="large">{{
-                            partyCode
-                          }}</v-chip>
-                          <v-chip v-else label size="large"
-                            >Generating...</v-chip
-                          >
-                        </div>
-                      </div>
+                     <v-card-text class="pa-2">
+                        <v-row align="center">
+                            <v-col class="pb-0" cols="12" sm="9">
+                                <CampaignName :campaign-id="campaignId" class="mb-0 shepherd-campaign-name" />
+                            </v-col>
+                            <v-col cols="12" sm="3">
+                                <div class="d-flex justify-start justify-sm-end align-center mb-4">
+                                    <div class="mx-1 my-1= d-flex align-center">
+                                        <div class="mr-3">
+                                            <div class="d-flex align-center">
+                                            <span class="text-caption font-weight-bold mr-1">CAMPAIGN ID:</span>
+                                            <v-tooltip location="top">
+                                                <template v-slot:activator="{ props }">
+                                                <v-icon
+                                                    v-bind="props"
+                                                    size="small"
+                                                    color="info"
+                                                    class="cursor-pointer"
+                                                >
+                                                    mdi-information-outline
+                                                </v-icon>
+                                                </template>
+                                                <span>Use this code to invite your friends</span>
+                                            </v-tooltip>
+                                            </div>
+                                        </div>
+                                        <v-chip v-if="partyCode" label size="large">{{ partyCode }}</v-chip>
+                                        <v-chip v-else label size="large">Generating...</v-chip>
+                                    </div>
+                                </div>
+                            </v-col>
+                        </v-row>
                     </v-card-text>
                   </v-card>
 
                   <div>
                     <v-row no-gutters>
                       <v-col cols="12" md="6" class="pr-md-2">
-                       
                         <SelectDoor
                           :campaign-id="campaignId"
                           :campaign-type="campaign.campaign"
@@ -353,11 +363,11 @@
                         <v-row v-if="campaign && campaign.campaign === 'underkeep2'" no-gutters class="mt-0">
                           <v-col cols="12">
                               <SelectCompanion 
-                                  :campaign-id="campaignId" 
-                                  :is-admin="showSaveCampaignButton" 
-                              />
+                                :campaign-id="campaignId" 
+                                :is-admin="showSaveCampaignButton" 
+                            />
                           </v-col>
-                      </v-row>
+                        </v-row>
                       </v-col>
                       <v-col cols="12" md="6" class="pl-md-2">
                         <CampaignRuneCards
@@ -440,115 +450,81 @@
             </template>
 
             <template v-else>
-              <v-card class="mb-3" color="primary">
-                <v-card-text class="pa-3">
-                  <CampaignPlayerList
-                    ref="campaignPlayerListRef"
-                    :campaign-id="campaignId"
-                    :show-remove-button="showSaveCampaignButton"
-                    @player-removed="onPlayerRemoved"
-                    density="compact"
-                  />
-                  <div
-                    class="d-flex justify-space-between align-center mt-2 flex-wrap"
-                  >
-                    <v-btn
-                      v-if="showSaveCampaignButton"
-                      class="mx-1 my-1"
-                      @click="openTransferDialog"
-                      variant="elevated"
-                      rounded
-                      prepend-icon="mdi-account-switch-outline"
-                    >
-                      Transfer Drunagor Master
-                    </v-btn>
-                    <div
-                      v-if="showSaveCampaignButton"
-                      class="mx-1 my-1 d-flex align-center"
-                    >
-                      <div class="mr-3">
-                        <div class="d-flex align-center">
-                          <span class="text-caption font-weight-bold mr-1"
-                            >CAMPAIGN ID:</span
-                          >
-                          <v-tooltip location="top">
-                            <template v-slot:activator="{ props }">
-                              <v-icon
-                                v-bind="props"
-                                size="small"
-                                color="info"
-                                class="cursor-pointer"
-                              >
-                                mdi-information-outline
-                              </v-icon>
-                            </template>
-                            <span>Use this code to invite your friends</span>
-                          </v-tooltip>
+               <div>
+                  <v-row no-gutters align="center" class="mb-3">
+                      <v-col cols="12" sm="8">
+                          <CampaignName :campaign-id="campaignId" />
+                      </v-col>
+                      <v-col cols="12" sm="4">
+                          <div class="d-flex justify-start justify-sm-end align-center">
+                              <div v-if="showSaveCampaignButton" class="mx-1 my-1 d-flex align-center">
+                                  <div class="mr-3">
+                                      <div class="d-flex align-center">
+                                          <span class="text-caption font-weight-bold mr-1">CAMPAIGN ID:</span>
+                                          <v-tooltip location="top">
+                                              <template v-slot:activator="{ props }">
+                                                  <v-icon v-bind="props" size="small" color="info" class="cursor-pointer">
+                                                      mdi-information-outline
+                                                  </v-icon>
+                                              </template>
+                                              <span>Use this code to invite your friends</span>
+                                          </v-tooltip>
+                                      </div>
+                                  </div>
+                                  <v-chip v-if="partyCode" label size="large">{{ partyCode }}</v-chip>
+                                  <v-chip v-else label size="large">Generating...</v-chip>
+                              </div>
+                          </div>
+                      </v-col>
+                  </v-row>
+
+                  <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
+                    <v-col cols="12">
+                      <v-card class="pa-2" color="primary">
+                        <div class="d-flex justify-center flex-wrap gap-2">
+                          <CampaignLogAddHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                          <CampaignLogImportHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                          <CampaignLogRemoveHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
                         </div>
-                      </div>
-                      <v-chip v-if="partyCode" label size="large">{{
-                        partyCode
-                      }}</v-chip>
-                      <v-chip v-else label size="large">Generating...</v-chip>
-                    </div>
-                  </div>
-                </v-card-text>
-              </v-card>
+                      </v-card>
+                    </v-col>
+                  </v-row>
 
-              <div>
-                <v-row no-gutters>
-                  <v-col cols="12">
-                    <CampaignName :campaign-id="campaignId" class="mb-3" />
-                  </v-col>
-                </v-row>
-
-                <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
-                  <v-col cols="12">
-                    <v-card class="pa-2" color="primary">
-                      <div class="d-flex justify-center flex-wrap gap-2">
-                        <CampaignLogAddHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogImportHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogRemoveHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
-
-                <v-row no-gutters>
-                  <v-col cols="12">
-                    <v-sheet rounded border="md" class="text-white pa-2">
-                      <div
-                        v-if="
-                          heroStore.findAllInCampaign(campaignId).length === 0
-                        "
-                        class="text-center pa-4"
-                      >
-                        No heroes added to this campaign yet.
-                      </div>
-                      <div
-                        v-for="hero in heroStore.findAllInCampaign(campaignId)"
-                        :key="hero.heroId"
-                        class="mb-2"
-                      >
-                        <CampaignLog
-                          :campaign-id="campaignId"
-                          :hero-id="hero.heroId"
-                          :is-sequential-adventure="isSequentialAdventure"
-                        />
-                      </div>
-                    </v-sheet>
-                  </v-col>
-                </v-row>
-              </div>
+                  <v-row no-gutters>
+                    <v-col cols="12">
+                      <v-sheet rounded border="md" class="text-white pa-2">
+                        <div
+                          v-if="
+                            heroStore.findAllInCampaign(campaignId).length === 0
+                          "
+                          class="text-center pa-4"
+                        >
+                          No heroes added to this campaign yet.
+                        </div>
+                        <div
+                          v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                          :key="hero.heroId"
+                          class="mb-2"
+                        >
+                          <CampaignLog
+                            :campaign-id="campaignId"
+                            :hero-id="hero.heroId"
+                            :is-sequential-adventure="isSequentialAdventure"
+                          />
+                        </div>
+                      </v-sheet>
+                    </v-col>
+                  </v-row>
+                </div>
             </template>
           </v-col>
         </v-row>
@@ -576,9 +552,7 @@
     />
   </div>
 
-  <v-col class="pb-12">
-
-  </v-col>
+  <v-col class="pb-12"> </v-col>
 </template>
 
 <script setup lang="ts">
@@ -618,6 +592,7 @@ const route = useRoute();
 const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
+const playerListDialogVisible = ref(false);
 const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
@@ -839,6 +814,13 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
+const openPlayerListDialog = async () => {
+  if (campaignPlayerListRef.value) {
+    await campaignPlayerListRef.value.fetchPlayers();
+  }
+  playerListDialogVisible.value = true;
+};
+
 const handleSpeedDialAction = (action: string) => {
   switch (action) {
     case "save":
@@ -1000,7 +982,9 @@ const fetchRole = async () => {
 
 const onPlayerRemoved = async () => {
   setAlert("mdi-check", "Success", "Player successfully removed", "success");
-  await campaignPlayerListRef.value?.fetchPlayers();
+  if (campaignPlayerListRef.value) {
+    await campaignPlayerListRef.value.fetchPlayers();
+  }
 };
 
 watch(transferAlertVisible, (v) => {
