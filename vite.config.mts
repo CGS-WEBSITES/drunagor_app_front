@@ -51,7 +51,7 @@ export default defineConfig({
         clientsClaim: true,
         globPatterns: ['**/*.{js,ts,mjs,mts,css,html,ico,png,svg,vue}'],
       },
-      
+
       manifest: {
         name: 'Drunagor App',
         short_name: 'Drunagor App',
@@ -63,13 +63,8 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'android-chrome-192x192.png', 
+            src: 'android-chrome-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
-          },
-            {
-            src: 'android-chrome-512x512.png',
-            sizes: '512x512',
             type: 'image/png'
           },
           {
@@ -79,12 +74,15 @@ export default defineConfig({
             purpose: 'maskable'
           }
         ]
+      },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5 MB
       }
     }),
     vueDevTools(),
     Fonts({
       google: {
-        families: [ {
+        families: [{
           name: 'Roboto',
           styles: 'wght@100;300;400;500;700;900',
         }],
