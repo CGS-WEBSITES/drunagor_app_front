@@ -2077,6 +2077,7 @@ onMounted(() => {
 
 watch(() => newEvent.value.season, (newSeasonValue) => {
   newEvent.value.scenario = null;
+}); 
   
 onUnmounted(() => {
   clearInterval(eventsInterval.value);
