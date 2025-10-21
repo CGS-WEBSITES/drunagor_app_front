@@ -862,14 +862,6 @@
                   <v-col>
                     <p class="pb-3 font-weight-bold">
                       PLAYERS INTERESTED
-                      <v-btn
-                        icon
-                        size="medium"
-                        variant="text"
-                        @click="refreshInterestedPlayers(selectedEvent)"
-                      >
-                        <v-icon class="mb-1" color="white">mdi-refresh</v-icon>
-                      </v-btn>
                     </p>
                   </v-col>
                   <v-row>
@@ -1060,7 +1052,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, inject } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
@@ -1112,6 +1104,8 @@ const errorDialog = ref({
   message: "",
 });
 const successDialog = ref(false);
+const eventsInterval = ref(null);
+const playersInterval = ref(null);
 
 const turnAwayConfirmDialog = ref({
   show: false,
@@ -1124,6 +1118,7 @@ if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
+
 const getSeasonInfo = (fk) => {
   if (fk == 2) {
     return { flag: s1flag, name: 'Season 1' };
@@ -1133,6 +1128,7 @@ const getSeasonInfo = (fk) => {
   }
   return { flag: null, name: '' };
 };
+
 
 const confirmTurnAway = (player) => {
   turnAwayConfirmDialog.value = {
@@ -1283,6 +1279,11 @@ const openEditDialog = (event, editable = false) => {
       });
       fetchPlayersForEvent(event.events_pk);
       fetchStatuses();
+      
+      clearInterval(playersInterval.value); 
+      playersInterval.value = setInterval(() => {
+        fetchPlayersForEvent(event.events_pk);
+      }, 5000);
     });
   }
 
@@ -1498,8 +1499,8 @@ const joinEvent = () => {
   dialog.value = false;
 };
 
-const fetchPlayerEvents = async (past) => {
-  loading.value = true;
+const fetchPlayerEvents = async (past, isPolling = false) => {
+  if (!isPolling) loading.value = true;
   lastFetchPastAll.value = past;
   try {
     const { data } = await axios.get("/events/list_events/", {
@@ -1545,12 +1546,12 @@ const fetchPlayerEvents = async (past) => {
     console.error("❌ Error fetching player events:", err);
     events.value = [];
   } finally {
-    loading.value = false;
+    if (!isPolling) loading.value = false;
   }
 };
 
-const fetchUserCreatedEvents = async (past) => {
-  loading.value = true;
+const fetchUserCreatedEvents = async (past, isPolling = false) => {
+  if (!isPolling) loading.value = true;
   lastFetchPastMine.value = past;
   try {
     const params = {
@@ -1603,7 +1604,7 @@ const fetchUserCreatedEvents = async (past) => {
     console.error("Error fetching my events:", error);
     userCreatedEvents.value = [];
   } finally {
-    loading.value = false;
+    if (!isPolling) loading.value = false;
   }
 };
 
@@ -2037,30 +2038,6 @@ const copyLink = (link) => {
     });
 };
 
-const refreshInterestedPlayers = async (event) => {
-  if (!event || !event.events_pk) {
-    console.error("Refresh failed: Event data is missing.");
-    return;
-  }
-
-  try {
-    selectedEvent.value = event;
-
-    await fetchPlayersForEvent(event.events_pk);
-    fetchStatuses();
-    await fetchAllRewards();
-    const rewardsFromRelation = await fetchEventRewards(event.events_pk);
-    eventRewards.value = rewardsFromRelation;
-    if (editableEvent.value) {
-      editableEvent.value.rewards = availableRewards.value.filter((ar) =>
-        rewardsFromRelation.some((rr) => rr.rewards_pk === ar.rewards_pk),
-      );
-    }
-  } catch (error) {
-    console.error("An error occurred while refreshing event data:", error);
-  }
-};
-
 onMounted(() => {
   axios
     .get("/stores/list", {
@@ -2088,10 +2065,22 @@ onMounted(() => {
   fetchAllRewards();
   fetchPlayerEvents(showPast.value);
   fetchUserCreatedEvents(showPast.value);
+
+  eventsInterval.value = setInterval(() => {
+    if (activeTab.value === 1) {
+      fetchPlayerEvents(showPast.value, true);
+    } else {
+      fetchUserCreatedEvents(showPast.value, true);
+    }
+  }, 5000);
 });
 
 watch(() => newEvent.value.season, (newSeasonValue) => {
   newEvent.value.scenario = null;
+  
+onUnmounted(() => {
+  clearInterval(eventsInterval.value);
+  clearInterval(playersInterval.value);
 });
 
 
@@ -2129,6 +2118,14 @@ watch(
     }
   },
 );
+
+watch(editEventDialog, (isOpen) => {
+  if (!isOpen) {
+    clearInterval(playersInterval.value);
+    playersInterval.value = null;
+  }
+});
+
 </script>
 
 <style scoped>

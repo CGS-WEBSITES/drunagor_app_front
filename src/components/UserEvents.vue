@@ -790,7 +790,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, inject } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -882,8 +882,11 @@ const selectedLoadCampaign = ref(null);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
 const joinCampaignLoading = ref(false);
+const eventRefreshInterval = ref(null);
 
 const BOX_ID = 38;
+
+const rewardsCache = ref({}); 
 
 const axios = inject("axios");
 if (!axios) {
@@ -924,6 +927,12 @@ const appUserPk = computed(() => {
 
 const currentPlayer = computed(() => {
   if (!appUserPk.value) return null;
+  if (myDialog.value && selectedMyEvent.value) {
+    return {
+      event_status: selectedMyEvent.value.status,
+      users_pk: appUserPk.value,
+    };
+  }
   return players.value.find((p) => p.users_pk === appUserPk.value) || null;
 });
 
@@ -982,21 +991,33 @@ const fetchStatuses = () => {
     });
 };
 
-const fetchPlayers = (eventPk) => {
-  axios
-    .get("/rl_events_users/list_players", {
+const fetchPlayers = async (eventPk) => {
+  try {
+    const response = await axios.get("/rl_events_users/list_players", {
       params: { events_fk: eventPk },
-    })
-    .then((response) => {
-      players.value = response.data.players;
-    })
-    .catch((error) => {
-      console.error(
-        "Error fetching players:",
-        error.response?.data || error.message,
-      );
-      players.value[Number(eventPk)] = [];
     });
+    players.value = response.data.players;
+
+    if (selectedMyEvent.value && selectedMyEvent.value.events_pk === eventPk) {
+      const currentUserEntry = players.value.find(
+        (p) => p.users_pk === appUserPk.value,
+      );
+      if (currentUserEntry) {
+        selectedMyEvent.value.status = currentUserEntry.event_status;
+        
+        const eventIndex = myEvents.value.findIndex(e => e.events_pk === eventPk);
+        if (eventIndex !== -1) {
+          myEvents.value[eventIndex].status = currentUserEntry.event_status;
+        }
+      }
+    }
+  } catch (error) {
+    console.error(
+      "Error fetching players:",
+      error.response?.data || error.message,
+    );
+    players.value = [];
+  }
 };
 
 const dateRules = [
@@ -1015,24 +1036,50 @@ const todayISO = today.toISOString().split("T")[0];
 const oneYearFromToday = new Date();
 oneYearFromToday.setFullYear(today.getFullYear() + 1);
 
-const openDialog = (event) => {
+const fetchRewardsForEvent = async (eventPk, forceRefresh = false) => {
+  const cacheKey = eventPk;
+  const now = Date.now();
+  const cacheEntry = rewardsCache.value[cacheKey];
+  const CACHE_DURATION_MS = 60000; 
+
+  if (!forceRefresh && cacheEntry && now - cacheEntry.timestamp < CACHE_DURATION_MS) {
+    return cacheEntry.rewards;
+  }
+
+  try {
+    const rewardsRes = await axios.get(
+      "/rl_events_rewards/list_rewards",
+      {
+        params: { events_fk: eventPk },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    );
+    const rewards = (rewardsRes.data.rewards || []).map((r) => ({
+      ...r,
+      image: `https://assets.drunagor.app/${r.picture_hash}`,
+    }));
+
+    rewardsCache.value[cacheKey] = {
+      rewards: rewards,
+      timestamp: now,
+    };
+    return rewards;
+  } catch (error) {
+    console.error("Error fetching rewards:", error);
+    if (cacheEntry) {
+      return cacheEntry.rewards;
+    }
+    return [];
+  }
+};
+
+const openDialog = async (event) => {
   selectedEvent.value = event;
   dialog.value = true;
   fetchPlayers(event.events_pk);
-
-  axios
-    .get("/rl_events_rewards/list_rewards", {
-      params: { events_fk: event.events_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    })
-    .then((rewardsRes) => {
-      eventRewards.value = rewardsRes.data.rewards || [];
-    })
-    .catch(() => {
-      eventRewards.value = [];
-    });
+  eventRewards.value = await fetchRewardsForEvent(event.events_pk, true);
 };
 
 const compressCampaign = (campaignId) => {
@@ -1192,7 +1239,6 @@ const confirmLoadCampaign = () => {
 };
 
 const fetchPlayerEvents = async (past) => {
-  loading.value = true;
   const params = {
     player_fk: playerFk.value,
     past_events: past.toString(),
@@ -1205,40 +1251,23 @@ const fetchPlayerEvents = async (past) => {
       },
     });
     const eventsData = response.data.events || [];
+    
     const eventsWithRewards = await Promise.all(
       eventsData.map(async (event) => {
-        try {
-          const rewardsRes = await axios.get(
-            "/rl_events_rewards/list_rewards",
-            {
-              params: { events_fk: event.events_pk },
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            },
-          );
-          const formattedRewards = (rewardsRes.data.rewards || []).map((r) => ({
-            ...r,
-            image: `https://assets.drunagor.app/${r.picture_hash}`,
-          }));
-          return { ...event, rewards: formattedRewards };
-        } catch (error) {
-          return { ...event, rewards: [] };
-        }
+        const rewards = await fetchRewardsForEvent(event.events_pk);
+        return { ...event, rewards };
       }),
     );
+    
     events.value = eventsWithRewards;
+    
   } catch (error) {
     console.error("Error fetching player events:", error);
     events.value = [];
-  } finally {
-    loading.value = false;
   }
 };
 
 const fetchMyEvents = async (past) => {
-  loading.value = true;
-
   const params = {
     player_fk: playerFk.value,
     past_events: past.toString(),
@@ -1253,34 +1282,30 @@ const fetchMyEvents = async (past) => {
       },
     });
     const eventsData = response.data.events || [];
+    
     const eventsWithRewards = await Promise.all(
       eventsData.map(async (event) => {
-        try {
-          const rewardsRes = await axios.get(
-            "/rl_events_rewards/list_rewards",
-            {
-              params: { events_fk: event.events_pk },
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            },
-          );
-          const formattedRewards = (rewardsRes.data.rewards || []).map((r) => ({
-            ...r,
-            image: `https://assets.drunagor.app/${r.picture_hash}`,
-          }));
-          return { ...event, rewards: formattedRewards };
-        } catch (error) {
-          return { ...event, rewards: [] };
-        }
+        const rewards = await fetchRewardsForEvent(event.events_pk);
+        return { ...event, rewards };
       }),
     );
+    
     myEvents.value = eventsWithRewards;
+    
+    if (myDialog.value && selectedMyEvent.value) {
+      const currentEvent = myEvents.value.find(e => e.events_pk === selectedMyEvent.value.events_pk);
+      if (currentEvent) {
+        selectedMyEvent.value = currentEvent;
+        fetchPlayers(currentEvent.events_pk);
+      } else {
+         myDialog.value = false;
+         selectedMyEvent.value = null;
+      }
+    }
+
   } catch (error) {
     console.error("Error fetching my events:", error);
     myEvents.value = [];
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -1309,66 +1334,50 @@ const createEvent = () => {
   createEventDialog.value = false;
 };
 
-const openMyEventsDialog = (event) => {
+const openMyEventsDialog = async (event) => {
   showQuitSuccessAlert.value = false;
   showQuitErrorAlert.value = false;
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
-  fetchPlayers(event.events_pk);
   myDialog.value = true;
-  eventRewards.value = [];
+  
+  isRefreshingStatus.value = true;
+  await fetchPlayers(event.events_pk);
+  isRefreshingStatus.value = false;
 
-  axios
-    .get("/rl_events_rewards/list_rewards", {
-      params: { events_fk: event.events_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    })
-    .then((rewardsRes) => {
-      eventRewards.value = rewardsRes.data.rewards || [];
-    })
-    .catch(() => {
-      eventRewards.value = [];
-    });
-
+  eventRewards.value = await fetchRewardsForEvent(event.events_pk, true);
+  
   const userStore = useUserStore();
   const userId = parseInt(userStore.user?.users_pk, 10);
   if (isNaN(userId)) {
     return;
   }
 
-  axios
-    .get("/rl_events_users/list_players", {
-      params: { events_fk: event.events_pk },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    })
-    .then((response) => {
-      const playersForEvent = response.data.players;
-      const currentUserEntry = playersForEvent.find(
-        (player) => player.users_pk === userId,
-      );
-      rlEventsUsersPkToQuit.value = currentUserEntry
-        ? currentUserEntry.rl_events_users_pk
-        : null;
-    })
-    .catch(() => {
-      rlEventsUsersPkToQuit.value = null;
-    });
+  const currentUserEntry = players.value.find(
+    (player) => player.users_pk === userId,
+  );
+  rlEventsUsersPkToQuit.value = currentUserEntry
+    ? currentUserEntry.rl_events_users_pk
+    : null;
 };
 
-const refreshEventStatus = () => {
+const refreshEventStatus = async () => {
   if (!selectedMyEvent.value?.events_pk) {
     console.warn("Nenhum evento selecionado para atualizar.");
     return;
   }
 
   isRefreshingStatus.value = true;
+  loading.value = true;
 
-  fetchPlayers(selectedMyEvent.value.events_pk);
-  isRefreshingStatus.value = false;
+  try {
+    await fetchPlayers(selectedMyEvent.value.events_pk);
+  } catch (error) {
+    console.error("Erro ao atualizar status do evento:", error);
+  } finally {
+    isRefreshingStatus.value = false;
+    loading.value = false;
+  }
 };
 
 const quitEvent = () => {
@@ -1409,7 +1418,6 @@ const confirmQuitEvent = () => {
       return fetchMyEvents(showPast.value);
     })
     .then(() => {
-      myDialog.value = false;
     })
     .catch((error) => {
       console.error("Failed to quit event:", error);
@@ -1490,7 +1498,7 @@ const confirmJoinCampaign = () => {
     if (!parsedCampaignFk.value) return;
 
     loading.value = true;
-    const usersPk = toastUser.user.users_pk;
+    const usersPk = userStore.user.users_pk;
     const campaignId = parsedCampaignFk.value;
 
     axios.post("/rl_campaigns_users/cadastro", {
@@ -1592,11 +1600,12 @@ const joinEvent = async () => {
       alertMessage.value =
         "You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.";
       showAlert.value = true;
+      
+      fetchMyEvents(showPast.value);
 
       setTimeout(async () => {
         dialog.value = false;
         activeTab.value = 2;
-        await fetchMyEvents(showPast.value);
         showAlert.value = false;
       }, 2000);
     })
@@ -1629,6 +1638,18 @@ const fetchStoresList = async () => {
     });
 };
 
+const startEventRefreshInterval = () => {
+  if (eventRefreshInterval.value) {
+    clearInterval(eventRefreshInterval.value);
+  }
+  eventRefreshInterval.value = setInterval(() => {
+    if (playerFk.value) {
+      fetchPlayerEvents(showPast.value);
+      fetchMyEvents(showPast.value);
+    }
+  }, 5000); 
+};
+
 onMounted(() => {
   const usersPk = localStorage.getItem("app_user");
   const appUser = usersPk ? JSON.parse(usersPk).users_pk : null;
@@ -1653,12 +1674,25 @@ onMounted(() => {
         fetchMyEvents(showPast.value),
       ]);
     })
+    .then(() => {
+      loading.value = false;
+      startEventRefreshInterval();
+    })
     .catch((error) => {
       console.error("Error fetching sceneries or events:", error);
     })
     .finally(() => {
-      loading.value = false;
+      if (loading.value) {
+        loading.value = false;
+      }
     });
+});
+
+onUnmounted(() => {
+  if (eventRefreshInterval.value) {
+    clearInterval(eventRefreshInterval.value);
+    eventRefreshInterval.value = null;
+  }
 });
 
 watch(showPast, async (novo) => {
@@ -1828,7 +1862,6 @@ watch(
   top: 16px;
   right: 16px;
   z-index: 10;
-  color: red;
 }
 
 .redbutton {
