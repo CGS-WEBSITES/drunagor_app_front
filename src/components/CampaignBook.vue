@@ -840,12 +840,6 @@ import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
 import ReservoirImg from "@/assets/01-Flood-Dungeon_v02-min.png";
 import TreasuresImg from "@/assets/02-Arsenal-Dungeon-min.png";
 import GargoyleImg from "@/assets/03-Gargoyle-min.png";
-import PrisonerImg from "@/assets/Interaction_ThePrisoner-min.png";
-import SeedImg from "@/assets/Interaction_TheSeed-min.png";
-import ForgeImg from "@/assets/Interaction_TheForge-min.png";
-import AltarImg from "@/assets/Interaction_DraconianAltar-min.png";
-import BeerImg from "@/assets/Interaction_BeerFactory-min.png";
-import RunicImg from "@/assets/Interaction_TheRunic-min.png";
 
 // Import Interaction JSONs
 import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
@@ -1024,12 +1018,6 @@ const importedImageAssets: Record<string, string> = {
   ReservoirImg,
   TreasuresImg,
   GargoyleImg,
-  PrisonerImg,
-  SeedImg,
-  ForgeImg,
-  AltarImg,
-  BeerImg,
-  RunicImg,
 };
 
 const importedItemAssets: Record<string, InteractionItem[]> = {
