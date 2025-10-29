@@ -169,17 +169,22 @@
             :disabled="item.disabled"
             @click="handleMenuClick(item)"
             :value="item.title"
+            class="my-1"
           >
             <template v-slot:prepend>
-              <v-img
-                v-if="item.iconImage"
-                :src="item.iconImage"
-                width="24"
-                height="24"
-                contain
-                class="mr-3"
-              ></v-img>
-              <v-icon v-else class="mr-3">{{ item.icon }}</v-icon>
+              <div
+                class="d-flex align-center"
+                style="width: 24px; margin-right: 16px"
+              >
+                <v-img
+                  v-if="item.iconImage"
+                  :src="item.iconImage"
+                  width="24"
+                  height="24"
+                  contain
+                ></v-img>
+                <v-icon v-else size="24">{{ item.icon }}</v-icon>
+              </div>
             </template>
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
@@ -188,7 +193,15 @@
         <template v-slot:append>
           <div class="pa-2">
             <v-divider class="mb-2"></v-divider>
-            <v-list-item @click="logOut" prepend-icon="mdi-logout">
+            <v-list-item @click="logOut" class="my-1">
+              <template v-slot:prepend>
+                <div
+                  class="d-flex align-center"
+                  style="width: 24px; margin-right: 16px"
+                >
+                  <v-icon size="24">mdi-logout</v-icon>
+                </div>
+              </template>
               <v-list-item-title>Log Out</v-list-item-title>
             </v-list-item>
           </div>
