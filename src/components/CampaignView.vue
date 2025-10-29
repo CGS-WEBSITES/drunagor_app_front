@@ -26,11 +26,7 @@
     <v-card>
       <v-card-title class="d-flex justify-space-between align-center">
         <span class="text-h5">Player List</span>
-        <v-btn
-          icon="mdi-close"
-          variant="text"
-          @click="playerListDialogVisible = false"
-        ></v-btn>
+        <v-btn icon="mdi-close" variant="text" @click="playerListDialogVisible = false"></v-btn>
       </v-card-title>
       <v-card-text>
         <CampaignPlayerList
@@ -44,13 +40,13 @@
       <v-divider></v-divider>
       <v-card-actions class="d-flex flex-wrap justify-space-around pa-4">
         <v-btn
-          @click="shareCampaignRef?.openDialog?.()"
-          variant="elevated"
-          rounded
-          prepend-icon="mdi-account-plus-outline"
-          class="my-2"
+            @click="shareCampaignRef?.openDialog?.()"
+            variant="elevated"
+            rounded
+            prepend-icon="mdi-account-plus-outline"
+            class="my-2"
         >
-          Invite Player
+            Invite Player
         </v-btn>
         <v-btn
           v-if="showSaveCampaignButton"
@@ -65,6 +61,7 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
 
   <v-dialog v-model="transferDialogVisible" max-width="500px">
     <v-card>
@@ -154,8 +151,8 @@
   </v-dialog>
 
   <!-- Desktop: Speed Dial (oculto em mobile/tablet) -->
-  <v-speed-dial
-    v-model="speedDialOpen"
+  <v-speed-dial 
+    v-model="speedDialOpen" 
     transition="fade-transition"
     class="d-none d-md-flex"
   >
@@ -165,7 +162,7 @@
         :color="speedDialOpen ? 'red' : 'green'"
         size="large"
         icon
-        class="speed-dial-activator"
+        class="speed-dial-activator d-none d-md-flex"
         elevation="14"
       >
         <v-icon>{{
@@ -383,53 +380,38 @@
               <v-window v-model="currentTab">
                 <v-window-item value="normal">
                   <v-card class="mb-3" color="primary">
-                    <v-card-text class="pa-2">
-                      <v-row align="center">
-                        <v-col class="pb-0" cols="12" sm="9">
-                          <CampaignName
-                            :campaign-id="campaignId"
-                            class="mb-0 shepherd-campaign-name"
-                          />
-                        </v-col>
-                        <v-col cols="12" sm="3">
-                          <div
-                            class="d-flex justify-start justify-sm-end align-center mb-4"
-                          >
-                            <div class="mx-1 my-1= d-flex align-center">
-                              <div class="mr-3">
-                                <div class="d-flex align-center">
-                                  <span
-                                    class="text-caption font-weight-bold mr-1"
-                                    >CAMPAIGN ID:</span
-                                  >
-                                  <v-tooltip location="top">
-                                    <template v-slot:activator="{ props }">
-                                      <v-icon
-                                        v-bind="props"
-                                        size="small"
-                                        color="info"
-                                        class="cursor-pointer"
-                                      >
-                                        mdi-information-outline
-                                      </v-icon>
-                                    </template>
-                                    <span
-                                      >Use this code to invite your
-                                      friends</span
-                                    >
-                                  </v-tooltip>
+                     <v-card-text class="pa-2">
+                        <v-row align="center">
+                            <v-col class="pb-0" cols="12" sm="9">
+                                <CampaignName :campaign-id="campaignId" class="mb-0 shepherd-campaign-name" />
+                            </v-col>
+                            <v-col cols="12" sm="3">
+                                <div class="d-flex justify-start justify-sm-end align-center mb-4">
+                                    <div class="mx-1 my-1= d-flex align-center">
+                                        <div class="mr-3">
+                                            <div class="d-flex align-center">
+                                            <span class="text-caption font-weight-bold mr-1">CAMPAIGN ID:</span>
+                                            <v-tooltip location="top">
+                                                <template v-slot:activator="{ props }">
+                                                <v-icon
+                                                    v-bind="props"
+                                                    size="small"
+                                                    color="info"
+                                                    class="cursor-pointer"
+                                                >
+                                                    mdi-information-outline
+                                                </v-icon>
+                                                </template>
+                                                <span>Use this code to invite your friends</span>
+                                            </v-tooltip>
+                                            </div>
+                                        </div>
+                                        <v-chip v-if="partyCode" label size="large">{{ partyCode }}</v-chip>
+                                        <v-chip v-else label size="large">Generating...</v-chip>
+                                    </div>
                                 </div>
-                              </div>
-                              <v-chip v-if="partyCode" label size="large">{{
-                                partyCode
-                              }}</v-chip>
-                              <v-chip v-else label size="large"
-                                >Generating...</v-chip
-                              >
-                            </div>
-                          </div>
-                        </v-col>
-                      </v-row>
+                            </v-col>
+                        </v-row>
                     </v-card-text>
                   </v-card>
 
@@ -446,15 +428,11 @@
                           :campaign-id="campaignId"
                           class="mb-0 shepherd-runes"
                         />
-                        <v-row
-                          v-if="campaign && campaign.campaign === 'underkeep2'"
-                          no-gutters
-                          class="mt-0"
-                        >
+                        <v-row v-if="campaign && campaign.campaign === 'underkeep2'" no-gutters class="mt-0">
                           <v-col cols="12">
-                            <SelectCompanion
-                              :campaign-id="campaignId"
-                              :is-admin="showSaveCampaignButton"
+                              <SelectCompanion 
+                                :campaign-id="campaignId" 
+                                :is-admin="showSaveCampaignButton" 
                             />
                           </v-col>
                         </v-row>
@@ -540,95 +518,81 @@
             </template>
 
             <template v-else>
-              <div>
-                <v-row no-gutters align="center" class="mb-3">
-                  <v-col cols="12" sm="8">
-                    <CampaignName :campaign-id="campaignId" />
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <div
-                      class="d-flex justify-start justify-sm-end align-center"
-                    >
-                      <div
-                        v-if="showSaveCampaignButton"
-                        class="mx-1 my-1 d-flex align-center"
-                      >
-                        <div class="mr-3">
-                          <div class="d-flex align-center">
-                            <span class="text-caption font-weight-bold mr-1"
-                              >CAMPAIGN ID:</span
-                            >
-                            <v-tooltip location="top">
-                              <template v-slot:activator="{ props }">
-                                <v-icon
-                                  v-bind="props"
-                                  size="small"
-                                  color="info"
-                                  class="cursor-pointer"
-                                >
-                                  mdi-information-outline
-                                </v-icon>
-                              </template>
-                              <span>Use this code to invite your friends</span>
-                            </v-tooltip>
+               <div>
+                  <v-row no-gutters align="center" class="mb-3">
+                      <v-col cols="12" sm="8">
+                          <CampaignName :campaign-id="campaignId" />
+                      </v-col>
+                      <v-col cols="12" sm="4">
+                          <div class="d-flex justify-start justify-sm-end align-center">
+                              <div v-if="showSaveCampaignButton" class="mx-1 my-1 d-flex align-center">
+                                  <div class="mr-3">
+                                      <div class="d-flex align-center">
+                                          <span class="text-caption font-weight-bold mr-1">CAMPAIGN ID:</span>
+                                          <v-tooltip location="top">
+                                              <template v-slot:activator="{ props }">
+                                                  <v-icon v-bind="props" size="small" color="info" class="cursor-pointer">
+                                                      mdi-information-outline
+                                                  </v-icon>
+                                              </template>
+                                              <span>Use this code to invite your friends</span>
+                                          </v-tooltip>
+                                      </div>
+                                  </div>
+                                  <v-chip v-if="partyCode" label size="large">{{ partyCode }}</v-chip>
+                                  <v-chip v-else label size="large">Generating...</v-chip>
+                              </div>
                           </div>
+                      </v-col>
+                  </v-row>
+
+                  <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
+                    <v-col cols="12">
+                      <v-card class="pa-2" color="primary">
+                        <div class="d-flex justify-center flex-wrap gap-2">
+                          <CampaignLogAddHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                          <CampaignLogImportHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                          <CampaignLogRemoveHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
                         </div>
-                        <v-chip v-if="partyCode" label size="large">{{
-                          partyCode
-                        }}</v-chip>
-                        <v-chip v-else label size="large">Generating...</v-chip>
-                      </div>
-                    </div>
-                  </v-col>
-                </v-row>
+                      </v-card>
+                    </v-col>
+                  </v-row>
 
-                <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
-                  <v-col cols="12">
-                    <v-card class="pa-2" color="primary">
-                      <div class="d-flex justify-center flex-wrap gap-2">
-                        <CampaignLogAddHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogImportHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogRemoveHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
-
-                <v-row no-gutters>
-                  <v-col cols="12">
-                    <v-sheet rounded border="md" class="text-white pa-2">
-                      <div
-                        v-if="
-                          heroStore.findAllInCampaign(campaignId).length === 0
-                        "
-                        class="text-center pa-4"
-                      >
-                        No heroes added to this campaign yet.
-                      </div>
-                      <div
-                        v-for="hero in heroStore.findAllInCampaign(campaignId)"
-                        :key="hero.heroId"
-                        class="mb-2"
-                      >
-                        <CampaignLog
-                          :campaign-id="campaignId"
-                          :hero-id="hero.heroId"
-                          :is-sequential-adventure="isSequentialAdventure"
-                        />
-                      </div>
-                    </v-sheet>
-                  </v-col>
-                </v-row>
-              </div>
+                  <v-row no-gutters>
+                    <v-col cols="12">
+                      <v-sheet rounded border="md" class="text-white pa-2">
+                        <div
+                          v-if="
+                            heroStore.findAllInCampaign(campaignId).length === 0
+                          "
+                          class="text-center pa-4"
+                        >
+                          No heroes added to this campaign yet.
+                        </div>
+                        <div
+                          v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                          :key="hero.heroId"
+                          class="mb-2"
+                        >
+                          <CampaignLog
+                            :campaign-id="campaignId"
+                            :hero-id="hero.heroId"
+                            :is-sequential-adventure="isSequentialAdventure"
+                          />
+                        </div>
+                      </v-sheet>
+                    </v-col>
+                  </v-row>
+                </div>
             </template>
           </v-col>
         </v-row>
@@ -771,8 +735,8 @@ const {
 
 const checkAndResumeTour = async () => {
   await nextTick();
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
+  await new Promise(resolve => setTimeout(resolve, 800));
+  
   if (hasPausedTour()) {
     await tryAutoResume();
   }
@@ -936,7 +900,7 @@ const handleBottomNavAction = (action: string) => {
   setTimeout(() => {
     bottomNavValue.value = null;
   }, 100);
-
+  
   executeAction(action);
 };
 
@@ -1125,22 +1089,20 @@ watch(
 watch(
   () => route.path,
   async (newPath, oldPath) => {
-    const isReturningFromHero =
-      oldPath &&
-      (oldPath.includes("/hero-sequential-state/") ||
-        oldPath.includes("/hero/")) &&
+    const isReturningFromHero = oldPath && 
+      (oldPath.includes('/hero-sequential-state/') || oldPath.includes('/hero/')) && 
       newPath.includes(`/campaign/${campaignId}`);
-
+    
     if (isReturningFromHero) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await checkAndResumeTour();
     }
   },
-  { immediate: false },
+  { immediate: false }
 );
 
 onBeforeUnmount(() => {
-  window.removeEventListener("pageshow", () => {});
+  window.removeEventListener('pageshow', () => {});
 
   destroySaveTour({ keepProgress: true });
   destroyLoadTour({ keepProgress: true });
@@ -1174,13 +1136,12 @@ onMounted(async () => {
   const openInstructions = route.query.openInstructions;
   showLoadInstructions.value = openInstructions === "load";
 
-  const isUnderkeepCampaign =
-    campaign.value &&
-    ["underkeep", "underkeep2"].includes(campaign.value.campaign);
+  const isUnderkeepCampaign = campaign.value && 
+    ['underkeep', 'underkeep2'].includes(campaign.value.campaign);
 
-  window.addEventListener("pageshow", async (event) => {
+  window.addEventListener('pageshow', async (event) => {
     if (isUnderkeepCampaign && hasPausedTour()) {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 500));
       await checkAndResumeTour();
     }
   });
@@ -1189,9 +1150,10 @@ onMounted(async () => {
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 300));
     await startLoadTour();
-  } else if (isUnderkeepCampaign) {
+  } 
+  else if (isUnderkeepCampaign) {
     await nextTick();
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await checkAndResumeTour();
   }
 
@@ -1217,6 +1179,17 @@ onMounted(async () => {
 
 :deep(.v-snackbar__content) {
   padding: 16px !important;
+}
+
+/* Snackbar responsivo para mobile */
+@media (max-width: 960px) {
+  .global-snackbar {
+    z-index: 10000 !important;
+  }
+  
+  :deep(.v-snackbar__wrapper) {
+    bottom: 80px !important; /* Acima do bottom navigation */
+  }
 }
 
 /* Text Styles */
