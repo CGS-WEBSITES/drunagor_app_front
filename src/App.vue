@@ -311,31 +311,31 @@ import VectorIcon from "@/assets/Vector.png";
 const menuItems = computed(() => {
   return [
     {
-      title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
+      title: role.value === 3 ? "Campaign Manager" : "Companion",
       iconImage: VectorIcon,
       to: { name: "Campaign Overview" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "SKUS MANAGER" : "Library",
+      title: role.value === 3 ? "SKUs Manager" : "Library",
       icon: "mdi-book",
       to: { name: "Library" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "Dashboard" : "Dashboard",
+      title: "Dashboard",
       icon: "mdi-view-dashboard",
       to: { name: "Dashboard" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "Events" : "Events",
+      title: "Events",
       icon: "mdi-calendar",
       to: { name: "Events" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "My Profile" : "My Profile",
+      title: "My Profile",
       icon: "mdi-account",
       to: { name: "PerfilHome" },
       disabled: false,
