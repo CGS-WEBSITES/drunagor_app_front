@@ -233,7 +233,7 @@
       @click="handleSpeedDialAction('qrcode')"
     >
       <v-icon size="large">mdi-qrcode</v-icon>
-      <v-tooltip activator="parent" location="start"> Show QR Code </v-tooltip>
+      <v-tooltip activator="parent" location="start"> QR Code </v-tooltip>
     </v-btn>
 
     <v-btn
@@ -408,13 +408,13 @@
                   <v-card class="mb-3" color="primary">
                     <v-card-text class="pa-2">
                       <v-row align="center">
-                        <v-col class="pb-0" cols="12" sm="9">
+                        <v-col class="pb-0" cols="12" sm="6">
                           <CampaignName
                             :campaign-id="campaignId"
                             class="mb-0 shepherd-campaign-name"
                           />
                         </v-col>
-                        <v-col cols="12" sm="3">
+                        <v-col cols="12" sm="6">
                           <div
                             class="d-flex justify-start justify-sm-end align-center mb-4"
                           >
@@ -557,7 +557,10 @@
                 </v-window-item>
 
                 <v-window-item value="book">
-                  <CampaignBook :campaign-id="campaignId" />
+                  <CampaignBook
+                    ref="campaignBookRef"
+                    :campaign-id="campaignId"
+                  />
                 </v-window-item>
               </v-window>
             </template>
@@ -735,6 +738,7 @@ const speedDialOpen = ref(true);
 const bottomNavValue = ref<string | null>(null);
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
+const campaignBookRef = vueRef<any>(null);
 const campaignPlayerListRef = vueRef<InstanceType<
   typeof CampaignPlayerList
 > | null>(null);
@@ -936,13 +940,50 @@ function handleEquipmentSkillsAction() {
 }
 
 function handleQRCodeAction() {
-  // Implemente aqui a lógica para exibir o QR Code
-  setAlert(
-    "mdi-qrcode",
-    "QR Code",
-    "QR Code functionality - implement your logic here!",
-    "info",
-  );
+  // Verifica se está em uma campanha underkeep ou underkeep2
+  if (
+    campaign.value &&
+    ["underkeep", "underkeep2"].includes(campaign.value.campaign)
+  ) {
+    // Muda para a aba "book"
+    currentTab.value = "book";
+
+    // Aguarda o componente CampaignBook ser renderizado
+    nextTick(() => {
+      setTimeout(() => {
+        // Tenta acessar o componente CampaignBook através da ref
+        if (
+          campaignBookRef.value &&
+          typeof campaignBookRef.value.navigateToInteract === "function"
+        ) {
+          campaignBookRef.value.navigateToInteract();
+        } else {
+          // Fallback: tenta encontrar e clicar no botão Interact diretamente
+          const interactButton = document.querySelector(
+            'button[value="interactions"]',
+          ) as HTMLButtonElement;
+          if (interactButton) {
+            interactButton.click();
+          } else {
+            setAlert(
+              "mdi-information-outline",
+              "Info",
+              "Please click on the 'Interact' button to scan QR codes.",
+              "info",
+              3000,
+            );
+          }
+        }
+      }, 300);
+    });
+  } else {
+    setAlert(
+      "mdi-information-outline",
+      "Info",
+      "QR Code interactions are only available for Underkeep campaigns.",
+      "info",
+    );
+  }
 }
 
 const generatePartyCode = () => {
