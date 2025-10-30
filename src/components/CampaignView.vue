@@ -150,14 +150,19 @@
     </v-card>
   </v-dialog>
 
-  <v-speed-dial v-model="speedDialOpen" transition="fade-transition">
+  <!-- Desktop: Speed Dial (oculto em mobile/tablet) -->
+  <v-speed-dial 
+    v-model="speedDialOpen" 
+    transition="fade-transition"
+    class="d-none d-md-flex"
+  >
     <template v-slot:activator="{ props: activatorProps }">
       <v-btn
         v-bind="activatorProps"
         :color="speedDialOpen ? 'red' : 'green'"
         size="large"
         icon
-        class="speed-dial-activator"
+        class="speed-dial-activator d-none d-md-flex"
         elevation="14"
       >
         <v-icon>{{
@@ -243,7 +248,70 @@
     </v-btn>
   </v-speed-dial>
 
-  <div class="campaign-content">
+  <!-- Mobile/Tablet: Bottom Navigation (visível apenas em mobile/tablet) -->
+  <v-bottom-navigation
+    v-model="bottomNavValue"
+    class="d-md-none mobile-bottom-nav"
+    bg-color="surface"
+    grow
+    elevation="8"
+    height="65"
+  >
+    <v-btn
+      v-if="showSaveCampaignButton"
+      value="save"
+      @click="handleBottomNavAction('save')"
+      class="bottom-nav-btn"
+    >
+      <v-icon>mdi-content-save-outline</v-icon>
+      <span class="bottom-nav-label">Save</span>
+    </v-btn>
+
+    <v-btn
+      v-if="
+        campaign &&
+        ['underkeep', 'underkeep2'].includes(campaign.campaign) &&
+        showLoadInstructions
+      "
+      value="load-instructions"
+      @click="handleBottomNavAction('load-instructions')"
+      class="bottom-nav-btn"
+    >
+      <v-icon>mdi-lightbulb-on-outline</v-icon>
+      <span class="bottom-nav-label">Guide</span>
+    </v-btn>
+
+    <v-btn
+      value="export"
+      :disabled="!showSaveCampaignButton"
+      @click="handleBottomNavAction('export')"
+      class="bottom-nav-btn"
+    >
+      <v-icon>mdi-export</v-icon>
+      <span class="bottom-nav-label">Export</span>
+    </v-btn>
+
+    <v-btn
+      value="player-list"
+      @click="handleBottomNavAction('player-list')"
+      class="bottom-nav-btn"
+    >
+      <v-icon>mdi-account-group</v-icon>
+      <span class="bottom-nav-label">Players</span>
+    </v-btn>
+
+    <v-btn
+      v-if="showSaveCampaignButton"
+      value="remove"
+      @click="handleBottomNavAction('remove')"
+      class="bottom-nav-btn"
+    >
+      <v-icon>mdi-delete-outline</v-icon>
+      <span class="bottom-nav-label">Remove</span>
+    </v-btn>
+  </v-bottom-navigation>
+
+  <div class="campaign-content" :class="{ 'with-bottom-nav': true }">
     <v-container fluid>
       <template v-if="campaign">
         <v-row justify="center" no-gutters>
@@ -551,8 +619,6 @@
       :inviteCode="partyCode"
     />
   </div>
-
-  <v-col class="pb-12"> </v-col>
 </template>
 
 <script setup lang="ts">
@@ -607,6 +673,7 @@ const snackbarColor = ref("success");
 const snackbarIconColor = ref("white");
 const snackbarTimeout = ref(3000);
 const speedDialOpen = ref(true);
+const bottomNavValue = ref<string | null>(null);
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const campaignPlayerListRef = vueRef<InstanceType<
@@ -821,7 +888,24 @@ const openPlayerListDialog = async () => {
   playerListDialogVisible.value = true;
 };
 
+// Handler para o Speed Dial (Desktop)
 const handleSpeedDialAction = (action: string) => {
+  executeAction(action);
+  speedDialOpen.value = false;
+};
+
+// Handler para o Bottom Navigation (Mobile/Tablet)
+const handleBottomNavAction = (action: string) => {
+  // Reseta o valor para não manter o item selecionado
+  setTimeout(() => {
+    bottomNavValue.value = null;
+  }, 100);
+  
+  executeAction(action);
+};
+
+// Função centralizada para executar as ações
+const executeAction = (action: string) => {
   switch (action) {
     case "save":
       if (
@@ -832,7 +916,6 @@ const handleSpeedDialAction = (action: string) => {
       } else {
         handleSave();
       }
-      startSaveTour();
       break;
     case "load-instructions":
       startLoadTour();
@@ -840,14 +923,13 @@ const handleSpeedDialAction = (action: string) => {
     case "export":
       campaignExportRef.value?.export?.();
       break;
-    case "share":
-      shareCampaignRef.value?.openDialog?.();
+    case "player-list":
+      openPlayerListDialog();
       break;
     case "remove":
       campaignRemoveRef.value?.openDialog?.();
       break;
   }
-  speedDialOpen.value = false;
 };
 
 async function handleSave() {
@@ -1057,8 +1139,7 @@ onMounted(async () => {
   const isUnderkeepCampaign = campaign.value && 
     ['underkeep', 'underkeep2'].includes(campaign.value.campaign);
 
-    window.addEventListener('pageshow', async (event) => {
-    
+  window.addEventListener('pageshow', async (event) => {
     if (isUnderkeepCampaign && hasPausedTour()) {
       await new Promise(resolve => setTimeout(resolve, 500));
       await checkAndResumeTour();
@@ -1073,7 +1154,6 @@ onMounted(async () => {
   else if (isUnderkeepCampaign) {
     await nextTick();
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     await checkAndResumeTour();
   }
 
@@ -1083,10 +1163,11 @@ onMounted(async () => {
       query: { ...route.query, openInstructions: undefined },
     });
   }
-  });
+});
 </script>
 
 <style scoped>
+/* Global Snackbar */
 .global-snackbar {
   z-index: 9999 !important;
 }
@@ -1100,6 +1181,18 @@ onMounted(async () => {
   padding: 16px !important;
 }
 
+/* Snackbar responsivo para mobile */
+@media (max-width: 960px) {
+  .global-snackbar {
+    z-index: 10000 !important;
+  }
+  
+  :deep(.v-snackbar__wrapper) {
+    bottom: 80px !important; /* Acima do bottom navigation */
+  }
+}
+
+/* Text Styles */
 .info-text {
   font-size: 0.6rem !important;
   color: rgba(255, 255, 255, 0.7);
@@ -1119,11 +1212,18 @@ onMounted(async () => {
   text-transform: none !important;
 }
 
+/* Campaign Content */
 .campaign-content {
   position: relative;
   overflow-x: hidden;
+  padding-bottom: 16px;
 }
 
+.campaign-content.with-bottom-nav {
+  padding-bottom: 80px;
+}
+
+/* Action Groups */
 .action-group {
   display: flex;
   flex-wrap: wrap;
@@ -1145,6 +1245,7 @@ onMounted(async () => {
   margin-bottom: 4px !important;
 }
 
+/* Desktop: Speed Dial Styles */
 .speed-dial-activator {
   position: fixed;
   right: 10px;
@@ -1178,6 +1279,38 @@ onMounted(async () => {
   transform: none !important;
 }
 
+/* Mobile/Tablet: Bottom Navigation Styles */
+.mobile-bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1999 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.bottom-nav-btn {
+  flex-direction: column !important;
+  min-width: 60px !important;
+  padding: 8px 12px !important;
+  height: 100% !important;
+}
+
+.bottom-nav-btn .v-icon {
+  margin-bottom: 4px !important;
+  font-size: 24px !important;
+}
+
+.bottom-nav-label {
+  font-size: 0.75rem !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  font-weight: 500 !important;
+  margin-top: 2px !important;
+}
+
+/* Hero Highlights */
 .hero-highlight {
   transition: box-shadow 0.3s ease;
 }
@@ -1186,6 +1319,7 @@ onMounted(async () => {
   box-shadow: 0 0 20px rgba(var(--v-theme-primary), 0.5) !important;
 }
 
+/* Action Buttons */
 :deep(.action-buttons-container) {
   position: relative;
   z-index: 10;
@@ -1201,6 +1335,7 @@ onMounted(async () => {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
+/* Tabs */
 .v-tabs .v-tab--selected {
   background-color: rgb(var(--v-theme-secondary)) !important;
   color: white !important;
@@ -1218,24 +1353,14 @@ onMounted(async () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+/* Responsive Breakpoints */
 @media (max-width: 960px) {
   .action-group {
     min-width: 45%;
   }
 
-  .campaign-actions-speed-dial {
-    bottom: 20px;
-    right: 20px;
-  }
-
-  .speed-dial-activator {
-    width: 52px !important;
-    height: 52px !important;
-  }
-
-  .speed-dial-item {
-    width: 44px !important;
-    height: 44px !important;
+  .campaign-content.with-bottom-nav {
+    padding-bottom: 80px;
   }
 }
 
@@ -1249,27 +1374,24 @@ onMounted(async () => {
     padding-top: 0.5rem;
   }
 
+  .campaign-content.with-bottom-nav {
+    padding-bottom: 85px;
+  }
+
   .v-tab {
     min-width: 80px;
   }
 
-  .campaign-actions-speed-dial {
-    bottom: 16px;
-    right: 16px;
+  .bottom-nav-label {
+    font-size: 0.7rem !important;
   }
 
-  .speed-dial-activator {
-    width: 48px !important;
-    height: 48px !important;
-  }
-
-  .speed-dial-item {
-    width: 40px !important;
-    height: 40px !important;
-    margin-bottom: 8px !important;
+  .bottom-nav-btn .v-icon {
+    font-size: 22px !important;
   }
 }
 
+/* Utility Classes */
 .d-contents {
   display: contents;
 }
