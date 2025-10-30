@@ -223,7 +223,6 @@
       </v-tooltip>
     </v-btn>
 
-    <!-- Botão QR Code - MAIOR e CENTRALIZADO -->
     <v-btn
       key="qrcode"
       size="large"
@@ -307,7 +306,6 @@
       <span class="bottom-nav-label">Export</span>
     </v-btn>
 
-    <!-- Botão QR Code - MAIOR e CENTRALIZADO no Bottom Nav -->
     <v-btn
       value="qrcode"
       @click="handleBottomNavAction('qrcode')"
