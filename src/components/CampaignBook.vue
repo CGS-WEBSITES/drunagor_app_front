@@ -213,7 +213,7 @@
                 <div v-if="interPage === 'scan'" class="scanner-container">
                   <v-card-title class="text-center">
                     <v-icon start>mdi-qrcode-scan</v-icon>
-                    Scan Interaction
+                    QR code Scan
                   </v-card-title>
 
                   <v-card-text class="text-center">
@@ -285,8 +285,8 @@
                         {{ currentInteractionConfig.title }}
                       </h2>
                       <div class="body-text mt-3">
-                            <div v-html="getInteractionIntroBody()"></div>
-                        </div>
+                        <div v-html="getInteractionIntroBody()"></div>
+                      </div>
                     </div>
 
                     <v-row class="interaction-choices" justify="center">
@@ -376,7 +376,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -454,7 +454,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -529,7 +529,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -614,7 +614,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -686,7 +686,7 @@
               </div>
             </div>
 
-             <div
+            <div
               v-else-if="currentView === 'dragonClarifications'"
               key="dragonClarifications"
             >
@@ -700,7 +700,7 @@
                   Back to Books
                 </v-btn>
               </div>
-              
+
               <div
                 class="book-page ma-5"
                 :style="{
@@ -832,8 +832,8 @@ import secondEncounterClarificationsData from "@/data/book/secondEncounterClarif
 import dragonClarificationsData from "@/data/book/dragonClarifications.json";
 
 // Import Images
-import booktopImg from '@/assets/booktop.png';
-import booktops2Img from '@/assets/booktops2.png';
+import booktopImg from "@/assets/booktop.png";
+import booktops2Img from "@/assets/booktops2.png";
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
 import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
@@ -888,6 +888,7 @@ interface InteractionConfig {
 }
 
 interface PageContentItem {
+  id: string;
   title?: string;
   body: string;
   instruction?: string;
@@ -984,7 +985,7 @@ const lastBookState = ref<LastBookState>({
   view: "player",
   index: 0,
   activeItemId: null,
-  openGroups: []
+  openGroups: [],
 });
 
 // Interaction State
@@ -1045,7 +1046,6 @@ const importedItemAssets: Record<string, InteractionItem[]> = {
   InteractionDraconianAltar,
   InteractionBeerFactory,
   InteractionTheRunic,
-  
 };
 
 const interactionConfigs = ref<Record<string, InteractionConfig>>({});
@@ -1086,17 +1086,19 @@ const initializeInteractionConfigs = () => {
 
 // Store current book state before leaving books
 const saveCurrentBookState = () => {
-  if (currentView.value === "player" || 
-      currentView.value === "tutorial" || 
-      currentView.value === "combatGuide" || 
-      currentView.value === "explorationTips" || 
-      currentView.value === "charProgression" ||
-      currentView.value === "dragonClarifications") {
+  if (
+    currentView.value === "player" ||
+    currentView.value === "tutorial" ||
+    currentView.value === "combatGuide" ||
+    currentView.value === "explorationTips" ||
+    currentView.value === "charProgression" ||
+    currentView.value === "dragonClarifications"
+  ) {
     lastBookState.value = {
       view: currentView.value,
       index: currentIndex.value,
       activeItemId: activeItemId.value,
-      openGroups: [...openGroups.value]
+      openGroups: [...openGroups.value],
     };
   }
 };
@@ -1108,26 +1110,26 @@ const goBackToBooks = async () => {
     if (currentView.value === "interactions") {
       codeReader.reset();
     }
-    
+
     // Restore the last book state
     currentView.value = lastBookState.value.view;
     currentIndex.value = lastBookState.value.index;
     activeItemId.value = lastBookState.value.activeItemId;
     openGroups.value = [...lastBookState.value.openGroups];
-    
+
     // Update navigation to show books
     mobileNavValue.value = "menu";
-    
+
     // Wait for view to update
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 200));
-    
+
     // Scroll to previous position if there was an active item
     if (lastBookState.value.activeItemId) {
       const navigationItem = navigationItems.value.find(
-        item => item.id === lastBookState.value.activeItemId
+        (item) => item.id === lastBookState.value.activeItemId,
       );
-      
+
       if (navigationItem?.originalId) {
         await scrollToTarget(navigationItem.originalId);
       } else if (navigationItem?.targetId) {
@@ -1200,18 +1202,17 @@ const backgroundStyle = computed<CSSProperties>(() => {
 const headerBannerStyle = computed(() => {
   let imageUrl = booktopImg; // Default image
 
-  if (currentView.value === 'dragonClarifications') {
+  if (currentView.value === "dragonClarifications") {
     imageUrl = booktops2Img;
-  } else if (currentView.value === 'player' && currentPage.value) {
+  } else if (currentView.value === "player" && currentPage.value) {
     const sectionName = currentPage.value.section || "";
     if (sectionName.includes("WING 3") || sectionName.includes("WING 4")) {
       imageUrl = booktops2Img;
     }
   }
-  
+
   return { backgroundImage: `url(${imageUrl})` };
 });
-
 
 const interactionChoices = computed(() => {
   if (!currentInteractionConfig.value) return [];
@@ -1231,7 +1232,7 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
           items.push({
             sectionTitle: section.section,
             title: contentItem.title,
-            id: `nav-player-${sectionGlobalIdx}-${contentIdx}`,
+            id: contentItem.id,
             originalId: `content-block-${sectionGlobalIdx}-${contentIdx}`,
             viewType: "player",
             sectionIndex: sectionGlobalIdx,
@@ -1320,7 +1321,7 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     );
   }
 
-   // Dragon Clarifications
+  // Dragon Clarifications
   if (dragonClarifications.value && dragonClarifications.value.chapters) {
     const sectionGroupTitle =
       dragonClarifications.value.pageTitle || "Dragon Clarifications";
@@ -1381,7 +1382,6 @@ const secondEncounterSectionTitle = computed(
 const dragonClarificationsTitle = computed(
   () => dragonClarifications.value.pageTitle || "Dragon Clarifications",
 );
-
 
 const otherBookGroupTitlesInOrder = computed(() => [
   tutorialSectionTitle.value,
@@ -1575,7 +1575,8 @@ const getSectionIcon = (sectionName: string) => {
     return "mdi-numeric-1-box-outline";
   if (sectionName === secondEncounterSectionTitle.value)
     return "mdi-numeric-2-box-outline";
-  if (sectionName === dragonClarificationsTitle.value) return "mdi-alpha-d-box-outline";
+  if (sectionName === dragonClarificationsTitle.value)
+    return "mdi-alpha-d-box-outline";
   if (sectionName.toLowerCase().includes("wing"))
     return "mdi-book-open-page-variant";
   return "mdi-book-open-variant";
@@ -1638,21 +1639,38 @@ const startScanner = async () => {
     codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
       if (result) {
         const raw = result.getText().trim();
-        let normalized: string;
-        try {
-          const u = new URL(raw);
-          normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
-        } catch {
-          normalized = raw.replace(/\/$/, "");
-        }
-        const cfg = interactionConfigs.value[normalized];
-        if (cfg) {
-          currentInteractionConfig.value = cfg;
-          interactions.value = cfg.items;
-          interPage.value = "titles";
-          codeReader.reset();
+
+        if (raw.startsWith("book/")) {
+          const bookId = raw.split("/")[1];
+          const navItem = navigationItems.value.find(
+            (item) => item.id === bookId,
+          );
+
+          if (navItem) {
+            navigateToSection(navItem);
+            codeReader.reset();
+            mobileNavValue.value = "menu";
+          } else {
+            console.warn("Book ID not found:", bookId);
+          }
         } else {
-          console.warn("Unknown QR Code:", normalized);
+          let normalized: string;
+          try {
+            const u = new URL(raw);
+            normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
+          } catch {
+            normalized = raw.replace(/\/$/, "");
+          }
+
+          const cfg = interactionConfigs.value[normalized];
+          if (cfg) {
+            currentInteractionConfig.value = cfg;
+            interactions.value = cfg.items;
+            interPage.value = "titles";
+            codeReader.reset();
+          } else {
+            console.warn("Unknown QR Code:", normalized);
+          }
         }
       }
       if (
@@ -1835,23 +1853,23 @@ onBeforeUnmount(() => {
 });
 
 const getInteractionIntroBody = () => {
-    if (!currentInteractionConfig.value) {
-        return '';
-    }
+  if (!currentInteractionConfig.value) {
+    return "";
+  }
 
-    const introItem = currentInteractionConfig.value.items.find(item => item.type === 'intro');
-    if (introItem) {
-        return introItem.body.join('');
-    }
+  const introItem = currentInteractionConfig.value.items.find(
+    (item) => item.type === "intro",
+  );
+  if (introItem) {
+    return introItem.body.join("");
+  }
 
-    if (currentInteractionConfig.value.items.length > 0) {
-        return currentInteractionConfig.value.items[0].body.join('');
-    }
+  if (currentInteractionConfig.value.items.length > 0) {
+    return currentInteractionConfig.value.items[0].body.join("");
+  }
 
-    return '';
+  return "";
 };
-
-
 </script>
 
 <style scoped>
@@ -2017,7 +2035,6 @@ const getInteractionIntroBody = () => {
   padding-right: 44px;
   text-align: left;
 }
-
 
 .content-block {
   background-color: #fff;
@@ -2361,7 +2378,6 @@ const getInteractionIntroBody = () => {
   }
 }
 
-
 @media (max-width: 768px) {
   .navigation-container {
     height: 70px;
@@ -2421,9 +2437,8 @@ const getInteractionIntroBody = () => {
 
   .header-banner {
     padding: 8px 10px 6px;
-    
+
     background-position: left;
-    
   }
 
   .chapter-title-banner {
