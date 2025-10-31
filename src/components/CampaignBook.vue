@@ -640,8 +640,7 @@
                           :class="{
                             'mb-6':
                               chapterIdx <
-                              secondEncounterClarifications.chapters.length -
-                                1,
+                              secondEncounterClarifications.chapters.length - 1,
                           }"
                         >
                           <div class="header-banner" :style="headerBannerStyle">
@@ -1870,6 +1869,16 @@ const getInteractionIntroBody = () => {
 
   return "";
 };
+
+const navigateToInteract = () => {
+  mobileNavValue.value = "interactions";
+  currentView.value = "interactions";
+  ensureCameraPermission();
+};
+
+defineExpose({
+  navigateToInteract,
+});
 </script>
 
 <style scoped>
