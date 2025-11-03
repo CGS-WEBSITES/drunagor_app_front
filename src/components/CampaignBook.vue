@@ -1365,8 +1365,18 @@ const navigateToInteract = () => {
   });
 };
 
+const forceNavigateToInteract = () => {
+  mobileNavValue.value = "interactions";
+  currentView.value = "interactions";
+  
+  nextTick(() => {
+    interactViewRef.value?.ensureCameraPermission();
+  });
+};
+
 defineExpose({
   navigateToInteract,
+  forceNavigateToInteract,
 });
 </script>
 
