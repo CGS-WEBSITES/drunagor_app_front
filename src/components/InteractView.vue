@@ -28,6 +28,7 @@
               icon="mdi-camera-flip"
               size="small"
               class="camera-switch"
+              :title="'Flip camera'"
             />
           </div>
 
@@ -178,7 +179,12 @@ import {
   nextTick,
   watch,
 } from "vue";
-import { BrowserMultiFormatReader } from "@zxing/library";
+import {
+  BrowserMultiFormatReader,
+  BarcodeFormat,
+  DecodeHintType,
+  NotFoundException,
+} from "@zxing/library";
 import { useRouter, useRoute } from "vue-router";
 
 // Configs e assets
@@ -261,7 +267,13 @@ const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 const showCameraDeniedDialog = ref(false);
 
-const codeReader = new BrowserMultiFormatReader();
+// ZXing reader com hints robustas
+const codeReader = new BrowserMultiFormatReader(undefined, 400);
+const zxingHints = new Map();
+zxingHints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
+zxingHints.set(DecodeHintType.TRY_HARDER, true);
+zxingHints.set(DecodeHintType.ALSO_INVERTED, true);
+(codeReader as any).hints = zxingHints;
 
 // Maps para import dinâmico
 const importedImageAssets: Record<string, string> = {
@@ -296,7 +308,54 @@ const importedItemAssets: Record<string, InteractionItem[]> = {
 
 const interactionConfigs = ref<Record<string, InteractionConfig>>({});
 
-// Inicializa configs
+// -------- Helpers de parsing de QR --------
+const TRIM = (s: string) => s.normalize("NFC").trim();
+
+function parseQr(
+  raw: string,
+):
+  | { kind: "book"; bookId: string }
+  | { kind: "interaction"; interactionId: string }
+  | { kind: "url"; key: string }
+  | { kind: "unknown"; raw: string } {
+  const text = TRIM(raw);
+
+  // Novas sintaxes explícitas
+  if (text.startsWith("book/")) {
+    const bookId = text.split("/")[1]?.trim();
+    if (bookId) return { kind: "book", bookId };
+  }
+  if (text.startsWith("interaction/")) {
+    const interactionId = text.split("/")[1]?.trim();
+    if (interactionId) return { kind: "interaction", interactionId };
+  }
+
+  // Normalizar interaction:<id> ou variações
+  const inter = /^(?:qr:)?interaction[\s:/\-_.]*([A-Za-z0-9_-]+)$/i.exec(text);
+  if (inter) return { kind: "interaction", interactionId: inter[1] };
+
+  // Normalizar book01.01 | book-01.01 | book/01.01 | BOOK 01 01 | book:01-01
+  const bookLoose =
+    /^book[\s:/\-_.]*?(\d{1,3})(?:[\s:/\-_.]+(\d{1,3}))?$/i.exec(text);
+  if (bookLoose) {
+    const chap = bookLoose[1].padStart(2, "0");
+    // mesmo se tiver seção, emitimos apenas o bookId por compatibilidade
+    return { kind: "book", bookId: chap };
+  }
+
+  // Se for URL (antigo), devolve chave normalizada (sem / final)
+  try {
+    const u = new URL(text);
+    const key = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
+    return { kind: "url", key };
+  } catch {
+    // não é URL
+  }
+
+  return { kind: "unknown", raw: text };
+}
+
+// -------- Inicializa configs --------
 const initializeInteractionConfigs = () => {
   const configs: Record<string, InteractionConfig> = {};
   for (const key in rawInteractionConfigsData as any) {
@@ -333,7 +392,7 @@ const initializeInteractionConfigs = () => {
   interactionConfigs.value = configs;
 };
 
-// Computed
+// -------- Computed --------
 const interactionChoices = computed(() => {
   if (!currentInteractionConfig.value) return [];
   return currentInteractionConfig.value.items.filter(
@@ -341,7 +400,7 @@ const interactionChoices = computed(() => {
   );
 });
 
-// Methods
+// -------- Métodos --------
 const findRearCamera = (devices: MediaDeviceInfo[]): number => {
   const rearKeywords = ["back", "rear", "environment", "world", "traseira"];
   for (let i = 0; i < devices.length; i++) {
@@ -375,51 +434,48 @@ const startScanner = async () => {
     }
     const deviceId = devices[currentCameraIndex.value].deviceId;
 
+    // Dica: alguns navegadores respeitam melhor se a tag <video> já estiver "warm"
+    // (autoplay + playsinline + muted como já está no template)
+
     codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
       if (result) {
-        const raw = result.getText().trim();
+        const raw = result.getText()?.trim?.() ?? "";
 
-        // Nova sintaxe: book/<id>
-        if (raw.startsWith("book/")) {
-          const bookId = raw.split("/")[1];
-          emit("navigate-to-book", bookId);
+        const parsed = parseQr(raw);
+
+        if (parsed.kind === "book") {
+          emit("navigate-to-book", parsed.bookId);
           codeReader.reset();
           return;
         }
 
-        // Nova sintaxe: interaction/<id>
-        if (raw.startsWith("interaction/")) {
-          const interactionId = raw.split("/")[1];
-          loadInteractionById(interactionId);
+        if (parsed.kind === "interaction") {
+          loadInteractionById(parsed.interactionId);
           codeReader.reset();
           return;
         }
 
-        // Sintaxe antiga: URL completa -> normaliza
-        let normalized: string;
-        try {
-          const u = new URL(raw);
-          normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
-        } catch {
-          normalized = raw.replace(/\/$/, "");
+        if (parsed.kind === "url") {
+          const cfg = interactionConfigs.value[parsed.key];
+          if (cfg) {
+            currentInteractionConfig.value = cfg;
+            interPage.value = "titles";
+            codeReader.reset();
+            return;
+          }
         }
 
-        const cfg = interactionConfigs.value[normalized];
-        if (cfg) {
-          currentInteractionConfig.value = cfg;
-          interPage.value = "titles";
-          codeReader.reset();
-        } else {
-          console.warn("Unknown QR Code:", raw);
-        }
+        console.warn("Unknown QR Code:", raw);
       }
 
+      // Ignorar "não achou nesse frame" para não poluir console
       if (
         err &&
         !(
-          err.name === "NotFoundException" ||
-          err.name === "FormatException" ||
-          err.name === "ChecksumException"
+          err instanceof NotFoundException ||
+          err?.name === "NotFoundException" ||
+          err?.name === "FormatException" ||
+          err?.name === "ChecksumException"
         )
       ) {
         console.error("Scanner error:", err);
@@ -516,7 +572,9 @@ const executeAction = (action: GameAction) => {
 
 const ensureCameraPermission = async () => {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } },
+    });
     stream.getTracks().forEach((t) => t.stop());
     resetScan();
   } catch (err) {
@@ -536,7 +594,7 @@ const getInteractionIntroBody = () => {
   return "";
 };
 
-// Watchers
+// -------- Watchers --------
 watch(interPage, (newPage) => {
   if (newPage === "scan") {
     nextTick(() => {
@@ -546,7 +604,7 @@ watch(interPage, (newPage) => {
   }
 });
 
-// Lifecycle
+// -------- Lifecycle --------
 onMounted(() => {
   initializeInteractionConfigs();
 

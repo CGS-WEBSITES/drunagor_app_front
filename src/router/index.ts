@@ -145,16 +145,12 @@ const router = createRouter({
           component: () => import("@/components/KeywordView.vue"),
           beforeEnter: requireAuth,
         },
-
-        // BOOK (usa o CampaignBook)
         {
           path: "/campaign-tracker/campaign/:campaignId/book/:bookId",
           name: "BookView",
           component: () => import("@/components/CampaignBook.vue"),
           beforeEnter: requireAuth,
         },
-
-        // Interactions (rota direta por QR: abre InteractView - o componente também pode ser usado interno)
         {
           path: "/campaign-tracker/campaign/:campaignId/interaction/:interactionId",
           name: "InteractionView",
@@ -203,6 +199,27 @@ const router = createRouter({
       ],
     },
   ],
+  // Faz rolagem suave para hashes como #01.02 quando o componente do livro renderiza
+  scrollBehavior(to) {
+    if (to.hash) {
+      return new Promise((resolve) => {
+        const tryScroll = (attempts = 0) => {
+          const selector = decodeURIComponent(to.hash);
+          const el = document.querySelector(selector);
+          if (el) {
+            (el as HTMLElement).scrollIntoView({ behavior: "smooth", block: "start" });
+            resolve({ left: 0, top: 0 });
+          } else if (attempts < 25) {
+            setTimeout(() => tryScroll(attempts + 1), 60);
+          } else {
+            resolve({ left: 0, top: 0 });
+          }
+        };
+        setTimeout(() => tryScroll(), 0);
+      });
+    }
+    return { left: 0, top: 0 };
+  },
 });
 
 export default router;
