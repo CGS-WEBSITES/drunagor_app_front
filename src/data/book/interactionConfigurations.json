@@ -1,71 +1,83 @@
 {
   "https://qr1.be/WMJL": {
+    "id": "interaction01.01",
     "title": "INTERACTION 1 - THE BARRICADE",
     "subtitle": "Wary of the fortress, the villagers improvised barricades using old planks, broken furniture, and any junk they could get their hands on to stop the night raids. But the structure is unstable, and pushing it to the other side may be the safest thing for you to do, but the sounds of battle and indistinguishable screams that echo from the other side reveal that you are not alone…",
     "backgroundImportName": "BarricadeImg",
     "itemsImportName": "InteractionBarricade"
   },
   "https://qr1.be/FNMI": {
+    "id": "interaction01.02",
     "title": "INTERACTION 2 - THE WEAPONS TABLE",
     "subtitle": "Equipment of all kinds lies scattered across the table. Apparently, Blackriver didn't go down without a fight.He just didn't have enough time to prepare the soldiers for the Earl's service. However, even if they were unable to resist the incursion, their efforts may not have been in vain: the weapons they gathered may yet serve other warriors in this battle…",
     "backgroundImportName": "WeaponsTableImg",
     "itemsImportName": "InteractionWeaponsTable"
   },
   "https://qr1.be/0RLM": {
+    "id": "interaction01.03",
     "title": "INTERACTION 3 - THE SHINING ARMOR",
     "subtitle": "An impressive suit of armor is displayed as a trophy. The golden carvings that delicately adorn the mirrored silver surface leave no doubt: if this work of art was not forged by the Elves of Valarai, at least it was designed by one. Such a piece can only belong to the Earl and should not be here, but on his chest. A displacement that comes in handy for you.",
     "backgroundImportName": "ArmorImg",
     "itemsImportName": "InteractionTheShiningArmor"
   },
   "https://qr1.be/60LT": {
+    "id": "interaction01.04",
     "title": "INTERACTION 4 - THE STONE GUARDIAN",
     "subtitle": "The hall is empty, save for a gargoyle with two large, gleaming rubies for eyes, perched atop a stone columntwo torches light the statue with mysterious blue flamesThese details, however, are not the strangest things you find: a skull-shaped handle juts from the stone, and the monster holds a scroll in its mouth.",
     "backgroundImportName": "GargoyleImg",
     "itemsImportName": "InteractionTheStoneGuardian"
   },
   "https://qr1.be/LPF2": {
+    "id": "interaction01.05",
     "title": "INTERACTION 5 - THE RESERVOIR",
     "subtitle": "Against all odds, there is a subterranean reservoir beneath Blackriver’s fortress.Did the population know about these dungeons? Did the Count? The purpose of this dam is unclear, but the ropes coming out of the stone and wrapping around a wheel-like mechanism clearly indicate that it controls the water level.<br><br><hr><br><b>GAME MECHANIC – DRAINAGE</b><br>Place the Drainage Game Mechanic card at the bottom end of the Initiative Track, just above the Rune card, with face B up.<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not have real Charges. Instead, unless a resolution states otherwise, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes.",
     "backgroundImportName": "ReservoirImg",
     "itemsImportName": "InteractionTheReservoir"
   },
   "https://qr1.be/Y4ZP": {
+    "id": "interaction01.06",
     "title": "INTERACTION 6 - TREASURES OF A FORGOTTEN AGE",
     "subtitle": "Weapons that seem to have been crafted by the most skilled hands you’ve ever seenarmor made from materials that don’t even seem of this world, and wooden pieces carved by hand—Treasures as valuable as castles are lost in timehidden in darkness. Does the Count even know that his fortress sits atop a trove like this?",
     "backgroundImportName": "TreasuresImg",
     "itemsImportName": "InteractionTreasuresOfAForgottenAge"
   },
   "interaction02.01": {
+    "id": "interaction02.01",
     "title": "INTERACTION 7 - THE PRISONER",
     "subtitle": "A man's agony becomes a test of your resolve.",
     "backgroundImportName": "PrisonerImg",
     "itemsImportName": "InteractionThePrisoner"
   },
   "interaction02.02": {
+    "id": "interaction02.02",
     "title": "INTERACTION 8 - THE SEED FROM ANOTHER WORLD",
     "subtitle": "A mysterious cube emanates dark energy and whispers promises of power.",
     "backgroundImportName": "SeedImg",
     "itemsImportName": "InteractionTheSeed"
   },
   "interaction02.03": {
+    "id": "interaction02.03",
     "title": "INTERACTION 9 - THE FORGOTTEN FORGE",
     "subtitle": "The dungeons hold another surprise: a giant forge, of dwarven architecture, lies cold in the dark.",
     "backgroundImportName": "ForgeImg",
     "itemsImportName": "InteractionTheForge"
   },
   "interaction02.04": {
+    "id": "interaction02.04",
     "title": "INTERACTION 10 - DRACONIAN ALTAR",
     "subtitle": "A statue of Narang’Erel, the altruistic goddess, awaits a sacrifice to be reborn.",
     "backgroundImportName": "AltarImg",
     "itemsImportName": "InteractionDraconianAltar"
   },
   "interaction02.05": {
+    "id": "interaction02.05",
     "title": "INTERACTION 11 - THE FANTASTIC BEER FACTORY",
     "subtitle": "A miraculous beer factory, empowered by magic, awaits its master brewer.",
     "backgroundImportName": "BeerImg",
     "itemsImportName": "InteractionBeerFactory"
   },
   "interaction02.06": {
+    "id": "interaction02.06",
     "title": "INTERACTION 12 - THE RUNIC CIRCLE",
     "subtitle": "Engravings of a runic circle decorate the cold stone slabs, large enough to accommodate even a dragon.",
     "backgroundImportName": "RunicImg",

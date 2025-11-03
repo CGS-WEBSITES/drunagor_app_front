@@ -12,22 +12,16 @@
     </div>
 
     <v-card class="content-card" elevation="0">
+      <!-- Scanner -->
       <div v-if="interPage === 'scan'" class="scanner-container">
         <v-card-title class="text-center">
           <v-icon start>mdi-qrcode-scan</v-icon>
-          QR code Scan
+          QR Code Scan
         </v-card-title>
 
         <v-card-text class="text-center">
           <div class="video-wrapper">
-            <video
-              id="qr-video"
-              class="qr-video"
-              autoplay
-              muted
-              playsinline
-            />
-
+            <video id="qr-video" class="qr-video" autoplay muted playsinline />
             <v-btn
               v-if="isCameraSwitchVisible"
               @click="switchCamera"
@@ -49,6 +43,7 @@
         </v-card-text>
       </div>
 
+      <!-- Lista -->
       <div v-else-if="interPage === 'list'" class="interaction-list">
         <v-toolbar color="transparent" flat>
           <v-btn icon @click="resetScan">
@@ -61,7 +56,7 @@
           <v-list-item
             v-for="(config, key) in interactionConfigs"
             :key="key"
-            @click="loadInteractionByKey(key.toString())"
+            @click="loadInteractionByKey(String(key))"
             :title="config.title"
             :subtitle="config.subtitle"
             prepend-icon="mdi-play-box"
@@ -69,6 +64,7 @@
         </v-list>
       </div>
 
+      <!-- Títulos (choices) -->
       <div
         v-else-if="interPage === 'titles' && currentInteractionConfig"
         class="interaction-content"
@@ -115,16 +111,13 @@
         </v-card-text>
 
         <v-card-actions class="justify-center pa-4">
-          <v-btn
-            @click="resetScan"
-            prepend-icon="mdi-close"
-            variant="outlined"
+          <v-btn @click="resetScan" prepend-icon="mdi-close" variant="outlined"
+            >Close</v-btn
           >
-            Close
-          </v-btn>
         </v-card-actions>
       </div>
 
+      <!-- Conteúdo -->
       <div v-else-if="interPage === 'content' && activeInteraction">
         <v-toolbar color="transparent" flat>
           <v-btn icon @click="backToTitles">
@@ -139,15 +132,14 @@
         <v-card-text>
           <div
             v-for="(p, i) in activeInteraction.body"
-            :key="i"
+            :key="'p-' + i"
             v-html="p"
             class="interaction-body"
           />
-
           <v-row v-if="availableActions.length > 0" class="mt-4">
             <v-col
               v-for="(action, idx) in availableActions"
-              :key="idx"
+              :key="'action-' + idx"
               cols="12"
               sm="6"
             >
@@ -160,6 +152,7 @@
       </div>
     </v-card>
 
+    <!-- Dialog permissão -->
     <v-dialog v-model="showCameraDeniedDialog" max-width="400">
       <v-card>
         <v-card-title>Camera Permission Required</v-card-title>
@@ -169,7 +162,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn @click="showCameraDeniedDialog = false"> OK </v-btn>
+          <v-btn @click="showCameraDeniedDialog = false">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -177,13 +170,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+  watch,
+} from "vue";
 import { BrowserMultiFormatReader } from "@zxing/library";
+import { useRouter, useRoute } from "vue-router";
 
-// Import all interaction data
+// Configs e assets
 import rawInteractionConfigsData from "@/data/book/interactionConfigurations.json";
 
-// Import Images
+// Imagens
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
 import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
@@ -197,7 +198,7 @@ import AltarImg from "@/assets/Interaction_DraconianAltar-min.png";
 import BeerImg from "@/assets/Interaction_BeerFactory-min.png";
 import RunicImg from "@/assets/Interaction_TheRunic-min.png";
 
-// Import Interaction JSONs
+// JSONs de interação
 import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
 import InteractionTheShiningArmor from "@/assets/json/InteractionTheShiningArmor.json";
 import InteractionWeaponsTable from "@/assets/json/InteractionWeaponsTable.json";
@@ -211,14 +212,13 @@ import InteractionDraconianAltar from "@/assets/json/InteractionDraconianAltar.j
 import InteractionBeerFactory from "@/assets/json/InteractionBeerFactory.json";
 import InteractionTheRunic from "@/assets/json/InteractionTheRunic.json";
 
-// Type Interfaces
+// Types
 interface GameAction {
   text: string;
   type: "PROCEED" | "RETURN_TO_CHOICES";
   target?: string;
   condition?: string;
 }
-
 interface InteractionItem {
   id: string;
   type: "choice" | "resolution" | "intro";
@@ -226,19 +226,17 @@ interface InteractionItem {
   body: string[];
   actions?: GameAction[];
 }
-
 interface InteractionConfig {
+  id: string;
   title: string;
   subtitle: string;
   background: string;
   items: InteractionItem[];
 }
 
-// Props & Emits
 interface Props {
   navigationItems?: any[];
 }
-
 const props = withDefaults(defineProps<Props>(), {
   navigationItems: () => [],
 });
@@ -248,18 +246,24 @@ const emit = defineEmits<{
   (e: "navigate-to-book", bookId: string): void;
 }>();
 
-// Reactive State
+// Router
+const router = useRouter();
+const route = useRoute();
+
+// State
 const interPage = ref<"scan" | "titles" | "content" | "list">("scan");
 const currentInteractionConfig = ref<InteractionConfig | null>(null);
 const activeInteraction = ref<InteractionItem | null>(null);
 const availableActions = ref<GameAction[]>([]);
+
 const availableCameras = ref<MediaDeviceInfo[]>([]);
 const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 const showCameraDeniedDialog = ref(false);
+
 const codeReader = new BrowserMultiFormatReader();
 
-// Assets Maps
+// Maps para import dinâmico
 const importedImageAssets: Record<string, string> = {
   BarricadeImg,
   ArmorImg,
@@ -292,16 +296,18 @@ const importedItemAssets: Record<string, InteractionItem[]> = {
 
 const interactionConfigs = ref<Record<string, InteractionConfig>>({});
 
-// Initialize Interaction Configs
+// Inicializa configs
 const initializeInteractionConfigs = () => {
   const configs: Record<string, InteractionConfig> = {};
-  for (const key in rawInteractionConfigsData) {
+  for (const key in rawInteractionConfigsData as any) {
     const rawConfig = (rawInteractionConfigsData as any)[key] as {
+      id: string;
       title: string;
       subtitle: string;
       backgroundImportName: string;
       itemsImportName: string;
     };
+
     const backgroundImage = importedImageAssets[rawConfig.backgroundImportName];
     const itemsData = importedItemAssets[rawConfig.itemsImportName];
 
@@ -317,6 +323,7 @@ const initializeInteractionConfigs = () => {
     }
 
     configs[key] = {
+      id: rawConfig.id,
       title: rawConfig.title,
       subtitle: rawConfig.subtitle,
       background: backgroundImage || "",
@@ -326,11 +333,11 @@ const initializeInteractionConfigs = () => {
   interactionConfigs.value = configs;
 };
 
-// Computed Properties
+// Computed
 const interactionChoices = computed(() => {
   if (!currentInteractionConfig.value) return [];
   return currentInteractionConfig.value.items.filter(
-    (item) => item.type === "choice",
+    (i) => i.type === "choice",
   );
 });
 
@@ -338,11 +345,8 @@ const interactionChoices = computed(() => {
 const findRearCamera = (devices: MediaDeviceInfo[]): number => {
   const rearKeywords = ["back", "rear", "environment", "world", "traseira"];
   for (let i = 0; i < devices.length; i++) {
-    const device = devices[i];
-    const label = device.label.toLowerCase();
-    if (rearKeywords.some((keyword) => label.includes(keyword))) {
-      return i;
-    }
+    const label = devices[i].label?.toLowerCase?.() || "";
+    if (rearKeywords.some((k) => label.includes(k))) return i;
   }
   return devices.length > 1 ? devices.length - 1 : 0;
 };
@@ -369,36 +373,47 @@ const startScanner = async () => {
     if (currentCameraIndex.value >= devices.length) {
       currentCameraIndex.value = findRearCamera(devices);
     }
-
     const deviceId = devices[currentCameraIndex.value].deviceId;
 
     codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
       if (result) {
         const raw = result.getText().trim();
 
+        // Nova sintaxe: book/<id>
         if (raw.startsWith("book/")) {
           const bookId = raw.split("/")[1];
           emit("navigate-to-book", bookId);
           codeReader.reset();
-        } else {
-          let normalized: string;
-          try {
-            const u = new URL(raw);
-            normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
-          } catch {
-            normalized = raw.replace(/\/$/, "");
-          }
+          return;
+        }
 
-          const cfg = interactionConfigs.value[normalized];
-          if (cfg) {
-            currentInteractionConfig.value = cfg;
-            interPage.value = "titles";
-            codeReader.reset();
-          } else {
-            console.warn("Unknown QR Code:", normalized);
-          }
+        // Nova sintaxe: interaction/<id>
+        if (raw.startsWith("interaction/")) {
+          const interactionId = raw.split("/")[1];
+          loadInteractionById(interactionId);
+          codeReader.reset();
+          return;
+        }
+
+        // Sintaxe antiga: URL completa -> normaliza
+        let normalized: string;
+        try {
+          const u = new URL(raw);
+          normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
+        } catch {
+          normalized = raw.replace(/\/$/, "");
+        }
+
+        const cfg = interactionConfigs.value[normalized];
+        if (cfg) {
+          currentInteractionConfig.value = cfg;
+          interPage.value = "titles";
+          codeReader.reset();
+        } else {
+          console.warn("Unknown QR Code:", raw);
         }
       }
+
       if (
         err &&
         !(
@@ -431,7 +446,6 @@ const resetScan = () => {
   isCameraSwitchVisible.value = false;
   availableCameras.value = [];
   currentCameraIndex.value = 0;
-
   nextTick(() => {
     codeReader.reset();
     startScanner();
@@ -451,6 +465,18 @@ const loadInteractionByKey = (key: string) => {
   } else {
     console.error(`Configuration for key '${key}' not found`);
   }
+};
+
+const loadInteractionById = (interactionId: string) => {
+  for (const key in interactionConfigs.value) {
+    const config = interactionConfigs.value[key];
+    if (config.id === interactionId) {
+      currentInteractionConfig.value = config;
+      interPage.value = "titles";
+      return;
+    }
+  }
+  console.error(`Interaction with ID '${interactionId}' not found`);
 };
 
 const findInteractionById = (id: string): InteractionItem | undefined => {
@@ -500,21 +526,13 @@ const ensureCameraPermission = async () => {
 };
 
 const getInteractionIntroBody = () => {
-  if (!currentInteractionConfig.value) {
-    return "";
-  }
-
+  if (!currentInteractionConfig.value) return "";
   const introItem = currentInteractionConfig.value.items.find(
-    (item) => item.type === "intro",
+    (i) => i.type === "intro",
   );
-  if (introItem) {
-    return introItem.body.join("");
-  }
-
-  if (currentInteractionConfig.value.items.length > 0) {
+  if (introItem) return introItem.body.join("");
+  if (currentInteractionConfig.value.items.length > 0)
     return currentInteractionConfig.value.items[0].body.join("");
-  }
-
   return "";
 };
 
@@ -528,40 +546,43 @@ watch(interPage, (newPage) => {
   }
 });
 
-// Lifecycle Hooks
+// Lifecycle
 onMounted(() => {
   initializeInteractionConfigs();
-  ensureCameraPermission();
+
+  // Se vier direto por rota: /campaign/:campaignId/interaction/:interactionId
+  const interactionId = route.params.interactionId as string;
+  if (interactionId) {
+    loadInteractionById(interactionId);
+    interPage.value = currentInteractionConfig.value ? "titles" : "scan";
+  } else {
+    ensureCameraPermission();
+  }
 });
 
 onBeforeUnmount(() => {
   codeReader.reset();
 });
 
-// Expose methods for parent component
-defineExpose({
-  resetScan,
-  ensureCameraPermission,
-});
+// Expose p/ pai
+defineExpose({ resetScan, ensureCameraPermission });
 </script>
 
 <style scoped>
+/* Mantém todos os estilos originais + pequenos ajustes */
 .interact-container {
   width: 100%;
 }
-
 .back-button-container {
   padding: 16px;
   display: flex;
   justify-content: flex-end;
 }
-
 .back-button {
   font-weight: 500;
   letter-spacing: 0.5px;
   text-transform: none !important;
 }
-
 .content-card {
   border-radius: 16px !important;
   overflow: hidden;
@@ -569,18 +590,15 @@ defineExpose({
   background: white;
   margin-bottom: 16px;
 }
-
 .scanner-container {
   padding: 24px;
   min-height: 400px;
 }
-
 .video-wrapper {
   position: relative;
   display: inline-block;
   margin: 24px auto;
 }
-
 .qr-video {
   max-width: 100%;
   width: 300px;
@@ -590,7 +608,6 @@ defineExpose({
   border: 2px solid var(--v-theme-primary);
   background: #000;
 }
-
 .camera-switch {
   position: absolute !important;
   top: 8px;
@@ -605,17 +622,14 @@ defineExpose({
   background: var(--v-theme-surface);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
 .interaction-hero {
   position: relative;
   border-radius: 0;
 }
-
 .interaction-text-content {
   padding: 24px !important;
   background: var(--v-theme-surface);
 }
-
 .interaction-title {
   font-size: 1.75rem !important;
   font-weight: 600;
@@ -626,7 +640,6 @@ defineExpose({
 .body-text {
   font-style: italic;
 }
-
 .body-text :deep(p) {
   font-family: "EB Garamond", serif;
   font-size: 1.1rem;
@@ -644,7 +657,6 @@ defineExpose({
 .interaction-choices {
   margin-top: 24px;
 }
-
 .interaction-choice-btn {
   height: auto !important;
   min-height: 56px;
@@ -656,12 +668,10 @@ defineExpose({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.3s ease !important;
 }
-
 .interaction-choice-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
 }
-
 .interaction-choice-btn .text-wrap {
   white-space: normal;
   line-height: 1.4;
@@ -672,63 +682,52 @@ defineExpose({
   letter-spacing: 1px;
   border: 1px solid #212121 !important;
 }
-
 .v-btn__content {
   grid-area: content;
   justify-content: center;
   white-space: normal !important;
 }
 
-/* Tablet Styles */
+/* Tablet */
 @media (max-width: 768px) {
   .interaction-text-content {
     padding: 16px !important;
   }
-
   .interaction-title {
     font-size: 1.5rem !important;
   }
-
   .interaction-choice-btn {
     min-height: 48px;
     font-size: 0.9rem;
   }
-
   .back-button-container {
     padding: 12px;
   }
 }
 
-/* Mobile Styles */
+/* Mobile */
 @media (max-width: 480px) {
   .interaction-hero {
     height: 250px !important;
   }
-
   .interaction-text-content {
     padding: 12px !important;
   }
-
   .interaction-title {
     font-size: 1.3rem !important;
   }
-
   .interaction-choices {
     margin-top: 16px;
   }
-
   .back-button-container {
     padding: 8px;
   }
-
   .back-button {
     font-size: 0.875rem;
   }
-
   .v-toolbar__content > .v-toolbar-title {
     font-size: 0.875rem !important;
   }
-
   .v-btn.v-btn--density-default {
     height: calc(var(--v-btn-height) + 20px) !important;
   }
