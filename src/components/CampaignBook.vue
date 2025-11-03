@@ -707,6 +707,7 @@ import {
   nextTick,
   type CSSProperties,
 } from "vue";
+import { useRoute } from "vue-router";
 import KeywordView from "@/components/KeywordView.vue";
 import InteractView from "@/components/InteractView.vue";
 
@@ -803,6 +804,8 @@ interface LastBookState {
   activeItemId: string | null;
   openGroups: string[];
 }
+
+const route = useRoute();
 
 // Reactive State
 const mobileMenuSheet = ref(false);
@@ -1305,6 +1308,35 @@ function handlePageClick(event: MouseEvent) {
   }
 }
 
+const openBookById = async (bookId: string) => {
+  try {
+    currentView.value = "player";
+
+    const navItem = navigationItems.value.find((i) => i.id === bookId);
+    if (!navItem) {
+      console.warn("Book ID not found:", bookId);
+      return;
+    }
+
+    openGroups.value = [navItem.sectionTitle];
+    await navigateToSection(navItem);
+
+    await nextTick();
+    await new Promise((r) => setTimeout(r, 200));
+    if (navItem.originalId) {
+      await scrollToTarget(navItem.originalId);
+    } else if (navItem.targetId) {
+      await scrollToTarget(navItem.targetId);
+    } else {
+      scrollToTop();
+    }
+
+    activeItemId.value = navItem.id;
+  } catch (e) {
+    console.error("openBookById error:", e);
+  }
+};
+
 const handleNavigateToBook = (bookId: string) => {
   const navItem = navigationItems.value.find((item) => item.id === bookId);
   if (navItem) {
@@ -1346,8 +1378,19 @@ watch(currentView, async (newView, oldView) => {
   }
 });
 
+watch(
+  () => route.params.bookId,
+  async (newBookId, oldBookId) => {
+    if (newBookId && newBookId !== oldBookId) {
+      await nextTick();
+      await new Promise((r) => setTimeout(r, 150));
+      openBookById(String(newBookId));
+    }
+  }
+);
+
 // Lifecycle
-onMounted(() => {
+onMounted(async () => {
   checkFullscreenSupport();
   document.addEventListener("fullscreenchange", handleFullscreenChange);
   document.addEventListener(
@@ -1368,6 +1411,13 @@ onMounted(() => {
       debugScroll();
     }, 1000);
   });
+
+  const initialBookId = String(route.params.bookId || "");
+  if (initialBookId) {
+    await nextTick();
+    await new Promise((r) => setTimeout(r, 150));
+    openBookById(initialBookId);
+  }
 });
 
 onBeforeUnmount(() => {

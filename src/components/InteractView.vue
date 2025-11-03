@@ -320,36 +320,51 @@ function parseQr(
   | { kind: "unknown"; raw: string } {
   const text = TRIM(raw);
 
-  // Novas sintaxes explícitas
+  // Sintaxe explícita: book/<id>
   if (text.startsWith("book/")) {
-    const bookId = text.split("/")[1]?.trim();
-    if (bookId) return { kind: "book", bookId };
+    const rawId = text.split("/")[1]?.trim();
+    if (rawId) {
+      const norm = /^\d{2}\.\d{2}$/.test(rawId) ? `book${rawId}` : rawId;
+      return { kind: "book", bookId: norm };
+    }
   }
+
+  // Sintaxe explícita: interaction/<id>  (aceita 01.01 e interaction01.01)
   if (text.startsWith("interaction/")) {
-    const interactionId = text.split("/")[1]?.trim();
-    if (interactionId) return { kind: "interaction", interactionId };
+    const rawId = text.split("/")[1]?.trim();
+    if (rawId) {
+      const id = rawId.toLowerCase().startsWith("interaction")
+        ? rawId
+        : `interaction${rawId}`;
+      return { kind: "interaction", interactionId: id };
+    }
   }
 
-  // Normalizar interaction:<id> ou variações
-  const inter = /^(?:qr:)?interaction[\s:/\-_.]*([A-Za-z0-9_-]+)$/i.exec(text);
-  if (inter) return { kind: "interaction", interactionId: inter[1] };
+  // Normalizar formas soltas: "interaction01.01", "interaction-01-01", "interaction:01.01", etc.
+  const inter = /^(?:qr:)?interaction[\s:/\-_.]*([A-Za-z0-9_.-]+)$/i.exec(text);
+  if (inter) {
+    const suffix = inter[1];
+    const id = suffix.toLowerCase().startsWith("interaction")
+      ? suffix
+      : `interaction${suffix}`;
+    return { kind: "interaction", interactionId: id };
+  }
 
-  // Normalizar book01.01 | book-01.01 | book/01.01 | BOOK 01 01 | book:01-01
+  // Normalizar "book01.01", "book-01-01", "BOOK 01 01"
   const bookLoose =
     /^book[\s:/\-_.]*?(\d{1,3})(?:[\s:/\-_.]+(\d{1,3}))?$/i.exec(text);
   if (bookLoose) {
     const chap = bookLoose[1].padStart(2, "0");
-    // mesmo se tiver seção, emitimos apenas o bookId por compatibilidade
-    return { kind: "book", bookId: chap };
+    const sec = (bookLoose[2] ?? "01").padStart(2, "0");
+    return { kind: "book", bookId: `book${chap}.${sec}` };
   }
 
-  // Se for URL (antigo), devolve chave normalizada (sem / final)
   try {
     const u = new URL(text);
     const key = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
     return { kind: "url", key };
   } catch {
-    // não é URL
+    console.error("Invalid URL in QR code:", text);
   }
 
   return { kind: "unknown", raw: text };
