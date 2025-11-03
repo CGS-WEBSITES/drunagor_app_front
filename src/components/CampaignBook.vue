@@ -198,173 +198,15 @@
             </div>
 
             <div v-else-if="currentView === 'interactions'" key="interactions">
-              <div class="back-button-container">
-                <v-btn
-                  @click="goBackToBooks"
-                  prepend-icon="mdi-arrow-left"
-                  variant="outlined"
-                  class="back-button"
-                >
-                  Back to Books
-                </v-btn>
-              </div>
-
-              <v-card class="content-card" elevation="0">
-                <div v-if="interPage === 'scan'" class="scanner-container">
-                  <v-card-title class="text-center">
-                    <v-icon start>mdi-qrcode-scan</v-icon>
-                    QR code Scan
-                  </v-card-title>
-
-                  <v-card-text class="text-center">
-                    <div class="video-wrapper">
-                      <video
-                        id="qr-video"
-                        class="qr-video"
-                        autoplay
-                        muted
-                        playsinline
-                      />
-
-                      <v-btn
-                        v-if="isCameraSwitchVisible"
-                        @click="switchCamera"
-                        icon="mdi-camera-flip"
-                        size="small"
-                        class="camera-switch"
-                      />
-                    </div>
-
-                    <v-divider class="my-4">OR</v-divider>
-
-                    <v-btn
-                      @click="goToInteractionList"
-                      prepend-icon="mdi-view-list"
-                      variant="tonal"
-                    >
-                      View All Interactions
-                    </v-btn>
-                  </v-card-text>
-                </div>
-
-                <div v-else-if="interPage === 'list'" class="interaction-list">
-                  <v-toolbar color="transparent" flat>
-                    <v-btn icon @click="resetScan">
-                      <v-icon>mdi-arrow-left</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>Available Interactions</v-toolbar-title>
-                  </v-toolbar>
-
-                  <v-list>
-                    <v-list-item
-                      v-for="(config, key) in interactionConfigs"
-                      :key="key"
-                      @click="loadInteractionByKey(key.toString())"
-                      :title="config.title"
-                      :subtitle="config.subtitle"
-                      prepend-icon="mdi-play-box"
-                    />
-                  </v-list>
-                </div>
-
-                <div
-                  v-else-if="interPage === 'titles' && currentInteractionConfig"
-                  class="interaction-content"
-                >
-                  <v-img
-                    :src="currentInteractionConfig.background"
-                    height="300"
-                    cover
-                    class="interaction-hero"
-                    gradient="to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.3)"
-                  />
-
-                  <v-card-text class="interaction-text-content">
-                    <div class="text-center mb-4">
-                      <h2 class="interaction-title mb-2">
-                        {{ currentInteractionConfig.title }}
-                      </h2>
-                      <div class="body-text mt-3">
-                        <div v-html="getInteractionIntroBody()"></div>
-                      </div>
-                    </div>
-
-                    <v-row class="interaction-choices" justify="center">
-                      <v-col
-                        v-for="item in interactionChoices"
-                        :key="item.id"
-                        cols="12"
-                        sm="6"
-                        md="4"
-                        class="d-flex"
-                      >
-                        <v-btn
-                          @click="selectInteraction(item)"
-                          block
-                          size="large"
-                          variant="elevated"
-                          class="interaction-choice-btn"
-                          :ripple="true"
-                        >
-                          <span class="text-wrap">{{ item.title }}</span>
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-
-                  <v-card-actions class="justify-center pa-4">
-                    <v-btn
-                      @click="resetScan"
-                      prepend-icon="mdi-close"
-                      variant="outlined"
-                    >
-                      Close
-                    </v-btn>
-                  </v-card-actions>
-                </div>
-
-                <div v-else-if="interPage === 'content' && activeInteraction">
-                  <v-toolbar color="transparent" flat>
-                    <v-btn icon @click="backToTitles">
-                      <v-icon>mdi-arrow-left</v-icon>
-                    </v-btn>
-                    <v-toolbar-title>{{
-                      activeInteraction.title
-                    }}</v-toolbar-title>
-                    <v-btn icon @click="resetScan">
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-toolbar>
-
-                  <v-card-text>
-                    <div
-                      v-for="(p, i) in activeInteraction.body"
-                      :key="i"
-                      v-html="p"
-                      class="interaction-body"
-                    />
-
-                    <v-row v-if="availableActions.length > 0" class="mt-4">
-                      <v-col
-                        v-for="(action, idx) in availableActions"
-                        :key="idx"
-                        cols="12"
-                        sm="6"
-                      >
-                        <v-btn
-                          @click="executeAction(action)"
-                          block
-                          variant="outlined"
-                        >
-                          {{ action.text }}
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-card-text>
-                </div>
-              </v-card>
+              <InteractView
+                ref="interactViewRef"
+                :navigation-items="navigationItems"
+                @back="goBackToBooks"
+                @navigate-to-book="handleNavigateToBook"
+              />
             </div>
 
+            <!-- Tutorial, Combat Guide, and other views remain the same -->
             <div v-else-if="currentView === 'tutorial'" key="tutorial">
               <div class="back-button-container">
                 <v-btn
@@ -782,20 +624,6 @@
       </div>
     </v-main>
 
-    <v-dialog v-model="showCameraDeniedDialog" max-width="400">
-      <v-card>
-        <v-card-title>Camera Permission Required</v-card-title>
-        <v-card-text>
-          To scan QR codes, please enable camera access in your browser
-          settings.
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="showCameraDeniedDialog = false"> OK </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <v-fab
       v-if="false"
       icon="mdi-bug"
@@ -818,12 +646,11 @@ import {
   nextTick,
   CSSProperties,
 } from "vue";
-import { BrowserMultiFormatReader } from "@zxing/library";
 import KeywordView from "@/components/KeywordView.vue";
+import InteractView from "@/components/InteractView.vue";
 
 // Import all data and assets
 import bookPagesData from "@/data/book/bookPages.json";
-import rawInteractionConfigsData from "@/data/book/interactionConfigurations.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
 import firstEncounterClarificationsData from "@/data/book/firstEncounterClarifications.json";
@@ -833,59 +660,11 @@ import dragonClarificationsData from "@/data/book/dragonClarifications.json";
 // Import Images
 import booktopImg from "@/assets/booktop.png";
 import booktops2Img from "@/assets/booktops2.png";
-import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
-import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
-import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
-import ReservoirImg from "@/assets/01-Flood-Dungeon_v02-min.png";
-import TreasuresImg from "@/assets/02-Arsenal-Dungeon-min.png";
-import GargoyleImg from "@/assets/03-Gargoyle-min.png";
-import PrisonerImg from "@/assets/Interaction_ThePrisoner-min.png";
-import SeedImg from "@/assets/Interaction_TheSeed-min.png";
-import ForgeImg from "@/assets/Interaction_TheForge-min.png";
-import AltarImg from "@/assets/Interaction_DraconianAltar-min.png";
-import BeerImg from "@/assets/Interaction_BeerFactory-min.png";
-import RunicImg from "@/assets/Interaction_TheRunic-min.png";
-
-// Import Interaction JSONs
-import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
-import InteractionTheShiningArmor from "@/assets/json/InteractionTheShiningArmor.json";
-import InteractionWeaponsTable from "@/assets/json/InteractionWeaponsTable.json";
-import InteractionTheStoneGuardian from "@/assets/json/InteractionTheStoneGuardian.json";
-import InteractionTheReservoir from "@/assets/json/InteractionTheReservoir.json";
-import InteractionTreasuresOfAForgottenAge from "@/assets/json/InteractionTreasuresOfAForgottenAge.json";
-import InteractionThePrisoner from "@/assets/json/InteractionThePrisoner.json";
-import InteractionTheSeed from "@/assets/json/InteractionTheSeed.json";
-import InteractionTheForge from "@/assets/json/InteractionTheForge.json";
-import InteractionDraconianAltar from "@/assets/json/InteractionDraconianAltar.json";
-import InteractionBeerFactory from "@/assets/json/InteractionBeerFactory.json";
-import InteractionTheRunic from "@/assets/json/InteractionTheRunic.json";
 
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
 
 // Type Interfaces
-interface GameAction {
-  text: string;
-  type: "PROCEED" | "RETURN_TO_CHOICES";
-  target?: string;
-  condition?: string;
-}
-
-interface InteractionItem {
-  id: string;
-  type: "choice" | "resolution";
-  title: string;
-  body: string[];
-  actions?: GameAction[];
-}
-
-interface InteractionConfig {
-  title: string;
-  subtitle: string;
-  background: string;
-  items: InteractionItem[];
-}
-
 interface PageContentItem {
   id: string;
   title?: string;
@@ -976,8 +755,8 @@ const currentIndex = ref(0);
 const activeItemId = ref<string | null>(null);
 const isFullscreen = ref(false);
 const fullscreenSupported = ref(false);
-const showCameraDeniedDialog = ref(false);
 const scrollableContentRef = ref<HTMLElement | null>(null);
+const interactViewRef = ref<InstanceType<typeof InteractView> | null>(null);
 
 // Last book state storage
 const lastBookState = ref<LastBookState>({
@@ -986,17 +765,6 @@ const lastBookState = ref<LastBookState>({
   activeItemId: null,
   openGroups: [],
 });
-
-// Interaction State
-const interPage = ref<"scan" | "titles" | "content" | "list">("scan");
-const currentInteractionConfig = ref<InteractionConfig | null>(null);
-const activeInteraction = ref<InteractionItem | null>(null);
-const availableActions = ref<GameAction[]>([]);
-const availableCameras = ref<MediaDeviceInfo[]>([]);
-const currentCameraIndex = ref(0);
-const isCameraSwitchVisible = ref(false);
-const codeReader = new BrowserMultiFormatReader();
-const interactions = ref<InteractionItem[]>([]);
 
 // Data Initialization
 const pages = ref<PageSection[]>(bookPagesData as PageSection[]);
@@ -1015,73 +783,6 @@ const secondEncounterClarifications = ref<EncounterClarificationsBook>(
 const dragonClarifications = ref<EncounterClarificationsBook>(
   dragonClarificationsData as EncounterClarificationsBook,
 );
-
-// Assets Maps
-const importedImageAssets: Record<string, string> = {
-  BarricadeImg,
-  ArmorImg,
-  WeaponsTableImg,
-  ReservoirImg,
-  TreasuresImg,
-  GargoyleImg,
-  PrisonerImg,
-  SeedImg,
-  ForgeImg,
-  AltarImg,
-  BeerImg,
-  RunicImg,
-};
-
-const importedItemAssets: Record<string, InteractionItem[]> = {
-  InteractionBarricade,
-  InteractionTheShiningArmor,
-  InteractionWeaponsTable,
-  InteractionTheStoneGuardian,
-  InteractionTheReservoir,
-  InteractionTreasuresOfAForgottenAge,
-  InteractionThePrisoner,
-  InteractionTheSeed,
-  InteractionTheForge,
-  InteractionDraconianAltar,
-  InteractionBeerFactory,
-  InteractionTheRunic,
-};
-
-const interactionConfigs = ref<Record<string, InteractionConfig>>({});
-
-// Initialize Interaction Configs
-const initializeInteractionConfigs = () => {
-  const configs: Record<string, InteractionConfig> = {};
-  for (const key in rawInteractionConfigsData) {
-    const rawConfig = (rawInteractionConfigsData as any)[key] as {
-      title: string;
-      subtitle: string;
-      backgroundImportName: string;
-      itemsImportName: string;
-    };
-    const backgroundImage = importedImageAssets[rawConfig.backgroundImportName];
-    const itemsData = importedItemAssets[rawConfig.itemsImportName];
-
-    if (!backgroundImage) {
-      console.warn(
-        `Background image '${rawConfig.backgroundImportName}' not found for interaction '${key}'`,
-      );
-    }
-    if (!itemsData) {
-      console.warn(
-        `Items data '${rawConfig.itemsImportName}' not found for interaction '${key}'`,
-      );
-    }
-
-    configs[key] = {
-      title: rawConfig.title,
-      subtitle: rawConfig.subtitle,
-      background: backgroundImage || "",
-      items: itemsData || [],
-    };
-  }
-  interactionConfigs.value = configs;
-};
 
 // Store current book state before leaving books
 const saveCurrentBookState = () => {
@@ -1105,11 +806,6 @@ const saveCurrentBookState = () => {
 // Return to books with last state
 const goBackToBooks = async () => {
   try {
-    // Stop camera if coming from interactions
-    if (currentView.value === "interactions") {
-      codeReader.reset();
-    }
-
     // Restore the last book state
     currentView.value = lastBookState.value.view;
     currentIndex.value = lastBookState.value.index;
@@ -1211,13 +907,6 @@ const headerBannerStyle = computed(() => {
   }
 
   return { backgroundImage: `url(${imageUrl})` };
-});
-
-const interactionChoices = computed(() => {
-  if (!currentInteractionConfig.value) return [];
-  return currentInteractionConfig.value.items.filter(
-    (item) => item.type === "choice",
-  );
 });
 
 const navigationItems = computed<NavigationItemExtended[]>(() => {
@@ -1408,7 +1097,7 @@ const scrollToTop = (): void => {
       behavior: "smooth",
     });
   } else {
-    console.warn("scrollableContentRef não encontrado");
+    console.warn("scrollableContentRef not found");
   }
 };
 
@@ -1417,7 +1106,7 @@ const scrollToTarget = async (targetId: string, retries = 3): Promise<void> => {
     const container = scrollableContentRef.value;
 
     if (!container) {
-      console.warn("Container de scroll não encontrado");
+      console.warn("Scroll container not found");
       resolve();
       return;
     }
@@ -1432,7 +1121,7 @@ const scrollToTarget = async (targetId: string, retries = 3): Promise<void> => {
           }, 150);
         } else {
           console.warn(
-            `Elemento com ID "${targetId}" não encontrado após 3 tentativas`,
+            `Element with ID "${targetId}" not found after 3 attempts`,
           );
           resolve();
         }
@@ -1485,7 +1174,6 @@ const navigateToSection = async (
         scrollToTop();
       }
     } else {
-      // Para outras views
       await nextTick();
       await new Promise((resolve) => setTimeout(resolve, 200));
 
@@ -1496,7 +1184,7 @@ const navigateToSection = async (
       }
     }
   } catch (error) {
-    console.error("Erro na navegação:", error);
+    console.error("Navigation error:", error);
   }
 };
 
@@ -1504,10 +1192,8 @@ const debugScroll = () => {
   const container = scrollableContentRef.value;
   if (container) {
     container.scrollTo({ top: 200, behavior: "smooth" });
-
-    setTimeout(() => {}, 1000);
   } else {
-    console.error("scrollableContentRef é null!");
+    console.error("scrollableContentRef is null!");
   }
 };
 
@@ -1597,182 +1283,14 @@ function handlePageClick(event: MouseEvent) {
   }
 }
 
-// QR Scanner Methods
-const findRearCamera = (devices: MediaDeviceInfo[]): number => {
-  const rearKeywords = ["back", "rear", "environment", "world", "traseira"];
-  for (let i = 0; i < devices.length; i++) {
-    const device = devices[i];
-    const label = device.label.toLowerCase();
-    if (rearKeywords.some((keyword) => label.includes(keyword))) {
-      return i;
-    }
-  }
-  return devices.length > 1 ? devices.length - 1 : 0;
-};
+const handleNavigateToBook = (bookId: string) => {
+  const navItem = navigationItems.value.find((item) => item.id === bookId);
 
-const startScanner = async () => {
-  try {
-    const videoElement = document.getElementById(
-      "qr-video",
-    ) as HTMLVideoElement | null;
-    if (!videoElement) {
-      console.error("Video element not found");
-      return;
-    }
-
-    const devices = await codeReader.listVideoInputDevices();
-    if (!devices.length) {
-      console.error("No cameras found");
-      return;
-    }
-
-    availableCameras.value = devices;
-    isCameraSwitchVisible.value = devices.length > 1;
-
-    if (currentCameraIndex.value >= devices.length) {
-      currentCameraIndex.value = findRearCamera(devices);
-    }
-
-    const deviceId = devices[currentCameraIndex.value].deviceId;
-
-    codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
-      if (result) {
-        const raw = result.getText().trim();
-
-        if (raw.startsWith("book/")) {
-          const bookId = raw.split("/")[1];
-          const navItem = navigationItems.value.find(
-            (item) => item.id === bookId,
-          );
-
-          if (navItem) {
-            navigateToSection(navItem);
-            codeReader.reset();
-            mobileNavValue.value = "menu";
-          } else {
-            console.warn("Book ID not found:", bookId);
-          }
-        } else {
-          let normalized: string;
-          try {
-            const u = new URL(raw);
-            normalized = `${u.origin}${u.pathname.replace(/\/$/, "")}`;
-          } catch {
-            normalized = raw.replace(/\/$/, "");
-          }
-
-          const cfg = interactionConfigs.value[normalized];
-          if (cfg) {
-            currentInteractionConfig.value = cfg;
-            interactions.value = cfg.items;
-            interPage.value = "titles";
-            codeReader.reset();
-          } else {
-            console.warn("Unknown QR Code:", normalized);
-          }
-        }
-      }
-      if (
-        err &&
-        !(
-          err.name === "NotFoundException" ||
-          err.name === "FormatException" ||
-          err.name === "ChecksumException"
-        )
-      ) {
-        console.error("Scanner error:", err);
-      }
-    });
-  } catch (e) {
-    console.error("Error starting scanner:", e);
-    showCameraDeniedDialog.value = true;
-  }
-};
-
-const switchCamera = () => {
-  if (availableCameras.value.length <= 1) return;
-  codeReader.reset();
-  currentCameraIndex.value =
-    (currentCameraIndex.value + 1) % availableCameras.value.length;
-  nextTick(() => startScanner());
-};
-
-const resetScan = () => {
-  interPage.value = "scan";
-  currentInteractionConfig.value = null;
-  interactions.value = [];
-  activeInteraction.value = null;
-  isCameraSwitchVisible.value = false;
-  availableCameras.value = [];
-  currentCameraIndex.value = 0;
-
-  if (currentView.value === "interactions") {
-    nextTick(() => {
-      codeReader.reset();
-      startScanner();
-    });
-  }
-};
-
-const goToInteractionList = () => {
-  interPage.value = "list";
-  codeReader.reset();
-};
-
-const loadInteractionByKey = (key: string) => {
-  const cfg = interactionConfigs.value[key];
-  if (cfg) {
-    currentInteractionConfig.value = cfg;
-    interactions.value = cfg.items;
-    interPage.value = "titles";
+  if (navItem) {
+    navigateToSection(navItem);
+    mobileNavValue.value = "menu";
   } else {
-    console.error(`Configuration for key '${key}' not found`);
-  }
-};
-
-const findInteractionById = (id: string): InteractionItem | undefined => {
-  return currentInteractionConfig.value?.items.find((item) => item.id === id);
-};
-
-const selectInteraction = (interaction: InteractionItem) => {
-  activeInteraction.value = interaction;
-  interPage.value = "content";
-  availableActions.value = interaction.actions || [];
-};
-
-const backToTitles = () => {
-  interPage.value = "titles";
-  activeInteraction.value = null;
-  availableActions.value = [];
-};
-
-const executeAction = (action: GameAction) => {
-  if (action.type === "RETURN_TO_CHOICES") {
-    backToTitles();
-    return;
-  }
-  if (action.type === "PROCEED" && action.target) {
-    if (action.target === "next-adventure-step") {
-      backToTitles();
-      return;
-    }
-    const nextInteraction = findInteractionById(action.target);
-    if (nextInteraction) {
-      selectInteraction(nextInteraction);
-    } else {
-      console.error(`Next interaction '${action.target}' not found`);
-    }
-  }
-};
-
-const ensureCameraPermission = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    stream.getTracks().forEach((t) => t.stop());
-    resetScan();
-  } catch (err) {
-    console.warn("Camera permission denied:", err);
-    showCameraDeniedDialog.value = true;
+    console.warn("Book ID not found:", bookId);
   }
 };
 
@@ -1782,12 +1300,12 @@ watch(mobileNavValue, (newVal) => {
     currentView.value = "player";
     if (currentIndex.value < 0) currentIndex.value = 0;
   } else if (newVal === "interactions") {
-    // Save current state before leaving books
     saveCurrentBookState();
     currentView.value = "interactions";
-    ensureCameraPermission();
+    nextTick(() => {
+      interactViewRef.value?.ensureCameraPermission();
+    });
   } else if (newVal === "keywords") {
-    // Save current state before leaving books
     saveCurrentBookState();
     currentView.value = "keywords";
   }
@@ -1802,15 +1320,6 @@ watch(currentView, async (newView, oldView) => {
     currentIndex.value = -1;
   }
 
-  if (newView === "interactions") {
-    if (oldView !== "interactions") {
-      resetScan();
-    }
-  } else if (oldView === "interactions") {
-    codeReader.reset();
-  }
-
-  // Reset scroll position quando mudar de view
   if (oldView !== newView) {
     await nextTick();
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -1821,7 +1330,6 @@ watch(currentView, async (newView, oldView) => {
 // Lifecycle Hooks
 onMounted(() => {
   checkFullscreenSupport();
-  initializeInteractionConfigs();
 
   document.addEventListener("fullscreenchange", handleFullscreenChange);
   document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
@@ -1847,33 +1355,14 @@ onBeforeUnmount(() => {
   if (isFullscreen.value) {
     toggleFullscreen();
   }
-
-  codeReader.reset();
 });
-
-const getInteractionIntroBody = () => {
-  if (!currentInteractionConfig.value) {
-    return "";
-  }
-
-  const introItem = currentInteractionConfig.value.items.find(
-    (item) => item.type === "intro",
-  );
-  if (introItem) {
-    return introItem.body.join("");
-  }
-
-  if (currentInteractionConfig.value.items.length > 0) {
-    return currentInteractionConfig.value.items[0].body.join("");
-  }
-
-  return "";
-};
 
 const navigateToInteract = () => {
   mobileNavValue.value = "interactions";
   currentView.value = "interactions";
-  ensureCameraPermission();
+  nextTick(() => {
+    interactViewRef.value?.ensureCameraPermission();
+  });
 };
 
 defineExpose({
@@ -1882,13 +1371,6 @@ defineExpose({
 </script>
 
 <style scoped>
-.interaction-content {
-  border-radius: 16px;
-  overflow: hidden;
-  background: var(--v-theme-surface);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
 .book-container {
   height: 100vh;
   overflow: hidden;
@@ -1993,7 +1475,6 @@ defineExpose({
 }
 
 .header-banner {
-  /* background-image is now handled by a dynamic :style binding */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: top center;
@@ -2023,7 +1504,6 @@ defineExpose({
   text-transform: none;
 }
 
-/* Desktop Styles */
 .section-title {
   font-size: 0.7rem;
   color: white;
@@ -2243,110 +1723,6 @@ defineExpose({
   z-index: 1000;
 }
 
-.scanner-container {
-  padding: 24px;
-  min-height: 400px;
-}
-
-.video-wrapper {
-  position: relative;
-  display: inline-block;
-  margin: 24px auto;
-}
-
-.qr-video {
-  max-width: 100%;
-  width: 300px;
-  height: 300px;
-  object-fit: cover;
-  border-radius: 12px;
-  border: 2px solid var(--v-theme-primary);
-  background: #000;
-}
-
-.camera-switch {
-  position: absolute !important;
-  top: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.6) !important;
-  color: white !important;
-}
-
-.interaction-hero {
-  position: relative;
-  border-radius: 0;
-}
-
-.interaction-text-content {
-  padding: 24px !important;
-  background: var(--v-theme-surface);
-}
-
-.interaction-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 24px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  color: white;
-}
-
-.interaction-title {
-  font-size: 1.75rem !important;
-  font-weight: 600;
-  color: var(--v-theme-on-surface);
-  line-height: 1.3;
-}
-
-.interaction-subtitle {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: var(--v-theme-on-surface-variant);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.interaction-body {
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
-
-.interaction-choices {
-  margin-top: 24px;
-}
-
-.interaction-choice-btn {
-  height: auto !important;
-  min-height: 56px;
-  padding: 12px 16px !important;
-  border-radius: 12px !important;
-  font-weight: 500;
-  text-transform: none !important;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.3s ease !important;
-}
-
-.interaction-choice-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
-}
-
-.interaction-choice-btn .text-wrap {
-  white-space: normal;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.content-card {
-  border-radius: 16px !important;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07) !important;
-  background: white;
-  margin-bottom: 16px;
-}
-
 .back-button-container {
   padding: 16px;
   display: flex;
@@ -2374,7 +1750,6 @@ defineExpose({
   transform: translateY(-20px);
 }
 
-/* Tablet Styles */
 @media (max-width: 1024px) {
   .section-title {
     padding: 10px 100px 5px;
@@ -2412,29 +1787,11 @@ defineExpose({
     padding: 16px 16px !important;
   }
 
-  .interaction-text-content {
-    padding: 16px !important;
-  }
-
-  .interaction-title {
-    font-size: 1.5rem !important;
-  }
-
-  .interaction-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .interaction-choice-btn {
-    min-height: 48px;
-    font-size: 0.9rem;
-  }
-
   .back-button-container {
     padding: 12px;
   }
 }
 
-/* Mobile Styles */
 @media (max-width: 480px) {
   .navigation-container {
     height: 60px;
@@ -2446,7 +1803,6 @@ defineExpose({
 
   .header-banner {
     padding: 8px 10px 6px;
-
     background-position: left;
   }
 
@@ -2476,26 +1832,6 @@ defineExpose({
 
   .navigation-buttons .v-btn .ml-2 {
     margin-left: 4px !important;
-  }
-
-  .interaction-hero {
-    height: 250px !important;
-  }
-
-  .interaction-text-content {
-    padding: 12px !important;
-  }
-
-  .interaction-title {
-    font-size: 1.3rem !important;
-  }
-
-  .interaction-subtitle {
-    font-size: 0.85rem;
-  }
-
-  .interaction-choices {
-    margin-top: 16px;
   }
 
   .v-toolbar__content > .v-toolbar-title {
