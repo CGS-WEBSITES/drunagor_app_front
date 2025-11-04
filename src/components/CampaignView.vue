@@ -938,7 +938,6 @@ function handleEquipmentSkillsAction() {
 }
 
 function handleQRCodeAction() {
-  // Verifica se está em uma campanha underkeep ou underkeep2
   if (
     campaign.value &&
     ["underkeep", "underkeep2"].includes(campaign.value.campaign)
@@ -946,33 +945,11 @@ function handleQRCodeAction() {
     // Muda para a aba "book"
     currentTab.value = "book";
 
-    // Aguarda o componente CampaignBook ser renderizado
+    // Navega diretamente para interact sem delay
     nextTick(() => {
-      setTimeout(() => {
-        // Tenta acessar o componente CampaignBook através da ref
-        if (
-          campaignBookRef.value &&
-          typeof campaignBookRef.value.navigateToInteract === "function"
-        ) {
-          campaignBookRef.value.navigateToInteract();
-        } else {
-          // Fallback: tenta encontrar e clicar no botão Interact diretamente
-          const interactButton = document.querySelector(
-            'button[value="interactions"]',
-          ) as HTMLButtonElement;
-          if (interactButton) {
-            interactButton.click();
-          } else {
-            setAlert(
-              "mdi-information-outline",
-              "Info",
-              "Please click on the 'Interact' button to scan QR codes.",
-              "info",
-              3000,
-            );
-          }
-        }
-      }, 300);
+      if (campaignBookRef.value && typeof campaignBookRef.value.forceNavigateToInteract === "function") {
+        campaignBookRef.value.forceNavigateToInteract();
+      }
     });
   } else {
     setAlert(
