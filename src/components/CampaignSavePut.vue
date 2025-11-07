@@ -1,7 +1,7 @@
 <template>
   <v-btn
     variant="elevated"
-    id="campaign-export"
+    id="campaign-save"
     rounded
     @click="handleClick"
   >
@@ -13,28 +13,21 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
-import axios from "axios";
+/* import axios from "axios"; */
 
 const props = defineProps<{ campaignId: string }>();
 const emit = defineEmits(["success", "fail", "open-save-panel"]);
 const campaignStore = CampaignStore();
-const heroStore = HeroStore();
 const token = ref("");
 const { t } = useI18n();
 
 function compressCampaign(campaignId: string) {
   const campaign = campaignStore.find(campaignId);
   const campaignCopy = JSON.parse(JSON.stringify(campaign));
-  const heroes = heroStore.findAllInCampaign(campaignId);
 
   const data = {
     campaignData: campaignCopy,
-    heroes: heroes.map((h) => {
-      const clone = JSON.parse(JSON.stringify(h));
-      return clone;
-    }),
   };
 
   token.value = btoa(JSON.stringify(data));
@@ -43,20 +36,23 @@ function compressCampaign(campaignId: string) {
 
 async function saveCampaign() {
   const party_name = compressCampaign(props.campaignId);
-
-  return await axios
-    .put(`campaigns/alter/${props.campaignId}`, {
-      tracker_hash: token.value,
-      party_name: party_name,
-    })
-    .then(() => {
-      emit("success");
-      return true;
-    })
-    .catch((err) => {
-      emit("fail");
-      throw err;
-    });
+  console.log("party_name:", party_name);
+  // Salva no localStorage temporariamente
+  try {
+    localStorage.setItem(`campaign_hash_${props.campaignId}`, token.value);
+    
+    // Quando o backend estiver pronto, descomentar:
+    // await axios.put(`campaigns/alter/${props.campaignId}`, {
+    //   tracker_hash: token.value,
+    //   party_name: party_name,
+    // });
+    
+    emit("success");
+    return true;
+  } catch (err) {
+    emit("fail");
+    throw err;
+  }
 }
 
 async function handleClick() {
@@ -64,6 +60,7 @@ async function handleClick() {
     await saveCampaign();
     emit('open-save-panel');
   } catch (error) {
+    console.error("Error saving campaign:", error);
   }
 }
 

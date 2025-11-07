@@ -6,11 +6,14 @@
       </v-btn>
     </v-col>
   </v-row>
-  <CampaignSavePut
-    ref="savePutRef"
+
+  <HeroSavePut
+    ref="heroSavePutRef"
     :campaign-id="campaignId"
+    :hero-id="heroId"
     style="display: none"
   />
+
   <v-row no-gutters>
     <v-col cols="12" class="d-flex align-center justify-center">
       <v-card
@@ -119,6 +122,7 @@ import { useRoute } from "vue-router";
 import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
 import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
 import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
+import HeroSavePut from "@/components/HeroSavePut.vue";
 import { ref, watch } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
@@ -128,7 +132,6 @@ import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
 import { useI18n } from "vue-i18n";
-import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import { useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
 
@@ -136,7 +139,7 @@ const route = useRoute();
 const heroDataRepository = new HeroDataRepository();
 const { t } = useI18n();
 const router = useRouter();
-const savePutRef = ref();
+const heroSavePutRef = ref();
 
 const heroId = route.params.heroId.toString();
 const campaignId = route.params.campaignId.toString();
@@ -173,7 +176,7 @@ if (campaignHero) {
   if (!campaignHero.skills) {
     campaignHero.skills = {};
   }
-  if (typeof campaignHero.classAbilityCount === 'undefined') {
+  if (typeof campaignHero.classAbilityCount === "undefined") {
     campaignHero.classAbilityCount = 0;
   }
 }
@@ -212,7 +215,9 @@ const getInstructionState = () => {
         const thirtyMinutes = 30 * 60 * 1000;
 
         if (now - state.timestamp < thirtyMinutes) {
-          const stepStr = localStorage.getItem(getInstructionStepKey(state.tab));
+          const stepStr = localStorage.getItem(
+            getInstructionStepKey(state.tab),
+          );
           return {
             expanded: state.expanded,
             tab: state.tab,
@@ -234,8 +239,8 @@ const getInstructionState = () => {
 function saveAndGoBack() {
   const instructionState = getInstructionState();
 
-  if (savePutRef.value && savePutRef.value.save) {
-    savePutRef.value.save().then(() => {
+  if (heroSavePutRef.value && heroSavePutRef.value.save) {
+    heroSavePutRef.value.save().then(() => {
       const query: any = {};
 
       if (instructionState && instructionState.expanded) {
