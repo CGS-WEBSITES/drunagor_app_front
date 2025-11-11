@@ -6,7 +6,7 @@
       </v-btn>
     </v-col>
   </v-row>
-  
+
   <HeroSavePut
     ref="heroSavePutRef"
     :campaign-id="campaignId"
@@ -15,7 +15,7 @@
     @fail="onSaveFail"
     style="display: none"
   />
-  
+
   <v-row no-gutters>
     <v-col cols="12" class="d-flex align-center justify-center">
       <v-card
@@ -33,7 +33,7 @@
               <div class="text-center text-h5 mb-4">
                 {{ t("Manage Resources") }}
               </div>
-              
+
               <!-- Life Points -->
               <v-row no-gutters class="mb-4">
                 <v-col cols="12">
@@ -113,10 +113,18 @@
                   >
                     <div class="text-subtitle-1 mb-2 d-flex align-center">
                       <div class="ml-2">
-                        <v-icon size="x-small" color="yellow-darken-2">mdi-cube</v-icon>
-                        <v-icon size="x-small" color="red-darken-2">mdi-cube</v-icon>
-                        <v-icon size="x-small" color="green-darken-2">mdi-cube</v-icon>
-                        <v-icon size="x-small" color="blue-darken-2">mdi-cube</v-icon>
+                        <v-icon size="x-small" color="yellow-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="red-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="green-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="blue-darken-2"
+                          >mdi-cube</v-icon
+                        >
                       </div>
                       {{ t("Available Cubes") }}
                     </div>
@@ -138,10 +146,18 @@
                   >
                     <div class="text-subtitle-1 mb-2 d-flex align-center">
                       <div class="ml-2 faded-cubes">
-                        <v-icon size="x-small" color="yellow-darken-2">mdi-cube</v-icon>
-                        <v-icon size="x-small" color="red-darken-2">mdi-cube</v-icon>
-                        <v-icon size="x-small" color="green-darken-2">mdi-cube</v-icon>
-                        <v-icon size="x-small" color="blue-darken-2">mdi-cube</v-icon>
+                        <v-icon size="x-small" color="yellow-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="red-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="green-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="blue-darken-2"
+                          >mdi-cube</v-icon
+                        >
                       </div>
                       {{ t("Used Cubes") }}
                     </div>
@@ -168,15 +184,18 @@
                     <div class="text-subtitle-1 mb-3">
                       {{ t("label.resources") }}
                     </div>
-                    <v-row 
-                      v-for="(value, key) in localState.resources" 
-                      :key="key" 
-                      no-gutters 
+                    <v-row
+                      v-for="(value, key) in localState.resources"
+                      :key="key"
+                      no-gutters
                       class="mb-2"
                     >
                       <v-col cols="12">
                         <div class="d-flex align-items-center">
-                          <span class="text-body-2 mr-3" style="min-width: 150px">
+                          <span
+                            class="text-body-2 mr-3"
+                            style="min-width: 150px"
+                          >
                             {{ t(key) }}
                           </span>
                           <v-text-field
@@ -220,7 +239,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import HeroSavePut from "@/components/HeroSavePut.vue";
@@ -228,6 +247,7 @@ import { HeroStore } from "@/store/HeroStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { SequentialAdventureState } from "@/store/Hero";
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const route = useRoute();
 const router = useRouter();
@@ -242,12 +262,10 @@ const heroDataRepository = new HeroDataRepository();
 const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
 const campaignHero = heroStore.findInCampaign(heroId, campaignId);
 
-// Inicializa o estado sequencial se não existir
 if (!campaignHero.sequentialAdventureState) {
   campaignHero.sequentialAdventureState = new SequentialAdventureState();
 }
 
-// Estado local para edição
 const localState = ref({
   lifepoints: campaignHero.sequentialAdventureState.lifepoints,
   curseCubes: campaignHero.sequentialAdventureState.curseCubes,
@@ -257,46 +275,44 @@ const localState = ref({
   resources: { ...campaignHero.sequentialAdventureState.resources },
 });
 
-// Snackbar
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
 const snackbarColor = ref("success");
 const snackbarTimeout = ref(3000);
 
-// Watchers para atualizar o store em tempo real
 watch(
   () => localState.value.lifepoints,
   (newVal) => {
     campaignHero.sequentialAdventureState!.lifepoints = Number(newVal) || 0;
-  }
+  },
 );
 
 watch(
   () => localState.value.curseCubes,
   (newVal) => {
     campaignHero.sequentialAdventureState!.curseCubes = Number(newVal) || 0;
-  }
+  },
 );
 
 watch(
   () => localState.value.traumaCubes,
   (newVal) => {
     campaignHero.sequentialAdventureState!.traumaCubes = Number(newVal) || 0;
-  }
+  },
 );
 
 watch(
   () => localState.value.availableCubes,
   (newVal) => {
     campaignHero.sequentialAdventureState!.availableCubes = Number(newVal) || 0;
-  }
+  },
 );
 
 watch(
   () => localState.value.usedCubes,
   (newVal) => {
     campaignHero.sequentialAdventureState!.usedCubes = Number(newVal) || 0;
-  }
+  },
 );
 
 watch(
@@ -304,7 +320,7 @@ watch(
   (newVal) => {
     campaignHero.sequentialAdventureState!.resources = { ...newVal };
   },
-  { deep: true }
+  { deep: true },
 );
 
 const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
@@ -322,7 +338,9 @@ const getInstructionState = () => {
         const thirtyMinutes = 30 * 60 * 1000;
 
         if (now - state.timestamp < thirtyMinutes) {
-          const stepStr = localStorage.getItem(getInstructionStepKey(state.tab));
+          const stepStr = localStorage.getItem(
+            getInstructionStepKey(state.tab),
+          );
           return {
             expanded: state.expanded,
             tab: state.tab,
@@ -386,6 +404,24 @@ function saveAndGoBack() {
     });
   }
 }
+
+onMounted(() => {
+  const loader = new CampaignLoadFromStorage();
+  loader.loadCampaignComplete(campaignId);
+
+  const updatedHero = heroStore.findInCampaign(heroId, campaignId);
+
+  if (updatedHero && updatedHero.sequentialAdventureState) {
+    localState.value = {
+      lifepoints: updatedHero.sequentialAdventureState.lifepoints,
+      curseCubes: updatedHero.sequentialAdventureState.curseCubes,
+      traumaCubes: updatedHero.sequentialAdventureState.traumaCubes,
+      availableCubes: updatedHero.sequentialAdventureState.availableCubes,
+      usedCubes: updatedHero.sequentialAdventureState.usedCubes,
+      resources: { ...updatedHero.sequentialAdventureState.resources },
+    };
+  }
+});
 </script>
 
 <style scoped>

@@ -4,102 +4,121 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { HeroStore } from "@/store/HeroStore";
-/* import axios from "axios"; */
+import { CampaignStore } from "@/store/CampaignStore";
 
-const props = defineProps<{ 
+const props = defineProps<{
   campaignId: string;
   heroId?: string; 
 }>();
 
 const emit = defineEmits(["success", "fail"]);
 const heroStore = HeroStore();
-const token = ref("");
+const campaignStore = CampaignStore();
 
-function compressHeroes(campaignId: string, heroId?: string) {
-  let heroes;
-  
-  if (heroId) {
-    const hero = heroStore.findInCampaign(heroId, campaignId);
-    heroes = [hero];
-  } else {
-    heroes = heroStore.findAllInCampaign(campaignId);
+function deepMerge(target: any, source: any): any {
+  const output = { ...target };
+
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach((key) => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          output[key] = source[key];
+        } else {
+          output[key] = deepMerge(target[key], source[key]);
+        }
+      } else {
+        output[key] = source[key];
+      }
+    });
   }
 
-  const data = {
-    heroes: heroes.map((h) => {
-      const clone = JSON.parse(JSON.stringify(h));
-      return clone;
-    }),
-  };
+  return output;
+}
 
-  token.value = btoa(JSON.stringify(data));
+function isObject(item: any): boolean {
+  return item && typeof item === "object" && !Array.isArray(item);
 }
 
 async function saveHeroes() {
-  compressHeroes(props.campaignId, props.heroId);
-
   try {
-    const storageKey = props.heroId 
-      ? `hero_hash_${props.campaignId}_${props.heroId}`
-      : `heroes_hash_${props.campaignId}`;
-    
-    // Pega a hash existente (se houver)
+    const storageKey = `campaign_hash_${props.campaignId}`;
+
     const existingHash = localStorage.getItem(storageKey);
-    
-    let existingData: any = { heroes: [] };
-    
-    // Se já existe uma hash, decodifica ela
+
+    let existingData: any = { heroes: [], campaignData: null };
+
     if (existingHash) {
       try {
         existingData = JSON.parse(atob(existingHash));
       } catch (error) {
-        console.warn("Erro ao decodificar hash existente, criando nova:", error);
-        existingData = { heroes: [] };
-      }
-    }
-    
-    // Decodifica os novos dados
-    const newData = JSON.parse(atob(token.value));
-    
-    if (props.heroId) {
-      // Atualiza ou adiciona o herói específico
-      const heroIndex = existingData.heroes.findIndex(
-        (h: any) => h.heroId === props.heroId && h.campaignId === props.campaignId
-      );
-      
-      if (heroIndex !== -1) {
-        // Herói existe, atualiza
-        existingData.heroes[heroIndex] = newData.heroes[0];
-      } else {
-        // Herói não existe, adiciona
-        existingData.heroes.push(newData.heroes[0]);
+        console.warn(
+          "Erro ao decodificar hash existente, criando nova:",
+          error,
+        );
+
+        const campaign = campaignStore.find(props.campaignId);
+        if (campaign) {
+          existingData.campaignData = JSON.parse(JSON.stringify(campaign));
+        }
       }
     } else {
-      // Salva todos os heróis da campanha
-      // Remove os heróis antigos desta campanha e adiciona os novos
-      existingData.heroes = existingData.heroes.filter(
-        (h: any) => h.campaignId !== props.campaignId
-      );
-      existingData.heroes.push(...newData.heroes);
+      const campaign = campaignStore.find(props.campaignId);
+      if (campaign) {
+        existingData.campaignData = JSON.parse(JSON.stringify(campaign));
+      }
     }
-    
-    // Recodifica e salva
-    const updatedHash = btoa(JSON.stringify(existingData));
+
+    let heroesToSave;
+    if (props.heroId) {
+      const hero = heroStore.findInCampaign(props.heroId, props.campaignId);
+      heroesToSave = [hero];
+    } else {
+      heroesToSave = heroStore.findAllInCampaign(props.campaignId);
+    }
+
+    const existingHeroesMap = new Map(
+      (existingData.heroes || []).map((h: any) => [h.heroId, h]),
+    );
+
+    heroesToSave.forEach((hero) => {
+      const heroCopy = JSON.parse(JSON.stringify(hero));
+      const existingHero = existingHeroesMap.get(hero.heroId);
+
+      if (existingHero) {
+        existingHeroesMap.set(hero.heroId, deepMerge(existingHero, heroCopy));
+      } else {
+        existingHeroesMap.set(hero.heroId, heroCopy);
+      }
+    });
+
+    const updatedData = {
+      campaignData: existingData.campaignData,
+      heroes: Array.from(existingHeroesMap.values()),
+      savedAt: new Date().toISOString(),
+    };
+
+    const updatedHash = btoa(JSON.stringify(updatedData));
     localStorage.setItem(storageKey, updatedHash);
-    
+
+    if (props.heroId) {
+      const oldKey = `hero_hash_${props.campaignId}_${props.heroId}`;
+      localStorage.removeItem(oldKey);
+    } else {
+      heroesToSave.forEach((hero) => {
+        const oldKey = `hero_hash_${props.campaignId}_${hero.heroId}`;
+        localStorage.removeItem(oldKey);
+      });
+
+      const oldHeroesKey = `heroes_hash_${props.campaignId}`;
+      localStorage.removeItem(oldHeroesKey);
+    }
+
     // Quando o backend estiver pronto, descomentar:
-    // if (props.heroId) {
-    //   await axios.put(`heroes/alter/${props.campaignId}/${props.heroId}`, {
-    //     hero_hash: updatedHash,
-    //   });
-    // } else {
-    //   await axios.put(`heroes/alter/${props.campaignId}`, {
-    //     heroes_hash: updatedHash,
-    //   });
-    // }
-    
+    // await axios.put(`campaigns/alter/${props.campaignId}`, {
+    //   tracker_hash: updatedHash,
+    // });
+
     emit("success");
     return true;
   } catch (err) {

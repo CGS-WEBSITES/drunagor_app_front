@@ -11,6 +11,8 @@
     ref="heroSavePutRef"
     :campaign-id="campaignId"
     :hero-id="heroId"
+    @success="onSaveSuccess"
+    @fail="onSaveFail"
     style="display: none"
   />
 
@@ -113,6 +115,16 @@
       </v-btn>
     </v-col>
   </v-row>
+
+  <!-- Snackbar para feedback -->
+  <v-snackbar
+    v-model="snackbarVisible"
+    :timeout="snackbarTimeout"
+    :color="snackbarColor"
+    location="top"
+  >
+    {{ snackbarText }}
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -123,7 +135,7 @@ import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
 import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
 import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
 import HeroSavePut from "@/components/HeroSavePut.vue";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
 import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
@@ -134,6 +146,7 @@ import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakeni
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { HeroStore } from "@/store/HeroStore";
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const route = useRoute();
 const heroDataRepository = new HeroDataRepository();
@@ -182,6 +195,12 @@ if (campaignHero) {
 }
 
 const localClassAbilityCount = ref(campaignHero.classAbilityCount);
+
+// Snackbar
+const snackbarVisible = ref(false);
+const snackbarText = ref("");
+const snackbarColor = ref("success");
+const snackbarTimeout = ref(3000);
 
 watch(localClassAbilityCount, (newCount) => {
   campaignHero.classAbilityCount = Number(newCount) || 0;
@@ -236,6 +255,18 @@ const getInstructionState = () => {
   return null;
 };
 
+const onSaveSuccess = () => {
+  snackbarText.value = "Equipment and skills saved successfully!";
+  snackbarColor.value = "success";
+  snackbarVisible.value = true;
+};
+
+const onSaveFail = () => {
+  snackbarText.value = "Failed to save equipment and skills.";
+  snackbarColor.value = "error";
+  snackbarVisible.value = true;
+};
+
 function saveAndGoBack() {
   const instructionState = getInstructionState();
 
@@ -269,6 +300,16 @@ function saveAndGoBack() {
     });
   }
 }
+
+onMounted(() => {
+  const loader = new CampaignLoadFromStorage();
+  loader.loadCampaignComplete(campaignId);
+
+  const updatedHero = heroStore.findInCampaign(heroId, campaignId);
+  if (updatedHero) {
+    localClassAbilityCount.value = updatedHero.classAbilityCount || 0;
+  }
+});
 </script>
 
 <style scoped>

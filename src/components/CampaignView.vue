@@ -709,6 +709,7 @@ import { type Campaign } from "@/store/Campaign";
 import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
 import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
 import SelectCompanion from "@/components/SelectCompanion.vue";
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
@@ -1188,6 +1189,13 @@ onMounted(async () => {
     return;
   }
 
+  const loader = new CampaignLoadFromStorage();
+  const hasLocalData = loader.loadCampaignComplete(campaignId);
+
+  if (hasLocalData) {
+    console.log("Campaign and heroes loaded from localStorage");
+  }
+
   const found = campaignStore.find(campaignId);
   if (found) {
     campaign.value = found;
@@ -1202,6 +1210,7 @@ onMounted(async () => {
       `Campaign with ID ${campaignId} not found.`,
       "error",
     );
+    return;
   }
 
   await fetchRole();
