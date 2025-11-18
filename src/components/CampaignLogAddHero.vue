@@ -36,8 +36,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import BaseList from "@/components/BaseList.vue";
-import BaseListItem from "@/components/BaseListItem.vue";
 import { EnabledHeroes } from "@/repository/EnabledHeroes";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { RandomizeHero } from "@/service/RandomizeHero";
@@ -45,7 +43,7 @@ import { useToast } from "primevue/usetoast";
 import RandomImage from "@/assets/hero/trackerimage/RandomAvatar.png";
 import * as _ from "lodash-es";
 import { HeroStore } from "@/store/HeroStore";
-import { Hero } from "@/store/Hero";
+import { Hero, SequentialAdventureState } from "@/store/Hero";
 import { useI18n } from "vue-i18n";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -71,7 +69,6 @@ const heroStore = HeroStore();
 const campaignStore = CampaignStore();
 
 const campaign = computed(() => campaignStore.find(props.campaignId));
-console.log('Campaign:', campaign.value);
 
 const MAX_HEROES = 4;
 const campaignHeroesCount = computed(
@@ -82,7 +79,7 @@ const isLimitReached = computed(() => {
   if (!campaign.value) {
     return false;
   }
-  if (campaign.value.campaign === 'underkeep') {
+  if (campaign.value.campaign === "underkeep") {
     return campaignHeroesCount.value >= MAX_HEROES;
   }
   return false;
@@ -92,11 +89,11 @@ const availableHeroes = computed(() => {
   if (!campaign.value) {
     return [];
   }
-  
-  if (campaign.value.campaign === 'underkeep') {
+
+  if (campaign.value.campaign === "underkeep") {
     const heroRepository = new HeroDataRepository();
     const allHeroes = heroRepository.findAll();
-    return allHeroes.filter((hero: HeroData) => hero.content === 'core');
+    return allHeroes.filter((hero: HeroData) => hero.content === "core");
   } else {
     return new EnabledHeroes().findAll();
   }
@@ -122,7 +119,38 @@ function addHeroToCampaign(heroId: string) {
     closeModal();
     return;
   }
-  heroStore.add(new Hero(heroId, props.campaignId));
+
+  const newHero = new Hero(heroId, props.campaignId);
+
+  if (!newHero.sequentialAdventureState) {
+    newHero.sequentialAdventureState = new SequentialAdventureState();
+
+    if (!newHero.sequentialAdventureState.resources) {
+      newHero.sequentialAdventureState.resources = {};
+    }
+
+    const RESOURCE_DEFINITIONS = [
+      "focus",
+      "fruit-of-life",
+      "ki",
+      "shield",
+      "fury",
+    ];
+
+    RESOURCE_DEFINITIONS.forEach((resource) => {
+      newHero.sequentialAdventureState!.resources[resource] = 0;
+    });
+  }
+
+  heroStore.add(newHero);
+
+  toast.add({
+    severity: "success",
+    summary: "Hero added",
+    detail: "Remember to save the campaign to persist changes.",
+    life: 3000,
+  });
+
   closeModal();
 }
 
@@ -140,7 +168,7 @@ function addRandomHeroToCampaign() {
 
   const randomHero = new RandomizeHero().randomize(
     _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
-    availableHeroes.value 
+    availableHeroes.value,
   );
 
   if (randomHero === null) {
@@ -152,7 +180,38 @@ function addRandomHeroToCampaign() {
     });
     return;
   }
-  heroStore.add(new Hero(randomHero.id, props.campaignId));
+
+  const newHero = new Hero(randomHero.id, props.campaignId);
+
+  if (!newHero.sequentialAdventureState) {
+    newHero.sequentialAdventureState = new SequentialAdventureState();
+
+    if (!newHero.sequentialAdventureState.resources) {
+      newHero.sequentialAdventureState.resources = {};
+    }
+
+    const RESOURCE_DEFINITIONS = [
+      "focus",
+      "fruit-of-life",
+      "ki",
+      "shield",
+      "fury",
+    ];
+
+    RESOURCE_DEFINITIONS.forEach((resource) => {
+      newHero.sequentialAdventureState!.resources[resource] = 0;
+    });
+  }
+
+  heroStore.add(newHero);
+
+  toast.add({
+    severity: "success",
+    summary: "Hero added",
+    detail: "Remember to save the campaign to persist changes.",
+    life: 3000,
+  });
+
   closeModal();
 }
 </script>

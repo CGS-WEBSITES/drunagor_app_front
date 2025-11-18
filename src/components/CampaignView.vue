@@ -709,6 +709,7 @@ import { type Campaign } from "@/store/Campaign";
 import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
 import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
 import SelectCompanion from "@/components/SelectCompanion.vue";
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
@@ -737,30 +738,20 @@ const bottomNavValue = ref<string | null>(null);
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const campaignBookRef = vueRef<any>(null);
-const campaignPlayerListRef = vueRef<InstanceType<
-  typeof CampaignPlayerList
-> | null>(null);
-const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
-  null,
-);
-const campaignExportRef = vueRef<InstanceType<typeof CampaignExport> | null>(
-  null,
-);
-const shareCampaignRef = vueRef<InstanceType<
-  typeof ShareCampaignButton
-> | null>(null);
+const campaignPlayerListRef = vueRef<InstanceType<typeof CampaignPlayerList> | null>(null);
+const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(null);
+const campaignExportRef = vueRef<InstanceType<typeof CampaignExport> | null>(null);
+const shareCampaignRef = vueRef<InstanceType<typeof ShareCampaignButton> | null>(null);
 
 const transferLoading = ref(false);
 const transferDialogVisible = ref(false);
-const players = ref<
-  Array<{
-    rl_campaigns_users_pk: number;
-    user_name: string;
-    role_name: string;
-    party_roles_fk: number;
-    users_fk: number;
-  }>
->([]);
+const players = ref<Array<{
+  rl_campaigns_users_pk: number;
+  user_name: string;
+  role_name: string;
+  party_roles_fk: number;
+  users_fk: number;
+}>>([]);
 const selectedUser = ref<(typeof players.value)[0] | null>(null);
 const confirmingTransfer = ref(false);
 const originalMaster = ref<(typeof players.value)[0] | null>(null);
@@ -942,10 +933,8 @@ function handleQRCodeAction() {
     campaign.value &&
     ["underkeep", "underkeep2"].includes(campaign.value.campaign)
   ) {
-    // Muda para a aba "book"
     currentTab.value = "book";
 
-    // Navega diretamente para interact sem delay
     nextTick(() => {
       if (campaignBookRef.value && typeof campaignBookRef.value.forceNavigateToInteract === "function") {
         campaignBookRef.value.forceNavigateToInteract();
@@ -973,15 +962,12 @@ const openPlayerListDialog = async () => {
   playerListDialogVisible.value = true;
 };
 
-// Handler para o Speed Dial (Desktop)
 const handleSpeedDialAction = (action: string) => {
   executeAction(action);
   speedDialOpen.value = false;
 };
 
-// Handler para o Bottom Navigation (Mobile/Tablet)
 const handleBottomNavAction = (action: string) => {
-  // Reseta o valor para não manter o item selecionado
   setTimeout(() => {
     bottomNavValue.value = null;
   }, 100);
@@ -989,7 +975,6 @@ const handleBottomNavAction = (action: string) => {
   executeAction(action);
 };
 
-// Função centralizada para executar as ações
 const executeAction = (action: string) => {
   switch (action) {
     case "save":
@@ -1204,6 +1189,13 @@ onMounted(async () => {
     return;
   }
 
+  const loader = new CampaignLoadFromStorage();
+  const hasLocalData = loader.loadCampaignComplete(campaignId);
+
+  if (hasLocalData) {
+    console.log("Campaign and heroes loaded from localStorage");
+  }
+
   const found = campaignStore.find(campaignId);
   if (found) {
     campaign.value = found;
@@ -1218,6 +1210,7 @@ onMounted(async () => {
       `Campaign with ID ${campaignId} not found.`,
       "error",
     );
+    return;
   }
 
   await fetchRole();
@@ -1271,18 +1264,16 @@ onMounted(async () => {
   padding: 16px !important;
 }
 
-/* Snackbar responsivo para mobile */
 @media (max-width: 960px) {
   .global-snackbar {
     z-index: 10000 !important;
   }
 
   :deep(.v-snackbar__wrapper) {
-    bottom: 80px !important; /* Acima do bottom navigation */
+    bottom: 80px !important;
   }
 }
 
-/* Text Styles */
 .info-text {
   font-size: 0.6rem !important;
   color: rgba(255, 255, 255, 0.7);
@@ -1302,7 +1293,6 @@ onMounted(async () => {
   text-transform: none !important;
 }
 
-/* Campaign Content */
 .campaign-content {
   position: relative;
   overflow-x: hidden;
@@ -1313,7 +1303,6 @@ onMounted(async () => {
   padding-bottom: 80px;
 }
 
-/* Action Groups */
 .action-group {
   display: flex;
   flex-wrap: wrap;
@@ -1335,7 +1324,6 @@ onMounted(async () => {
   margin-bottom: 4px !important;
 }
 
-/* Desktop: Speed Dial Styles */
 .speed-dial-activator {
   position: fixed;
   right: 10px;
@@ -1369,7 +1357,6 @@ onMounted(async () => {
   transform: none !important;
 }
 
-/* Botão QR Code MAIOR no Speed Dial */
 .speed-dial-item-qr {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
   margin-bottom: 16px !important;
@@ -1388,7 +1375,6 @@ onMounted(async () => {
   font-size: 36px !important;
 }
 
-/* Mobile/Tablet: Bottom Navigation Styles */
 .mobile-bottom-nav {
   position: fixed !important;
   bottom: 0 !important;
@@ -1419,7 +1405,6 @@ onMounted(async () => {
   margin-top: 2px !important;
 }
 
-/* Botão QR Code MAIOR no Bottom Navigation */
 .bottom-nav-btn-qr {
   flex-direction: column !important;
   min-width: 80px !important;
@@ -1455,7 +1440,6 @@ onMounted(async () => {
   letter-spacing: 0.5px;
 }
 
-/* Hero Highlights */
 .hero-highlight {
   transition: box-shadow 0.3s ease;
 }
@@ -1464,7 +1448,6 @@ onMounted(async () => {
   box-shadow: 0 0 20px rgba(var(--v-theme-primary), 0.5) !important;
 }
 
-/* Action Buttons */
 :deep(.action-buttons-container) {
   position: relative;
   z-index: 10;
@@ -1480,7 +1463,6 @@ onMounted(async () => {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Tabs */
 .v-tabs .v-tab--selected {
   background-color: rgb(var(--v-theme-secondary)) !important;
   color: white !important;
@@ -1498,7 +1480,6 @@ onMounted(async () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Responsive Breakpoints */
 @media (max-width: 960px) {
   .action-group {
     min-width: 45%;
@@ -1544,7 +1525,6 @@ onMounted(async () => {
   }
 }
 
-/* Utility Classes */
 .d-contents {
   display: contents;
 }
