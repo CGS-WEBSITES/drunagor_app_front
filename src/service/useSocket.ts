@@ -25,10 +25,10 @@ function attachUnloadHandlers() {
   });
 }
 
-export function connectSocket(token: string, userId: number | string) {
+export function connectSocket(token: string, userId: number | string, url: string) {
   if (socket?.connected) return socket;
 
-  socket = io("http://localhost:5002", {
+  socket = io(url, {
     transports: ["websocket"],
     autoConnect: true,
     auth: { token },
