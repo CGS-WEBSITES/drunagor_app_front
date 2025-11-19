@@ -9,7 +9,9 @@ export class Campaign {
   public followerIds: string[] = [];
   public unfoldingIds: string[] = [];
   public backgroundAndTraitIds: string[] = [];
-  public runeCardIds: number[] = []; 
+  public runeCardIds: number[] = [];
+  public hasCompanionHero: boolean = false;
+  public companionHeroStatus: string | null = null;
   public legacyTrail: {
     perseverance: number;
     tragedy: number;
