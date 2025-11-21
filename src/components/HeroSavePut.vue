@@ -1,74 +1,94 @@
 <template>
-  <div style="display: none">
-  </div>
+  <div style="display: none"></div>
 </template>
 
 <script setup lang="ts">
 import { HeroStore } from "@/store/HeroStore";
-import { CampaignStore } from "@/store/CampaignStore";
+import { useUserStore } from "@/store/UserStore";
+import axios from "axios";
 
 const props = defineProps<{
   campaignId: string;
-  heroId?: string; 
+  heroId?: string;
 }>();
 
 const emit = defineEmits(["success", "fail"]);
 const heroStore = HeroStore();
-const campaignStore = CampaignStore();
+const userStore = useUserStore();
 
-function deepMerge(target: any, source: any): any {
-  const output = { ...target };
-
-  if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach((key) => {
-      if (isObject(source[key])) {
-        if (!(key in target)) {
-          output[key] = source[key];
-        } else {
-          output[key] = deepMerge(target[key], source[key]);
-        }
-      } else {
-        output[key] = source[key];
-      }
-    });
-  }
-
-  return output;
+function generateHeroHash(heroData: any): string {
+  const data = JSON.parse(JSON.stringify(heroData));
+  return btoa(JSON.stringify(data));
 }
 
-function isObject(item: any): boolean {
-  return item && typeof item === "object" && !Array.isArray(item);
+async function getPlayableHeroesPk(heroId: string): Promise<number | null> {
+  try {
+    const searchResponse = await axios.get("/playable_heroes/search", {
+      params: {
+        users_fk: userStore.user.users_pk,
+      },
+    });
+
+    if (searchResponse.data?.heroes?.length > 0) {
+      const hero = searchResponse.data.heroes.find(
+        (h: any) => h.hero_id === heroId && h.campaigns_fk === props.campaignId
+      );
+      
+      if (hero) {
+        return hero.playable_heroes_pk;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error getting playable_heroes_pk:", error);
+    return null;
+  }
+}
+
+async function updateHeroInBackend(heroData: any, heroHash: string) {
+  try {
+    const playableHeroesPk = await getPlayableHeroesPk(heroData.heroId);
+
+    if (playableHeroesPk) {
+      await axios.put(`/playable_heroes/alter`, {
+        playable_heroes_pk: playableHeroesPk,
+        hero_hash: heroHash,
+      });
+    } else {
+      const createResponse = await axios.post("/playable_heroes/cadastro", {
+        hero_hash: heroHash,
+        users_fk: userStore.user.users_pk,
+      });
+
+      if (createResponse.data?.playable_heroes_pk) {
+        const relationResponse = await axios.get("/rl_campaigns_users/search", {
+          params: {
+            users_fk: userStore.user.users_pk,
+            campaigns_fk: props.campaignId,
+          },
+        });
+
+        if (relationResponse.data?.campaigns?.length > 0) {
+          const relation = relationResponse.data.campaigns[0];
+
+          await axios.put("/rl_campaigns_users/alter", {
+            rl_campaigns_users_pk: relation.rl_campaigns_users_pk,
+            playable_heroes_fk: createResponse.data.playable_heroes_pk,
+          });
+        }
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao atualizar herói no backend:", error);
+    throw error;
+  }
 }
 
 async function saveHeroes() {
   try {
-    const storageKey = `campaign_hash_${props.campaignId}`;
-
-    const existingHash = localStorage.getItem(storageKey);
-
-    let existingData: any = { heroes: [], campaignData: null };
-
-    if (existingHash) {
-      try {
-        existingData = JSON.parse(atob(existingHash));
-      } catch (error) {
-        console.warn(
-          "Erro ao decodificar hash existente, criando nova:",
-          error,
-        );
-
-        const campaign = campaignStore.find(props.campaignId);
-        if (campaign) {
-          existingData.campaignData = JSON.parse(JSON.stringify(campaign));
-        }
-      }
-    } else {
-      const campaign = campaignStore.find(props.campaignId);
-      if (campaign) {
-        existingData.campaignData = JSON.parse(JSON.stringify(campaign));
-      }
-    }
-
     let heroesToSave;
     if (props.heroId) {
       const hero = heroStore.findInCampaign(props.heroId, props.campaignId);
@@ -77,47 +97,10 @@ async function saveHeroes() {
       heroesToSave = heroStore.findAllInCampaign(props.campaignId);
     }
 
-    const existingHeroesMap = new Map(
-      (existingData.heroes || []).map((h: any) => [h.heroId, h]),
-    );
-
-    heroesToSave.forEach((hero) => {
-      const heroCopy = JSON.parse(JSON.stringify(hero));
-      const existingHero = existingHeroesMap.get(hero.heroId);
-
-      if (existingHero) {
-        existingHeroesMap.set(hero.heroId, deepMerge(existingHero, heroCopy));
-      } else {
-        existingHeroesMap.set(hero.heroId, heroCopy);
-      }
-    });
-
-    const updatedData = {
-      campaignData: existingData.campaignData,
-      heroes: Array.from(existingHeroesMap.values()),
-      savedAt: new Date().toISOString(),
-    };
-
-    const updatedHash = btoa(JSON.stringify(updatedData));
-    localStorage.setItem(storageKey, updatedHash);
-
-    if (props.heroId) {
-      const oldKey = `hero_hash_${props.campaignId}_${props.heroId}`;
-      localStorage.removeItem(oldKey);
-    } else {
-      heroesToSave.forEach((hero) => {
-        const oldKey = `hero_hash_${props.campaignId}_${hero.heroId}`;
-        localStorage.removeItem(oldKey);
-      });
-
-      const oldHeroesKey = `heroes_hash_${props.campaignId}`;
-      localStorage.removeItem(oldHeroesKey);
+    for (const hero of heroesToSave) {
+      const heroHash = generateHeroHash(hero);
+      await updateHeroInBackend(hero, heroHash);
     }
-
-    // Quando o backend estiver pronto, descomentar:
-    // await axios.put(`campaigns/alter/${props.campaignId}`, {
-    //   tracker_hash: updatedHash,
-    // });
 
     emit("success");
     return true;

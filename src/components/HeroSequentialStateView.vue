@@ -405,9 +405,9 @@ function saveAndGoBack() {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   const loader = new CampaignLoadFromStorage();
-  loader.loadCampaignComplete(campaignId);
+  await loader.loadCampaignComplete(campaignId);
 
   const updatedHero = heroStore.findInCampaign(heroId, campaignId);
 

@@ -32,6 +32,15 @@
       </v-card-text>
     </v-card>
   </v-dialog>
+
+  <v-snackbar
+    v-model="snackbarVisible"
+    :timeout="3000"
+    :color="snackbarColor"
+    location="top"
+  >
+    {{ snackbarText }}
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
@@ -39,7 +48,6 @@ import { ref, computed } from "vue";
 import { EnabledHeroes } from "@/repository/EnabledHeroes";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { RandomizeHero } from "@/service/RandomizeHero";
-import { useToast } from "primevue/usetoast";
 import RandomImage from "@/assets/hero/trackerimage/RandomAvatar.png";
 import * as _ from "lodash-es";
 import { HeroStore } from "@/store/HeroStore";
@@ -47,15 +55,20 @@ import { Hero, SequentialAdventureState } from "@/store/Hero";
 import { useI18n } from "vue-i18n";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
+import { useUserStore } from "@/store/UserStore";
+import axios from "axios";
 
 const props = defineProps<{
   campaignId: string;
 }>();
 
-const toast = useToast();
 const { t } = useI18n();
+const userStore = useUserStore();
 
 const visible = ref(false);
+const snackbarVisible = ref(false);
+const snackbarText = ref("");
+const snackbarColor = ref("success");
 
 function openModal() {
   visible.value = true;
@@ -108,18 +121,7 @@ function filterHero(hero: HeroData) {
   return true;
 }
 
-function addHeroToCampaign(heroId: string) {
-  if (isLimitReached.value) {
-    toast.add({
-      severity: "warn",
-      summary: "Limit reached",
-      detail: `Underkeep campaigns can only have ${MAX_HEROES} heroes.`,
-      life: 3000,
-    });
-    closeModal();
-    return;
-  }
-
+function createHeroWithResources(heroId: string): Hero {
   const newHero = new Hero(heroId, props.campaignId);
 
   if (!newHero.sequentialAdventureState) {
@@ -142,26 +144,86 @@ function addHeroToCampaign(heroId: string) {
     });
   }
 
-  heroStore.add(newHero);
-
-  toast.add({
-    severity: "success",
-    summary: "Hero added",
-    detail: "Remember to save the campaign to persist changes.",
-    life: 3000,
-  });
-
-  closeModal();
+  return newHero;
 }
 
-function addRandomHeroToCampaign() {
-  if (isLimitReached.value) {
-    toast.add({
-      severity: "warn",
-      summary: "Limit reached",
-      detail: `Underkeep campaigns can only have ${MAX_HEROES} heroes.`,
-      life: 3000,
+async function saveHeroToBackend(hero: Hero): Promise<number | null> {
+  try {
+    const heroHash = btoa(JSON.stringify(hero));
+
+    const response = await axios.post("/playable_heroes/cadastro", {
+      hero_hash: heroHash,
+      users_fk: userStore.user.users_pk,
     });
+
+    return response.data.playable_heroes_pk;
+  } catch (error) {
+    console.error("Error saving hero to backend:", error);
+    throw error;
+  }
+}
+
+async function linkHeroToCampaign(playableHeroesFk: number) {
+  try {
+    const relationResponse = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: userStore.user.users_pk,
+        campaigns_fk: props.campaignId,
+      },
+    });
+
+    if (relationResponse.data?.campaigns?.length > 0) {
+      const relation = relationResponse.data.campaigns[0];
+
+      await axios.put("/rl_campaigns_users/alter", {
+        rl_campaigns_users_pk: relation.rl_campaigns_users_pk,
+        playable_heroes_fk: playableHeroesFk,
+      });
+    }
+  } catch (error) {
+    console.error("Error linking hero to campaign:", error);
+    throw error;
+  }
+}
+
+async function addHeroToCampaign(heroId: string) {
+  if (isLimitReached.value) {
+    snackbarText.value = `Underkeep campaigns can only have ${MAX_HEROES} heroes.`;
+    snackbarColor.value = "warning";
+    snackbarVisible.value = true;
+    closeModal();
+    return;
+  }
+
+  try {
+    const newHero = createHeroWithResources(heroId);
+
+    const playableHeroesPk = await saveHeroToBackend(newHero);
+
+    if (playableHeroesPk) {
+      await linkHeroToCampaign(playableHeroesPk);
+    }
+
+    heroStore.add(newHero);
+
+    snackbarText.value = "Hero added and saved successfully!";
+    snackbarColor.value = "success";
+    snackbarVisible.value = true;
+
+    closeModal();
+  } catch (error) {
+    console.error("Error adding hero:", error);
+    snackbarText.value = "Failed to add hero. Please try again.";
+    snackbarColor.value = "error";
+    snackbarVisible.value = true;
+  }
+}
+
+async function addRandomHeroToCampaign() {
+  if (isLimitReached.value) {
+    snackbarText.value = `Underkeep campaigns can only have ${MAX_HEROES} heroes.`;
+    snackbarColor.value = "warning";
+    snackbarVisible.value = true;
     closeModal();
     return;
   }
@@ -172,47 +234,34 @@ function addRandomHeroToCampaign() {
   );
 
   if (randomHero === null) {
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: "No random hero available.",
-      life: 3000,
-    });
+    snackbarText.value = "No random hero available.";
+    snackbarColor.value = "error";
+    snackbarVisible.value = true;
     return;
   }
 
-  const newHero = new Hero(randomHero.id, props.campaignId);
+  try {
+    const newHero = createHeroWithResources(randomHero.id);
 
-  if (!newHero.sequentialAdventureState) {
-    newHero.sequentialAdventureState = new SequentialAdventureState();
+    const playableHeroesPk = await saveHeroToBackend(newHero);
 
-    if (!newHero.sequentialAdventureState.resources) {
-      newHero.sequentialAdventureState.resources = {};
+    if (playableHeroesPk) {
+      await linkHeroToCampaign(playableHeroesPk);
     }
 
-    const RESOURCE_DEFINITIONS = [
-      "focus",
-      "fruit-of-life",
-      "ki",
-      "shield",
-      "fury",
-    ];
+    heroStore.add(newHero);
 
-    RESOURCE_DEFINITIONS.forEach((resource) => {
-      newHero.sequentialAdventureState!.resources[resource] = 0;
-    });
+    snackbarText.value = "Random hero added and saved successfully!";
+    snackbarColor.value = "success";
+    snackbarVisible.value = true;
+
+    closeModal();
+  } catch (error) {
+    console.error("Error adding random hero:", error);
+    snackbarText.value = "Failed to add random hero. Please try again.";
+    snackbarColor.value = "error";
+    snackbarVisible.value = true;
   }
-
-  heroStore.add(newHero);
-
-  toast.add({
-    severity: "success",
-    summary: "Hero added",
-    detail: "Remember to save the campaign to persist changes.",
-    life: 3000,
-  });
-
-  closeModal();
 }
 </script>
 

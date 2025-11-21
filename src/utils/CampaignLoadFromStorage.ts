@@ -1,11 +1,26 @@
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
+import { useUserStore } from "@/store/UserStore";
+import axios from "axios";
 
 export class CampaignLoadFromStorage {
   private campaignStore = CampaignStore();
   private heroStore = HeroStore();
+  private userStore = useUserStore();
 
-  loadCampaignComplete(campaignId: string): boolean {
+  async loadCampaignComplete(campaignId: string): Promise<boolean> {
+    try {
+      const campaignLoaded = this.loadCampaignFromStorage(campaignId);
+      const heroesLoaded = await this.loadHeroesFromBackend(campaignId);
+
+      return campaignLoaded || heroesLoaded;
+    } catch (error) {
+      console.error(`Error loading campaign ${campaignId}:`, error);
+      return false;
+    }
+  }
+
+  private loadCampaignFromStorage(campaignId: string): boolean {
     try {
       const storageKey = `campaign_hash_${campaignId}`;
       const hash = localStorage.getItem(storageKey);
@@ -26,17 +41,46 @@ export class CampaignLoadFromStorage {
         }
       }
 
-      if (decodedData.heroes && Array.isArray(decodedData.heroes)) {
-        decodedData.heroes.forEach((heroData: any) => {
-          if (heroData.campaignId === campaignId) {
-            this.mergeHeroData(heroData);
-          }
-        });
-      }
-
       return true;
     } catch (error) {
-      console.error(`Error loading campaign ${campaignId}:`, error);
+      console.error(
+        `Error loading campaign from storage ${campaignId}:`,
+        error,
+      );
+      return false;
+    }
+  }
+
+  private async loadHeroesFromBackend(campaignId: string): Promise<boolean> {
+    try {
+      const response = await axios.get(`/playable_heroes/search`, {
+        params: { 
+          users_fk: this.userStore.user.users_pk 
+        },
+      });
+
+      if (response.data && Array.isArray(response.data.heroes)) {
+        response.data.heroes.forEach((heroEntry: any) => {
+          if (heroEntry.hero_hash && heroEntry.campaigns_fk === campaignId) {
+            try {
+              const heroData = JSON.parse(atob(heroEntry.hero_hash));
+              if (heroData.campaignId === campaignId) {
+                this.mergeHeroData(heroData);
+              }
+            } catch (error) {
+              console.error("Error decoding hero hash:", error);
+            }
+          }
+        });
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error(
+        `Error loading heroes from backend for campaign ${campaignId}:`,
+        error,
+      );
       return false;
     }
   }
