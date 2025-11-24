@@ -1,7 +1,6 @@
 <template>
   <div class="immersive-container" :class="{ 'desktop-layout': $vuetify.display.mdAndUp }">
     
-    <!-- Camada do Mapa (Zoom/Pan) -->
     <div 
       class="map-viewport"
       ref="mapContainerRef"
@@ -23,13 +22,10 @@
       </div>
     </div>
 
-    <!-- Camada HUD (Interface) -->
     <div class="hud-layer">
       
-      <!-- ESQUERDA SUPERIOR: Objetivo, Configurações e BOOKMARKS -->
       <div class="hud-area top-left">
         <div class="interactive-content">
-          <!-- Objetivo -->
           <div class="objective-panel mb-2">
             <div class="objective-label text-uppercase text-caption font-weight-bold text-blue-lighten-3">Current Objective:</div>
             <div class="objective-text text-white font-weight-bold text-shadow">
@@ -37,7 +33,6 @@
             </div>
           </div>
 
-          <!-- Engrenagem (Select Door) -->
           <v-menu :close-on-content-click="false" v-if="showSaveCampaignButton">
             <template v-slot:activator="{ props }">
               <v-btn v-bind="props" icon="mdi-cog" variant="text" density="compact" color="white" class="opacity-50 hud-icon-btn ml-1"></v-btn>
@@ -47,9 +42,7 @@
             </v-card>
           </v-menu>
 
-          <!-- BOOKMARKS (Abas Laterais) -->
           <div class="bookmarks-container mt-4 d-flex flex-column align-start gap-2 pl-1">
-             <!-- BOOKS -->
              <v-tooltip text="Campaign Book" location="right">
                <template v-slot:activator="{ props }">
                  <div v-bind="props" class="bookmark-tab" @click.stop="openBookDialog('book')">
@@ -59,7 +52,6 @@
                </template>
              </v-tooltip>
 
-             <!-- INTERACTIONS (QR Code) -->
              <v-tooltip text="Interactions / QR" location="right">
                <template v-slot:activator="{ props }">
                  <div v-bind="props" class="bookmark-tab" @click.stop="handleQRCodeAction">
@@ -69,7 +61,6 @@
                </template>
              </v-tooltip>
 
-             <!-- KEYWORDS -->
              <v-tooltip text="Keywords" location="right">
                <template v-slot:activator="{ props }">
                  <div v-bind="props" class="bookmark-tab" @click.stop="openBookDialog('book')">
@@ -82,7 +73,6 @@
         </div>
       </div>
 
-      <!-- DIREITA SUPERIOR: Botão Voltar e Admin -->
       <div class="hud-area top-right d-flex flex-column gap-4 align-end">
         <div class="interactive-content d-flex flex-column align-end gap-4">
           
@@ -126,7 +116,6 @@
         </div>
       </div>
 
-      <!-- CANTO INFERIOR ESQUERDO: Players / Export -->
       <div class="hud-area bottom-left d-flex gap-4 align-end">
          <div class="interactive-content d-flex gap-4">
            <v-tooltip text="Player List" location="top">
@@ -142,7 +131,6 @@
          </div>
       </div>
 
-      <!-- CENTRO INFERIOR: Heróis -->
       <div class="hud-area bottom-center">
         <div class="heroes-rack interactive-content">
            <div 
@@ -153,7 +141,6 @@
               @touchstart.stop="openHeroCard(hero)"
            >
               <div class="hero-token">
-                 <!-- PRIORIDADE PARA AVATAR AQUI -->
                  <v-img 
                     :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" 
                     cover
@@ -183,7 +170,6 @@
         </div>
       </div>
 
-      <!-- CANTO INFERIOR DIREITO: Ações Principais -->
       <div class="hud-area bottom-right d-flex flex-column align-end">
          <div class="interactive-content d-flex flex-column align-end">
            <v-btn 
@@ -210,17 +196,14 @@
       </div>
     </div>
 
-    <!-- DIALOG: CARD DO HERÓI (Sem nome no topo, botões separados) -->
     <v-dialog v-model="heroCardDialog.visible" max-width="600" scrollable>
       <v-card class="bg-grey-darken-4 rounded-xl hero-detail-card" v-if="heroCardDialog.hero">
-        <!-- Barra de título: Sem nome (vazio), apenas fechar -->
         <v-toolbar color="rgba(0,0,0,0.6)" density="compact" theme="dark" class="px-2">
            <v-spacer></v-spacer>
            <v-btn icon="mdi-close" @click="heroCardDialog.visible = false"></v-btn>
         </v-toolbar>
         
         <v-card-text class="pa-0 dialog-content-area" style="max-height: 80vh; overflow-y: auto;">
-           <!-- IMAGEM TRACKER INFO NO TOPO -->
            <div class="hero-tracker-header">
               <v-img 
                  v-if="heroCardDialog.hero.images?.trackerInfo || heroCardDialog.hero.images?.background"
@@ -232,7 +215,6 @@
                  gradient="to bottom, rgba(0,0,0,0) 60%, rgba(30,30,30,1) 100%"
               >
               </v-img>
-              <!-- Fallback -->
               <v-sheet v-else height="100" color="grey-darken-3" class="d-flex align-center justify-center">
                   <span class="text-grey">No Tracker Image</span>
               </v-sheet>
@@ -257,7 +239,6 @@
 
         <v-divider></v-divider>
         
-        <!-- BOTÕES BEM SEPARADOS -->
         <v-card-actions class="bg-grey-darken-3 pa-4 d-flex justify-space-between">
             <v-btn 
               color="primary" 
@@ -281,7 +262,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- DIALOG: PLAYER LIST COM INVITE -->
     <v-dialog v-model="playerListDialogVisible" max-width="600">
        <v-card title="Player List" class="bg-grey-darken-3">
           <v-card-text>
@@ -307,7 +287,6 @@
        </v-card>
     </v-dialog>
 
-    <!-- OUTROS DIALOGS -->
     <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
        <v-card color="black">
           <v-toolbar color="primary" density="compact">
@@ -338,7 +317,20 @@
        </v-card>
     </v-dialog>
 
-    <!-- COMPONENTES INVISÍVEIS / UTILITÁRIOS -->
+    <v-dialog v-model="wing4ChoiceDialog.visible" max-width="400">
+      <v-card class="bg-grey-darken-3 pa-4 text-center">
+        <v-card-title class="text-h6 mb-2">Select Path</v-card-title>
+        <v-card-text class="mb-4">Which door are you opening?</v-card-text>
+        <v-card-actions class="justify-center">
+          <v-btn color="primary" variant="elevated" class="mx-2" @click="commitWing4Choice('DRACONIC CHAPEL')">Door 1</v-btn>
+          <v-btn color="secondary" variant="elevated" class="mx-2" @click="commitWing4Choice('CRYPTS')">Door 2</v-btn>
+        </v-card-actions>
+        <v-card-actions>
+            <v-btn block variant="text" size="small" color="grey" @click="wing4ChoiceDialog.visible = false">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <div style="display:none">
        <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" @success="onSaveSuccess" @fail="onSaveFail" />
        <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
@@ -356,7 +348,6 @@ import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 
-// Components
 import CampaignBook from "@/components/CampaignBook.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
@@ -392,6 +383,7 @@ const mapContainerRef = ref<HTMLElement | null>(null);
 const playerListDialogVisible = ref(false);
 const addHeroDialogVisible = ref(false);
 const confirmDialog = ref({ visible: false, title: '', text: '', onConfirm: () => {} });
+const wing4ChoiceDialog = ref({ visible: false });
 const snackbar = ref({ visible: false, text: '', color: 'success' });
 const bookDialog = ref({ visible: false, title: 'Campaign Book' });
 const heroCardDialog = ref<{ visible: boolean; hero: any | null }>({ visible: false, hero: null });
@@ -414,7 +406,7 @@ const heroesInCampaign = enrichedHeroes;
 
 const underkeep2Doors = {
   "WING 3 - ADVANCED": ["FIRST SETUP","DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"],
-  "WING 4 - ADVANCED": ["FIRST SETUP", "DRACONIC CHAPEL", "CRYPTS", "LIBRARY", "LABORATORY"],
+  "WING 4 - ADVANCED": ["FIRST SETUP", "DRACONIC CHAPEL", "CRYPTS", "BOTH OPEN", "LIBRARY", "LABORATORY"],
 };
 
 const currentLocationDisplay = computed(() => {
@@ -434,20 +426,31 @@ const currentBackgroundImage = computed(() => {
   if (!wingFolder) return '';
 
   let doorFile = 'setup';
-  const doorLower = door.toLowerCase();
-  if (doorLower.includes('first setup')) {
-      doorFile = 'setup';
+  
+  if (wingFolder === 'wing4') {
+     const doorUpper = door.toUpperCase();
+     if (doorUpper.includes('FIRST SETUP')) doorFile = 'setup';
+     else if (doorUpper === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
+     else if (doorUpper === 'CRYPTS') doorFile = 'first_door2'; 
+     else if (doorUpper === 'BOTH OPEN') doorFile = 'second_door';
+     else if (doorUpper === 'LIBRARY') doorFile = 'third_door';
+     else if (doorUpper === 'LABORATORY') doorFile = 'fourth_door';
+     else doorFile = 'setup';
   } else {
-      const doorsList = underkeep2Doors[wing as keyof typeof underkeep2Doors] || [];
-      const index = doorsList.indexOf(door);
-      const doorMap = ['setup', 'first_door', 'second_door', 'third_door', 'fourth_door', 'fifth_door', 'sixth_door', 'seventh_door'];
-      doorFile = doorMap[index] || 'setup';
+     if (door.toLowerCase().includes('first setup')) {
+         doorFile = 'setup';
+     } else {
+         const doorsList = underkeep2Doors[wing as keyof typeof underkeep2Doors] || [];
+         const index = doorsList.indexOf(door);
+         const doorMap = ['setup', 'first_door', 'second_door', 'third_door', 'fourth_door', 'fifth_door', 'sixth_door', 'seventh_door'];
+         doorFile = doorMap[index] || 'setup';
+     }
   }
 
   try {
       return new URL(`../assets/campaign_background/${wingFolder}.${doorFile}.png`, import.meta.url).href;
   } catch (e) {
-      console.error(`Erro ao carregar imagem do mapa para ${wingFolder}.${doorFile}.png:`, e);
+      console.error(`Erro ao carregar imagem: ${wingFolder}.${doorFile}.png`, e);
       return '';
   }
 });
@@ -539,8 +542,6 @@ function openBookDialog(mode: 'book' | 'interactions') {
 function openInviteDialog() {
   if (shareCampaignRef.value && typeof shareCampaignRef.value.openDialog === 'function') {
     shareCampaignRef.value.openDialog();
-  } else {
-    console.error("ShareCampaignButton ref not found or openDialog method missing");
   }
 }
 
@@ -601,15 +602,42 @@ function confirmNextDoor() {
    };
 }
 
+function commitWing4Choice(choice: string) {
+    campaignStore.updateCampaignProperty(props.campaignId, 'door', choice);
+    wing4ChoiceDialog.value.visible = false;
+    snackbar.value = { visible: true, text: `Path chosen`, color: 'success' };
+}
+
 function nextDoorLogic() {
     const campaignData = campaignStore.find(props.campaignId);
     if (!campaignData) return;
     const wing = campaignData.wing;
     const currentDoor = campaignData.door;
     if (!wing || !currentDoor) return;
+
+    if (wing === "WING 4 - ADVANCED") {
+        if (currentDoor === "FIRST SETUP") {
+            wing4ChoiceDialog.value.visible = true;
+            return;
+        }
+
+        if (currentDoor === "DRACONIC CHAPEL" || currentDoor === "CRYPTS") {
+            campaignStore.updateCampaignProperty(props.campaignId, 'door', "BOTH OPEN");
+            snackbar.value = { visible: true, text: 'Both paths are now accessible!', color: 'success' };
+            return;
+        }
+        
+        if (currentDoor === "BOTH OPEN") {
+             campaignStore.updateCampaignProperty(props.campaignId, 'door', "LIBRARY");
+             snackbar.value = { visible: true, text: 'Opened the Library!', color: 'success' };
+             return;
+        }
+    }
+
     const doorsList = underkeep2Doors[wing as keyof typeof underkeep2Doors];
     if (!doorsList) return;
     const idx = doorsList.indexOf(currentDoor);
+    
     if (idx >= 0 && idx < doorsList.length - 1) {
         campaignStore.updateCampaignProperty(props.campaignId, 'door', doorsList[idx + 1]);
         snackbar.value = { visible: true, text: 'Advanced to next stage!', color: 'success' };
@@ -691,7 +719,6 @@ function nextDoorLogic() {
 }
 .bottom-right { grid-area: 3 / 3; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; }
 
-/* Bookmark Tabs Style */
 .bookmark-tab {
   background: rgba(20, 20, 20, 0.9);
   border: 1px solid #444;
@@ -714,7 +741,6 @@ function nextDoorLogic() {
   border-left-color: #ffc107;
 }
 
-/* ESTILO PADRONIZADO DOS BOTÕES DO HUD */
 .square-hud-btn {
   width: 48px; height: 48px;
   border-radius: 8px;
@@ -738,7 +764,6 @@ function nextDoorLogic() {
   border-radius: 0 8px 8px 0;
 }
 
-/* HEROES RACK & TOKENS (Limpos, sem fundo) */
 .heroes-rack {
   display: flex;
   gap: 16px;
@@ -759,9 +784,8 @@ function nextDoorLogic() {
   filter: brightness(1.2);
 }
 
-/* Token Retangular Limpo */
 .hero-token {
-  width: 80px; height: 120px; /* Altura maior para formato carta */
+  width: 80px; height: 120px;
   border-radius: 6px;
   overflow: hidden;
   background: transparent;
@@ -770,7 +794,7 @@ function nextDoorLogic() {
 }
 
 .hero-token.empty {
-  height: 80px; /* Botão add menor */
+  height: 80px;
   border-radius: 50%;
   border: 2px dashed #666;
   display: flex; align-items: center; justify-content: center;
@@ -799,7 +823,6 @@ function nextDoorLogic() {
   text-overflow: ellipsis;
 }
 
-/* Botões de Ação */
 .big-action-btn {
   font-family: 'Cinzel', sans-serif;
   font-weight: bold;
@@ -823,7 +846,6 @@ function nextDoorLogic() {
   border: 1px solid #555;
 }
 
-/* MOBILE / TABLET LANDSCAPE */
 @media (max-width: 960px) {
   .hud-layer {
     padding: 8px;
