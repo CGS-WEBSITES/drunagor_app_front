@@ -250,15 +250,83 @@ const loadCampaignFromHash = (trackerHash: string, campaignPk: string) => {
 
     campaignStore.add(camp);
 
-    if (data.heroes && Array.isArray(data.heroes)) {
-      data.heroes.forEach((h: any) => {
-        h.campaignId = campaignPk;
-        heroStore.add(h);
-      });
-    }
+    // Não carrega heróis do tracker_hash antigo
+    // Os heróis virão do playable_heroes
   } catch (error) {
     console.error("Error loading campaign from hash:", error);
     throw error;
+  }
+};
+
+const loadHeroFromPlayableHeroes = async (
+  playableHeroesFk: number,
+  campaignId: string,
+) => {
+  try {
+    // GET correto: /playable_heroes/{playable_heroes_fk}
+    const response = await axios.get(`/playable_heroes/${playableHeroesFk}`);
+
+    if (response.data && response.data.hero_hash) {
+      const heroData = JSON.parse(atob(response.data.hero_hash));
+
+      // Garante que o campaignId está correto
+      heroData.campaignId = campaignId;
+
+      // Adiciona o herói ao store
+      heroStore.add(heroData);
+
+      console.log(
+        `Hero loaded successfully for campaign ${campaignId}:`,
+        heroData.heroId,
+      );
+
+      return heroData;
+    }
+
+    return null;
+  } catch (error) {
+    console.error(
+      `Error loading hero ${playableHeroesFk} for campaign ${campaignId}:`,
+      error,
+    );
+    return null;
+  }
+};
+
+const loadCampaignWithHero = async (campaignData: any) => {
+  try {
+    const campaignPk = String(campaignData.campaigns_fk);
+
+    // 1. Carrega a campanha
+    loadCampaignFromHash(campaignData.tracker_hash, campaignPk);
+
+    // 2. Se houver herói vinculado (playable_heroes_fk), carrega ele
+    if (
+      campaignData.playable_heroes_fk &&
+      campaignData.playable_heroes_fk !== null
+    ) {
+      console.log(
+        `Loading hero ${campaignData.playable_heroes_fk} for campaign ${campaignPk}`,
+      );
+      await loadHeroFromPlayableHeroes(
+        campaignData.playable_heroes_fk,
+        campaignPk,
+      );
+    } else {
+      console.log(`No hero linked to campaign ${campaignPk}`);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error loading campaign with hero:", error);
+    const boxName = getBoxName(campaignData.box);
+    const partyName = campaignData.party_name || "Unnamed Party";
+
+    addLoadingError(
+      `Could not load the campaign "${partyName}" from the "${boxName}". ` +
+        `Data seems corrupted. Please contact support.`,
+    );
+    return false;
   }
 };
 
@@ -321,10 +389,7 @@ const confirmJoinCampaign = async () => {
     const campaignData = campaignResponse.data.campaigns[0];
 
     if (campaignData && campaignData.tracker_hash) {
-      loadCampaignFromHash(
-        campaignData.tracker_hash,
-        String(campaignData.campaigns_fk),
-      );
+      await loadCampaignWithHero(campaignData);
 
       router.push({
         path: `/campaign-tracker/campaign/${campaignId}`,
@@ -379,20 +444,16 @@ onBeforeMount(async () => {
       params: { users_fk: userStore.user!.users_pk },
     });
 
-    res.data.campaigns.forEach((el: any) => {
-      try {
-        loadCampaignFromHash(el.tracker_hash, String(el.campaigns_fk));
-      } catch {
-        const boxName = getBoxName(el.box);
-        const partyName = el.party_name || "Unnamed Party";
+    console.log("Campaigns fetched:", res.data.campaigns);
 
-        addLoadingError(
-          `Could not load the campaign "${partyName}" from the "${boxName}". ` +
-            `Data seems corrupted. Please contact support.`,
-        );
-      }
-    });
-  } catch {
+    // Carrega cada campanha com seu herói vinculado
+    for (const campaignData of res.data.campaigns) {
+      await loadCampaignWithHero(campaignData);
+    }
+
+    console.log("All campaigns loaded. Total:", allCampaigns.value.length);
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
     addLoadingError("Error fetching campaigns. Please try again later.");
   } finally {
     loading.value = false;

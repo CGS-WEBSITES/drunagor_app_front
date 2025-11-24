@@ -92,7 +92,7 @@ const isLimitReached = computed(() => {
   if (!campaign.value) {
     return false;
   }
-  if (campaign.value.campaign === "underkeep") {
+  if (campaign.value.campaign === "underkeep" || campaign.value.campaign === "underkeep2") {
     return campaignHeroesCount.value >= MAX_HEROES;
   }
   return false;
@@ -103,7 +103,7 @@ const availableHeroes = computed(() => {
     return [];
   }
 
-  if (campaign.value.campaign === "underkeep") {
+  if (campaign.value.campaign === "underkeep" || campaign.value.campaign === "underkeep2") {
     const heroRepository = new HeroDataRepository();
     const allHeroes = heroRepository.findAll();
     return allHeroes.filter((hero: HeroData) => hero.content === "core");
@@ -156,7 +156,7 @@ async function saveHeroToBackend(hero: Hero): Promise<number | null> {
       users_fk: userStore.user.users_pk,
     });
 
-    return response.data.playable_heroes_pk;
+    return response.data.playable_hero?.playable_heroes_pk || null;
   } catch (error) {
     console.error("Error saving hero to backend:", error);
     throw error;
@@ -165,21 +165,61 @@ async function saveHeroToBackend(hero: Hero): Promise<number | null> {
 
 async function linkHeroToCampaign(playableHeroesFk: number) {
   try {
-    const relationResponse = await axios.get("/rl_campaigns_users/search", {
+    // Primeiro, tenta buscar pela lista de players
+    const playersResponse = await axios.get("/rl_campaigns_users/list_players", {
       params: {
-        users_fk: userStore.user.users_pk,
         campaigns_fk: props.campaignId,
       },
     });
 
-    if (relationResponse.data?.campaigns?.length > 0) {
-      const relation = relationResponse.data.campaigns[0];
+    let rlCampaignsUsersPk = null;
 
-      await axios.put("/rl_campaigns_users/alter", {
-        rl_campaigns_users_pk: relation.rl_campaigns_users_pk,
-        playable_heroes_fk: playableHeroesFk,
-      });
+    if (playersResponse.data?.Users?.length > 0) {
+      // Tenta encontrar pelo role de Admin (party_roles_fk === 1)
+      // assumindo que quem está adicionando é o Drunagor Master
+      const adminUser = playersResponse.data.Users.find(
+        (user: any) => user.party_roles_fk === 1
+      );
+
+      if (adminUser) {
+        rlCampaignsUsersPk = adminUser.rl_campaigns_users_pk;
+      }
     }
+
+    // Se não encontrou pela lista de players, tenta pelo search
+    if (!rlCampaignsUsersPk) {
+      const searchResponse = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          campaigns_fk: props.campaignId,
+        },
+      });
+
+      if (searchResponse.data?.campaigns?.length > 0) {
+        // O search não retorna rl_campaigns_users_pk diretamente,
+        // então vamos usar list_players novamente mas com o user_name
+        const userCampaignData = searchResponse.data.campaigns[0];
+        
+        // Busca novamente na lista de players pelo user_name
+        const userInPlayers = playersResponse.data.Users.find(
+          (user: any) => user.user_name === userStore.user.user_name
+        );
+
+        if (userInPlayers) {
+          rlCampaignsUsersPk = userInPlayers.rl_campaigns_users_pk;
+        }
+      }
+    }
+
+    if (!rlCampaignsUsersPk) {
+      throw new Error("Could not find user relation with campaign");
+    }
+
+    // Atualiza a relação com o playable_heroes_fk
+    await axios.put("/rl_campaigns_users/alter", {
+      rl_campaigns_users_pk: rlCampaignsUsersPk,
+      playable_heroes_fk: playableHeroesFk,
+    });
   } catch (error) {
     console.error("Error linking hero to campaign:", error);
     throw error;
@@ -188,7 +228,7 @@ async function linkHeroToCampaign(playableHeroesFk: number) {
 
 async function addHeroToCampaign(heroId: string) {
   if (isLimitReached.value) {
-    snackbarText.value = `Underkeep campaigns can only have ${MAX_HEROES} heroes.`;
+    snackbarText.value = `${campaign.value?.campaign === "underkeep" ? "Underkeep" : "Underkeep 2"} campaigns can only have ${MAX_HEROES} heroes.`;
     snackbarColor.value = "warning";
     snackbarVisible.value = true;
     closeModal();
@@ -196,14 +236,20 @@ async function addHeroToCampaign(heroId: string) {
   }
 
   try {
+    // 1. Cria o herói com recursos
     const newHero = createHeroWithResources(heroId);
 
+    // 2. Salva o herói no backend e recebe o playable_heroes_pk
     const playableHeroesPk = await saveHeroToBackend(newHero);
 
-    if (playableHeroesPk) {
-      await linkHeroToCampaign(playableHeroesPk);
+    if (!playableHeroesPk) {
+      throw new Error("Failed to get playable_heroes_pk from backend");
     }
 
+    // 3. Vincula o herói à campanha usando o playable_heroes_pk
+    await linkHeroToCampaign(playableHeroesPk);
+
+    // 4. Adiciona o herói ao store local
     heroStore.add(newHero);
 
     snackbarText.value = "Hero added and saved successfully!";
@@ -221,7 +267,7 @@ async function addHeroToCampaign(heroId: string) {
 
 async function addRandomHeroToCampaign() {
   if (isLimitReached.value) {
-    snackbarText.value = `Underkeep campaigns can only have ${MAX_HEROES} heroes.`;
+    snackbarText.value = `${campaign.value?.campaign === "underkeep" ? "Underkeep" : "Underkeep 2"} campaigns can only have ${MAX_HEROES} heroes.`;
     snackbarColor.value = "warning";
     snackbarVisible.value = true;
     closeModal();
@@ -241,14 +287,20 @@ async function addRandomHeroToCampaign() {
   }
 
   try {
+    // 1. Cria o herói com recursos
     const newHero = createHeroWithResources(randomHero.id);
 
+    // 2. Salva o herói no backend e recebe o playable_heroes_pk
     const playableHeroesPk = await saveHeroToBackend(newHero);
 
-    if (playableHeroesPk) {
-      await linkHeroToCampaign(playableHeroesPk);
+    if (!playableHeroesPk) {
+      throw new Error("Failed to get playable_heroes_pk from backend");
     }
 
+    // 3. Vincula o herói à campanha usando o playable_heroes_pk
+    await linkHeroToCampaign(playableHeroesPk);
+
+    // 4. Adiciona o herói ao store local
     heroStore.add(newHero);
 
     snackbarText.value = "Random hero added and saved successfully!";
