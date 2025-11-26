@@ -77,7 +77,7 @@
               </v-col>
 
               
-              <v-col cols="12" sm="6">
+              <!-- <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
                   @click="newCampaign('underkeep')"
@@ -97,7 +97,7 @@
                 >
                   <v-img :src="UnderKeep2Logo.toString()" width="280" height="100" contain></v-img>
                 </v-card>
-              </v-col>
+              </v-col> -->
 
             </v-row>
           </v-container>
@@ -199,30 +199,23 @@ async function newCampaign(
       throw new Error(`SKU not found for campaign type: ${type}`);
     }
 
-    // Cria campanha temporária com hash inicial
     const tempCampaign = new Campaign("temp", type);
     const initialHash = generateCampaignHash(tempCampaign);
 
-    // Cria a campanha no backend
     const campaignResp = await createCampaign(selectedSku.skus_pk, initialHash);
     const campaignPk = String(campaignResp.data.campaign.campaigns_pk);
 
-    // Cria a campanha final com o ID correto
     const newCampaign = new Campaign(campaignPk, type);
     campaignStore.add(newCampaign);
 
-    // Gera hash atualizado com o ID correto
     const finalHash = generateCampaignHash(newCampaign);
 
-    // Atualiza a campanha com o hash correto
     await saveCampaign(campaignPk, finalHash, "");
 
-    // Adiciona relacionamento usuário-campanha
     await addRelationship(usersPk, campaignPk, selectedSku.skus_pk);
 
     visible.value = false;
 
-    // Redireciona para a campanha
     router.push({
       path: `/campaign-tracker/campaign/${campaignPk}`,
       query: { sku: selectedSku.skus_pk.toString() },

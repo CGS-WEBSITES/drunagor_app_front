@@ -6,7 +6,6 @@
 import axios from "axios";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
-import { useUserStore } from "@/store/UserStore";
 
 const props = defineProps<{
   campaignId: string;
@@ -19,41 +18,22 @@ const emit = defineEmits<{
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
-const userStore = useUserStore();
 
-async function getHeroHashesFromBackend(): Promise<any[]> {
-  try {
-    const response = await axios.get(`/playable_heroes/search`, {
-      params: {
-        users_fk: userStore.user.users_pk,
-      },
-    });
-
-    if (response.data && Array.isArray(response.data.heroes)) {
-      return response.data.heroes
-        .filter((h: any) => h.hero_hash && h.campaigns_fk === props.campaignId)
-        .map((h: any) => {
-          try {
-            return JSON.parse(atob(h.hero_hash));
-          } catch {
-            return null;
-          }
-        })
-        .filter((h: any) => h !== null && h.campaignId === props.campaignId);
-    }
-
-    return [];
-  } catch (error) {
-    console.error("Error getting hero hashes:", error);
-    return [];
-  }
-}
-
-function generateCampaignHash(heroesData: any[]): string {
+function generateCampaignHash(): string {
   const campaign = campaignStore.find(props.campaignId);
+  const heroes = heroStore.findAllInCampaign(props.campaignId);
+
+  const campaignData = JSON.parse(JSON.stringify(campaign));
+
+  const heroesData = heroes.map((hero) => {
+    const cleanHero = JSON.parse(JSON.stringify(hero));
+
+    delete cleanHero.playableHeroesPk;
+    return cleanHero;
+  });
 
   const data = {
-    campaignData: JSON.parse(JSON.stringify(campaign)),
+    campaignData,
     heroes: heroesData,
     savedAt: new Date().toISOString(),
   };
@@ -61,17 +41,14 @@ function generateCampaignHash(heroesData: any[]): string {
   return btoa(JSON.stringify(data));
 }
 
-async function save() {
+async function save(): Promise<void> {
   try {
     const campaign = campaignStore.find(props.campaignId);
-
-    const heroesData = await getHeroHashesFromBackend();
-
-    const trackerHash = generateCampaignHash(heroesData);
+    const trackerHash = generateCampaignHash();
 
     await axios.put(`/campaigns/alter/${props.campaignId}`, {
       tracker_hash: trackerHash,
-      party_name: campaign.name,
+      party_name: campaign.name || "",
     });
 
     const storageKey = `campaign_hash_${props.campaignId}`;
@@ -79,7 +56,7 @@ async function save() {
 
     emit("success");
   } catch (error) {
-    console.error("Error saving campaign:", error);
+    console.error("[CampaignSavePut] Error saving campaign:", error);
     emit("fail");
   }
 }

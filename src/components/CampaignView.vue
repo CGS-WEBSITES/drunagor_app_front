@@ -738,20 +738,30 @@ const bottomNavValue = ref<string | null>(null);
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const campaignBookRef = vueRef<any>(null);
-const campaignPlayerListRef = vueRef<InstanceType<typeof CampaignPlayerList> | null>(null);
-const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(null);
-const campaignExportRef = vueRef<InstanceType<typeof CampaignExport> | null>(null);
-const shareCampaignRef = vueRef<InstanceType<typeof ShareCampaignButton> | null>(null);
+const campaignPlayerListRef = vueRef<InstanceType<
+  typeof CampaignPlayerList
+> | null>(null);
+const campaignRemoveRef = vueRef<InstanceType<typeof CampaignRemove> | null>(
+  null,
+);
+const campaignExportRef = vueRef<InstanceType<typeof CampaignExport> | null>(
+  null,
+);
+const shareCampaignRef = vueRef<InstanceType<
+  typeof ShareCampaignButton
+> | null>(null);
 
 const transferLoading = ref(false);
 const transferDialogVisible = ref(false);
-const players = ref<Array<{
-  rl_campaigns_users_pk: number;
-  user_name: string;
-  role_name: string;
-  party_roles_fk: number;
-  users_fk: number;
-}>>([]);
+const players = ref<
+  Array<{
+    rl_campaigns_users_pk: number;
+    user_name: string;
+    role_name: string;
+    party_roles_fk: number;
+    users_fk: number;
+  }>
+>([]);
 const selectedUser = ref<(typeof players.value)[0] | null>(null);
 const confirmingTransfer = ref(false);
 const originalMaster = ref<(typeof players.value)[0] | null>(null);
@@ -936,7 +946,10 @@ function handleQRCodeAction() {
     currentTab.value = "book";
 
     nextTick(() => {
-      if (campaignBookRef.value && typeof campaignBookRef.value.forceNavigateToInteract === "function") {
+      if (
+        campaignBookRef.value &&
+        typeof campaignBookRef.value.forceNavigateToInteract === "function"
+      ) {
         campaignBookRef.value.forceNavigateToInteract();
       }
     });
@@ -1189,11 +1202,18 @@ onMounted(async () => {
     return;
   }
 
-  const loader = new CampaignLoadFromStorage();
-  const hasLocalData = loader.loadCampaignComplete(campaignId);
-
-  if (hasLocalData) {
-    console.log("Campaign and heroes loaded from localStorage");
+  try {
+    const loader = new CampaignLoadFromStorage();
+    await loader.loadCampaignComplete(campaignId);
+  } catch (error) {
+    console.error("[CampaignView] Error loading campaign from backend:", error);
+    setAlert(
+      "mdi-alert-circle",
+      "Error",
+      "Failed to load campaign data. Please try again.",
+      "error",
+    );
+    return;
   }
 
   const found = campaignStore.find(campaignId);
