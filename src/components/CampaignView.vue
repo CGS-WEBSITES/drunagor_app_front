@@ -527,7 +527,7 @@
                         >
                           <div
                             v-if="
-                              heroStore.findAllInCampaign(campaignId).length ===
+                              campaignStore.findAllHeroes(campaignId).length ===
                               0
                             "
                             class="text-center pa-4"
@@ -535,7 +535,7 @@
                             No heroes added to this campaign yet.
                           </div>
                           <div
-                            v-for="hero in heroStore.findAllInCampaign(
+                            v-for="hero in campaignStore.findAllHeroes(
                               campaignId,
                             )"
                             :key="hero.heroId"
@@ -632,7 +632,7 @@
                     <v-sheet rounded border="md" class="text-white pa-2">
                       <div
                         v-if="
-                          heroStore.findAllInCampaign(campaignId).length === 0
+                          campaignStore.findAllHeroes(campaignId).length === 0
                         "
                         class="text-center pa-4"
                       >
@@ -903,7 +903,7 @@ function navigateToHeroEquipmentSkills(heroId: string) {
 }
 
 function handleManageResourcesAction() {
-  const heroes = heroStore.findAllInCampaign(campaignId);
+  const heroes = campaignStore.findAllHeroes(campaignId);
   if (heroes.length === 0) {
     setAlert(
       "mdi-information-outline",
@@ -921,7 +921,7 @@ function handleManageResourcesAction() {
 }
 
 function handleEquipmentSkillsAction() {
-  const heroes = heroStore.findAllInCampaign(campaignId);
+  const heroes = campaignStore.findAllHeroes(campaignId);
   if (heroes.length === 0) {
     setAlert(
       "mdi-information-outline",
@@ -1203,8 +1203,18 @@ onMounted(async () => {
   }
 
   try {
-    const loader = new CampaignLoadFromStorage();
-    await loader.loadCampaignComplete(campaignId);
+    const existingCampaign = campaignStore.findOptional(campaignId);
+
+    if (!existingCampaign) {
+      const loader = new CampaignLoadFromStorage();
+      await loader.loadCampaignComplete(campaignId);
+    } else {
+      console.log(
+        "[CampaignView] Campaign already in store with",
+        existingCampaign.heroes?.length || 0,
+        "heroes",
+      );
+    }
   } catch (error) {
     console.error("[CampaignView] Error loading campaign from backend:", error);
     setAlert(

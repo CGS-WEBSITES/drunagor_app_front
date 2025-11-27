@@ -4,11 +4,15 @@
     id="campaign-add-hero"
     rounded
     @click="openModal"
-    :disabled="isLimitReached || isLoading"
+    :disabled="isLimitReached || isLoading || userAlreadyHasHero"
     :loading="isLoading"
   >
     <v-icon start>mdi-plus</v-icon>
     {{ t("label.add-hero") }}
+
+    <v-tooltip v-if="userAlreadyHasHero" activator="parent" location="top">
+      You already have a hero in this campaign
+    </v-tooltip>
   </v-btn>
 
   <v-dialog v-model="visible" max-width="500">
@@ -45,13 +49,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { EnabledHeroes } from "@/repository/EnabledHeroes";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { RandomizeHero } from "@/service/RandomizeHero";
 import RandomImage from "@/assets/hero/trackerimage/RandomAvatar.png";
-import * as _ from "lodash-es";
-import { HeroStore } from "@/store/HeroStore";
 import {
   Hero,
   SequentialAdventureState,
@@ -69,7 +71,6 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const userStore = useUserStore();
-const heroStore = HeroStore();
 const campaignStore = CampaignStore();
 
 const visible = ref(false);
@@ -78,12 +79,16 @@ const snackbarVisible = ref(false);
 const snackbarText = ref("");
 const snackbarColor = ref("success");
 
-const campaign = computed(() => campaignStore.find(props.campaignId));
+const userAlreadyHasHero = ref(false);
+const checkingUserHero = ref(true);
+
+const campaign = computed(() => campaignStore.findOptional(props.campaignId));
 
 const MAX_HEROES = 4;
-const campaignHeroesCount = computed(
-  () => heroStore.findAllInCampaign(props.campaignId).length,
-);
+
+const campaignHeroesCount = computed(() => {
+  return campaignStore.findAllHeroes(props.campaignId).length;
+});
 
 const isLimitReached = computed(() => {
   if (!campaign.value) {
@@ -117,11 +122,51 @@ const availableHeroes = computed(() => {
 
 const filteredHeroes = computed(() =>
   availableHeroes.value.filter(
-    (hero: HeroData) => !heroStore.hasInCampaign(hero.id, props.campaignId),
+    (hero: HeroData) => !campaignStore.hasHero(props.campaignId, hero.id),
   ),
 );
 
+async function checkUserHasHero(): Promise<void> {
+  checkingUserHero.value = true;
+
+  try {
+    const response = await axios.get("/rl_campaigns_users/list_players", {
+      params: {
+        campaigns_fk: props.campaignId,
+      },
+    });
+
+    if (response.data?.Users?.length) {
+      const currentUser = response.data.Users.find(
+        (u: any) => u.user_name === userStore.user.user_name,
+      );
+
+      userAlreadyHasHero.value = currentUser?.playable_heroes_fk != null;
+
+      console.log(
+        `[AddHero] User ${userStore.user.user_name} has hero:`,
+        userAlreadyHasHero.value,
+        "playable_heroes_fk:",
+        currentUser?.playable_heroes_fk,
+      );
+    }
+  } catch (error) {
+    console.error("[AddHero] Error checking user hero:", error);
+    userAlreadyHasHero.value = false;
+  } finally {
+    checkingUserHero.value = false;
+  }
+}
+
 function openModal() {
+  if (userAlreadyHasHero.value) {
+    showSnackbar(
+      "You already have a hero in this campaign. Each player can only have one hero.",
+      "warning",
+    );
+    return;
+  }
+
   visible.value = true;
 }
 
@@ -208,6 +253,15 @@ async function saveHeroAndLink(hero: Hero): Promise<number> {
 }
 
 async function addHeroToCampaign(heroId: string) {
+  if (userAlreadyHasHero.value) {
+    showSnackbar(
+      "You already have a hero in this campaign. Each player can only have one hero.",
+      "warning",
+    );
+    closeModal();
+    return;
+  }
+
   if (isLimitReached.value) {
     const campaignType =
       campaign.value?.campaign === "underkeep" ? "Underkeep" : "Underkeep 2";
@@ -226,7 +280,10 @@ async function addHeroToCampaign(heroId: string) {
     const playableHeroesPk = await saveHeroAndLink(newHero);
 
     newHero.playableHeroesPk = playableHeroesPk;
-    heroStore.add(newHero);
+
+    campaignStore.addHero(props.campaignId, newHero);
+
+    userAlreadyHasHero.value = true;
 
     showSnackbar("Hero added successfully!", "success");
     closeModal();
@@ -245,6 +302,15 @@ async function addHeroToCampaign(heroId: string) {
 }
 
 async function addRandomHeroToCampaign() {
+  if (userAlreadyHasHero.value) {
+    showSnackbar(
+      "You already have a hero in this campaign. Each player can only have one hero.",
+      "warning",
+    );
+    closeModal();
+    return;
+  }
+
   if (isLimitReached.value) {
     const campaignType =
       campaign.value?.campaign === "underkeep" ? "Underkeep" : "Underkeep 2";
@@ -256,8 +322,8 @@ async function addRandomHeroToCampaign() {
     return;
   }
 
-  const existingHeroIds = heroStore
-    .findAllInCampaign(props.campaignId)
+  const existingHeroIds = campaignStore
+    .findAllHeroes(props.campaignId)
     .map((h) => h.heroId);
 
   const randomHero = new RandomizeHero().randomize(
@@ -272,6 +338,10 @@ async function addRandomHeroToCampaign() {
 
   await addHeroToCampaign(randomHero.id);
 }
+
+onMounted(async () => {
+  await checkUserHasHero();
+});
 </script>
 
 <style scoped></style>

@@ -180,7 +180,6 @@
     </v-col>
   </v-row>
 
-  <!-- Snackbar para feedback -->
   <v-snackbar
     v-model="snackbarVisible"
     :timeout="snackbarTimeout"
@@ -195,7 +194,7 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { HeroStore } from "@/store/HeroStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import { SequentialAdventureState, RESOURCE_DEFINITIONS } from "@/store/Hero";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
@@ -205,7 +204,7 @@ import HeroSavePut from "@/components/HeroSavePut.vue";
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const heroStore = HeroStore();
+const campaignStore = CampaignStore();
 const heroDataRepository = new HeroDataRepository();
 
 const heroSavePutRef = ref();
@@ -303,7 +302,7 @@ onMounted(async () => {
     const loader = new CampaignLoadFromStorage();
     await loader.loadCampaignComplete(campaignId);
 
-    const updatedHero = heroStore.findInCampaignOptional(heroId, campaignId);
+    const updatedHero = campaignStore.findHeroOptional(campaignId, heroId);
 
     if (updatedHero) {
       campaignHeroRef.value = updatedHero;
@@ -338,6 +337,9 @@ onMounted(async () => {
       hero.value = heroDataRepository.find(heroId) ?? null;
     } else {
       console.error(`Hero ${heroId} not found in campaign ${campaignId}`);
+
+      campaignStore.findAllHeroes(campaignId);
+
       snackbarText.value = "Hero not found in this campaign.";
       snackbarColor.value = "error";
       snackbarVisible.value = true;

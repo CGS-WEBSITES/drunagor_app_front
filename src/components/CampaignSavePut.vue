@@ -5,7 +5,6 @@
 <script setup lang="ts">
 import axios from "axios";
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
 
 const props = defineProps<{
   campaignId: string;
@@ -17,17 +16,16 @@ const emit = defineEmits<{
 }>();
 
 const campaignStore = CampaignStore();
-const heroStore = HeroStore();
 
 function generateCampaignHash(): string {
   const campaign = campaignStore.find(props.campaignId);
-  const heroes = heroStore.findAllInCampaign(props.campaignId);
+  const heroes = campaignStore.findAllHeroes(props.campaignId);
 
   const campaignData = JSON.parse(JSON.stringify(campaign));
+  delete campaignData.heroes; 
 
   const heroesData = heroes.map((hero) => {
     const cleanHero = JSON.parse(JSON.stringify(hero));
-
     delete cleanHero.playableHeroesPk;
     return cleanHero;
   });

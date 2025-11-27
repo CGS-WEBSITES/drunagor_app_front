@@ -188,7 +188,6 @@ import { useRouter, useRoute } from "vue-router";
 import CampaignNew from "@/components/CampaignNew.vue";
 import CampaignImport from "@/components/CampaignImport.vue";
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
 import { useUserStore } from "@/store/UserStore";
 import type { HeroData } from "@/data/repository/HeroData";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
@@ -200,7 +199,6 @@ const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
-const heroStore = HeroStore();
 const toast = useToast();
 
 const loading = ref(true);
@@ -248,6 +246,8 @@ const loadCampaignFromHash = (trackerHash: string, campaignPk: string) => {
     const camp = data.campaignData;
     camp.campaignId = campaignPk;
 
+    camp.heroes = [];
+
     campaignStore.add(camp);
   } catch (error) {
     console.error("Error loading campaign from hash:", error);
@@ -279,7 +279,7 @@ const goToCampaign = (id: string) => {
 
 const heroAvatars = (campId: string): HeroData[] => {
   const repo = new HeroDataRepository();
-  const heroes = heroStore.findAllInCampaign(campId);
+  const heroes = campaignStore.findAllHeroes(campId);
 
   if (heroes.length === 0) {
     return [];
@@ -383,7 +383,6 @@ const confirmJoinCampaign = async () => {
 
 onBeforeMount(async () => {
   campaignStore.reset();
-  heroStore.reset();
   loadingErrors.value = [];
 
   try {

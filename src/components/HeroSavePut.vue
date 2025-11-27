@@ -3,9 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import { HeroStore } from "@/store/HeroStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import { useUserStore } from "@/store/UserStore";
-import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 import axios from "axios";
 
 const props = defineProps<{
@@ -14,13 +13,11 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(["success", "fail"]);
-const heroStore = HeroStore();
+const campaignStore = CampaignStore();
 const userStore = useUserStore();
-const campaignLoader = new CampaignLoadFromStorage();
 
 function generateHeroHash(heroData: any): string {
   const cleanData = JSON.parse(JSON.stringify(heroData));
-
   delete cleanData.playableHeroesPk;
   return btoa(JSON.stringify(cleanData));
 }
@@ -43,9 +40,9 @@ async function getPlayableHeroesPk(hero: any): Promise<number | null> {
       );
 
       if (currentUser?.playable_heroes_fk) {
-        heroStore.setPlayableHeroesPk(
-          hero.heroId,
+        campaignStore.setHeroPlayableHeroesPk(
           props.campaignId,
+          hero.heroId,
           currentUser.playable_heroes_fk,
         );
         return currentUser.playable_heroes_fk;
@@ -86,21 +83,25 @@ async function saveHeroes(): Promise<boolean> {
     let heroesToSave;
 
     if (props.heroId) {
-      const hero = heroStore.findInCampaignOptional(
-        props.heroId,
-        props.campaignId,
-      );
+      const hero = campaignStore.findHeroOptional(props.campaignId, props.heroId);
+      
       if (!hero) {
+        const allHeroes = campaignStore.findAllHeroes(props.campaignId);
+        console.error(
+          `[HeroSavePut] Hero ${props.heroId} not found in campaign ${props.campaignId}. Available heroes:`,
+          allHeroes.map(h => h.heroId)
+        );
         throw new Error(
           `Hero ${props.heroId} not found in campaign ${props.campaignId}`,
         );
       }
       heroesToSave = [hero];
     } else {
-      heroesToSave = heroStore.findAllInCampaign(props.campaignId);
+      heroesToSave = campaignStore.findAllHeroes(props.campaignId);
     }
 
     if (heroesToSave.length === 0) {
+      console.log("[HeroSavePut] No heroes to save");
       emit("success");
       return true;
     }

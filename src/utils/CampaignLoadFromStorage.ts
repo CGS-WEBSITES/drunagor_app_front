@@ -1,5 +1,4 @@
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
 import { useUserStore } from "@/store/UserStore";
 import {
   Hero,
@@ -19,13 +18,6 @@ interface PlayerData {
   events_fk: number | null;
 }
 
-interface PlayableHeroData {
-  playable_heroes_pk: number;
-  hero_hash: string;
-  creation_date: string;
-  users_fk: number;
-}
-
 interface CampaignRelationData {
   campaigns_fk: number;
   tracker_hash: string;
@@ -42,15 +34,13 @@ interface CampaignRelationData {
 
 export class CampaignLoadFromStorage {
   private campaignStore = CampaignStore();
-  private heroStore = HeroStore();
   private userStore = useUserStore();
 
   async loadCampaignComplete(campaignId: string): Promise<boolean> {
     try {
-      this.heroStore.clearCampaignHeroes(campaignId);
+      this.campaignStore.clearHeroes(campaignId);
 
       const campaignLoaded = await this.loadCampaignData(campaignId);
-
       const heroesLoaded = await this.loadCampaignHeroes(campaignId);
 
       return campaignLoaded || heroesLoaded;
@@ -82,9 +72,13 @@ export class CampaignLoadFromStorage {
             const camp = decodedData.campaignData;
             camp.campaignId = campaignId;
 
+            camp.heroes = [];
+
             if (this.campaignStore.has(campaignId)) {
               const existingCampaign = this.campaignStore.find(campaignId);
+              const existingHeroes = existingCampaign.heroes || [];
               Object.assign(existingCampaign, camp);
+              existingCampaign.heroes = existingHeroes;
             } else {
               this.campaignStore.add(camp);
             }
@@ -140,6 +134,7 @@ export class CampaignLoadFromStorage {
           }
         }
       }
+
       return loadedCount > 0;
     } catch (error) {
       console.error(
@@ -165,7 +160,8 @@ export class CampaignLoadFromStorage {
           heroData.playableHeroesPk = playableHeroesPk;
 
           this.ensureHeroResources(heroData);
-          this.heroStore.addOrUpdate(heroData);
+
+          this.campaignStore.addOrUpdateHero(campaignId, heroData);
 
           return true;
         }

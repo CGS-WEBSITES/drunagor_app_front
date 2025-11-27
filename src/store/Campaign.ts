@@ -1,3 +1,5 @@
+import type { Hero } from "./Hero";
+
 export class Campaign {
   public campaignId: string;
   public campaign: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2";
@@ -25,6 +27,8 @@ export class Campaign {
   };
   public isSequentialAdventure: boolean = false;
   public sequentialAdventureRunes: number = 0;
+
+  public heroes: Hero[] = [];
 
   constructor(
     campaignId: string,
