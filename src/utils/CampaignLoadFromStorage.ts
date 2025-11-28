@@ -43,6 +43,8 @@ export class CampaignLoadFromStorage {
       const campaignLoaded = await this.loadCampaignData(campaignId);
       const heroesLoaded = await this.loadCampaignHeroes(campaignId);
 
+      this.campaignStore.findAllHeroes(campaignId).length;
+
       return campaignLoaded || heroesLoaded;
     } catch (error) {
       console.error(
@@ -77,6 +79,7 @@ export class CampaignLoadFromStorage {
             if (this.campaignStore.has(campaignId)) {
               const existingCampaign = this.campaignStore.find(campaignId);
               const existingHeroes = existingCampaign.heroes || [];
+
               Object.assign(existingCampaign, camp);
               existingCampaign.heroes = existingHeroes;
             } else {
@@ -125,6 +128,10 @@ export class CampaignLoadFromStorage {
             );
             if (heroLoaded) {
               loadedCount++;
+            } else {
+              console.warn(
+                `[CampaignLoad] Failed to load hero ${player.playable_heroes_fk}`,
+              );
             }
           } catch (error) {
             console.error(
@@ -132,6 +139,8 @@ export class CampaignLoadFromStorage {
               error,
             );
           }
+        } else {
+          console.log(`[CampaignLoad] Player ${player.user_name} has no hero`);
         }
       }
 
@@ -164,7 +173,11 @@ export class CampaignLoadFromStorage {
           this.campaignStore.addOrUpdateHero(campaignId, heroData);
 
           return true;
+        } else {
+          console.warn(`[CampaignLoad] Failed to decode hero hash`);
         }
+      } else {
+        console.warn(`[CampaignLoad] No hero_hash in response`);
       }
 
       return false;
@@ -180,6 +193,7 @@ export class CampaignLoadFromStorage {
   private decodeHeroHash(heroHash: string): Hero | null {
     try {
       const decoded = JSON.parse(atob(heroHash));
+
       return decoded as Hero;
     } catch (error) {
       console.error("[CampaignLoad] Error decoding hero hash:", error);

@@ -1204,15 +1204,14 @@ onMounted(async () => {
 
   try {
     const existingCampaign = campaignStore.findOptional(campaignId);
+    const heroCount = existingCampaign?.heroes?.length || 0;
 
-    if (!existingCampaign) {
+    if (!existingCampaign || heroCount === 0) {
       const loader = new CampaignLoadFromStorage();
       await loader.loadCampaignComplete(campaignId);
     } else {
       console.log(
-        "[CampaignView] Campaign already in store with",
-        existingCampaign.heroes?.length || 0,
-        "heroes",
+        `[CampaignView] Campaign already in store with ${heroCount} heroes, skipping load`,
       );
     }
   } catch (error) {
