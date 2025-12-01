@@ -116,9 +116,7 @@
           </div>
 
           <div class="bookmarks-container-right mt-2 d-flex flex-column align-end gap-2 pr-1">
-              
               <div v-if="currentMonsters.length > 0" class="d-flex flex-column align-end gap-2">
-                  
                   <v-tooltip text="Show/Hide Monsters" location="left">
                     <template v-slot:activator="{ props }">
                         <div 
@@ -132,7 +130,6 @@
                         </div>
                     </template>
                   </v-tooltip>
-
                   <transition name="slide-fade">
                     <div v-if="showMonsters" class="monster-panel-right">
                         <div class="monster-cards-container d-flex flex-wrap gap-2 justify-center">
@@ -148,9 +145,7 @@
                     </div>
                   </transition>
               </div>
-
           </div>
-
         </div>
       </div>
 
@@ -209,40 +204,103 @@
       </div>
 
       <div class="hud-area bottom-right d-flex flex-column align-end">
-         <div class="interactive-content d-flex flex-column align-end">
+         <div class="interactive-content d-flex flex-column align-end gap-2">
+           
            <v-btn 
-             class="big-action-btn secondary-action mb-2"
+             class="menu-action-btn blue-menu-btn"
+             variant="flat"
+             @click.stop="openOnlyInstructions"
+           >
+             <v-icon start>mdi-book-information-variant</v-icon>
+             DOOR INSTRUCTIONS
+           </v-btn>
+
+           <v-btn 
+             class="menu-action-btn secondary-menu-btn"
              variant="flat"
              @click.stop="readTheScene"
            >
              <v-icon start>mdi-book-open-page-variant</v-icon>
-             <span class="d-none d-sm-inline">READ SCENE</span>
-             <span class="d-inline d-sm-none">READ</span>
+             READ SCENE
            </v-btn>
 
            <v-btn 
              v-if="showSaveCampaignButton"
-             class="big-action-btn primary-action"
+             class="menu-action-btn primary-menu-btn"
              variant="flat"
              @click.stop="confirmNextDoor"
            >
-             <span class="d-none d-sm-inline">OPEN NEXT DOOR</span>
-             <span class="d-inline d-sm-none">NEXT</span>
-             <v-icon end>mdi-arrow-right-bold</v-icon>
+             <v-icon start>mdi-door-open</v-icon>
+             OPEN NEXT DOOR
            </v-btn>
+
          </div>
       </div>
     </div>
 
+    <v-dialog v-model="narrativeDialogVisible" max-width="800" scrollable persistent>
+       <v-card class="book-style-card rounded-xl overflow-hidden">
+         <v-toolbar color="#10594f" density="compact" class="px-2">
+            <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif !important;">
+               {{ currentDoorInstruction?.title?.toUpperCase() }} - STORY
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon="mdi-close" variant="text" color="white" @click="narrativeDialogVisible = false"></v-btn>
+         </v-toolbar>
+
+         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto;">
+             <v-container fluid v-if="currentDoorInstruction">
+                 <v-row>
+                     <v-col cols="12" class="pt-4 mt-3">
+                         <div v-html="currentDoorInstruction.body" class="narrative-text"></div>
+                     </v-col>
+                 </v-row>
+             </v-container>
+         </v-card-text>
+
+         <v-card-actions class="justify-center py-4" style="background-color: #eee8e0;">
+             <v-btn 
+                color="brown-darken-3" 
+                variant="flat" 
+                size="large" 
+                class="px-6 font-weight-bold"
+                @click="proceedToInstructions"
+             >
+                CONTINUE TO INSTRUCTIONS <v-icon end>mdi-arrow-right</v-icon>
+             </v-btn>
+         </v-card-actions>
+       </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="instructionsDialogVisible" max-width="900" scrollable>
+       <v-card class="book-style-card rounded-xl overflow-hidden">
+         <v-toolbar color="#10594f" density="compact" class="px-2">
+            <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif !important;">
+               {{ currentDoorInstruction?.title?.toUpperCase() }} - RULES
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-btn icon="mdi-close" variant="text" color="white" @click="instructionsDialogVisible = false"></v-btn>
+         </v-toolbar>
+
+         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto;">
+             <v-container fluid v-if="currentDoorInstruction">
+                 <v-row>
+                     <v-col cols="12">
+                         <div v-html="currentDoorInstruction.instruction" class="instruction-box"></div>
+                     </v-col>
+                 </v-row>
+             </v-container>
+             <div v-else class="text-center pa-10 text-grey">
+                 No specialized instructions available for this location.
+             </div>
+         </v-card-text>
+       </v-card>
+    </v-dialog>
+
     <v-dialog v-model="monsterZoomDialog.visible" max-width="800" class="align-center justify-center">
         <div class="position-relative">
             <v-btn icon="mdi-close" variant="text" color="white" class="position-absolute top-0 right-0 z-index-10" @click="monsterZoomDialog.visible = false"></v-btn>
-            <img 
-                v-if="monsterZoomDialog.image" 
-                :src="monsterZoomDialog.image" 
-                class="monster-zoom-img" 
-                alt="Monster Zoom" 
-            />
+            <img v-if="monsterZoomDialog.image" :src="monsterZoomDialog.image" class="monster-zoom-img" alt="Monster Zoom" />
         </div>
     </v-dialog>
 
@@ -310,8 +368,9 @@
        </v-card>
     </v-dialog>
 
-    <v-dialog v-model="confirmDialog.visible" max-width="400">
-       <v-card :title="confirmDialog.title" :text="confirmDialog.text" class="bg-grey-darken-3">
+    <v-dialog v-model="confirmDialog.visible" max-width="500">
+       <v-card :title="confirmDialog.title" class="bg-grey-darken-3">
+          <v-card-text class="pa-4 text-body-1">{{ confirmDialog.text }}</v-card-text>
           <v-card-actions>
              <v-spacer></v-spacer>
              <v-btn color="grey" @click="confirmDialog.visible = false">Cancel</v-btn>
@@ -335,12 +394,7 @@
     </v-dialog>
 
     <div class="visually-hidden">
-       <CampaignSavePut 
-          ref="savePutRef" 
-          :campaign-id="campaignId" 
-          @success="onSaveSuccess" 
-          @fail="onSaveFail" 
-       />
+       <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" @success="onSaveSuccess" @fail="onSaveFail" />
        <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
        <CampaignRemove ref="campaignRemoveRef" :campaign-id="campaignId" />
        <ShareCampaignButton ref="shareCampaignRef" :campaignId="campaignId" :inviteCode="partyCode" />
@@ -355,8 +409,8 @@ import { ref, computed, nextTick, onMounted, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import doorInstructionsData from '@/data/door/DoorInstructions.json';
 
-// Imports
 import CampaignBook from "@/components/CampaignBook.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
@@ -382,7 +436,7 @@ const campaignStore = CampaignStore();
 const heroDataRepository = new HeroDataRepository();
 
 const campaignBookRef = ref<any>(null);
-const savePutRef = ref<InstanceType<typeof CampaignSavePut> | null>(null); // Tipagem correta
+const savePutRef = ref<InstanceType<typeof CampaignSavePut> | null>(null);
 const campaignExportRef = ref<any>(null);
 const campaignRemoveRef = ref<any>(null);
 const shareCampaignRef = ref<any>(null);
@@ -394,12 +448,17 @@ const confirmDialog = ref({ visible: false, title: '', text: '', onConfirm: () =
 const wing4ChoiceDialog = ref({ visible: false });
 const snackbar = ref({ visible: false, text: '', color: 'success' });
 const bookDialog = ref({ visible: false, title: 'Campaign Book' });
+
+// Separation of dialogs for new flow
+const narrativeDialogVisible = ref(false);
+const instructionsDialogVisible = ref(false);
+
 const heroCardDialog = ref<{ visible: boolean; hero: any | null }>({ visible: false, hero: null });
 const partyCode = ref<string | null>(null);
 
-// Estado para controle dos monstros
 const showMonsters = ref(true);
 const monsterZoomDialog = ref({ visible: false, image: '' });
+const forcedDoorInstruction = ref<string | null>(null);
 
 const enrichedHeroes = computed(() => {
   const heroes = props.heroStore.findAllInCampaign(props.campaignId) || [];
@@ -414,16 +473,61 @@ const enrichedHeroes = computed(() => {
   });
 });
 
-const heroesInCampaign = enrichedHeroes;
+const activeCampaignData = computed(() => {
+    return campaignStore.find(props.campaignId) || props.campaign || {};
+});
+
+const currentDoorInstruction = computed(() => {
+    const data = activeCampaignData.value;
+    const wing = (data.wing || '').toUpperCase();
+    const currentDoor = (data.door || '').toUpperCase();
+    
+    const sectionData = doorInstructionsData.find((s: any) => {
+        if (wing.includes("WING 3")) return s.section === "WING 3 - DOORS";
+        if (wing.includes("WING 4")) return s.section === "WING 4 - DOORS";
+        return false;
+    });
+
+    if (!sectionData) return null;
+
+    if (forcedDoorInstruction.value) {
+         return sectionData.content.find((c: any) => c.title === forcedDoorInstruction.value);
+    }
+
+    if (wing.includes("WING 4") && currentDoor === "BOTH OPEN") {
+         return null; 
+    }
+
+    return sectionData.content.find((c: any) => c.title === currentDoor);
+});
+
+// Manual Button Click: Opens ONLY instructions
+function openOnlyInstructions() {
+    if (activeCampaignData.value.door !== 'BOTH OPEN') {
+        forcedDoorInstruction.value = null;
+    }
+    instructionsDialogVisible.value = true;
+}
+
+// Flow: Open Narrative -> Click Continue -> Open Instructions
+function openNarrativeDialog() {
+    if (activeCampaignData.value.door !== 'BOTH OPEN') {
+        forcedDoorInstruction.value = null;
+    }
+    narrativeDialogVisible.value = true;
+}
+
+function proceedToInstructions() {
+    narrativeDialogVisible.value = false;
+    setTimeout(() => {
+        instructionsDialogVisible.value = true;
+    }, 200);
+}
 
 const underkeep2Doors = {
   "WING 3 - ADVANCED": ["FIRST SETUP","DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"],
   "WING 4 - ADVANCED": ["FIRST SETUP", "DRACONIC CHAPEL", "CRYPTS", "BOTH OPEN", "LIBRARY", "LABORATORY"],
 };
-
-const activeCampaignData = computed(() => {
-    return campaignStore.find(props.campaignId) || props.campaign || {};
-});
 
 const currentLocationDisplay = computed(() => {
   const wing = activeCampaignData.value.wing || 'Unknown Wing';
@@ -431,14 +535,12 @@ const currentLocationDisplay = computed(() => {
   return `${wing} - ${door}`;
 });
 
-// LOGICA DOS MONSTROS
 const currentMonsters = computed(() => {
     const data = activeCampaignData.value;
     const wing = (data.wing || '').toUpperCase();
     const door = (data.door || '').toUpperCase();
 
     if (!wing.includes("WING 3")) return [];
-
     switch(door) {
         case "FIRST SETUP": return ['archer', 'executioner'];
         case "DUNGEON FOYER": return ['cultist', 'vampire'];
@@ -454,36 +556,24 @@ const currentMonsters = computed(() => {
 function getMonsterImage(monsterName: string) {
     try {
        return new URL(`../assets/campaign_monsters/wing3/${monsterName}.png`, import.meta.url).href;
-    } catch (e) {
-       console.error(`Erro imagem monstro: ${monsterName}`, e);
-       return '';
-    }
+    } catch (e) { return ''; }
 }
-
-function onMonsterImgError(e: any) {
-    e.target.style.display = 'none';
-}
-
+function onMonsterImgError(e: any) { e.target.style.display = 'none'; }
 function openMonsterZoom(monsterName: string) {
     monsterZoomDialog.value.image = getMonsterImage(monsterName);
     monsterZoomDialog.value.visible = true;
 }
 
-// LÓGICA DO MAPA
 const currentBackgroundImage = computed(() => {
   const data = activeCampaignData.value;
   const wing = (data.wing || '').toUpperCase();
   const door = (data.door || '').toUpperCase();
-  
   if (!wing) return '';
-
   let wingFolder = '';
   if (wing.includes('WING 3')) wingFolder = 'wing3';
   if (wing.includes('WING 4')) wingFolder = 'wing4';
   if (!wingFolder) return '';
-
   let doorFile = 'setup';
-  
   if (wingFolder === 'wing4') {
      if (door.includes('FIRST SETUP')) doorFile = 'setup';
      else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
@@ -493,49 +583,34 @@ const currentBackgroundImage = computed(() => {
      else if (door === 'LABORATORY') doorFile = 'fourth_door';
      else doorFile = 'setup';
   } else {
-     if (door.includes('FIRST SETUP')) {
-         doorFile = 'setup';
-     } else {
+     if (door.includes('FIRST SETUP')) doorFile = 'setup';
+     else {
          const doorsList = underkeep2Doors["WING 3 - ADVANCED"];
          const index = doorsList.indexOf(door);
          const doorMap = ['setup', 'first_door', 'second_door', 'third_door', 'fourth_door', 'fifth_door', 'sixth_door', 'seventh_door'];
          doorFile = doorMap[index] || 'setup';
      }
   }
-
-  try {
-      return new URL(`../assets/campaign_background/${wingFolder}.${doorFile}.png`, import.meta.url).href;
-  } catch (e) {
-      console.error(`Erro ao carregar imagem: ${wingFolder}.${doorFile}.png`, e);
-      return '';
-  }
+  try { return new URL(`../assets/campaign_background/${wingFolder}.${doorFile}.png`, import.meta.url).href; } 
+  catch (e) { return ''; }
 });
 
 const transform = ref({ x: 0, y: 0, scale: 1 });
 let isDragging = false;
 let startPos = { x: 0, y: 0 };
-
 const mapTransformStyle = computed(() => ({
   transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})`,
   transformOrigin: 'center center',
   transition: isDragging ? 'none' : 'transform 0.1s ease-out'
 }));
-
-const generatePartyCode = () => {
-  const prefix = Math.floor(1000 + Math.random() * 9000).toString();
-  partyCode.value = `${prefix}${props.campaignId}`;
-};
-
-onMounted(() => {
-  generatePartyCode();
-});
+const generatePartyCode = () => { partyCode.value = `${Math.floor(1000 + Math.random() * 9000)}${props.campaignId}`; };
+onMounted(() => { generatePartyCode(); });
 
 function handleZoom(e: WheelEvent) {
   const zoomSpeed = 0.1;
   const newScale = transform.value.scale + (e.deltaY > 0 ? -zoomSpeed : zoomSpeed);
   transform.value.scale = Math.min(Math.max(1, newScale), 3);
 }
-
 function startDrag(e: MouseEvent | TouchEvent) {
   isDragging = true;
   const cx = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -546,7 +621,6 @@ function startDrag(e: MouseEvent | TouchEvent) {
   window.addEventListener('mouseup', stopDrag);
   window.addEventListener('touchend', stopDrag);
 }
-
 function onDrag(e: MouseEvent | TouchEvent) {
   if (!isDragging) return;
   const cx = 'touches' in e ? e.touches[0].clientX : e.clientX;
@@ -554,7 +628,6 @@ function onDrag(e: MouseEvent | TouchEvent) {
   transform.value.x = cx - startPos.x;
   transform.value.y = cy - startPos.y;
 }
-
 function stopDrag() {
   isDragging = false;
   window.removeEventListener('mousemove', onDrag);
@@ -562,118 +635,46 @@ function stopDrag() {
   window.removeEventListener('mouseup', stopDrag);
   window.removeEventListener('touchend', stopDrag);
 }
-
-function handleImageError(e: Event) {
-   console.warn('Erro ao carregar imagem de fundo do mapa.');
-}
-
+function handleImageError(e: Event) { console.warn('Bg Error'); }
 function openHeroCard(hero: any) {
-  if (!hero) return;
-  const id = hero.heroId || hero.id;
-  if (!id) {
-    snackbar.value = { visible: true, text: 'Error: Invalid Hero Data', color: 'error' };
-    return;
-  }
+  if (!hero || !(hero.heroId || hero.id)) { snackbar.value = { visible: true, text: 'Error: Invalid Hero Data', color: 'error' }; return; }
   heroCardDialog.value = { visible: true, hero: hero };
 }
-
-function onImgError(e: any) {
-   e.target.src = '/assets/hero/avatar/default.webp'; 
-}
-
-function handleQRCodeAction() {
-   openBookDialog('interactions');
-}
-
+function onImgError(e: any) { e.target.src = '/assets/hero/avatar/default.webp'; }
+function handleQRCodeAction() { openBookDialog('interactions'); }
 function openBookDialog(mode: 'book' | 'interactions') {
   bookDialog.value = { visible: true, title: mode === 'book' ? 'Campaign Book' : 'Interactions' };
-  nextTick(() => {
-     if (campaignBookRef.value) {
-        if (mode === 'interactions') campaignBookRef.value.navigateToInteract?.();
-        else campaignBookRef.value.goBackToBooks?.();
-     }
-  });
+  nextTick(() => { if (campaignBookRef.value) { mode === 'interactions' ? campaignBookRef.value.navigateToInteract?.() : campaignBookRef.value.goBackToBooks?.(); } });
 }
-
-function openInviteDialog() {
-  if (shareCampaignRef.value && typeof shareCampaignRef.value.openDialog === 'function') {
-    shareCampaignRef.value.openDialog();
-  }
-}
-
-function openResources(heroId: string | undefined) {
-   if (!heroId) return;
-   heroCardDialog.value.visible = false;
-   router.push({ name: "HeroSequentialState", params: { campaignId: props.campaignId, heroId } });
-}
-
-function openEquipment(heroId: string | undefined) {
-   if (!heroId) return;
-   heroCardDialog.value.visible = false;
-   router.push({ name: "Hero", params: { campaignId: props.campaignId, heroId } });
-}
-
-function exportCampaign() {
-   campaignExportRef.value?.export();
-}
-
-function goBack() {
-  router.push({ name: 'Campaign Overview' });
-}
-
-// FUNÇÃO DE SALVAR CORRIGIDA
+function openInviteDialog() { shareCampaignRef.value?.openDialog(); }
+function openResources(heroId: string | undefined) { if (!heroId) return; heroCardDialog.value.visible = false; router.push({ name: "HeroSequentialState", params: { campaignId: props.campaignId, heroId } }); }
+function openEquipment(heroId: string | undefined) { if (!heroId) return; heroCardDialog.value.visible = false; router.push({ name: "Hero", params: { campaignId: props.campaignId, heroId } }); }
+function exportCampaign() { campaignExportRef.value?.export(); }
+function goBack() { router.push({ name: 'Campaign Overview' }); }
 async function confirmSave() {
    confirmDialog.value = {
-      visible: true, title: 'Save Campaign', text: 'Save current progress?',
-      onConfirm: async () => { 
-        confirmDialog.value.visible = false; 
-        
-        // Verificação extra de segurança e Log para debug
-        if (savePutRef.value) {
-            try {
-                console.log("Tentando salvar...");
-                await savePutRef.value.save();
-            } catch (error) {
-                console.error("Erro ao chamar save() no componente filho:", error);
-                onSaveFail();
-            }
-        } else {
-            console.error("Referência savePutRef não encontrada ou nula.");
-            snackbar.value = { visible: true, text: 'Internal Error: Save component not loaded.', color: 'error' };
-        }
-      }
+     visible: true, title: 'Save Campaign', text: 'Save current progress?',
+     onConfirm: async () => { 
+       confirmDialog.value.visible = false; 
+       if (savePutRef.value) { try { await savePutRef.value.save(); } catch (error) { onSaveFail(); } }
+     }
    };
 }
-
 function confirmDelete() {
    confirmDialog.value = {
-      visible: true, title: 'Delete Campaign', text: 'This action cannot be undone. Are you sure?',
-      onConfirm: () => { 
-        campaignRemoveRef.value?.openDialog(); 
-        confirmDialog.value.visible = false; 
-      }
+     visible: true, title: 'Delete Campaign', text: 'This action cannot be undone. Are you sure?',
+     onConfirm: () => { campaignRemoveRef.value?.openDialog(); confirmDialog.value.visible = false; }
    };
 }
-
-function onSaveSuccess() { 
-    snackbar.value = { visible: true, text: 'Campaign saved successfully!', color: 'success' }; 
-}
-
-function onSaveFail() { 
-    snackbar.value = { visible: true, text: 'Error saving campaign.', color: 'error' }; 
-}
-
-function readTheScene() {
-   openBookDialog('book');
-}
+function onSaveSuccess() { snackbar.value = { visible: true, text: 'Campaign saved successfully!', color: 'success' }; }
+function onSaveFail() { snackbar.value = { visible: true, text: 'Error saving campaign.', color: 'error' }; }
+function readTheScene() { openBookDialog('book'); }
 
 function confirmNextDoor() {
+   const confirmText = "If desired, the Party Leader may save the game now. You may either end the game session or proceed to the next instruction on this card. If there are no monster still alive, any hero adjacent do the next door may choose to open it. If they do, open that door and build its setup.";
    confirmDialog.value = {
-      visible: true, title: 'Next Door', text: 'Advance to the next stage of the campaign?',
-      onConfirm: () => { 
-        nextDoorLogic(); 
-        confirmDialog.value.visible = false; 
-      }
+     visible: true, title: 'Open Next Door', text: confirmText,
+     onConfirm: () => { nextDoorLogic(); confirmDialog.value.visible = false; }
    };
 }
 
@@ -681,6 +682,10 @@ function commitWing4Choice(choice: string) {
     campaignStore.updateCampaignProperty(props.campaignId, 'door', choice);
     wing4ChoiceDialog.value.visible = false;
     snackbar.value = { visible: true, text: `Path chosen`, color: 'success' };
+    forcedDoorInstruction.value = choice;
+    
+    // Auto-open Narrative
+    setTimeout(() => { openNarrativeDialog(); }, 500);
 }
 
 function nextDoorLogic() {
@@ -690,397 +695,247 @@ function nextDoorLogic() {
     
     if (!wing || !currentDoor) return;
 
+    let advanced = false;
+    forcedDoorInstruction.value = null;
+
     if (wing === "WING 4 - ADVANCED") {
         if (currentDoor === "FIRST SETUP") {
             wing4ChoiceDialog.value.visible = true;
             return;
         }
 
-        if (currentDoor === "DRACONIC CHAPEL" || currentDoor === "CRYPTS") {
+        if (currentDoor === "DRACONIC CHAPEL") {
             campaignStore.updateCampaignProperty(props.campaignId, 'door', "BOTH OPEN");
-            snackbar.value = { visible: true, text: 'Both paths are now accessible!', color: 'success' };
-            return;
+            forcedDoorInstruction.value = "CRYPTS";
+            snackbar.value = { visible: true, text: 'Opened Crypts!', color: 'success' };
+            advanced = true;
+        } 
+        else if (currentDoor === "CRYPTS") {
+            campaignStore.updateCampaignProperty(props.campaignId, 'door', "BOTH OPEN");
+            forcedDoorInstruction.value = "DRACONIC CHAPEL";
+            snackbar.value = { visible: true, text: 'Opened Draconic Chapel!', color: 'success' };
+            advanced = true;
         }
-        
-        if (currentDoor === "BOTH OPEN") {
+        else if (currentDoor === "BOTH OPEN") {
              campaignStore.updateCampaignProperty(props.campaignId, 'door', "LIBRARY");
              snackbar.value = { visible: true, text: 'Opened the Library!', color: 'success' };
-             return;
+             advanced = true;
+        }
+        else {
+             const doorsList = underkeep2Doors["WING 4 - ADVANCED"];
+             const idx = doorsList.indexOf(currentDoor);
+             if (idx >= 0 && idx < doorsList.length - 1) {
+                campaignStore.updateCampaignProperty(props.campaignId, 'door', doorsList[idx + 1]);
+                snackbar.value = { visible: true, text: 'Advanced to next stage!', color: 'success' };
+                advanced = true;
+             }
+        }
+    } else {
+        const doorsList = underkeep2Doors[wing as keyof typeof underkeep2Doors];
+        if (doorsList) {
+            const idx = doorsList.indexOf(currentDoor);
+            if (idx >= 0 && idx < doorsList.length - 1) {
+                campaignStore.updateCampaignProperty(props.campaignId, 'door', doorsList[idx + 1]);
+                snackbar.value = { visible: true, text: 'Advanced to next stage!', color: 'success' };
+                advanced = true;
+            } else {
+                snackbar.value = { visible: true, text: 'End of Wing: No more doors to open!', color: 'warning' };
+            }
         }
     }
 
-    const doorsList = underkeep2Doors[wing as keyof typeof underkeep2Doors];
-    if (!doorsList) return;
-    const idx = doorsList.indexOf(currentDoor);
-    
-    if (idx >= 0 && idx < doorsList.length - 1) {
-        campaignStore.updateCampaignProperty(props.campaignId, 'door', doorsList[idx + 1]);
-        snackbar.value = { visible: true, text: 'Advanced to next stage!', color: 'success' };
-    } else {
-        snackbar.value = { visible: true, text: 'End of Wing: No more doors to open!', color: 'warning' };
+    if (advanced) {
+        // Now opens Narrative first!
+        setTimeout(() => { openNarrativeDialog(); }, 500);
     }
 }
 </script>
 
 <style scoped>
+.menu-action-btn {
+    width: 340px !important; 
+    height: 48px !important;
+    font-family: 'Cinzel', sans-serif;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    margin-bottom: 8px; 
+    border: 1px solid rgba(255,255,255,0.2);
+    justify-content: center;
+    font-size: 0.9rem !important;
+}
+
+.secondary-menu-btn {
+    background: rgba(40, 40, 40, 0.95);
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+.blue-menu-btn {
+    background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+    color: white;
+    border: 1px solid #1976D2;
+}
+
+.primary-menu-btn {
+    background: linear-gradient(135deg, #b71c1c 0%, #880e4f 100%);
+    color: white;
+    font-size: 1rem;
+    border: 1px solid #ff5252;
+    margin-top: 4px; 
+}
+
+.menu-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.7);
+    filter: brightness(1.2);
+}
+
+.book-style-card {
+    background-color: #eee8e0 !important; 
+    color: #212121;
+    border: 1px solid #1e1e1e;
+}
+
+/* FLUFFY TEXT: Black, Italic, Spaced */
+.narrative-text :deep(div), .narrative-text :deep(p) {
+    font-family: "EB Garamond", serif !important;
+    font-style: italic !important;
+    color: #000000 !important; /* Force Black */
+    font-size: 1.35rem !important;
+    line-height: 1.4 !important;
+}
+.narrative-text :deep(p) {
+    margin-bottom: 0.5rem !important;
+}
+
+/* INSTRUCTION BOX: Force Background #f0f0f0 */
+.instruction-box {
+    margin-top: 10px;
+}
+.instruction-box :deep(div[style*="background-color"]) {
+    background-color: #f0f0f0 !important;
+    border: 1px solid #ccc !important;
+}
+
 .visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 
-/* ESTILOS BASE */
 .immersive-container {
-  position: fixed;
-  top: 0; left: 0;
+  position: fixed; top: 0; left: 0;
   width: 100vw; height: 100vh;
-  overflow: hidden;
-  background-color: #000;
-  color: white;
-  font-family: 'Cinzel', serif;
+  overflow: hidden; background-color: #000;
+  color: white; font-family: 'Cinzel', serif;
 }
-
-.immersive-container.desktop-layout {
-  top: 64px;
-  height: calc(100vh - 64px);
-}
-
+.immersive-container.desktop-layout { top: 64px; height: calc(100vh - 64px); }
 @media (orientation: portrait) {
   .immersive-container {
-     width: 100vh;
-     height: 100vw;
-     position: fixed;
-     top: 50%;
-     left: 50%;
+     width: 100vh; height: 100vw;
+     position: fixed; top: 50%; left: 50%;
      transform: translate(-50%, -50%) rotate(90deg);
      z-index: 0;
   }
 }
-
 .map-viewport {
   width: 100%; height: 100%;
-  background: #050505;
-  overflow: hidden;
-  cursor: grab;
+  background: #050505; overflow: hidden; cursor: grab;
 }
 .map-viewport:active { cursor: grabbing; }
-.map-content {
-  width: 100%; height: 100%;
-  display: flex; align-items: center; justify-content: center;
-}
-.map-image {
-  max-width: none; width: 100%; height: 100%;
-  object-fit: contain;
-  pointer-events: none; 
-  filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
-}
+.map-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.map-image { max-width: none; width: 100%; height: 100%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)); }
 
 .hud-layer {
   position: absolute; top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  padding: 24px;
-  display: grid;
+  width: 100%; height: 100%; pointer-events: none;
+  padding: 24px; display: grid;
   grid-template-columns: 250px 1fr 250px;
-  grid-template-rows: 100px 1fr 120px;
+  grid-template-rows: 100px 1fr 180px;
   z-index: 10;
 }
 
 .hud-area { pointer-events: none; }
-.interactive-content, .bookmark-tab, .admin-buttons-group, .heroes-rack, .big-action-btn, .square-hud-btn, .monster-card, .monster-toggle-btn {
+.interactive-content, .bookmark-tab, .square-hud-btn, .monster-card, .menu-action-btn {
   pointer-events: auto;
 }
 
 .top-left { grid-area: 1 / 1; display: flex; flex-direction: column; }
 .top-right { grid-area: 1 / 3; display: flex; flex-direction: column; align-items: flex-end; }
 .bottom-left { grid-area: 3 / 1; display: flex; align-items: flex-end; }
-.bottom-center { 
-  grid-area: 3 / 2; 
-  display: flex; align-items: flex-end; justify-content: center;
-  z-index: 20;
-}
+.bottom-center { grid-area: 3 / 2; display: flex; align-items: flex-end; justify-content: center; z-index: 20; }
 .bottom-right { grid-area: 3 / 3; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; }
 
-/* BOOKMARK TABS */
 .bookmark-tab {
-  background: rgba(20, 20, 20, 0.9);
-  border: 1px solid #444;
-  color: #ccc;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
-  display: flex;
-  align-items: center;
-  min-width: 40px;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+  background: rgba(20, 20, 20, 0.9); border: 1px solid #444; color: #ccc;
+  padding: 8px 12px; cursor: pointer; transition: transform 0.2s, background 0.2s;
+  display: flex; align-items: center; min-width: 40px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
 }
+.bookmark-tab:hover, .bookmark-tab.active { background: rgba(40, 40, 40, 1); color: white; }
+.bookmark-tab.left-side { border-left: 3px solid #d4af37; border-radius: 0 8px 8px 0; margin-left: 0; }
+.bookmark-tab.left-side:hover { transform: translateX(5px); border-left-color: #ffc107; }
+.bookmark-tab.right-side { border-right: 3px solid #d4af37; border-radius: 8px 0 0 8px; margin-right: 0; justify-content: flex-end; }
+.bookmark-tab.right-side:hover, .bookmark-tab.right-side.active { transform: translateX(-5px); border-right-color: #ffc107; }
 
-.bookmark-tab:hover, .bookmark-tab.active {
-  background: rgba(40, 40, 40, 1);
-  color: white;
-}
-
-.bookmark-tab.left-side {
-  border-left: 3px solid #d4af37;
-  border-radius: 0 8px 8px 0;
-  margin-left: 0;
-}
-.bookmark-tab.left-side:hover {
-  transform: translateX(5px);
-  border-left-color: #ffc107;
-}
-
-.bookmark-tab.right-side {
-  border-right: 3px solid #d4af37;
-  border-radius: 8px 0 0 8px; 
-  margin-right: 0;
-  justify-content: flex-end; 
-}
-.bookmark-tab.right-side:hover, .bookmark-tab.right-side.active {
-  transform: translateX(-5px); 
-  border-right-color: #ffc107;
-}
-
-/* CSS DOS MONSTROS */
-.monster-panel-right {
-    margin-top: 4px;
-    padding-right: 4px;
-}
-
-/* Container limitado a 2 cards de largura aprox (60+gap) para forçar quebra se houver muitos, mas centralizado */
-.monster-cards-container {
-    max-width: 150px; 
-}
-
+.monster-panel-right { margin-top: 4px; padding-right: 4px; }
+.monster-cards-container { max-width: 150px; }
 .monster-card {
-    width: 60px;
-    height: 90px;
-    border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    background: rgba(0, 0, 0, 0.6);
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-    transition: transform 0.2s;
-    cursor: zoom-in;
+    width: 60px; height: 90px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.6); overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    transition: transform 0.2s; cursor: zoom-in;
 }
-
-.monster-card:hover {
-    transform: scale(1.1);
-    z-index: 50;
-    border-color: #b71c1c;
-}
-
-.monster-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* ZOOM */
-.monster-zoom-img {
-    max-width: 90vw;
-    max-height: 80vh;
-    border-radius: 8px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.8);
-    border: 2px solid #333;
-}
+.monster-card:hover { transform: scale(1.1); z-index: 50; border-color: #b71c1c; }
+.monster-card img { width: 100%; height: 100%; object-fit: cover; }
+.monster-zoom-img { max-width: 90vw; max-height: 80vh; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.8); border: 2px solid #333; }
 .z-index-10 { z-index: 10; }
 
-/* Transições */
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
-}
-.slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateX(20px);
-  opacity: 0;
-}
+.slide-fade-enter-active { transition: all 0.3s ease-out; }
+.slide-fade-leave-active { transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1); }
+.slide-fade-enter-from, .slide-fade-leave-to { transform: translateX(20px); opacity: 0; }
 
-/* BOTOES */
 .square-hud-btn {
-  width: 48px; height: 48px;
-  border-radius: 8px;
-  background: rgba(20, 20, 20, 0.9) !important;
-  border: 1px solid #444;
-  color: white !important;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-  transition: all 0.2s ease;
+  width: 48px; height: 48px; border-radius: 8px; background: rgba(20, 20, 20, 0.9) !important;
+  border: 1px solid #444; color: white !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: all 0.2s ease;
 }
-.square-hud-btn:hover {
-  background: rgba(40, 40, 40, 0.95) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.7);
-}
+.square-hud-btn:hover { background: rgba(40, 40, 40, 0.95) !important; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.7); }
 
-.objective-panel {
-  background: rgba(0, 0, 0, 0.7);
-  border-left: 4px solid #42a5f5;
-  padding: 8px 12px;
-  backdrop-filter: blur(4px);
-  border-radius: 0 8px 8px 0;
-}
-
-.heroes-rack {
-  display: flex;
-  gap: 16px;
-  padding: 10px;
-  background: none;
-  box-shadow: none;
-}
-
-.hero-token-wrapper {
-  display: flex; flex-direction: column; align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  position: relative;
-  z-index: 30;
-}
-.hero-token-wrapper:hover { 
-  transform: translateY(-5px); 
-  filter: brightness(1.2);
-}
-
-.hero-token {
-  width: 80px; height: 120px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-.hero-token.empty {
-  height: 80px;
-  border-radius: 50%;
-  border: 2px dashed #666;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0.6;
-}
-
-.hero-token-img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-}
-
-.hero-name-tag {
-  margin-top: 4px;
-  background: rgba(0,0,0,0.8);
-  color: #ddd;
-  font-size: 0.7rem;
-  padding: 1px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  max-width: 90px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.big-action-btn {
-  font-family: 'Cinzel', sans-serif;
-  font-weight: bold;
-  letter-spacing: 1px;
-  height: 56px !important;
-  min-width: 200px;
-  border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-
-.primary-action {
-  background: linear-gradient(135deg, #b71c1c 0%, #880e4f 100%);
-  color: white;
-  font-size: 1.1rem;
-}
-
-.secondary-action {
-  background: rgba(40, 40, 40, 0.9);
-  color: #ccc;
-  border: 1px solid #555;
-}
+.objective-panel { background: rgba(0, 0, 0, 0.7); border-left: 4px solid #42a5f5; padding: 8px 12px; backdrop-filter: blur(4px); border-radius: 0 8px 8px 0; }
+.heroes-rack { display: flex; gap: 16px; padding: 10px; background: none; box-shadow: none; }
+.hero-token-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s ease-in-out; position: relative; z-index: 30; }
+.hero-token-wrapper:hover { transform: translateY(-5px); filter: brightness(1.2); }
+.hero-token { width: 80px; height: 120px; border-radius: 6px; overflow: hidden; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.hero-token.empty { height: 80px; border-radius: 50%; border: 2px dashed #666; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
+.hero-token-img { width: 100%; height: 100%; object-fit: cover; }
+.hero-name-tag { margin-top: 4px; background: rgba(0,0,0,0.8); color: #ddd; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 @media (max-width: 960px) {
-  .hud-layer {
-    padding: 8px;
-    grid-template-columns: 1fr 1fr; 
-    grid-template-rows: auto 1fr auto;
-  }
-
+  .hud-layer { padding: 8px; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; }
   .top-left { grid-area: 1 / 1; }
   .top-right { grid-area: 1 / 2; }
-  
-  .bottom-left { 
-    grid-area: 3 / 1; 
-    align-self: flex-end !important; 
-    margin-bottom: 4px;
-    z-index: 25;
-  }
-  
-  .bottom-right {
-    grid-area: 3 / 2; 
-    align-self: flex-end !important; 
-    justify-content: flex-end;
-    padding-right: 4px;
-    margin-bottom: 4px;
-    z-index: 25;
-  }
-
-  .bottom-center {
-    grid-area: 3 / 1 / 4 / 3;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: 0;
-    z-index: 20; 
-  }
-  
-  .heroes-rack {
-    padding: 5px;
-    gap: 10px;
-  }
-  
-  .hero-token {
-    width: 50px; height: 75px;
-    border-radius: 4px;
-  }
-  
+  .bottom-left { grid-area: 3 / 1; align-self: flex-end !important; margin-bottom: 4px; z-index: 25; }
+  .bottom-right { grid-area: 3 / 2; align-self: flex-end !important; justify-content: flex-end; padding-right: 4px; margin-bottom: 4px; z-index: 25; }
+  .bottom-center { grid-area: 3 / 1 / 4 / 3; justify-content: center; align-items: flex-end; margin-bottom: 0; z-index: 20; }
+  .heroes-rack { padding: 5px; gap: 10px; }
+  .hero-token { width: 50px; height: 75px; }
   .hero-name-tag { display: none; }
-
-  .square-hud-btn {
-    width: 36px !important;
-    height: 36px !important;
-    font-size: 0.9rem;
-  }
-  
-  .bookmark-tab {
-      padding: 6px 8px;
-      min-width: 36px;
-  }
-  
+  .square-hud-btn { width: 36px !important; height: 36px !important; font-size: 0.9rem; }
+  .bookmark-tab { padding: 6px 8px; min-width: 36px; }
   .objective-panel { padding: 2px 6px; }
   .objective-label { font-size: 0.5rem !important; }
   .objective-text { font-size: 0.7rem !important; }
-
-  .big-action-btn {
-    height: 36px !important;
-    min-width: unset;
-    padding: 0 10px;
-    font-size: 0.75rem;
+  .monster-card { width: 40px; height: 60px; }
+  
+  .menu-action-btn { 
+      width: 210px !important; 
+      height: 40px !important; 
+      font-size: 0.7rem !important; 
+      letter-spacing: 0 !important; 
+      white-space: nowrap; 
   }
-
-  .monster-card {
-      width: 40px;
-      height: 60px;
+  .menu-action-btn :deep(.v-icon) {
+      font-size: 1.1rem !important;
   }
 }
 </style>
