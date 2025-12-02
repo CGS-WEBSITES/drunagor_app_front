@@ -11,44 +11,29 @@ import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useI18n } from "vue-i18n";
 /* import axios from "axios"; */
-  <div></div>
-</template>
 
-<script setup lang="ts">
-import axios from "axios";
-import { CampaignStore } from "@/store/CampaignStore";
-
-const props = defineProps<{
-  campaignId: string;
-}>();
-
-const emit = defineEmits<{
-  (e: "success"): void;
-  (e: "fail"): void;
-}>();
-
+const props = defineProps<{ campaignId: string }>();
+const emit = defineEmits(["success", "fail", "open-save-panel"]);
 const campaignStore = CampaignStore();
+const heroStore = HeroStore();
+const token = ref("");
+const { t } = useI18n();
 
-function generateCampaignHash(): string {
-  const campaign = campaignStore.find(props.campaignId);
-  const heroes = campaignStore.findAllHeroes(props.campaignId);
+function compressCampaignComplete(campaignId: string) {
+  const campaign = campaignStore.find(campaignId);
+  const campaignCopy = JSON.parse(JSON.stringify(campaign));
 
-  const campaignData = JSON.parse(JSON.stringify(campaign));
-  delete campaignData.heroes; 
-
-  const heroesData = heroes.map((hero) => {
-    const cleanHero = JSON.parse(JSON.stringify(hero));
-    delete cleanHero.playableHeroesPk;
-    return cleanHero;
-  });
+  const heroes = heroStore.findAllInCampaign(campaignId);
+  const heroesCopy = heroes.map((h) => JSON.parse(JSON.stringify(h)));
 
   const data = {
-    campaignData,
-    heroes: heroesData,
+    campaignData: campaignCopy,
+    heroes: heroesCopy,
     savedAt: new Date().toISOString(),
   };
 
-  return btoa(JSON.stringify(data));
+  token.value = btoa(JSON.stringify(data));
+  return campaign.name;
 }
 
 function mergeWithExistingHash() {

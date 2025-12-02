@@ -105,12 +105,10 @@
 
             <v-card-title class="d-flex flex-column text-uppercase">
               <span class="text-h5 font-weight-bold mb-0">{{
-                campaign.name || "Unnamed Campaign"
+                campaign.name
               }}</span>
 
-              <span v-if="campaign.wing" class="text-subtitle-1 mt-0">{{
-                campaign.wing
-              }}</span>
+              <span class="text-subtitle-1 mt-0">{{ campaign.wing }}</span>
             </v-card-title>
 
             <v-card-text>
@@ -137,7 +135,7 @@
 
     <v-dialog v-model="showJoinCampaignDialog" max-width="400" persistent>
       <v-card style="position: relative">
-        <div v-if="joiningCampaign" class="dialog-overlay">
+        <div v-if="loading" class="dialog-overlay">
           <v-progress-circular
             indeterminate
             size="80"
@@ -188,21 +186,27 @@ import { useRouter, useRoute } from "vue-router";
 import CampaignNew from "@/components/CampaignNew.vue";
 import CampaignImport from "@/components/CampaignImport.vue";
 import { CampaignStore } from "@/store/CampaignStore";
+import { HeroStore } from "@/store/HeroStore";
+import { PartyStore } from "@/store/PartyStore";
 import { useUserStore } from "@/store/UserStore";
+import { Campaign } from "@/store/Campaign";
+import { Hero } from "@/store/Hero";
 import type { HeroData } from "@/data/repository/HeroData";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { useToast } from "primevue/usetoast";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
+import { customAlphabet } from "nanoid";
 import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
-const userStore = useUserStore();
+const toastUser = useUserStore();
+const partyStore = PartyStore();
 const campaignStore = CampaignStore();
+const heroStore = HeroStore();
 const toast = useToast();
-
+const nanoid = customAlphabet("1234567890", 5);
 const loading = ref(true);
-const joiningCampaign = ref(false);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
@@ -237,40 +241,22 @@ const addLoadingError = (text: string) => {
   }, 5000);
 };
 
-const loadCampaignFromHash = (trackerHash: string, campaignPk: string) => {
-  try {
-    const data = JSON.parse(atob(trackerHash));
+const importCampaign = (token: string, overrideId?: string) => {
+  const data = JSON.parse(atob(token));
 
-    if (!data.campaignData) return;
+  if (!data.campaignData) return;
 
-    const camp = data.campaignData;
-    camp.campaignId = campaignPk;
+  const camp = data.campaignData;
 
-    camp.heroes = [];
+  if (overrideId) camp.campaignId = overrideId;
 
-    campaignStore.add(camp);
-  } catch (error) {
-    console.error("Error loading campaign from hash:", error);
-    throw error;
-  }
-};
+  campaignStore.add(camp);
 
-const loadCampaignWithHeroes = async (campaignData: any) => {
-  try {
-    const campaignPk = String(campaignData.campaigns_fk);
-    loadCampaignFromHash(campaignData.tracker_hash, campaignPk);
-    return true;
-  } catch (error) {
-    console.error("Error loading campaign:", error);
-    const boxName = getBoxName(campaignData.box);
-    const partyName = campaignData.party_name || "Unnamed Party";
+  data.heroes.forEach((h: any) => {
+    h.campaignId = overrideId ?? h.campaignId;
 
-    addLoadingError(
-      `Could not load the campaign "${partyName}" from the "${boxName}". ` +
-        `Data seems corrupted. Please contact support.`,
-    );
-    return false;
-  }
+    heroStore.add(h);
+  });
 };
 
 const goToCampaign = (id: string) => {
@@ -279,13 +265,9 @@ const goToCampaign = (id: string) => {
 
 const heroAvatars = (campId: string): HeroData[] => {
   const repo = new HeroDataRepository();
-  const heroes = campaignStore.findAllHeroes(campId);
 
-  if (heroes.length === 0) {
-    return [];
-  }
-
-  return heroes
+  return heroStore
+    .findAllInCampaign(campId)
     .map((h) => repo.find(h.heroId))
     .filter((h): h is HeroData => !!h);
 };
@@ -300,105 +282,138 @@ const onJoinCampaign = () => {
   showJoinCampaignDialog.value = true;
 };
 
-const confirmJoinCampaign = async () => {
-  if (!parsedCampaignFk.value) return;
+// Confirmação de entrar na campanha
 
-  joiningCampaign.value = true;
-  const usersPk = userStore.user.users_pk;
-  const campaignId = parsedCampaignFk.value;
+const confirmJoinCampaign = () => {
+    if (!parsedCampaignFk.value) return;
 
-  try {
-    await axios.post(
-      "/rl_campaigns_users/cadastro",
-      {
+    loading.value = true;
+    const usersPk = toastUser.user.users_pk;
+    const campaignId = parsedCampaignFk.value;
+
+    axios.post("/rl_campaigns_users/cadastro", {
         users_fk: usersPk,
         campaigns_fk: campaignId,
         party_roles_fk: 2,
         skus_fk: BOX_ID,
-      },
-      {
+    }, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      },
-    );
+    })
+    .then(() => {
+        return axios.get("/rl_campaigns_users/search", {
+            params: {
+                users_fk: usersPk,
+                campaigns_fk: campaignId,
+            },
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+    })
+    .then((campaignResponse) => {
+        const campaignData = campaignResponse.data.campaigns[0];
+        
+        if (campaignData && campaignData.tracker_hash) {
+            const data = JSON.parse(atob(campaignData.tracker_hash));
+            const camp = data.campaignData;
+            camp.campaignId = String(campaignData.campaigns_fk);
+            campaignStore.add(camp);
+            data.heroes.forEach((h) => {
+                h.campaignId = String(campaignData.campaigns_fk);
+                heroStore.add(h);
+            });
+            
+            router.push({
+                path: `/campaign-tracker/campaign/${campaignId}`,
+                query: { sku: String(BOX_ID) },
+            });
+            
+            toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: "You have successfully joined the campaign!",
+            });
+        } else {
+            throw new Error("Failed to retrieve campaign data after joining.");
+        }
+    })
+    .catch((err) => {
+        console.error("Error during join process:", err);
+        let errorMessage = "Error joining campaign.";
+        let severity = "error";
 
-    const campaignResponse = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: usersPk,
-        campaigns_fk: campaignId,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+        if (err.response?.data?.message?.includes("already exists") ||
+            err.response?.data?.message?.includes("já existe")) {
+            errorMessage = "You are already part of this campaign!";
+            severity = "info";
+            
+            router.push({
+                path: `/campaign-tracker/campaign/${campaignId}`,
+                query: { sku: String(BOX_ID) },
+            });
+        }
+        
+        toast.add({
+            severity: severity,
+            summary: severity === "info" ? "Info" : "Error",
+            detail: errorMessage,
+        });
+    })
+    .finally(() => {
+        loading.value = false;
+        joinCampaignId.value = "";
+        showJoinCampaignDialog.value = false;
     });
-
-    const campaignData = campaignResponse.data.campaigns[0];
-
-    if (campaignData && campaignData.tracker_hash) {
-      await loadCampaignWithHeroes(campaignData);
-
-      router.push({
-        path: `/campaign-tracker/campaign/${campaignId}`,
-        query: { sku: String(BOX_ID) },
-      });
-
-      toast.add({
-        severity: "success",
-        summary: "Success",
-        detail: "You have successfully joined the campaign!",
-      });
-    } else {
-      throw new Error("Failed to retrieve campaign data after joining.");
-    }
-  } catch (err: any) {
-    console.error("Error during join process:", err);
-    let errorMessage = "Error joining campaign.";
-    let severity = "error";
-
-    if (
-      err.response?.data?.message?.includes("already exists") ||
-      err.response?.data?.message?.includes("já existe")
-    ) {
-      errorMessage = "You are already part of this campaign!";
-      severity = "info";
-
-      router.push({
-        path: `/campaign-tracker/campaign/${campaignId}`,
-        query: { sku: String(BOX_ID) },
-      });
-    }
-
-    toast.add({
-      severity: severity,
-      summary: severity === "info" ? "Info" : "Error",
-      detail: errorMessage,
-    });
-  } finally {
-    joiningCampaign.value = false;
-    joinCampaignId.value = "";
-    showJoinCampaignDialog.value = false;
-  }
 };
 
-onBeforeMount(async () => {
+onBeforeMount(() => {
   campaignStore.reset();
+  heroStore.reset();
   loadingErrors.value = [];
 
-  try {
-    const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
-      params: { users_fk: userStore.user!.users_pk },
-    });
+  axios
+    .get("/rl_campaigns_users/search", {
+      params: { users_fk: toastUser.user!.users_pk },
+    })
+    .then((res) => {
+      res.data.campaigns.forEach((el: any) => {
+        try {
+          importCampaign(el.tracker_hash, String(el.campaigns_fk));
+        } catch {
+          const boxName = getBoxName(el.box);
+          const partyName = el.party_name || "Unnamed Party";
 
-    for (const campaignData of campaignsResponse.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
-    }
-  } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    addLoadingError("Error fetching campaigns. Please try again later.");
-  } finally {
-    loading.value = false;
-  }
+          addLoadingError(
+            `Could not load the campaign "${partyName}" from the "${boxName}". ` +
+              `Data seems corrupted. Please contact support.`,
+          );
+        }
+      });
+    })
+    .catch(() => {
+      addLoadingError("Error fetching campaigns. Please try again later.");
+    })
+    .finally(() => {
+      const legacy = partyStore.findAll();
+
+      if (legacy.length) {
+        const id = nanoid();
+        campaignStore.add(new Campaign(id, "core"));
+        legacy.forEach((h) => {
+          const hero = new Hero(h.heroId, id);
+          Object.assign(hero, {
+            auraId: h.auraId,
+            outcomeIds: h.outcomeIds,
+            statusIds: h.statusIds,
+          });
+          heroStore.add(hero);
+          partyStore.removeMember(h.heroId);
+        });
+      }
+      loading.value = false;
+    });
 });
 </script>
 
@@ -413,6 +428,5 @@ onBeforeMount(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
 }
 </style>

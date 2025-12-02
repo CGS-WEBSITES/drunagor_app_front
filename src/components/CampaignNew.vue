@@ -84,12 +84,7 @@
                   hover
                   height="200"
                 >
-                  <v-img
-                    :src="UnderKeepLogo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
+                  <v-img :src="UnderKeepLogo.toString()" width="280" height="100" contain></v-img>
                 </v-card>
               </v-col>
 
@@ -100,12 +95,7 @@
                   hover
                   height="200"
                 >
-                  <v-img
-                    :src="UnderKeep2Logo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
+                  <v-img :src="UnderKeep2Logo.toString()" width="280" height="100" contain></v-img>
                 </v-card>
               </v-col>
               
@@ -115,25 +105,10 @@
       </div>
     </v-card>
   </v-dialog>
-
-  <!-- Snackbar para mensagens de erro -->
-  <v-snackbar
-    v-model="snackbar.show"
-    :color="snackbar.color"
-    :timeout="snackbar.timeout"
-    location="top"
-  >
-    {{ snackbar.message }}
-    <template v-slot:actions>
-      <v-btn variant="text" @click="snackbar.show = false">
-        {{ t("label.close") }}
-      </v-btn>
-    </template>
-  </v-snackbar>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -153,70 +128,48 @@ const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 
 const visible = ref(false);
+const successDialogVisible = ref(false);
+const token = ref("");
 const user = useUserStore().user;
 const loading = ref(false);
+const selected = ref(null);
 
-const snackbar = reactive({
-  show: false,
-  message: "",
-  color: "error",
-  timeout: 5000,
-});
+// const NEW_CAMPAIGN_ID = Date.now().toString();
 
-function showError(message: string) {
-  snackbar.message = message;
-  snackbar.color = "error";
-  snackbar.show = true;
-}
+function compressCampaign(campaignId: string) {
+  const campaignCopy = JSON.parse(
+    JSON.stringify(campaignStore.find(campaignId)),
+  );
 
-function generateCampaignHash(campaign: Campaign): string {
-  const heroes = heroStore.findAllInCampaign(campaign.campaignId);
+  const heroes = heroStore.findAllInCampaign(campaignId);
 
   const data = {
-    campaignData: JSON.parse(JSON.stringify(campaign)),
-    heroes: heroes.map((h) => JSON.parse(JSON.stringify(h))),
+    campaignData: campaignCopy,
+    heroes: heroes.map((h) => {
+      const clone = JSON.parse(JSON.stringify(h));
+      return clone;
+    }),
   };
 
-  return btoa(JSON.stringify(data));
+  token.value = btoa(JSON.stringify(data));
 }
 
-async function checkDuplicateRelationship(
-  usersPk: number,
-  skusPk: number,
-): Promise<{ exists: boolean; message?: string }> {
-  try {
-    const { data } = await axios.get("/rl_campaigns_users/check-duplicate", {
-      params: {
-        users_fk: usersPk,
-        skus_fk: skusPk,
-      },
+async function createCampaign(boxId: number) {
+  return await axios
+    .post("/campaigns/cadastro", {
+      tracker_hash: "",
+      conclusion_percentage: 0,
+      box: boxId,
+    })
+    .then((res) => {
+      return res.data;
     });
-    return {
-      exists: data.exists,
-      message: data.message,
-    };
-  } catch (error) {
-    console.error("Error checking duplicate relationship:", error);
-    return { exists: false };
-  }
 }
 
-async function createCampaign(boxId: number, trackerHash: string) {
-  return await axios.post("/campaigns/cadastro", {
-    tracker_hash: trackerHash,
-    conclusion_percentage: 0,
-    box: boxId,
-  });
-}
-
-async function saveCampaign(
-  campaignPk: string,
-  trackerHash: string,
-  partyName: string,
-) {
-  await axios.put(`/campaigns/alter/${campaignPk}`, {
-    tracker_hash: trackerHash,
-    party_name: partyName,
+async function saveCampaign(campaign_pk: number, party_name: string) {
+  await axios.put(`campaigns/alter/${campaign_pk}`, {
+    tracker_hash: token.value,
+    party_name: party_name,
   });
 }
 
@@ -225,12 +178,14 @@ async function addRelationship(
   campaign_fk: string,
   boxId: number,
 ) {
-  return await axios.post("rl_campaigns_users/cadastro", {
+  await axios.post("rl_campaigns_users/cadastro", {
     users_fk: users_pk,
     campaigns_fk: campaign_fk,
     party_roles_fk: 1,
     skus_fk: boxId,
   });
+
+  successDialogVisible.value = true;
 }
 
 async function newCampaign(
@@ -238,89 +193,46 @@ async function newCampaign(
 ) {
   loading.value = true;
 
-  try {
-    const usersPk = user.users_pk;
+  const usersPk = user.users_pk;
 
-    if (!usersPk) {
-      showError(t("error.user-not-logged"));
-      return;
-    }
+  const { data } = await axios.get("/skus/search", {
+    params: { users_fk: usersPk },
+  });
 
-    const { data } = await axios.get("/skus/search", {
-      params: { users_fk: usersPk },
-    });
+  const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data);
+  const expectedName = {
+    core: "Corebox",
+    apocalypse: "Apocalypse",
+    awakenings: "Awakenings",
+    underkeep: "underkeep",
+    underkeep2: "underkeep2",
+  }[type];
 
-    const skuList = Array.isArray(data.skus) ? data.skus : Object.values(data);
-    const expectedName = {
-      core: "Corebox",
-      apocalypse: "Apocalypse",
-      awakenings: "Awakenings",
-      underkeep: "underkeep",
-      underkeep2: "underkeep2",
-    }[type];
+  const selectedSku = skuList.find(
+    (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase(),
+  );
 
-    const selectedSku = skuList.find(
-      (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase(),
-    );
+  let campaignResp = await createCampaign(selectedSku.skus_pk);
 
-    if (!selectedSku) {
-      showError(t("error.sku-not-found", { type }));
-      return;
-    }
+  let campaignFk = String(campaignResp.campaign.campaigns_pk);
 
-    // Verifica duplicidade ANTES de criar a campanha
-    const duplicateCheck = await checkDuplicateRelationship(
-      usersPk,
-      selectedSku.skus_pk,
-    );
+  let newCampaign = new Campaign(campaignFk, type);
 
-    if (duplicateCheck.exists) {
-      showError(duplicateCheck.message || t("error.campaign-already-exists"));
-      return;
-    }
+  campaignStore.add(newCampaign);
 
-    const tempCampaign = new Campaign("temp", type);
-    const initialHash = generateCampaignHash(tempCampaign);
+  compressCampaign(campaignFk);
 
-    const campaignResp = await createCampaign(selectedSku.skus_pk, initialHash);
-    const campaignPk = String(campaignResp.data.campaign.campaigns_pk);
+  await saveCampaign(campaignFk, "");
 
-    const newCampaignInstance = new Campaign(campaignPk, type);
-    campaignStore.add(newCampaignInstance);
+  await addRelationship(usersPk, campaignFk, selectedSku.skus_pk);
 
-    const finalHash = generateCampaignHash(newCampaignInstance);
+  loading.value = false;
 
-    await saveCampaign(campaignPk, finalHash, "");
-
-    try {
-      await addRelationship(usersPk, campaignPk, selectedSku.skus_pk);
-    } catch (relationshipError: any) {
-      // Se falhar ao criar relacionamento, remove a campanha do store
-      campaignStore.remove(campaignPk);
-
-      if (relationshipError.response?.status === 409) {
-        showError(t("error.campaign-already-exists"));
-        return;
-      }
-      throw relationshipError;
-    }
-
-    visible.value = false;
-
-    router.push({
-      path: `/campaign-tracker/campaign/${campaignPk}`,
-      query: { sku: selectedSku.skus_pk.toString() },
-    });
-  } catch (error: any) {
-    console.error("Error creating campaign:", error);
-    showError(
-      error.response?.data?.message ||
-        error.message ||
-        t("error.campaign-creation-failed"),
-    );
-  } finally {
-    loading.value = false;
-  }
+  // 4) Redirecione usando o serverPk no path
+  router.push({
+    path: `/campaign-tracker/campaign/${campaignFk}`,
+    query: { sku: selectedSku.skus_pk.toString() },
+  });
 }
 </script>
 

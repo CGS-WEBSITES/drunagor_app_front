@@ -21,11 +21,13 @@ export class SequentialAdventureState {
   public traumaCubes: number = 0;
   public availableCubes: number = 0;
   public usedCubes: number = 0;
-  public resources: Record<string, number> = {};
+  public resources: any = {};
 
   constructor() {
     resourceDefinitions.forEach((resource) => {
-      this.resources[resource.id] = 0;
+      if (!(resource.translation_key in this.resources)) {
+        this.resources[resource.translation_key] = 0;
+      }
     });
   }
 }
@@ -33,9 +35,6 @@ export class SequentialAdventureState {
 export class Hero {
   public heroId: string;
   public campaignId: string;
-
-  public playableHeroesPk: number | null = null;
-
   public equipment: HeroEquipment = new HeroEquipment();
   public stashedCardIds: Array<string> = [];
   public skillIds: Array<string> = [];
@@ -52,15 +51,8 @@ export class Hero {
   public outcomeIds: Array<string> = [];
   public statusIds: Array<string> = [];
 
-  constructor(
-    heroId: string,
-    campaignId: string,
-    playableHeroesPk: number | null = null,
-  ) {
+  constructor(heroId: string, campaignId: string) {
     this.heroId = heroId;
     this.campaignId = campaignId;
-    this.playableHeroesPk = playableHeroesPk;
   }
 }
-
-export const RESOURCE_DEFINITIONS = resourceDefinitions;
