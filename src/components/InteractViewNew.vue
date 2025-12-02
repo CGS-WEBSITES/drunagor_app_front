@@ -12,8 +12,8 @@
       
       <v-row v-if="!interactionStageActive" class="fill-height w-100 ma-0">
         
-        <v-col cols="12" md="6" class="scanner-col d-flex flex-column align-center justify-center bg-grey-darken-4 border-r">
-            <div class="text-h6 text-white mb-4 font-weight-bold">Scan Interaction Card</div>
+        <v-col cols="6" md="6" class="scanner-col d-flex flex-column align-center justify-center bg-grey-darken-4 border-r">
+            <div class="text-h6 text-white mb-4 font-weight-bold">Scan Interaction QR-CODE</div>
             
             <div class="video-wrapper">
                 <video id="interact-qr-video" class="qr-video" autoplay muted playsinline />
@@ -30,7 +30,7 @@
             <div class="text-caption text-grey mt-2">Point camera at the QR Code</div>
         </v-col>
 
-        <v-col cols="12" md="6" class="list-col bg-grey-darken-3 pa-4">
+        <v-col cols="6" md="6" class="list-col bg-grey-darken-3 pa-4">
             <div class="text-h6 text-white mb-6 font-weight-bold text-center">Available Here</div>
             
             <v-row justify="center">
