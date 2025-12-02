@@ -187,6 +187,7 @@
                  <div 
                    v-bind="props"
                    class="right-tab-btn primary-tab"
+                   style="width: auto !important; padding-left: 16px; padding-right: 12px; justify-content: flex-end;"
                    @click.stop="handleNextAction"
                  >
                     <v-icon size="large" color="white">{{ nextButtonIcon }}</v-icon>
@@ -238,7 +239,7 @@
          </v-toolbar>
          <v-card-text class="pa-4">
             <v-row justify="center" align="center">
-                <v-col v-for="monster in currentMonsters" :key="monster" cols="12" md="6" lg="4" class="d-flex justify-center">
+                <v-col v-for="monster in currentMonsters" :key="monster" cols="4" md="6" lg="4" class="d-flex justify-center">
                     <div class="d-flex flex-column align-center">
                         <img :src="getMonsterImageSrc(monster)" class="monster-group-img elevation-10 rounded-lg" />
                     </div>
@@ -832,7 +833,7 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .monster-card { width: 90px; height: 135px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.6); overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: transform 0.2s; cursor: pointer; }
 .monster-card:hover { transform: scale(1.05); z-index: 50; border-color: #b71c1c; }
 .monster-card img { width: 100%; height: 100%; object-fit: cover; }
-.monster-group-img { width: 100%; max-height: 400px; object-fit: contain; border: 2px solid #555; }
+.monster-group-img { width: 100%; max-height: 300px; object-fit: contain; border: 2px solid #555; }
 
 .square-hud-btn { width: 48px; height: 48px; border-radius: 8px; background: rgba(20, 20, 20, 0.9) !important; border: 1px solid #444; color: white !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: all 0.2s ease; }
 .square-hud-btn:hover { background: rgba(40, 40, 40, 0.95) !important; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.7); }
