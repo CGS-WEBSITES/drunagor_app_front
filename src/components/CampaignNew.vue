@@ -76,15 +76,19 @@
                 </v-card>
               </v-col>
 
-              
-              <!-- <v-col cols="12" sm="6">
+              <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
                   @click="newCampaign('underkeep')"
                   hover
                   height="200"
                 >
-                  <v-img :src="UnderKeepLogo.toString()" width="280" height="100" contain></v-img>
+                  <v-img
+                    :src="UnderKeepLogo.toString()"
+                    width="280"
+                    height="100"
+                    contain
+                  ></v-img>
                 </v-card>
               </v-col>
 
@@ -95,20 +99,39 @@
                   hover
                   height="200"
                 >
-                  <v-img :src="UnderKeep2Logo.toString()" width="280" height="100" contain></v-img>
+                  <v-img
+                    :src="UnderKeep2Logo.toString()"
+                    width="280"
+                    height="100"
+                    contain
+                  ></v-img>
                 </v-card>
-              </v-col> -->
-
+              </v-col>
             </v-row>
           </v-container>
         </v-card-text>
       </div>
     </v-card>
   </v-dialog>
+
+  <!-- Snackbar para mensagens de erro -->
+  <v-snackbar
+    v-model="snackbar.show"
+    :color="snackbar.color"
+    :timeout="snackbar.timeout"
+    location="top"
+  >
+    {{ snackbar.message }}
+    <template v-slot:actions>
+      <v-btn variant="text" @click="snackbar.show = false">
+        {{ t("label.close") }}
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive } from "vue";
 import axios from "axios";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -131,6 +154,19 @@ const visible = ref(false);
 const user = useUserStore().user;
 const loading = ref(false);
 
+const snackbar = reactive({
+  show: false,
+  message: "",
+  color: "error",
+  timeout: 5000,
+});
+
+function showError(message: string) {
+  snackbar.message = message;
+  snackbar.color = "error";
+  snackbar.show = true;
+}
+
 function generateCampaignHash(campaign: Campaign): string {
   const heroes = heroStore.findAllInCampaign(campaign.campaignId);
 
@@ -142,6 +178,27 @@ function generateCampaignHash(campaign: Campaign): string {
   return btoa(JSON.stringify(data));
 }
 
+async function checkDuplicateRelationship(
+  usersPk: number,
+  skusPk: number,
+): Promise<{ exists: boolean; message?: string }> {
+  try {
+    const { data } = await axios.get("/rl_campaigns_users/check-duplicate", {
+      params: {
+        users_fk: usersPk,
+        skus_fk: skusPk,
+      },
+    });
+    return {
+      exists: data.exists,
+      message: data.message,
+    };
+  } catch (error) {
+    console.error("Error checking duplicate relationship:", error);
+    return { exists: false };
+  }
+}
+
 async function createCampaign(boxId: number, trackerHash: string) {
   return await axios.post("/campaigns/cadastro", {
     tracker_hash: trackerHash,
@@ -150,7 +207,11 @@ async function createCampaign(boxId: number, trackerHash: string) {
   });
 }
 
-async function saveCampaign(campaignPk: string, trackerHash: string, partyName: string) {
+async function saveCampaign(
+  campaignPk: string,
+  trackerHash: string,
+  partyName: string,
+) {
   await axios.put(`/campaigns/alter/${campaignPk}`, {
     tracker_hash: trackerHash,
     party_name: partyName,
@@ -162,7 +223,7 @@ async function addRelationship(
   campaign_fk: string,
   boxId: number,
 ) {
-  await axios.post("rl_campaigns_users/cadastro", {
+  return await axios.post("rl_campaigns_users/cadastro", {
     users_fk: users_pk,
     campaigns_fk: campaign_fk,
     party_roles_fk: 1,
@@ -177,6 +238,11 @@ async function newCampaign(
 
   try {
     const usersPk = user.users_pk;
+
+    if (!usersPk) {
+      showError(t("error.user-not-logged"));
+      return;
+    }
 
     const { data } = await axios.get("/skus/search", {
       params: { users_fk: usersPk },
@@ -196,7 +262,19 @@ async function newCampaign(
     );
 
     if (!selectedSku) {
-      throw new Error(`SKU not found for campaign type: ${type}`);
+      showError(t("error.sku-not-found", { type }));
+      return;
+    }
+
+    // Verifica duplicidade ANTES de criar a campanha
+    const duplicateCheck = await checkDuplicateRelationship(
+      usersPk,
+      selectedSku.skus_pk,
+    );
+
+    if (duplicateCheck.exists) {
+      showError(duplicateCheck.message || t("error.campaign-already-exists"));
+      return;
     }
 
     const tempCampaign = new Campaign("temp", type);
@@ -205,14 +283,25 @@ async function newCampaign(
     const campaignResp = await createCampaign(selectedSku.skus_pk, initialHash);
     const campaignPk = String(campaignResp.data.campaign.campaigns_pk);
 
-    const newCampaign = new Campaign(campaignPk, type);
-    campaignStore.add(newCampaign);
+    const newCampaignInstance = new Campaign(campaignPk, type);
+    campaignStore.add(newCampaignInstance);
 
-    const finalHash = generateCampaignHash(newCampaign);
+    const finalHash = generateCampaignHash(newCampaignInstance);
 
     await saveCampaign(campaignPk, finalHash, "");
 
-    await addRelationship(usersPk, campaignPk, selectedSku.skus_pk);
+    try {
+      await addRelationship(usersPk, campaignPk, selectedSku.skus_pk);
+    } catch (relationshipError: any) {
+      // Se falhar ao criar relacionamento, remove a campanha do store
+      campaignStore.remove(campaignPk);
+
+      if (relationshipError.response?.status === 409) {
+        showError(t("error.campaign-already-exists"));
+        return;
+      }
+      throw relationshipError;
+    }
 
     visible.value = false;
 
@@ -220,8 +309,13 @@ async function newCampaign(
       path: `/campaign-tracker/campaign/${campaignPk}`,
       query: { sku: selectedSku.skus_pk.toString() },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error creating campaign:", error);
+    showError(
+      error.response?.data?.message ||
+        error.message ||
+        t("error.campaign-creation-failed"),
+    );
   } finally {
     loading.value = false;
   }
