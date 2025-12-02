@@ -82,16 +82,13 @@ const userStore = useUserStore();
 const configurationStore = ConfigurationStore();
 const { t } = useI18n();
 
-const statusIds = ref([] as string[]);
+const statusIds = ref<string[]>([]);
 const isAdmin = ref(false);
 const loading = ref(true);
+const campaignHeroRef = ref<any>(null);
 
 props.repository.load(configurationStore.enabledLanguage);
-
 const statuses = props.repository.findAll();
-
-statusIds.value =
-  heroStore.findInCampaign(props.heroId, props.campaignId).statusIds ?? [];
 
 const statusDisplayText = computed(() => {
   if (statusIds.value.length === 0) {
@@ -119,28 +116,47 @@ const checkUserRole = async () => {
   }
 };
 
-function findStatuses(statusIds: string[]): Status[] {
-  const statuses: Status[] = [];
-  statusIds.forEach((statusId) => {
-    let status = props.repository.find(statusId);
+function findStatuses(statusIdsList: string[]): Status[] {
+  const statusesFound: Status[] = [];
+  statusIdsList.forEach((statusId) => {
+    const status = props.repository.find(statusId);
     if (status) {
-      statuses.push(status);
+      statusesFound.push(status);
     }
   });
+  return statusesFound;
+}
 
-  return statuses;
+function syncToStore() {
+  if (campaignHeroRef.value && isAdmin.value) {
+    campaignHeroRef.value.statusIds = [...statusIds.value];
+    console.log("[CampaignLogStatus] Synced statusIds to store:", statusIds.value);
+  }
 }
 
 watch(statusIds, (newStatusIds) => {
-  if (isAdmin.value) {
-    heroStore.findInCampaign(props.heroId, props.campaignId).statusIds = newStatusIds;
-  } else {
-    console.log('CampaignLogStatus - Cannot update - not admin');
+  if (isAdmin.value && campaignHeroRef.value) {
+    campaignHeroRef.value.statusIds = [...newStatusIds];
+    console.log("[CampaignLogStatus] StatusIds updated:", newStatusIds);
   }
-});
+}, { deep: true });
 
 onMounted(async () => {
   await checkUserRole();
+  
+  const hero = heroStore.findInCampaignOptional(props.heroId, props.campaignId);
+  
+  if (hero) {
+    campaignHeroRef.value = hero;
+    
+    if (!hero.statusIds) {
+      hero.statusIds = [];
+    }
+    
+    statusIds.value = [...hero.statusIds];
+  } else {
+    console.warn(`[CampaignLogStatus] Hero ${props.heroId} not found in campaign ${props.campaignId}`);
+  }
 });
 </script>
 
