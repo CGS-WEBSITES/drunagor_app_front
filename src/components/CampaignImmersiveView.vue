@@ -61,6 +61,19 @@
                  </div>
                </template>
              </v-tooltip>
+
+             <v-tooltip text="Door Instructions" location="right">
+              <template v-slot:activator="{ props }">
+                <div 
+                   v-bind="props"
+                   class="bookmark-tab left-side blue-border-tab"
+                   @click.stop="openOnlyInstructions"
+                >
+                   <img src="@/assets/door.png" alt="Door" class="tab-icon-img" style="width: 24px; height: 24px;" />
+                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2">RULES</span>
+                </div>
+              </template>
+             </v-tooltip>
           </div>
 
         </div>
@@ -129,15 +142,15 @@
 
       <div class="hud-area bottom-center">
         <div class="heroes-rack interactive-content">
-           <div v-for="hero in enrichedHeroes" :key="hero.heroId" class="hero-token-wrapper" @click.stop="openHeroCard(hero)" @touchstart.stop="openHeroCard(hero)">
-              <div class="hero-token">
+           <div v-for="hero in enrichedHeroes" :key="hero.heroId" class="hero-token-wrapper" @click.stop="openHeroCard(hero)">
+             <div class="hero-token">
                  <v-img :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover class="hero-token-img" @error="onImgError"></v-img>
-              </div>
-              <div class="hero-name-tag">{{ hero.name }}</div>
+             </div>
+             <div class="hero-name-tag">{{ hero.name }}</div>
            </div>
            <div v-if="showSaveCampaignButton && enrichedHeroes.length < 4" class="hero-token-wrapper add-hero" @click.stop="addHeroDialogVisible = true">
-              <div class="hero-token empty"><v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon></div>
-              <div class="hero-name-tag">Add</div>
+             <div class="hero-token empty"><v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon></div>
+             <div class="hero-name-tag">Add</div>
            </div>
         </div>
       </div>
@@ -153,18 +166,6 @@
                    @click.stop="openInteractionsDialog"
                 >
                    <img src="@/assets/interaction.png" alt="icon" class="tab-icon-img" />
-                </div>
-              </template>
-           </v-tooltip>
-
-           <v-tooltip text="Door Instructions" location="left">
-              <template v-slot:activator="{ props }">
-                <div 
-                   v-bind="props"
-                   class="right-tab-btn blue-tab"
-                   @click.stop="openOnlyInstructions"
-                >
-                   <img src="@/assets/door.png" alt="Door" class="tab-icon-img" />
                 </div>
               </template>
            </v-tooltip>
@@ -240,7 +241,6 @@
                 <v-col v-for="monster in currentMonsters" :key="monster" cols="12" md="6" lg="4" class="d-flex justify-center">
                     <div class="d-flex flex-column align-center">
                         <img :src="getMonsterImageSrc(monster)" class="monster-group-img elevation-10 rounded-lg" />
-                        <div class="mt-2 text-h6 font-weight-bold text-uppercase">{{ monster.replace(/_/g, ' ') }}</div>
                     </div>
                 </v-col>
             </v-row>
@@ -265,23 +265,23 @@
 
     <v-dialog v-model="leaveDialog.visible" max-width="400">
        <v-card title="Leave Campaign" class="bg-grey-darken-3">
-          <v-card-text class="pa-4 text-body-1">Are you sure you want to permanently leave this campaign?</v-card-text>
-          <v-card-actions><v-spacer /><v-btn color="grey" @click="leaveDialog.visible = false">Cancel</v-btn><v-btn color="error" variant="elevated" @click="leaveDialog.onConfirm">Leave</v-btn></v-card-actions>
+         <v-card-text class="pa-4 text-body-1">Are you sure you want to permanently leave this campaign?</v-card-text>
+         <v-card-actions><v-spacer /><v-btn color="grey" @click="leaveDialog.visible = false">Cancel</v-btn><v-btn color="error" variant="elevated" @click="leaveDialog.onConfirm">Leave</v-btn></v-card-actions>
        </v-card>
     </v-dialog>
 
     <v-dialog v-model="bossConfirmationDialog.visible" max-width="400" persistent>
        <v-card class="bg-red-darken-4 border-xl border-white rounded-lg">
-          <v-card-title class="text-center text-uppercase font-weight-bold pt-4 text-h5">
-             <v-icon start size="small">mdi-skull</v-icon> Boss Battle <v-icon end size="small">mdi-skull</v-icon>
-          </v-card-title>
-          <v-card-text class="text-center py-4 text-body-1">
+         <v-card-title class="text-center text-uppercase font-weight-bold pt-4 text-h5">
+            <v-icon start size="small">mdi-skull</v-icon> Boss Battle <v-icon end size="small">mdi-skull</v-icon>
+         </v-card-title>
+         <v-card-text class="text-center py-4 text-body-1">
              Are you prepared to face the Dragon?<br>There is no turning back.
-          </v-card-text>
-          <v-card-actions class="justify-center pb-4">
+         </v-card-text>
+         <v-card-actions class="justify-center pb-4">
              <v-btn color="white" variant="text" @click="bossConfirmationDialog.visible = false">Not Yet</v-btn>
              <v-btn color="black" class="text-red-accent-2 font-weight-bold" variant="elevated" @click="confirmBossStart">FIGHT!</v-btn>
-          </v-card-actions>
+         </v-card-actions>
        </v-card>
     </v-dialog>
 
@@ -466,7 +466,6 @@ const currentDoorInstruction = computed(() => {
 });
 
 const currentMonsters = computed(() => {
-    // IMPORTANT: Check forcedDoorInstruction first to handle "Both Open" states correctly
     const location = (forcedDoorInstruction.value || activeCampaignData.value.door || '').toUpperCase();
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     
@@ -607,7 +606,11 @@ function confirmBossStart() {
 }
 
 function confirmLeave() { leaveDialog.value = { visible: true, onConfirm: () => { campaignRemoveRef.value?.openDialog(); leaveDialog.value.visible = false; } }; }
-function openHeroCard(h: any) { heroCardDialog.value = { visible: true, hero: h }; }
+function openHeroCard(h: any) { 
+    setTimeout(() => {
+        heroCardDialog.value = { visible: true, hero: h }; 
+    }, 150);
+}
 
 function getMonsterImageSrc(m: string) {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
@@ -737,6 +740,7 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
     background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%) !important;
     border: 1px solid #1976D2;
 }
+
 .grey-tab { 
     background: rgba(40,40,40,0.95) !important;
     border: 1px solid #555;
@@ -817,6 +821,10 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .bookmark-tab.left-side:hover { transform: translateX(5px); border-left-color: #ffc107; }
 .bookmark-tab.right-side { border-right: 3px solid #d4af37; border-radius: 8px 0 0 8px; margin-right: 0; justify-content: flex-end; }
 .bookmark-tab.right-side:hover, .bookmark-tab.right-side.active { transform: translateX(-5px); border-right-color: #ffc107; }
+
+.bookmark-tab.blue-border-tab { border-left-color: #1565C0; }
+.bookmark-tab.blue-border-tab:hover { border-left-color: #42a5f5; }
+
 .text-label { text-align: center; }
 
 .monster-list-container { max-height: 150px; overflow-y: hidden; overflow-x: auto; padding-right: 4px; pointer-events: auto; }
@@ -903,7 +911,7 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   .objective-panel { padding: 2px 6px; }
   .objective-label { font-size: 0.5rem !important; }
   .objective-text { font-size: 0.7rem !important; }
-  .monster-card { width: 70px; height: 105px; } 
+  .monster-card { width: 55px; height: 82px; } 
 
   .right-tab-btn {
       width: 50px !important;
