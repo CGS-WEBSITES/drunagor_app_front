@@ -1,5 +1,4 @@
 <template>
-  <!-- MODO IMERSIVO (Apenas Underkeep 2) -->
   <template v-if="isImmersiveMode">
     <CampaignImmersiveView
       :campaign-id="campaignId"
@@ -11,7 +10,6 @@
     />
   </template>
 
-  <!-- MODO CLÁSSICO (Outras Campanhas) -->
   <template v-else>
     <v-snackbar
       v-model="snackbarVisible"
@@ -167,7 +165,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Desktop: Speed Dial (oculto em mobile/tablet) -->
     <v-speed-dial
       v-model="speedDialOpen"
       transition="fade-transition"
@@ -277,7 +274,6 @@
       </v-btn>
     </v-speed-dial>
 
-    <!-- Mobile/Tablet: Bottom Navigation (visível apenas em mobile/tablet) -->
     <v-bottom-navigation
       v-model="bottomNavValue"
       class="d-md-none mobile-bottom-nav"
@@ -430,7 +426,7 @@
                             <div
                               class="d-flex justify-start justify-sm-end align-center mb-4"
                             >
-                              <div class="mx-1 my-1= d-flex align-center">
+                              <div class="mx-1 my-1 d-flex align-center">
                                 <div class="mr-3">
                                   <div class="d-flex align-center">
                                     <span
@@ -465,7 +461,7 @@
                             </div>
                           </v-col>
                         </v-row>
-                      </v-col>
+                      </v-card-text>
                       <v-col cols="12" md="6" class="pl-md-2">
                         <CampaignRuneCards
                           v-if="isSequentialAdventure"
@@ -474,7 +470,7 @@
                           class="mb-3 shepherd-rune-cards"
                         />
                       </v-col>
-                    </v-row>
+                    </v-card>
 
                     <v-row
                       class="my-3"
@@ -533,8 +529,8 @@
                                 :is-admin="showSaveCampaignButton"
                               />
                             </v-col>
-                          </v-row>
-                        </v-col>
+                          </div>
+                        </v-sheet>
                         <v-col cols="12" md="6" class="pl-md-2">
                           <CampaignRuneCards
                             v-if="isSequentialAdventure"
@@ -543,70 +539,70 @@
                             class="mb-3 shepherd-rune-cards"
                           />
                         </v-col>
-                      </v-row>
+                      </v-col>
+                    </v-row>
 
-                      <v-row
-                        class="my-3"
-                        no-gutters
-                        v-if="showSaveCampaignButton"
-                      >
-                        <v-col cols="12">
-                          <v-card
-                            class="pa-2 shepherd-hero-actions"
-                            color="primary"
-                          >
-                            <div class="d-flex justify-center flex-wrap gap-2">
-                              <CampaignLogAddHero
-                                :campaign-id="campaignId"
-                                class="mx-1 my-1"
-                              />
-                              <CampaignLogImportHero
-                                :campaign-id="campaignId"
-                                class="mx-1 my-1"
-                              />
-                              <CampaignLogRemoveHero
-                                :campaign-id="campaignId"
-                                class="mx-1 my-1"
-                              />
-                            </div>
-                          </v-card>
-                        </v-col>
-                      </v-row>
+                    <v-row
+                      class="my-3"
+                      no-gutters
+                      v-if="showSaveCampaignButton"
+                    >
+                      <v-col cols="12">
+                        <v-card
+                          class="pa-2 shepherd-hero-actions"
+                          color="primary"
+                        >
+                          <div class="d-flex justify-center flex-wrap gap-2">
+                            <CampaignLogAddHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                            <CampaignLogImportHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                            <CampaignLogRemoveHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                          </div>
+                        </v-card>
+                      </v-col>
+                    </v-row>
 
-                      <v-row no-gutters>
-                        <v-col cols="12">
-                          <v-sheet
-                            rounded
-                            border="md"
-                            class="text-white pa-2 shepherd-heroes-list"
+                    <v-row no-gutters>
+                      <v-col cols="12">
+                        <v-sheet
+                          rounded
+                          border="md"
+                          class="text-white pa-2 shepherd-heroes-list"
+                        >
+                          <div
+                            v-if="
+                              heroStore.findAllInCampaign(campaignId).length ===
+                              0
+                            "
+                            class="text-center pa-4"
                           >
-                            <div
-                              v-if="
-                                heroStore.findAllInCampaign(campaignId).length ===
-                                0
-                              "
-                              class="text-center pa-4"
-                            >
-                              No heroes added to this campaign yet.
-                            </div>
-                            <div
-                              v-for="hero in heroStore.findAllInCampaign(
-                                campaignId,
-                              )"
-                              :key="hero.heroId"
-                              class="mb-2"
-                            >
-                              <CampaignLog
-                                :campaign-id="campaignId"
-                                :hero-id="hero.heroId"
-                                :is-sequential-adventure="isSequentialAdventure"
-                                :class="`shepherd-hero-${hero.heroId}`"
-                              />
-                            </div>
-                          </v-sheet>
-                        </v-col>
-                      </v-row>
-                    </div>
+                            No heroes added to this campaign yet.
+                          </div>
+                          <div
+                            v-for="hero in heroStore.findAllInCampaign(
+                              campaignId,
+                            )"
+                            :key="hero.heroId"
+                            class="mb-2"
+                          >
+                            <CampaignLog
+                              :campaign-id="campaignId"
+                              :hero-id="hero.heroId"
+                              :is-sequential-adventure="isSequentialAdventure"
+                              :class="`shepherd-hero-${hero.heroId}`"
+                            />
+                          </div>
+                        </v-sheet>
+                      </v-col>
+                    </v-row>
                   </v-window-item>
 
                   <v-window-item value="book">
