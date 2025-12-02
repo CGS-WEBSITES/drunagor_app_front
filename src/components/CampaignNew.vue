@@ -76,8 +76,7 @@
                 </v-card>
               </v-col>
 
-
-              <v-col cols="12" sm="6">
+              <!-- <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
                   @click="newCampaign('underkeep')"
@@ -107,8 +106,7 @@
                     contain
                   ></v-img>
                 </v-card>
-              </v-col>
-              
+              </v-col> -->
             </v-row>
           </v-container>
         </v-card-text>

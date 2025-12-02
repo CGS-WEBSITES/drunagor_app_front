@@ -2,7 +2,7 @@
   <v-app :theme="theme">
     <Toast />
 
-    <!-- Barra de Navegação Superior (Desktop - Mantido igual) -->
+    <!-- Barra de Navegação Superior -->
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
         <div
@@ -103,8 +103,7 @@
       </v-app-bar>
     </v-row>
 
-    <!-- Mobile/Tablet - Barra Padrão -->
-    <!-- ESCONDIDA se for a tela de detalhe da campanha (isCampaignDetail) -->
+    <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
     <v-row
       no-gutters
       v-else-if="
@@ -112,45 +111,42 @@
         route.name !== 'Login' &&
         route.name !== 'RetailerRegistration' &&
         route.name !== 'Gama' &&
-        route.name !== 'Community' &&
-        !isCampaignDetail
+        route.name !== 'Community'
       "
     >
       <v-app-bar app min-height="56" color="secundary" elevation="4">
-        <!-- Menu Padrão Mobile (Logo + Hamburguer) -->
-        <div class="d-flex align-center w-100">
-          <div
-            @click="$router.push({ name: 'Dashboard' })"
-            style="cursor: pointer"
-            class="d-flex align-center pl-4"
-          >
-            <v-img
-              src="@/assets/darknessl.png"
-              height="30"
-              width="30"
-              alt="Drunagor Icon"
-              contain
-              class="mr-2"
-            ></v-img>
-            <span>App Drunagor</span>
-          </div>
-
-          <v-spacer></v-spacer>
-
-          <!-- Botão Hamburguer -->
-          <v-btn icon @click="drawer = !drawer" class="mr-2">
-            <v-icon>mdi-menu</v-icon>
-          </v-btn>
+        <div
+          @click="$router.push({ name: 'Dashboard' })"
+          style="cursor: pointer"
+          class="d-flex align-center pl-4"
+        >
+          <v-img
+            src="@/assets/darknessl.png"
+            height="30"
+            width="30"
+            alt="Drunagor Icon"
+            contain
+            class="mr-2"
+          ></v-img>
+          <span>App Drunagor</span>
         </div>
+
+        <v-spacer></v-spacer>
+
+        <!-- Botão Hamburguer -->
+        <v-btn icon @click="drawer = !drawer" class="mr-2">
+          <v-icon>mdi-menu</v-icon>
+        </v-btn>
       </v-app-bar>
 
-      <!-- Navigation Drawer (Mantido igual) -->
+      <!-- Navigation Drawer -->
       <v-navigation-drawer
         v-model="drawer"
         temporary
         location="right"
         width="280"
       >
+        <!-- Header do Drawer com Avatar -->
         <v-list-item
           class="pa-4"
           :prepend-avatar="
@@ -165,6 +161,7 @@
 
         <v-divider></v-divider>
 
+        <!-- Menu Items -->
         <v-list density="compact" nav>
           <v-list-item
             v-for="(item, index) in menuItems"
@@ -212,11 +209,10 @@
       </v-navigation-drawer>
     </v-row>
 
-
     <!-- Exibe o conteúdo da rota -->
     <router-view :style="contentStyle" />
 
-    <!-- Footer Section (Mantido igual) -->
+    <!-- Footer Section -->
     <v-footer
       v-if="['Login', 'RetailerRegistration', 'Home'].includes(route.name)"
       class="footer black bg-black pb-12"
@@ -291,9 +287,6 @@ import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import themeIcon from "@/assets/theme.png";
 
-// Import necessário para o MenuItems
-import VectorIcon from "@/assets/Vector.png";
-
 const axios: any = inject("axios");
 const openLink = (url) => {
   window.open(url, "_blank");
@@ -325,6 +318,8 @@ const logOut = () => {
 };
 
 const role = computed(() => userStore.user?.roles_fk || 2);
+
+import VectorIcon from "@/assets/Vector.png";
 
 const menuItems = computed(() => {
   return [
@@ -379,20 +374,13 @@ watch(
   { immediate: true },
 );
 
-// Nova computed property para detectar tela de campanha
-const isCampaignDetail = computed(() => {
-  return route.path.includes("/campaign-tracker/campaign/") && !!route.params.id;
-});
-
 const contentStyle = computed(() => {
-  const isMobile = !display.value.mdAndUp;
-
   if (
     route.name === "Login" ||
     route.name === "RetailerRegistration" ||
     route.name === "ForgotPassword"
   ) {
-    return !isMobile
+    return display.value.mdAndUp
       ? {
           "background-image":
             "url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp')",
@@ -417,17 +405,7 @@ const contentStyle = computed(() => {
         };
   }
 
-  // Se for mobile e tela de campanha, remove a margem superior para aproveitar espaço
-  if (isMobile && isCampaignDetail.value) {
-    return {
-      "background-image":
-        "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-      "background-repeat": "repeat-y",
-      "margin-top": "0px", // Remove margem da barra
-    };
-  }
-
-  return !isMobile
+  return display.value.mdAndUp
     ? {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",

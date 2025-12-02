@@ -1,236 +1,257 @@
 import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
+import { useUserStore } from "@/store/UserStore";
+import {
+  Hero,
+  SequentialAdventureState,
+  RESOURCE_DEFINITIONS,
+} from "@/store/Hero";
+import axios from "axios";
+
+interface PlayerData {
+  rl_campaigns_users_pk: number;
+  user_name: string;
+  picture_hash: string;
+  background_hash: string;
+  party_roles_fk: number;
+  role_name: string;
+  playable_heroes_fk: number | null;
+  events_fk: number | null;
+}
+
+interface CampaignRelationData {
+  campaigns_fk: number;
+  tracker_hash: string;
+  start_date: string;
+  conclusion_percentage: number;
+  party_name: string;
+  party_role: string;
+  box: number;
+  active: boolean;
+  playable_heroes_fk: number | null;
+  events_fk: number | null;
+  rl_campaigns_users_pk?: number;
+}
 
 export class CampaignLoadFromStorage {
   private campaignStore = CampaignStore();
-  private heroStore = HeroStore();
+  private userStore = useUserStore();
 
-  loadCampaignComplete(campaignId: string): boolean {
+  async loadCampaignComplete(campaignId: string): Promise<boolean> {
     try {
-      const storageKey = `campaign_hash_${campaignId}`;
-      const hash = localStorage.getItem(storageKey);
+      this.campaignStore.clearHeroes(campaignId);
 
-      if (!hash) {
-        console.warn(`No campaign hash found for campaign ${campaignId}`);
+      const campaignLoaded = await this.loadCampaignData(campaignId);
+      const heroesLoaded = await this.loadCampaignHeroes(campaignId);
 
-        return this.loadFromLegacyHashes(campaignId);
-      }
+      this.campaignStore.findAllHeroes(campaignId).length;
 
-      const decodedData = JSON.parse(atob(hash));
-
-      if (decodedData.campaignData) {
-        if (this.campaignStore.has(campaignId)) {
-          const existingCampaign = this.campaignStore.find(campaignId);
-          Object.assign(existingCampaign, decodedData.campaignData);
-        } else {
-          this.campaignStore.add(decodedData.campaignData);
-        }
-      }
-
-      if (decodedData.heroes && Array.isArray(decodedData.heroes)) {
-        decodedData.heroes.forEach((heroData: any) => {
-          if (heroData.campaignId === campaignId) {
-            this.mergeHeroData(heroData);
-          }
-        });
-      }
-
-      return true;
-    } catch (error) {
-      console.error(`Error loading campaign ${campaignId}:`, error);
-
-      return this.loadFromLegacyHashes(campaignId);
-    }
-  }
-
-  private loadFromLegacyHashes(campaignId: string): boolean {
-    let loadedAny = false;
-
-    const oldCampaignKey = `campaign_hash_${campaignId}`;
-    const oldCampaignHash = localStorage.getItem(oldCampaignKey);
-
-    if (oldCampaignHash) {
-      try {
-        const decodedData = JSON.parse(atob(oldCampaignHash));
-
-        if (decodedData.campaignData) {
-          if (this.campaignStore.has(campaignId)) {
-            const existingCampaign = this.campaignStore.find(campaignId);
-            Object.assign(existingCampaign, decodedData.campaignData);
-          } else {
-            this.campaignStore.add(decodedData.campaignData);
-          }
-
-          loadedAny = true;
-        }
-      } catch (error) {
-        console.error("Error loading legacy campaign hash:", error);
-      }
-    }
-
-    const allHeroesKey = `heroes_hash_${campaignId}`;
-    const allHeroesHash = localStorage.getItem(allHeroesKey);
-
-    if (allHeroesHash) {
-      try {
-        const decodedData = JSON.parse(atob(allHeroesHash));
-
-        if (decodedData.heroes && Array.isArray(decodedData.heroes)) {
-          decodedData.heroes.forEach((heroData: any) => {
-            if (heroData.campaignId === campaignId) {
-              this.mergeHeroData(heroData);
-            }
-          });
-
-          loadedAny = true;
-        }
-      } catch (error) {
-        console.error("Error loading legacy heroes hash:", error);
-      }
-    }
-
-    const currentHeroes = this.heroStore.findAllInCampaign(campaignId);
-
-    currentHeroes.forEach((hero) => {
-      const individualKey = `hero_hash_${campaignId}_${hero.heroId}`;
-      const individualHash = localStorage.getItem(individualKey);
-
-      if (individualHash) {
-        try {
-          const decodedData = JSON.parse(atob(individualHash));
-
-          if (decodedData.heroes && decodedData.heroes.length > 0) {
-            this.mergeHeroData(decodedData.heroes[0]);
-            loadedAny = true;
-          }
-        } catch (error) {
-          console.error(
-            `Error loading legacy individual hero hash for ${hero.heroId}:`,
-            error,
-          );
-        }
-      }
-    });
-
-    if (loadedAny) {
-      this.migrateToUnifiedHash(campaignId);
-    }
-
-    return loadedAny;
-  }
-
-  private migrateToUnifiedHash(campaignId: string) {
-    try {
-      const campaign = this.campaignStore.find(campaignId);
-      const heroes = this.heroStore.findAllInCampaign(campaignId);
-
-      if (!campaign) {
-        console.warn(
-          `Cannot migrate - campaign ${campaignId} not found in store`,
-        );
-        return;
-      }
-
-      const unifiedData = {
-        campaignData: JSON.parse(JSON.stringify(campaign)),
-        heroes: heroes.map((h) => JSON.parse(JSON.stringify(h))),
-        savedAt: new Date().toISOString(),
-        migratedFrom: "legacy",
-      };
-
-      const unifiedHash = btoa(JSON.stringify(unifiedData));
-      const storageKey = `campaign_hash_${campaignId}`;
-      localStorage.setItem(storageKey, unifiedHash);
-
-      const oldHeroesKey = `heroes_hash_${campaignId}`;
-      localStorage.removeItem(oldHeroesKey);
-
-      heroes.forEach((hero) => {
-        const oldKey = `hero_hash_${campaignId}_${hero.heroId}`;
-        localStorage.removeItem(oldKey);
-      });
+      return campaignLoaded || heroesLoaded;
     } catch (error) {
       console.error(
-        `Error migrating campaign ${campaignId} to unified hash:`,
+        `[CampaignLoad] Error loading campaign ${campaignId}:`,
         error,
       );
+      return false;
     }
   }
 
-  private mergeHeroData(heroData: any) {
-    const { heroId, campaignId } = heroData;
+  private async loadCampaignData(campaignId: string): Promise<boolean> {
+    try {
+      const response = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: this.userStore.user.users_pk,
+          campaigns_fk: campaignId,
+        },
+      });
 
-    if (this.heroStore.hasInCampaign(heroId, campaignId)) {
-      const existingHero = this.heroStore.findInCampaign(heroId, campaignId);
+      if (response.data?.campaigns?.length > 0) {
+        const campaignData = response.data.campaigns[0] as CampaignRelationData;
 
-      if (heroData.equipment) {
-        existingHero.equipment = {
-          ...existingHero.equipment,
-          ...heroData.equipment,
-        };
+        if (campaignData.tracker_hash) {
+          const decodedData = JSON.parse(atob(campaignData.tracker_hash));
+
+          if (decodedData.campaignData) {
+            const camp = decodedData.campaignData;
+            camp.campaignId = campaignId;
+
+            camp.heroes = [];
+
+            if (this.campaignStore.has(campaignId)) {
+              const existingCampaign = this.campaignStore.find(campaignId);
+              const existingHeroes = existingCampaign.heroes || [];
+
+              Object.assign(existingCampaign, camp);
+              existingCampaign.heroes = existingHeroes;
+            } else {
+              this.campaignStore.add(camp);
+            }
+
+            return true;
+          }
+        }
       }
 
-      if (heroData.stashedCardIds) {
-        existingHero.stashedCardIds = heroData.stashedCardIds;
+      return false;
+    } catch (error) {
+      console.error(
+        `[CampaignLoad] Error loading campaign data for ${campaignId}:`,
+        error,
+      );
+      return false;
+    }
+  }
+
+  private async loadCampaignHeroes(campaignId: string): Promise<boolean> {
+    try {
+      const playersResponse = await axios.get(
+        "/rl_campaigns_users/list_players",
+        {
+          params: {
+            campaigns_fk: campaignId,
+          },
+        },
+      );
+
+      if (!playersResponse.data?.Users?.length) {
+        return false;
       }
 
-      if (heroData.skillIds) {
-        existingHero.skillIds = heroData.skillIds;
+      const players: PlayerData[] = playersResponse.data.Users;
+      let loadedCount = 0;
+
+      for (const player of players) {
+        if (player.playable_heroes_fk) {
+          try {
+            const heroLoaded = await this.loadHeroByPk(
+              player.playable_heroes_fk,
+              campaignId,
+            );
+            if (heroLoaded) {
+              loadedCount++;
+            } else {
+              console.warn(
+                `[CampaignLoad] Failed to load hero ${player.playable_heroes_fk}`,
+              );
+            }
+          } catch (error) {
+            console.error(
+              `[CampaignLoad] Error loading hero ${player.playable_heroes_fk} for player ${player.user_name}:`,
+              error,
+            );
+          }
+        } else {
+          console.log(`[CampaignLoad] Player ${player.user_name} has no hero`);
+        }
       }
 
-      if (heroData.dungeonRoleSkillCubeColors) {
-        existingHero.dungeonRoleSkillCubeColors =
-          heroData.dungeonRoleSkillCubeColors;
+      return loadedCount > 0;
+    } catch (error) {
+      console.error(
+        `[CampaignLoad] Error loading heroes for campaign ${campaignId}:`,
+        error,
+      );
+      return false;
+    }
+  }
+
+  private async loadHeroByPk(
+    playableHeroesPk: number,
+    campaignId: string,
+  ): Promise<boolean> {
+    try {
+      const response = await axios.get(`/playable_heroes/${playableHeroesPk}`);
+
+      if (response.data?.hero_hash) {
+        const heroData = this.decodeHeroHash(response.data.hero_hash);
+
+        if (heroData) {
+          heroData.campaignId = campaignId;
+          heroData.playableHeroesPk = playableHeroesPk;
+
+          this.ensureHeroResources(heroData);
+
+          this.campaignStore.addOrUpdateHero(campaignId, heroData);
+
+          return true;
+        } else {
+          console.warn(`[CampaignLoad] Failed to decode hero hash`);
+        }
+      } else {
+        console.warn(`[CampaignLoad] No hero_hash in response`);
       }
 
-      if (typeof heroData.classAbilityCount !== "undefined") {
-        existingHero.classAbilityCount = heroData.classAbilityCount;
+      return false;
+    } catch (error) {
+      console.error(
+        `[CampaignLoad] Error fetching hero ${playableHeroesPk}:`,
+        error,
+      );
+      return false;
+    }
+  }
+
+  private decodeHeroHash(heroHash: string): Hero | null {
+    try {
+      const decoded = JSON.parse(atob(heroHash));
+
+      return decoded as Hero;
+    } catch (error) {
+      console.error("[CampaignLoad] Error decoding hero hash:", error);
+      return null;
+    }
+  }
+
+  private ensureHeroResources(hero: Hero): void {
+    if (!hero.sequentialAdventureState) {
+      hero.sequentialAdventureState = new SequentialAdventureState();
+    }
+
+    if (!hero.sequentialAdventureState.resources) {
+      hero.sequentialAdventureState.resources = {};
+    }
+
+    RESOURCE_DEFINITIONS.forEach((resource) => {
+      if (hero.sequentialAdventureState!.resources[resource.id] === undefined) {
+        hero.sequentialAdventureState!.resources[resource.id] = 0;
+      }
+    });
+  }
+
+  async getUserCampaignRelationPk(campaignId: string): Promise<number | null> {
+    try {
+      const response = await axios.get("/rl_campaigns_users/list_players", {
+        params: {
+          campaigns_fk: campaignId,
+        },
+      });
+
+      if (response.data?.Users?.length) {
+        const currentUser = response.data.Users.find(
+          (u: PlayerData) => u.user_name === this.userStore.user.user_name,
+        );
+
+        if (currentUser) {
+          return currentUser.rl_campaigns_users_pk;
+        }
       }
 
-      if (heroData.sequentialAdventureState) {
-        existingHero.sequentialAdventureState =
-          heroData.sequentialAdventureState;
-      }
-
-      if (heroData.auraId !== undefined) {
-        existingHero.auraId = heroData.auraId;
-      }
-
-      if (heroData.outcomeIds) {
-        existingHero.outcomeIds = heroData.outcomeIds;
-      }
-
-      if (heroData.statusIds) {
-        existingHero.statusIds = heroData.statusIds;
-      }
-    } else {
-      this.heroStore.add(heroData);
+      return null;
+    } catch (error) {
+      console.error(
+        "[CampaignLoad] Error getting user campaign relation:",
+        error,
+      );
+      return null;
     }
   }
 
   hasCampaignHash(campaignId: string): boolean {
     const unifiedKey = `campaign_hash_${campaignId}`;
-
-    if (localStorage.getItem(unifiedKey) !== null) {
-      return true;
-    }
-
-    const heroesKey = `heroes_hash_${campaignId}`;
-    return localStorage.getItem(heroesKey) !== null;
+    return localStorage.getItem(unifiedKey) !== null;
   }
 
-
-  clearCampaignHashes(campaignId: string) {
+  clearCampaignHashes(campaignId: string): void {
     const unifiedKey = `campaign_hash_${campaignId}`;
     localStorage.removeItem(unifiedKey);
-
-    const heroesKey = `heroes_hash_${campaignId}`;
-    localStorage.removeItem(heroesKey);
-
-    const heroes = this.heroStore.findAllInCampaign(campaignId);
-    heroes.forEach((hero) => {
-      const heroKey = `hero_hash_${campaignId}_${hero.heroId}`;
-      localStorage.removeItem(heroKey);
-    });
   }
 }

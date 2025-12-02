@@ -191,23 +191,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { CampaignStore } from "@/store/CampaignStore";
 import { SequentialAdventureState, RESOURCE_DEFINITIONS } from "@/store/Hero";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
-import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
-
-const RESOURCE_DEFINITIONS = [
-  { id: "focus", translation_key: "label.focus" },
-  { id: "fruit-of-life", translation_key: "label.fruit-of-life" },
-  { id: "ki", translation_key: "label.ki" },
-  { id: "shield", translation_key: "label.shield" },
-  { id: "fury", translation_key: "label.fury" },
-];
+import HeroSavePut from "@/components/HeroSavePut.vue";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -215,7 +207,6 @@ const router = useRouter();
 const campaignStore = CampaignStore();
 const heroDataRepository = new HeroDataRepository();
 
-const savePutRef = ref();
 const heroSavePutRef = ref();
 
 const heroId = route.params.heroId.toString();
@@ -231,56 +222,6 @@ const snackbarText = ref("");
 const snackbarColor = ref("success");
 const snackbarTimeout = ref(3000);
 
-const hero = computed<HeroData>(
-  () => heroDataRepository.find(heroId) ?? ({} as HeroData),
-);
-
-const sequentialAdventureState = ref<SequentialAdventureState>(
-  initSequentialAdventureState(),
-);
-
-
-function initSequentialAdventureState(): SequentialAdventureState {
-  const campaignHero = heroStore.findInCampaign(heroId, campaignId);
-
-  if (!campaignHero) {
-    console.warn(`Hero ${heroId} not found in campaign ${campaignId}`);
-    return createDefaultState();
-  }
-
-  if (!campaignHero.sequentialAdventureState) {
-    campaignHero.sequentialAdventureState = createDefaultState();
-  }
-
-  const currentState = campaignHero.sequentialAdventureState;
-
-  if (!currentState.resources) {
-    currentState.resources = {};
-  }
-
-  if (currentState.lifepoints === undefined) {
-    currentState.lifepoints = 0;
-  }
-
-  if (currentState.curseCubes === undefined) {
-    currentState.curseCubes = 0;
-  }
-
-  if (currentState.traumaCubes === undefined) {
-    currentState.traumaCubes = 0;
-  }
-
-  if (currentState.availableCubes === undefined) {
-    currentState.availableCubes = 0;
-  }
-
-  if (currentState.usedCubes === undefined) {
-    currentState.usedCubes = 0;
-  }
-
-  RESOURCE_DEFINITIONS.forEach((resource) => {
-    if (currentState.resources[resource.id] === undefined) {
-      currentState.resources[resource.id] = 0;
 const localState = ref({
   lifepoints: 0,
   curseCubes: 0,
@@ -324,23 +265,7 @@ function syncStateToStore() {
       campaignHeroRef.value.sequentialAdventureState =
         new SequentialAdventureState();
     }
-  });
 
-  return currentState;
-}
-
-function createDefaultState(): SequentialAdventureState {
-  const state = new SequentialAdventureState();
-
-  if (!state.resources) {
-    state.resources = {};
-  }
-
-  RESOURCE_DEFINITIONS.forEach((resource) => {
-    state.resources[resource.id] = 0;
-  });
-
-  return state;
     campaignHeroRef.value.sequentialAdventureState.lifepoints =
       Number(localState.value.lifepoints) || 0;
     campaignHeroRef.value.sequentialAdventureState.curseCubes =
@@ -359,72 +284,7 @@ function createDefaultState(): SequentialAdventureState {
   }
 }
 
-const onSaveSuccess = () => {
-  snackbarText.value = "Resources saved successfully!";
-  snackbarColor.value = "success";
-  snackbarVisible.value = true;
-};
-
-const onSaveFail = () => {
-  snackbarText.value = "Failed to save resources.";
-  snackbarColor.value = "error";
-  snackbarVisible.value = true;
-};
-
 function saveAndGoBack() {
-  if (savePutRef.value && savePutRef.value.save) {
-    savePutRef.value.save().then(() => {
-      router.push({
-        name: "Campaign",
-        params: { id: campaignId },
-        query: { instructions: "open", tab: "save" },
-      });
-    });
-  } else {
-    router.push({
-      name: "Campaign",
-      params: { id: campaignId },
-      query: { instructions: "open", tab: "save" },
-    });
-  }
-}
-
-watch(
-  sequentialAdventureState,
-  (newState) => {
-    const campaignHero = heroStore.findInCampaign(heroId, campaignId);
-    if (campaignHero) {
-      campaignHero.sequentialAdventureState = newState;
-    }
-  },
-  { deep: true },
-);
-
-onMounted(() => {
-  const loader = new CampaignLoadFromStorage();
-  loader.loadCampaignComplete(campaignId);
-
-  const updatedHero = heroStore.findInCampaign(heroId, campaignId);
-
-  if (updatedHero && updatedHero.sequentialAdventureState) {
-    if (!updatedHero.sequentialAdventureState.resources) {
-      updatedHero.sequentialAdventureState.resources = {};
-    }
-
-    RESOURCE_DEFINITIONS.forEach((resource) => {
-      if (
-        updatedHero.sequentialAdventureState!.resources[resource.id] ===
-        undefined
-      ) {
-        updatedHero.sequentialAdventureState!.resources[resource.id] = 0;
-      }
-    });
-
-    sequentialAdventureState.value = updatedHero.sequentialAdventureState;
-  } else {
-    console.log(
-      `No sequential adventure state found for hero ${heroId}, using defaults`,
-    );
   syncStateToStore();
 
   if (heroSavePutRef.value && heroSavePutRef.value.save) {
