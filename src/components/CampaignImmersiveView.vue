@@ -276,7 +276,7 @@
              <v-icon start size="small">mdi-skull</v-icon> Boss Battle <v-icon end size="small">mdi-skull</v-icon>
           </v-card-title>
           <v-card-text class="text-center py-4 text-body-1">
-             Are you prepared to face the Boss?<br>There is no turning back.
+             Are you prepared to face the Dragon?<br>There is no turning back.
           </v-card-text>
           <v-card-actions class="justify-center pb-4">
              <v-btn color="white" variant="text" @click="bossConfirmationDialog.visible = false">Not Yet</v-btn>
@@ -371,10 +371,10 @@
             <v-card-text>Which door are you opening?</v-card-text>
             <v-card-actions class="justify-center flex-column gap-2">
                 <v-btn block color="purple-accent-2" variant="elevated" class="text-black font-weight-bold" @click="commitWing4Choice('DRACONIC CHAPEL')">
-                    <v-icon start>mdi-church</v-icon> DRACONIC CHAPEL
+                    <v-icon start>mdi-church</v-icon> Door 1
                 </v-btn>
                 <v-btn block color="cyan-accent-2" variant="elevated" class="text-black font-weight-bold" @click="commitWing4Choice('CRYPTS')">
-                    <v-icon start>mdi-grave-stone</v-icon> CRYPTS
+                    <v-icon start>mdi-grave-stone</v-icon> Door 2
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -418,13 +418,11 @@ const router = useRouter();
 const campaignStore = CampaignStore();
 const heroDataRepository = new HeroDataRepository();
 
-// Refs
 const savePutRef = ref<any>(null);
 const campaignRemoveRef = ref<any>(null);
 const shareCampaignRef = ref<any>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
 
-// Dialogs & UI State
 const playerListDialogVisible = ref(false);
 const addHeroDialogVisible = ref(false);
 const bookDialog = ref({ visible: false, title: 'Campaign Book' });
@@ -444,7 +442,6 @@ const showMonstersPanel = ref(true);
 const partyCode = ref<string | null>(null);
 const forcedDoorInstruction = ref<string | null>(null);
 
-// Computeds
 const enrichedHeroes = computed(() => {
   const heroes = props.heroStore.findAllInCampaign(props.campaignId) || [];
   return heroes.map((h: any) => ({ ...heroDataRepository.find(h.heroId || h.id), ...h }));
@@ -469,18 +466,34 @@ const currentDoorInstruction = computed(() => {
 });
 
 const currentMonsters = computed(() => {
-    const door = (activeCampaignData.value.door || '').toUpperCase();
-    if (!activeCampaignData.value.wing?.toUpperCase().includes("WING 3")) return [];
-    switch(door) {
-        case "FIRST SETUP": return ['archer', 'executioner'];
-        case "DUNGEON FOYER": return ['cultist', 'vampire'];
-        case "QUEEN'S HALL": return []; 
-        case "THE FORGE": return ['cultist', 'abomination'];
-        case "ARTISAN'S GALLERY": return []; 
-        case "PROVING GROUNDS": return ['archer', 'executioner'];
-        case "MAIN HALL": return ['boss']; 
-        default: return [];
+    // IMPORTANT: Check forcedDoorInstruction first to handle "Both Open" states correctly
+    const location = (forcedDoorInstruction.value || activeCampaignData.value.door || '').toUpperCase();
+    const wing = (activeCampaignData.value.wing || '').toUpperCase();
+    
+    if (wing.includes("WING 3")) {
+        switch(location) {
+            case "FIRST SETUP": return ['DarknessWraith', 'PredatorVeteran'];
+            case "DUNGEON FOYER": return ['cultist', 'vampire'];
+            case "THE FORGE": return ['HulkChampion', 'FanaticChampion'];
+            case "ARTISAN'S GALLERY": return []; 
+            case "PROVING GROUNDS": return ['MarksmanChampion', 'HeadhunterChampion', 'ComanderPlage'];
+            case "MAIN HALL": return ['ShadowArmor']; 
+            default: return [];
+        }
     }
+
+    if (wing.includes("WING 4")) {
+        switch(location) {
+            case "DRACONIC CHAPEL": return ['MarksmanChampion', 'HeadhunterChampion'];
+            case "CRYPTS": return ['FanaticChampion', 'GhoulChampion'];    
+            case "LIBRARY": return ['Hunter', 'Mauler', 'Phantom']; 
+            case "LABORATORY": return ['Hunter', 'Mauler', 'Phantom'];
+            case "DRAGON BOSS": return ['Dragon'];
+            default: return [];
+        }
+    }
+
+    return [];
 });
 
 const currentBackgroundImage = computed(() => {
@@ -495,8 +508,8 @@ const currentBackgroundImage = computed(() => {
      else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
      else if (door === 'CRYPTS') doorFile = 'first_door2'; 
      else if (door === 'BOTH OPEN') doorFile = 'second_door';
-     else if (door === 'LIBRARY') doorFile = 'third_door';
-     else if (door === 'LABORATORY') doorFile = 'fourth_door';
+     else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
+     else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
   } else {
      const doorsList = ["FIRST SETUP","DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"];
      const idx = doorsList.indexOf(door);
@@ -510,7 +523,7 @@ const isBossBattle = computed(() => {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     if (wing.includes("WING 3") && door === "MAIN HALL") return true;
-    if (wing.includes("WING 4") && door === "LABORATORY") return true;
+    if (wing.includes("WING 4") && door === "DRAGON BOSS") return true;
     return false;
 });
 
@@ -597,14 +610,15 @@ function confirmLeave() { leaveDialog.value = { visible: true, onConfirm: () => 
 function openHeroCard(h: any) { heroCardDialog.value = { visible: true, hero: h }; }
 
 function getMonsterImageSrc(m: string) {
+    const wing = (activeCampaignData.value.wing || '').toUpperCase();
+    const folder = wing.includes("WING 4") ? "wing4" : "wing3";
     try {
-        return new URL(`../assets/campaign_monsters/wing3/${m}.png`, import.meta.url).href;
+        return new URL(`../assets/campaign_monsters/${folder}/${m}.jpg`, import.meta.url).href;
     } catch {
         return '';
     }
 }
 
-// NEW: Opens the group dialog
 function openMonsterGroupDialog() { monsterGroupDialog.value.visible = true; }
 
 function onImgError(e: any) { e.target.src = '/assets/hero/avatar/default.webp'; }
@@ -665,7 +679,8 @@ function handleManualAdvance() {
         else if(currentDoor === "DRACONIC CHAPEL") commitNextDoor("BOTH OPEN", "CRYPTS");
         else if(currentDoor === "CRYPTS") commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
         else if(currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY"); 
-        else if(currentDoor === "LIBRARY") commitNextDoor("LABORATORY");
+        else if(currentDoor === "LIBRARY") commitNextDoor("DRAGON BOSS");
+        else if(currentDoor === "LABORATORY") commitNextDoor("DRAGON BOSS");
     } else {
         const list = ["FIRST SETUP","DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"];
         const idx = list.indexOf(currentDoor);
@@ -691,7 +706,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .monster-card-large { width: 120px; cursor: pointer; text-align: center; }
 .monster-card-large img { width: 100%; border-radius: 8px; border: 2px solid #444; }
 
-/* ESTILO MARCA-PÁGINA DESTACADO (BACKGROUND COLORIDO) */
 .right-tab-btn {
     width: 60px; 
     height: 50px;
@@ -713,7 +727,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
     filter: brightness(1.2);
 }
 
-/* Cores de Fundo Vibrantes (Identidade original) */
 .interaction-tab { 
     background-color: #bf529d !important;
     padding: 0; 
@@ -733,14 +746,12 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
     border: 1px solid #ff5252;
 }
 
-/* Imagem Icon */
 .tab-icon-img { 
     width: 32px; 
     height: 32px; 
     object-fit: contain; 
 }
 
-/* Restante do CSS mantido */
 .book-style-card { background-color: #eee8e0 !important; color: #212121; border: 1px solid #1e1e1e; }
 
 .narrative-text :deep(div), .narrative-text :deep(p) { 
@@ -777,7 +788,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .top-left { grid-area: 1 / 1; display: flex; flex-direction: column; }
 .top-right { grid-area: 1 / 3; display: flex; flex-direction: column; align-items: flex-end; }
 
-/* Desktop Default */
 .bottom-left { 
     grid-area: 3 / 1; 
     display: flex; 
@@ -811,7 +821,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 
 .monster-list-container { max-height: 150px; overflow-y: hidden; overflow-x: auto; padding-right: 4px; pointer-events: auto; }
 
-/* MONSTROS MAIORES */
 .monster-card { width: 90px; height: 135px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.6); overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: transform 0.2s; cursor: pointer; }
 .monster-card:hover { transform: scale(1.05); z-index: 50; border-color: #b71c1c; }
 .monster-card img { width: 100%; height: 100%; object-fit: cover; }
