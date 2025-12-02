@@ -1,71 +1,65 @@
 <template>
-  <v-btn
-    variant="elevated"
-    id="campaign-export"
-    rounded
-    @click="handleClick"
-  >
-    <v-icon start>mdi-content-save-outline</v-icon>
-    {{ t("label.save-campaign-put") }}
-  </v-btn>
+  <div></div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
-import { useI18n } from "vue-i18n";
 import axios from "axios";
+import { CampaignStore } from "@/store/CampaignStore";
 
-const props = defineProps<{ campaignId: string }>();
-const emit = defineEmits(["success", "fail", "open-save-panel"]);
+const props = defineProps<{
+  campaignId: string;
+}>();
+
+const emit = defineEmits<{
+  (e: "success"): void;
+  (e: "fail"): void;
+}>();
+
 const campaignStore = CampaignStore();
-const heroStore = HeroStore();
-const token = ref("");
-const { t } = useI18n();
 
-function compressCampaign(campaignId: string) {
-  const campaign = campaignStore.find(campaignId);
-  const campaignCopy = JSON.parse(JSON.stringify(campaign));
-  const heroes = heroStore.findAllInCampaign(campaignId);
+function generateCampaignHash(): string {
+  const campaign = campaignStore.find(props.campaignId);
+  const heroes = campaignStore.findAllHeroes(props.campaignId);
+
+  const campaignData = JSON.parse(JSON.stringify(campaign));
+  delete campaignData.heroes; 
+
+  const heroesData = heroes.map((hero) => {
+    const cleanHero = JSON.parse(JSON.stringify(hero));
+    delete cleanHero.playableHeroesPk;
+    return cleanHero;
+  });
 
   const data = {
-    campaignData: campaignCopy,
-    heroes: heroes.map((h) => {
-      const clone = JSON.parse(JSON.stringify(h));
-      return clone;
-    }),
+    campaignData,
+    heroes: heroesData,
+    savedAt: new Date().toISOString(),
   };
 
-  token.value = btoa(JSON.stringify(data));
-  return campaign.name;
+  return btoa(JSON.stringify(data));
 }
 
-async function saveCampaign() {
-  const party_name = compressCampaign(props.campaignId);
-
-  return await axios
-    .put(`campaigns/alter/${props.campaignId}`, {
-      tracker_hash: token.value,
-      party_name: party_name,
-    })
-    .then(() => {
-      emit("success");
-      return true;
-    })
-    .catch((err) => {
-      emit("fail");
-      throw err;
-    });
-}
-
-async function handleClick() {
+async function save(): Promise<void> {
   try {
-    await saveCampaign();
-    emit('open-save-panel');
+    const campaign = campaignStore.find(props.campaignId);
+    const trackerHash = generateCampaignHash();
+
+    await axios.put(`/campaigns/alter/${props.campaignId}`, {
+      tracker_hash: trackerHash,
+      party_name: campaign.name || "",
+    });
+
+    const storageKey = `campaign_hash_${props.campaignId}`;
+    localStorage.setItem(storageKey, trackerHash);
+
+    emit("success");
   } catch (error) {
+    console.error("[CampaignSavePut] Error saving campaign:", error);
+    emit("fail");
   }
 }
 
-defineExpose({ save: saveCampaign });
+defineExpose({
+  save,
+});
 </script>

@@ -299,10 +299,17 @@ function saveAndGoBack() {
 
 onMounted(async () => {
   try {
-    const loader = new CampaignLoadFromStorage();
-    await loader.loadCampaignComplete(campaignId);
+    let updatedHero = campaignStore.findHeroOptional(campaignId, heroId);
 
-    const updatedHero = campaignStore.findHeroOptional(campaignId, heroId);
+    if (!updatedHero) {
+      const loader = new CampaignLoadFromStorage();
+      await loader.loadCampaignComplete(campaignId);
+      updatedHero = campaignStore.findHeroOptional(campaignId, heroId);
+    } else {
+      console.log(
+        "[HeroSequentialStateView] Hero found in store, using existing data",
+      );
+    }
 
     if (updatedHero) {
       campaignHeroRef.value = updatedHero;

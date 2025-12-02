@@ -1,3 +1,5 @@
+import type { Hero } from "./Hero";
+
 export class Campaign {
   public campaignId: string;
   public campaign: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2";
@@ -9,7 +11,9 @@ export class Campaign {
   public followerIds: string[] = [];
   public unfoldingIds: string[] = [];
   public backgroundAndTraitIds: string[] = [];
-  public runeCardIds: number[] = []; 
+  public runeCardIds: number[] = [];
+  public hasCompanionHero: boolean = false;
+  public companionHeroStatus: string | null = null;
   public legacyTrail: {
     perseverance: number;
     tragedy: number;
@@ -23,6 +27,8 @@ export class Campaign {
   };
   public isSequentialAdventure: boolean = false;
   public sequentialAdventureRunes: number = 0;
+
+  public heroes: Hero[] = [];
 
   constructor(
     campaignId: string,

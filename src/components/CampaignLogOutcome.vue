@@ -63,11 +63,13 @@ const configurationStore = ConfigurationStore();
 const campaignStore = CampaignStore();
 
 const campaign = campaignStore.find(props.campaignId);
-const outcomeIds = ref([] as string[]);
+const outcomeIds = ref<string[]>([]);
 const isAdmin = ref(false);
 const loading = ref(true);
+const campaignHeroRef = ref<any>(null);
 
 props.repository.load(configurationStore.enabledLanguage);
+const outcomes = props.repository.findAll();
 
 const dynamicLabel = computed(() => {
   if (campaign && campaign.campaign === "underkeep") {
@@ -83,26 +85,21 @@ const dynamicHint = computed(() => {
   return t("text.outcome-info");
 });
 
-const outcomes = props.repository.findAll();
-
-outcomeIds.value =
-  heroStore.findInCampaign(props.heroId, props.campaignId).outcomeIds ?? [];
-
 const outcomeDisplayText = computed(() => {
   if (outcomeIds.value.length === 0) {
-    return t('text.no-outcomes', 'No outcomes selected');
+    return t("text.no-outcomes", "No outcomes selected");
   }
-  
+
   const activeOutcomes = findOutcomes(outcomeIds.value);
-  return activeOutcomes.map(outcome => outcome.name).join(', ');
+  return activeOutcomes.map((outcome) => outcome.name).join(", ");
 });
 
 const checkUserRole = async () => {
   try {
     const response = await axios.get("rl_campaigns_users/search", {
-      params: { 
-        users_fk: userStore.user?.users_pk, 
-        campaigns_fk: props.campaignId 
+      params: {
+        users_fk: userStore.user?.users_pk,
+        campaigns_fk: props.campaignId,
       },
     });
     isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
@@ -114,28 +111,45 @@ const checkUserRole = async () => {
   }
 };
 
-function findOutcomes(outcomeIds: string[]): Outcome[] {
-  const outcomes: Outcome[] = [];
-  outcomeIds.forEach((outcomeId) => {
-    let outcome = props.repository.find(outcomeId);
+function findOutcomes(outcomeIdsList: string[]): Outcome[] {
+  const outcomesFound: Outcome[] = [];
+  outcomeIdsList.forEach((outcomeId) => {
+    const outcome = props.repository.find(outcomeId);
     if (outcome) {
-      outcomes.push(outcome);
+      outcomesFound.push(outcome);
     }
   });
-
-  return outcomes;
+  return outcomesFound;
 }
 
-watch(outcomeIds, (newOutcomeIds) => {
-  if (isAdmin.value) {
-    heroStore.findInCampaign(props.heroId, props.campaignId).outcomeIds = newOutcomeIds;
-  } else {
-    console.log('CampaignLogOutcome - Cannot update - not admin');
-  }
-});
+watch(
+  outcomeIds,
+  (newOutcomeIds) => {
+    if (isAdmin.value && campaignHeroRef.value) {
+      campaignHeroRef.value.outcomeIds = [...newOutcomeIds];
+    }
+  },
+  { deep: true },
+);
 
 onMounted(async () => {
   await checkUserRole();
+
+  const hero = heroStore.findInCampaignOptional(props.heroId, props.campaignId);
+
+  if (hero) {
+    campaignHeroRef.value = hero;
+
+    if (!hero.outcomeIds) {
+      hero.outcomeIds = [];
+    }
+
+    outcomeIds.value = [...hero.outcomeIds];
+  } else {
+    console.warn(
+      `[CampaignLogOutcome] Hero ${props.heroId} not found in campaign ${props.campaignId}`,
+    );
+  }
 });
 </script>
 
