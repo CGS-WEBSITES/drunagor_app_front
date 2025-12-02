@@ -103,7 +103,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
-import { getSocket } from "@/composables/useSocket";
+import { getSocket } from "@/service/useSocket";
 
 const axios = inject("axios");
 const apiUrl = inject("apiUrl");

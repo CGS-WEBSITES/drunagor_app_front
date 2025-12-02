@@ -21,6 +21,7 @@
     style="display: none"
   />
 
+  <v-row no-gutters>
   <!-- Loading State -->
   <v-row v-if="!isLoaded" no-gutters>
     <v-col
@@ -151,7 +152,7 @@ import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
 import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
 import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
 import HeroSavePut from "@/components/HeroSavePut.vue";
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
 import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
@@ -160,6 +161,9 @@ import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import { HeroStore } from "@/store/HeroStore";
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 import { HeroStore } from "@/store/HeroStore";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 import type { Campaign } from "@/store/Campaign";
@@ -168,6 +172,7 @@ const route = useRoute();
 const router = useRouter();
 const heroDataRepository = new HeroDataRepository();
 const { t } = useI18n();
+const router = useRouter();
 const heroSavePutRef = ref();
 
 const heroId = route.params.heroId.toString();
@@ -183,14 +188,29 @@ const hero = ref<HeroData | null>(null);
 const campaignHeroRef = ref<any>(null);
 const repository = ref<ItemDataRepository | null>(null);
 
-const localClassAbilityCount = ref(0);
-const stash = ref(0);
+if (campaignHero) {
+  if (!campaignHero.items) {
+    campaignHero.items = [];
+  }
+  if (!campaignHero.stash) {
+    campaignHero.stash = [];
+  }
+  if (!campaignHero.skills) {
+    campaignHero.skills = {};
+  }
+  if (typeof campaignHero.classAbilityCount === "undefined") {
+    campaignHero.classAbilityCount = 0;
+  }
+}
 
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
 const snackbarColor = ref("success");
 const snackbarTimeout = ref(3000);
 
+watch(localClassAbilityCount, (newCount) => {
+  campaignHero.classAbilityCount = Number(newCount) || 0;
+});
 function getRepository(campaignType: string): ItemDataRepository {
   switch (campaignType) {
     case "core":
@@ -260,7 +280,6 @@ const onSaveSuccess = () => {
   snackbarText.value = "Equipment and skills saved successfully!";
   snackbarColor.value = "success";
   snackbarVisible.value = true;
-
   setTimeout(() => {
     navigateBack();
   }, 1000);
@@ -272,10 +291,14 @@ const onSaveFail = () => {
   snackbarVisible.value = true;
 };
 
+function saveAndGoBack() {
 function navigateBack() {
   const instructionState = getInstructionState();
   const query: any = {};
 
+  if (heroSavePutRef.value && heroSavePutRef.value.save) {
+    heroSavePutRef.value.save().then(() => {
+      const query: any = {};
   if (instructionState && instructionState.expanded) {
     query.instructions = "open";
     query.tab = instructionState.tab;
@@ -362,6 +385,16 @@ onMounted(async () => {
     snackbarVisible.value = true;
   } finally {
     isLoaded.value = true;
+  }
+}
+
+onMounted(() => {
+  const loader = new CampaignLoadFromStorage();
+  loader.loadCampaignComplete(campaignId);
+
+  const updatedHero = heroStore.findInCampaign(heroId, campaignId);
+  if (updatedHero) {
+    localClassAbilityCount.value = updatedHero.classAbilityCount || 0;
   }
 });
 </script>

@@ -1,12 +1,7 @@
 <template>
   <v-row no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
-      <v-btn
-        variant="elevated"
-        color="primary"
-        @click="saveAndGoBack"
-        :disabled="!isLoaded"
-      >
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
         {{ t("Save Changes") }}
       </v-btn>
     </v-col>
@@ -21,165 +16,218 @@
     style="display: none"
   />
 
-  <!-- Loading State -->
-  <v-row v-if="!isLoaded" no-gutters>
-    <v-col
-      cols="12"
-      class="d-flex justify-center align-center"
-      style="min-height: 400px"
-    >
-      <v-progress-circular indeterminate color="primary" size="64" />
-    </v-col>
-  </v-row>
-
-  <v-row v-else no-gutters>
+  <v-row no-gutters>
     <v-col cols="12" class="d-flex align-center justify-center">
       <v-card
         elevation="16"
         rounded
         style="background-color: #1f2937"
         width="800px"
-        class="hero-list-item rounded-t-xl"
+        class="sequential-state-card rounded-t-xl"
       >
-        <v-img :src="hero?.images?.trackerInfo" class="rounded-0" contain />
+        <v-img :src="hero.images.trackerInfo" class="rounded-0" contain />
 
-        <v-card-text>
-          <v-row no-gutters class="px-6">
-            <v-col cols="12" class="py-4">
-              <v-number-input
-                v-model="localState.lifepoints"
-                :label="t('label.lifepoints', 'Life Points')"
-                :min="0"
-                :max="99"
-                variant="outlined"
-                controlVariant="split"
-              >
-                <template #prepend-inner>
-                  <v-icon color="red-lighten-2">mdi-heart</v-icon>
-                </template>
-              </v-number-input>
-            </v-col>
+        <v-card-actions>
+          <v-row no-gutters class="px-6 py-4">
+            <v-col cols="12">
+              <div class="text-center text-h5 mb-4">
+                {{ t("Manage Resources") }}
+              </div>
 
-            <v-col cols="12" class="py-3">
-              <v-number-input
-                v-model="localState.curseCubes"
-                :label="t('text.curse-cubes')"
-                :min="0"
-                :max="5"
-                variant="outlined"
-                controlVariant="split"
-              >
-                <template #prepend-inner>
-                  <v-icon color="grey-darken-1">mdi-cube</v-icon>
-                </template>
-              </v-number-input>
-            </v-col>
+              <!-- Life Points -->
+              <v-row no-gutters class="mb-4">
+                <v-col cols="12">
+                  <v-sheet
+                    rounded
+                    border="md"
+                    class="pa-4 text-white"
+                    style="background-color: #374151 !important"
+                  >
+                    <div class="text-subtitle-1 mb-2 d-flex align-center">
+                      <v-icon start>mdi-heart</v-icon>
+                      {{ t("label.lifepoints", "Life Points") }}
+                    </div>
+                    <v-text-field
+                      v-model.number="localState.lifepoints"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                    />
+                  </v-sheet>
+                </v-col>
+              </v-row>
 
-            <v-col cols="12" class="py-3">
-              <v-number-input
-                v-model="localState.traumaCubes"
-                :label="t('text.trauma-cubes')"
-                :min="0"
-                :max="1"
-                variant="outlined"
-                controlVariant="split"
-              >
-                <template #prepend-inner>
-                  <v-icon color="purple-lighten-2">mdi-cube</v-icon>
-                </template>
-              </v-number-input>
-            </v-col>
+              <!-- Curse and Trauma Cubes -->
+              <v-row no-gutters class="mb-4">
+                <v-col cols="6" class="pr-2">
+                  <v-sheet
+                    rounded
+                    border="md"
+                    class="pa-4 text-white"
+                    style="background-color: #374151 !important"
+                  >
+                    <div class="text-subtitle-1 mb-2 d-flex align-center">
+                      <v-icon color="black" start>mdi-cube</v-icon>
+                      {{ t("text.curse-cubes") }}
+                    </div>
+                    <v-text-field
+                      v-model.number="localState.curseCubes"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                    />
+                  </v-sheet>
+                </v-col>
+                <v-col cols="6" class="pl-2">
+                  <v-sheet
+                    rounded
+                    border="md"
+                    class="pa-4 text-white"
+                    style="background-color: #374151 !important"
+                  >
+                    <div class="text-subtitle-1 mb-2 d-flex align-center">
+                      <v-icon color="purple-lighten-2" start>mdi-cube</v-icon>
+                      {{ t("text.trauma-cubes") }}
+                    </div>
+                    <v-text-field
+                      v-model.number="localState.traumaCubes"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                    />
+                  </v-sheet>
+                </v-col>
+              </v-row>
 
-            <v-col cols="12" class="py-3">
-              <v-number-input
-                v-model="localState.availableCubes"
-                label="Available Cubes"
-                :min="0"
-                :max="20"
-                variant="outlined"
-                controlVariant="split"
-              >
-                <template #prepend-inner>
-                  <div class="d-flex align-center mr-2">
-                    <v-icon size="x-small" color="yellow-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                    <v-icon size="x-small" color="red-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                    <v-icon size="x-small" color="green-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                    <v-icon size="x-small" color="blue-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                  </div>
-                </template>
-              </v-number-input>
-            </v-col>
+              <!-- Available and Used Cubes -->
+              <v-row no-gutters class="mb-4">
+                <v-col cols="6" class="pr-2">
+                  <v-sheet
+                    rounded
+                    border="md"
+                    class="pa-4 text-white"
+                    style="background-color: #374151 !important"
+                  >
+                    <div class="text-subtitle-1 mb-2 d-flex align-center">
+                      <div class="ml-2">
+                        <v-icon size="x-small" color="yellow-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="red-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="green-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="blue-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                      </div>
+                      {{ t("Available Cubes") }}
+                    </div>
+                    <v-text-field
+                      v-model.number="localState.availableCubes"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                    />
+                  </v-sheet>
+                </v-col>
+                <v-col cols="6" class="pl-2">
+                  <v-sheet
+                    rounded
+                    border="md"
+                    class="pa-4 text-white"
+                    style="background-color: #374151 !important"
+                  >
+                    <div class="text-subtitle-1 mb-2 d-flex align-center">
+                      <div class="ml-2 faded-cubes">
+                        <v-icon size="x-small" color="yellow-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="red-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="green-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                        <v-icon size="x-small" color="blue-darken-2"
+                          >mdi-cube</v-icon
+                        >
+                      </div>
+                      {{ t("Used Cubes") }}
+                    </div>
+                    <v-text-field
+                      v-model.number="localState.usedCubes"
+                      type="number"
+                      variant="outlined"
+                      density="compact"
+                      hide-details
+                    />
+                  </v-sheet>
+                </v-col>
+              </v-row>
 
-            <v-col cols="12" class="py-3">
-              <v-number-input
-                v-model="localState.usedCubes"
-                label="Used Cubes"
-                :min="0"
-                :max="20"
-                variant="outlined"
-                controlVariant="split"
-              >
-                <template #prepend-inner>
-                  <div class="faded-cubes d-flex align-center mr-2">
-                    <v-icon size="x-small" color="yellow-darken-2"
-                      >mdi-cube</v-icon
+              <!-- Resources -->
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-sheet
+                    rounded
+                    border="md"
+                    class="pa-4 text-white"
+                    style="background-color: #374151 !important"
+                  >
+                    <div class="text-subtitle-1 mb-3">
+                      {{ t("label.resources") }}
+                    </div>
+                    <v-row
+                      v-for="(value, key) in localState.resources"
+                      :key="key"
+                      no-gutters
+                      class="mb-2"
                     >
-                    <v-icon size="x-small" color="red-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                    <v-icon size="x-small" color="green-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                    <v-icon size="x-small" color="blue-darken-2"
-                      >mdi-cube</v-icon
-                    >
-                  </div>
-                </template>
-              </v-number-input>
-            </v-col>
-
-            <v-col cols="12"><v-divider class="my-4" /></v-col>
-            <v-col cols="12" class="pb-4 text-center text-h5">
-              {{ t("label.resources") }}
-            </v-col>
-
-            <v-col
-              cols="12"
-              v-for="resource in RESOURCE_DEFINITIONS"
-              :key="resource.id"
-            >
-              <v-number-input
-                v-model="localState.resources[resource.id]"
-                :label="t(resource.translation_key)"
-                :min="0"
-                :max="4"
-                variant="outlined"
-                controlVariant="split"
-                class="mb-4"
-              />
+                      <v-col cols="12">
+                        <div class="d-flex align-items-center">
+                          <span
+                            class="text-body-2 mr-3"
+                            style="min-width: 150px"
+                          >
+                            {{ t(key) }}
+                          </span>
+                          <v-text-field
+                            v-model.number="localState.resources[key]"
+                            type="number"
+                            variant="outlined"
+                            density="compact"
+                            hide-details
+                            style="max-width: 120px"
+                          />
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-sheet>
+                </v-col>
+              </v-row>
             </v-col>
           </v-row>
-        </v-card-text>
+        </v-card-actions>
       </v-card>
     </v-col>
   </v-row>
 
-  <v-row v-if="isLoaded" no-gutters class="pt-6">
-    <v-col cols="12" class="d-flex justify-center pb-4">
+  <v-row no-gutters class="pt-6 pb-6">
+    <v-col cols="12" class="d-flex justify-center">
       <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
         {{ t("Save Changes") }}
       </v-btn>
     </v-col>
   </v-row>
 
+  <!-- Snackbar para feedback -->
   <v-snackbar
     v-model="snackbarVisible"
     :timeout="snackbarTimeout"
@@ -191,58 +239,130 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { CampaignStore } from "@/store/CampaignStore";
-import { SequentialAdventureState, RESOURCE_DEFINITIONS } from "@/store/Hero";
+import HeroSavePut from "@/components/HeroSavePut.vue";
+import { HeroStore } from "@/store/HeroStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
+import { SequentialAdventureState } from "@/store/Hero";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
-import HeroSavePut from "@/components/HeroSavePut.vue";
 
-const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const campaignStore = CampaignStore();
-const heroDataRepository = new HeroDataRepository();
-
+const { t } = useI18n();
 const heroSavePutRef = ref();
 
 const heroId = route.params.heroId.toString();
 const campaignId = route.params.campaignId.toString();
 
-const isLoaded = ref(false);
+const heroStore = HeroStore();
+const heroDataRepository = new HeroDataRepository();
+const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
+const campaignHero = heroStore.findInCampaign(heroId, campaignId);
 
-const hero = ref<HeroData | null>(null);
-const campaignHeroRef = ref<any>(null);
+if (!campaignHero.sequentialAdventureState) {
+  campaignHero.sequentialAdventureState = new SequentialAdventureState();
+}
+
+const localState = ref({
+  lifepoints: campaignHero.sequentialAdventureState.lifepoints,
+  curseCubes: campaignHero.sequentialAdventureState.curseCubes,
+  traumaCubes: campaignHero.sequentialAdventureState.traumaCubes,
+  availableCubes: campaignHero.sequentialAdventureState.availableCubes,
+  usedCubes: campaignHero.sequentialAdventureState.usedCubes,
+  resources: { ...campaignHero.sequentialAdventureState.resources },
+});
 
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
 const snackbarColor = ref("success");
 const snackbarTimeout = ref(3000);
 
-const localState = ref({
-  lifepoints: 0,
-  curseCubes: 0,
-  traumaCubes: 0,
-  availableCubes: 0,
-  usedCubes: 0,
-  resources: {} as Record<string, number>,
-});
+watch(
+  () => localState.value.lifepoints,
+  (newVal) => {
+    campaignHero.sequentialAdventureState!.lifepoints = Number(newVal) || 0;
+  },
+);
 
-RESOURCE_DEFINITIONS.forEach((resource) => {
-  localState.value.resources[resource.id] = 0;
-});
+watch(
+  () => localState.value.curseCubes,
+  (newVal) => {
+    campaignHero.sequentialAdventureState!.curseCubes = Number(newVal) || 0;
+  },
+);
+
+watch(
+  () => localState.value.traumaCubes,
+  (newVal) => {
+    campaignHero.sequentialAdventureState!.traumaCubes = Number(newVal) || 0;
+  },
+);
+
+watch(
+  () => localState.value.availableCubes,
+  (newVal) => {
+    campaignHero.sequentialAdventureState!.availableCubes = Number(newVal) || 0;
+  },
+);
+
+watch(
+  () => localState.value.usedCubes,
+  (newVal) => {
+    campaignHero.sequentialAdventureState!.usedCubes = Number(newVal) || 0;
+  },
+);
+
+watch(
+  () => localState.value.resources,
+  (newVal) => {
+    campaignHero.sequentialAdventureState!.resources = { ...newVal };
+  },
+  { deep: true },
+);
+
+const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
+const getInstructionStepKey = (tab: string) =>
+  `campaign_${campaignId}_instruction_step_${tab}`;
+
+const getInstructionState = () => {
+  if (typeof window !== "undefined") {
+    try {
+      const stateStr = localStorage.getItem(getInstructionStateKey());
+
+      if (stateStr) {
+        const state = JSON.parse(stateStr);
+        const now = Date.now();
+        const thirtyMinutes = 30 * 60 * 1000;
+
+        if (now - state.timestamp < thirtyMinutes) {
+          const stepStr = localStorage.getItem(
+            getInstructionStepKey(state.tab),
+          );
+          return {
+            expanded: state.expanded,
+            tab: state.tab,
+            step: stepStr ? parseInt(stepStr) : undefined,
+          };
+        } else {
+          localStorage.removeItem(getInstructionStateKey());
+          localStorage.removeItem(getInstructionStepKey("load"));
+          localStorage.removeItem(getInstructionStepKey("save"));
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao obter estado das instruções:", error);
+    }
+  }
+  return null;
+};
 
 const onSaveSuccess = () => {
   snackbarText.value = "Resources saved successfully!";
   snackbarColor.value = "success";
   snackbarVisible.value = true;
-
-  setTimeout(() => {
-    navigateBack();
-  }, 1000);
 };
 
 const onSaveFail = () => {
@@ -251,120 +371,70 @@ const onSaveFail = () => {
   snackbarVisible.value = true;
 };
 
-function navigateBack() {
-  router.push({
-    name: "Campaign",
-    params: { id: campaignId },
-    query: { instructions: "open", tab: "save" },
-  });
-}
-
-function syncStateToStore() {
-  if (campaignHeroRef.value) {
-    if (!campaignHeroRef.value.sequentialAdventureState) {
-      campaignHeroRef.value.sequentialAdventureState =
-        new SequentialAdventureState();
-    }
-
-    campaignHeroRef.value.sequentialAdventureState.lifepoints =
-      Number(localState.value.lifepoints) || 0;
-    campaignHeroRef.value.sequentialAdventureState.curseCubes =
-      Number(localState.value.curseCubes) || 0;
-    campaignHeroRef.value.sequentialAdventureState.traumaCubes =
-      Number(localState.value.traumaCubes) || 0;
-    campaignHeroRef.value.sequentialAdventureState.availableCubes =
-      Number(localState.value.availableCubes) || 0;
-    campaignHeroRef.value.sequentialAdventureState.usedCubes =
-      Number(localState.value.usedCubes) || 0;
-
-    Object.keys(localState.value.resources).forEach((key) => {
-      campaignHeroRef.value.sequentialAdventureState.resources[key] =
-        Number(localState.value.resources[key]) || 0;
-    });
-  }
-}
-
 function saveAndGoBack() {
-  syncStateToStore();
+  const instructionState = getInstructionState();
 
   if (heroSavePutRef.value && heroSavePutRef.value.save) {
-    heroSavePutRef.value.save().catch((error: any) => {
-      console.error("Error saving:", error);
-      onSaveFail();
+    heroSavePutRef.value.save().then(() => {
+      const query: any = {};
+
+      if (instructionState && instructionState.expanded) {
+        query.instructions = "open";
+        query.tab = instructionState.tab;
+      }
+
+      router.push({
+        name: "Campaign",
+        params: { id: campaignId },
+        query: query,
+      });
     });
   } else {
-    navigateBack();
+    const query: any = {};
+
+    if (instructionState && instructionState.expanded) {
+      query.instructions = "open";
+      query.tab = instructionState.tab;
+    }
+
+    router.push({
+      name: "Campaign",
+      params: { id: campaignId },
+      query: query,
+    });
   }
 }
 
-onMounted(async () => {
-  try {
-    let updatedHero = campaignStore.findHeroOptional(campaignId, heroId);
+onMounted(() => {
+  const loader = new CampaignLoadFromStorage();
+  loader.loadCampaignComplete(campaignId);
 
-    if (!updatedHero) {
-      const loader = new CampaignLoadFromStorage();
-      await loader.loadCampaignComplete(campaignId);
-      updatedHero = campaignStore.findHeroOptional(campaignId, heroId);
-    } else {
-      console.log(
-        "[HeroSequentialStateView] Hero found in store, using existing data",
-      );
-    }
+  const updatedHero = heroStore.findInCampaign(heroId, campaignId);
 
-    if (updatedHero) {
-      campaignHeroRef.value = updatedHero;
-
-      if (!updatedHero.sequentialAdventureState) {
-        updatedHero.sequentialAdventureState = new SequentialAdventureState();
-      }
-
-      if (!updatedHero.sequentialAdventureState.resources) {
-        updatedHero.sequentialAdventureState.resources = {};
-      }
-
-      RESOURCE_DEFINITIONS.forEach((resource) => {
-        if (
-          updatedHero.sequentialAdventureState!.resources[resource.id] ===
-          undefined
-        ) {
-          updatedHero.sequentialAdventureState!.resources[resource.id] = 0;
-        }
-      });
-
-      localState.value = {
-        lifepoints: updatedHero.sequentialAdventureState.lifepoints || 0,
-        curseCubes: updatedHero.sequentialAdventureState.curseCubes || 0,
-        traumaCubes: updatedHero.sequentialAdventureState.traumaCubes || 0,
-        availableCubes:
-          updatedHero.sequentialAdventureState.availableCubes || 0,
-        usedCubes: updatedHero.sequentialAdventureState.usedCubes || 0,
-        resources: { ...updatedHero.sequentialAdventureState.resources },
-      };
-
-      hero.value = heroDataRepository.find(heroId) ?? null;
-    } else {
-      console.error(`Hero ${heroId} not found in campaign ${campaignId}`);
-
-      campaignStore.findAllHeroes(campaignId);
-
-      snackbarText.value = "Hero not found in this campaign.";
-      snackbarColor.value = "error";
-      snackbarVisible.value = true;
-    }
-  } catch (error) {
-    console.error("Error loading hero data:", error);
-    snackbarText.value = "Error loading hero data.";
-    snackbarColor.value = "error";
-    snackbarVisible.value = true;
-  } finally {
-    isLoaded.value = true;
+  if (updatedHero && updatedHero.sequentialAdventureState) {
+    localState.value = {
+      lifepoints: updatedHero.sequentialAdventureState.lifepoints,
+      curseCubes: updatedHero.sequentialAdventureState.curseCubes,
+      traumaCubes: updatedHero.sequentialAdventureState.traumaCubes,
+      availableCubes: updatedHero.sequentialAdventureState.availableCubes,
+      usedCubes: updatedHero.sequentialAdventureState.usedCubes,
+      resources: { ...updatedHero.sequentialAdventureState.resources },
+    };
   }
 });
 </script>
 
 <style scoped>
+.sequential-state-card {
+  background-color: #1f2937;
+}
+
 .faded-cubes {
-  opacity: 0.5;
-  filter: grayscale(50%);
+  opacity: 0.6;
+  filter: grayscale(40%);
+}
+
+:deep(.v-field__input) {
+  text-align: center;
 }
 </style>
