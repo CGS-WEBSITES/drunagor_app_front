@@ -265,6 +265,7 @@ function syncStateToStore() {
       campaignHeroRef.value.sequentialAdventureState =
         new SequentialAdventureState();
     }
+  });
 
     campaignHeroRef.value.sequentialAdventureState.lifepoints =
       Number(localState.value.lifepoints) || 0;
@@ -283,6 +284,18 @@ function syncStateToStore() {
     });
   }
 }
+
+const onSaveSuccess = () => {
+  snackbarText.value = "Resources saved successfully!";
+  snackbarColor.value = "success";
+  snackbarVisible.value = true;
+};
+
+const onSaveFail = () => {
+  snackbarText.value = "Failed to save resources.";
+  snackbarColor.value = "error";
+  snackbarVisible.value = true;
+};
 
 function saveAndGoBack() {
   syncStateToStore();
