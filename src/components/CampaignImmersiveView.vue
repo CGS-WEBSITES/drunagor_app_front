@@ -472,8 +472,8 @@ const currentMonsters = computed(() => {
     
     if (wing.includes("WING 3")) {
         switch(location) {
-            case "FIRST SETUP": return ['DarknessWraith', 'PredatorVeteran'];
-            case "DUNGEON FOYER": return ['cultist', 'vampire'];
+            case "FIRST SETUP": return ['MarksmanChampion', 'CryptGuardian'];
+            case "DUNGEON FOYER": return ['DarknessWraith', 'PredatorVeteran'];
             case "THE FORGE": return ['HulkChampion', 'FanaticChampion'];
             case "ARTISAN'S GALLERY": return []; 
             case "PROVING GROUNDS": return ['MarksmanChampion', 'HeadhunterChampion', 'ComanderPlage'];
