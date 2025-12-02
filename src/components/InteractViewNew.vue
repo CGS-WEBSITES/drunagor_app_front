@@ -72,7 +72,7 @@
                     cover 
                     class="rounded-lg mb-4 mx-auto"
                     style="border: 1px solid #444; max-width: 600px;"
-                 ></v-img>
+                  ></v-img>
                  
                  <h2 class="text-h4 font-cinzel text-white mb-4">{{ currentConfig.title }}</h2>
                  
@@ -235,10 +235,12 @@ const availableCameras = ref<MediaDeviceInfo[]>([]);
 const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 const showCameraDeniedDialog = ref(false);
+const isMounted = ref(false); // Flag de segurança
 let activeStream: MediaStream | null = null;
 
 // === LIFECYCLE ===
 onMounted(() => {
+    isMounted.value = true;
     const configs: Record<string, any> = {};
     for (const key in rawInteractionConfigsData as any) {
         const raw = (rawInteractionConfigsData as any)[key];
@@ -250,21 +252,26 @@ onMounted(() => {
     }
     interactionConfigs.value = configs;
 
-    // Iniciar Scanner
-    startScanner();
+    // Iniciar Scanner somente se não estiver visualizando uma interação
+    if (!interactionStageActive.value) {
+        startScanner();
+    }
 });
 
 onBeforeUnmount(() => {
+    isMounted.value = false;
     stopCamera();
 });
 
 // === LÓGICA DO SCANNER ===
 const stopCamera = () => {
   codeReader.reset();
+  
   if (activeStream) {
     activeStream.getTracks().forEach(track => track.stop());
     activeStream = null;
   }
+  
   const videoElement = document.getElementById('interact-qr-video') as HTMLVideoElement;
   if (videoElement && videoElement.srcObject) {
     const stream = videoElement.srcObject as MediaStream;
@@ -274,9 +281,15 @@ const stopCamera = () => {
 };
 
 const startScanner = async () => {
+  // Se já tem configuração ativa (user lendo texto), não liga camera
+  if (interactionStageActive.value) return;
+  
   try {
     stopCamera();
     await nextTick();
+    
+    if (!isMounted.value) return;
+
     const videoElement = document.getElementById('interact-qr-video') as HTMLVideoElement;
     if (!videoElement) return; 
 
@@ -289,7 +302,13 @@ const startScanner = async () => {
     currentCameraIndex.value = rearIndex >= 0 ? rearIndex : devices.length - 1;
     const deviceId = devices[currentCameraIndex.value].deviceId;
 
+    if (!isMounted.value) return;
+
     await codeReader.decodeFromVideoDevice(deviceId, videoElement, (result) => {
+        if (!isMounted.value) {
+            stopCamera();
+            return;
+        }
         if (result) {
             const text = result.getText().trim();
             // Lógica simples de parse
@@ -299,9 +318,15 @@ const startScanner = async () => {
     });
 
     if (videoElement.srcObject) activeStream = videoElement.srcObject as MediaStream;
+    
+    // Segurança final
+    if (!isMounted.value) stopCamera();
+
   } catch (e) {
     console.error("Scanner error", e);
-    showCameraDeniedDialog.value = true;
+    if (isMounted.value && !interactionStageActive.value) {
+        showCameraDeniedDialog.value = true;
+    }
   }
 };
 
@@ -357,21 +382,16 @@ const interactionChoices = computed(() => {
   return currentConfig.value.items.filter((i:any) => i.type === "choice");
 });
 
-// --- FUNÇÃO DE SELEÇÃO ROBUSTA (Baseada no loadInteractionById do componente antigo) ---
 function selectInteraction(idOrKey: string) {
     let foundConfig = null;
     const target = idOrKey.trim();
 
-    // 1. Tenta encontrar a config pela Chave (rápido)
     if (interactionConfigs.value[target]) {
         foundConfig = interactionConfigs.value[target];
     } 
     else {
-        // 2. Tenta encontrar varrendo as configs (ID interno, chave insensível ou nome de importação)
         for (const key in interactionConfigs.value) {
             const config = interactionConfigs.value[key];
-            
-            // Verifica ID interno OU Chave OU itemsImportName (para resolver 'InteractionTheRunic')
             if (
                 config.id === target || 
                 key === target ||
@@ -385,7 +405,7 @@ function selectInteraction(idOrKey: string) {
     }
 
     if(foundConfig) {
-        stopCamera();
+        stopCamera(); // Importante: para a câmera ao entrar no modo leitura
         currentConfig.value = foundConfig;
         activeInteractionId.value = target;
         interactionStage.value = 'titles';
@@ -408,7 +428,10 @@ function closeInteraction() {
     activeInteractionId.value = null;
     currentConfig.value = null;
     currentItem.value = null;
-    nextTick(() => startScanner()); // Reativa câmera
+    // Só reativa a câmera se o componente ainda estiver montado
+    if (isMounted.value) {
+        nextTick(() => startScanner());
+    }
 }
 
 function executeAction(action: any) {
@@ -501,13 +524,13 @@ function executeAction(action: any) {
   color: #e0e0e0;
 }
 
-/* BUTTON STYLES (CORRIGIDO PARA WRAPPING E 2 POR LINHA) */
+/* BUTTON STYLES */
 .choice-btn {
     text-transform: none !important;
     font-size: 1rem !important;
     white-space: normal !important;
     height: auto !important;
-    min-height: 72px !important; /* Altura mínima confortável */
+    min-height: 72px !important; 
     padding: 16px !important;
     display: flex;
     align-items: center;
@@ -531,7 +554,6 @@ function executeAction(action: any) {
     padding: 12px !important;
 }
 
-/* Mobile Adjustment */
 @media (max-width: 960px) {
     .border-r { border-right: none !important; border-bottom: 1px solid #333; }
     .scanner-col, .list-col { min-height: auto; }

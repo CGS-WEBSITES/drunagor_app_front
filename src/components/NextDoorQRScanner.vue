@@ -74,14 +74,20 @@ const availableCameras = ref<MediaDeviceInfo[]>([]);
 const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 const showCameraDeniedDialog = ref(false);
+const isMounted = ref(false); // Controle de montagem
 let activeStream: MediaStream | null = null;
 
 const stopCamera = () => {
+  // 1. Reseta o leitor do ZXing
   codeReader.reset();
+
+  // 2. Para o stream salvo na variável
   if (activeStream) {
     activeStream.getTracks().forEach(track => track.stop());
     activeStream = null;
   }
+
+  // 3. Força a parada do stream no elemento de vídeo (caso tenha ficado orfão)
   const videoElement = document.getElementById('nd-qr-video') as HTMLVideoElement;
   if (videoElement && videoElement.srcObject) {
     const stream = videoElement.srcObject as MediaStream;
@@ -94,6 +100,10 @@ const startScanner = async () => {
   try {
     stopCamera();
     await nextTick();
+    
+    // Se o componente desmontou enquanto esperava o nextTick, aborta
+    if (!isMounted.value) return;
+
     const videoElement = document.getElementById('nd-qr-video') as HTMLVideoElement;
     if (!videoElement) return;
 
@@ -108,7 +118,15 @@ const startScanner = async () => {
 
     const deviceId = devices[currentCameraIndex.value].deviceId;
 
+    // Se desmontou antes de pedir a câmera, aborta
+    if (!isMounted.value) return;
+
     await codeReader.decodeFromVideoDevice(deviceId, videoElement, (result) => {
+      // Verificação extra de segurança dentro do callback
+      if (!isMounted.value) {
+        stopCamera();
+        return;
+      }
       if (result) {
         const text = result.getText().trim();
         if (text) {
@@ -118,12 +136,22 @@ const startScanner = async () => {
       }
     });
 
+    // Captura o stream ativo imediatamente
     if (videoElement.srcObject) {
       activeStream = videoElement.srcObject as MediaStream;
     }
+
+    // Se por acaso o componente foi desmontado durante o processo de decode
+    if (!isMounted.value) {
+      stopCamera();
+    }
+
   } catch (e) {
     console.error("Scanner error", e);
-    showCameraDeniedDialog.value = true;
+    // Só mostra erro se o componente ainda estiver na tela
+    if (isMounted.value) {
+      showCameraDeniedDialog.value = true;
+    }
   }
 };
 
@@ -134,8 +162,15 @@ const switchCamera = () => {
   nextTick(() => startScanner());
 };
 
-onMounted(() => { startScanner(); });
-onBeforeUnmount(() => { stopCamera(); });
+onMounted(() => { 
+  isMounted.value = true;
+  startScanner(); 
+});
+
+onBeforeUnmount(() => { 
+  isMounted.value = false;
+  stopCamera(); 
+});
 </script>
 
 <style scoped>
@@ -159,7 +194,6 @@ onBeforeUnmount(() => { stopCamera(); });
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
 
-/* No mobile, diminui um pouco o video pra sobrar espaço pro botão */
 @media (max-width: 600px) {
   .video-wrapper {
     max-width: 240px; 
