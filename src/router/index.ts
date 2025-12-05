@@ -231,7 +231,7 @@ const router = createRouter({
         },
         {
           path: "/profile/store-settings",
-          name: "logout",
+          name: "stores",
           component: () =>
             import("@/components/StoreSettings.vue"),
           beforeEnter(to, from, next) {
