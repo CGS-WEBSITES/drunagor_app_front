@@ -13,16 +13,6 @@
     </v-col>
   </v-row>
 
-  <HeroSavePut
-    ref="heroSavePutRef"
-    :campaign-id="campaignId"
-    :hero-id="heroId"
-    @success="onSaveSuccess"
-    @fail="onSaveFail"
-    style="display: none"
-  />
-
-  <!-- Loading State -->
   <v-row v-if="!isLoaded" no-gutters>
     <v-col
       cols="12"
@@ -180,12 +170,7 @@
 
   <v-row v-if="isLoaded" no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
-      <v-btn
-        variant="elevated"
-        color="primary"
-        @click="saveAndGoBack"
-        :loading="isSaving"
-      >
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
         {{ t("Save Changes") }}
       </v-btn>
     </v-col>
@@ -205,29 +190,25 @@
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { CampaignStore } from "@/store/CampaignStore";
-import { HeroStore } from "@/store/HeroStore";
+import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
+import { useUserStore } from "@/store/UserStore";
 import { SequentialAdventureState, RESOURCE_DEFINITIONS } from "@/store/Hero";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
-import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
-import HeroSavePut from "@/components/HeroSavePut.vue";
 
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const campaignStore = CampaignStore();
-const heroStore = HeroStore();
+const playableHeroStore = usePlayableHeroStore();
+const userStore = useUserStore();
 const heroDataRepository = new HeroDataRepository();
 
-const heroId = route.params.heroId.toString();
-const campaignId = route.params.campaignId.toString();
+const heroIdParam = route.params.heroId.toString();
+const playableHeroesPk = parseInt(heroIdParam, 10);
 
-const heroSavePutRef = ref();
 const isLoaded = ref(false);
 const isSaving = ref(false);
 const heroStaticData = ref<HeroData | null>(null);
-const campaignHeroRef = ref<any>(null);
 
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
@@ -243,7 +224,6 @@ const localState = ref({
   resources: {} as Record<string, number>,
 });
 
-// Initialize resources
 RESOURCE_DEFINITIONS.forEach((resource) => {
   localState.value.resources[resource.id] = 0;
 });
@@ -254,164 +234,94 @@ function showSnackbar(text: string, color: string = "success") {
   snackbarVisible.value = true;
 }
 
-const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
-const getInstructionStepKey = (tab: string) =>
-  `campaign_${campaignId}_instruction_step_${tab}`;
-
-const getInstructionState = () => {
-  if (typeof window !== "undefined") {
-    try {
-      const stateStr = localStorage.getItem(getInstructionStateKey());
-
-      if (stateStr) {
-        const state = JSON.parse(stateStr);
-        const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000;
-
-        if (now - state.timestamp < thirtyMinutes) {
-          const stepStr = localStorage.getItem(
-            getInstructionStepKey(state.tab),
-          );
-          return {
-            expanded: state.expanded,
-            tab: state.tab,
-            step: stepStr ? parseInt(stepStr) : undefined,
-          };
-        } else {
-          localStorage.removeItem(getInstructionStateKey());
-          localStorage.removeItem(getInstructionStepKey("load"));
-          localStorage.removeItem(getInstructionStepKey("save"));
-        }
-      }
-    } catch (error) {
-      console.error("Erro ao obter estado das instruções:", error);
-    }
-  }
-  return null;
-};
-
 function navigateBack() {
-  const instructionState = getInstructionState();
-  const query: any = {};
-
-  if (instructionState && instructionState.expanded) {
-    query.instructions = "open";
-    query.tab = instructionState.tab;
-  }
-
-  router.push({
-    name: "Campaign",
-    params: { id: campaignId },
-    query: query,
-  });
+  router.push({ name: "HeroesManager" });
 }
 
 function syncStateToStore() {
-  if (!campaignHeroRef.value) return;
+  const heroView = playableHeroStore.findByPk(playableHeroesPk);
+  if (!heroView) return;
 
-  if (!campaignHeroRef.value.sequentialAdventureState) {
-    campaignHeroRef.value.sequentialAdventureState =
-      new SequentialAdventureState();
+  if (!heroView.state.sequentialAdventureState) {
+    heroView.state.sequentialAdventureState = new SequentialAdventureState();
   }
 
-  campaignHeroRef.value.sequentialAdventureState.lifepoints =
+  heroView.state.sequentialAdventureState.lifepoints =
     Number(localState.value.lifepoints) || 0;
-  campaignHeroRef.value.sequentialAdventureState.curseCubes =
+  heroView.state.sequentialAdventureState.curseCubes =
     Number(localState.value.curseCubes) || 0;
-  campaignHeroRef.value.sequentialAdventureState.traumaCubes =
+  heroView.state.sequentialAdventureState.traumaCubes =
     Number(localState.value.traumaCubes) || 0;
-  campaignHeroRef.value.sequentialAdventureState.availableCubes =
+  heroView.state.sequentialAdventureState.availableCubes =
     Number(localState.value.availableCubes) || 0;
-  campaignHeroRef.value.sequentialAdventureState.usedCubes =
+  heroView.state.sequentialAdventureState.usedCubes =
     Number(localState.value.usedCubes) || 0;
 
   Object.keys(localState.value.resources).forEach((key) => {
-    campaignHeroRef.value.sequentialAdventureState!.resources[key] =
+    heroView.state.sequentialAdventureState!.resources[key] =
       Number(localState.value.resources[key]) || 0;
   });
 }
 
-const onSaveSuccess = () => {
-  isSaving.value = false;
-  snackbarText.value = "Resources saved successfully!";
-  snackbarColor.value = "success";
-  snackbarVisible.value = true;
-
-  setTimeout(() => {
-    navigateBack();
-  }, 1000);
-};
-
-const onSaveFail = () => {
-  isSaving.value = false;
-  snackbarText.value = "Failed to save resources.";
-  snackbarColor.value = "error";
-  snackbarVisible.value = true;
-};
-
-function saveAndGoBack() {
+async function saveAndGoBack() {
   syncStateToStore();
   isSaving.value = true;
 
-  if (heroSavePutRef.value && heroSavePutRef.value.save) {
-    heroSavePutRef.value.save().catch((error: any) => {
-      console.error("Error saving:", error);
-      onSaveFail();
-    });
-  } else {
+  try {
+    await playableHeroStore.saveHero(playableHeroesPk);
+    showSnackbar("Resources saved successfully!");
+    setTimeout(() => navigateBack(), 1000);
+  } catch (error: any) {
+    console.error("Error saving:", error);
+    showSnackbar(
+      error?.response?.data?.message || "Failed to save resources.",
+      "error",
+    );
+  } finally {
     isSaving.value = false;
-    navigateBack();
   }
 }
 
 onMounted(async () => {
   try {
-    const loader = new CampaignLoadFromStorage();
-    await loader.loadCampaignComplete(campaignId);
-
-    const foundCampaign = campaignStore.find(campaignId);
-    if (!foundCampaign) {
-      throw new Error(`Campaign ${campaignId} not found`);
+    if (!playableHeroStore.loaded) {
+      await playableHeroStore.fetchHeroes(userStore.user.users_pk);
     }
 
-    const updatedHero = heroStore.findInCampaignOptional(heroId, campaignId);
+    const heroView = playableHeroStore.findByPk(playableHeroesPk);
 
-    if (updatedHero) {
-      campaignHeroRef.value = updatedHero;
-      heroStaticData.value = heroDataRepository.find(heroId) ?? null;
+    if (heroView) {
+      heroStaticData.value = heroView.staticData;
 
-      // Initialize sequential adventure state if not exists
-      if (!updatedHero.sequentialAdventureState) {
-        updatedHero.sequentialAdventureState = new SequentialAdventureState();
+      if (!heroView.state.sequentialAdventureState) {
+        heroView.state.sequentialAdventureState = new SequentialAdventureState();
       }
 
-      if (!updatedHero.sequentialAdventureState.resources) {
-        updatedHero.sequentialAdventureState.resources = {};
+      if (!heroView.state.sequentialAdventureState.resources) {
+        heroView.state.sequentialAdventureState.resources = {};
       }
 
-      // Ensure all resources exist
       RESOURCE_DEFINITIONS.forEach((resource) => {
         if (
-          updatedHero.sequentialAdventureState!.resources[resource.id] ===
+          heroView.state.sequentialAdventureState!.resources[resource.id] ===
           undefined
         ) {
-          updatedHero.sequentialAdventureState!.resources[resource.id] = 0;
+          heroView.state.sequentialAdventureState!.resources[resource.id] = 0;
         }
       });
 
-      // Load state into local state
       localState.value = {
-        lifepoints: updatedHero.sequentialAdventureState.lifepoints || 0,
-        curseCubes: updatedHero.sequentialAdventureState.curseCubes || 0,
-        traumaCubes: updatedHero.sequentialAdventureState.traumaCubes || 0,
+        lifepoints: heroView.state.sequentialAdventureState.lifepoints || 0,
+        curseCubes: heroView.state.sequentialAdventureState.curseCubes || 0,
+        traumaCubes: heroView.state.sequentialAdventureState.traumaCubes || 0,
         availableCubes:
-          updatedHero.sequentialAdventureState.availableCubes || 0,
-        usedCubes: updatedHero.sequentialAdventureState.usedCubes || 0,
-        resources: { ...updatedHero.sequentialAdventureState.resources },
+          heroView.state.sequentialAdventureState.availableCubes || 0,
+        usedCubes: heroView.state.sequentialAdventureState.usedCubes || 0,
+        resources: { ...heroView.state.sequentialAdventureState.resources },
       };
     } else {
-      console.error(`Hero ${heroId} not found in campaign ${campaignId}`);
-      showSnackbar("Hero not found in this campaign.", "error");
+      console.error(`Hero with pk ${playableHeroesPk} not found`);
+      showSnackbar("Hero not found.", "error");
     }
   } catch (error) {
     console.error("Error loading hero data:", error);

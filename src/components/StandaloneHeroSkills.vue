@@ -115,8 +115,7 @@
   <v-dialog v-model="isAddSkillModalVisible" max-width="700">
     <v-card>
       <v-card-title class="text-capitalize"
-        >{{ t("Select Skill") }}:
-        {{ t("label." + currentSkillType) }}</v-card-title
+        >{{ t("Select Skill") }}: {{ t("label." + currentSkillType) }}</v-card-title
       >
       <v-card-text>
         <v-row>
@@ -156,10 +155,9 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
-import { HeroStore } from "@/store/HeroStore";
-import { CubeIcon } from "@heroicons/vue/24/solid";
 import { useI18n } from "vue-i18n";
-import type { Campaign } from "@/campaign";
+import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
+import { CubeIcon } from "@heroicons/vue/24/solid";
 import type { HeroData } from "@/data/repository/HeroData";
 import {
   underkeepSkillCards,
@@ -168,22 +166,19 @@ import {
 } from "@/data/repository/campaign/underkeep/underkeepSkillData.ts";
 
 const props = defineProps<{
-  heroId: string;
-  campaignId: string;
-  campaign: Campaign;
+  playableHeroesPk: number;
   hero: HeroData;
 }>();
+
 const { t } = useI18n();
-const heroStore = HeroStore();
-const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
+const playableHeroStore = usePlayableHeroStore();
+
+const heroView = playableHeroStore.findByPk(props.playableHeroesPk);
 
 const useNewSkillSystem = computed(() => {
-  const isUnderkeep = ["underkeep", "underkeep2"].includes(
-    props.campaign.campaign,
-  );
   const specialHeroes = ["elros", "vorn", "lorelai", "maya", "jaheen"];
-  const isSpecialHero = specialHeroes.includes(props.heroId);
-  return isUnderkeep && isSpecialHero;
+  
+  return specialHeroes.includes(heroView?.heroId ?? "");
 });
 
 const generalSkills = [
@@ -192,26 +187,34 @@ const generalSkills = [
   { id: "agility", name: "Agility", translationKey: "label.agility" },
   { id: "wisdom", name: "Wisdom", translationKey: "label.wisdom" },
 ];
-const selectedSkills = ref<string[]>([]);
-if (!campaignHero.skillIds) campaignHero.skillIds = [];
-selectedSkills.value = [...campaignHero.skillIds];
+
+if (heroView && !heroView.state.skillIds) {
+  heroView.state.skillIds = [];
+}
+
+const selectedSkills = ref<string[]>(heroView?.state.skillIds ?? []);
 
 watch(selectedSkills, (newSkills) => {
-  heroStore.findInCampaign(props.heroId, props.campaignId).skillIds = newSkills;
+  const hero = playableHeroStore.findByPk(props.playableHeroesPk);
+  if (hero) {
+    hero.state.skillIds = newSkills;
+  }
 });
 
 const isCubeColorModalVisible = ref(false);
 const selectedSkillId = ref("");
 const cubeColors: Array<string> = ["Yellow", "Red", "Green", "Blue"];
 
-if (typeof campaignHero.dungeonRoleSkillCubeColors === "undefined") {
-  campaignHero.dungeonRoleSkillCubeColors = { rankOne: null, rankTwo: null };
+if (heroView && typeof heroView.state.dungeonRoleSkillCubeColors === "undefined") {
+  heroView.state.dungeonRoleSkillCubeColors = { rankOne: null, rankTwo: null };
 }
 
 function getSkillLabel(skillId: string, level: number): string {
-  if (!skillId.startsWith("dungeon-role"))
-    return `${t("label.level")} ${level}`;
-  const selectedCubes = campaignHero.dungeonRoleSkillCubeColors;
+  if (!skillId.startsWith("dungeon-role")) return `${t("label.level")} ${level}`;
+  const selectedCubes = heroView?.state.dungeonRoleSkillCubeColors ?? {
+    rankOne: null,
+    rankTwo: null,
+  };
   const selectedCube =
     level === 1 ? selectedCubes.rankOne : selectedCubes.rankTwo;
   return selectedCube
@@ -231,17 +234,21 @@ function onSkillSelect(skillId: string) {
 }
 
 function clearCubeColor(skillId: string) {
-  if (skillId === "dungeon-role-1")
-    campaignHero.dungeonRoleSkillCubeColors.rankOne = null;
-  else if (skillId === "dungeon-role-2")
-    campaignHero.dungeonRoleSkillCubeColors.rankTwo = null;
+  if (!heroView) return;
+  if (skillId === "dungeon-role-1") {
+    heroView.state.dungeonRoleSkillCubeColors.rankOne = null;
+  } else if (skillId === "dungeon-role-2") {
+    heroView.state.dungeonRoleSkillCubeColors.rankTwo = null;
+  }
 }
 
 function setSelectedCubeColor(color: string) {
-  if (selectedSkillId.value === "dungeon-role-1")
-    campaignHero.dungeonRoleSkillCubeColors.rankOne = color;
-  else if (selectedSkillId.value === "dungeon-role-2")
-    campaignHero.dungeonRoleSkillCubeColors.rankTwo = color;
+  if (!heroView) return;
+  if (selectedSkillId.value === "dungeon-role-1") {
+    heroView.state.dungeonRoleSkillCubeColors.rankOne = color;
+  } else if (selectedSkillId.value === "dungeon-role-2") {
+    heroView.state.dungeonRoleSkillCubeColors.rankTwo = color;
+  }
   isCubeColorModalVisible.value = false;
 }
 
@@ -253,9 +260,7 @@ const skillTypes: Array<"melee" | "ranged" | "agility" | "wisdom"> = [
 ];
 const isAddSkillModalVisible = ref(false);
 const isViewSkillModalVisible = ref(false);
-const currentSkillType = ref<"melee" | "ranged" | "agility" | "wisdom">(
-  "melee",
-);
+const currentSkillType = ref<"melee" | "ranged" | "agility" | "wisdom">("melee");
 const skillToView = ref<SkillCard | null>(null);
 
 const skillTypeColors: { [key: string]: string } = {
@@ -274,7 +279,7 @@ function getSelectedSkillCard(skillType: string): SkillCard | undefined {
 }
 
 const availableSkillsForModal = computed(() => {
-  return findSkillsFor(props.heroId, currentSkillType.value);
+  return findSkillsFor(heroView?.heroId ?? "", currentSkillType.value);
 });
 
 function openAddSkillModal(
@@ -309,7 +314,6 @@ function deleteSkill() {
 </script>
 
 <style scoped>
-/* Cores para os ícones de cubo */
 .yellow {
   color: #ffeb3b;
 }

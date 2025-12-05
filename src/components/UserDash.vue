@@ -92,7 +92,7 @@
                       <v-card
                         :style="{ height: isMobile ? '400px' : 'auto' }"
                         class="mx-auto"
-                        :disabled="index > 0 ? true : false"
+                        :disabled="item.disabled"
                         @click="router.push(item.route)"
                       >
                         <v-img
@@ -101,7 +101,7 @@
                           height="500"
                           cover
                           :gradient="
-                            index > 0
+                            item.disabled
                               ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
                               : false
                           "
@@ -112,7 +112,7 @@
                           </v-row>
                         </v-card-actions>
                         <div
-                          v-if="index > 0"
+                          v-if="item.disabled"
                           style="
                             height: 0px;
                             width: 100%;
@@ -143,13 +143,13 @@
                       :class="{ 'on-hover': isHovering }"
                       :elevation="isHovering ? 12 : 2"
                       v-bind="props"
-                      :disabled="index > 3 ? true : false"
+                      :disabled="item.disabled"
                       @click="router.push(item.route)"
                     >
                       <v-img
                         :src="item.img"
                         :gradient="
-                          index > 3
+                          item.disabled
                             ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
                             : false
                         "
@@ -162,10 +162,10 @@
           </v-row>
 
           <v-row class="justify-center pb-6 px-0 pl-5 mt-6">
-  <v-col cols="12">
-    <DashboardEvents />
-  </v-col>
-</v-row>
+            <v-col cols="12">
+              <DashboardEvents />
+            </v-col>
+          </v-row>
 
           <v-row
             class="mt-4 d-flex justify-center align-center py-6"
@@ -318,7 +318,7 @@
                 :class="{ 'on-hover': isHovering }"
                 :elevation="isHovering ? 12 : 2"
                 v-bind="props"
-                :disabled="index > 3 ? true : false"
+                :disabled="item.disabled"
                 @click="router.push(item.route)"
               >
                 <v-img
@@ -327,7 +327,9 @@
                   with
                   cover
                   :gradient="
-                    index > 3 ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)' : false
+                    item.disabled
+                      ? 'to top, rgba(0,0,0,1), rgba(0,0,0,.6)'
+                      : false
                   "
                 />
               </v-card>
@@ -336,10 +338,10 @@
         </v-row>
 
         <v-row class="justify-center pb-6 ml-1 mt-">
-  <v-col cols="12">
-    <DashboardEvents />
-  </v-col>
-</v-row>
+          <v-col cols="12">
+            <DashboardEvents />
+          </v-col>
+        </v-row>
 
         <v-row class="d-flex justify-center align-center w-100" no-gutters>
           <v-col cols="12" sm="12" md="12" class="px-0 mb-0">
@@ -516,21 +518,31 @@ const carouselItems = ref([
     img: "https://assets.drunagor.app/Dashboard/btn-campaigns-2.0.png",
     label: "COMPANION",
     route: { name: "Campaign Overview" },
+    disabled: false,
   },
   {
     img: "https://assets.drunagor.app/Dashboard/btn-library-2.0.png",
     label: "LIBRARY",
     route: { name: "Library" },
+    disabled: false,
   },
   {
     img: "https://assets.drunagor.app/Dashboard/btn-events-2.0.png",
     label: "EVENTS",
     route: { name: "Events" },
+    disabled: false,
   },
   {
     img: "https://assets.drunagor.app/Dashboard/btn-profile-2.0.png",
     label: "PROFILE",
     route: { name: "PerfilHome" },
+    disabled: false,
+  },
+  {
+    img: "https://assets.drunagor.app/Dashboard/btn-campaigns2.png", // Substituir pela imagem correta quando disponível
+    label: "HEROES",
+    route: { name: "HeroesManager" },
+    disabled: false,
   },
 ]);
 
@@ -583,7 +595,7 @@ function getBoxName(boxId: number): string {
 function addLoadingError(message: string) {
   const newError = { id: Date.now(), text: message, visible: true };
   loadingErrors.value.push(newError);
-  // opcional: auto‐remover após X segundos
+
   setTimeout(() => {
     removeErrorById(newError.id);
   }, 10000);

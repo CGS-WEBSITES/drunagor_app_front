@@ -163,10 +163,10 @@
           </v-row>
 
           <v-row class="justify-center pb-6 px-0 pl-5 mt-6">
-  <v-col cols="12">
-    <RetailerDashboardEvents />
-  </v-col>
-</v-row>
+            <v-col cols="12">
+              <RetailerDashboardEvents />
+            </v-col>
+          </v-row>
 
           <v-row no-gutters class="justify-center pb-6 px-6">
             <v-col cols="12" md="12" lg="12">
@@ -214,11 +214,11 @@
           </v-col>
         </v-row>
 
-              <v-row class="justify-center pb-6 ml-1 mt-">
-  <v-col cols="12">
-    <RetailerDashboardEvents />
-  </v-col>
-</v-row>
+        <v-row class="justify-center pb-6 ml-1 mt-">
+          <v-col cols="12">
+            <RetailerDashboardEvents />
+          </v-col>
+        </v-row>
 
         <v-row no-gutters class="justify-center pb-6 px-3">
           <v-col cols="12">
