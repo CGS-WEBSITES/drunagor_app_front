@@ -4,11 +4,12 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
+      max-height: 100vh;
       overflow: hidden;
       --v-layout-top: 0px;
     "
   >
-    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0">
+    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0">
       <v-card
         color="background"
         class="card-overlay full-screen-card"
@@ -86,57 +87,65 @@
       style="
         margin-top: -120px;
         overflow-y: auto;
+        min-height: 0;
         z-index: 1;
         width: 100%;
       "
     >
       <v-container
-        class="mx-auto px-4 fill-height"
+        class="mx-auto px-4 fill-height align-start"
         :style="{ maxWidth: containerMaxWidth }"
       >
-        <DashboardEvents />
+        <DashboardEvents style="width: 100%" />
       </v-container>
     </div>
 
-    <div class="pa-4 flex-grow-0">
+    <div class="pa-4 flex-grow-0 flex-shrink-0">
       <v-container
         style="padding: 0; width: 100%"
         class="mx-auto"
-        :style="{ maxWidth: containerMaxWidth2 }"
+        :style="{ maxWidth: containerMaxWidth }"
       >
-        <v-toolbar height="96" rounded="lg" class="px-2">
-          <v-btn
-            icon
-            variant="text"
-            @click="goToLibrary"
-            class="h-100"
-            size="x-large"
-          >
-            <v-icon>mdi-cards</v-icon>
-          </v-btn>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="#118D8E"
-            variant="flat"
-            @click="goToCampaigns"
-            size="x-large"
-            rounded="lg"
-            class="font-weight-bold"
-            style="width: 50%; max-width: 220px"
-          >
-            <v-icon left class="mr-1">mdi-sword-cross</v-icon>
-            Play
-          </v-btn>
-          <v-spacer></v-spacer>
-          <v-btn
-            icon
-            variant="text"
-            @click="goToEvents"
-            class="h-100"
-            size="x-large"
-          >
-            <v-icon>mdi-qrcode</v-icon>
-          </v-btn>
+        <v-toolbar height="96" rounded="lg" class="px-2" color="primary">
+          <v-row no-gutters align="center" class="fill-height ma-0 w-100">
+            
+            <v-col class="d-flex justify-center align-center">
+              <v-btn
+                icon
+                variant="text"
+                @click="goToCampaigns"
+                size="x-large"
+              >
+                <v-icon>mdi-cards</v-icon>
+              </v-btn>
+            </v-col>
+            
+            <v-col cols="auto" class="px-2" style="width: 50%; max-width: 250px; min-width: 160px;">
+              <v-btn
+                color="#118D8E"
+                variant="flat"
+                @click="goToEvents"
+                size="x-large"
+                rounded="lg"
+                class="font-weight-bold w-100"
+              >
+                <v-icon left class="mr-1">mdi-sword-cross</v-icon>
+                Play
+              </v-btn>
+            </v-col>
+
+            <v-col class="d-flex justify-center align-center">
+              <v-btn
+                icon
+                variant="text"
+                @click="goToGroup"
+                size="x-large"
+              >
+                <v-icon>mdi-account-group</v-icon>
+              </v-btn>
+            </v-col>
+
+          </v-row>
         </v-toolbar>
       </v-container>
     </div>
@@ -168,11 +177,6 @@ const display = useDisplay();
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
-const containerMaxWidth2 = computed(() => {
-  if (display.smAndUp.value) return "380px";
-  return "100%";
-});
-
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
   if (display.md.value) return "900px";
@@ -184,6 +188,7 @@ const goToProfile = () => router.push({ name: "PerfilHome" });
 const goToLibrary = () => router.push({ name: "Library" });
 const goToCampaigns = () => router.push({ name: "Campaign Overview" });
 const goToEvents = () => router.push({ name: "Events" });
+const goToGroup = () => router.push({ name: "Group" });
 
 function importCampaign(token: string) {}
 
@@ -242,5 +247,6 @@ onBeforeMount(async () => {
 }
 body {
   font-family: "Poppins", sans-serif !important;
+  overflow: hidden;
 }
 </style>
