@@ -1,21 +1,23 @@
 <template>
-  <v-col
-    cols="12"
-    md="6"
-    class="mx-auto pa-0 elevation-8 rounded-lg"
+  <v-main
     style="
-      height: 90vh;
-      max-height: 850px;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
+      height: 100vh;
+      max-height: 100vh;
+      overflow: hidden;
+      --v-layout-top: 0px;
     "
   >
-    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0">
+    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0">
       <v-card
         color="background"
         class="card-overlay full-screen-card"
-        :image="assets + '/Profile/profile-bg-warriors-transparent.png'"
+        :image="
+          user.background_hash
+            ? assets + '/Profile/' + user.background_hash
+            : assets + '/Profile/profile-bg-warriors-transparent.png'
+        "
         flat
       >
         <v-card
@@ -27,97 +29,132 @@
       </v-card>
 
       <v-col cols="12" class="avatar-mobile pa-0">
-        <v-row no-gutters align="end" class="pa-4">
-          <v-col cols="auto">
-            <v-avatar
-              size="100"
-              rounded="lg"
-              style="
-                border: 2px solid white;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-              "
-              @click="goToProfile"
-            >
-              <v-img
-                :src="
-                  user.picture_hash
-                    ? assets + '/Profile/' + user.picture_hash
-                    : assets + '/Profile/user.png'
+        <v-container
+          class="mx-auto pa-0"
+          :style="{ maxWidth: containerMaxWidth }"
+        >
+          <v-row no-gutters align="end" class="pa-4">
+            <v-col cols="auto">
+              <v-avatar
+                size="100"
+                rounded="lg"
+                style="
+                  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                  cursor: pointer;
+                  position: relative;
+                  z-index: 5;
                 "
-                alt="Profile"
-              />
-            </v-avatar>
-          </v-col>
-
-          <v-col class="ml-4">
-            <div
-              class="pa-3 rounded-lg"
-              style="
-                background-color: rgba(50, 50, 50, 0.7);
-                backdrop-filter: blur(5px);
-                cursor: pointer;
-              "
-              @click="goToProfile"
-            >
-              <h5
-                class="text-h6 font-weight-bold text-white"
-                style="line-height: 1.25rem"
+                @click="goToProfile"
               >
-                {{ user.user_name }}
-              </h5>
-            </div>
-          </v-col>
-        </v-row>
+                <v-img
+                  :src="
+                    user.picture_hash
+                      ? assets + '/Profile/' + user.picture_hash
+                      : assets + '/Profile/user.png'
+                  "
+                  alt="Profile"
+                />
+              </v-avatar>
+            </v-col>
+            <v-col class="ml-n4">
+              <div
+                class="pa-3 rounded-lg"
+                style="
+                  background-color: rgba(50, 50, 50, 0.7);
+                  backdrop-filter: blur(5px);
+                  cursor: pointer;
+                  padding-left: 32px !important;
+                  position: relative;
+                  z-index: 4;
+                "
+                @click="goToProfile"
+              >
+                <h5
+                  class="text-h6 font-weight-bold text-white"
+                  style="line-height: 1.25rem"
+                >
+                  {{ user.user_name }}
+                </h5>
+              </div>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-col>
     </v-row>
 
     <div
-      class="flex-grow-1 move_topo2"
-      style="overflow-y: auto; background-color: rgb(var(--v-theme-background))"
+      class="flex-grow-1"
+      style="
+        margin-top: -120px;
+        overflow-y: auto;
+        min-height: 0;
+        z-index: 1;
+        width: 100%;
+      "
     >
-      <v-container fluid class="pa-4">
-        <DashboardEvents />
+      <v-container
+        class="mx-auto px-4 fill-height align-start"
+        :style="{ maxWidth: containerMaxWidth }"
+      >
+        <DashboardEvents style="width: 100%" />
       </v-container>
     </div>
 
-    <v-app-bar
-      location="bottom"
-      :elevation="2"
-      height="96"
-      class="px-2 flex-grow-0"
-    >
-      <v-btn stacked variant="text" @click="goToLibrary" class="h-100">
-        <v-icon>mdi-bookshelf</v-icon>
-        <span>Library</span>
-      </v-btn>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        color="#118D8E"
-        variant="flat"
-        @click="goToCampaigns"
-        size="x-large"
-        rounded="lg"
-        class="font-weight-bold"
-        style="width: 50%; max-width: 220px"
+    <div class="pa-4 flex-grow-0 flex-shrink-0">
+      <v-container
+        style="padding: 0; width: 100%"
+        class="mx-auto"
+        :style="{ maxWidth: containerMaxWidth }"
       >
-        <v-icon left class="mr-1">mdi-sword-cross</v-icon>
-        Play
-      </v-btn>
+        <v-toolbar height="96" rounded="lg" class="px-2" color="primary">
+          <v-row no-gutters align="center" class="fill-height ma-0 w-100">
+            
+            <v-col class="d-flex justify-center align-center">
+              <v-btn
+                icon
+                variant="text"
+                @click="goToFAQ"
+                size="x-large"
+              >
+                <v-icon>mdi-help-circle-outline</v-icon>
+              </v-btn>
+            </v-col>
+            
+            <v-col cols="auto" class="px-2" style="width: 50%; max-width: 250px; min-width: 160px;">
+              <v-btn
+                color="#118D8E"
+                variant="flat"
+                @click="goToEvents"
+                size="x-large"
+                rounded="lg"
+                class="font-weight-bold w-100"
+              >
+                <v-icon left class="mr-1">mdi-calendar</v-icon>
+                Events
+              </v-btn>
+            </v-col>
 
-      <v-spacer></v-spacer>
+            <v-col class="d-flex justify-center align-center">
+              <v-btn
+                icon
+                variant="text"
+                @click="goToStores"
+                size="x-large"
+              >
+                <v-icon>mdi-store</v-icon>
+              </v-btn>
+            </v-col>
 
-      <v-btn stacked variant="text" @click="goToEvents" class="h-100">
-        <v-icon>mdi-calendar</v-icon>
-        <span>Events</span>
-      </v-btn>
-    </v-app-bar>
-  </v-col>
+          </v-row>
+        </v-toolbar>
+      </v-container>
+    </div>
+  </v-main>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
+import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -130,9 +167,7 @@ import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
 import axios from "axios";
-import BaseAlert from "@/components/Alerts/BaseAlert.vue";
-// Importe seu componente de DashboardEvents se ele for usado localmente
-// import DashboardEvents from '@/components/DashboardEvents.vue';
+import DashboardEvents from "@/components/DashboardEvents.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -141,31 +176,23 @@ const campaignStore = CampaignStore();
 const heroStore = HeroStore();
 const assets = inject<string>("assets");
 const heroDataRepository = new HeroDataRepository();
+const display = useDisplay();
 
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
-// --- Funções de Navegação (sem alteração) ---
-const goToProfile = () => {
-  router.push({ name: "PerfilHome" });
-};
-
-const goToLibrary = () => {
-  router.push({ name: "Library" });
-};
-
-const goToCampaigns = () => {
-  router.push({ name: "Campaign Overview" }); // Rota "Play" (Campanhas)
-};
-
-const goToEvents = () => {
-  router.push({ name: "Events" });
-};
-
-// --- Lógica de Negócio (sem alteração) ---
-const campaignList = computed(() => {
-  return campaignStore.findAll();
+const containerMaxWidth = computed(() => {
+  if (display.lgAndUp.value) return "1024px";
+  if (display.md.value) return "900px";
+  if (display.sm.value) return "768px";
+  return "100%";
 });
+
+// --- Rotas Atualizadas para Retailer ---
+const goToProfile = () => router.push({ name: "PerfilHome" });
+const goToFAQ = () => router.push({ name: "FAQ" });
+const goToEvents = () => router.push({ name: "Events" });
+const goToStores = () => router.push({ name: "stores" });
 
 function getBoxName(boxId: number): string {
   switch (boxId) {
@@ -224,13 +251,6 @@ function importCampaign(token: string) {
   });
 }
 
-function findHeroes(campaignId: string): HeroData[] {
-  return heroStore
-    .findAllInCampaign(campaignId)
-    .map((h) => heroDataRepository.find(h.heroId))
-    .filter((h): h is HeroData => !!h);
-}
-
 onBeforeMount(async () => {
   campaignStore.reset();
   heroStore.reset();
@@ -243,7 +263,7 @@ onBeforeMount(async () => {
   }
 
   try {
-    const res = await axios.get("/rl_campaigns_users/search", {
+    const res = await (axios as any).get("/rl_campaigns_users/search", {
       params: { users_fk: user.users_pk },
     });
 
@@ -255,17 +275,10 @@ onBeforeMount(async () => {
           `Failed to import campaign ID: ${element.campaigns_pk}`,
           e,
         );
-        const partyName = element.party_name || "Unnamed Campaign";
-        const boxName = getBoxName(element.box);
-        const errorMessage = `Could not load the campaign "${partyName}" from the "${boxName}". The data seems to be corrupted. Please contact support if the issue persists.`;
-        addLoadingError(errorMessage);
       }
     });
   } catch (apiError) {
     console.error("Failed to fetch campaigns from API", apiError);
-    addLoadingError(
-      "An error occurred while fetching your campaigns. Please try again later.",
-    );
   } finally {
     loading.value = false;
   }
@@ -273,47 +286,25 @@ onBeforeMount(async () => {
 </script>
 
 <style>
-/* Estilos do seu código antigo + novos ajustes */
-.v-badge__badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  color: rgb(266, green, blue);
-}
-
-/* O bloco que flutua (avatar + nome) */
+/* CSS idêntico ao componente de User */
 .avatar-mobile {
   position: relative;
-  /* Puxa o bloco 110px para cima */
-  transform: translateY(-110px);
+  transform: translateY(-95px);
   z-index: 3;
 }
-
 .card-overlay {
   position: relative;
   transform: translateY(-6px);
   z-index: 3;
 }
-
 .card-overlay1 {
   position: relative;
-  transform: translateY(64px); /* 200px - 136px */
+  transform: translateY(14px);
   z-index: 2;
 }
-
-/* Puxa o conteúdo para cima (mesmo valor do avatar-mobile)
-  para que ele deslize por baixo 
-*/
-.move_topo2 {
-  position: relative;
-  transform: translateY(-110px);
-  z-index: 1;
-}
-
-/* O card de background do header */
 .full-screen-card {
   width: 100%;
-  height: 200px; /* Altura fixa para o background */
+  height: 150px;
   background-size: cover;
   background-position: center;
   display: flex;
@@ -323,10 +314,8 @@ onBeforeMount(async () => {
   position: relative;
   z-index: 1;
 }
-
 body {
   font-family: "Poppins", sans-serif !important;
+  overflow: hidden;
 }
-
-/* A classe .user_name2 foi removida */
 </style>
