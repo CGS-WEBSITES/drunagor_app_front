@@ -30,7 +30,7 @@
                         </p>
                       </div>
                     </v-col>
-                    <v-col cols="9" class="pt-2" :class="display.xs.value?'pl-4':''">
+                    <v-col cols="7" class="pt-2" :class="display.xs.value?'pl-4':''">
                       <h3 class="pb-1">
                         <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                         {{ event.store_name }}
