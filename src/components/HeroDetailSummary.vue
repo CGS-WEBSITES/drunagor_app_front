@@ -10,7 +10,9 @@
       <div class="text-overline">Class Abilities</div>
       <v-divider class="my-1"></v-divider>
       <div class="d-flex flex-wrap pa-1" style="gap: 8px">
-        <v-chip v-if="classAbilityCount === 0" variant="text" size="small">No abilities unlocked</v-chip>
+        <v-chip v-if="classAbilityCount === 0" variant="text" size="small"
+          >No abilities unlocked</v-chip
+        >
         <v-chip
           v-for="n in classAbilityCount"
           :key="n"
@@ -26,19 +28,20 @@
     <div class="mb-2">
       <div class="text-overline">Equipment</div>
       <v-divider class="my-1"></v-divider>
-      <div v-if="equippedItems.length === 0" class="text-center text-caption pa-2">
+      <div
+        v-if="equippedItems.length === 0"
+        class="text-center text-caption pa-2"
+      >
         No items equipped.
       </div>
       <v-row v-else dense>
-        <v-col
-          v-for="item in equippedItems"
-          :key="item.id"
-          cols="6"
-          md="6"
-        >
+        <v-col v-for="item in equippedItems" :key="item.id" cols="6" md="6">
           <v-list-item class="px-0">
             <template #prepend>
-              <v-icon :icon="item.icon || 'mdi-shield-sun-outline'" class="mr-3"></v-icon>
+              <v-icon
+                :icon="item.icon || 'mdi-shield-sun-outline'"
+                class="mr-3"
+              ></v-icon>
             </template>
             <v-list-item-title>{{ item.name }}</v-list-item-title>
             <v-list-item-subtitle>{{ item.slot }}</v-list-item-subtitle>
@@ -50,7 +53,10 @@
     <div class="mb-2">
       <div class="text-overline">Skills</div>
       <v-divider class="my-1"></v-divider>
-      <div v-if="learnedSkills.length === 0" class="text-center text-caption pa-2">
+      <div
+        v-if="learnedSkills.length === 0"
+        class="text-center text-caption pa-2"
+      >
         No skills learned.
       </div>
       <v-row v-else class="py-3 ml-0">
@@ -82,13 +88,19 @@
     <div>
       <div class="text-overline">Stash</div>
       <v-divider class="my-1"></v-divider>
-      <div v-if="stashedItems.length === 0" class="text-center text-caption pa-2">
+      <div
+        v-if="stashedItems.length === 0"
+        class="text-center text-caption pa-2"
+      >
         Stash is empty.
       </div>
       <v-list v-else lines="one" bg-color="transparent" density="compact">
         <v-list-item v-for="item in stashedItems" :key="item.id" class="px-0">
           <template #prepend>
-            <v-icon :icon="item.icon || 'mdi-treasure-chest-outline'" class="mr-3"></v-icon>
+            <v-icon
+              :icon="item.icon || 'mdi-treasure-chest-outline'"
+              class="mr-3"
+            ></v-icon>
           </template>
           <v-list-item-title>{{ item.name }}</v-list-item-title>
         </v-list-item>
@@ -132,33 +144,36 @@ if (campaign.campaign === "core") {
   itemRepository = new UnderKeep2ItemDataRepository();
 } else {
   itemRepository = new CoreItemDataRepository();
-  console.error("Unknown campaign type for Item Repository:", campaign.campaign);
+  console.error(
+    "Unknown campaign type for Item Repository:",
+    campaign.campaign,
+  );
 }
 
 const campaignHero = heroStore.findInCampaign(props.heroId, props.campaignId);
 
 function formatIdToName(id: string): string {
-  if (!id) return '';
+  if (!id) return "";
   return id
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 }
 
 const slotNameMap: { [key: string]: string } = {
-  weaponId: 'Weapon',
-  offHandId: 'Off-Hand',
-  armorId: 'Armor',
-  trinketId: 'Trinket',
-  bagOneId: 'Bag Slot 1',
-  bagTwoId: 'Bag Slot 2'
+  weaponId: "Weapon",
+  offHandId: "Off-Hand",
+  armorId: "Armor",
+  trinketId: "Trinket",
+  bagOneId: "Bag Slot 1",
+  bagTwoId: "Bag Slot 2",
 };
 
 const classAbilityCount = computed(() => campaignHero?.classAbilityCount ?? 0);
 
 const equippedItems = computed(() => {
   if (!campaignHero?.equipment) return [];
-  
+
   const items = [];
   const orderedSlots = Object.keys(slotNameMap);
 
@@ -169,7 +184,12 @@ const equippedItems = computed(() => {
         const itemData = itemRepository.find(itemId);
         const displayName = itemData?.name || formatIdToName(itemId);
         const slotName = slotNameMap[key] || key;
-        items.push({ ...itemData, id: itemId, name: displayName, slot: slotName });
+        items.push({
+          ...itemData,
+          id: itemId,
+          name: displayName,
+          slot: slotName,
+        });
       }
     }
   }
@@ -178,19 +198,23 @@ const equippedItems = computed(() => {
 
 const stashedItems = computed(() => {
   if (!campaignHero?.stashedCardIds) return [];
-  
-  return campaignHero.stashedCardIds.map(itemId => {
-    const itemData = itemRepository.find(itemId);
-    const displayName = itemData?.name || formatIdToName(itemId);
-    return { ...itemData, id: itemId, name: displayName };
-  }).filter(item => item);
+
+  return campaignHero.stashedCardIds
+    .map((itemId) => {
+      const itemData = itemRepository.find(itemId);
+      const displayName = itemData?.name || formatIdToName(itemId);
+      return { ...itemData, id: itemId, name: displayName };
+    })
+    .filter((item) => item);
 });
 
 const learnedSkills = computed(() => {
   if (!campaignHero?.skillIds) return [];
 
-  return campaignHero.skillIds.map(skillId => {
-    return underkeepSkillCards.find(card => card.id === skillId);
-  }).filter(skill => skill);
+  return campaignHero.skillIds
+    .map((skillId) => {
+      return underkeepSkillCards.find((card) => card.id === skillId);
+    })
+    .filter((skill) => skill);
 });
 </script>
