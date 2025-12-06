@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-start">
+  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end">
     <v-btn
       class="mx-1 ml-md-6"
       rounded

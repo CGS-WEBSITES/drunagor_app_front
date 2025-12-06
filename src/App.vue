@@ -1,29 +1,8 @@
 <template>
   <v-app :theme="theme">
-    <!--
-    <v-btn
-      v-if="route.name === 'Dashboard'"
-      @click="switchTheme"
-      class="d-md-none"
-      color="primary"
-      style="
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        padding: 0;
-        width: 48px;
-        height: 48px;
-        z-index: 999;
-      "
-      icon
-    >
-      <v-img :src="themeIcon" width="32" height="32" cover></v-img>
-    </v-btn>
-  -->
     <Toast />
 
     <!-- Barra de Navegação Superior -->
-
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
         <div
@@ -57,16 +36,6 @@
           </v-list>
         </v-menu>
 
-        <!-- Botão Sign Up (Aparece Apenas em Home, Login, Gama) -->
-        <!-- <v-btn
-          v-if="['Home', 'Login', 'Gama', 'Community'].includes(route.name)"
-          color="WHITE"
-          large
-          @click="$router.push({ name: 'Community' })"
-        >
-          Community
-        </v-btn> -->
-
         <v-btn
           v-if="
             [
@@ -87,17 +56,6 @@
         </v-btn>
 
         <div class="d-flex w-100 align-center justify-space-between" v-else>
-          <!--
-          <v-btn @click="switchTheme" icon>
-            <v-img
-              src="@/assets/theme.png"
-              width="24"
-              height="24"
-              cover
-            ></v-img>
-          </v-btn>
-        -->
-
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">
@@ -143,6 +101,112 @@
           </v-menu>
         </div>
       </v-app-bar>
+    </v-row>
+
+    <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
+    <v-row
+      no-gutters
+      v-else-if="
+        route.name !== 'Home' &&
+        route.name !== 'Login' &&
+        route.name !== 'RetailerRegistration' &&
+        route.name !== 'Gama' &&
+        route.name !== 'Community'
+      "
+    >
+      <v-app-bar app min-height="56" color="secundary" elevation="4">
+        <div
+          @click="$router.push({ name: 'Dashboard' })"
+          style="cursor: pointer"
+          class="d-flex align-center pl-4"
+        >
+          <v-img
+            src="@/assets/darknessl.png"
+            height="30"
+            width="30"
+            alt="Drunagor Icon"
+            contain
+            class="mr-2"
+          ></v-img>
+          <span>App Drunagor</span>
+        </div>
+
+        <v-spacer></v-spacer>
+
+        <!-- Botão Hamburguer -->
+        <v-btn icon @click="drawer = !drawer" class="mr-2">
+          <v-icon>mdi-menu</v-icon>
+        </v-btn>
+      </v-app-bar>
+
+      <!-- Navigation Drawer -->
+      <v-navigation-drawer
+        v-model="drawer"
+        temporary
+        location="right"
+        width="280"
+      >
+        <!-- Header do Drawer com Avatar -->
+        <v-list-item
+          class="pa-4"
+          :prepend-avatar="
+            user.picture_hash
+              ? assets + '/Profile/' + user.picture_hash
+              : assets + '/Profile/user.png'
+          "
+          :title="user.user_name || 'User'"
+          :subtitle="role === 3 ? 'Retailer' : 'Player'"
+        >
+        </v-list-item>
+
+        <v-divider></v-divider>
+
+        <!-- Menu Items -->
+        <v-list density="compact" nav>
+          <v-list-item
+            v-for="(item, index) in menuItems"
+            :key="index"
+            :disabled="item.disabled"
+            @click="handleMenuClick(item)"
+            :value="item.title"
+            class="my-1"
+          >
+            <template v-slot:prepend>
+              <div
+                class="d-flex align-center"
+                style="width: 24px; margin-right: 16px"
+              >
+                <v-img
+                  v-if="item.iconImage"
+                  :src="item.iconImage"
+                  width="24"
+                  height="24"
+                  contain
+                ></v-img>
+                <v-icon v-else size="24">{{ item.icon }}</v-icon>
+              </div>
+            </template>
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+
+        <template v-slot:append>
+          <div class="pa-2">
+            <v-divider class="mb-2"></v-divider>
+            <v-list-item @click="logOut" class="my-1">
+              <template v-slot:prepend>
+                <div
+                  class="d-flex align-center"
+                  style="width: 24px; margin-right: 16px"
+                >
+                  <v-icon size="24">mdi-logout</v-icon>
+                </div>
+              </template>
+              <v-list-item-title>Log Out</v-list-item-title>
+            </v-list-item>
+          </div>
+        </template>
+      </v-navigation-drawer>
     </v-row>
 
     <!-- Exibe o conteúdo da rota -->
@@ -216,7 +280,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, computed, onMounted, onBeforeMount } from "vue";
+import { ref, inject, computed, onMounted, onBeforeMount, watch } from "vue";
 import { setToken } from "@/service/AccessToken";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
@@ -246,47 +310,45 @@ const switchTheme = () => {
   theme.value = themes[(currentIndex + 1) % themes.length];
 };
 
-const bottomNavVisible = ref(true);
-
-const drawer = ref(false); // Controle do drawer lateral
+const drawer = ref(false);
 
 const logOut = () => {
   localStorage.removeItem("accessToken");
   router.push({ name: "Login" });
 };
 
-const role = computed(() => userStore.user?.roles_fk || 2); // Define um valor padrão para evitar erros
+const role = computed(() => userStore.user?.roles_fk || 2);
 
 import VectorIcon from "@/assets/Vector.png";
 
 const menuItems = computed(() => {
   return [
     {
-      title: role.value === 3 ? "CAMPAIGN MANAGER" : "Companion",
+      title: role.value === 3 ? "Campaign Manager" : "Companion",
       iconImage: VectorIcon,
       to: { name: "Campaign Overview" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "SKUS MANAGER" : "Library",
+      title: role.value === 3 ? "SKUs Manager" : "Library",
       icon: "mdi-book",
       to: { name: "Library" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "Dashboard" : "Dashboard",
+      title: "Dashboard",
       icon: "mdi-view-dashboard",
       to: { name: "Dashboard" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "Events" : "Events",
+      title: "Events",
       icon: "mdi-calendar",
       to: { name: "Events" },
       disabled: false,
     },
     {
-      title: role.value === 3 ? "My Profile" : "My Profile",
+      title: "My Profile",
       icon: "mdi-account",
       to: { name: "PerfilHome" },
       disabled: false,
@@ -294,7 +356,16 @@ const menuItems = computed(() => {
   ];
 });
 
-// 🔥 Força atualização ao detectar mudança na role
+const handleMenuClick = (item) => {
+  if (item.to) {
+    router.push(item.to);
+    drawer.value = false; // Fecha o drawer após navegar
+  } else if (item.do) {
+    item.do();
+    drawer.value = false;
+  }
+};
+
 watch(
   () => userStore.user?.roles_fk,
   (newRole) => {
@@ -314,14 +385,14 @@ const contentStyle = computed(() => {
           "background-image":
             "url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp')",
           "background-size": "cover",
-          "background-position": "top center", // Alinha ao topo
+          "background-position": "top center",
           "background-repeat": "no-repeat",
           "min-height": "100vh",
           width: "100%",
-          "margin-top": "65px", // Remove margem superior
+          "margin-top": "65px",
           display: "flex",
-          "align-items": "center", // Centraliza o conteúdo verticalmente
-          "justify-content": "center", // Centraliza o conteúdo horizontalmente
+          "align-items": "center",
+          "justify-content": "center",
         }
       : {
           "background-image":
@@ -345,6 +416,7 @@ const contentStyle = computed(() => {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat-y",
+        "margin-top": "56px",
       };
 });
 
