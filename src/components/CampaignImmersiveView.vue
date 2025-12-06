@@ -507,7 +507,18 @@ const currentBackgroundImage = computed(() => {
      if (door.includes('FIRST SETUP')) doorFile = 'setup';
      else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
      else if (door === 'CRYPTS') doorFile = 'first_door2'; 
-     else if (door === 'BOTH OPEN') doorFile = 'second_door';
+     else if (door === 'BOTH OPEN') {
+         
+         const firstChoice = localStorage.getItem(`campaign_${props.campaignId}_w4_choice`);
+         
+         
+         if (firstChoice === 'DRACONIC CHAPEL') {
+            doorFile = 'second_door2';
+         } else {
+            
+            doorFile = 'second_door';
+         }
+     }
      else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
      else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
   } else {
@@ -516,7 +527,7 @@ const currentBackgroundImage = computed(() => {
      const doorMap = ['setup', 'first_door', 'second_door', 'third_door', 'fourth_door', 'fifth_door', 'sixth_door', 'seventh_door'];
      doorFile = doorMap[idx] || 'setup';
   }
-  try { return new URL(`../assets/campaign_background/${wingFolder}.${doorFile}.png`, import.meta.url).href; } catch { return ''; }
+  try { return new URL(`../assets/campaign_background/${wingFolder}/${wingFolder}.${doorFile}.png`, import.meta.url).href; } catch { return ''; }
 });
 
 const isBossBattle = computed(() => {
@@ -638,6 +649,10 @@ function onSaveFail() { snackbar.value = { visible: true, text: 'Error saving.',
 function readTheScene() { openBookDialog(); }
 function handleImageError() { console.warn('bg error'); }
 
+function saveWing4Path(choice: string) {
+    localStorage.setItem(`campaign_${props.campaignId}_w4_choice`, choice);
+}
+
 const qrToDoorMap: Record<string, string> = {
     "door02.01": "DUNGEON FOYER", "door02.02": "QUEEN'S HALL", "door02.03": "THE FORGE",
     "door02.04": "ARTISAN'S GALLERY", "door02.05": "PROVING GROUNDS", "door02.06": "MAIN HALL",
@@ -651,12 +666,24 @@ function handleDoorScanned(code: string) {
 
     if (wing.includes("WING 4")) {
         if (normalized.includes("02.07")) { 
-            if (currentDoor === "CRYPTS") commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
-            else commitNextDoor("DRACONIC CHAPEL");
+            if (currentDoor === "CRYPTS") {
+                saveWing4Path("CRYPTS"); 
+                commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
+            }
+            else {
+                saveWing4Path("DRACONIC CHAPEL"); 
+                commitNextDoor("DRACONIC CHAPEL");
+            }
         } 
         else if (normalized.includes("02.08")) { 
-            if (currentDoor === "DRACONIC CHAPEL") commitNextDoor("BOTH OPEN", "CRYPTS");
-            else commitNextDoor("CRYPTS");
+            if (currentDoor === "DRACONIC CHAPEL") {
+                saveWing4Path("DRACONIC CHAPEL"); 
+                commitNextDoor("BOTH OPEN", "CRYPTS");
+            }
+            else {
+                saveWing4Path("CRYPTS"); 
+                commitNextDoor("CRYPTS");
+            }
         }
         else if (normalized.includes("02.09")) commitNextDoor("LIBRARY");
         else if (normalized.includes("02.10")) commitNextDoor("LABORATORY");
@@ -680,8 +707,14 @@ function handleManualAdvance() {
     
     if (wing.includes("WING 4")) {
         if(currentDoor === "FIRST SETUP") wing4ChoiceDialog.value.visible = true;
-        else if(currentDoor === "DRACONIC CHAPEL") commitNextDoor("BOTH OPEN", "CRYPTS");
-        else if(currentDoor === "CRYPTS") commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
+        else if(currentDoor === "DRACONIC CHAPEL") {
+            saveWing4Path("DRACONIC CHAPEL"); 
+            commitNextDoor("BOTH OPEN", "CRYPTS");
+        }
+        else if(currentDoor === "CRYPTS") {
+            saveWing4Path("CRYPTS"); 
+            commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
+        }
         else if(currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY"); 
         else if(currentDoor === "LIBRARY") commitNextDoor("DRAGON BOSS");
         else if(currentDoor === "LABORATORY") commitNextDoor("DRAGON BOSS");
@@ -695,6 +728,7 @@ function handleManualAdvance() {
 
 function commitWing4Choice(choice: string) {
     wing4ChoiceDialog.value.visible = false;
+    saveWing4Path(choice); 
     commitNextDoor(choice);
 }
 
