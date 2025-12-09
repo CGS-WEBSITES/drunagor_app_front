@@ -88,6 +88,13 @@ const router = createRouter({
     },
 
     {
+      path: "/lobby/:id",
+      name: "Lobby",
+      component: () => import("@/components/Lobby.vue"),
+      beforeEnter: requireAuth,
+    },
+
+    {
       path: "/community-builds",
       name: "CommunityBuilds",
       component: () => import("@/components/CommunityBuilds.vue"),
