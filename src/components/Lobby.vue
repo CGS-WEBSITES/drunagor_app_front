@@ -8,9 +8,16 @@
       <div class="px-4 pt-4 pb-2 flex-shrink-0 w-100">
         <div class="d-flex align-center justify-space-between mb-2">
            <v-btn icon="mdi-arrow-left" variant="text" color="white" @click="leaveLobby"></v-btn>
-           <span class="text-h6 font-weight-bold text-white cinzel-text text-truncate">
-               {{ 'Lobby' }}
-           </span>
+           
+           <div class="d-flex flex-column align-center">
+               <span class="text-h6 font-weight-bold text-white cinzel-text text-truncate">
+                   {{ eventDetails?.store_name || 'Lobby' }}
+               </span>
+               <span v-if="eventDateObj.day" class="text-caption text-grey">
+                   {{ eventDateObj.month }} {{ eventDateObj.day }} - {{ eventDateObj.time }}
+               </span>
+           </div>
+           
            <div style="width: 40px;"></div>
         </div>
 
@@ -35,9 +42,9 @@
               :color="slot.player ? '#1e1e1e' : 'rgba(255,255,255,0.05)'"
               :variant="slot.player ? 'elevated' : 'outlined'"
               rounded="xl"
-              @click="openHeroSelection"
-              v-ripple
-              style="width: 100%; max-width: 200px; aspect-ratio: 0.76; position: relative; overflow: hidden;"
+              @click="handleSlotClick(index)"
+              v-ripple="!!slot.player"
+              style="width: 100%; max-width: 220px; aspect-ratio: 0.76; position: relative; overflow: hidden;"
             >
               <template v-if="!slot.player">
                 <div class="d-flex flex-column align-center justify-center fill-height" style="opacity: 0.3">
@@ -48,12 +55,17 @@
 
               <template v-else>
                  <div class="player-overlay-header">
-                    <v-avatar size="22" class="mr-2 border-sm">
+                    <v-avatar size="24" class="mr-2 border-sm">
                         <v-img :src="slot.player.avatar"></v-img>
                     </v-avatar>
-                    <span class="text-caption text-white font-weight-bold text-truncate">
+                    
+                    <span class="text-caption text-white font-weight-bold text-truncate" style="max-width: 80px;">
                         {{ slot.player.name }}
                     </span>
+
+                    <v-icon v-if="index === 0" color="amber" size="small" class="ml-1" title="Drunagor Master">
+                        mdi-crown
+                    </v-icon>
                  </div>
 
                  <template v-if="slot.hero">
@@ -77,25 +89,27 @@
       </div>
 
       <div class="flex-shrink-0 pa-6 w-100 bg-grey-darken-4 elevation-24 rounded-t-xl z-index-10">
+        
         <v-btn 
             block 
-            color="green-darken-1"
+            :color="mainButtonConfig.color"
             height="64"
             class="font-weight-bold text-white text-h6 rounded-lg elevation-4"
             :loading="loadingStart"
-            @click="handlePlayButton"
+            @click="handleMainAction"
         >
-            <v-icon start size="large">mdi-play-circle</v-icon> PLAY
+            <v-icon start size="large">{{ mainButtonConfig.icon }}</v-icon> 
+            {{ mainButtonConfig.text }}
         </v-btn>
         
-        <div v-if="!selectedCampaign" class="text-center text-caption text-grey mt-3 font-weight-medium">
-            Tap Play to setup Campaign
+        <div v-if="mainButtonConfig.subtext" class="text-center text-caption text-grey mt-3 font-weight-medium">
+            {{ mainButtonConfig.subtext }}
         </div>
       </div>
     
     </div>
 
-    <v-dialog v-model="heroDialog" max-width="500" scrollable>
+    <v-dialog v-model="heroDialog" max-width="600" scrollable>
       <v-card color="#121212" class="rounded-lg">
         <v-card-title class="text-white text-center pt-4 pb-2 cinzel-text">
            {{ heroDialogTab === 'mine' ? 'Choose your Hero' : 'Create New Hero' }}
@@ -115,13 +129,13 @@
                  <div 
                     v-for="hero in myHeroes" 
                     :key="hero.pk" 
-                    class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative"
+                    class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative my-1"
                     @click="selectHero(hero)"
                  >
                     <v-img 
                         :src="hero.trackerImage" 
                         width="100%"
-                        aspect-ratio="5.52"
+                        aspect-ratio="5.52" 
                         cover
                     ></v-img>
                  </div>
@@ -179,28 +193,13 @@
             <v-btn icon variant="text" size="small" @click="showCampaignDialog = false"><v-icon>mdi-close</v-icon></v-btn>
          </v-card-title>
          <v-card-text class="d-flex flex-column ga-3 pt-2">
-            <v-btn 
-                block 
-                color="success" 
-                size="large" 
-                variant="flat"
-                :loading="loadingCampaignAction"
-                @click="handleNewCampaign"
-            >
+            <v-btn block color="success" size="large" variant="flat" :loading="loadingCampaignAction" @click="handleNewCampaign">
                 <v-icon start>mdi-plus-box</v-icon> New Campaign
             </v-btn>
             <div class="d-flex align-center">
-                <v-divider class="flex-grow-1"></v-divider>
-                <span class="px-2 text-caption text-grey">OR</span>
-                <v-divider class="flex-grow-1"></v-divider>
+                <v-divider></v-divider><span class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
             </div>
-            <v-btn 
-                block 
-                color="blue-darken-2" 
-                size="large"
-                variant="flat"
-                @click="fetchAndShowLoadDialog"
-            >
+            <v-btn block color="blue-darken-2" size="large" variant="flat" @click="fetchAndShowLoadDialog">
                 <v-icon start>mdi-folder-open</v-icon> Load Campaign
             </v-btn>
          </v-card-text>
@@ -252,13 +251,11 @@ const campaignStore = CampaignStore();
 const axios: any = inject('axios');
 const heroDataRepository = new HeroDataRepository();
 
-// --- Estados Globais ---
 const eventDetails = ref<any>(null);
 const loadingStart = ref(false);
 const loadingCampaignAction = ref(false);
 const eventId = route.params.id;
 
-// --- Slots do Lobby ---
 const lobbySlots = ref<any[]>([
     { player: null, hero: null }, 
     { player: null, hero: null }, 
@@ -268,7 +265,6 @@ const lobbySlots = ref<any[]>([
 
 const currentUserSlot = computed(() => lobbySlots.value[0]); 
 
-// --- HERÓIS ---
 const heroDialog = ref(false);
 const heroDialogTab = ref<'mine'|'new'>('mine');
 const loadingHeroes = ref(false);
@@ -307,6 +303,12 @@ const selectHero = (hero: any) => {
     heroDialog.value = false;
 };
 
+const handleSlotClick = (index: number) => {
+    if (index === 0) {
+        openHeroSelection();
+    }
+};
+
 const createNewHero = async (heroId: string) => {
     loadingHeroes.value = true;
     try {
@@ -327,7 +329,6 @@ const createNewHero = async (heroId: string) => {
     }
 };
 
-// --- CAMPANHA E PLAY ---
 const showCampaignDialog = ref(false);
 const showLoadDialog = ref(false);
 const loadingCampaigns = ref(false);
@@ -339,13 +340,49 @@ const selectedCampaignName = computed(() =>
     selectedCampaign.value?.party_name || selectedCampaign.value?.campaign_type || 'Unknown'
 );
 
-const handlePlayButton = () => {
-    if (!selectedCampaign.value) {
-        showCampaignDialog.value = true;
-    } else if (!currentUserSlot.value.hero) {
+const eventDateObj = computed(() => {
+  if(!eventDetails.value) return { month: '', day: '', time: '' };
+  const d = new Date(eventDetails.value.event_date);
+  return {
+    month: d.toLocaleDateString('en-US',{month:'short'}).toUpperCase(),
+    day: d.getDate(),
+    time: d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})
+  }
+});
+
+const mainButtonConfig = computed(() => {
+    if (!currentUserSlot.value.hero) {
+        return {
+            text: 'SELECT HERO',
+            color: 'blue-darken-3',
+            icon: 'mdi-shield-account',
+            subtext: 'Choose a hero to join the party'
+        };
+    } else {
+        return {
+            text: 'PLAY',
+            color: 'green-darken-1',
+            icon: 'mdi-play-circle',
+            subtext: !selectedCampaign.value ? 'Tap Play to select Campaign' : ''
+        };
+    }
+});
+
+const handleMainAction = () => {
+    if (!currentUserSlot.value.hero) {
         openHeroSelection();
     } else {
-        startGame();
+        const playersWithoutHero = lobbySlots.value.some(slot => slot.player && !slot.hero);
+        if (playersWithoutHero) {
+            alert("All players in the lobby must select a hero before starting.");
+            return;
+        }
+
+        if (!selectedCampaign.value) {
+            showCampaignDialog.value = true;
+        } else {
+            startGame();
+        }
     }
 };
 
@@ -359,13 +396,11 @@ const startGame = () => {
     }, 800);
 };
 
-// CORREÇÃO CRÍTICA DO FETCH EVENT DETAILS
+
 const fetchEventDetails = async () => {
     if (!eventId) return;
     const userPk = userStore.user?.users_pk;
-    
     try {
-        // Envia os parametros que o backend espera, evitando o Erro 400
         const res = await axios.get('/events/list_events/', { 
             params: { 
                 player_fk: userPk, 
@@ -373,19 +408,9 @@ const fetchEventDetails = async () => {
             },
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         });
-        
         const events = res.data.events || [];
-        // Tenta achar o evento especifico
         const found = events.find((e:any) => String(e.events_pk) === String(eventId));
-        
-        if(found) {
-            eventDetails.value = found;
-        } else {
-            console.warn("Event ID not in active list. Trying to use route param as fallback if possible.");
-            // Se nao achou, talvez seja um evento passado ou erro de sincronia.
-            // Para "New Campaign" funcionar, precisamos do seasons_fk.
-            // Se o backend nao retornar, new campaign vai falhar.
-        }
+        if(found) eventDetails.value = found;
     } catch(e) {
         console.error("Failed to load event details", e);
     }
@@ -395,7 +420,7 @@ const handleNewCampaign = async () => {
     if(!eventDetails.value || !eventDetails.value.seasons_fk) {
         await fetchEventDetails();
         if(!eventDetails.value) {
-            alert("Connection Error: Could not load event data required to create a campaign.");
+            alert("Error: Could not load event data.");
             return;
         }
     }
@@ -405,7 +430,7 @@ const handleNewCampaign = async () => {
     let campaignType = seasonFk == 2 ? 'underkeep' : (seasonFk == 3 ? 'underkeep2' : null);
     
     if (!campaignType) {
-        alert(`Invalid Season ID (${seasonFk}). Cannot create campaign.`);
+        alert(`Invalid Season ID (${seasonFk}).`);
         loadingCampaignAction.value = false;
         return;
     }
@@ -492,7 +517,7 @@ onMounted(() => {
     z-index: 0;
 }
 
-/* CONTAINER RESPONSIVO (MOBILE FIRST) */
+/* CONTAINER RESPONSIVO */
 .responsive-container {
     margin: 0 auto;
     background: rgba(0,0,0,0.2);
@@ -506,7 +531,7 @@ onMounted(() => {
     }
 }
 
-/* Mobile/Tablet: Fullscreen */
+/* Mobile/Tablet: Fullscreen (Corrige visualização tablet) */
 @media (max-width: 959px) {
     .responsive-container {
         max-width: 100%;
@@ -532,8 +557,6 @@ onMounted(() => {
     border-color: rgba(255,255,255,0.1);
     cursor: pointer;
     transition: all 0.2s;
-    /* Removemos o overflow hidden aqui para permitir o header flutuar se quisermos, 
-       mas como queremos ele DENTRO do card, mantemos hidden */
     overflow: hidden; 
 }
 .player-slot-card:active {
