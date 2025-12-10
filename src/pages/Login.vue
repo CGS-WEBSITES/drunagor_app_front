@@ -388,7 +388,7 @@ import type { User } from "@/store/UserStore";
 import { onBeforeMount } from "vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 // +++ NOVO:
-import { connectSocket } from "@/service/useSocket";
+import { connectSocket } from "@/composables/useSocket";
 
 const userStore = useUserStore();
 
@@ -428,7 +428,6 @@ const rules = {
 };
 
 const axios: any = inject("axios");
-const apiUrl: any = inject("apiUrl");
 
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
@@ -516,7 +515,7 @@ const loginUser = async () => {
         `Bearer ${response.data.access_token}`;
 
       // +++ NOVO: abre o WebSocket passando o JWT no handshake
-      connectSocket(response.data.access_token, dbUser.users_pk, apiUrl.value);
+      connectSocket(response.data.access_token, dbUser.users_pk);
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });
