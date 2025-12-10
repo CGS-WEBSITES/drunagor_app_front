@@ -39,7 +39,7 @@
                Point your camera at the <span class="text-white font-weight-bold">Event QR Code</span>
             </p>
 
-            <div v-if="displayEvents.length > 0">
+            <div>
                 <div class="d-flex align-center w-100 mb-4">
                     <v-divider color="grey-darken-2"></v-divider>
                     <span class="mx-3 text-caption font-weight-bold text-grey">OR</span>
@@ -55,12 +55,8 @@
                     class="font-weight-bold"
                 >
                     <v-icon start>mdi-sword-cross</v-icon>
-                     play My Upcoming Events
+                      play My Upcoming Events
                 </v-btn>
-            </div>
-            
-            <div v-else class="mt-4 text-caption text-grey-darken-1">
-                You have no upcoming events scheduled.
             </div>
         </div>
 
@@ -153,23 +149,20 @@ import {
   BrowserMultiFormatReader,
   BarcodeFormat,
   DecodeHintType,
-  NotFoundException,
 } from "@zxing/library";
 
 const props = defineProps<{
-    modelValue: boolean;
-    myEvents: any[];
-    user: any;
+  modelValue: boolean;
+  myEvents: any[];
+  user: any;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
 const router = useRouter();
 
-// --- Estados UI ---
-const scanning = ref(true); // Começa true (Câmera ligada)
+const scanning = ref(true); 
 const showCameraDeniedDialog = ref(false);
 
-// --- Estados ZXing ---
 const codeReader = new BrowserMultiFormatReader(undefined, 400);
 const zxingHints = new Map();
 zxingHints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
@@ -180,13 +173,11 @@ const availableCameras = ref<MediaDeviceInfo[]>([]);
 const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 
-// --- Computed ---
 const dialog = computed({
   get: () => props.modelValue,
   set: (val) => {
       emit('update:modelValue', val);
       if (val) {
-          // Resetar sempre para scanner ao abrir
           scanning.value = true;
           startScanner();
       } else {
@@ -196,16 +187,13 @@ const dialog = computed({
 });
 
 const displayEvents = computed(() => {
-    // Filtra apenas eventos futuros e ordena
     if (props.myEvents && props.myEvents.length > 0) {
-        const now = new Date();
         const futureEvents = props.myEvents.filter((e: any) => new Date(e.event_date) >= new Date(new Date().setHours(0,0,0,0)));
         return futureEvents.sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
     }
     return [];
 });
 
-// --- Watchers ---
 watch(() => props.modelValue, (val) => {
     if(val) {
         scanning.value = true;
@@ -215,17 +203,16 @@ watch(() => props.modelValue, (val) => {
     }
 });
 
-// --- Métodos de Navegação UI ---
 const closeDialog = () => dialog.value = false;
 
 const switchToListView = () => {
-    stopScanner(); // Para a câmera para economizar recurso
-    scanning.value = false; // Muda a view
+    stopScanner(); 
+    scanning.value = false; 
 };
 
 const switchToScannerView = () => {
     scanning.value = true;
-    startScanner(); // Liga a câmera novamente
+    startScanner(); 
 };
 
 const goToLobby = (eventIdOrJwt: string) => {
@@ -234,7 +221,6 @@ const goToLobby = (eventIdOrJwt: string) => {
     router.push({ name: 'Lobby', params: { id: eventIdOrJwt } });
 };
 
-// --- Métodos do Scanner ---
 const findRearCamera = (devices: MediaDeviceInfo[]): number => {
   const rearKeywords = ["back", "rear", "environment", "world", "traseira"];
   for (let i = 0; i < devices.length; i++) {
