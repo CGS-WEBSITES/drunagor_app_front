@@ -1,21 +1,35 @@
 <template>
-  <v-snackbar
-    v-model="snackbarVisible"
-    :timeout="snackbarTimeout"
-    :color="snackbarColor"
-    location="top"
-    elevation="24"
-    rounded="lg"
-    multi-line
-    class="global-snackbar"
-  >
-    <div class="d-flex align-center">
-      <v-icon :color="snackbarIconColor" class="mr-3">{{
-        snackbarIcon
-      }}</v-icon>
-      <div>
-        <div v-if="snackbarTitle" class="font-weight-bold">
-          {{ snackbarTitle }}
+  <template v-if="isImmersiveMode">
+    <CampaignImmersiveView
+      :campaign-id="campaignId"
+      :campaign="campaign"
+      :hero-store="heroStore"
+      :user-store="userStore"
+      :show-save-campaign-button="showSaveCampaignButton"
+      @refresh-campaign="fetchRole"
+    />
+  </template>
+
+  <template v-else>
+    <v-snackbar
+      v-model="snackbarVisible"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      location="top"
+      elevation="24"
+      rounded="lg"
+      multi-line
+      class="global-snackbar"
+    >
+      <div class="d-flex align-center">
+        <v-icon :color="snackbarIconColor" class="mr-3">{{
+          snackbarIcon
+        }}</v-icon>
+        <div>
+          <div v-if="snackbarTitle" class="font-weight-bold">
+            {{ snackbarTitle }}
+          </div>
+          <div>{{ snackbarText }}</div>
         </div>
         <div>{{ snackbarText }}</div>
       </div>
@@ -140,18 +154,47 @@
           >
             Cancel
           </v-btn>
-          <v-btn
-            color="error"
-            variant="elevated"
-            @click="confirmTransfer"
-            :loading="transferLoading"
-          >
-            Confirm Transfer
-          </v-btn>
-        </template>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          <template v-else>
+            <v-btn
+              color="grey"
+              variant="text"
+              @click="cancelTransfer"
+              :disabled="transferLoading"
+            >
+              Cancel
+            </v-btn>
+            <v-btn
+              color="error"
+              variant="elevated"
+              @click="confirmTransfer"
+              :loading="transferLoading"
+            >
+              Confirm Transfer
+            </v-btn>
+          </template>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-speed-dial
+      v-model="speedDialOpen"
+      transition="fade-transition"
+      class="d-none d-md-flex"
+    >
+      <template v-slot:activator="{ props: activatorProps }">
+        <v-btn
+          v-bind="activatorProps"
+          :color="speedDialOpen ? 'red' : 'green'"
+          size="large"
+          icon
+          class="speed-dial-activator d-none d-md-flex"
+          elevation="14"
+        >
+          <v-icon>{{
+            speedDialOpen ? "mdi-close" : "mdi-script-text-outline"
+          }}</v-icon>
+        </v-btn>
+      </template>
 
   <!-- Desktop: Speed Dial (oculto em mobile/tablet) -->
   <v-speed-dial
@@ -174,14 +217,41 @@
       </v-btn>
     </template>
 
-    <v-btn
-      v-if="showSaveCampaignButton"
-      key="save"
-      size="small"
-      color="success"
-      icon
-      class="speed-dial-item"
-      @click="handleSpeedDialAction('save')"
+      <v-btn
+        key="player-list"
+        size="small"
+        color="secondary"
+        icon
+        class="speed-dial-item"
+        @click="openPlayerListDialog"
+      >
+        <v-icon>mdi-account-group</v-icon>
+        <v-tooltip activator="parent" location="start"> Player List </v-tooltip>
+      </v-btn>
+
+      <v-btn
+        v-if="showSaveCampaignButton"
+        key="remove"
+        size="small"
+        color="error"
+        icon
+        class="speed-dial-item"
+        @click="handleSpeedDialAction('remove')"
+      >
+        <v-icon>mdi-delete-outline</v-icon>
+        <v-tooltip activator="parent" location="start">
+          Remove Campaign
+        </v-tooltip>
+      </v-btn>
+    </v-speed-dial>
+
+    <v-bottom-navigation
+      v-model="bottomNavValue"
+      class="d-md-none mobile-bottom-nav"
+      bg-color="surface"
+      grow
+      elevation="8"
+      height="65"
     >
       <v-icon>mdi-content-save-outline</v-icon>
       <v-tooltip activator="parent" location="start">
@@ -478,8 +548,46 @@
                               :is-admin="showSaveCampaignButton"
                             />
                           </v-col>
+                          <v-col cols="12" sm="6">
+                            <div
+                              class="d-flex justify-start justify-sm-end align-center mb-4"
+                            >
+                              <div class="mx-1 my-1 d-flex align-center">
+                                <div class="mr-3">
+                                  <div class="d-flex align-center">
+                                    <span
+                                      class="text-caption font-weight-bold mr-1"
+                                      >CAMPAIGN ID:</span
+                                    >
+                                    <v-tooltip location="top">
+                                      <template v-slot:activator="{ props }">
+                                        <v-icon
+                                          v-bind="props"
+                                          size="small"
+                                          color="info"
+                                          class="cursor-pointer"
+                                        >
+                                          mdi-information-outline
+                                        </v-icon>
+                                      </template>
+                                      <span
+                                        >Use this code to invite your
+                                        friends</span
+                                      >
+                                    </v-tooltip>
+                                  </div>
+                                </div>
+                                <v-chip v-if="partyCode" label size="large">{{
+                                  partyCode
+                                }}</v-chip>
+                                <v-chip v-else label size="large"
+                                  >Generating...</v-chip
+                                >
+                              </div>
+                            </div>
+                          </v-col>
                         </v-row>
-                      </v-col>
+                      </v-card-text>
                       <v-col cols="12" md="6" class="pl-md-2">
                         <CampaignRuneCards
                           v-if="isSequentialAdventure"
@@ -487,6 +595,76 @@
                           :campaign-type="campaign.campaign"
                           class="mb-3 shepherd-rune-cards"
                         />
+                      </v-col>
+                    </v-card>
+
+                    <v-row
+                      class="my-3"
+                      no-gutters
+                      v-if="showSaveCampaignButton"
+                    >
+                      <v-col cols="12">
+                        <v-card
+                          class="pa-2 shepherd-hero-actions"
+                          color="primary"
+                        >
+                          <div class="d-flex justify-center flex-wrap gap-2">
+                            <CampaignLogAddHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                            <CampaignLogImportHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                            <CampaignLogRemoveHero
+                              :campaign-id="campaignId"
+                              class="mx-1 my-1"
+                            />
+                          </div>
+                        </v-card>
+                      </v-col>
+                    </v-row>
+
+                    <v-row no-gutters>
+                      <v-col cols="12">
+                        <v-sheet
+                          rounded
+                          border="md"
+                          class="text-white pa-2 shepherd-heroes-list"
+                        >
+                          <div
+                            v-if="
+                              campaignStore.findAllHeroes(campaignId).length ===
+                              0
+                            "
+                            class="text-center pa-4"
+                          >
+                            No heroes added to this campaign yet.
+                          </div>
+                          <div
+                            v-for="hero in campaignStore.findAllHeroes(
+                              campaignId,
+                            )"
+                            :key="hero.heroId"
+                            class="mb-2"
+                          >
+                            <v-col cols="12">
+                              <SelectCompanion
+                                :campaign-id="campaignId"
+                                :is-admin="showSaveCampaignButton"
+                              />
+                            </v-col>
+                          </div>
+                        </v-sheet>
+                        <v-col cols="12" md="6" class="pl-md-2">
+                          <CampaignRuneCards
+                            v-if="isSequentialAdventure"
+                            :campaign-id="campaignId"
+                            :campaign-type="campaign.campaign"
+                            class="mb-3 shepherd-rune-cards"
+                          />
+                        </v-col>
                       </v-col>
                     </v-row>
 
@@ -551,134 +729,134 @@
                         </v-sheet>
                       </v-col>
                     </v-row>
-                  </div>
-                </v-window-item>
+                  </v-window-item>
 
-                <v-window-item value="book">
-                  <CampaignBook
-                    ref="campaignBookRef"
-                    :campaign-id="campaignId"
-                  />
-                </v-window-item>
-              </v-window>
-            </template>
+                  <v-window-item value="book">
+                    <CampaignBook
+                      ref="campaignBookRef"
+                      :campaign-id="campaignId"
+                    />
+                  </v-window-item>
+                </v-window>
+              </template>
 
-            <template v-else>
-              <div>
-                <v-row no-gutters align="center" class="mb-3">
-                  <v-col cols="12" sm="8">
-                    <CampaignName :campaign-id="campaignId" />
-                  </v-col>
-                  <v-col cols="12" sm="4">
-                    <div
-                      class="d-flex justify-start justify-sm-end align-center"
-                    >
+              <template v-else>
+                <div>
+                  <v-row no-gutters align="center" class="mb-3">
+                    <v-col cols="12" sm="8">
+                      <CampaignName :campaign-id="campaignId" />
+                    </v-col>
+                    <v-col cols="12" sm="4">
                       <div
-                        v-if="showSaveCampaignButton"
-                        class="mx-1 my-1 d-flex align-center"
+                        class="d-flex justify-start justify-sm-end align-center"
                       >
-                        <div class="mr-3">
-                          <div class="d-flex align-center">
-                            <span class="text-caption font-weight-bold mr-1"
-                              >CAMPAIGN ID:</span
-                            >
-                            <v-tooltip location="top">
-                              <template v-slot:activator="{ props }">
-                                <v-icon
-                                  v-bind="props"
-                                  size="small"
-                                  color="info"
-                                  class="cursor-pointer"
-                                >
-                                  mdi-information-outline
-                                </v-icon>
-                              </template>
-                              <span>Use this code to invite your friends</span>
-                            </v-tooltip>
+                        <div
+                          v-if="showSaveCampaignButton"
+                          class="mx-1 my-1 d-flex align-center"
+                        >
+                          <div class="mr-3">
+                            <div class="d-flex align-center">
+                              <span class="text-caption font-weight-bold mr-1"
+                                >CAMPAIGN ID:</span
+                              >
+                              <v-tooltip location="top">
+                                <template v-slot:activator="{ props }">
+                                  <v-icon
+                                    v-bind="props"
+                                    size="small"
+                                    color="info"
+                                    class="cursor-pointer"
+                                  >
+                                    mdi-information-outline
+                                  </v-icon>
+                                </template>
+                                <span>Use this code to invite your friends</span>
+                              </v-tooltip>
+                            </div>
                           </div>
+                          <v-chip v-if="partyCode" label size="large">{{
+                            partyCode
+                          }}</v-chip>
+                          <v-chip v-else label size="large">Generating...</v-chip>
                         </div>
-                        <v-chip v-if="partyCode" label size="large">{{
-                          partyCode
-                        }}</v-chip>
-                        <v-chip v-else label size="large">Generating...</v-chip>
                       </div>
-                    </div>
-                  </v-col>
-                </v-row>
+                    </v-col>
+                  </v-row>
 
-                <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
-                  <v-col cols="12">
-                    <v-card class="pa-2" color="primary">
-                      <div class="d-flex justify-center flex-wrap gap-2">
-                        <CampaignLogAddHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogImportHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                        <CampaignLogRemoveHero
-                          :campaign-id="campaignId"
-                          class="mx-1 my-1"
-                        />
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
+                  <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
+                    <v-col cols="12">
+                      <v-card class="pa-2" color="primary">
+                        <div class="d-flex justify-center flex-wrap gap-2">
+                          <CampaignLogAddHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                          <CampaignLogImportHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                          <CampaignLogRemoveHero
+                            :campaign-id="campaignId"
+                            class="mx-1 my-1"
+                          />
+                        </div>
+                      </v-card>
+                    </v-col>
+                  </v-row>
 
-                <v-row no-gutters>
-                  <v-col cols="12">
-                    <v-sheet rounded border="md" class="text-white pa-2">
-                      <div
-                        v-if="
-                          heroStore.findAllInCampaign(campaignId).length === 0
-                        "
-                        class="text-center pa-4"
-                      >
-                        No heroes added to this campaign yet.
-                      </div>
-                      <div
-                        v-for="hero in heroStore.findAllInCampaign(campaignId)"
-                        :key="hero.heroId"
-                        class="mb-2"
-                      >
-                        <CampaignLog
-                          :campaign-id="campaignId"
-                          :hero-id="hero.heroId"
-                          :is-sequential-adventure="isSequentialAdventure"
-                        />
-                      </div>
-                    </v-sheet>
-                  </v-col>
-                </v-row>
-              </div>
-            </template>
-          </v-col>
-        </v-row>
-      </template>
-    </v-container>
-  </div>
+                  <v-row no-gutters>
+                    <v-col cols="12">
+                      <v-sheet rounded border="md" class="text-white pa-2">
+                        <div
+                          v-if="
+                            heroStore.findAllInCampaign(campaignId).length === 0
+                          "
+                          class="text-center pa-4"
+                        >
+                          No heroes added to this campaign yet.
+                        </div>
+                        <div
+                          v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                          :key="hero.heroId"
+                          class="mb-2"
+                        >
+                          <CampaignLog
+                            :campaign-id="campaignId"
+                            :hero-id="hero.heroId"
+                            :is-sequential-adventure="isSequentialAdventure"
+                          />
+                        </div>
+                      </v-sheet>
+                    </v-col>
+                  </v-row>
+                </div>
+              </template>
+            </v-col>
+          </v-row>
+        </template>
+      </v-container>
+    </div>
 
-  <div style="display: none">
-    <CampaignSavePut
-      ref="savePutRef"
-      :campaign-id="campaignId"
-      @success="onSaveSuccess"
-      @fail="onSaveFail"
-    />
-    <CampaignRemove
-      ref="campaignRemoveRef"
-      :campaign-id="campaignId"
-      @removed="onCampaignRemoved"
-    />
-    <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
-    <ShareCampaignButton
-      ref="shareCampaignRef"
-      :campaignId="campaignId"
-      :inviteCode="partyCode"
-    />
-  </div>
+    <div style="display: none">
+      <CampaignSavePut
+        ref="savePutRef"
+        :campaign-id="campaignId"
+        @success="onSaveSuccess"
+        @fail="onSaveFail"
+      />
+      <CampaignRemove
+        ref="campaignRemoveRef"
+        :campaign-id="campaignId"
+        @removed="onCampaignRemoved"
+      />
+      <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
+      <ShareCampaignButton
+        ref="shareCampaignRef"
+        :campaignId="campaignId"
+        :inviteCode="partyCode"
+      />
+    </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -709,6 +887,8 @@ import { type Campaign } from "@/store/Campaign";
 import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
 import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
 import SelectCompanion from "@/components/SelectCompanion.vue";
+import CampaignImmersiveView from "@/components/CampaignImmersiveView.vue"; // Import the new component
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
@@ -902,7 +1082,7 @@ function navigateToHeroEquipmentSkills(heroId: string) {
 }
 
 function handleManageResourcesAction() {
-  const heroes = heroStore.findAllInCampaign(campaignId);
+  const heroes = campaignStore.findAllHeroes(campaignId);
   if (heroes.length === 0) {
     setAlert(
       "mdi-information-outline",
@@ -920,7 +1100,7 @@ function handleManageResourcesAction() {
 }
 
 function handleEquipmentSkillsAction() {
-  const heroes = heroStore.findAllInCampaign(campaignId);
+  const heroes = campaignStore.findAllHeroes(campaignId);
   if (heroes.length === 0) {
     setAlert(
       "mdi-information-outline",
@@ -942,12 +1122,13 @@ function handleQRCodeAction() {
     campaign.value &&
     ["underkeep", "underkeep2"].includes(campaign.value.campaign)
   ) {
-    // Muda para a aba "book"
     currentTab.value = "book";
 
-    // Navega diretamente para interact sem delay
     nextTick(() => {
-      if (campaignBookRef.value && typeof campaignBookRef.value.forceNavigateToInteract === "function") {
+      if (
+        campaignBookRef.value &&
+        typeof campaignBookRef.value.forceNavigateToInteract === "function"
+      ) {
         campaignBookRef.value.forceNavigateToInteract();
       }
     });
@@ -973,15 +1154,12 @@ const openPlayerListDialog = async () => {
   playerListDialogVisible.value = true;
 };
 
-// Handler para o Speed Dial (Desktop)
 const handleSpeedDialAction = (action: string) => {
   executeAction(action);
   speedDialOpen.value = false;
 };
 
-// Handler para o Bottom Navigation (Mobile/Tablet)
 const handleBottomNavAction = (action: string) => {
-  // Reseta o valor para não manter o item selecionado
   setTimeout(() => {
     bottomNavValue.value = null;
   }, 100);
@@ -989,7 +1167,6 @@ const handleBottomNavAction = (action: string) => {
   executeAction(action);
 };
 
-// Função centralizada para executar as ações
 const executeAction = (action: string) => {
   switch (action) {
     case "save":
@@ -1204,6 +1381,29 @@ onMounted(async () => {
     return;
   }
 
+  try {
+    const existingCampaign = campaignStore.findOptional(campaignId);
+    const heroCount = existingCampaign?.heroes?.length || 0;
+
+    if (!existingCampaign || heroCount === 0) {
+      const loader = new CampaignLoadFromStorage();
+      await loader.loadCampaignComplete(campaignId);
+    } else {
+      console.log(
+        `[CampaignView] Campaign already in store with ${heroCount} heroes, skipping load`,
+      );
+    }
+  } catch (error) {
+    console.error("[CampaignView] Error loading campaign from backend:", error);
+    setAlert(
+      "mdi-alert-circle",
+      "Error",
+      "Failed to load campaign data. Please try again.",
+      "error",
+    );
+    return;
+  }
+
   const found = campaignStore.find(campaignId);
   if (found) {
     campaign.value = found;
@@ -1218,6 +1418,7 @@ onMounted(async () => {
       `Campaign with ID ${campaignId} not found.`,
       "error",
     );
+    return;
   }
 
   await fetchRole();
@@ -1271,18 +1472,16 @@ onMounted(async () => {
   padding: 16px !important;
 }
 
-/* Snackbar responsivo para mobile */
 @media (max-width: 960px) {
   .global-snackbar {
     z-index: 10000 !important;
   }
 
   :deep(.v-snackbar__wrapper) {
-    bottom: 80px !important; /* Acima do bottom navigation */
+    bottom: 80px !important;
   }
 }
 
-/* Text Styles */
 .info-text {
   font-size: 0.6rem !important;
   color: rgba(255, 255, 255, 0.7);
@@ -1302,7 +1501,6 @@ onMounted(async () => {
   text-transform: none !important;
 }
 
-/* Campaign Content */
 .campaign-content {
   position: relative;
   overflow-x: hidden;
@@ -1313,7 +1511,6 @@ onMounted(async () => {
   padding-bottom: 80px;
 }
 
-/* Action Groups */
 .action-group {
   display: flex;
   flex-wrap: wrap;
@@ -1335,7 +1532,6 @@ onMounted(async () => {
   margin-bottom: 4px !important;
 }
 
-/* Desktop: Speed Dial Styles */
 .speed-dial-activator {
   position: fixed;
   right: 10px;
@@ -1369,7 +1565,6 @@ onMounted(async () => {
   transform: none !important;
 }
 
-/* Botão QR Code MAIOR no Speed Dial */
 .speed-dial-item-qr {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3) !important;
   margin-bottom: 16px !important;
@@ -1388,7 +1583,6 @@ onMounted(async () => {
   font-size: 36px !important;
 }
 
-/* Mobile/Tablet: Bottom Navigation Styles */
 .mobile-bottom-nav {
   position: fixed !important;
   bottom: 0 !important;
@@ -1419,7 +1613,6 @@ onMounted(async () => {
   margin-top: 2px !important;
 }
 
-/* Botão QR Code MAIOR no Bottom Navigation */
 .bottom-nav-btn-qr {
   flex-direction: column !important;
   min-width: 80px !important;
@@ -1455,7 +1648,6 @@ onMounted(async () => {
   letter-spacing: 0.5px;
 }
 
-/* Hero Highlights */
 .hero-highlight {
   transition: box-shadow 0.3s ease;
 }
@@ -1464,7 +1656,6 @@ onMounted(async () => {
   box-shadow: 0 0 20px rgba(var(--v-theme-primary), 0.5) !important;
 }
 
-/* Action Buttons */
 :deep(.action-buttons-container) {
   position: relative;
   z-index: 10;
@@ -1480,7 +1671,6 @@ onMounted(async () => {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
-/* Tabs */
 .v-tabs .v-tab--selected {
   background-color: rgb(var(--v-theme-secondary)) !important;
   color: white !important;
@@ -1498,7 +1688,6 @@ onMounted(async () => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Responsive Breakpoints */
 @media (max-width: 960px) {
   .action-group {
     min-width: 45%;
@@ -1544,7 +1733,6 @@ onMounted(async () => {
   }
 }
 
-/* Utility Classes */
 .d-contents {
   display: contents;
 }

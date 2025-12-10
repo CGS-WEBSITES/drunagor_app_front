@@ -1,79 +1,78 @@
-import { useStorage } from "@vueuse/core";
-import * as _ from "lodash-es";
 import { defineStore } from "pinia";
-import type { Hero } from "./Hero"; 
+import { CampaignStore } from "./CampaignStore";
+import type { Hero } from "./Hero";
 
 export const HeroStore = defineStore("hero", () => {
-  const heroes = useStorage("HeroStore.heroes", [] as Hero[]);
+  const campaignStore = CampaignStore();
 
   function hasInCampaign(heroId: string, campaignId: string): boolean {
-    const inCampaign = _.find(heroes.value, {
-      heroId: heroId,
-      campaignId: campaignId,
-    });
-    return inCampaign !== undefined;
+    return campaignStore.hasHero(campaignId, heroId);
   }
 
   function findInCampaign(heroId: string, campaignId: string): Hero {
-    const hero = _.find(heroes.value, {
-      heroId: heroId,
-      campaignId: campaignId,
-    });
-    if (hero == undefined) {
-      throw new Error(`Hero with id '${heroId}' could not be found in campaign '${campaignId}'.`);
-    }
-    return hero;
+    return campaignStore.findHero(campaignId, heroId);
+  }
+
+  function findInCampaignOptional(heroId: string, campaignId: string): Hero | null {
+    return campaignStore.findHeroOptional(campaignId, heroId);
+  }
+
+  function findByPlayableHeroesPk(campaignId: string, playableHeroesPk: number): Hero | null {
+    return campaignStore.findHeroByPlayableHeroesPk(campaignId, playableHeroesPk);
   }
 
   function findAllInCampaign(campaignId: string): Hero[] {
-    return _.filter(heroes.value, (hero: Hero) => hero.campaignId === campaignId);
+    return campaignStore.findAllHeroes(campaignId);
   }
 
-  /**
-   * @param {Hero} hero 
-   */
   function add(hero: Hero): void {
-    if (hasInCampaign(hero.heroId, hero.campaignId)) {
-      return;
-    }
-    heroes.value.push(hero);
+    campaignStore.addHero(hero.campaignId, hero);
   }
 
-  /**
-   * @param {Hero} heroToClone 
-   * @param {string} targetCampaignId 
-   * @returns {boolean} 
-   */
+  function addOrUpdate(hero: Hero): void {
+    campaignStore.addOrUpdateHero(hero.campaignId, hero);
+  }
+
+  function updateHero(heroId: string, campaignId: string, updates: Partial<Hero>): void {
+    campaignStore.updateHero(campaignId, heroId, updates);
+  }
+
+  function setPlayableHeroesPk(heroId: string, campaignId: string, playableHeroesPk: number): void {
+    campaignStore.setHeroPlayableHeroesPk(campaignId, heroId, playableHeroesPk);
+  }
+
   function importAndCloneHeroToCampaign(heroToClone: Hero, targetCampaignId: string): boolean {
-    if (hasInCampaign(heroToClone.heroId, targetCampaignId)) {
-      return false; 
-    }
-
-    const newHeroInstance = _.cloneDeep(heroToClone);
-    newHeroInstance.campaignId = targetCampaignId;
-
-    heroes.value.push(newHeroInstance);
-    return true; 
+    return campaignStore.importAndCloneHeroToCampaign(heroToClone, targetCampaignId);
   }
 
   function removeFromCampaign(heroId: string, campaignId: string): void {
-    heroes.value = heroes.value.filter((hero: Hero) => {
-      return !(hero.campaignId === campaignId && hero.heroId === heroId);
-    });
+    campaignStore.removeHero(campaignId, heroId);
   }
-  
+
+  function clearCampaignHeroes(campaignId: string): void {
+    campaignStore.clearHeroes(campaignId);
+  }
+
   function reset(): void {
-    heroes.value = [];
+    const allCampaigns = campaignStore.findAll();
+    allCampaigns.forEach((campaign) => {
+      campaign.heroes = [];
+    });
   }
 
   return {
-    heroes,
     hasInCampaign,
     findInCampaign,
+    findInCampaignOptional,
+    findByPlayableHeroesPk,
     findAllInCampaign,
     add,
+    addOrUpdate,
+    updateHero,
+    setPlayableHeroesPk,
     importAndCloneHeroToCampaign,
     removeFromCampaign,
+    clearCampaignHeroes,
     reset,
   };
 });

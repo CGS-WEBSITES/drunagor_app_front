@@ -140,6 +140,24 @@ const router = createRouter({
           beforeEnter: requireAuth,
         },
         {
+          path: "/campaign-tracker/heroes",
+          name: "HeroesManager",
+          component: () => import("@/components/HeroesManager.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/campaign-tracker/hero/:heroId/sequential-state",
+          name: "StandaloneHeroSequentialState",
+          component: () => import("@/components/StandaloneHeroSequentialStateView.vue"), 
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/campaign-tracker/hero/:heroId",
+          name: "StandaloneHero",
+          component: () => import("@/components/StandaloneHeroDetailView.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
           path: "/campaign-tracker/keyword",
           name: "Keyword",
           component: () => import("@/components/KeywordView.vue"),
