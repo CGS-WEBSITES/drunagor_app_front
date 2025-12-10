@@ -210,6 +210,18 @@ const router = createRouter({
         },
         {
           path: "/profile/store-settings",
+          name: "stores",
+          component: () =>
+            import("@/components/StoreSettings.vue"),
+          beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          },
+        },
+        {
+          path: "/profile/store-settings",
           name: "logout",
           component: () => import("@/components/StoreSettings.vue"),
           beforeEnter: requireAuth,
