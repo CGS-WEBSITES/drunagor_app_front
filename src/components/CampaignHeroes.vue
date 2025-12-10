@@ -186,9 +186,7 @@ async function handleRemoveHero(hero: PlayableHeroView) {
 }
 
 onMounted(async () => {
-  if (!playableHeroStore.loaded) {
     await playableHeroStore.fetchHeroes(userStore.user.users_pk);
-  }
 });
 </script>
 
