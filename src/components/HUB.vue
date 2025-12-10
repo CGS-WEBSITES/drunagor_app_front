@@ -4,21 +4,25 @@
     max-width="500"
     transition="dialog-bottom-transition"
     class="hub-dialog"
+    scrollable
   >
     <v-card color="#121212" class="rounded-lg">
-      <v-toolbar color="transparent" density="compact" class="border-b border-opacity-25 pl-2 pr-2">
+      <v-toolbar color="transparent" density="compact" class="border-b border-opacity-25 pl-2 pr-2 flex-shrink-0">
         <v-toolbar-title class="text-subtitle-1 font-weight-bold text-white">
-          SELECT MATCH
+          {{ scanning ? 'SCAN QR CODE' : 'SELECT EVENT' }}
         </v-toolbar-title>
         <v-btn icon @click="closeDialog" density="compact" color="white">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-toolbar>
 
-      <v-card-text class="pa-4">
+      <v-card-text class="pa-4" style="overflow-y: auto;">
+        
         <div v-if="scanning" class="scanner-container text-center">
-            <div class="video-wrapper">
+            
+            <div class="video-wrapper mb-4">
                 <video id="qr-video" class="qr-video" autoplay muted playsinline />
+                
                 <v-btn
                   v-if="isCameraSwitchVisible"
                   @click="switchCamera"
@@ -27,11 +31,37 @@
                   class="camera-switch"
                   :title="'Flip camera'"
                 />
+                
+                <div class="scan-overlay"></div>
             </div>
-            <p class="text-caption text-grey mb-4">Point your camera at the Event QR Code</p>
-            <v-btn block color="red-darken-1" variant="outlined" @click="stopScanner">
-                Cancel Scan
-            </v-btn>
+            
+            <p class="text-caption text-grey-lighten-1 mb-4 font-weight-medium">
+               Point your camera at the <span class="text-white font-weight-bold">Event QR Code</span>
+            </p>
+
+            <div v-if="displayEvents.length > 0">
+                <div class="d-flex align-center w-100 mb-4">
+                    <v-divider color="grey-darken-2"></v-divider>
+                    <span class="mx-3 text-caption font-weight-bold text-grey">OR</span>
+                    <v-divider color="grey-darken-2"></v-divider>
+                </div>
+
+                <v-btn 
+                    block 
+                    size="large" 
+                    color="surface-variant" 
+                    variant="flat" 
+                    @click="switchToListView"
+                    class="font-weight-bold"
+                >
+                    <v-icon start>mdi-sword-cross</v-icon>
+                     play My Upcoming Events
+                </v-btn>
+            </div>
+            
+            <div v-else class="mt-4 text-caption text-grey-darken-1">
+                You have no upcoming events scheduled.
+            </div>
         </div>
 
         <div v-else class="d-flex flex-column">
@@ -42,52 +72,47 @@
                 v-for="event in displayEvents"
                 :key="event.events_pk"
                 class="mb-3 event-card"
-                color="#e0e0e0" 
-                elevation="0"
+                color="#FFFFFF" 
+                elevation="2"
                 @click="goToLobby(event.events_pk)"
                 rounded="lg"
               >
                 <v-row no-gutters align="center">
-                  <v-col cols="3" class="d-flex flex-column align-center justify-center py-3 border-e border-grey-lighten-1">
-                    <span class="text-caption font-weight-bold text-grey-darken-2 text-uppercase">
-                      {{ new Date(event.event_date).toLocaleDateString('en-US',{month:'short'}) }}
-                    </span>
-                    <span class="cinzel-text text-h4 font-weight-bold text-black" style="line-height: 1;">
-                      {{ new Date(event.event_date).getDate() }}
-                    </span>
-                    <span class="text-caption font-weight-bold text-black">
-                      {{ new Date(event.event_date).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}) }}
-                    </span>
-                  </v-col>
+                    <v-col cols="3" class="d-flex flex-column align-center justify-center py-2  border-e">
+                        <span class="text-caption font-weight-bold text-uppercase pt-1" style="font-size: 0.65rem;">
+                            {{ new Date(event.event_date).toLocaleDateString('en-US',{month:'short'}) }}
+                        </span>
+                        <span class="cinzel-text text-h5 font-weight-bold text-black" style="line-height: 1;">
+                            {{ new Date(event.event_date).getDate() }}
+                        </span>
+                        <span class="text-caption font-weight-bold text-black" style="font-size: 0.7rem;">
+                            {{ new Date(event.event_date).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}) }}
+                        </span>
+                    </v-col>
 
-                  <v-col cols="9" class="pl-4 py-2">
-                    <h3 class="text-subtitle-1 font-weight-bold text-truncate pr-2 mb-0 text-black">
-                      <v-icon size="x-small" color="black" class="mr-1">mdi-chess-rook</v-icon>
-                      {{ event.store_name }}
-                    </h3>
-                    <div class="text-caption text-truncate text-grey-darken-3">
-                      <v-icon size="x-small" color="red" class="mr-1">mdi-map-marker</v-icon>
-                      {{ event.address || 'Unknown Location' }}
-                    </div>
-                  </v-col>
+                    <v-col cols="9" class="pl-3 py-2 d-flex flex-column justify-center">
+                        <h3 class="text-subtitle-2 font-weight-bold text-truncate text-black mb-0 d-flex align-center">
+                            <v-icon size="x-small" color="black" class="mr-1">mdi-chess-rook</v-icon>
+                            {{ event.store_name }}
+                        </h3>
+
+                        <p class="text-caption text-truncate mb-0">
+                            <v-icon size="x-small" color="red" class="mr-1">mdi-map-marker</v-icon>
+                            {{ event.address || 'Unknown Location' }}
+                        </p>
+
+                        <p class="text-caption text-black   mb-0">
+                             <v-icon size="x-small" class="mr-1" color="red">mdi-sword-cross</v-icon>
+                             {{ event.scenario || 'Wing Unknown' }}
+                        </p>
+                    </v-col>
                 </v-row>
               </v-card>
             </template>
             
-            <div v-else class="text-center pa-6 text-grey-lighten-1">
-              <v-icon size="64" color="grey-darken-2" class="mb-4">mdi-calendar-remove</v-icon>
-              <h3 class="text-h6 font-weight-bold mb-2">No Active Events</h3>
-              <p class="text-body-2 mb-4">
-                You are not currently checked into any event. 
-                <br>Please join an event via the <strong>Events List</strong> or scan a <strong>QR Code</strong> at the venue.
-              </p>
+            <div v-else class="text-center pa-6 border-dashed rounded text-grey">
+              No scheduled events found.
             </div>
-          </div>
-
-          <div class="d-flex align-center w-100 mb-4">
-            <v-divider color="grey-darken-2"></v-divider>
-            <span class="mx-3 text-caption font-weight-bold text-grey">OR</span>
-            <v-divider color="grey-darken-2"></v-divider>
           </div>
 
           <v-btn
@@ -96,10 +121,10 @@
             color="primary"
             variant="flat"
             class="mb-2 font-weight-bold text-white"
-            @click="startScanner"
+            @click="switchToScannerView"
           >
             <v-icon start>mdi-qrcode-scan</v-icon>
-            SCAN QR CODE
+            Back to Scanner
           </v-btn>
           
         </div>
@@ -122,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onBeforeUnmount } from 'vue';
+import { ref, computed, nextTick, onBeforeUnmount, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import {
   BrowserMultiFormatReader,
@@ -141,7 +166,7 @@ const emit = defineEmits(['update:modelValue']);
 const router = useRouter();
 
 // --- Estados UI ---
-const scanning = ref(false);
+const scanning = ref(true); // Começa true (Câmera ligada)
 const showCameraDeniedDialog = ref(false);
 
 // --- Estados ZXing ---
@@ -160,17 +185,48 @@ const dialog = computed({
   get: () => props.modelValue,
   set: (val) => {
       emit('update:modelValue', val);
-      if (!val) stopScanner();
+      if (val) {
+          // Resetar sempre para scanner ao abrir
+          scanning.value = true;
+          startScanner();
+      } else {
+          stopScanner();
+      }
   }
 });
 
 const displayEvents = computed(() => {
-    if (props.myEvents && props.myEvents.length > 0) return props.myEvents;
+    // Filtra apenas eventos futuros e ordena
+    if (props.myEvents && props.myEvents.length > 0) {
+        const now = new Date();
+        const futureEvents = props.myEvents.filter((e: any) => new Date(e.event_date) >= new Date(new Date().setHours(0,0,0,0)));
+        return futureEvents.sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    }
     return [];
 });
 
-// --- Métodos de Navegação ---
+// --- Watchers ---
+watch(() => props.modelValue, (val) => {
+    if(val) {
+        scanning.value = true;
+        startScanner();
+    } else {
+        stopScanner();
+    }
+});
+
+// --- Métodos de Navegação UI ---
 const closeDialog = () => dialog.value = false;
+
+const switchToListView = () => {
+    stopScanner(); // Para a câmera para economizar recurso
+    scanning.value = false; // Muda a view
+};
+
+const switchToScannerView = () => {
+    scanning.value = true;
+    startScanner(); // Liga a câmera novamente
+};
 
 const goToLobby = (eventIdOrJwt: string) => {
     stopScanner();
@@ -189,19 +245,17 @@ const findRearCamera = (devices: MediaDeviceInfo[]): number => {
 };
 
 const startScanner = async () => {
-  scanning.value = true;
+  if(!dialog.value) return;
+  
   await nextTick();
 
   try {
     const videoElement = document.getElementById("qr-video") as HTMLVideoElement | null;
-    if (!videoElement) {
-      console.error("Video element not found");
-      return;
-    }
+    if (!videoElement) return;
 
     const devices = await codeReader.listVideoInputDevices();
     if (!devices.length) {
-      console.error("No cameras found");
+      console.warn("No cameras found");
       return;
     }
 
@@ -220,15 +274,10 @@ const startScanner = async () => {
              goToLobby(rawText);
         }
       }
-      if (err && !(err instanceof NotFoundException)) {
-         // console.error(err);
-      }
     });
 
   } catch (e) {
     console.error("Error starting scanner:", e);
-    showCameraDeniedDialog.value = true;
-    scanning.value = false;
   }
 };
 
@@ -241,7 +290,6 @@ const switchCamera = () => {
 
 const stopScanner = () => {
   codeReader.reset();
-  scanning.value = false;
   availableCameras.value = [];
 };
 
@@ -252,9 +300,63 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .cinzel-text { font-family: "Cinzel", serif; }
-.video-wrapper { position: relative; display: inline-block; margin: 0 auto; max-width: 100%; }
-.qr-video { width: 100%; max-width: 300px; height: 300px; object-fit: cover; border-radius: 12px; border: 2px solid var(--v-theme-primary); background: #000; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-.camera-switch { position: absolute !important; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.6) !important; color: white !important; z-index: 10; }
-.scanner-container { animation: fadeIn 0.3s ease-in-out; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.video-wrapper { 
+    position: relative; 
+    display: inline-block; 
+    margin: 0 auto; 
+    width: 100%;
+    max-width: 280px;
+    height: 280px; 
+    border-radius: 12px; 
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    border: 2px solid var(--v-theme-primary);
+}
+
+.qr-video { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
+
+.scan-overlay {
+    position: absolute;
+    top: 15%; left: 15%; right: 15%; bottom: 15%;
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 8px;
+    box-shadow: 0 0 0 1000px rgba(0,0,0,0.4);
+    pointer-events: none;
+}
+
+.camera-switch { 
+    position: absolute !important; 
+    top: 10px; 
+    right: 10px; 
+    background: rgba(0, 0, 0, 0.6) !important; 
+    color: white !important; 
+    z-index: 10; 
+}
+
+.event-card {
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.event-card:active {
+    transform: scale(0.99);
+}
+
+.border-dashed {
+    border: 1px dashed rgba(255,255,255,0.2) !important;
+}
+
+.scanner-container {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
