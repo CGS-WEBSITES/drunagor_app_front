@@ -9,7 +9,7 @@
       --v-layout-top: 0px;
     "
   >
-    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0">
+    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-10 pt-md-0">
       <v-card
         color="background"
         class="card-overlay full-screen-card"
