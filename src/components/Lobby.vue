@@ -506,6 +506,10 @@ onMounted(() => {
         };
     }
 });
+
+onMounted(async () => {
+    await playableHeroStore.fetchHeroes(userStore.user.users_pk);
+});
 </script>
 
 <style scoped>
