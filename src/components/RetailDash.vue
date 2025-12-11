@@ -167,7 +167,7 @@ import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
 import axios from "axios";
-import DashboardEvents from "@/components/DashboardEvents.vue";
+import DashboardEvents from "@/components/RetailerDashboardEvents.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
