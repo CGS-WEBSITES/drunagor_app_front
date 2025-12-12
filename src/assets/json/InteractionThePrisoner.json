@@ -4,87 +4,46 @@
     "type": "intro",
     "title": "THE PRISONER",
     "body": [
-      "A man hangs, bound to a torture The Rack designed to stretch its victim. The device stands upright, forcing the prisoner to dangle uncomfortably. The poor soul’s arms and legs are tied, but that’s not the only thing preventing him from falling to the ground: Two spikes of Darkness, rigid like they were ceramic, pierce his guts, making you wonder how he’s even still alive…",
-      "<br><br><b>GAME MECHANIC – THE RACK</b><br>Place the The Rack Game Mechanic card at the bottom end of the Initiative Track, just above the Rune card, with face A up.",
-      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes.",
-      "<br><br><b>RULE – CONTINUOUS INTERACTION</b><br>The same Hero may interact with this scene more than once per turn if desired. As a Cube Action, a Hero may EXPEND 1 AC to interact with this scene again. They may also choose to interact with it by simply using their Minor Action as normal."
+      "A man weakly struggles on a horizontal torture rack built to pull its victims apart. Strange spikes jut from his body, anchoring him to the machine as he claws toward them, wrists and ankles bound wide. When he notices your approach, he turns his head and cries, “Please! Help me! I have to get them out!”<br>A sickly green glow pulses from the two rigid spikes—Darkness piercing straight through his guts, buried deep into fragile flesh. They seem to be the true source of his agony. If freed too soon, he looks desperate enough to tear them out himself. You wonder how he’s even still alive…",
+      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive; they can be repeated, and the game state might lead to different outcomes."
     ]
   },
   {
-    "id": "interaction-2.1",
+    "id": "interaction-1.1",
     "type": "choice",
-    "title": "2.1 – ASK “WHO ARE YOU?”",
+    "title": "1.1 – CUT THE BINDINGS ON HIS HANDS",
     "body": [
-      "The constitution one acquires over a life of plenty suggests who the man might be, but you want to be sure. “I am Matthias Cormack…” he answers, choking on his own blood, “…the Count of Blackriver! Warriors, my life no longer matters… The monster has made this place its lair. You must kill it, whatever it takes…”"
+      "The way you found the man is horrific in every sense, both his mind and body being in a terrible state. You draw a knife and start cutting his bindings. The work has to start somewhere, and even if it doesn’t help, perhaps it might provide the man some small relief…<br><br>",
+      "If the “<span style=\"color: #ff99ff;\">Pressure Relieved</span>” Status is noted on the Party’s Campaign Log, proceed to resolution 1.9. Otherwise, proceed to the resolution 1.5."
     ],
     "actions": [
       {
-        "text": "Proceed with the Adventure",
+        "text": "If you have 'Pressure Relieved' status - (interaction 1.9)",
         "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-2.2",
-    "type": "choice",
-    "title": "2.2 – ASK “WHAT HAPPENED TO YOU?”",
-    "body": [
-      "The condition of the prisoner practically tells you the story you want to know, but nothing is ever as simple as it seems. “That… thing brought me here, I don’t know how many moons ago…” the man replies amid grunts and grimaces. “It could have killed me, but left me alive to witness the slaughter of my people. But make no mistake: I am already dead. There is no way to get me out of here…”"
-    ],
-    "actions": [
-      {
-        "text": "Proceed with the Adventure",
-        "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-2.3",
-    "type": "choice",
-    "title": "2.3 – CUT THE BINDINGS ON HIS HANDS",
-    "body": [
-      "The way you found the man is horrific in every sense, making you doubt whether it’s even possible to free him. Nonetheless, you draw a knife and start cutting his bindings. The work has to start somewhere, and even if it doesn’t help, perhaps it might provide the man some small relief…<br><br>",
-      "If the The Rack Game Mechanic card is showing face B, proceed to resolution 2.8. Otherwise, continue reading below:<br><br>",
-      "…“What… What are you doing?” the prisoner asks with a trembling voice as your blade cuts through the worn ropes one by one. The gesture speaks for itself, but the man was trying to warn you of something else… As soon as his hands are freed, he collapses to the ground and curls into a fetal position, screaming in agony. The wounds in his belly are torn open, and thick, dark blood gushes out as if it was just waiting for your first misstep…<br><br>",
-      "You face a dilemma: If you wish to aid the prisoner, proceed to resolution 2.11; Otherwise, you may deliver a mercy blow and continue reading below:<br><br>",
-      "…lamenting his misfortune, you act quickly, drawing your weapon and delivering a fatal strike directly to the back of the prisoner’s neck. “I’m sorry…” are the words caught in your throat as the man exhales his last breath, ending the suffering that seemed endless…",
-      "<br><br>Remove this Interaction token from the board and the The Rack Game Mechanic card from the Initiative Track.<br>Proceed with the Adventure."
-    ],
-    "actions": [
-      {
-        "text": "If The Rack card is Face B - (interaction 2.8)",
-        "type": "PROCEED",
-        "target": "interaction-2.8"
+        "target": "interaction-1.9"
       },
       {
-        "text": "If The Rack card is Face A (aid the prisoner) - (interaction 2.11)",
+        "text": "Otherwise - (interaction 1.5)",
         "type": "PROCEED",
-        "target": "interaction-2.11"
-      },
-      {
-        "text": "If The Rack card is Face A (mercy blow)",
-        "type": "PROCEED",
-        "target": "adventure-continue"
+        "target": "interaction-1.5"
       }
     ]
   },
   {
-    "id": "interaction-2.4",
+    "id": "interaction-1.2",
     "type": "choice",
-    "title": "2.4 – EXAMINE THE SPIKES OF DARKNESS",
+    "title": "1.2 – EXAMINE THE SPIKES OF DARKNESS",
     "body": [
-      "Two spikes of Darkness impale the man from behind just below his ribs. The wounds appear to be agonizing, although apparently no vital organs were initially affected. A piercing executed with the precision of a master torturer. You gingerly touch one spike and a scream of pain follows, accompanied by a thin stream of blood. Yet one thing is clear: you could slide them out from behind him…<br><br>",
-      "You face a dilemma: If you choose to pull the spikes out from behind the man, proceed to resolution 2.9; Otherwise, continue reading below:<br><br>",
-      "…Having wounded the prisoner unintentionally, you reconsider. He’s still surviving in this condition, even if the sight is painful to witness. Sometimes acting too hastily only makes things worse, and you prefer to step back rather than bear the burden of worsening his plight by accident.",
-      "<br><br>Proceed with the Adventure."
+      "Two spikes of Darkness pierce through the man from behind just below his ribs. The wounds appear to be agonizing, executed with the precision of a master torturer. You touch one spike and a scream of pain follows, accompanied by a thin stream of blood. These clearly are the reason why the man is so clearly out of his mind. Yet one thing is clear: you could remove them from behind him if you’re careful…<br><br>",
+      "You face a dilemma: If you choose to carefully pull the spikes out from behind the man, proceed to resolution 1.6; Otherwise, continue reading below:<br><br>",
+      "…Having wounded the prisoner unintentionally, you reconsider. He’s still surviving in this condition, even if the sight and ramblings are painful to witness. Sometimes acting too hastily only makes things worse, and you prefer to step back rather than bear the burden of worsening his plight by accident.",
+      "<br><br>You may choose another option as part of the same Interaction or you may proceed with the Adventure."
     ],
     "actions": [
       {
-        "text": "Pull out the spikes - (interaction 2.9)",
+        "text": "Pull the spikes out - (interaction 1.6)",
         "type": "PROCEED",
-        "target": "interaction-2.9"
+        "target": "interaction-1.6"
       },
       {
         "text": "Step back and reconsider",
@@ -94,20 +53,20 @@
     ]
   },
   {
-    "id": "interaction-2.5",
+    "id": "interaction-1.3",
     "type": "choice",
-    "title": "2.5 – ATTEMPT TO HEAL HIS WOUNDS",
+    "title": "1.3 – ATTEMPT TO HEAL HIS WOUNDS",
     "body": [
-      "The Doctrine of the Church of the Setting Sun has guided the people of Daren for nearly a millennium, but beyond spiritual comfort it also teaches its faithful several practical prayers. Popular magics, if you will. One simple yet effective prayer restores superficial wounds and soothes the heart, and you begin the ritual by reciting it…<br><br>",
-      "If the “<span style=\"color: #ff99ff;\">Pressure Relieved</span>” Status is noted on the Party’s Campaign Log, proceed to resolution 2.10. Otherwise, continue reading below:<br><br>",
-      "…A golden glow flows from your fingertips, touching the man’s body. He grits his teeth as if the healing magic itself is expelling the pain through his flesh. To your surprise, a thin stream of blood begins to trickle from his wounds, and you realize: the spikes are alive! They grow just enough to prevent the wound from closing yet never allow it to fully heal.",
-      "<br><br>Proceed with the Adventure."
+      "The Doctrine of the Church of the Setting Sun has guided the people of Daren for nearly a millennium, but beyond spiritual comfort it also teaches its several popular magics. One simple yet effective prayer restores wounds and soothes the heart, and you begin the ritual by reciting it…<br><br>",
+      "If the “<span style=\"color: #ff99ff;\">Pressure Relieved</span>” Status is noted on the Party’s Campaign Log, proceed to resolution 1.7. Otherwise, continue reading below:<br><br>",
+      "…A golden glow flows from your fingertips, touching the man’s body. He grits his teeth as if the healing magic itself is expelling the pain through his flesh, and the spikes begin to vibrate as if reacting to the spell. To your surprise, a thin stream of blood begins to trickle from his wounds, and you realize: the spikes are alive! They grow just enough to prevent the wound from closing by never allowing it to fully heal.",
+      "<br><br>You may choose another option as part of the same Interaction."
     ],
     "actions": [
       {
-        "text": "If you have 'Pressure Relieved' status - (interaction 2.10)",
+        "text": "If you have 'Pressure Relieved' status - (interaction 1.7)",
         "type": "PROCEED",
-        "target": "interaction-2.10"
+        "target": "interaction-1.7"
       },
       {
         "text": "If you DON'T have 'Pressure Relieved' status",
@@ -117,13 +76,12 @@
     ]
   },
   {
-    "id": "interaction-2.6",
+    "id": "interaction-1.4",
     "type": "choice",
-    "title": "2.6 – LOWER THE RACK",
+    "title": "1.4 – PUT HIM OUT OF HIS MISERY",
     "body": [
-      "Though you’re not intimately familiar with this torture device, you can see that keeping the table upright only torments the victim further. You decide to tip it back down. The Darkness has seized the ratchet winch that controls the mechanism, so you carefully slice the ropes and allow the table to lower, knowing that it cannot be raised once more…<br><br>",
-      "Flip the The Rack Game Mechanic card to face B.",
-      "<br>Proceed with the Adventure."
+      "This is more than cruelty—crafting a person’s agony with such precision demands skill. The ropes, the spikes, the table’s position… Everything arranged to guarantee a slow, torturous death. You may not be able to undo the man’s torment, but at least you can bring it to an end mercifully. You draw a knife and deliver a quick stab below the prisoner’s rib.<br>But… his body has been far too corrupted. What follows is as painful to describe as it is to witness: the man twists in inhuman ways, his dead body now a twisted mass of flesh and Darkness, scattered around writhing like worms crawling toward each other, merging into a creature born from agony.",
+      "<br><br>The Count transforms into a <span style=\"color: #3399ff;\">Commander of Darkness</span>. Replace this Interaction token with a <span style=\"color: #3399ff;\">Shadow Vampire</span> model to represent him.<br>Place the <span style=\"color: #3399ff;\">Commander Count</span> Monster card in the appropriate slot of the Initiative Track, then draw his Attack cards (1 for each Hero in the Party).<br>The <span style=\"color: #3399ff;\">Commander Count</span> has <span style=\"color: #ff99ff;\">15 HP per Hero in the Party</span>. Thus, he will have 15, 30, 45 or 60 Health Points, depending on the number of Heroes.<br>After defeating <span style=\"color: #3399ff;\">Commander Count</span>, take the <span style=\"color: #ff0000;\">Cormack House Crest</span> Adventure item and choose a player to keep it.<br>Proceed with the Adventure."
     ],
     "actions": [
       {
@@ -134,58 +92,35 @@
     ]
   },
   {
-    "id": "interaction-2.7",
-    "type": "choice",
-    "title": "2.7 – PUT HIM OUT OF HIS MISERY",
-    "body": [
-      "This is more than cruelty—crafting a person’s agony with such precision demands skill. The ropes, the spikes, the table’s position… Everything arranged to guarantee a slow, torturous death. You may not be able to undo the man’s torment, but at least you can bring it to an end mercifully. You draw a knife and deliver a quick stab below the prisoner’s rib. He exhales for the last time, his tone one of relief…",
-      "<br><br>Each Hero gains <span style=\"color: #ff99ff;\">FOCUS 2</span>.<br>Remove this Interaction token from the board and the The Rack Game Mechanic card from the Initiative Track.<br>Proceed with the Adventure."
-    ],
-    "actions": [
-      {
-        "text": "Proceed with the Adventure",
-        "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-2.8",
+    "id": "interaction-1.5",
     "type": "resolution",
-    "title": "2.8 – YOU UNDO HIS BONDS",
+    "title": "1.5 – THE PRISONER IS FREE",
     "body": [
-      "…“By the grace of the Setting Sun…” the prisoner whispers with a trembling voice as your blade slices through the frayed ropes one by one. “I couldn’t bear it any longer…” He begins to pull the spikes from his belly now that his hands are free, yanking them out before you can react…<br><br>",
-      "If the “<span style=\"color: #ff99ff;\">Pressure Relieved</span>” Status is noted on the Party’s Campaign Log, proceed to resolution 2.12. Otherwise, continue reading below:<br><br>",
-      "…The prisoner does what any living being might: acts hastily to ease his pain, but all he succeeds in doing is signing his own death warrant. Removing the spikes isn’t difficult, but no sooner has he done so than the wounds in his belly tear open and a dark, thick blood pours forth as if reserved for this moment…<br><br>",
-      "You face a dilemma: If you choose to try to save the prisoner, proceed to resolution 2.11; Otherwise, you may deliver a mercy blow and continue reading below:<br><br>",
+      "…As the bindings come off, the prisoner's eyes widen. The man does what any living being might: acts hastily to ease his pain, but all he succeeds in doing is signing his own death warrant. Removing the spikes isn’t difficult, but in his hurry to remove the objects piercing his body the wounds in his belly tear open and a dark, thick blood pours forth as if reserved for this moment…<br><br>",
+      "You face a dilemma: If you choose to try to reach for the prisoner, proceed to resolution 1.8; Otherwise, you may deliver a mercy blow and continue reading below:<br><br>",
       "…Mourning his misfortune, you act quickly, drawing your weapon and landing a fatal strike on the back of his neck. “I’m sorry…” The words choke in your throat as the man breathes his last, ending an agony that seemed eternal…",
-      "<br><br>Remove this Interaction token from the board and the The Rack Game Mechanic card from the Initiative Track.<br>Proceed with the Adventure."
+      "<br><br>Remove this Interaction token from the board.<br>Proceed with the Adventure."
     ],
     "actions": [
       {
-        "text": "If you have 'Pressure Relieved' status - (interaction 2.12)",
+        "text": "Reach for the prisoner - (interaction 1.8)",
         "type": "PROCEED",
-        "target": "interaction-2.12"
+        "target": "interaction-1.8"
       },
       {
-        "text": "If you DON'T have 'Pressure Relieved' status (try to save him) - (interaction 2.11)",
-        "type": "PROCEED",
-        "target": "interaction-2.11"
-      },
-      {
-        "text": "If you DON'T have 'Pressure Relieved' status (mercy blow)",
+        "text": "Mercy blow",
         "type": "PROCEED",
         "target": "adventure-continue"
       }
     ]
   },
   {
-    "id": "interaction-2.9",
+    "id": "interaction-1.6",
     "type": "resolution",
-    "title": "2.9 – YOU PULL OUT THE SPIKES",
+    "title": "1.6 – YOU PULL OUT THE SPIKES",
     "body": [
-      "…without hesitation, you reach for the spikes from behind the table and pull them out with some effort. The prisoner screams in pain as the black spikes slide through his flesh and come out into your hands, malleable as if made of clay that hardens or softens at will. The man, however, lets out a gasp. His wounds have not completely healed, and now the precious red liquid flows from two holes in his abdomen.",
-      "<br><br>Write down the “<span style=\"color: #ff99ff;\">Pressure Relieved</span>” Status on the Party’s Campaign Log.<br>Proceed with the Adventure."
+      "…with some hesitation, you reach for the spikes from under the table and pull them out as carefully as possible. The prisoner screams in pain as the black spikes slide through his flesh and come out into your hands, malleable as if made of clay that hardens or softens at will. The man, however, lets out a gasp. His eyes suddenly became clearer as if a veil had been removed from his mind. The leftover wounds however remain untreated, and now the precious red liquid flows from two holes in his abdomen.",
+      "<br><br>Write down the “<span style=\"color: #ff99ff;\">Pressure Relieved</span>” Status on the Party’s Campaign Log.<br>You may choose another option as part of the same Interaction or you may proceed with the Adventure."
     ],
     "actions": [
       {
@@ -196,12 +131,12 @@
     ]
   },
   {
-    "id": "interaction-2.10",
+    "id": "interaction-1.7",
     "type": "resolution",
-    "title": "2.10 – THE HEALING WORKS",
+    "title": "1.7 – THE HEALING WORKS",
     "body": [
-      "…a golden glow flows from your fingertips, touching the man and, little by little, the two horrific wounds close, bleeding for the last time. The prisoner grits his teeth at first, but soon an expression of relief follows, accompanied by a quiet “thank you.” His determination to live and fight returns, even if his body struggles to keep up with his spirit.",
-      "<br><br>Remove this Interaction token from the board and the The Rack Game Mechanic card from the Initiative Track.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>."
+      "…a golden glow flows from your fingertips, touching the man and, little by little, the two horrific wounds close, bleeding for the last time. The prisoner grits his teeth at first, but soon an expression of relief follows, accompanied by a quiet “thank you.” His determination to live and fight returns, even if his body struggles to keep up with his spirit. You release the prisoner from his bindings, setting him free.",
+      "<br><br>Remove this Interaction token from the board.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>."
     ],
     "actions": [
       {
@@ -212,12 +147,12 @@
     ]
   },
   {
-    "id": "interaction-2.11",
+    "id": "interaction-1.8",
     "type": "resolution",
-    "title": "2.11 – THE PRISONER IS ALREADY LOST",
+    "title": "1.8 – THE PRISONER IS ALREADY LOST",
     "body": [
-      "…desperate, you reach for the prisoner and recite the first healing prayer that comes to mind. The golden glow that should bring relief, however, only makes things worse. His body has been corrupted. What follows is as painful to describe as it is to witness: the man twists in inhuman ways and his joints burst apart, flinging muscles, blood, and viscera everywhere. And that’s not all: The horrid mass of flesh and darkness now scattered around you writhes like worms crawling toward each other, merging into a creature born from agony and revolt.",
-      "<br><br>Remove the The Rack Game Mechanic card from the Initiative Track.<br>The Count transforms into a Commander of Darkness. Replace this Interaction token with a Shadow Vampire model to represent him.<br>Place the Commander Count Monster card in the appropriate slot of the Initiative Track, then draw his Attack cards (1 for each Hero in the Party).<br>The Commander Count has <span style=\"color: #ff99ff;\">**CP = 3xP**</span>. Thus, he will have 24, 48, 72, or 96 Health Points, depending on the number of Heroes in the Party.<br>Proceed with the Adventure."
+      "…desperate, you reach for the prisoner and recite the first healing prayer that comes to mind. The golden glow that should bring relief, however, only makes things worse. His body has been corrupted. What follows is as painful to describe as it is to witness: the man twists in inhuman ways and his joints burst apart, flinging muscles, blood, and viscera everywhere. And that’s not all: the horrid mass of flesh and Darkness now scattered around you writhes like worms crawling toward each other, merging into a creature born from agony.",
+      "<br><br>The Count transforms into a <span style=\"color: #3399ff;\">Commander of Darkness</span>. Replace this Interaction token with a <span style=\"color: #3399ff;\">Shadow Vampire</span> model to represent him.<br>Place the <span style=\"color: #3399ff;\">Commander Count</span> Monster card in the appropriate slot of the Initiative Track, then draw his Attack cards (1 for each Hero in the Party).<br>The <span style=\"color: #3399ff;\">Commander Count</span> has <span style=\"color: #ff99ff;\">15 HP per Hero in the Party</span>. Thus, he will have 15, 30, 45 or 60 Health Points, depending on the number of Heroes.<br>After defeating <span style=\"color: #3399ff;\">Commander Count</span>, take the <span style=\"color: #ff0000;\">Cormack House Crest</span> Adventure item and choose a player to keep it.<br>Proceed with the Adventure."
     ],
     "actions": [
       {
@@ -228,12 +163,12 @@
     ]
   },
   {
-    "id": "interaction-2.12",
+    "id": "interaction-1.9",
     "type": "resolution",
-    "title": "2.12 – FORTUNATELY, YOU HAVE ALREADY REMOVED THE SPIKES",
+    "title": "1.9 – FORTUNATELY, YOU HAVE ALREADY REMOVED THE SPIKES",
     "body": [
       "…a golden glow flows from your fingertips, touching the man and, little by little, the two horrific wounds close. The prisoner grits his teeth at first, but soon his face softens with relief, followed by a quiet “thank you.” His determination to live and fight returns, even if his body struggles to keep up with his spirit.",
-      "<br><br>Remove this Interaction token from the board and the The Rack Game Mechanic card from the Initiative Track.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>."
+      "<br><br>Remove this Interaction token from the board.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>."
     ],
     "actions": [
       {
