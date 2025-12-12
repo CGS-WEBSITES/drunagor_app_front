@@ -93,6 +93,13 @@ const router = createRouter({
       component: () => import("@/components/CommunityBuilds.vue"),
     },
 
+
+    {
+  path: '/debug-interactions',
+  name: 'DebugInteractions',
+  component: () => import('@/components/DebugInteractions.vue')
+},
+
     {
       path: "/tracker-parent",
       name: "TrackerParent",
