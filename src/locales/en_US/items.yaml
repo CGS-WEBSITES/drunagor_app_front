@@ -1,4 +1,3 @@
----
 weapon:
   underkeep2:
     tools-of-the-trade: Tools of The Trade
@@ -127,7 +126,10 @@ weapon:
     war-bow: War Bow
 trinket:
   underkeep2:
-    dragon-gem: Dragon Gem
+    callix-fire-beer: Callix Fire Beer
+    zullan-rush-beer: Zullan Rush Beer
+    cormack-house-crest: Cormack House Crest
+    quicksilver-ring: Quicksilver Ring
   underkeep: 
     locket-of-safeguard: Locket Of Safeguard
     silver-helmet: Silver Helmet
@@ -240,7 +242,6 @@ armor:
     elvensilk-robe: Elvensilk Robe
     hunters-cuirass: Hunter's Cuirass
     dwarven-plate: Dwarven Plate
-    dawn-silverchain: Dawn Silverchain
     noon-plate: Noon Plate
     twilight-leather: Twilight Leather
     night-plate: Night Plate
@@ -324,18 +325,15 @@ armor:
     ultimate-quilted-doublet: Ultimate Quilted Doublet
 consumable:
   underkeep2:
+    scroll-of-incinerate: Scroll of Incinerate
+    potion-of-rejuvenation: Potion of Rejuvenation
+    scroll-of-winter: Scroll of Winter
+    potion-of-strength: Potion of Strength
+    scroll-of-sudden-death: Scroll of Sudden Death
+    potion-of-concentration: Potion of Concentration
+    explosive-brew: Explosive Brew
+    winter-brew: Winter Brew
     dragon-gem: Dragon Gem
-    callix-malt: Callix Malt
-    searing-wort: Searing Wort
-    zullan-malt: Zullan Malt
-    refreshing-wort: Refreshing Wort
-    aral-malt: Aral Malt
-    strong-wort: Strong Wort
-    breath-of-summer: Breath of Summer
-    breath-of-winter: Breath of Winter
-    callix-red-beer: Callix Red Beer
-    zullan-weiss-beer: Zullan Weiss Beer
-    aral-stout-beer: Aral Stout Beer
   underkeep:
     cosmic-ruby: Cosmic Ruby
     scroll-of-incinerate: Scroll of Incinerate
