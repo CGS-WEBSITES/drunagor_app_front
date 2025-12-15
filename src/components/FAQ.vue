@@ -43,7 +43,7 @@
             </v-window-item>
 
             <v-window-item value="retailer">
-              <RetailerBook />
+              <CampaignBookNew />
             </v-window-item>
           </v-window>
         </v-col>
@@ -56,6 +56,7 @@
 import { ref } from "vue";
 import { useDisplay } from "vuetify";
 import RetailerBook from "./RetailerBook.vue";
+import CampaignBookNew from "./CampaignBookNew.vue";
 
 const { mobile } = useDisplay();
 
