@@ -132,7 +132,6 @@
     </v-col>
   </v-row>
 
-  <!-- Snackbar para feedback -->
   <v-snackbar
     v-model="snackbarVisible"
     :timeout="snackbarTimeout"
