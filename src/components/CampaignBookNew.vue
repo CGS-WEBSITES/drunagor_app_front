@@ -106,8 +106,8 @@
                           </div>
                           <h2 v-if="item.title" class="chapter-title-banner">{{ item.title }}</h2>
                         </div>
-                        <div class="body-text mt-3" v-html="item.body"></div>
-                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
+                        <div class="body-text mt-3 mx-6" v-html="item.body"></div>
+                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0 " flat>
                           <v-card-text v-html="item.instruction" />
                         </v-card>
                         <v-card-text v-if="item.setup" v-html="item.setup" />
@@ -384,7 +384,7 @@ watch(() => props.campaignWing, () => {
 .content-container { max-width: 1200px; margin: 0 auto; padding: 16px; min-height: 100%; }
 .mobile-menu-card { max-height: 70vh; overflow-y: auto; }
 .book-page { background-color: #ffffff; color: #212121; border: 1px solid #1e1e1e; margin: 20px; box-shadow: 0 0 10px rgba(94, 69, 57, 0.3); border-radius: 12px; min-height: 400px; }
-.header-banner { background-size: cover; background-repeat: no-repeat; background-position: top center; padding: 12px 14px 10px; position: relative; z-index: 1; color: #212121; border-top-left-radius: 6px; border-top-right-radius: 6px; }
+.header-banner { background-size: cover; background-repeat: no-repeat; background-position: top center; padding: 0px 0px 1px; position: relative; z-index: 1; color: #212121; border-top-left-radius: 6px; border-top-right-radius: 6px; }
 .section-title { font-size: 0.7rem; color: white; padding: 10px 155px 20px; margin: 0; text-transform: uppercase; font-weight: bold; }
 .chapter-title-banner { font-family: "Cinzel Decorative", cursive; font-size: 1.8rem; color: white; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); margin-top: 1px; margin-bottom: 66px; padding-left: 156px; padding-right: 44px; text-align: left; }
 .content-block { background-color: #fff; border: 1px solid #dedede; border-radius: 6px; padding: 0 0 16px 0; margin-bottom: 24px; }
