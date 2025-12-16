@@ -13,7 +13,6 @@ function attachUnloadHandlers() {
   };
 
   window.addEventListener("beforeunload", cleanup);
-
   window.addEventListener("pagehide", cleanup);
 
   document.addEventListener("visibilitychange", () => {
@@ -25,10 +24,11 @@ function attachUnloadHandlers() {
   });
 }
 
-export function connectSocket(token: string, userId: number | string) {
-  if (socket?.connected) return socket;
+export function connectSocket(token: string, userId: number | string, baseUrl = "https://api.drunagor.app/", path = "/test/socket.io/") {
+  if (socket) return socket; // <- aqui
 
-  socket = io("http://localhost:5002", {
+  socket = io(baseUrl, {
+    path,
     transports: ["websocket"],
     autoConnect: true,
     auth: { token },
@@ -37,7 +37,7 @@ export function connectSocket(token: string, userId: number | string) {
 
   socket.on("connect", () => {
     console.log("[socket] conectado:", socket?.id);
-    attachUnloadHandlers(); // <-- garante cleanup no fechar a página
+    attachUnloadHandlers();
   });
 
   socket.on("connect_error", (err) =>

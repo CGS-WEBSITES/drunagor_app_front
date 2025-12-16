@@ -221,6 +221,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import themeIcon from "@/assets/theme.png";
+import { socketKey } from "@/plugins/socket";
 
 const axios: any = inject("axios");
 const openLink = (url) => {
@@ -236,6 +237,7 @@ const router = useRouter();
 const route = useRoute();
 
 const assets = inject<string>("assets");
+const socketApi: any = inject(socketKey);
 
 const theme = ref("DarkTheme");
 const themes = ["DarkTheme", "CoreTheme", "ApocTheme"];
@@ -376,6 +378,9 @@ onBeforeMount(() => {
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
+  
+  socketApi.connect(token, user.value.users_pk);
+
 });
 </script>
 
