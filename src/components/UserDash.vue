@@ -9,7 +9,7 @@
       --v-layout-top: 0px;
     "
   >
-    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0">
+    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-10 pt-md-0">
       <v-card
         color="background"
         class="card-overlay full-screen-card"
@@ -124,7 +124,7 @@
               <v-btn
                 color="#118D8E"
                 variant="flat"
-                @click="goToEvents"
+                @click="openHub"
                 size="x-large"
                 rounded="lg"
                 class="font-weight-bold w-100"
@@ -149,6 +149,12 @@
         </v-toolbar>
       </v-container>
     </div>
+
+    <HUB 
+      v-model="showHub" 
+      :my-events="myEvents" 
+      :user="user" 
+    />
   </v-main>
 </template>
 
@@ -165,6 +171,7 @@ import {
 import { HeroStore } from "@/store/HeroStore";
 import axios from "axios";
 import DashboardEvents from "@/components/DashboardEvents.vue";
+import HUB from "@/components/HUB.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -177,6 +184,10 @@ const display = useDisplay();
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
+// Variáveis para o HUB
+const showHub = ref(false);
+const myEvents = ref<any[]>([]);
+
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
   if (display.md.value) return "900px";
@@ -186,11 +197,32 @@ const containerMaxWidth = computed(() => {
 
 const goToProfile = () => router.push({ name: "PerfilHome" });
 const goToLibrary = () => router.push({ name: "Library" });
-const goToCampaigns = () => router.push({ name: "Campaign Overview" });
+const goToCampaigns = () => router.push({ name: "HeroesManager" });
 const goToEvents = () => router.push({ name: "Events" });
 const goToGroup = () => router.push({ name: "Group" });
 
 function importCampaign(token: string) {}
+  
+const openHub = async () => {
+  showHub.value = true;
+  // Busca rápida dos eventos confirmados para exibir no HUB
+  if (user && user.users_pk) {
+    try {
+      const response = await (axios as any).get('/events/my_events/player', {
+        params: { player_fk: user.users_pk, past_events: false },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+      });
+      // Filtra e ordena (lógica similar ao DashboardEvents)
+      const now = new Date();
+      myEvents.value = (response.data.events || [])
+        .filter((e: any) => new Date(e.event_date) > now)
+        .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    } catch (e) {
+      console.error("Error fetching events for HUB:", e);
+      myEvents.value = [];
+    }
+  }
+};
 
 onBeforeMount(async () => {
   campaignStore.reset();

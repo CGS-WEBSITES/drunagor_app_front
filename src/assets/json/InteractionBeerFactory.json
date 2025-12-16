@@ -1,33 +1,26 @@
 [
   {
-    "id": "fantastic-beer-factory-intro",
+    "id": "ancient-beer-factory-intro",
     "type": "intro",
-    "title": "11 – THE FANTASTIC BEER FACTORY",
+    "title": "INTERACTION – THE ANCIENT BEER FACTORY",
     "body": [
-      "Beer is more than a recreational drink. One might think it’s just an excuse to justify alcoholism, but the truth is this beverage is the main food source for the general population. The difference lies in how people here relate to magic. Hurry or laziness makes even a natural task, like fermentation, empowered by arcane forces. Their addiction is of a different kind, surely…<br><br>",
-      "If this is the first time a Hero interacts with this scene, write down the <span style=\"color: #ff99ff;\">Boil Fast</span> and <span style=\"color: #ff99ff;\">Ferment Fast</span> Statuses in the Party’s Campaign Log and place the <span style=\"color: #1E90FF;\">Callix Malt</span>, <span style=\"color: #1E90FF;\">Zullan Malt</span>, and <span style=\"color: #1E90FF;\">Aral Malt</span> Adventure Item cards with the Grain side face up near the play area.",
-      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes.",
-      "<br><br><b>RULE – CONTINUOUS INTERACTION</b><br>The same Hero may interact with this scene more than once per turn if desired. As a Cube Action, a Hero may EXPEND 1 AC to interact with this scene again. They may also choose to interact with it by simply using their Minor Action as normal."
+      "Beer has always been a very important part of many cultures, existing since time immemorial. The Dwarven in particular have become incredible masters in this craft, creating concoctions that are still famous across the land. Among the darkened ruins you find the broken remains of an ancient Beer factory, its components long broken and rusted by the many years spent in these forgotten halls.<br><br>",
+      "Despite the broken machinery, two small wooden kegs remain seemingly intact. Both kegs are laying horizontally, with a dusty cork on top, and a small brass tap firmly attached to its side.",
+      "<br><br><b>RULE – MECHANISM INTERACTION</b><br>This Interaction does not use charges. Instead, unless a resolution specifies that the token is removed, it remains on the board. In addition, the options for this Interaction are not exclusive—They can be repeated, and sometimes the game state will lead to different outcomes."
     ]
   },
   {
     "id": "interaction-1.1",
     "type": "choice",
-    "title": "1.1 – INSPECT THE ARCANE INSCRIPTIONS",
+    "title": "1.1 – CHECK THE BARREL",
     "body": [
-      "Ancient Elvish inscriptions lie carved in the kitchen like a recipe book. Many words are easy to recognize, as the common language of the Drunagorians descends from it for reasons that, although still intriguing, don’t matter now. Piecing the words together, you decipher the message…<br>",
-      "Make a Wisdom (blue) Attribute Test with Difficulty 15. Each Wisdom cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.7. Otherwise, continue reading below. If you follow the <span style=\"color: #1E90FF;\">Path of Mystics</span>, you succeed without needing to roll.<br><br>",
-      "...the milled grains are mixed with water in the basin to form the mash, which is then filtered and boiled. Finally, the product of this cooking is left to rest and ferment in the large barrel, resulting in the desired drink. Each grain requires its own treatment: Zullan must be boiled slowly and fermented for a long time, Callix, on the contrary, is best enjoyed when boiled quickly and fermented for long. Aral is not the best, but is served anyway, being a fail-proof blend.<br><br>",
-      "Proceed with the Adventure."
+      "Carefully opening the cork on top of the kegs, the familiar scent of alcohol reaches your nose. These brews are unlike anything you’ve ever seen before, despite all your travels. Unfortunately, time has begun to run its course, and judging from the smell the bottom part of the mixture on both kegs seems to have already gone bad. Perhaps you can manage to salvage the top of the brew, and maybe even the portion that has gone bad can be of use somehow…<br><br>",
+      "Write down the <span style=\"color: #ff99ff;\">Dwarven Brew Expert</span> Status on the Party’s Campaign Log.<br>",
+      "Choose another option."
     ],
     "actions": [
       {
-        "text": "Succeed in Wisdom Test (or follow Path of Mystics) - (interaction 1.7)",
-        "type": "PROCEED",
-        "target": "interaction-1.7"
-      },
-      {
-        "text": "Fail Wisdom Test",
+        "text": "Proceed to choose another option",
         "type": "PROCEED",
         "target": "adventure-continue"
       }
@@ -36,20 +29,21 @@
   {
     "id": "interaction-1.2",
     "type": "choice",
-    "title": "1.2 – CHOOSE A GRAIN STRAIN",
+    "title": "1.2 – EXTRACT THE LIQUID FROM THE TOP",
     "body": [
-      "If there are no Adventure Item cards of the <span style=\"color: #1E90FF;\">Grain</span> type near the play area, the Heroes have already used up all remaining stock and there are no more grains to take. Proceed with the Adventure. Otherwise, continue reading below.<br><br>",
-      "Though it is a drink, like almost everything brought to the table, perfection begins in the soil, with the right choice of grains. Almost the entire crop is lost, but fortunately, a few brews were saved from the relentless passage of time, stored in magical saddlebags. Can you cook something with them?<br><br>",
-      "Take one of the separated <span style=\"color: #1E90FF;\">Grain</span> cards. You should not flip it until instructed to do so.<br>Proceed with the Adventure."
+      "Despite the ancient equipment, Dwarven made tools are made to endure the test of time. Scattered around the Beer Factory you can see various pieces of equipment and even some bottles that might still be of some use to extract the liquids contained inside the wooden kegs without wasting it.<br><br>",
+      "Make a Dexterity (red) Skill Challenge of Difficulty 15. Each Ranged Cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.6. If you have the <span style=\"color: #ff99ff;\">Dwarven Brew Expert</span> Status on the Party’s Campaign Log, you succeed without the need to roll. Otherwise, continue reading below.<br><br>",
+      "You rummaged amongst the old factory parts, trying to scrap together anything useful, but the task seems too tricky for now. All the required pieces are scattered in front of you, but you simply don’t seem able to put it together.<br><br>",
+      "Proceed with the Adventure."
     ],
     "actions": [
       {
-        "text": "If no Grain cards are available",
+        "text": "Succeed (or possess Status) - (interaction 1.6)",
         "type": "PROCEED",
-        "target": "adventure-continue"
+        "target": "interaction-1.6"
       },
       {
-        "text": "Choose a Grain card",
+        "text": "Fail Skill Challenge",
         "type": "PROCEED",
         "target": "adventure-continue"
       }
@@ -58,21 +52,21 @@
   {
     "id": "interaction-1.3",
     "type": "choice",
-    "title": "1.3 – MIX WITH WATER, FILTER, AND BOIL A GRAIN",
+    "title": "1.3 – EXTRACT THE LIQUID FROM THE TAP",
     "body": [
-      "A spring, natural or magical—you cannot tell—pours water into a suspended basin where the mashed grains are mixed with water to form the mash. The mixture is soon filtered into a closed pot where arcane inscriptions indicate the temperature at which the substance will be magically boiled.<br><br>",
-      "If you have any Adventure Item cards of the <span style=\"color: #1E90FF;\">Grain</span> type, proceed to resolution 1.8. Otherwise, continue reading below.<br><br>",
-      "Your fingers itch and a mischievous smile crosses your face, but one ingredient is missing: how could you cook mash without having the mix of malt grains, hops, and crushed herbs?<br><br>",
+      "Regardless of the condition of the brew inside the wooden keg, anything Dwarven made will definitely be of some use or another in the coming battles. On the sides of the wooden kegs, each possess a small rusted brass tap, allowing for the concoction inside to be poured directly. As long as you manage to pry it open.<br><br>",
+      "Make a Strength (yellow) Skill Challenge of Difficulty 15. Each Melee cube you have gives you a +2 bonus to your roll. If you succeed, proceed to resolution 1.7. If you have the <span style=\"color: #ff99ff;\">Dwarven Brew Expert</span> Status on the Party’s Campaign Log, you succeed without the need to roll. Otherwise, continue reading below.<br><br>",
+      "Your attempts to force the tap open seems to yield little to no result other than dirtying your hands with a strange slimy substance.<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
       {
-        "text": "If you have a Grain card - (interaction 1.8)",
+        "text": "Succeed (or possess Status) - (interaction 1.7)",
         "type": "PROCEED",
-        "target": "interaction-1.8"
+        "target": "interaction-1.7"
       },
       {
-        "text": "If you don't have a Grain card",
+        "text": "Fail Skill Challenge",
         "type": "PROCEED",
         "target": "adventure-continue"
       }
@@ -81,21 +75,15 @@
   {
     "id": "interaction-1.4",
     "type": "choice",
-    "title": "1.4 – FERMENT A MASH MIXTURE",
+    "title": "1.4 – TASTE THE LIQUID",
     "body": [
-      "The hair on your arms stands on end as you feel the mystical energy reverberating from the barrels, such is the strength of the enchantment blessing them. Miraculous yeasts, conjured from who knows where, await the arrival of the mash to begin its magical fermentation.<br><br>",
-      "If you have any Adventure Item cards of the Mash type, proceed to resolution 1.11. Otherwise, continue reading below.<br><br>",
-      "Your fingers itch and a mischievous smile crosses your face, but one ingredient is missing: how could you ferment a mixture that doesn’t yet exist?<br><br>",
+      "Forcing the tap on the side of one of the kegs, you manage to squeeze a small amount of liquid from inside. Pouring the mysterious concoction directly into your mouth, chills spread across your body. The taste of the liquid is vile, worse than anything you’ve ever tasted before.<br><br>",
+      "You suffer STUN.<br>",
       "Proceed with the Adventure."
     ],
     "actions": [
       {
-        "text": "If you have a Mash card - (interaction 1.11)",
-        "type": "PROCEED",
-        "target": "interaction-1.11"
-      },
-      {
-        "text": "If you don't have a Mash card",
+        "text": "Proceed with the Adventure",
         "type": "PROCEED",
         "target": "adventure-continue"
       }
@@ -104,11 +92,10 @@
   {
     "id": "interaction-1.5",
     "type": "choice",
-    "title": "1.5 – ADJUST THE BOILING POT TEMPERATURE",
+    "title": "1.5 – LEAVE THE FACTORY ALONE",
     "body": [
-      "Ancient Elvish inscriptions adorn the base of the pot and two enchantments are easy to recognize: one of fire and one of time, intertwined to subject the mixture inside the pot to temperature, pressure, and hours of cooking in the blink of an eye. The right words determine the duration and intensity of the boil...<br><br>",
-      "Erase the <span style=\"color: #ff99ff;\">Boil Slow</span> or <span style=\"color: #ff99ff;\">Boil Fast</span> Statuses noted in the Party’s Campaign Log.<br>",
-      "Write down, at your choice, the <span style=\"color: #ff99ff;\">Boil Slow or Boil Fast</span> Status in the Party’s Campaign Log.<br>",
+      "Despite the alluring perspective of a refreshing drink amidst so much trouble, something seems strange about this whole situation. How can such a factory be this well preserved after so much time? Is it even safe to touch it?<br>",
+      "Filled with caution, you step away from the ancient equipment.<br><br>",
       "Proceed with the Adventure."
     ],
     "actions": [
@@ -121,13 +108,13 @@
   },
   {
     "id": "interaction-1.6",
-    "type": "choice",
-    "title": "1.6 – ADJUST THE AGE FERMENTER",
+    "type": "resolution",
+    "title": "1.6 – MASTERFUL BREWING",
     "body": [
-      "This curious barrel is surrounded by Ancient Elvish inscriptions that quickly reveal its utility: like a time chamber, it can perform days’ worth of fermentation in a blink. By uttering the command, you determine how long the mixture will rest and ferment inside.<br><br>",
-      "Erase the <span style=\"color: #ff99ff;\">Ferment Fast</span> or <span style=\"color: #ff99ff;\">Ferment Slow</span> Statuses noted in the Party’s Campaign Log.<br>",
-      "Write down, at your choice, the <span style=\"color: #ff99ff;\">Ferment Fast or Ferment Slow</span> Status in the Party’s Campaign Log.<br>",
-      "Proceed with the Adventure."
+      "You manage to salvage enough components to prepare a makeshift syphon, inserting it from the top of the keg. Skillfully separating the liquids from both barrels, you watch as the delicious dwarven beer turns rancid in colour. Using the salvaged containers to separate the liquids, you find yourself with 4 completely different concoctions.<br>",
+      "While the Dwarven Beer still looks drinkable and smells amazing even after all this time, the part that’s gone bad seems to still have some use after all.<br><br>",
+      "Take the <span style=\"color: #1E90FF;\">Callix Fire Beer</span>, <span style=\"color: #1E90FF;\">Zullan Rush Beer</span>, <span style=\"color: #1E90FF;\">Explosive Brew</span> and <span style=\"color: #1E90FF;\">Winter Brew</span> Adventure Item cards.<br>",
+      "Remove this Interaction token from the board. Proceed with the Adventure."
     ],
     "actions": [
       {
@@ -140,116 +127,11 @@
   {
     "id": "interaction-1.7",
     "type": "resolution",
-    "title": "1.7 – YOU DECODE THE INSTRUCTIONS",
+    "title": "1.7 – DANGEROUS BREWING",
     "body": [
-      "...the milled grains are mixed with water in the basin to form the mash, which is then filtered and boiled. Finally, the product of this cooking is left to rest and ferment in the large barrel, resulting in the desired beverage. Each grain requires its own treatment: Callix must be boiled quickly and fermented slowly, Zullan, on the other hand, is best enjoyed when boiled for a long time and fermented briefly. Aral is not the best, but it’s served anyway, being a fail-proof blend.<br><br>",
-      "Proceed with the Adventure."
-    ],
-    "actions": [
-      {
-        "text": "Proceed with the Adventure",
-        "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-1.8",
-    "type": "resolution",
-    "title": "1.8 – YOU HAVE SOMETHING TO COOK",
-    "body": [
-      "The grace of the process elicits a sigh of admiration from all of you. The work of several hours of attention and focus is completed in mere moments, and the sound of cooling echoes through the chamber, suggesting the mixture is ready. What kind of beverage will it become?<br><br>",
-      "Choose one Adventure Item card of the <span style=\"color: #1E90FF;\">Grain</span> type you have. If the <span style=\"color: #ff99ff;\">Boil Slow</span> Status is written in the Party’s Campaign Log, proceed to resolution 1.9. Otherwise, if <span style=\"color: #ff99ff;\">Boil Fast</span> is there, proceed to resolution 1.10."
-    ],
-    "actions": [
-      {
-        "text": "If Boil Slow Status is active - (interaction 1.9)",
-        "type": "PROCEED",
-        "target": "interaction-1.9"
-      },
-      {
-        "text": "If Boil Fast Status is active - (interaction 1.10)",
-        "type": "PROCEED",
-        "target": "interaction-1.10"
-      }
-    ]
-  },
-  {
-    "id": "interaction-1.9",
-    "type": "resolution",
-    "title": "1.9 – YOU COOK THE MASH",
-    "body": [
-      "Just like the seasons, grains are not all the same. Some, when boiled longer than they should be, leave bitter notes of failure in the taste of the drinks. Others, however, come to life with a myriad of hypnotizing aromas, justifying the title of master that experienced brewers carry and the recognition of their craft as an art. Are you a good apprentice?<br><br>",
-      "If the chosen card is <span style=\"color: #1E90FF;\">Zullan Malt</span> or <span style=\"color: #1E90FF;\">Aral Malt</span>, flip it to its Mash side. Otherwise, the Grain is ruined—but all is not lost. Return that card to the box and take the <span style=\"color: #1E90FF;\">Breath of Summer</span> Adventure Item card. Grains stored this way can no longer be used in this Adventure.<br>Proceed with the Adventure."
-    ],
-    "actions": [
-      {
-        "text": "Proceed with the Adventure",
-        "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-1.10",
-    "type": "resolution",
-    "title": "1.10 – YOU COOK THE MASH",
-    "body": [
-      "Just like the seasons, grains are not all the same. Some, when boiled longer than they should be, leave bitter notes of failure in the taste of the drinks. Others, however, come to life with a myriad of hypnotizing aromas, justifying the title of master that experienced brewers carry and the recognition of their craft as an art. Are you a good apprentice?<br><br>",
-      "If the chosen card is <span style=\"color: #1E90FF;\">Callix Malt</span> or <span style=\"color: #1E90FF;\">Aral Malt</span>, flip it to its Mash side. Otherwise, the Grain is ruined—but all is not lost. Return that card to the box and take the Breath of Winter Adventure Item card. Grains stored this way can no longer be used in this Adventure.<br>Proceed with the Adventure."
-    ],
-    "actions": [
-      {
-        "text": "Proceed with the Adventure",
-        "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-1.11",
-    "type": "resolution",
-    "title": "1.11 – YOU HAVE THE MASH FOR FERMENTATION",
-    "body": [
-      "The ancient barrel thirsts, and you are the only one who can satisfy it. Opening the metallic hatch that doesn’t even creak—as if centuries couldn’t rust it—you pour in the mash. The magical words uttered in sequence make the runes engraved in copper shimmer with a blue glow captivating to the eye...<br><br>",
-      "Choose one Adventure Item card of the Mash type you have. If the <span style=\"color: #ff99ff;\">Ferment Slow</span> Status is written in the Party’s Campaign Log, proceed to resolution 1.12. Otherwise, if <span style=\"color: #ff99ff;\">Ferment Fast</span> is there, proceed to resolution 1.13."
-    ],
-    "actions": [
-      {
-        "text": "If Ferment Slow Status is active - (interaction 1.12)",
-        "type": "PROCEED",
-        "target": "interaction-1.12"
-      },
-      {
-        "text": "If Ferment Fast Status is active - (interaction 1.13)",
-        "type": "PROCEED",
-        "target": "interaction-1.13"
-      }
-    ]
-  },
-  {
-    "id": "interaction-1.12",
-    "type": "resolution",
-    "title": "1.12 – THE FERMENTATION IS SLOW",
-    "body": [
-      "The subtle hissing reverberates within the piece, more felt than heard. The sound resembles a whistling kettle and lingers while the runes fade one after another—but there are many, and the whole process takes a bit longer than a horse's neigh. The question remains: is the time enough to ferment your mixture the right way?<br><br>",
-      "If the chosen card is <span style=\"color: #1E90FF;\">Refreshing Wort</span>, it is destroyed: store the card. Grains stored this way can no longer be used in this Adventure. Otherwise, if the card is <span style=\"color: #1E90FF;\">Searing Wort or Strong Wort</span>, return it to the box and take the appropriate Adventure Item Beer card (Callix Red or Aral Stout, respectively).<br>Proceed with the Adventure."
-    ],
-    "actions": [
-      {
-        "text": "Proceed with the Adventure",
-        "type": "PROCEED",
-        "target": "adventure-continue"
-      }
-    ]
-  },
-  {
-    "id": "interaction-1.13",
-    "type": "resolution",
-    "title": "1.13 – THE FERMENTATION IS FAST",
-    "body": [
-      "The subtle hissing reverberates within the piece, more felt than heard. The sound resembles a whistling kettle and lingers while the runes fade one after another—but there are few, and the whole process takes no longer than a quick yawn. The question remains: is the time enough to ferment your mixture the right way?<br><br>",
-      "If the chosen card is <span style=\"color: #1E90FF;\">Searing Wort</span>, it is destroyed: store the card. Grains stored this way can no longer be used in this Adventure. Otherwise, if the card is <span style=\"color: #1E90FF;\">Refreshing Wort or Strong Wort</span>, return it to the box and take the appropriate Adventure Item Beer card (Zullan Weiss or Aral Stout, respectively).<br>Proceed with the Adventure."
+      "The brass tap burst open abruptly, creating a vortex inside the keg and spilling most of its content on the floor. As you watch the remaining liquids fill the glass, its strange colour and foul smell are a clear warning that something terribly wrong must have happened with the once wonderful brew.<br><br>",
+      "Take the <span style=\"color: #1E90FF;\">Explosive Brew</span> and <span style=\"color: #1E90FF;\">Winter Brew</span> Adventure Item cards.<br>",
+      "Remove this Interaction token from the board. Proceed with the Adventure."
     ],
     "actions": [
       {
