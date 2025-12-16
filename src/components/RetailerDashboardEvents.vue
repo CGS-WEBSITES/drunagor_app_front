@@ -95,7 +95,6 @@
       </v-row>
     </v-container>
 
-    <!-- DIALOG DE GERENCIAMENTO -->
     <v-dialog
       v-model="manageDialog"
       scroll-target="#app"
@@ -107,7 +106,6 @@
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
 
-        <!-- HEADER -->
         <v-card-title class="d-flex justify-space-between align-center">
           <span class="text-h6">Manage Event</span>
           <v-btn icon variant="text" @click="manageDialog = false">
@@ -115,7 +113,6 @@
           </v-btn>
         </v-card-title>
 
-        <!-- TABS CENTRALIZADAS -->
         <v-tabs
           v-model="activeTab"
           color="white"
@@ -134,7 +131,6 @@
         </v-tabs>
 
         <v-card-text>
-          <!-- TAB: TABLES -->
           <v-window v-model="activeTab">
             <v-window-item value="tables">
               <v-row class="mb-4">
@@ -164,7 +160,6 @@
                 </v-col>
               </v-row>
 
-              <!-- LOADING TABLES -->
               <div v-if="loadingTables" class="text-center py-6">
                 <v-progress-circular
                   indeterminate
@@ -172,7 +167,6 @@
                 ></v-progress-circular>
               </div>
 
-              <!-- LISTA DE MESAS -->
               <v-row v-else>
                 <v-col
                   cols="12"
@@ -273,7 +267,6 @@
               </v-row>
             </v-window-item>
 
-            <!-- TAB: PLAYERS -->
             <v-window-item value="players">
               <v-row>
                 <v-col cols="12" class="d-flex align-end flex-column">
@@ -447,7 +440,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- DIALOG: QR CODE -->
     <v-dialog v-model="qrCodeDialog" max-width="500" persistent>
       <v-card class="dark-background">
         <div v-if="generatingQR" class="loading-overlay">
@@ -464,7 +456,6 @@
         </v-card-title>
 
         <v-card-text class="text-center">
-          <!-- QR CODE -->
           <div v-if="qrCodeData" class="qr-code-container pa-6 mb-4">
             <qrcode-vue
               :value="qrCodeData.code"
@@ -475,7 +466,6 @@
             />
           </div>
 
-          <!-- BOTÃO PLAYERS -->
           <v-btn
             block
             color="secondary"
@@ -487,7 +477,6 @@
             View Players ({{ tablePlayers.length }})
           </v-btn>
 
-          <!-- LISTA DE PLAYERS DA MESA -->
           <v-expand-transition>
             <div v-if="showPlayers">
               <v-divider class="mb-4"></v-divider>
@@ -539,7 +528,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- DIALOG: CREATE SINGLE TABLE -->
     <v-dialog v-model="createTableDialog" max-width="400">
       <v-card class="dark-background">
         <v-card-title>Create New Table</v-card-title>
@@ -570,14 +558,13 @@
           <v-btn color="grey" variant="text" @click="createTableDialog = false"
             >Cancel</v-btn
           >
-          <v-btn color="primary" :loading="creatingTable" @click="createTable"
+          <v-btn :loading="creatingTable" @click="createTable"
             >Create</v-btn
           >
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- DIALOG: CREATE MULTIPLE TABLES -->
     <v-dialog v-model="createMultipleTablesDialog" max-width="400">
       <v-card class="dark-background">
         <v-card-title>Create Multiple Tables</v-card-title>
@@ -612,7 +599,6 @@
             >Cancel</v-btn
           >
           <v-btn
-            color="primary"
             :loading="creatingTable"
             @click="createMultipleTables"
             >Create</v-btn
@@ -632,9 +618,6 @@ import QrcodeVue from "qrcode-vue3";
 const router = useRouter();
 const userStore = useUserStore();
 const axios = inject("axios");
-
-const USE_FAKE_DATA = true; // <<<< TOGGLE PARA DADOS FAKE
-
 const loading = ref(true);
 const dialogLoading = ref(false);
 const userCreatedEvents = ref([]);
@@ -642,25 +625,19 @@ const selectedEvent = ref(null);
 const manageDialog = ref(false);
 const playersByEvent = ref([]);
 const activeTab = ref("tables");
-
-// Tables data
 const tables = ref([]);
 const loadingTables = ref(false);
 const createTableDialog = ref(false);
 const createMultipleTablesDialog = ref(false);
 const creatingTable = ref(false);
-
 const newTable = ref({
   table_number: null,
   max_players: 4,
 });
-
 const multipleTables = ref({
   quantity: 4,
   max_players: 4,
 });
-
-// QR Code data
 const qrCodeDialog = ref(false);
 const generatingQR = ref(false);
 const selectedTable = ref(null);
@@ -668,138 +645,12 @@ const qrCodeData = ref(null);
 const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
-
-// Players data
 const currentPage = ref(1);
 const totalPages = ref(1);
 const statuses = ref([]);
 const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 const JoinedtheQuest = ref(null);
-
-// ========== FAKE DATA ==========
-const createFakeData = () => {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  userCreatedEvents.value = [
-    {
-      events_pk: 1,
-      store_name: "Dragon's Lair Gaming Store",
-      address: "123 Fantasy Lane, Wizard City",
-      scenario: "The Depths of Drunagor",
-      event_date: tomorrow.toISOString(),
-      seats_number: 16,
-    },
-    {
-      events_pk: 2,
-      store_name: "Epic Board Games HQ",
-      address: "456 Quest Avenue, Hero Town",
-      scenario: "Shadow of the Overlord",
-      event_date: new Date(tomorrow.getTime() + 86400000 * 2).toISOString(),
-      seats_number: 12,
-    },
-  ];
-
-  // Fake tables
-  tables.value = [
-    {
-      event_tables_pk: 101,
-      table_number: 1,
-      max_players: 4,
-      players_count: 3,
-      available_seats: 1,
-      is_full: false,
-      active: true,
-    },
-    {
-      event_tables_pk: 102,
-      table_number: 2,
-      max_players: 4,
-      players_count: 4,
-      available_seats: 0,
-      is_full: true,
-      active: true,
-    },
-    {
-      event_tables_pk: 103,
-      table_number: 3,
-      max_players: 4,
-      players_count: 1,
-      available_seats: 3,
-      is_full: false,
-      active: true,
-    },
-    {
-      event_tables_pk: 104,
-      table_number: 4,
-      max_players: 4,
-      players_count: 0,
-      available_seats: 4,
-      is_full: false,
-      active: true,
-    },
-  ];
-
-  // Fake players
-  playersByEvent.value = [
-    {
-      users_pk: 1,
-      user_name: "Aragorn the Brave",
-      picture_hash: null,
-      event_status: "Granted Passage",
-      status_date: new Date().toISOString(),
-    },
-    {
-      users_pk: 2,
-      user_name: "Gandalf the Grey",
-      picture_hash: null,
-      event_status: "Joined the Quest",
-      status_date: new Date().toISOString(),
-    },
-    {
-      users_pk: 3,
-      user_name: "Legolas Greenleaf",
-      picture_hash: null,
-      event_status: "Seeking Entrance",
-      status_date: new Date().toISOString(),
-    },
-  ];
-
-  // Fake table players
-  tablePlayers.value = [
-    {
-      users_pk: 11,
-      user_name: "Thorin Oakenshield",
-      picture_hash: null,
-      party_role: "Tank",
-    },
-    {
-      users_pk: 12,
-      user_name: "Bilbo Baggins",
-      picture_hash: null,
-      party_role: "Rogue",
-    },
-    {
-      users_pk: 13,
-      user_name: "Gimli Son of Glóin",
-      picture_hash: null,
-      party_role: "Warrior",
-    },
-  ];
-
-  // Fake statuses
-  statuses.value = [
-    { event_status_pk: 1, name: "Seeking Entrance" },
-    { event_status_pk: 2, name: "Granted Passage" },
-    { event_status_pk: 3, name: "Joined the Quest" },
-    { event_status_pk: 4, name: "Turned Away" },
-  ];
-
-  grantedStatus.value = 2;
-  turnedAwayStatus.value = 4;
-  JoinedtheQuest.value = 3;
-};
 
 const upcomingRetailerEventsPreview = computed(() => {
   const now = new Date();
@@ -810,11 +661,7 @@ const upcomingRetailerEventsPreview = computed(() => {
 });
 
 const fetchUserCreatedEvents = async () => {
-  if (USE_FAKE_DATA) {
-    createFakeData();
-    return;
-  }
-
+  loading.value = true;
   try {
     const params = {
       retailer_fk: userStore.user.users_pk,
@@ -831,6 +678,8 @@ const fetchUserCreatedEvents = async () => {
   } catch (error) {
     console.error("Error fetching retailer events:", error);
     userCreatedEvents.value = [];
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -839,20 +688,16 @@ const openManageDialog = async (event) => {
   currentPage.value = 1;
   activeTab.value = "tables";
 
-  if (!USE_FAKE_DATA) {
-    await Promise.all([
-      fetchTablesForEvent(event.events_pk),
-      fetchPlayersForEvent(event.events_pk),
-      fetchStatuses(),
-    ]);
-  }
+  await Promise.all([
+    fetchTablesForEvent(event.events_pk),
+    fetchPlayersForEvent(event.events_pk),
+    fetchStatuses(),
+  ]);
 
   manageDialog.value = true;
 };
 
 const fetchTablesForEvent = async (eventFk) => {
-  if (USE_FAKE_DATA) return;
-
   loadingTables.value = true;
   try {
     const { data } = await axios.get(`/event_tables/list/${eventFk}`, {
@@ -874,29 +719,6 @@ const generateQRCode = async (table) => {
   generatingQR.value = true;
   qrCodeDialog.value = true;
   showPlayers.value = false;
-
-  if (USE_FAKE_DATA) {
-    // Simula delay de API
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    qrCodeData.value = {
-      qr_code_pk: 999,
-      events_fk: selectedEvent.value.events_pk,
-      event_tables_pk: table.event_tables_pk,
-      table_number: table.table_number,
-      code: JSON.stringify({
-        events_fk: selectedEvent.value.events_pk,
-        event_tables_pk: table.event_tables_pk,
-        table_number: table.table_number,
-      }),
-      created_at: new Date().toLocaleString(),
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleString(),
-      active: true,
-    };
-
-    generatingQR.value = false;
-    return;
-  }
 
   try {
     const { data } = await axios.post("/qr_code/generate", null, {
@@ -921,15 +743,13 @@ const generateQRCode = async (table) => {
 };
 
 const showTablePlayers = async () => {
-  if (!showPlayers.value && !USE_FAKE_DATA) {
+  if (!showPlayers.value) {
     await fetchTablePlayers();
   }
   showPlayers.value = !showPlayers.value;
 };
 
 const fetchTablePlayers = async () => {
-  if (USE_FAKE_DATA) return;
-
   loadingTablePlayers.value = true;
   try {
     const { data } = await axios.get(
@@ -960,12 +780,6 @@ const openCreateMultipleTablesDialog = () => {
 };
 
 const createTable = async () => {
-  if (USE_FAKE_DATA) {
-    alert("Fake mode: Table creation disabled");
-    createTableDialog.value = false;
-    return;
-  }
-
   creatingTable.value = true;
   try {
     const payload = {
@@ -995,12 +809,6 @@ const createTable = async () => {
 };
 
 const createMultipleTables = async () => {
-  if (USE_FAKE_DATA) {
-    alert("Fake mode: Multiple tables creation disabled");
-    createMultipleTablesDialog.value = false;
-    return;
-  }
-
   creatingTable.value = true;
   try {
     const payload = {
@@ -1026,11 +834,6 @@ const createMultipleTables = async () => {
 };
 
 const deleteTable = async (eventTablesPk) => {
-  if (USE_FAKE_DATA) {
-    alert("Fake mode: Table deletion disabled");
-    return;
-  }
-
   if (!confirm("Are you sure you want to delete this table?")) return;
 
   try {
@@ -1051,8 +854,6 @@ const goToEventsPageAndCreate = () => {
 };
 
 const fetchStatuses = async () => {
-  if (USE_FAKE_DATA) return;
-
   try {
     const { data } = await axios.get("/event_status/search");
     statuses.value = data.event_status;
@@ -1071,8 +872,6 @@ const fetchStatuses = async () => {
 };
 
 const fetchPlayersForEvent = async (eventFk) => {
-  if (USE_FAKE_DATA) return;
-
   dialogLoading.value = true;
   try {
     const params = {
@@ -1082,9 +881,12 @@ const fetchPlayersForEvent = async (eventFk) => {
     };
     const { data } = await axios.get("/rl_events_users/list_players", {
       params,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
-    playersByEvent.value = data.players;
-    totalPages.value = data.last_page;
+    playersByEvent.value = data.players || [];
+    totalPages.value = data.last_page || 1;
   } catch (error) {
     console.error("Error fetching players:", error);
     playersByEvent.value = [];
@@ -1094,11 +896,6 @@ const fetchPlayersForEvent = async (eventFk) => {
 };
 
 const updatePlayerStatus = async (player, statusPk) => {
-  if (USE_FAKE_DATA) {
-    alert("Fake mode: Player status update disabled");
-    return;
-  }
-
   dialogLoading.value = true;
   const payload = {
     users_fk: player.users_pk,
@@ -1115,19 +912,18 @@ const updatePlayerStatus = async (player, statusPk) => {
     await fetchPlayersForEvent(selectedEvent.value.events_pk);
   } catch (error) {
     console.error("Error updating player status:", error);
+    alert("Failed to update player status");
   } finally {
     dialogLoading.value = false;
   }
 };
 
 onMounted(async () => {
-  loading.value = true;
   await fetchUserCreatedEvents();
-  loading.value = false;
 });
 
 watch(currentPage, () => {
-  if (manageDialog.value && selectedEvent.value && !USE_FAKE_DATA) {
+  if (manageDialog.value && selectedEvent.value) {
     fetchPlayersForEvent(selectedEvent.value.events_pk);
   }
 });
