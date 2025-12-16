@@ -100,6 +100,13 @@ const router = createRouter({
       component: () => import("@/components/CommunityBuilds.vue"),
     },
 
+
+    {
+  path: '/debug-interactions',
+  name: 'DebugInteractions',
+  component: () => import('@/components/DebugInteractions.vue')
+},
+
     {
       path: "/tracker-parent",
       name: "TrackerParent",
@@ -214,6 +221,18 @@ const router = createRouter({
           name: "settings",
           component: () => import("@/components/PerfilSettings.vue"),
           beforeEnter: requireAuth,
+        },
+        {
+          path: "/profile/store-settings",
+          name: "stores",
+          component: () =>
+            import("@/components/StoreSettings.vue"),
+          beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          },
         },
         {
           path: "/profile/store-settings",

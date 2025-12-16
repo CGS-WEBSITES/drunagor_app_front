@@ -349,6 +349,52 @@ const onSaveFail = () => {
   snackbarVisible.value = true;
 };
 
+function navigateBack() {
+  router.push({
+    name: "Campaign",
+    params: { id: campaignId },
+    query: { instructions: "open", tab: "save" },
+  });
+}
+
+function syncStateToStore() {
+  if (campaignHeroRef.value) {
+    if (!campaignHeroRef.value.sequentialAdventureState) {
+      campaignHeroRef.value.sequentialAdventureState =
+        new SequentialAdventureState();
+    }
+  });
+
+    campaignHeroRef.value.sequentialAdventureState.lifepoints =
+      Number(localState.value.lifepoints) || 0;
+    campaignHeroRef.value.sequentialAdventureState.curseCubes =
+      Number(localState.value.curseCubes) || 0;
+    campaignHeroRef.value.sequentialAdventureState.traumaCubes =
+      Number(localState.value.traumaCubes) || 0;
+    campaignHeroRef.value.sequentialAdventureState.availableCubes =
+      Number(localState.value.availableCubes) || 0;
+    campaignHeroRef.value.sequentialAdventureState.usedCubes =
+      Number(localState.value.usedCubes) || 0;
+
+    Object.keys(localState.value.resources).forEach((key) => {
+      campaignHeroRef.value.sequentialAdventureState.resources[key] =
+        Number(localState.value.resources[key]) || 0;
+    });
+  }
+}
+
+const onSaveSuccess = () => {
+  snackbarText.value = "Resources saved successfully!";
+  snackbarColor.value = "success";
+  snackbarVisible.value = true;
+};
+
+const onSaveFail = () => {
+  snackbarText.value = "Failed to save resources.";
+  snackbarColor.value = "error";
+  snackbarVisible.value = true;
+};
+
 function saveAndGoBack() {
   syncStateToStore();
   isSaving.value = true;

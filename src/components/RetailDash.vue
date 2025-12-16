@@ -10,6 +10,7 @@
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-10 pt-md-0">
+      
       <v-card
         color="background"
         class="card-overlay full-screen-card"
@@ -34,6 +35,7 @@
           :style="{ maxWidth: containerMaxWidth }"
         >
           <v-row no-gutters align="end" class="pa-4">
+            
             <v-col cols="auto">
               <v-avatar
                 size="100"
@@ -56,6 +58,7 @@
                 />
               </v-avatar>
             </v-col>
+            
             <v-col class="ml-n4">
               <div
                 class="pa-3 rounded-lg"
@@ -93,10 +96,25 @@
       "
     >
       <v-container
-        class="mx-auto px-4 fill-height align-start"
+        class="mx-auto px-4 align-start"
         :style="{ maxWidth: containerMaxWidth }"
       >
-        <DashboardEvents style="width: 100%" />
+        <RetailerDashboardEvents style="width: 100%" /> 
+
+        <v-row class="justify-center pb-6 px-3 pt-4">
+          <v-col cols="12">
+            <v-card
+              @click="router.push({ name: 'CommunityBuilds' })"
+              flat
+              style="cursor: pointer"
+            >
+              <v-img
+                src="https://assets.drunagor.app/Dashboard/btn-CB-mobile.png"
+              />
+            </v-card>
+          </v-col>
+        </v-row>
+
       </v-container>
     </div>
 
@@ -167,7 +185,8 @@ import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
 import axios from "axios";
-import DashboardEvents from "@/components/RetailerDashboardEvents.vue";
+// Padronizado o nome do import para o nome do arquivo (RetailerDashboardEvents.vue)
+import RetailerDashboardEvents from "@/components/RetailerDashboardEvents.vue"; 
 
 const router = useRouter();
 const userStore = useUserStore();

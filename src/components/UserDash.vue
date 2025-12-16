@@ -202,7 +202,7 @@ const goToEvents = () => router.push({ name: "Events" });
 const goToGroup = () => router.push({ name: "Group" });
 
 function importCampaign(token: string) {}
-
+  
 const openHub = async () => {
   showHub.value = true;
   // Busca rápida dos eventos confirmados para exibir no HUB
