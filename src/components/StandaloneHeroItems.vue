@@ -20,7 +20,7 @@
       <StandaloneHeroWeapon
         :playable-heroes-pk="playableHeroesPk"
         :hero-data="hero"
-        :cards-data-repository="repository"
+        :cards-data-repository="combinedRepository"
         :filter-proficiencies="filterProficiencies"
         @stash="$emit('stash')"
       />
@@ -33,7 +33,7 @@
       <StandaloneHeroOffHand
         :playable-heroes-pk="playableHeroesPk"
         :hero-data="hero"
-        :cards-data-repository="repository"
+        :cards-data-repository="combinedRepository"
         :filter-proficiencies="filterProficiencies"
         @stash="$emit('stash')"
       />
@@ -46,7 +46,7 @@
       <StandaloneHeroArmor
         :playable-heroes-pk="playableHeroesPk"
         :hero-data="hero"
-        :cards-data-repository="repository"
+        :cards-data-repository="combinedRepository"
         :filter-proficiencies="filterProficiencies"
         @stash="$emit('stash')"
       />
@@ -58,7 +58,7 @@
       </div>
       <StandaloneHeroTrinket
         :playable-heroes-pk="playableHeroesPk"
-        :cards-data-repository="repository"
+        :cards-data-repository="combinedRepository"
         @stash="$emit('stash')"
       />
     </v-col>
@@ -70,7 +70,7 @@
     </div>
     <StandaloneHeroBagItem
       :playable-heroes-pk="playableHeroesPk"
-      :cards-data-repository="repository"
+      :cards-data-repository="combinedRepository"
       :bagSlot="1"
       @stash="$emit('stash')"
     />
@@ -82,7 +82,7 @@
     </div>
     <StandaloneHeroBagItem
       :playable-heroes-pk="playableHeroesPk"
-      :cards-data-repository="repository"
+      :cards-data-repository="combinedRepository"
       :bagSlot="2"
       @stash="$emit('stash')"
     />
@@ -96,6 +96,9 @@ import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
 import { HeroEquipment } from "@/store/Hero";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
+import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
+import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
+import { UnderKeep2ItemDataRepository } from "@/data/repository/campaign/underkeep2/UnderKeep2ItemDataRepository";
 import StandaloneHeroWeapon from "@/components/StandaloneHeroWeapon.vue";
 import StandaloneHeroOffHand from "@/components/StandaloneHeroOffHand.vue";
 import StandaloneHeroArmor from "@/components/StandaloneHeroArmor.vue";
@@ -121,6 +124,45 @@ const heroView = playableHeroStore.findByPk(props.playableHeroesPk);
 if (heroView && typeof heroView.state.equipment === "undefined") {
   heroView.state.equipment = new HeroEquipment();
 }
+
+class CombinedItemRepository implements ItemDataRepository {
+  private repos: ItemDataRepository[];
+
+  constructor() {
+    this.repos = [
+      new CoreItemDataRepository(),
+      new UnderKeepItemDataRepository(),
+      new UnderKeep2ItemDataRepository(),
+    ];
+  }
+
+  find(id: string) {
+    for (const repo of this.repos) {
+      const item = repo.find(id);
+      if (item) return item;
+    }
+    return null;
+  }
+
+  findByType(type: string, subType: string | null) {
+    const allItems = this.repos.flatMap((repo) =>
+      repo.findByType(type, subType)
+    );
+    
+    const uniqueItemsMap = new Map();
+    for (const item of allItems) {
+      if (item && item.id) {
+        if (!uniqueItemsMap.has(item.id)) {
+          uniqueItemsMap.set(item.id, item);
+        }
+      }
+    }
+
+    return Array.from(uniqueItemsMap.values());
+  }
+}
+
+const combinedRepository = new CombinedItemRepository();
 </script>
 
 <style scoped></style>

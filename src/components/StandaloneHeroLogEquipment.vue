@@ -140,6 +140,8 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
+import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
+import { UnderKeep2ItemDataRepository } from "@/data/repository/campaign/underkeep2/UnderKeep2ItemDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 
 const props = defineProps<{
@@ -149,7 +151,10 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const playableHeroStore = usePlayableHeroStore();
-const itemRepository = new CoreItemDataRepository();
+
+const coreRepo = new CoreItemDataRepository();
+const ukRepo = new UnderKeepItemDataRepository();
+const uk2Repo = new UnderKeep2ItemDataRepository();
 
 const heroView = computed(() =>
   playableHeroStore.findByPk(props.playableHeroesPk),
@@ -165,7 +170,11 @@ const stashedCardIds = computed(
 
 function getItemName(itemId: string | undefined | null): string {
   if (!itemId) return "—";
-  const item = itemRepository.find(itemId);
+  
+  let item = coreRepo.find(itemId);
+  if (!item) item = ukRepo.find(itemId);
+  if (!item) item = uk2Repo.find(itemId);
+  
   return item?.name || itemId;
 }
 
