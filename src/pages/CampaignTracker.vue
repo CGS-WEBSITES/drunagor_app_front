@@ -1,13 +1,19 @@
 <template>
-  <v-container fluid class="pa-0" :style="contentStyle">
+  <v-container 
+    fluid 
+    class="pa-0 d-flex flex-column justify-start h-100" 
+    :style="contentStyle"
+  >
     <v-row
       v-if="!isCampaignRoute"
       no-gutters
-      class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+      class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2 d-none d-md-flex shrink"
     >
       COMPANION
     </v-row>
+    
     <MainMenu />
+    
     <router-view />
   </v-container>
 </template>

@@ -154,24 +154,6 @@
           >
             Cancel
           </v-btn>
-          <template v-else>
-            <v-btn
-              color="grey"
-              variant="text"
-              @click="cancelTransfer"
-              :disabled="transferLoading"
-            >
-              Cancel
-            </v-btn>
-            <v-btn
-              color="error"
-              variant="elevated"
-              @click="confirmTransfer"
-              :loading="transferLoading"
-            >
-              Confirm Transfer
-            </v-btn>
-          </template>
         </v-card-actions>
       </v-card>
     </v-dialog>

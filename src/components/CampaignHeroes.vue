@@ -15,7 +15,7 @@
       </v-row>
 
       <v-row>
-        <v-col cols="12">
+        <v-col  class="pa-0 ml-3" cols="12">
           <v-alert
             v-if="playableHeroStore.error"
             type="error"
