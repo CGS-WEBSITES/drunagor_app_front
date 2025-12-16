@@ -416,7 +416,7 @@ const contentStyle = computed(() => {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat-y",
-        "margin-top": "56px",
+        "margin-top": "0px",
       };
 });
 
