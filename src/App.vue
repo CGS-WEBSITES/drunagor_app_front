@@ -5,20 +5,9 @@
     <!-- Barra de Navegação Superior -->
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
-        <div
-          @click="$router.push({ name: 'Dashboard' })"
-          style="cursor: pointer"
-          class="d-flex align-center pl-6"
-        >
+        <div @click="$router.push({ name: 'Dashboard' })" style="cursor: pointer" class="d-flex align-center pl-6">
           <!-- Ícone Drunagor -->
-          <v-img
-            src="@/assets/darknessl.png"
-            height="30"
-            width="30"
-            alt="Drunagor Icon"
-            contain
-            class="mr-2"
-          ></v-img>
+          <v-img src="@/assets/darknessl.png" height="30" width="30" alt="Drunagor Icon" contain class="mr-2"></v-img>
           <span>App Drunagor</span>
         </div>
 
@@ -36,22 +25,17 @@
           </v-list>
         </v-menu>
 
-        <v-btn
-          v-if="
-            [
-              'Home',
-              'Login',
-              'Gama',
-              'Community',
-              'RetailerRegistration',
-              'ForgotPassword',
-              'ShareEvent',
-            ].includes(route.name)
-          "
-          color="WHITE"
-          large
-          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
-        >
+        <v-btn v-if="
+          [
+            'Home',
+            'Login',
+            'Gama',
+            'Community',
+            'RetailerRegistration',
+            'ForgotPassword',
+            'ShareEvent',
+          ].includes(route.name)
+        " color="WHITE" large @click="$router.push({ name: 'Login', query: { tab: 'signup' } })">
           Sign up
         </v-btn>
 
@@ -59,14 +43,8 @@
           <div class="d-flex justify-center w-100">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">
-                <v-btn
-                  v-bind="props"
-                  color="secundary"
-                  :elevation="isHovering ? 10 : 0"
-                  :disabled="item.disabled"
-                  class="mx-2"
-                  @click="item.to ? router.push(item.to) : item.do()"
-                >
+                <v-btn v-bind="props" color="secundary" :elevation="isHovering ? 10 : 0" :disabled="item.disabled"
+                  class="mx-2" @click="item.to ? router.push(item.to) : item.do()">
                   {{ item.title }}
                 </v-btn>
               </template>
@@ -78,13 +56,10 @@
               <v-btn v-bind="props" text class="px-3">
                 <span class="pr-1">{{ user.user_name }}</span>
                 <v-avatar size="35" class="mr-2">
-                  <v-img
-                    :src="
-                      user.picture_hash
-                        ? assets + '/Profile/' + user.picture_hash
-                        : assets + '/Profile/user.png'
-                    "
-                  />
+                  <v-img :src="user.picture_hash
+                      ? assets + '/Profile/' + user.picture_hash
+                      : assets + '/Profile/user.png'
+                    " />
                 </v-avatar>
                 <v-icon right>mdi-chevron-down</v-icon>
               </v-btn>
@@ -104,32 +79,22 @@
     </v-row>
 
     <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
-    <v-row
-      no-gutters
-      v-else-if="
-        route.name !== 'Home' &&
-        route.name !== 'Login' &&
-        route.name !== 'RetailerRegistration' &&
-        route.name !== 'Gama' &&
-        route.name !== 'Community'
-      "
-    >
+    <v-row no-gutters v-else-if="
+      route.name !== 'Home' &&
+      route.name !== 'Login' &&
+      route.name !== 'RetailerRegistration' &&
+      route.name !== 'Gama' &&
+      route.name !== 'Community'
+    ">
       <v-app-bar app min-height="56" color="secundary" elevation="4">
-        <div
-          @click="$router.push({ name: 'Dashboard' })"
-          style="cursor: pointer"
-          class="d-flex align-center pl-4"
-        >
-          <v-img
-            src="@/assets/darknessl.png"
-            height="30"
-            width="30"
-            alt="Drunagor Icon"
-            contain
-            class="mr-2"
-          ></v-img>
+        <div v-if="route.name === 'Dashboard'" @click="$router.push({ name: 'Dashboard' })" style="cursor: pointer" class="d-flex align-center pl-4">
+          <v-img src="@/assets/darknessl.png" height="30" width="30" alt="Drunagor Icon" contain class="mr-2"></v-img>
           <span>App Drunagor</span>
         </div>
+
+        <v-btn v-else icon @click="$router.back()" class="mr-2">
+          <v-icon>mdi-arrow-left</v-icon>
+        </v-btn>
 
         <v-spacer></v-spacer>
 
@@ -140,49 +105,23 @@
       </v-app-bar>
 
       <!-- Navigation Drawer -->
-      <v-navigation-drawer
-        v-model="drawer"
-        temporary
-        location="right"
-        width="280"
-      >
+      <v-navigation-drawer v-model="drawer" temporary location="right" width="280">
         <!-- Header do Drawer com Avatar -->
-        <v-list-item
-          class="pa-4"
-          :prepend-avatar="
-            user.picture_hash
-              ? assets + '/Profile/' + user.picture_hash
-              : assets + '/Profile/user.png'
-          "
-          :title="user.user_name || 'User'"
-          :subtitle="role === 3 ? 'Retailer' : 'Player'"
-        >
+        <v-list-item class="pa-4" :prepend-avatar="user.picture_hash
+            ? assets + '/Profile/' + user.picture_hash
+            : assets + '/Profile/user.png'
+          " :title="user.user_name || 'User'" :subtitle="role === 3 ? 'Retailer' : 'Player'">
         </v-list-item>
 
         <v-divider></v-divider>
 
         <!-- Menu Items -->
         <v-list density="compact" nav>
-          <v-list-item
-            v-for="(item, index) in menuItems"
-            :key="index"
-            :disabled="item.disabled"
-            @click="handleMenuClick(item)"
-            :value="item.title"
-            class="my-1"
-          >
+          <v-list-item v-for="(item, index) in menuItems" :key="index" :disabled="item.disabled"
+            @click="handleMenuClick(item)" :value="item.title" class="my-1">
             <template v-slot:prepend>
-              <div
-                class="d-flex align-center"
-                style="width: 24px; margin-right: 16px"
-              >
-                <v-img
-                  v-if="item.iconImage"
-                  :src="item.iconImage"
-                  width="24"
-                  height="24"
-                  contain
-                ></v-img>
+              <div class="d-flex align-center" style="width: 24px; margin-right: 16px">
+                <v-img v-if="item.iconImage" :src="item.iconImage" width="24" height="24" contain></v-img>
                 <v-icon v-else size="24">{{ item.icon }}</v-icon>
               </div>
             </template>
@@ -195,10 +134,7 @@
             <v-divider class="mb-2"></v-divider>
             <v-list-item @click="logOut" class="my-1">
               <template v-slot:prepend>
-                <div
-                  class="d-flex align-center"
-                  style="width: 24px; margin-right: 16px"
-                >
+                <div class="d-flex align-center" style="width: 24px; margin-right: 16px">
                   <v-icon size="24">mdi-logout</v-icon>
                 </div>
               </template>
@@ -210,7 +146,7 @@
     </v-row>
 
     <!-- Exibe o conteúdo da rota -->
-    <router-view :style="contentStyle" />
+    <router-view :style="contentStyle" class="pt-10"/>
   </v-app>
 </template>
 
@@ -319,42 +255,42 @@ const contentStyle = computed(() => {
   ) {
     return display.value.mdAndUp
       ? {
-          "background-image":
-            "url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp')",
-          "background-size": "cover",
-          "background-position": "top center",
-          "background-repeat": "no-repeat",
-          "min-height": "100vh",
-          width: "100%",
-          "margin-top": "65px",
-          display: "flex",
-          "align-items": "center",
-          "justify-content": "center",
-        }
+        "background-image":
+          "url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp')",
+        "background-size": "cover",
+        "background-position": "top center",
+        "background-repeat": "no-repeat",
+        "min-height": "100vh",
+        width: "100%",
+        "padding-top": "65px",
+        display: "flex",
+        "align-items": "center",
+        "justify-content": "center",
+      }
       : {
-          "background-image":
-            "url('https://assets.drunagor.app/backgrounds/mblogin-background.png')",
-          "background-size": "cover",
-          "background-position": "center",
-          "background-repeat": "no-repeat",
-          "min-height": "100vh",
-          width: "100%",
-        };
+        "background-image":
+          "url('https://assets.drunagor.app/backgrounds/mblogin-background.png')",
+        "background-size": "cover",
+        "background-position": "center",
+        "background-repeat": "no-repeat",
+        "min-height": "100vh",
+        width: "100%",
+      };
   }
 
   return display.value.mdAndUp
     ? {
-        "background-image":
-          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-        "background-repeat": "repeat",
-        "margin-top": "65px",
-      }
+      "background-image":
+        "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+      "background-repeat": "repeat",
+      "padding-top": "65px",
+    }
     : {
-        "background-image":
-          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-        "background-repeat": "repeat-y",
-        "margin-top": "0px",
-      };
+      "background-image":
+        "url(" + assets + "/backgrounds/backgrounds.png" + ")",
+      "background-repeat": "repeat-y",
+      "padding-top": "0px",
+    };
 });
 
 const openPopup = (url: string) => {
@@ -378,7 +314,7 @@ onBeforeMount(() => {
 
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
-  
+
   socketApi.connect(token, user.value.users_pk);
 
 });
