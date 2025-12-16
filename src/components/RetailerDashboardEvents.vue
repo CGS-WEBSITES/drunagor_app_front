@@ -558,7 +558,7 @@
           <v-btn color="grey" variant="text" @click="createTableDialog = false"
             >Cancel</v-btn
           >
-          <v-btn color="primary" :loading="creatingTable" @click="createTable"
+          <v-btn :loading="creatingTable" @click="createTable"
             >Create</v-btn
           >
         </v-card-actions>
@@ -599,7 +599,6 @@
             >Cancel</v-btn
           >
           <v-btn
-            color="primary"
             :loading="creatingTable"
             @click="createMultipleTables"
             >Create</v-btn
