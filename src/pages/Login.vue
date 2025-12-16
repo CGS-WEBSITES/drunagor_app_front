@@ -15,7 +15,7 @@
             <!-- Login Tab -->
             <v-tab-item :value="0">
               <v-card-text v-if="activeTab === 0" class="pa-0">
-                <v-row no-gutters>
+                <v-row no-gutters class="justify-center">
                   <!-- Coluna do formulário (fica primeiro no mobile, segundo no desktop) -->
                   <v-col cols="12" md="7" class="pa-8 order-1 order-md-2">
                     <v-img src="@/assets/darkness_white.svg" max-width="50" class="mx-auto mb-4" />

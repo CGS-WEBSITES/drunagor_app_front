@@ -363,7 +363,7 @@ function syncStateToStore() {
       campaignHeroRef.value.sequentialAdventureState =
         new SequentialAdventureState();
     }
-  });
+  };
 
     campaignHeroRef.value.sequentialAdventureState.lifepoints =
       Number(localState.value.lifepoints) || 0;
@@ -381,7 +381,6 @@ function syncStateToStore() {
         Number(localState.value.resources[key]) || 0;
     });
   }
-}
 
 const onSaveSuccess = () => {
   snackbarText.value = "Resources saved successfully!";
