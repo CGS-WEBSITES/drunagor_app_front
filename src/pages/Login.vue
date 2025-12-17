@@ -1,13 +1,8 @@
 <template>
-  <v-container
-    class="login-page fill-height d-flex align-center justify-center pa-4"
-    fluid
-  >
+  <v-container class="login-page fill-height d-flex align-center justify-center pa-4" fluid>
     <v-row justify="center">
       <v-col cols="12" class="text-center mb-4">
-        <h1
-          class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2"
-        >
+        <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2">
           DRUNAGOR APP
         </h1>
       </v-col>
@@ -20,110 +15,52 @@
             <!-- Login Tab -->
             <v-tab-item :value="0">
               <v-card-text v-if="activeTab === 0" class="pa-0">
-                <v-row no-gutters>
+                <v-row no-gutters class="justify-center">
                   <!-- Coluna do formulário (fica primeiro no mobile, segundo no desktop) -->
                   <v-col cols="12" md="7" class="pa-8 order-1 order-md-2">
-                    <v-img
-                      src="@/assets/darkness_white.svg"
-                      max-width="50"
-                      class="mx-auto mb-4"
-                    />
+                    <v-img src="@/assets/darkness_white.svg" max-width="50" class="mx-auto mb-4" />
                     <h1 class="text-center text-h5 font-weight-bold mb-8">
                       Welcome back!
                     </h1>
 
-                    <BaseAlert
-                      v-model="showAlert"
-                      :type="alertType"
-                      :icon="alertIcon"
-                      :title="alertTitle"
-                      class="my-5"
-                    >
+                    <BaseAlert v-model="showAlert" :type="alertType" :icon="alertIcon" :title="alertTitle" class="my-5">
                       {{ alertText }}
                     </BaseAlert>
 
                     <v-form>
-                      <v-text-field
-                        label="Email or Username"
-                        prepend-icon="mdi-email"
-                        v-model="login"
-                        color="black"
-                        variant="outlined"
-                        class="mb-4"
-                      />
-                      <v-text-field
-                        label="Password"
-                        prepend-icon="mdi-lock"
-                        :type="showPass ? 'text' : 'password'"
-                        v-model="password"
-                        color="black"
-                        variant="outlined"
-                        @keyup.enter="loginUser"
-                      >
+                      <v-text-field label="Email or Username" prepend-icon="mdi-email" v-model="login" color="black"
+                        variant="outlined" class="mb-4" />
+                      <v-text-field label="Password" prepend-icon="mdi-lock" :type="showPass ? 'text' : 'password'"
+                        v-model="password" color="black" variant="outlined" @keyup.enter="loginUser">
                         <template #append-inner>
-                          <v-icon
-                            class="cursor-pointer"
-                            @click="showPass = !showPass"
-                          >
+                          <v-icon class="cursor-pointer" @click="showPass = !showPass">
                             {{ showPass ? "mdi-eye" : "mdi-eye-off" }}
                           </v-icon>
                         </template>
                       </v-text-field>
                     </v-form>
 
-                    <h3
-                      @click="navigateTo('/forgotpassword')"
-                      class="text-center mt-4 clickable-text"
-                    >
-                      Forgot your password?
-                    </h3>
+                    <v-row justify="center">
+                      <h3 @click="navigateTo('/forgotpassword')" class="text-center mt-4 clickable-text">
+                        Forgot your password?
+                      </h3>
+                    </v-row>
 
-                    <v-btn class="mt-8" color="black" block @click="loginUser">
-                      LOGIN
-                    </v-btn>
-                  </v-col>
+                    <v-row justify="center">
+                      <v-btn class="mt-8" color="black" block @click="loginUser">
+                        LOGIN
+                      </v-btn>
+                    </v-row>
 
-                  <!-- Coluna preta (fica abaixo no mobile, à esquerda no desktop) -->
-                  <v-col
-                    cols="12"
-                    md="5"
-                    class="pa-8 text-white order-2 order-md-1"
-                    style="background-color: #000"
-                  >
-                    <div
-                      class="d-flex flex-column justify-space-between fill-height"
-                    >
-                      <div>
-                        <h2 class="text-h6 font-weight-bold text-uppercase">
-                          Welcome back, Mighty Heroes!
-                        </h2>
-                        <p class="mt-6 text-subtitle-2">
-                          With your return, the continent sighs in relief, for
-                          your courage has weakened the grip of Darkness. We
-                          have waited for this moment… and your deeds? Carefully
-                          registered in our sacred scrolls.
-                        </p>
-                        <p class="mt-6 text-subtitle-2">
-                          Your story is far from over. The fate of Daren rests
-                          in your hands.
-                        </p>
-                        <p class="text-h7 font-weight-bold text-uppercase pt-6">
-                          Your Adventure awaits! Log in and step back into the
-                          fight!
-                        </p>
-                      </div>
-                      <div class="mt-auto">
-                        <p class="text-caption">Don’t have an account?</p>
-                        <v-btn
-                          color="white"
-                          class="mt-2"
-                          variant="outlined"
-                          @click="activeTab = 1"
-                        >
-                          SIGN UP
-                        </v-btn>
-                      </div>
-                    </div>
+                    <v-row justify="center">
+                      <p class="text-caption text-center mt-4">Don’t have an account?</p>
+                    </v-row>
+
+                    <v-row justify="center">
+                      <v-btn color="white" class="mt-2" variant="outlined" @click="activeTab = 1">
+                        SIGN UP
+                      </v-btn>
+                    </v-row>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -133,171 +70,78 @@
               <v-card-text v-if="activeTab === 1" class="pa-0">
                 <v-row no-gutters>
                   <v-col cols="12" md="7" class="pa-8">
-                    <v-img
-                      src="@/assets/darkness_white.svg"
-                      max-width="50"
-                      class="mx-auto mb-4"
-                    />
+                    <v-img src="@/assets/darkness_white.svg" max-width="50" class="mx-auto mb-4" />
                     <h1 class="text-center text-h5 font-weight-bold mb-6">
                       Create an Account
                     </h1>
 
-                    <BaseAlert
-                      v-model="showAlert"
-                      :type="alertType"
-                      :icon="alertIcon"
-                      :title="alertTitle"
-                      class="mb-6"
-                    >
+                    <BaseAlert v-model="showAlert" :type="alertType" :icon="alertIcon" :title="alertTitle" class="mb-6">
                       {{ alertText }}
                     </BaseAlert>
 
                     <v-form ref="regForm">
                       <v-row>
                         <v-col cols="12" sm="6">
-                          <v-text-field
-                            label="Username"
-                            v-model="signupUsername"
-                            prepend-icon="mdi-account"
-                            :rules="[rules.required]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
+                          <v-text-field label="Username" v-model="signupUsername" prepend-icon="mdi-account"
+                            :rules="[rules.required]" color="black" variant="outlined" dense />
                         </v-col>
                         <v-col cols="12" sm="6">
-                          <v-text-field
-                            label="Email"
-                            v-model="signupEmail"
-                            prepend-icon="mdi-email"
-                            type="email"
-                            :rules="[rules.required, rules.email]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
+                          <v-text-field label="Email" v-model="signupEmail" prepend-icon="mdi-email" type="email"
+                            :rules="[rules.required, rules.email]" color="black" variant="outlined" dense />
                         </v-col>
                       </v-row>
                       <v-row>
                         <v-col cols="11" sm="5">
-                          <v-text-field
-                            label="Password"
-                            prepend-icon="mdi-lock"
-                            :type="showPass ? 'text' : 'password'"
-                            v-model="signupPassword"
-                            :rules="[rules.required, rules.min]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
+                          <v-text-field label="Password" prepend-icon="mdi-lock" :type="showPass ? 'text' : 'password'"
+                            v-model="signupPassword" :rules="[rules.required, rules.min]" color="black"
+                            variant="outlined" dense />
                         </v-col>
-                        <v-col
-                          cols="1"
-                          class="d-flex justify-center align-center mb-5"
-                        >
-                          <v-icon
-                            class="olho"
-                            tag="i"
-                            @click="showPass = !showPass"
-                          >
+                        <v-col cols="1" class="d-flex justify-center align-center mb-5">
+                          <v-icon class="olho" tag="i" @click="showPass = !showPass">
                             {{ showPass ? "mdi-eye" : "mdi-eye-off" }}
                           </v-icon>
                         </v-col>
                         <v-col cols="12" sm="6">
-                          <v-text-field
-                            label="Confirm Password"
-                            v-model="signupConfirmPassword"
-                            prepend-icon="mdi-lock"
-                            type="password"
-                            :rules="[rules.required, rules.matchPasswords]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
+                          <v-text-field label="Confirm Password" v-model="signupConfirmPassword" prepend-icon="mdi-lock"
+                            type="password" :rules="[rules.required, rules.matchPasswords]" color="black"
+                            variant="outlined" dense />
                         </v-col>
                       </v-row>
 
                       <v-row>
                         <v-col cols="12" class="d-flex align-center">
-                          <v-checkbox
-                            v-model="agreeTerms"
-                            color="green"
-                            class="mr-2"
-                            :rules="[rules.required]"
-                          />
+                          <v-checkbox v-model="agreeTerms" color="green" class="mr-2" :rules="[rules.required]" />
                           <span class="mb-5">
                             I have read and agree to the
-                            <strong
-                              class="clickable-text"
-                              @click="termsDialog = true"
-                            >
+                            <strong class="clickable-text" @click="termsDialog = true">
                               terms and conditions
                             </strong>
                           </span>
                         </v-col>
                       </v-row>
 
-                      <h3
-                        @click="navigateTo('/retailer-registration')"
-                        class="pb-4 text-center clickable-text"
-                      >
-                        Register as a retailer
-                      </h3>
+                      <v-row justify="center">
+                        <h3 @click="navigateTo('/retailer-registration')" class="pb-4 text-center clickable-text">
+                          Register as a retailer
+                        </h3>
+                      </v-row>
 
-                      <v-btn
-                        class="mt-2"
-                        color="black"
-                        block
-                        @click="submitForm"
-                      >
-                        SIGN UP
-                      </v-btn>
-                    </v-form>
-                  </v-col>
+                      <v-row justify="center">
+                        <v-btn class="mt-2" color="black" block @click="submitForm">
+                          SIGN UP
+                        </v-btn>
+                      </v-row>
 
-                  <!-- Lado direito com o texto e botão LOGIN -->
-                  <v-col
-                    cols="12"
-                    md="5"
-                    class="pa-8 text-white text-center text-md-end"
-                    style="background-color: #000"
-                  >
-                    <div
-                      class="d-flex flex-column justify-space-between fill-height align-center align-md-end"
-                    >
-                      <div>
-                        <h2 class="text-h5 font-weight-bold mb-6">
-                          Welcome, Fierce Adventurers!
-                        </h2>
-                        <p class="text-subtitle-2">
-                          A new journey awaits! The path is twisted as Darkness
-                          takes over, filled with obstacles as all enemies try
-                          to lead you astray! Embark on this adventure, track
-                          your moves, retrace your steps, and never lose sight
-                          of your destiny.
-                        </p>
-                        <p class="text-subtitle-2 pt-2">
-                          The fate of this world rests in your hands.
-                        </p>
-                        <p class="text-subtitle-2 pt-2">
-                          Are you ready to embrace the Darkness?
-                        </p>
-                        <p class="text-h6 font-weight-bold mt-6">
-                          Sign Up and let the Adventure begin!
-                        </p>
-                      </div>
-                      <div class="mt-auto">
-                        <p class="text-caption">Already have an account?</p>
-                        <v-btn
-                          color="white"
-                          variant="outlined"
-                          class="mt-2"
-                          @click="activeTab = 0"
-                        >
+                      <v-row justify="center">
+                        <p class="text-caption text-center mt-4">Already have an account?</p>
+                      </v-row>
+
+                      <v-row justify="center">
+                        <v-btn color="white" variant="outlined" class="mt-2" @click="activeTab = 0">
                           LOGIN
                         </v-btn>
-                      </div>
-                    </div>
+                      </v-row>
+                    </v-form>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -305,64 +149,8 @@
           </v-tabs-items>
         </v-card>
       </v-col>
-
-      <v-row justify="center">
-        <v-col cols="11" md="9" lg="9" xl="9">
-          <v-card
-            class="pa-4 d-flex flex-column align-center justify-center"
-            color="white"
-            elevation="2"
-          >
-            <p>
-              <strong>Welcome to the Drunagor App!</strong>
-            </p>
-
-            <p>
-              Get ready to revolutionize your gaming experience! The Drunagor
-              App is your ultimate companion for immersive adventures, campaign
-              tracking, and epic events. Seamlessly manage your progress,
-              connect with the community, and join exclusive
-              <strong>Drunagor Nights</strong> for rewards and rankings. Be
-              among the first to explore this exciting new platform and take
-              your gameplay to the next level. Whether you're a seasoned
-              adventurer or new to the world of Drunagor, this is your moment to
-              shine.
-            </p>
-
-            <p>
-              <strong>Sign up now and embark on your next adventure!</strong>
-            </p>
-          </v-card>
-        </v-col>
-      </v-row>
     </v-row>
 
-    <iframe
-      width="1120"
-      height="584"
-      src="https://www.youtube.com/embed/HjnZ0e5FTS4?si=-2wNSjqXfuILHVks"
-      title="YouTube video player"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allowfullscreen
-      class="pl- pt-7"
-    ></iframe>
-
-    <!-- Seção de Vídeo -->
-    <!-- <v-container class="bg-white">
-      <v-row align="center" justify="center" style="height: 50vh">
-        <v-col cols="12" class="text-center">
-          <div>
-            <h2>Video Section</h2>
-            <v-img
-              :src="$assetsBucket + '/landing-page/presentation-video.mp4'"
-              alt="Video"
-            />
-          </div>
-        </v-col>
-      </v-row>
-    </v-container> -->
 
     <!-- Terms dialog -->
     <v-dialog v-model="termsDialog" max-width="500">
@@ -387,8 +175,7 @@ import { useUserStore } from "@/store/UserStore";
 import type { User } from "@/store/UserStore";
 import { onBeforeMount } from "vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
-// +++ NOVO:
-import { connectSocket } from "@/service/useSocket";
+import { socketKey } from "@/plugins/socket";
 
 const userStore = useUserStore();
 
@@ -428,7 +215,7 @@ const rules = {
 };
 
 const axios: any = inject("axios");
-const apiUrl: any = inject("apiUrl");
+const socketApi: any = inject(socketKey);
 
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
@@ -516,7 +303,7 @@ const loginUser = async () => {
         `Bearer ${response.data.access_token}`;
 
       // +++ NOVO: abre o WebSocket passando o JWT no handshake
-      connectSocket(response.data.access_token, dbUser.users_pk, apiUrl.value);
+      socketApi.connect(response.data.access_token, dbUser.users_pk);
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });

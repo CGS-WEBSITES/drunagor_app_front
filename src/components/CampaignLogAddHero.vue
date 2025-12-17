@@ -68,7 +68,7 @@ function closeModal() {
 const heroStore = HeroStore();
 const campaignStore = CampaignStore();
 
-const campaign = computed(() => campaignStore.find(props.campaignId));
+const campaign = computed(() => campaignStore.findOptional(props.campaignId));
 
 const MAX_HEROES = 4;
 const campaignHeroesCount = computed(
@@ -167,7 +167,7 @@ function addRandomHeroToCampaign() {
   }
 
   const randomHero = new RandomizeHero().randomize(
-    _.map(heroStore.findAllInCampaign(props.campaignId), "heroId"),
+    existingHeroIds,
     availableHeroes.value,
   );
 
@@ -181,38 +181,7 @@ function addRandomHeroToCampaign() {
     return;
   }
 
-  const newHero = new Hero(randomHero.id, props.campaignId);
-
-  if (!newHero.sequentialAdventureState) {
-    newHero.sequentialAdventureState = new SequentialAdventureState();
-
-    if (!newHero.sequentialAdventureState.resources) {
-      newHero.sequentialAdventureState.resources = {};
-    }
-
-    const RESOURCE_DEFINITIONS = [
-      "focus",
-      "fruit-of-life",
-      "ki",
-      "shield",
-      "fury",
-    ];
-
-    RESOURCE_DEFINITIONS.forEach((resource) => {
-      newHero.sequentialAdventureState!.resources[resource] = 0;
-    });
-  }
-
-  heroStore.add(newHero);
-
-  toast.add({
-    severity: "success",
-    summary: "Hero added",
-    detail: "Remember to save the campaign to persist changes.",
-    life: 3000,
-  });
-
-  closeModal();
+  await addHeroToCampaign(randomHero.id);
 }
 </script>
 

@@ -196,7 +196,7 @@ const emit = defineEmits(['close']);
 // --- METADADOS ---
 const interactionMeta: Record<string, { number: number, title: string }> = {
     "InteractionThePrisoner": { number: 7, title: "The Prisoner" },
-    "InteractionTheSeed": { number: 8, title: "Seed of Another World" },
+    "InteractionTheSeed": { number: 8, title: "The Cube of Another World" },
     "InteractionTheForge": { number: 9, title: "Forgotten Forge" },
     "InteractionDraconianAltar": { number: 10, title: "Draconian Altar" },
     "InteractionBeerFactory": { number: 11, title: "Fantastic Beer Factory" },

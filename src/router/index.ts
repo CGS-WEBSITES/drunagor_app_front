@@ -88,10 +88,24 @@ const router = createRouter({
     },
 
     {
+      path: "/lobby/:id",
+      name: "Lobby",
+      component: () => import("@/components/Lobby.vue"),
+      beforeEnter: requireAuth,
+    },
+
+    {
       path: "/community-builds",
       name: "CommunityBuilds",
       component: () => import("@/components/CommunityBuilds.vue"),
     },
+
+
+    {
+  path: '/debug-interactions',
+  name: 'DebugInteractions',
+  component: () => import('@/components/DebugInteractions.vue')
+},
 
     {
       path: "/tracker-parent",
@@ -137,6 +151,24 @@ const router = createRouter({
           name: "HeroSequentialState",
           component: () =>
             import("@/components/CampaignHeroSequentialAdventure.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/campaign-tracker/heroes",
+          name: "HeroesManager",
+          component: () => import("@/components/HeroesManager.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/campaign-tracker/hero/:heroId/sequential-state",
+          name: "StandaloneHeroSequentialState",
+          component: () => import("@/components/StandaloneHeroSequentialStateView.vue"), 
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/campaign-tracker/hero/:heroId",
+          name: "StandaloneHero",
+          component: () => import("@/components/StandaloneHeroDetailView.vue"),
           beforeEnter: requireAuth,
         },
         {
@@ -189,6 +221,18 @@ const router = createRouter({
           name: "settings",
           component: () => import("@/components/PerfilSettings.vue"),
           beforeEnter: requireAuth,
+        },
+        {
+          path: "/profile/store-settings",
+          name: "stores",
+          component: () =>
+            import("@/components/StoreSettings.vue"),
+          beforeEnter(to, from, next) {
+            if (isSignedIn()) {
+              next()
+              return
+            }
+          },
         },
         {
           path: "/profile/store-settings",

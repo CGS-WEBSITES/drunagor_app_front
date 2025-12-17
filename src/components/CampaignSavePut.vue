@@ -36,115 +36,27 @@ function compressCampaignComplete(campaignId: string) {
   return campaign.name;
 }
 
-function mergeWithExistingHash() {
-  const storageKey = `campaign_hash_${props.campaignId}`;
-  const existingHash = localStorage.getItem(storageKey);
-
-  if (!existingHash) {
-    return token.value;
-  }
-
+async function save(): Promise<void> {
   try {
-    const existingData = JSON.parse(atob(existingHash));
-    const newData = JSON.parse(atob(token.value));
+    const campaign = campaignStore.find(props.campaignId);
+    const trackerHash = generateCampaignHash();
 
-    const mergedCampaign = {
-      ...existingData.campaignData,
-      ...newData.campaignData,
-    };
-
-    const existingHeroesMap = new Map(
-      (existingData.heroes || []).map((h: any) => [h.heroId, h]),
-    );
-
-    newData.heroes.forEach((newHero: any) => {
-      const existingHero = existingHeroesMap.get(newHero.heroId);
-
-      if (existingHero) {
-        existingHeroesMap.set(newHero.heroId, deepMerge(existingHero, newHero));
-      } else {
-        existingHeroesMap.set(newHero.heroId, newHero);
-      }
+    await axios.put(`/campaigns/alter/${props.campaignId}`, {
+      tracker_hash: trackerHash,
+      party_name: campaign.name || "",
     });
-
-    const mergedData = {
-      campaignData: mergedCampaign,
-      heroes: Array.from(existingHeroesMap.values()),
-      savedAt: new Date().toISOString(),
-    };
-
-    return btoa(JSON.stringify(mergedData));
-  } catch (error) {
-    console.error("Error merging with existing hash:", error);
-    return token.value;
-  }
-}
-
-function deepMerge(target: any, source: any): any {
-  const output = { ...target };
-
-  if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach((key) => {
-      if (isObject(source[key])) {
-        if (!(key in target)) {
-          output[key] = source[key];
-        } else {
-          output[key] = deepMerge(target[key], source[key]);
-        }
-      } else {
-        output[key] = source[key];
-      }
-    });
-  }
-
-  return output;
-}
-
-function isObject(item: any): boolean {
-  return item && typeof item === "object" && !Array.isArray(item);
-}
-
-async function saveCampaign() {
-  const party_name = compressCampaignComplete(props.campaignId);
-
-  try {
-    const mergedHash = mergeWithExistingHash();
 
     const storageKey = `campaign_hash_${props.campaignId}`;
-    localStorage.setItem(storageKey, mergedHash);
-
-    const heroes = heroStore.findAllInCampaign(props.campaignId);
-    heroes.forEach((hero) => {
-      const oldKey = `hero_hash_${props.campaignId}_${hero.heroId}`;
-      localStorage.removeItem(oldKey);
-    });
-
-    const oldHeroesKey = `heroes_hash_${props.campaignId}`;
-    localStorage.removeItem(oldHeroesKey);
-
-    // Quando o backend estiver pronto, descomentar:
-    // await axios.put(`campaigns/alter/${props.campaignId}`, {
-    //   tracker_hash: mergedHash,
-    //   party_name: party_name,
-    // });
+    localStorage.setItem(storageKey, trackerHash);
 
     emit("success");
-    return true;
-  } catch (err) {
-    console.error("Error saving campaign:", err);
-    emit("fail");
-    throw err;
-  }
-}
-
-async function handleClick() {
-  try {
-    await saveCampaign();
-    emit("open-save-panel");
   } catch (error) {
-    console.error("Error saving campaign:", error);
+    console.error("[CampaignSavePut] Error saving campaign:", error);
+    emit("fail");
   }
 }
 
-defineExpose({ save: saveCampaign });
+defineExpose({
+  save,
+});
 </script>

@@ -18,8 +18,9 @@ import "primevue/resources/themes/lara-dark-green/theme.css";
 import "primeicons/primeicons.css";
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import {getToken} from '@/service/AccessToken'
+import { getToken } from '@/service/AccessToken'
 import VueTheMask from 'vue-the-mask'
+import { createSocketPlugin } from "./socket";
 
 
 // Types
@@ -40,18 +41,22 @@ export async function registerPlugins(app: App, env: string) {
 
   // Setting global properties
 
-  let apiUrl: string;
+  let apiUrl: string = "";
+  let socketPath: string = "";
 
   if (env === 'local') {
     apiUrl = 'http://localhost:81/prod/system/';
+    socketPath = "/socket.io/"
   } else {
     if (env === 'prod') {
       apiUrl = 'https://api.drunagor.app/prod/system/';
+      socketPath = "/prod/socket.io/"
     } else {
       if (env === 'test') {
         apiUrl = 'https://api.drunagor.app/test/system/';
+        socketPath = "/test/socket.io/"
       }
-      else{
+      else {
         console.log("deu ruim")
       }
     }
@@ -66,6 +71,10 @@ export async function registerPlugins(app: App, env: string) {
   app.provide('axios', globalAxios)
   app.provide('assets', assets)
   app.provide('apiUrl', apiUrl)
+  app.use(createSocketPlugin({
+    baseUrl: apiUrl,
+    path: socketPath,
+  }));
 
   await loadLanguage("en_US");
 
