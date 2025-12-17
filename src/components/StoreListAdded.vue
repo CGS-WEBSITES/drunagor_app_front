@@ -103,13 +103,12 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
-import { socketKey } from "@/plugins/socket";
+import { getSocket } from "@/service/useSocket";
 
 const axios = inject("axios");
 const apiUrl = inject("apiUrl");
 const userStore = useUserStore();
 const router = useRouter();
-const socketApi = inject(socketKey);
 
 const userId = userStore.user?.users_pk;
 
@@ -315,7 +314,7 @@ onMounted(() => {
   fetchRequests();
   fetchFriends();
 
-  const s = socketApi.get();
+  const s = getSocket();
   if (s) {
     s.on("friends:new_request", onNewRequest);
     s.on("friends:accepted", onAccepted);
@@ -326,7 +325,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  const s = socketApi.get();
+  const s = getSocket();
   if (s) {
     s.off("friends:new_request", onNewRequest);
     s.off("friends:accepted", onAccepted);

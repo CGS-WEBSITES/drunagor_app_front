@@ -176,12 +176,7 @@
 
   <v-row no-gutters class="pt-6">
     <v-col cols="12" class="d-flex justify-center pb-4">
-      <v-btn
-        variant="elevated"
-        color="primary"
-        @click="saveAndGoBack"
-        :loading="isSaving"
-      >
+      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
         {{ t("Save Changes") }}
       </v-btn>
     </v-col>
@@ -199,15 +194,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { HeroStore } from "@/store/HeroStore";
 import { SequentialAdventureState } from "@/store/Hero";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
+import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
-import HeroSavePut from "@/components/HeroSavePut.vue";
+
+const RESOURCE_DEFINITIONS = [
+  { id: "focus", translation_key: "label.focus" },
+  { id: "fruit-of-life", translation_key: "label.fruit-of-life" },
+  { id: "ki", translation_key: "label.ki" },
+  { id: "shield", translation_key: "label.shield" },
+  { id: "fury", translation_key: "label.fury" },
+];
 
 const { t } = useI18n();
 const route = useRoute();
@@ -276,7 +279,13 @@ function initSequentialAdventureState(): SequentialAdventureState {
     if (currentState.resources[resource.id] === undefined) {
       currentState.resources[resource.id] = 0;
     }
-  };
+  });
+
+  return currentState;
+}
+
+function createDefaultState(): SequentialAdventureState {
+  const state = new SequentialAdventureState();
 
   if (!state.resources) {
     state.resources = {};

@@ -116,6 +116,7 @@
     </v-col>
   </v-row>
 
+  <!-- Snackbar para feedback -->
   <v-snackbar
     v-model="snackbarVisible"
     :timeout="snackbarTimeout"
@@ -134,7 +135,7 @@ import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
 import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
 import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
 import HeroSavePut from "@/components/HeroSavePut.vue";
-import { ref, onMounted } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
 import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
@@ -150,6 +151,7 @@ import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 const route = useRoute();
 const heroDataRepository = new HeroDataRepository();
 const { t } = useI18n();
+const router = useRouter();
 const heroSavePutRef = ref();
 
 const heroId = route.params.heroId.toString();
@@ -177,8 +179,20 @@ const hero = heroDataRepository.find(heroId) ?? ({} as HeroData);
 const heroStore = HeroStore();
 const campaignHero = heroStore.findInCampaign(heroId, campaignId);
 
-const localClassAbilityCount = ref(0);
-const stash = ref(0);
+if (campaignHero) {
+  if (!campaignHero.items) {
+    campaignHero.items = [];
+  }
+  if (!campaignHero.stash) {
+    campaignHero.stash = [];
+  }
+  if (!campaignHero.skills) {
+    campaignHero.skills = {};
+  }
+  if (typeof campaignHero.classAbilityCount === "undefined") {
+    campaignHero.classAbilityCount = 0;
+  }
+}
 
 const localClassAbilityCount = ref(campaignHero.classAbilityCount);
 
@@ -284,6 +298,16 @@ function saveAndGoBack() {
       params: { id: campaignId },
       query: query,
     });
+  }
+}
+
+onMounted(() => {
+  const loader = new CampaignLoadFromStorage();
+  loader.loadCampaignComplete(campaignId);
+
+  const updatedHero = heroStore.findInCampaign(heroId, campaignId);
+  if (updatedHero) {
+    localClassAbilityCount.value = updatedHero.classAbilityCount || 0;
   }
 });
 </script>

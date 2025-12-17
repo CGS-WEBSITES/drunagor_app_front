@@ -31,6 +31,8 @@ export interface HeroData {
   };
   images: {
     avatar: string;
+    trackerimage: string;
+    trackerInfo: string;
   };
 }
 

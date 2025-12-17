@@ -21,7 +21,6 @@ import * as _ from "lodash-es";
 
 export class UnderKeep2ItemDataRepository implements ItemDataRepository {
   private cards = [
-    // --- Starting Gear ---
     {
       id: "tools-of-the-trade",
       itemType: "Weapon",
@@ -44,7 +43,7 @@ export class UnderKeep2ItemDataRepository implements ItemDataRepository {
       translation_key: "weapon.underkeep2.amiran-hammer",
     } as WeaponItemData,
     {
-      id: "clerics-mail",
+      id: "clercis-mail",
       itemType: "Armor",
       cardType: "Starting Gear",
       armorTypes: ["Plate"],
@@ -54,7 +53,7 @@ export class UnderKeep2ItemDataRepository implements ItemDataRepository {
       id: "magicians-staff",
       itemType: "Weapon",
       cardType: "Starting Gear",
-      weaponTypes: ["Implement"], 
+      weaponTypes: ["Implement", "Ranged"],
       translation_key: "weapon.underkeep2.magicians-staff",
     } as WeaponItemData,
     {
@@ -92,8 +91,6 @@ export class UnderKeep2ItemDataRepository implements ItemDataRepository {
       armorTypes: ["Plate"],
       translation_key: "armor.underkeep2.dwarven-plate",
     } as ArmorItemData,
-
-    // --- Adventure Gear (Weapons & Armor) ---
     {
       id: "weapon-of-the-ancients",
       itemType: "Weapon",
@@ -101,6 +98,19 @@ export class UnderKeep2ItemDataRepository implements ItemDataRepository {
       weaponTypes: ["Light", "Heavy", "Ranged", "Implement"],
       translation_key: "weapon.underkeep2.weapon-of-the-ancients",
     } as WeaponItemData,
+    {
+      id: "dragon-gem",
+      itemType: "Consumable",
+      consumableType: "Gem",
+      translation_key: "consumable.underkeep2.dragon-gem",
+    } as ConsumableItemData,
+    {
+      id: "dawn-silverchain",
+      itemType: "Armor",
+      cardType: "Adventure",
+      armorTypes: ["Cloth", "Leather", "Plate"],
+      translation_key: "armor.underkeep2.dawn-silverchain",
+    } as ArmorItemData,
     {
       id: "noon-plate",
       itemType: "Armor",
@@ -122,95 +132,83 @@ export class UnderKeep2ItemDataRepository implements ItemDataRepository {
       armorTypes: ["Cloth", "Leather", "Plate"],
       translation_key: "armor.underkeep2.night-plate",
     } as ArmorItemData,
-
-    // --- Consumables ---
     {
-      id: "scroll-of-incinerate",
-      itemType: "Consumable",
-      cardType: "Adventure",
-      consumableType: "Scroll",
-      translation_key: "consumable.underkeep2.scroll-of-incinerate",
-    } as ConsumableItemData,
-    {
-      id: "potion-of-rejuvenation",
+      id: "callix-malt",
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Potion",
-      translation_key: "consumable.underkeep2.potion-of-rejuvenation",
+      translation_key: "consumable.underkeep2.callix-malt",
     } as ConsumableItemData,
     {
-      id: "scroll-of-winter",
-      itemType: "Consumable",
-      cardType: "Adventure",
-      consumableType: "Scroll",
-      translation_key: "consumable.underkeep2.scroll-of-winter",
-    } as ConsumableItemData,
-    {
-      id: "potion-of-strength",
+      id: "searing-wort",
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Potion",
-      translation_key: "consumable.underkeep2.potion-of-strength",
+      translation_key: "consumable.underkeep2.searing-wort",
     } as ConsumableItemData,
     {
-      id: "scroll-of-sudden-death",
-      itemType: "Consumable",
-      cardType: "Adventure",
-      consumableType: "Scroll",
-      translation_key: "consumable.underkeep2.scroll-of-sudden-death",
-    } as ConsumableItemData,
-    {
-      id: "potion-of-concentration",
+      id: "zullan-malt",
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Potion",
-      translation_key: "consumable.underkeep2.potion-of-concentration",
+      translation_key: "consumable.underkeep2.zullan-malt",
     } as ConsumableItemData,
     {
-      id: "explosive-brew",
-      itemType: "Consumable",
-      cardType: "Adventure",
-      consumableType: "Potion", 
-      translation_key: "consumable.underkeep2.explosive-brew",
-    } as ConsumableItemData,
-    {
-      id: "winter-brew",
+      id: "refreshing-wort",
       itemType: "Consumable",
       cardType: "Adventure",
       consumableType: "Potion",
-      translation_key: "consumable.underkeep2.winter-brew",
+      translation_key: "consumable.underkeep2.refreshing-wort",
     } as ConsumableItemData,
     {
-      id: "dragon-gem",
+      id: "aral-malt",
       itemType: "Consumable",
       cardType: "Adventure",
-      consumableType: "Gem", 
-      translation_key: "consumable.underkeep2.dragon-gem",
+      consumableType: "Potion",
+      translation_key: "consumable.underkeep2.aral-malt",
     } as ConsumableItemData,
     {
-      id: "callix-fire-beer",
-      itemType: "Trinket",
+      id: "strong-wort",
+      itemType: "Consumable",
       cardType: "Adventure",
-      translation_key: "trinket.underkeep2.callix-fire-beer",
-    } as ItemData,
+      consumableType: "Potion",
+      translation_key: "consumable.underkeep2.strong-wort",
+    } as ConsumableItemData,
     {
-      id: "zullan-rush-beer",
-      itemType: "Trinket",
+      id: "breath-of-summer",
+      itemType: "Consumable",
       cardType: "Adventure",
-      translation_key: "trinket.underkeep2.zullan-rush-beer",
-    } as ItemData,
+      consumableType: "Tools",
+      translation_key: "consumable.underkeep2.breath-of-summer",
+    } as ConsumableItemData,
     {
-      id: "cormack-house-crest",
-      itemType: "Trinket",
+      id: "breath-of-winter",
+      itemType: "Consumable",
       cardType: "Adventure",
-      translation_key: "trinket.underkeep2.cormack-house-crest",
-    } as ItemData,
+      consumableType: "Tools",
+      translation_key: "consumable.underkeep2.breath-of-winter",
+    } as ConsumableItemData,
     {
-      id: "quicksilver-ring",
-      itemType: "Trinket",
+      id: "callix-red-beer",
+      itemType: "Consumable",
       cardType: "Adventure",
-      translation_key: "trinket.underkeep2.quicksilver-ring",
-    } as ItemData,
+      consumableType: "Potion",
+      translation_key: "consumable.underkeep2.callix-red-beer",
+    } as ConsumableItemData,
+    {
+      id: "zullan-weiss-beer",
+      itemType: "Consumable",
+      cardType: "Adventure",
+      consumableType: "Potion",
+      translation_key: "consumable.underkeep2.zullan-weiss-beer",
+    } as ConsumableItemData,
+    {
+      id: "aral-stout-beer",
+      itemType: "Consumable",
+      cardType: "Adventure",
+      consumableType: "Potion",
+      translation_key: "consumable.underkeep2.aral-stout-beer",
+    } as ConsumableItemData,
   ];
 
   find(cardId: string): ItemData | undefined {
