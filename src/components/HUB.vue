@@ -33,6 +33,10 @@
                 />
                 
                 <div class="scan-overlay"></div>
+
+                <div v-if="processing" class="processing-overlay d-flex align-center justify-center">
+                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                </div>
             </div>
             
             <p class="text-caption text-grey-lighten-1 mb-4 font-weight-medium">
@@ -55,7 +59,7 @@
                     class="font-weight-bold"
                 >
                     <v-icon start>mdi-sword-cross</v-icon>
-                      play My Upcoming Events
+                      My Upcoming Events
                 </v-btn>
             </div>
         </div>
@@ -139,12 +143,17 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-snackbar v-model="snackbar.show" :color="snackbar.color" location="top" :timeout="3000">
+        {{ snackbar.text }}
+    </v-snackbar>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, nextTick, onBeforeUnmount, watch, inject } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '@/store/UserStore';
 import {
   BrowserMultiFormatReader,
   BarcodeFormat,
@@ -159,9 +168,13 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 const router = useRouter();
+const axios: any = inject('axios');
+const userStore = useUserStore();
 
 const scanning = ref(true); 
 const showCameraDeniedDialog = ref(false);
+const processing = ref(false);
+const snackbar = ref({ show: false, text: '', color: 'error' });
 
 const codeReader = new BrowserMultiFormatReader(undefined, 400);
 const zxingHints = new Map();
@@ -215,10 +228,28 @@ const switchToScannerView = () => {
     startScanner(); 
 };
 
-const goToLobby = (eventIdOrJwt: string) => {
+const goToLobby = (eventId: string | number, tablePk?: string | number) => {
     stopScanner();
     dialog.value = false;
-    router.push({ name: 'Lobby', params: { id: eventIdOrJwt } });
+
+    // Se for o evento hardcoded 198, força mesa 12 (lógica legada)
+    // Se vier do backend (QR Code), tablePk estará preenchido corretamente
+    if (String(eventId) === '198' && !tablePk) {
+        tablePk = 12;
+    }
+
+    // Tenta encontrar o evento na lista local para pegar a mesa se não vier do QR
+    if (!tablePk && props.myEvents) {
+        // Lógica de fallback se clicar no card e não tivermos o ID da mesa na lista de eventos
+        // Idealmente, a lista de eventos deveria ter o ID da mesa
+        tablePk = 12; 
+    }
+
+    router.push({ 
+        name: 'Lobby', 
+        params: { id: eventId },
+        query: tablePk ? { table_pk: tablePk } : {}
+    });
 };
 
 const findRearCamera = (devices: MediaDeviceInfo[]): number => {
@@ -253,11 +284,11 @@ const startScanner = async () => {
     }
     const deviceId = devices[currentCameraIndex.value].deviceId;
 
-    codeReader.decodeFromVideoDevice(deviceId, videoElement, (result: any, err: any) => {
-      if (result) {
+    codeReader.decodeFromVideoDevice(deviceId, videoElement, async (result: any, err: any) => {
+      if (result && !processing.value) {
         const rawText = result.getText()?.trim?.() ?? "";
         if (rawText) {
-             goToLobby(rawText);
+             await processQrCodeData(rawText);
         }
       }
     });
@@ -265,6 +296,41 @@ const startScanner = async () => {
   } catch (e) {
     console.error("Error starting scanner:", e);
   }
+};
+
+const processQrCodeData = async (qrContent: string) => {
+    processing.value = true;
+    stopScanner();
+
+    // Limpa a string do QR Code
+    const cleanCode = qrContent.trim().replace(/^"|"$/g, '');
+
+    try {
+        // CHAMA O BACKEND PARA VALIDAR O CÓDIGO
+        const { data } = await axios.get(`/qr_code/validate/${cleanCode}`);
+
+        if (data.valid) {
+            if (data.is_full) {
+                snackbar.value = { show: true, text: "Table is full!", color: "warning" };
+                setTimeout(() => startScanner(), 2000);
+            } else {
+                // SUCESSO: Usa os IDs retornados pelo backend
+                goToLobby(data.events_fk, data.event_tables_pk);
+            }
+        } else {
+            // Código expirado ou inválido
+            snackbar.value = { show: true, text: data.message || "Invalid QR Code", color: "error" };
+            setTimeout(() => startScanner(), 2000);
+        }
+
+    } catch (error: any) {
+        console.error("QR Validation Error:", error);
+        const msg = error.response?.data?.message || "Error processing QR Code";
+        snackbar.value = { show: true, text: msg, color: "error" };
+        setTimeout(() => startScanner(), 2000);
+    } finally {
+        processing.value = false;
+    }
 };
 
 const switchCamera = () => {
@@ -314,6 +380,13 @@ onBeforeUnmount(() => {
     border-radius: 8px;
     box-shadow: 0 0 0 1000px rgba(0,0,0,0.4);
     pointer-events: none;
+}
+
+.processing-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 20;
 }
 
 .camera-switch { 
