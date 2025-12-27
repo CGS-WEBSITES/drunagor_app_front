@@ -114,7 +114,6 @@
     </v-card>
   </v-dialog>
 
-  <!-- Snackbar para mensagens de erro -->
   <v-snackbar
     v-model="snackbar.show"
     :color="snackbar.color"
@@ -180,7 +179,7 @@ function generateCampaignHash(campaign: Campaign): string {
 
 async function checkDuplicateRelationship(
   usersPk: number,
-  skusPk: number,
+  skusPk: number
 ): Promise<{ exists: boolean; message?: string }> {
   try {
     const { data } = await axios.get("/rl_campaigns_users/check-duplicate", {
@@ -203,14 +202,16 @@ async function createCampaign(boxId: number, trackerHash: string) {
   return await axios.post("/campaigns/cadastro", {
     tracker_hash: trackerHash,
     conclusion_percentage: 0,
+    party_name: "New Party",
     box: boxId,
+    active: true,
   });
 }
 
 async function saveCampaign(
   campaignPk: string,
   trackerHash: string,
-  partyName: string,
+  partyName: string
 ) {
   await axios.put(`/campaigns/alter/${campaignPk}`, {
     tracker_hash: trackerHash,
@@ -221,18 +222,23 @@ async function saveCampaign(
 async function addRelationship(
   users_pk: number,
   campaign_fk: string,
-  boxId: number,
+  boxId: number
 ) {
-  return await axios.post("rl_campaigns_users/cadastro", {
-    users_fk: users_pk,
-    campaigns_fk: campaign_fk,
-    party_roles_fk: 1,
-    skus_fk: boxId,
+  // CORREÇÃO:
+  // 1. Usando 'params' para enviar como Query Parameters (exigência do Swagger)
+  // 2. Removido 'party_roles_fk' pois o backend rejeitou (causa do erro 500)
+  return await axios.post("rl_campaigns_users/cadastro", null, {
+    params: {
+      users_fk: users_pk,
+      campaigns_fk: Number(campaign_fk),
+      skus_fk: boxId,
+      active: true,
+    },
   });
 }
 
 async function newCampaign(
-  type: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2",
+  type: "core" | "apocalypse" | "awakenings" | "underkeep" | "underkeep2"
 ) {
   loading.value = true;
 
@@ -258,7 +264,7 @@ async function newCampaign(
     }[type];
 
     const selectedSku = skuList.find(
-      (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase(),
+      (s: any) => s.name?.toLowerCase() === expectedName.toLowerCase()
     );
 
     if (!selectedSku) {
@@ -266,10 +272,9 @@ async function newCampaign(
       return;
     }
 
-    // Verifica duplicidade ANTES de criar a campanha
     const duplicateCheck = await checkDuplicateRelationship(
       usersPk,
-      selectedSku.skus_pk,
+      selectedSku.skus_pk
     );
 
     if (duplicateCheck.exists) {
@@ -288,12 +293,11 @@ async function newCampaign(
 
     const finalHash = generateCampaignHash(newCampaignInstance);
 
-    await saveCampaign(campaignPk, finalHash, "");
+    await saveCampaign(campaignPk, finalHash, "New Party");
 
     try {
       await addRelationship(usersPk, campaignPk, selectedSku.skus_pk);
     } catch (relationshipError: any) {
-      // Se falhar ao criar relacionamento, remove a campanha do store
       campaignStore.remove(campaignPk);
 
       if (relationshipError.response?.status === 409) {
@@ -314,7 +318,7 @@ async function newCampaign(
     showError(
       error.response?.data?.message ||
         error.message ||
-        t("error.campaign-creation-failed"),
+        t("error.campaign-creation-failed")
     );
   } finally {
     loading.value = false;
