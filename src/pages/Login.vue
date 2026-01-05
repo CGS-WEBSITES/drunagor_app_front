@@ -12,11 +12,9 @@
       <v-col cols="12" md="9" lg="9" xl="9">
         <v-card color="secundary" min-height="500px" class="elevation-12">
           <v-tabs-items v-model="activeTab">
-            <!-- Login Tab -->
             <v-tab-item :value="0">
               <v-card-text v-if="activeTab === 0" class="pa-0">
                 <v-row no-gutters class="justify-center">
-                  <!-- Coluna do formulário (fica primeiro no mobile, segundo no desktop) -->
                   <v-col cols="12" md="7" class="pa-8 order-1 order-md-2">
                     <v-img src="@/assets/darkness_white.svg" max-width="50" class="mx-auto mb-4" />
                     <h1 class="text-center text-h5 font-weight-bold mb-8">
@@ -151,8 +149,6 @@
       </v-col>
     </v-row>
 
-
-    <!-- Terms dialog -->
     <v-dialog v-model="termsDialog" max-width="500">
       <terms-card />
     </v-dialog>
@@ -164,18 +160,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, watch, onMounted, onBeforeMount } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
+import md5 from "js-md5";
 import type { VForm } from "vuetify/components";
 import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 import type { User } from "@/store/UserStore";
-import { onBeforeMount } from "vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
-import { socketKey } from "@/plugins/socket";
 
 const userStore = useUserStore();
 
@@ -183,13 +177,13 @@ const userStore = useUserStore();
 const regForm = ref<VForm>();
 const router = useRouter();
 const route = useRoute();
-const activeTab = ref<number>(1); // Controla as abas (Login/Sign Up)
-const login = ref<string>(""); // Login do usuário
-const password = ref<string>(""); // Senha do usuário
-const signupUsername = ref<string>(""); // Nome de usuário para cadastro
-const signupEmail = ref<string>(""); // Email para cadastro
-const signupPassword = ref<string>(""); // Senha para cadastro
-const signupConfirmPassword = ref<string>(""); // Confirmação de senha
+const activeTab = ref<number>(1);
+const login = ref<string>("");
+const password = ref<string>("");
+const signupUsername = ref<string>("");
+const signupEmail = ref<string>("");
+const signupPassword = ref<string>("");
+const signupConfirmPassword = ref<string>("");
 const agreeTerms = ref<boolean>(false);
 const regValid = ref<boolean>(false);
 const termsDialog = ref(false);
@@ -215,7 +209,6 @@ const rules = {
 };
 
 const axios: any = inject("axios");
-const socketApi: any = inject(socketKey);
 
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
@@ -255,7 +248,7 @@ const loginUser = async () => {
   if (!login.value?.trim() || !password.value?.trim()) {
     setAllert(
       "mdi-alert-circle",
-      400,
+      "400",
       "The email and password fields were not filled out correctly.",
       "warning",
     );
@@ -291,27 +284,18 @@ const loginUser = async () => {
       };
 
       userStore.setUser(appUser);
-
       localStorage.setItem("app_user", JSON.stringify(appUser));
 
-      // Exibe alerta de sucesso
       setAllert("mdi-check", response.status, response.data.message, "success");
-
       setToken(response.data.access_token);
 
-      axios.defaults.headers.common["Authorization"] =
-        `Bearer ${response.data.access_token}`;
-
-      // +++ NOVO: abre o WebSocket passando o JWT no handshake
-      socketApi.connect(response.data.access_token, dbUser.users_pk);
+      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });
     })
     .catch((error: any) => {
       console.error("Error during login:", error);
-
-      // Trata erros com mensagens apropriadas
       setAllert(
         "mdi-alert-circle",
         error.response?.status || 500,
@@ -322,7 +306,7 @@ const loginUser = async () => {
 };
 
 const valReg = async () => {
-  const { valid, errors } = await regForm.value?.validate();
+  const { valid } = await regForm.value?.validate();
   regValid.value = valid;
 };
 
@@ -342,8 +326,6 @@ const submitForm = async () => {
         agreement: true,
       })
       .then((response: any) => {
-        console.log(response);
-
         setAllert(
           "mdi-check",
           response.status,
@@ -352,8 +334,7 @@ const submitForm = async () => {
         );
         activeTab.value = 0;
       })
-      .catch((response) => {
-        console.log(response);
+      .catch((response: any) => {
         setAllert(
           "mdi-alert-circle",
           response.status,
@@ -366,12 +347,9 @@ const submitForm = async () => {
 
 onBeforeMount(() => {
   const token = localStorage.getItem("accessToken");
-
   if (token) {
     setToken(token);
-
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
     router.push({ name: "Dashboard" });
   }
 });
@@ -380,14 +358,11 @@ onBeforeMount(() => {
 <style>
 .clickable-text {
   cursor: pointer;
-  /* Transforma o cursor em uma mãozinha */
   transition: transform 0.2s ease-in-out;
-  /* Efeito suave ao passar o mouse */
 }
 
 .clickable-text:hover {
   transform: scale(1.1);
-  /* Aumenta o tamanho ao passar o mouse */
 }
 
 .login-page {
@@ -396,6 +371,5 @@ onBeforeMount(() => {
   background-position: center;
   background-repeat: no-repeat;
   height: 100vh;
-  /* Faz o fundo ocupar toda a altura da tela */
 }
 </style>
