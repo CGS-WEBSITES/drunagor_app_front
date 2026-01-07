@@ -75,7 +75,7 @@
                   ></v-img>
                 </v-card>
               </v-col>
-
+<!--
               <v-col cols="12" sm="6">
                 <v-card
                   class="campaign-card d-flex flex-column justify-center align-center pa-4"
@@ -107,6 +107,7 @@
                   ></v-img>
                 </v-card>
               </v-col>
+            -->
             </v-row>
           </v-container>
         </v-card-text>
@@ -177,26 +178,7 @@ function generateCampaignHash(campaign: Campaign): string {
   return btoa(JSON.stringify(data));
 }
 
-async function checkDuplicateRelationship(
-  usersPk: number,
-  skusPk: number
-): Promise<{ exists: boolean; message?: string }> {
-  try {
-    const { data } = await axios.get("/rl_campaigns_users/check-duplicate", {
-      params: {
-        users_fk: usersPk,
-        skus_fk: skusPk,
-      },
-    });
-    return {
-      exists: data.exists,
-      message: data.message,
-    };
-  } catch (error) {
-    console.error("Error checking duplicate relationship:", error);
-    return { exists: false };
-  }
-}
+
 
 async function createCampaign(boxId: number, trackerHash: string) {
   return await axios.post("/campaigns/cadastro", {
@@ -272,15 +254,6 @@ async function newCampaign(
       return;
     }
 
-    const duplicateCheck = await checkDuplicateRelationship(
-      usersPk,
-      selectedSku.skus_pk
-    );
-
-    if (duplicateCheck.exists) {
-      showError(duplicateCheck.message || t("error.campaign-already-exists"));
-      return;
-    }
 
     const tempCampaign = new Campaign("temp", type);
     const initialHash = generateCampaignHash(tempCampaign);
