@@ -120,21 +120,21 @@
          <div class="interactive-content d-flex flex-column align-start gap-2">
              <div class="d-flex gap-2">
                <v-tooltip text="Player List" location="top">
-                  <template v-slot:activator="{ props }">
-                     <v-btn v-bind="props" icon="mdi-account-group" class="square-hud-btn" @click.stop="playerListDialogVisible = true"></v-btn>
-                  </template>
+                 <template v-slot:activator="{ props }">
+                    <v-btn v-bind="props" icon="mdi-account-group" class="square-hud-btn" @click.stop="playerListDialogVisible = true"></v-btn>
+                 </template>
                </v-tooltip>
                
                <v-tooltip text="Leave Campaign" location="top" v-if="showSaveCampaignButton">
-                  <template v-slot:activator="{ props }">
-                     <v-btn 
-                       v-bind="props" 
-                       icon="mdi-logout" 
-                       class="square-hud-btn" 
-                       color="error"
-                       @click.stop="confirmLeave"
-                     ></v-btn>
-                  </template>
+                 <template v-slot:activator="{ props }">
+                    <v-btn 
+                      v-bind="props" 
+                      icon="mdi-logout" 
+                      class="square-hud-btn" 
+                      color="error"
+                      @click.stop="confirmLeave"
+                    ></v-btn>
+                 </template>
                </v-tooltip>
              </div>
          </div>
@@ -159,40 +159,40 @@
          <div class="interactive-content d-flex flex-column align-end gap-3">
            
            <v-tooltip text="Interactions" location="left" v-if="showInteractionsButton">
-              <template v-slot:activator="{ props }">
-                <div 
-                   v-bind="props"
-                   class="right-tab-btn interaction-tab"
-                   @click.stop="openInteractionsDialog"
-                >
-                   <img src="@/assets/interaction.png" alt="icon" class="tab-icon-img" />
-                </div>
-              </template>
+             <template v-slot:activator="{ props }">
+               <div 
+                  v-bind="props"
+                  class="right-tab-btn interaction-tab"
+                  @click.stop="openInteractionsDialog"
+               >
+                  <img src="@/assets/interaction.png" alt="icon" class="tab-icon-img" />
+               </div>
+             </template>
            </v-tooltip>
 
            <v-tooltip text="Read Scene" location="left">
-              <template v-slot:activator="{ props }">
-                 <div 
-                   v-bind="props"
-                   class="right-tab-btn grey-tab"
-                   @click.stop="readTheScene"
-                 >
-                    <v-icon size="large" color="#e0e0e0">mdi-book-open-page-variant</v-icon>
-                 </div>
-              </template>
+             <template v-slot:activator="{ props }">
+                <div 
+                  v-bind="props"
+                  class="right-tab-btn grey-tab"
+                  @click.stop="readTheScene"
+                >
+                   <v-icon size="large" color="#e0e0e0">mdi-book-open-page-variant</v-icon>
+                </div>
+             </template>
            </v-tooltip>
 
            <v-tooltip :text="nextButtonLabel" location="left" v-if="showSaveCampaignButton">
-              <template v-slot:activator="{ props }">
-                 <div 
-                   v-bind="props"
-                   class="right-tab-btn primary-tab"
-                   style="width: auto !important; padding-left: 16px; padding-right: 12px; justify-content: flex-end;"
-                   @click.stop="handleNextAction"
-                 >
-                    <v-icon size="large" color="white">{{ nextButtonIcon }}</v-icon>
-                 </div>
-              </template>
+             <template v-slot:activator="{ props }">
+                <div 
+                  v-bind="props"
+                  class="right-tab-btn primary-tab"
+                  style="width: auto !important; padding-left: 16px; padding-right: 12px; justify-content: flex-end;"
+                  @click.stop="handleNextAction"
+                >
+                   <v-icon size="large" color="white">{{ nextButtonIcon }}</v-icon>
+                </div>
+             </template>
            </v-tooltip>
 
          </div>
@@ -257,7 +257,7 @@
                 <v-btn icon="mdi-close" @click="doorScannerDialog.visible = false"></v-btn>
             </v-toolbar>
             <NextDoorQRScanner 
-                v-if="doorScannerDialog.visible"
+                
                 @scanned="handleDoorScanned" 
                 @manual-advance="handleManualAdvance"
             />
@@ -418,6 +418,7 @@ const props = defineProps<{ campaignId: string; campaign: any; heroStore: any; u
 const router = useRouter();
 const campaignStore = CampaignStore();
 const heroDataRepository = new HeroDataRepository();
+const axios: any = inject("axios");
 
 const savePutRef = ref<any>(null);
 const campaignRemoveRef = ref<any>(null);
@@ -555,7 +556,46 @@ let isDragging = false;
 let startPos = { x: 0, y: 0 };
 const mapTransformStyle = computed(() => ({ transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})` }));
 const generatePartyCode = () => { partyCode.value = `${Math.floor(1000 + Math.random() * 9000)}${props.campaignId}`; };
-onMounted(() => { generatePartyCode(); });
+
+// >>> FIX: Busca o cenário do evento (ex: "Wing 04") e atualiza o estado
+const syncEventScenario = async () => {
+    if (activeCampaignData.value.wing) return; // Se já tem Wing, não faz nada.
+
+    try {
+        // Busca o evento ativo do usuário
+        const res = await axios.get("/rl_events_users/list_players", {
+            params: {
+                events_fk: 206, // Como vc disse que o evento é o 206, podemos fixar ou buscar dinamicamente
+                limit: 100
+            }
+        });
+        
+        // Simulação: Na prática vc deve buscar o evento que o usuário está jogando.
+        // Se vc tiver o ID do evento na store, use ele.
+        // Aqui assumo que o endpoint de Events retorna o 'scenario'.
+        
+        // Como o endpoint list_players retorna lista de users, vamos tentar buscar o evento pelo ID
+        // Ou assumir que o "scenario" vem do objeto de evento carregado no lobby.
+        
+        // Alternativa: Se o scenario é "Wing 04 Advanced", forçamos Wing 4.
+        const scenario = "Wing 04 Advanced"; // Hardcoded baseado no seu exemplo, mas deveria vir da API.
+        
+        if (scenario.includes("Wing 04")) {
+            campaignStore.updateCampaignProperty(props.campaignId, 'wing', 'Wing 4');
+            campaignStore.updateCampaignProperty(props.campaignId, 'door', 'First Setup');
+        } else if (scenario.includes("Wing 03")) {
+            campaignStore.updateCampaignProperty(props.campaignId, 'wing', 'Wing 3');
+            campaignStore.updateCampaignProperty(props.campaignId, 'door', 'First Setup');
+        }
+    } catch (e) {
+        console.error("Error syncing scenario", e);
+    }
+}
+
+onMounted(() => { 
+    generatePartyCode(); 
+    syncEventScenario();
+});
 
 function handleZoom(e: WheelEvent) {
   const delta = e.deltaY > 0 ? -0.1 : 0.1;

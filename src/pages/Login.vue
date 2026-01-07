@@ -17,11 +17,9 @@
       <v-col cols="12" md="9" lg="9" xl="9">
         <v-card color="secundary" min-height="500px" class="elevation-12">
           <v-tabs-items v-model="activeTab">
-            <!-- Login Tab -->
             <v-tab-item :value="0">
               <v-card-text v-if="activeTab === 0" class="pa-0">
                 <v-row no-gutters class="justify-center">
-                  <!-- Coluna do formulário (fica primeiro no mobile, segundo no desktop) -->
                   <v-col cols="12" md="7" class="pa-8 order-1 order-md-2">
                     <v-img
                       src="@/assets/darkness_white.svg"
@@ -266,7 +264,6 @@
       </v-col>
     </v-row>
 
-    <!-- Terms dialog -->
     <v-dialog v-model="termsDialog" max-width="500">
       <terms-card />
     </v-dialog>
@@ -287,7 +284,6 @@ import PrivacyCard from "@/components/PrivacyCard.vue";
 import { setToken } from "@/service/AccessToken";
 import { useUserStore } from "@/store/UserStore";
 import type { User } from "@/store/UserStore";
-import { onBeforeMount } from "vue";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userStore = useUserStore();
@@ -403,7 +399,6 @@ const loginUser = async () => {
       };
 
       userStore.setUser(appUser);
-
       localStorage.setItem("app_user", JSON.stringify(appUser));
 
       // Exibe alerta de sucesso
@@ -424,8 +419,6 @@ const loginUser = async () => {
     })
     .catch((error: any) => {
       console.error("Error during login:", error);
-
-      // Trata erros com mensagens apropriadas
       setAllert(
         "mdi-alert-circle",
         error.response?.status?.toString() || "500",
@@ -436,7 +429,7 @@ const loginUser = async () => {
 };
 
 const valReg = async () => {
-  const { valid, errors } = await regForm.value?.validate();
+  const { valid } = await regForm.value?.validate();
   regValid.value = valid;
 };
 
@@ -456,8 +449,6 @@ const submitForm = async () => {
         agreement: true,
       })
       .then((response: any) => {
-        console.log(response);
-
         setAllert(
           "mdi-check",
           response.status.toString(),
@@ -466,8 +457,7 @@ const submitForm = async () => {
         );
         activeTab.value = 0;
       })
-      .catch((response) => {
-        console.log(response);
+      .catch((response: any) => {
         setAllert(
           "mdi-alert-circle",
           response.status?.toString() || "500",
@@ -480,7 +470,6 @@ const submitForm = async () => {
 
 onBeforeMount(() => {
   const token = localStorage.getItem("accessToken");
-
   if (token) {
     setToken(token);
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
