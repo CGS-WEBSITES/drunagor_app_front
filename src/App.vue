@@ -315,8 +315,6 @@ onBeforeMount(() => {
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 
-  socketApi.connect(token, user.value.users_pk);
-
 });
 </script>
 
