@@ -1,38 +1,42 @@
 <template>
-  <v-card color="primary" class="pa-4">
-    <v-container class="pa-0">
-      <v-row class="justify-center">
-        <v-col cols="12" class="pa-2">
-          <h3 class="text-h5 font-weight-bold mb-4">MY UPCOMING EVENTS</h3>
-          <div
-            v-if="loading"
-            class="d-flex justify-center align-center"
-            style="height: 200px"
-          >
-            <v-progress-circular
-              indeterminate
-              color="primary"
-            ></v-progress-circular>
-          </div>
-          <div v-else>
-            <v-row v-if="upcomingRetailerEventsPreview.length > 0">
+  <v-card color="primary" class="fill-height d-flex flex-column w-100">
+    <div class="px-4 pt-4 pb-2">
+      <h3 class="text-h5 font-weight-bold">MY UPCOMING EVENTS</h3>
+    </div>
+
+    <div class="flex-grow-1 mt-2 content-scroll" style="overflow-y: auto">
+      <div class="px-2 py-3 fill-height d-flex flex-column">
+        <div
+          v-if="loading"
+          class="d-flex justify-center align-center"
+          style="height: 200px"
+        >
+          <v-progress-circular indeterminate color="primary" />
+        </div>
+
+        <div v-else class="d-flex flex-column flex-grow-1">
+          <div v-if="upcomingRetailerEventsPreview.length > 0">
+            <v-row dense class="mx-n1">
               <v-col
-                v-for="event in upcomingRetailerEventsPreview"
-                :key="event.events_pk"
                 cols="12"
                 md="6"
+                v-for="event in upcomingRetailerEventsPreview"
+                :key="event.events_pk"
+                class="px-1"
               >
                 <v-card
                   color="terciary"
-                  class="pt-0 event-card"
+                  class="pt-0 pb-2 event-card"
                   @click="openManageDialog(event)"
                 >
+                  <v-img
+                    v-if="getSeasonInfo(event.seasons_fk).flag"
+                    :src="getSeasonInfo(event.seasons_fk).flag"
+                    class="season-flag"
+                  />
                   <v-row no-gutters align="center">
-                    <v-col cols="4" sm="2">
-                      <div
-                        class="text-center ml-3"
-                        style="width: 70px; color: black"
-                      >
+                    <v-col cols="3" class="d-flex justify-center">
+                      <div class="text-center" style="width: 70px; color: black">
                         <p class="pt-3 text-caption font-weight-bold">
                           {{
                             new Date(event.event_date)
@@ -41,9 +45,7 @@
                           }}
                         </p>
                         <p class="cinzel-text text-h3 font-weight-bold">
-                          {{
-                            String(event.event_date).split("T")[0].split("-")[2]
-                          }}
+                          {{ String(event.event_date).split("T")[0].split("-")[2] }}
                         </p>
                         <p class="text-caption font-weight-bold">
                           {{
@@ -53,47 +55,78 @@
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 hour12: true,
-                              },
+                              }
                             )
                           }}
                         </p>
                       </div>
                     </v-col>
-                    <v-col cols="8" sm="10" class="pt-2">
-                      <h3 class="pb-1 text-truncate">
-                        <v-icon class="pr-1" size="small" color="black"
-                          >mdi-chess-rook</v-icon
-                        >{{ event.store_name }}
+                    <v-col
+                      cols="9"
+                      class="pt-2"
+                      :class="display.xs.value ? 'pl-4' : ''"
+                    >
+                      <h3 class="pb-1">
+                        <v-icon class="pr-1" size="small" color="black">
+                          mdi-chess-rook
+                        </v-icon>
+                        {{ event.store_name }}
                       </h3>
                       <p class="text-caption text-truncate">
-                        <v-icon color="red">mdi-map-marker</v-icon
-                        >{{ event.address }}
+                        <v-icon color="red">mdi-map-marker</v-icon>
+                        {{ event.address }}
                       </p>
                       <p class="text-caption" v-if="event.scenario">
-                        <v-icon color="red">mdi-sword-cross</v-icon>Scenario:
+                        <v-icon color="red">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
                     </v-col>
                   </v-row>
                 </v-card>
               </v-col>
+
+              <v-col cols="12" md="6" class="px-1">
+                <v-card
+                  color="transparent"
+                  class="event-card d-flex align-center justify-center create-event-card"
+                  @click="goToEventsPageAndCreate"
+                  style="
+                    border: 2px dashed rgba(255, 255, 255, 0.3);
+                    min-height: 120px;
+                  "
+                >
+                  <div class="d-flex flex-column align-center">
+                    <v-icon size="large" color="white" class="mb-1">
+                      mdi-plus
+                    </v-icon>
+                    <span class="text-caption font-weight-bold">
+                      Create New Event
+                    </span>
+                  </div>
+                </v-card>
+              </v-col>
             </v-row>
+          </div>
+
+          <div v-else class="d-flex fill-height align-center justify-center">
             <v-card
-              v-else
               color="transparent"
               flat
-              class="text-center d-flex flex-column align-center justify-center pa-5"
-              min-height="150"
+              class="text-center pa-5 fill-height d-flex align-center justify-center flex-column"
             >
               <p class="mb-4">You have no upcoming events.</p>
-              <v-btn color="primary" @click="goToEventsPageAndCreate"
-                >Create New Event</v-btn
+              <v-btn
+                color="white"
+                class="text-black"
+                @click="goToEventsPageAndCreate"
               >
+                Create New Event
+              </v-btn>
             </v-card>
           </div>
-        </v-col>
-      </v-row>
-    </v-container>
+        </div>
+      </div>
+    </div>
 
     <v-dialog
       v-model="manageDialog"
@@ -101,8 +134,8 @@
       max-width="900"
       persistent
     >
-      <v-card class="dark-background">
-        <div v-if="dialogLoading" class="loading-overlay">
+      <v-card color="surface">
+        <div v-if="dialogLoading" class="dialog-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
 
@@ -115,18 +148,16 @@
 
         <v-tabs
           v-model="activeTab"
-          color="white"
-          class="mb-4 custom-tabs-container"
+          bg-color="background"
           centered
           grow
+          class="mb-4"
         >
-          <v-tab value="tables" class="custom-tab">
-            <v-icon start>mdi-table-chair</v-icon>
-            Tables
+          <v-tab value="tables">
+            <v-icon start>mdi-table-chair</v-icon> Tables
           </v-tab>
-          <v-tab value="players" class="custom-tab">
-            <v-icon start>mdi-account-group</v-icon>
-            Players
+          <v-tab value="players">
+            <v-icon start>mdi-account-group</v-icon> Players
           </v-tab>
         </v-tabs>
 
@@ -145,16 +176,14 @@
                       @click="openCreateTableDialog"
                       size="default"
                     >
-                      <v-icon start>mdi-plus</v-icon>
-                      Create Table
+                      <v-icon start>mdi-plus</v-icon> Create Table
                     </v-btn>
                     <v-btn
                       color="secondary"
                       @click="openCreateMultipleTablesDialog"
                       size="default"
                     >
-                      <v-icon start>mdi-table-multiple</v-icon>
-                      Create Multiple Tables
+                      <v-icon start>mdi-table-multiple</v-icon> Create Multiple Tables
                     </v-btn>
                   </div>
                 </v-col>
@@ -200,12 +229,12 @@
                           label
                           class="font-weight-bold"
                         >
-                          <v-icon start color="white" size="small"
-                            >mdi-table-furniture</v-icon
-                          >
-                          <span class="table-number-text"
-                            >Table {{ table.table_number }}</span
-                          >
+                          <v-icon start color="white" size="small">
+                            mdi-table-furniture
+                          </v-icon>
+                          <span class="table-number-text">
+                            Table {{ table.table_number }}
+                          </span>
                         </v-chip>
                         <v-btn
                           icon
@@ -231,7 +260,6 @@
                             {{ table.players_count }}/{{ table.max_players }}
                           </v-chip>
                         </div>
-
                         <v-progress-linear
                           :model-value="
                             (table.players_count / table.max_players) * 100
@@ -289,7 +317,11 @@
                   :key="player.users_pk"
                   class="pa-1"
                 >
-                  <v-card class="player-card mb-3" rounded="lg" elevation="10">
+                  <v-card
+                    class="player-card mb-3"
+                    rounded="lg"
+                    elevation="10"
+                  >
                     <v-row no-gutters>
                       <v-col cols="4" lg="1" class="d-flex">
                         <v-img
@@ -328,7 +360,7 @@
                                 day: "numeric",
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              },
+                              }
                             )
                           }}
                         </p>
@@ -351,12 +383,9 @@
                             size="x-small"
                             class="mt-2"
                             block
-                            @click="
-                              updatePlayerStatus(player, turnedAwayStatus)
-                            "
+                            @click="updatePlayerStatus(player, turnedAwayStatus)"
                           >
-                            <v-icon start>mdi-close-circle-outline</v-icon>Turn
-                            Away
+                            <v-icon start>mdi-close-circle-outline</v-icon>Turn Away
                           </v-btn>
                         </template>
                         <template
@@ -402,20 +431,16 @@
                             block
                             @click="updatePlayerStatus(player, grantedStatus)"
                           >
-                            <v-icon start>mdi-check-circle-outline</v-icon>Grant
-                            Passage
+                            <v-icon start>mdi-check-circle-outline</v-icon>Grant Passage
                           </v-btn>
                           <v-btn
                             color="red"
                             size="x-small"
                             class="mt-2"
                             block
-                            @click="
-                              updatePlayerStatus(player, turnedAwayStatus)
-                            "
+                            @click="updatePlayerStatus(player, turnedAwayStatus)"
                           >
-                            <v-icon start>mdi-close-circle-outline</v-icon>Turn
-                            Away
+                            <v-icon start>mdi-close-circle-outline</v-icon>Turn Away
                           </v-btn>
                         </template>
                       </v-col>
@@ -441,15 +466,15 @@
     </v-dialog>
 
     <v-dialog v-model="qrCodeDialog" max-width="500" persistent>
-      <v-card class="dark-background">
-        <div v-if="generatingQR" class="loading-overlay">
+      <v-card color="surface">
+        <div v-if="generatingQR" class="dialog-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
 
         <v-card-title class="d-flex justify-space-between align-center">
-          <span class="text-h6"
-            >Table {{ selectedTable?.table_number }} QR Code</span
-          >
+          <span class="text-h6">
+            Table {{ selectedTable?.table_number }} QR Code
+          </span>
           <v-btn icon variant="text" @click="qrCodeDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -529,7 +554,7 @@
     </v-dialog>
 
     <v-dialog v-model="createTableDialog" max-width="400">
-      <v-card class="dark-background">
+      <v-card color="surface">
         <v-card-title>Create New Table</v-card-title>
         <v-card-text>
           <v-row>
@@ -555,18 +580,16 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="createTableDialog = false"
-            >Cancel</v-btn
-          >
-          <v-btn :loading="creatingTable" @click="createTable"
-            >Create</v-btn
-          >
+          <v-btn color="grey" variant="text" @click="createTableDialog = false">
+            Cancel
+          </v-btn>
+          <v-btn :loading="creatingTable" @click="createTable">Create</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="createMultipleTablesDialog" max-width="400">
-      <v-card class="dark-background">
+      <v-card color="surface">
         <v-card-title>Create Multiple Tables</v-card-title>
         <v-card-text>
           <v-row>
@@ -596,13 +619,12 @@
             color="grey"
             variant="text"
             @click="createMultipleTablesDialog = false"
-            >Cancel</v-btn
           >
-          <v-btn
-            :loading="creatingTable"
-            @click="createMultipleTables"
-            >Create</v-btn
-          >
+            Cancel
+          </v-btn>
+          <v-btn :loading="creatingTable" @click="createMultipleTables">
+            Create
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -613,11 +635,15 @@
 import { ref, computed, onMounted, inject, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
+import { useDisplay } from "vuetify";
 import QrcodeVue from "qrcode-vue3";
+import s1flag from "@/assets/s1flag.png";
+import s2flag from "@/assets/s2flag.png";
 
 const router = useRouter();
 const userStore = useUserStore();
 const axios = inject("axios");
+const display = useDisplay();
 const loading = ref(true);
 const dialogLoading = ref(false);
 const userCreatedEvents = ref([]);
@@ -660,6 +686,12 @@ const upcomingRetailerEventsPreview = computed(() => {
     .slice(0, 3);
 });
 
+const getSeasonInfo = (fk) => {
+  if (fk == 2) return { flag: s1flag, name: "Season 1" };
+  if (fk == 3) return { flag: s2flag, name: "Season 2" };
+  return { flag: null, name: "" };
+};
+
 const fetchUserCreatedEvents = async () => {
   loading.value = true;
   try {
@@ -695,6 +727,10 @@ const openManageDialog = async (event) => {
   ]);
 
   manageDialog.value = true;
+};
+
+const goToEventsPageAndCreate = () => {
+  router.push({ path: "/events", query: { action: "create" } });
 };
 
 const fetchTablesForEvent = async (eventFk) => {
@@ -758,7 +794,7 @@ const fetchTablePlayers = async () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      },
+      }
     );
     tablePlayers.value = data.players || [];
   } catch (error) {
@@ -849,22 +885,18 @@ const deleteTable = async (eventTablesPk) => {
   }
 };
 
-const goToEventsPageAndCreate = () => {
-  router.push({ path: "/events", query: { action: "create" } });
-};
-
 const fetchStatuses = async () => {
   try {
     const { data } = await axios.get("/event_status/search");
     statuses.value = data.event_status;
     grantedStatus.value = statuses.value.find(
-      (s) => s.name === "Granted Passage",
+      (s) => s.name === "Granted Passage"
     )?.event_status_pk;
     turnedAwayStatus.value = statuses.value.find(
-      (s) => s.name === "Turned Away",
+      (s) => s.name === "Turned Away"
     )?.event_status_pk;
     JoinedtheQuest.value = statuses.value.find(
-      (s) => s.name === "Joined the Quest",
+      (s) => s.name === "Joined the Quest"
     )?.event_status_pk;
   } catch (error) {
     console.error("Error fetching statuses:", error);
@@ -930,17 +962,41 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
-.cinzel-text {
-  font-family: "Cinzel", serif;
-}
 .event-card {
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  min-height: 120px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 .event-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.cinzel-text {
+  font-family: "Cinzel", serif;
+}
+.dialog-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(21, 21, 21, 0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.season-flag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  z-index: 2;
+}
+.content-scroll {
+  padding-bottom: 12px;
 }
 .table-card {
   cursor: pointer;
@@ -949,45 +1005,9 @@ watch(currentPage, () => {
 .table-card:hover {
   transform: translateY(-2px);
 }
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.dark-background {
-  background-color: #121212;
-  color: white;
-}
 .qr-code-container {
   background: white;
   border-radius: 12px;
-}
-.custom-tabs-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-.custom-tab {
-  color: rgba(255, 255, 255, 0.6) !important;
-  font-weight: 500;
-  flex: 0 1 auto !important;
-  min-width: 50% !important;
-  max-width: 200px !important;
-}
-.custom-tab.v-tab--selected {
-  color: white !important;
-  font-weight: 700;
-}
-.v-tabs :deep(.v-tabs-slider) {
-  max-width: 150px;
-  margin: 0 auto;
 }
 .table-number-text {
   color: white !important;
@@ -1000,12 +1020,14 @@ watch(currentPage, () => {
 .gap-3 {
   gap: 12px !important;
 }
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .custom-tab {
-    min-width: 120px !important;
-    font-size: 0.875rem;
-  }
+.create-event-card {
+  cursor: pointer;
+  border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.2s ease-in-out;
+}
+.create-event-card:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-4px);
 }
 </style>
