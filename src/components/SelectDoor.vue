@@ -163,7 +163,7 @@ const fetchAllDoors = async () => {
 
 const fetchOpenedDoors = async (): Promise<OpenedDoor[]> => {
   try {
-    const response = await axios.get("/rl_campaign_door/search", {
+    const response = await axios.get("/rl_campaigns_doors/search", {
       params: { campaign_fk: props.campaignId },
     });
     return response.data.campaign_doors || [];
@@ -261,7 +261,7 @@ const saveDoorOpening = async (doorName: string): Promise<boolean> => {
   saveSuccess.value = "";
 
   try {
-    const response = await axios.post("/rl_campaign_door/cadastro", {
+    const response = await axios.post("/rl_campaigns_doors/cadastro", {
       doors_fk: doorObj.doors_pk,
       campaign_fk: parseInt(props.campaignId),
     });
@@ -317,7 +317,7 @@ const onDoorChange = async (newDoor: string | null) => {
 
 const checkUserRole = async () => {
   try {
-    const response = await axios.get("rl_campaigns_users/search", {
+    const response = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user?.users_pk,
         campaigns_fk: props.campaignId,
