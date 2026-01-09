@@ -778,7 +778,6 @@ const showMonstersPanel = ref(true);
 const partyCode = ref<string | null>(null);
 const forcedDoorInstruction = ref<string | null>(null);
 
-// Door polling state
 const allDoors = ref<Door[]>([]);
 const openedDoors = ref<Set<string>>(new Set());
 let pollingInterval: number | null = null;
@@ -971,6 +970,7 @@ const transform = ref({ x: 0, y: 0, scale: 1 });
 let isDragging = false;
 let startPos = { x: 0, y: 0 };
 
+
 const mapTransformStyle = computed(() => ({
   transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})`,
 }));
@@ -990,7 +990,7 @@ const fetchAllDoors = async () => {
 
 const fetchOpenedDoors = async () => {
   try {
-    const response = await axios.get("/rl_campaigns_doors/search", {
+    const response = await axios.get("/rl_campaign_door/search", {
       params: { campaign_fk: parseInt(props.campaignId) },
     });
 
@@ -1041,7 +1041,7 @@ const saveDoorOpening = async (doorCode: string): Promise<boolean> => {
   }
 
   try {
-    await axios.post("/rl_campaigns_doors/cadastro", {
+    await axios.post("/rl_campaign_door/cadastro", {
       doors_fk: doorObj.doors_pk,
       campaign_fk: parseInt(props.campaignId),
     });
@@ -1070,26 +1070,22 @@ const syncEventScenario = async () => {
     // Buscar dados completos da campanha para pegar event_fk
     const campaignResponse = await axios.get(`/campaigns/${props.campaignId}`);
     const campaign = campaignResponse.data;
-
+    
     // Se a campanha não tem evento associado, não precisa fazer sync
     if (!campaign.event_fk) {
-      console.log(
-        "[ImmersiveView] Campaign not associated with event, skipping sync",
-      );
+      console.log("[ImmersiveView] Campaign not associated with event, skipping sync");
       return;
     }
 
-    console.log(
-      `[ImmersiveView] Campaign linked to event ${campaign.event_fk}`,
-    );
+    console.log(`[ImmersiveView] Campaign linked to event ${campaign.event_fk}`);
 
     // Buscar dados do evento
     const eventResponse = await axios.get("/events/search", {
-      params: { events_pk: campaign.event_fk },
+      params: { events_pk: campaign.event_fk }
     });
 
     const event = eventResponse.data?.events?.[0];
-
+    
     if (!event) {
       console.warn(`[ImmersiveView] Event ${campaign.event_fk} not found`);
       return;
@@ -1101,12 +1097,12 @@ const syncEventScenario = async () => {
     }
 
     const scenario = event.scenario.toUpperCase();
-
+    
     console.log(`[ImmersiveView] Event scenario: ${scenario}`);
 
     // Detectar Wing baseado no cenário
     let wingToSet = null;
-
+    
     if (scenario.includes("WING 04") || scenario.includes("WING 4")) {
       wingToSet = "Wing 4";
     } else if (scenario.includes("WING 03") || scenario.includes("WING 3")) {
@@ -1115,12 +1111,8 @@ const syncEventScenario = async () => {
 
     if (wingToSet) {
       campaignStore.updateCampaignProperty(props.campaignId, "wing", wingToSet);
-      campaignStore.updateCampaignProperty(
-        props.campaignId,
-        "door",
-        "FIRST SETUP",
-      );
-
+      campaignStore.updateCampaignProperty(props.campaignId, "door", "FIRST SETUP");
+      
       console.log(`[ImmersiveView] Set ${wingToSet} from event scenario`);
 
       // Salvar no backend
@@ -1128,9 +1120,7 @@ const syncEventScenario = async () => {
         savePutRef.value.save();
       }
     } else {
-      console.warn(
-        `[ImmersiveView] Could not determine Wing from scenario: ${scenario}`,
-      );
+      console.warn(`[ImmersiveView] Could not determine Wing from scenario: ${scenario}`);
     }
   } catch (error: any) {
     // Se o erro for 404, a campanha não existe (erro crítico)
@@ -1138,7 +1128,7 @@ const syncEventScenario = async () => {
       console.error(`[ImmersiveView] Campaign ${props.campaignId} not found`);
       return;
     }
-
+    
     // Outros erros apenas logamos mas não quebram a aplicação
     console.error("[ImmersiveView] Error syncing event scenario:", error);
   }
@@ -1146,11 +1136,9 @@ const syncEventScenario = async () => {
 
 onMounted(async () => {
   generatePartyCode();
-
-  // Sync event scenario first (se necessário)
+  
   await syncEventScenario();
-
-  // Then start door polling
+  
   await fetchAllDoors();
   await fetchOpenedDoors();
   startPolling();
