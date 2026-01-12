@@ -11,6 +11,7 @@ declare module 'vue' {
     AchievementsList: typeof import('./components/AchievementsList.vue')['default']
     AdOptions: typeof import('./components/AdOptions.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
+    AssemblyGuide: typeof import('./components/AssemblyGuide.vue')['default']
     Badges: typeof import('./components/Badges.vue')['default']
     BadgesUser: typeof import('./components/BadgesUser.vue')['default']
     BaseAlert: typeof import('./components/Alerts/BaseAlert.vue')['default']
