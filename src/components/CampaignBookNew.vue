@@ -102,6 +102,7 @@
       <div class="scroll-root" ref="scrollableContentRef">
         <v-container fluid class="content-container pa-0">
           <transition name="fade-slide" mode="out-in">
+            
             <div
               v-if="currentView === 'player' && currentPage"
               :key="'page-' + currentIndex"
@@ -116,6 +117,7 @@
                   v-if="isFullScreenWithBackground"
                   class="background-overlay"
                 ></div>
+                
                 <v-container class="pa-0 pt-2 ml-3">
                   <v-row>
                     <v-col cols="12">
@@ -137,10 +139,12 @@
                             {{ item.title }}
                           </h2>
                         </div>
+
                         <div
                           class="body-text mt-3 mx-6"
                           v-html="item.body"
                         ></div>
+
                         <v-card
                           v-if="item.instruction"
                           class="instruction-card mt-6 py-0"
@@ -148,7 +152,9 @@
                         >
                           <v-card-text v-html="item.instruction" />
                         </v-card>
+
                         <v-card-text v-if="item.setup" v-html="item.setup" />
+
                         <div v-if="item.instruction" class="pt-5 px-16">
                           <v-img src="@/assets/Barra.png" />
                         </div>
@@ -260,7 +266,8 @@ import {
 } from "vue";
 import { useDisplay } from "vuetify";
 
-// IMPORTS DE DADOS
+
+import startHereData from "@/data/book/StartHere.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
@@ -281,7 +288,11 @@ const currentIndex = ref(0);
 const activeItemId = ref<string | null>(null);
 const scrollableContentRef = ref<HTMLElement | null>(null);
 
+// Unificamos as fontes de histórias (Start Here + Wings normais)
+// No entanto, a computed 'filteredStoryPages' vai decidir o que mostrar.
 const storyPages = ref<any[]>(bookPagesData);
+const startHerePages = ref<any[]>(startHereData);
+
 const auxBooks = {
   tutorial: playerTutorialsData,
   mechanics: gameMechanicsData,
@@ -290,17 +301,33 @@ const auxBooks = {
   dragon: dragonClarificationsData,
 };
 
+// LÓGICA DE FILTRAGEM ATUALIZADA
 const filteredStoryPages = computed(() => {
-  if (!props.campaignWing) return storyPages.value;
-  const wingKey = props.campaignWing.toUpperCase().includes("WING 3")
-    ? "WING 3"
-    : props.campaignWing.toUpperCase().includes("WING 4")
-      ? "WING 4"
-      : "";
-  if (!wingKey) return storyPages.value;
-  return storyPages.value.filter((p) =>
-    p.section.toUpperCase().includes(wingKey),
-  );
+  if (!props.campaignWing) {
+    // Se não tiver filtro, retorna TUDO (Start Here primeiro, depois as Wings)
+    return [...startHerePages.value, ...storyPages.value];
+  }
+
+  const wingKey = props.campaignWing.toUpperCase();
+
+  // Se o usuário selecionou "Start Here" ou algo similar
+  if (wingKey.includes("START")) {
+    return startHerePages.value;
+  }
+
+  // Se for Wing 3, 4, etc.
+  if (wingKey.includes("WING 3")) {
+    return storyPages.value.filter((p) =>
+      p.section.toUpperCase().includes("WING 3",)
+    );
+  } else if (wingKey.includes("WING 4")) {
+    return storyPages.value.filter((p) =>
+      p.section.toUpperCase().includes("WING 4")
+    );
+  }
+
+  // Fallback padrão se não bater com nada
+  return storyPages.value;
 });
 
 const wingGroups = computed(() => {
@@ -308,6 +335,7 @@ const wingGroups = computed(() => {
   filteredStoryPages.value.forEach((section, sIdx) => {
     const items: any[] = [];
     section.content.forEach((c: any, cIdx: number) => {
+      // Verifica se tem título para criar item de navegação
       if (c.title) {
         items.push({
           title: c.title,
@@ -441,6 +469,7 @@ const headerBannerStyle = computed(() => {
   ) {
     imageUrl = booktops2Img;
   }
+  // Se for Start Here, usa o booktopImg padrão (não entra no if acima)
   return { backgroundImage: `url(${imageUrl})` };
 });
 
@@ -476,9 +505,6 @@ function handleNavigation(item: any) {
   });
 }
 
-const handlePageClick = (e: MouseEvent) => {};
-const onScroll = (e: Event) => {};
-
 onMounted(() => {
   const keys = Object.keys(wingGroups.value);
   if (keys.length > 0) {
@@ -504,7 +530,7 @@ watch(
     }
     const container = scrollableContentRef.value;
     if (container) container.scrollTop = 0;
-  },
+  }
 );
 </script>
 
