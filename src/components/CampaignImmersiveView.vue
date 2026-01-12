@@ -34,6 +34,7 @@
             </div>
           </div>
 
+          <!--
           <v-menu :close-on-content-click="false" v-if="showSaveCampaignButton">
             <template v-slot:activator="{ props }">
               <v-btn v-bind="props" icon="mdi-cog" variant="text" density="compact" color="white" class="opacity-50 hud-icon-btn ml-1 mb-2"></v-btn>
@@ -42,6 +43,7 @@
               <SelectDoor :campaign-id="campaignId" :campaign-type="campaign.campaign" density="compact" />
             </v-card>
           </v-menu>
+          -->
 
           <div class="d-flex flex-column gap-2 mt-1">
              <v-tooltip text="Campaign Book" location="right">
@@ -148,10 +150,12 @@
              </div>
              <div class="hero-name-tag">{{ hero.name }}</div>
            </div>
+           <!--
            <div v-if="showSaveCampaignButton && enrichedHeroes.length < 4" class="hero-token-wrapper add-hero" @click.stop="addHeroDialogVisible = true">
              <div class="hero-token empty"><v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon></div>
              <div class="hero-name-tag">Add</div>
            </div>
+           -->
         </div>
       </div>
 
