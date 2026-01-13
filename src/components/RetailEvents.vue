@@ -143,7 +143,7 @@
                               hour: "2-digit",
                               minute: "2-digit",
                               hour12: true,
-                            },
+                            }
                           )
                         }}
                       </p>
@@ -483,6 +483,8 @@
                     :items="stores.map((store) => store.name)"
                     label="STORE"
                     variant="outlined"
+                    :loading="loading"
+                    no-data-text="No stores found"
                   />
                 </v-col>
                 <v-col cols="12" md="6">
@@ -1057,11 +1059,14 @@ import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
 import { set } from "lodash-es";
+import { useRouter, useRoute } from "vue-router";
 import s1flag from '@/assets/s1flag.png';
 import s2flag from '@/assets/s2flag.png';
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
+const router = useRouter();
+const route = useRoute();
 
 const assets = inject("assets");
 const isEditable = ref(false);
@@ -1679,7 +1684,7 @@ const addEvent = () => {
   successDialog.value = false;
 
   const userId = userStore.user.users_pk;
- 
+  
 
   if (
     !newEvent.value.date ||
@@ -2038,8 +2043,15 @@ const copyLink = (link) => {
     });
 };
 
-onMounted(() => {
-  axios
+onMounted(async () => {
+  // Check query param immediately
+  if (route.query.action === 'create') {
+    activeTab.value = 2; // Switch to "My Events" tab so user feels like they are in the creator mode
+    openCreateEventDialog();
+    router.replace({ query: null }); 
+  }
+
+  await axios
     .get("/stores/list", {
       params: { users_fk: userStore.user.users_pk },
       headers: {
@@ -2057,14 +2069,14 @@ onMounted(() => {
       );
     });
 
-  stores.value = JSON.parse(localStorage.getItem("stores") || "[]");
+  // REMOVED LOCAL STORAGE OVERWRITE HERE
 
   fetchSeasons();
   fetchStatuses();
   fetchSceneries();
   fetchAllRewards();
-  fetchPlayerEvents(showPast.value);
-  fetchUserCreatedEvents(showPast.value);
+  await fetchPlayerEvents(showPast.value);
+  await fetchUserCreatedEvents(showPast.value);
 
   eventsInterval.value = setInterval(() => {
     if (activeTab.value === 1) {
@@ -2073,6 +2085,15 @@ onMounted(() => {
       fetchUserCreatedEvents(showPast.value, true);
     }
   }, 5000);
+});
+
+// Watch for route changes after mount (e.g. navigation from dashboard)
+watch(() => route.query.action, (newAction) => {
+  if (newAction === 'create') {
+    activeTab.value = 2;
+    openCreateEventDialog();
+    router.replace({ query: null });
+  }
 });
 
 watch(() => newEvent.value.season, (newSeasonValue) => {
