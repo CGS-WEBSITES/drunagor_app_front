@@ -204,9 +204,18 @@
             <v-card-title class="text-center text-uppercase font-weight-bold pt-6 text-h5 text-amber-accent-2" style="font-family: 'Cinzel', serif;">
                 <v-icon start icon="mdi-school" class="mr-2"></v-icon> Tutorial Available
             </v-card-title>
-            <v-card-text class="text-center py-4 text-body-1">
-                <p>Welcome to <strong>Drunagor Nights</strong>.</p>
-                <p class="mt-2 text-grey-lighten-1">Would you like to open the <strong>"Start Here"</strong> guide to learn the basics and setup your heroes?</p>
+            <v-card-text class="py-4 px-6 text-body-1">
+                <p class="text-center">Welcome to <strong>Drunagor Nights</strong>.</p>
+                <p class="mt-2 text-center text-grey-lighten-1">Would you like to open the <strong>"Start Here"</strong> guide to learn the basics and setup your heroes?</p>
+                
+                <v-checkbox
+                  v-model="tutorialPromptDialog.dontShowAgain"
+                  label="Don't ask me again"
+                  color="amber-accent-4"
+                  density="compact"
+                  class="mt-4"
+                  hide-details
+                ></v-checkbox>
             </v-card-text>
             <v-card-actions class="justify-center pb-6 gap-4">
                 <v-btn color="grey" variant="text" @click="declineTutorial">Maybe Later</v-btn>
@@ -227,11 +236,23 @@
     </v-dialog>
 
     <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
-       <v-card color="black">
-          <v-toolbar color="primary" density="compact">
+       <v-card color="black" class="book-dialog-card">
+          <v-toolbar color="primary" density="compact" class="d-none d-md-block">
              <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
              <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
           </v-toolbar>
+
+          <v-btn
+            v-if="$vuetify.display.smAndDown"
+            icon="mdi-close"
+            color="red"
+            variant="elevated"
+            size="small"
+            class="mobile-close-book-btn"
+            elevation="8"
+            @click="bookDialog.visible = false"
+          ></v-btn>
+
           <CampaignBookNew :campaign-wing="bookContext" />
        </v-card>
     </v-dialog>
@@ -411,6 +432,7 @@
 import { ref, computed, nextTick, onMounted, inject, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
+import { useTutorialStore } from "@/store/TutorialStore"; // Importar a store
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import doorInstructionsData from '@/data/door/DoorInstructions.json';
 
@@ -433,6 +455,7 @@ import ShareCampaignButton from "./ShareCampaignButton.vue";
 const props = defineProps<{ campaignId: string; campaign: any; heroStore: any; userStore: any; showSaveCampaignButton: boolean; }>();
 const router = useRouter();
 const campaignStore = CampaignStore();
+const tutorialStore = useTutorialStore(); // Inicializar
 const heroDataRepository = new HeroDataRepository();
 const axios: any = inject("axios");
 
@@ -457,9 +480,9 @@ const bossConfirmationDialog = ref({ visible: false });
 const snackbar = ref({ visible: false, text: '', color: 'success' });
 const showMonstersPanel = ref(true); 
 
-// Novos estados para Start Here
-const tutorialPromptDialog = ref({ visible: false });
-const bookContext = ref(''); // Controla se mostramos Wing X ou Start Here
+// START HERE STATE
+const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
+const bookContext = ref('');
 
 const partyCode = ref<string | null>(null);
 const forcedDoorInstruction = ref<string | null>(null);
@@ -471,7 +494,6 @@ const enrichedHeroes = computed(() => {
 const activeCampaignData = computed(() => campaignStore.find(props.campaignId) || props.campaign || {});
 const currentLocationDisplay = computed(() => `${activeCampaignData.value.wing || 'Unknown'} - ${activeCampaignData.value.door || 'Setup'}`);
 
-// Lógica para detectar se é o começo da Wing 3
 const isWing3Start = computed(() => {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
@@ -609,25 +631,32 @@ const syncEventScenario = async () => {
 onMounted(() => { 
     generatePartyCode(); 
     syncEventScenario();
+    tutorialStore.loadPreferences(); // Carregar preferências ao montar
 });
 
-// START HERE LOGIC
+// START HERE & TUTORIAL LOGIC
 function openBookDialog() { 
-    bookContext.value = activeCampaignData.value.wing; // Contexto normal
+    bookContext.value = activeCampaignData.value.wing;
     bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
 }
 
 function openStartHere() {
-    bookContext.value = "START HERE"; // Força o modo Start Here
+    bookContext.value = "START HERE";
     bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
 }
 
 function acceptTutorial() {
+    if (tutorialPromptDialog.value.dontShowAgain) {
+        tutorialStore.setStartHerePreference(true); // "True" aqui significa "não mostrar mais" (conforme sua lógica de store anterior, ou adapte)
+    }
     tutorialPromptDialog.value.visible = false;
     openStartHere();
 }
 
 function declineTutorial() {
+    if (tutorialPromptDialog.value.dontShowAgain) {
+        tutorialStore.setStartHerePreference(true);
+    }
     tutorialPromptDialog.value.visible = false;
     snackbar.value = { 
         visible: true, 
@@ -640,9 +669,8 @@ function checkTutorialTrigger() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     
-    // Apenas se for Wing 3 e First Setup
-    if (wing.includes("WING 3") && door === "FIRST SETUP") {
-        // Verifica se já mostramos nessa sessão para não irritar
+    // Se a store diz que devemos mostrar (shouldShowStartHere = true) e estamos no lugar certo
+    if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
         if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
             tutorialPromptDialog.value.visible = true;
             sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
@@ -653,7 +681,6 @@ function checkTutorialTrigger() {
 watch(
     () => [activeCampaignData.value.wing, activeCampaignData.value.door],
     ([newWing, newDoor]) => {
-        // Se o livro não estiver aberto, atualiza o contexto para o padrão da wing
         if (!bookDialog.value.visible) {
             bookContext.value = newWing as string;
         }
@@ -996,6 +1023,15 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .hero-token.empty { height: 80px; border-radius: 50%; border: 2px dashed #666; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
 .hero-token-img { width: 100%; height: 100%; object-fit: cover; }
 .hero-name-tag { margin-top: 4px; background: rgba(0,0,0,0.8); color: #ddd; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Estilo para o botão de fechar flutuante no livro (Mobile) */
+.mobile-close-book-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999; /* Garante que fique acima do livro */
+    opacity: 0.8;
+}
 
 @media (max-width: 960px) {
   .hud-layer { 
