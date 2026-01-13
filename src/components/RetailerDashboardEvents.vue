@@ -607,6 +607,8 @@
       </v-card>
     </v-dialog>
   </v-card>
+  
+  <TutorialPromptDialog v-model="showTutorialPrompt" />
 </template>
 
 <script setup>
@@ -614,6 +616,8 @@ import { ref, computed, onMounted, inject, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import QrcodeVue from "qrcode-vue3";
+import { useTutorialStore } from "@/store/TutorialStore";
+import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -651,6 +655,9 @@ const statuses = ref([]);
 const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 const JoinedtheQuest = ref(null);
+
+const tutorialStore = useTutorialStore();
+const showTutorialPrompt = ref(false);
 
 const upcomingRetailerEventsPreview = computed(() => {
   const now = new Date();
@@ -800,6 +807,10 @@ const createTable = async () => {
 
     await fetchTablesForEvent(selectedEvent.value.events_pk);
     createTableDialog.value = false;
+    
+    if (tutorialStore.shouldShowInitialSetup) {
+      showTutorialPrompt.value = true;
+    }
   } catch (error) {
     console.error("Error creating table:", error);
     alert(error.response?.data?.message || "Failed to create table");
