@@ -1,8 +1,13 @@
 <template>
-  <v-container class="login-page fill-height d-flex align-center justify-center pa-4" fluid>
+  <v-container
+    class="login-page fill-height d-flex align-center justify-center pa-4"
+    fluid
+  >
     <v-row justify="center">
       <v-col cols="12" class="text-center mb-4">
-        <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2">
+        <h1
+          class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2"
+        >
           DRUNAGOR APP
         </h1>
       </v-col>
@@ -16,22 +21,48 @@
               <v-card-text v-if="activeTab === 0" class="pa-0">
                 <v-row no-gutters class="justify-center">
                   <v-col cols="12" md="7" class="pa-8 order-1 order-md-2">
-                    <v-img src="@/assets/darkness_white.svg" max-width="50" class="mx-auto mb-4" />
+                    <v-img
+                      src="@/assets/darkness_white.svg"
+                      max-width="50"
+                      class="mx-auto mb-4"
+                    />
                     <h1 class="text-center text-h5 font-weight-bold mb-8">
                       Welcome back!
                     </h1>
 
-                    <BaseAlert v-model="showAlert" :type="alertType" :icon="alertIcon" :title="alertTitle" class="my-5">
+                    <BaseAlert
+                      v-model="showAlert"
+                      :type="alertType"
+                      :icon="alertIcon"
+                      :title="alertTitle"
+                      class="my-5"
+                    >
                       {{ alertText }}
                     </BaseAlert>
 
                     <v-form>
-                      <v-text-field label="Email or Username" prepend-icon="mdi-email" v-model="login" color="black"
-                        variant="outlined" class="mb-4" />
-                      <v-text-field label="Password" prepend-icon="mdi-lock" :type="showPass ? 'text' : 'password'"
-                        v-model="password" color="black" variant="outlined" @keyup.enter="loginUser">
+                      <v-text-field
+                        label="Email or Username"
+                        prepend-icon="mdi-email"
+                        v-model="login"
+                        color="black"
+                        variant="outlined"
+                        class="mb-4"
+                      />
+                      <v-text-field
+                        label="Password"
+                        prepend-icon="mdi-lock"
+                        :type="showPass ? 'text' : 'password'"
+                        v-model="password"
+                        color="black"
+                        variant="outlined"
+                        @keyup.enter="loginUser"
+                      >
                         <template #append-inner>
-                          <v-icon class="cursor-pointer" @click="showPass = !showPass">
+                          <v-icon
+                            class="cursor-pointer"
+                            @click="showPass = !showPass"
+                          >
                             {{ showPass ? "mdi-eye" : "mdi-eye-off" }}
                           </v-icon>
                         </template>
@@ -39,23 +70,38 @@
                     </v-form>
 
                     <v-row justify="center">
-                      <h3 @click="navigateTo('/forgotpassword')" class="text-center mt-4 clickable-text">
+                      <h3
+                        @click="navigateTo('/forgotpassword')"
+                        class="text-center mt-4 clickable-text"
+                      >
                         Forgot your password?
                       </h3>
                     </v-row>
 
                     <v-row justify="center">
-                      <v-btn class="mt-8" color="black" block @click="loginUser">
+                      <v-btn
+                        class="mt-8"
+                        color="black"
+                        block
+                        @click="loginUser"
+                      >
                         LOGIN
                       </v-btn>
                     </v-row>
 
                     <v-row justify="center">
-                      <p class="text-caption text-center mt-4">Don’t have an account?</p>
+                      <p class="text-caption text-center mt-4">
+                        Don't have an account?
+                      </p>
                     </v-row>
 
                     <v-row justify="center">
-                      <v-btn color="white" class="mt-2" variant="outlined" @click="activeTab = 1">
+                      <v-btn
+                        color="white"
+                        class="mt-2"
+                        variant="outlined"
+                        @click="activeTab = 1"
+                      >
                         SIGN UP
                       </v-btn>
                     </v-row>
@@ -68,50 +114,104 @@
               <v-card-text v-if="activeTab === 1" class="pa-0">
                 <v-row no-gutters>
                   <v-col cols="12" md="7" class="pa-8">
-                    <v-img src="@/assets/darkness_white.svg" max-width="50" class="mx-auto mb-4" />
+                    <v-img
+                      src="@/assets/darkness_white.svg"
+                      max-width="50"
+                      class="mx-auto mb-4"
+                    />
                     <h1 class="text-center text-h5 font-weight-bold mb-6">
                       Create an Account
                     </h1>
 
-                    <BaseAlert v-model="showAlert" :type="alertType" :icon="alertIcon" :title="alertTitle" class="mb-6">
+                    <BaseAlert
+                      v-model="showAlert"
+                      :type="alertType"
+                      :icon="alertIcon"
+                      :title="alertTitle"
+                      class="mb-6"
+                    >
                       {{ alertText }}
                     </BaseAlert>
 
                     <v-form ref="regForm">
                       <v-row>
                         <v-col cols="12" sm="6">
-                          <v-text-field label="Username" v-model="signupUsername" prepend-icon="mdi-account"
-                            :rules="[rules.required]" color="black" variant="outlined" dense />
+                          <v-text-field
+                            label="Username"
+                            v-model="signupUsername"
+                            prepend-icon="mdi-account"
+                            :rules="[rules.required]"
+                            color="black"
+                            variant="outlined"
+                            dense
+                          />
                         </v-col>
                         <v-col cols="12" sm="6">
-                          <v-text-field label="Email" v-model="signupEmail" prepend-icon="mdi-email" type="email"
-                            :rules="[rules.required, rules.email]" color="black" variant="outlined" dense />
+                          <v-text-field
+                            label="Email"
+                            v-model="signupEmail"
+                            prepend-icon="mdi-email"
+                            type="email"
+                            :rules="[rules.required, rules.email]"
+                            color="black"
+                            variant="outlined"
+                            dense
+                          />
                         </v-col>
                       </v-row>
                       <v-row>
                         <v-col cols="11" sm="5">
-                          <v-text-field label="Password" prepend-icon="mdi-lock" :type="showPass ? 'text' : 'password'"
-                            v-model="signupPassword" :rules="[rules.required, rules.min]" color="black"
-                            variant="outlined" dense />
+                          <v-text-field
+                            label="Password"
+                            prepend-icon="mdi-lock"
+                            :type="showPass ? 'text' : 'password'"
+                            v-model="signupPassword"
+                            :rules="[rules.required, rules.min]"
+                            color="black"
+                            variant="outlined"
+                            dense
+                          />
                         </v-col>
-                        <v-col cols="1" class="d-flex justify-center align-center mb-5">
-                          <v-icon class="olho" tag="i" @click="showPass = !showPass">
+                        <v-col
+                          cols="1"
+                          class="d-flex justify-center align-center mb-5"
+                        >
+                          <v-icon
+                            class="olho"
+                            tag="i"
+                            @click="showPass = !showPass"
+                          >
                             {{ showPass ? "mdi-eye" : "mdi-eye-off" }}
                           </v-icon>
                         </v-col>
                         <v-col cols="12" sm="6">
-                          <v-text-field label="Confirm Password" v-model="signupConfirmPassword" prepend-icon="mdi-lock"
-                            type="password" :rules="[rules.required, rules.matchPasswords]" color="black"
-                            variant="outlined" dense />
+                          <v-text-field
+                            label="Confirm Password"
+                            v-model="signupConfirmPassword"
+                            prepend-icon="mdi-lock"
+                            type="password"
+                            :rules="[rules.required, rules.matchPasswords]"
+                            color="black"
+                            variant="outlined"
+                            dense
+                          />
                         </v-col>
                       </v-row>
 
                       <v-row>
                         <v-col cols="12" class="d-flex align-center">
-                          <v-checkbox v-model="agreeTerms" color="green" class="mr-2" :rules="[rules.required]" />
+                          <v-checkbox
+                            v-model="agreeTerms"
+                            color="green"
+                            class="mr-2"
+                            :rules="[rules.required]"
+                          />
                           <span class="mb-5">
                             I have read and agree to the
-                            <strong class="clickable-text" @click="termsDialog = true">
+                            <strong
+                              class="clickable-text"
+                              @click="termsDialog = true"
+                            >
                               terms and conditions
                             </strong>
                           </span>
@@ -119,23 +219,38 @@
                       </v-row>
 
                       <v-row justify="center">
-                        <h3 @click="navigateTo('/retailer-registration')" class="pb-4 text-center clickable-text">
+                        <h3
+                          @click="navigateTo('/retailer-registration')"
+                          class="pb-4 text-center clickable-text"
+                        >
                           Register as a retailer
                         </h3>
                       </v-row>
 
                       <v-row justify="center">
-                        <v-btn class="mt-2" color="black" block @click="submitForm">
+                        <v-btn
+                          class="mt-2"
+                          color="black"
+                          block
+                          @click="submitForm"
+                        >
                           SIGN UP
                         </v-btn>
                       </v-row>
 
                       <v-row justify="center">
-                        <p class="text-caption text-center mt-4">Already have an account?</p>
+                        <p class="text-caption text-center mt-4">
+                          Already have an account?
+                        </p>
                       </v-row>
 
                       <v-row justify="center">
-                        <v-btn color="white" variant="outlined" class="mt-2" @click="activeTab = 0">
+                        <v-btn
+                          color="white"
+                          variant="outlined"
+                          class="mt-2"
+                          @click="activeTab = 0"
+                        >
                           LOGIN
                         </v-btn>
                       </v-row>
@@ -160,7 +275,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch, onMounted, onBeforeMount } from "vue";
+import { ref, inject, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import md5 from "js-md5";
 import type { VForm } from "vuetify/components";
@@ -286,10 +401,18 @@ const loginUser = async () => {
       userStore.setUser(appUser);
       localStorage.setItem("app_user", JSON.stringify(appUser));
 
-      setAllert("mdi-check", response.status, response.data.message, "success");
+      // Exibe alerta de sucesso
+      setAllert(
+        "mdi-check",
+        response.status.toString(),
+        response.data.message,
+        "success",
+      );
+
       setToken(response.data.access_token);
 
-      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
+      axios.defaults.headers.common["Authorization"] =
+        `Bearer ${response.data.access_token}`;
 
       // Redireciona para o Dashboard
       router.push({ name: "Dashboard" });
@@ -298,7 +421,7 @@ const loginUser = async () => {
       console.error("Error during login:", error);
       setAllert(
         "mdi-alert-circle",
-        error.response?.status || 500,
+        error.response?.status?.toString() || "500",
         error.response?.data?.message || "A network error occurred.",
         "error",
       );
@@ -328,7 +451,7 @@ const submitForm = async () => {
       .then((response: any) => {
         setAllert(
           "mdi-check",
-          response.status,
+          response.status.toString(),
           response.data.message,
           "success",
         );
@@ -337,8 +460,8 @@ const submitForm = async () => {
       .catch((response: any) => {
         setAllert(
           "mdi-alert-circle",
-          response.status,
-          response.response.data.message,
+          response.status?.toString() || "500",
+          response.response?.data?.message || "An error occurred",
           "error",
         );
       });
