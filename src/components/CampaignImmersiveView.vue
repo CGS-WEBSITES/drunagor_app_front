@@ -34,16 +34,20 @@
             </div>
           </div>
 
-          <v-menu :close-on-content-click="false" v-if="showSaveCampaignButton">
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" icon="mdi-cog" variant="text" density="compact" color="white" class="opacity-50 hud-icon-btn ml-1 mb-2"></v-btn>
-            </template>
-            <v-card min-width="300" class="pa-4 bg-grey-darken-4 border-thin">
-              <SelectDoor :campaign-id="campaignId" :campaign-type="campaign.campaign" density="compact" />
-            </v-card>
-          </v-menu>
-
           <div class="d-flex flex-column gap-2 mt-1">
+             <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
+               <template v-slot:activator="{ props }">
+                 <div 
+                    v-bind="props" 
+                    class="bookmark-tab left-side start-here-tab mb-2" 
+                    @click.stop="openStartHere"
+                 >
+                    <v-icon icon="mdi-school" color="amber-accent-2"></v-icon>
+                    <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">START HERE</span>
+                 </div>
+               </template>
+             </v-tooltip>
+
              <v-tooltip text="Campaign Book" location="right">
                <template v-slot:activator="{ props }">
                  <div v-bind="props" class="bookmark-tab left-side" @click.stop="openBookDialog">
@@ -148,10 +152,6 @@
              </div>
              <div class="hero-name-tag">{{ hero.name }}</div>
            </div>
-           <div v-if="showSaveCampaignButton && enrichedHeroes.length < 4" class="hero-token-wrapper add-hero" @click.stop="addHeroDialogVisible = true">
-             <div class="hero-token empty"><v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon></div>
-             <div class="hero-name-tag">Add</div>
-           </div>
         </div>
       </div>
 
@@ -199,6 +199,31 @@
       </div>
     </div>
 
+    <v-dialog v-model="tutorialPromptDialog.visible" max-width="400" persistent>
+        <v-card class="bg-grey-darken-4 border-xl border-amber-accent-4 rounded-lg elevation-20">
+            <v-card-title class="text-center text-uppercase font-weight-bold pt-6 text-h5 text-amber-accent-2" style="font-family: 'Cinzel', serif;">
+                <v-icon start icon="mdi-school" class="mr-2"></v-icon> Tutorial Available
+            </v-card-title>
+            <v-card-text class="py-4 px-6 text-body-1">
+                <p class="text-center">Welcome to <strong>Drunagor Nights</strong>.</p>
+                <p class="mt-2 text-center text-grey-lighten-1">Would you like to open the <strong>"Start Here"</strong> guide to learn the basics and setup your heroes?</p>
+                
+                <v-checkbox
+                  v-model="tutorialPromptDialog.dontShowAgain"
+                  label="Don't ask me again"
+                  color="amber-accent-4"
+                  density="compact"
+                  class="mt-4"
+                  hide-details
+                ></v-checkbox>
+            </v-card-text>
+            <v-card-actions class="justify-center pb-6 gap-4">
+                <v-btn color="grey" variant="text" @click="declineTutorial">Maybe Later</v-btn>
+                <v-btn color="amber-accent-4" variant="flat" class="text-black font-weight-bold px-6" @click="acceptTutorial">Read Now</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
     <v-dialog v-model="interactionsDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
         <v-card color="black">
             <InteractViewNew 
@@ -211,12 +236,24 @@
     </v-dialog>
 
     <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
-       <v-card color="black">
-          <v-toolbar color="primary" density="compact">
+       <v-card color="black" class="book-dialog-card">
+          <v-toolbar color="primary" density="compact" class="d-none d-md-block">
              <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
              <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
           </v-toolbar>
-          <CampaignBookNew :campaign-wing="activeCampaignData.wing" />
+
+          <v-btn
+            v-if="$vuetify.display.smAndDown"
+            icon="mdi-close"
+            color="red"
+            variant="elevated"
+            size="small"
+            class="mobile-close-book-btn"
+            elevation="8"
+            @click="bookDialog.visible = false"
+          ></v-btn>
+
+          <CampaignBookNew :campaign-wing="bookContext" />
        </v-card>
     </v-dialog>
 
@@ -392,9 +429,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, inject } from 'vue';
+import { ref, computed, nextTick, onMounted, inject, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
+import { useTutorialStore } from "@/store/TutorialStore"; // Importar a store
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import doorInstructionsData from '@/data/door/DoorInstructions.json';
 
@@ -417,6 +455,7 @@ import ShareCampaignButton from "./ShareCampaignButton.vue";
 const props = defineProps<{ campaignId: string; campaign: any; heroStore: any; userStore: any; showSaveCampaignButton: boolean; }>();
 const router = useRouter();
 const campaignStore = CampaignStore();
+const tutorialStore = useTutorialStore(); // Inicializar
 const heroDataRepository = new HeroDataRepository();
 const axios: any = inject("axios");
 
@@ -441,6 +480,10 @@ const bossConfirmationDialog = ref({ visible: false });
 const snackbar = ref({ visible: false, text: '', color: 'success' });
 const showMonstersPanel = ref(true); 
 
+// START HERE STATE
+const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
+const bookContext = ref('');
+
 const partyCode = ref<string | null>(null);
 const forcedDoorInstruction = ref<string | null>(null);
 
@@ -450,6 +493,15 @@ const enrichedHeroes = computed(() => {
 });
 const activeCampaignData = computed(() => campaignStore.find(props.campaignId) || props.campaign || {});
 const currentLocationDisplay = computed(() => `${activeCampaignData.value.wing || 'Unknown'} - ${activeCampaignData.value.door || 'Setup'}`);
+
+const isWing3Start = computed(() => {
+    const wing = (activeCampaignData.value.wing || '').toUpperCase();
+    const door = (activeCampaignData.value.door || '').toUpperCase();
+    if (wing.includes("WING 3")) {
+        return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
+    }
+    return false;
+});
 
 const currentDoorInstruction = computed(() => {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
@@ -509,14 +561,10 @@ const currentBackgroundImage = computed(() => {
      else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
      else if (door === 'CRYPTS') doorFile = 'first_door2'; 
      else if (door === 'BOTH OPEN') {
-         
          const firstChoice = localStorage.getItem(`campaign_${props.campaignId}_w4_choice`);
-         
-         
          if (firstChoice === 'DRACONIC CHAPEL') {
             doorFile = 'second_door2';
          } else {
-            
             doorFile = 'second_door';
          }
      }
@@ -557,28 +605,16 @@ let startPos = { x: 0, y: 0 };
 const mapTransformStyle = computed(() => ({ transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})` }));
 const generatePartyCode = () => { partyCode.value = `${Math.floor(1000 + Math.random() * 9000)}${props.campaignId}`; };
 
-// >>> FIX: Busca o cenário do evento (ex: "Wing 04") e atualiza o estado
 const syncEventScenario = async () => {
-    if (activeCampaignData.value.wing) return; // Se já tem Wing, não faz nada.
-
+    if (activeCampaignData.value.wing) return;
     try {
-        // Busca o evento ativo do usuário
         const res = await axios.get("/rl_events_users/list_players", {
             params: {
-                events_fk: 206, // Como vc disse que o evento é o 206, podemos fixar ou buscar dinamicamente
+                events_fk: 206, 
                 limit: 100
             }
         });
-        
-        // Simulação: Na prática vc deve buscar o evento que o usuário está jogando.
-        // Se vc tiver o ID do evento na store, use ele.
-        // Aqui assumo que o endpoint de Events retorna o 'scenario'.
-        
-        // Como o endpoint list_players retorna lista de users, vamos tentar buscar o evento pelo ID
-        // Ou assumir que o "scenario" vem do objeto de evento carregado no lobby.
-        
-        // Alternativa: Se o scenario é "Wing 04 Advanced", forçamos Wing 4.
-        const scenario = "Wing 04 Advanced"; // Hardcoded baseado no seu exemplo, mas deveria vir da API.
+        const scenario = "Wing 04 Advanced"; 
         
         if (scenario.includes("Wing 04")) {
             campaignStore.updateCampaignProperty(props.campaignId, 'wing', 'Wing 4');
@@ -595,7 +631,63 @@ const syncEventScenario = async () => {
 onMounted(() => { 
     generatePartyCode(); 
     syncEventScenario();
+    tutorialStore.loadPreferences(); // Carregar preferências ao montar
 });
+
+// START HERE & TUTORIAL LOGIC
+function openBookDialog() { 
+    bookContext.value = activeCampaignData.value.wing;
+    bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
+}
+
+function openStartHere() {
+    bookContext.value = "START HERE";
+    bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
+}
+
+function acceptTutorial() {
+    if (tutorialPromptDialog.value.dontShowAgain) {
+        tutorialStore.setStartHerePreference(true); // "True" aqui significa "não mostrar mais" (conforme sua lógica de store anterior, ou adapte)
+    }
+    tutorialPromptDialog.value.visible = false;
+    openStartHere();
+}
+
+function declineTutorial() {
+    if (tutorialPromptDialog.value.dontShowAgain) {
+        tutorialStore.setStartHerePreference(true);
+    }
+    tutorialPromptDialog.value.visible = false;
+    snackbar.value = { 
+        visible: true, 
+        text: 'You can access the tutorial later via the "Start Here" button or the Book menu.', 
+        color: 'info' 
+    };
+}
+
+function checkTutorialTrigger() {
+    const wing = (activeCampaignData.value.wing || '').toUpperCase();
+    const door = (activeCampaignData.value.door || '').toUpperCase();
+    
+    // Se a store diz que devemos mostrar (shouldShowStartHere = true) e estamos no lugar certo
+    if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
+        if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
+            tutorialPromptDialog.value.visible = true;
+            sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
+        }
+    }
+}
+
+watch(
+    () => [activeCampaignData.value.wing, activeCampaignData.value.door],
+    ([newWing, newDoor]) => {
+        if (!bookDialog.value.visible) {
+            bookContext.value = newWing as string;
+        }
+        checkTutorialTrigger();
+    },
+    { immediate: true }
+);
 
 function handleZoom(e: WheelEvent) {
   const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -628,7 +720,6 @@ function stopDrag() {
   window.removeEventListener('touchend', stopDrag);
 }
 
-function openBookDialog() { bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; }
 function openKeywordsDialog() { keywordsDialog.value = { visible: true }; }
 function openInteractionsDialog() { interactionsDialog.value.visible = true; }
 function handleQRCodeAction() {}
@@ -897,6 +988,18 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .bookmark-tab.right-side { border-right: 3px solid #d4af37; border-radius: 8px 0 0 8px; margin-right: 0; justify-content: flex-end; }
 .bookmark-tab.right-side:hover, .bookmark-tab.right-side.active { transform: translateX(-5px); border-right-color: #ffc107; }
 
+/* ESTILO NOVO PARA O BOTÃO START HERE */
+.start-here-tab {
+    border-left-color: #ffd740 !important; /* Amber accent */
+    background: rgba(40, 30, 10, 0.95);
+    box-shadow: 0 0 10px rgba(255, 215, 64, 0.2);
+}
+.start-here-tab:hover {
+    border-left-color: #ffab00 !important;
+    background: rgba(60, 45, 10, 1);
+    box-shadow: 0 0 15px rgba(255, 215, 64, 0.4);
+}
+
 .bookmark-tab.blue-border-tab { border-left-color: #1565C0; }
 .bookmark-tab.blue-border-tab:hover { border-left-color: #42a5f5; }
 
@@ -920,6 +1023,15 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .hero-token.empty { height: 80px; border-radius: 50%; border: 2px dashed #666; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
 .hero-token-img { width: 100%; height: 100%; object-fit: cover; }
 .hero-name-tag { margin-top: 4px; background: rgba(0,0,0,0.8); color: #ddd; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Estilo para o botão de fechar flutuante no livro (Mobile) */
+.mobile-close-book-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 9999; /* Garante que fique acima do livro */
+    opacity: 0.8;
+}
 
 @media (max-width: 960px) {
   .hud-layer { 

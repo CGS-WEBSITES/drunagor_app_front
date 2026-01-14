@@ -104,16 +104,16 @@
     </v-row>
 
     <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
-    <v-row
-      no-gutters
-      v-else-if="
-        route.name !== 'Home' &&
-        route.name !== 'Login' &&
-        route.name !== 'RetailerRegistration' &&
-        route.name !== 'Gama' &&
-        route.name !== 'Community'
-      "
-    >
+    <v-row no-gutters v-else-if="
+      route.name !== 'Home' &&
+      route.name !== 'Login' &&
+      route.name !== 'RetailerRegistration' &&
+      route.name !== 'Gama' &&
+      route.name !== 'Community' &&
+      route.name !== 'Community' &&
+      route.name !== 'Lobby' &&
+      route.name !== 'Campaign'
+    ">
       <v-app-bar app min-height="56" color="secundary" elevation="4">
         <div
           v-if="route.name === 'Dashboard'"
@@ -225,6 +225,7 @@ import { setToken } from "@/service/AccessToken";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
+import { useTutorialStore } from "@/store/TutorialStore";
 import themeIcon from "@/assets/theme.png";
 
 const axios: any = inject("axios");
@@ -233,6 +234,7 @@ const openLink = (url) => {
 };
 
 const userStore = useUserStore();
+const tutorialStore = useTutorialStore();
 const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
@@ -371,6 +373,8 @@ onMounted(() => {
   if (userObject) {
     useUserStore().setUser(userObject);
   }
+
+   tutorialStore.loadPreferences();
 });
 
 onBeforeMount(() => {

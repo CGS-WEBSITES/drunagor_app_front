@@ -1,6 +1,5 @@
 <template>
   <div class="book-container">
-    <!-- Bottom sheet (mobile TOC) -->
     <v-bottom-sheet v-model="mobileMenuSheet">
       <v-card class="mobile-menu-card">
         <v-toolbar dark>
@@ -11,7 +10,6 @@
         </v-toolbar>
 
         <v-list class="mobile-menu-list" v-model:opened="openGroups">
-          <!-- WING (books) -->
           <v-list-group
             v-for="(sectionItems, sectionName) in wingGroups"
             :key="String(sectionName)"
@@ -42,7 +40,6 @@
             </v-list-item>
           </v-list-group>
 
-          <!-- Outras seções (Tutorial, Mechanics, etc.) -->
           <template v-if="Object.keys(otherBookGroups).length > 0">
             <v-divider class="my-2" />
             <v-list-group
@@ -80,7 +77,6 @@
     </v-bottom-sheet>
 
     <v-main class="main-content">
-      <!-- Barra de navegação superior -->
       <div class="navigation-container">
         <v-card flat class="navigation-card">
           <v-btn-toggle
@@ -110,11 +106,9 @@
         </v-card>
       </div>
 
-      <!-- Conteúdo com rolagem interna -->
       <div class="scroll-root" ref="scrollableContentRef" @scroll="onScroll">
         <v-container fluid class="content-container pa-0">
           <transition name="fade-slide" mode="out-in">
-            <!-- PLAYER VIEW (Books) -->
             <div
               v-if="currentView === 'player' && currentPage"
               :key="'player-' + currentIndex"
@@ -204,7 +198,6 @@
               </v-sheet>
             </div>
 
-            <!-- KEYWORDS -->
             <div v-else-if="currentView === 'keywords'" key="keywords">
               <div class="back-button-container">
                 <v-btn
@@ -219,7 +212,6 @@
               <KeywordView />
             </div>
 
-            <!-- INTERACTIONS -->
             <div v-else-if="currentView === 'interactions'" key="interactions">
               <InteractView
                 ref="interactViewRef"
@@ -229,7 +221,6 @@
               />
             </div>
 
-            <!-- Tutorial -->
             <div v-else-if="currentView === 'tutorial'" key="tutorial">
               <div class="back-button-container">
                 <v-btn
@@ -314,7 +305,6 @@
               </div>
             </div>
 
-            <!-- Combat Guide -->
             <div v-else-if="currentView === 'combatGuide'" key="combatGuide">
               <div class="back-button-container">
                 <v-btn
@@ -389,7 +379,6 @@
               </div>
             </div>
 
-            <!-- Exploration Tips -->
             <div
               v-else-if="currentView === 'explorationTips'"
               key="explorationTips"
@@ -484,7 +473,6 @@
               </div>
             </div>
 
-            <!-- Char Progression -->
             <div
               v-else-if="currentView === 'charProgression'"
               key="charProgression"
@@ -577,7 +565,6 @@
               </div>
             </div>
 
-            <!-- Dragon Clarifications -->
             <div
               v-else-if="currentView === 'dragonClarifications'"
               key="dragonClarifications"
@@ -672,7 +659,6 @@
               </div>
             </div>
 
-            <!-- Vazio -->
             <div v-else key="empty">
               <div
                 class="text-center pa-5 fill-height d-flex align-center justify-center"
@@ -712,6 +698,9 @@ import KeywordView from "@/components/KeywordView.vue";
 import InteractView from "@/components/InteractView.vue";
 
 // Data
+// >>> MUDANÇA 1: Importar o StartHere
+import startHereData from "@/data/book/StartHere.json";
+
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
@@ -725,6 +714,9 @@ import booktops2Img from "@/assets/booktops2.png";
 
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
+
+// >>> MUDANÇA 2: Definir Props para saber qual Wing carregar
+const props = defineProps<{ campaignWing?: string }>();
 
 // Types
 interface PageContentItem {
@@ -830,7 +822,10 @@ const lastBookState = ref<LastBookState>({
 });
 
 // Data init
-const pages = ref<PageSection[]>(bookPagesData as PageSection[]);
+// >>> MUDANÇA 3: Preparar dados brutos
+const bookPages = bookPagesData as PageSection[];
+const startHerePages = startHereData as PageSection[];
+
 const gameMechanicsBook = ref<GameMechanicsBook>(
   gameMechanicsData as GameMechanicsBook,
 );
@@ -846,6 +841,33 @@ const secondEncounterClarifications = ref<EncounterClarificationsBook>(
 const dragonClarifications = ref<EncounterClarificationsBook>(
   dragonClarificationsData as EncounterClarificationsBook,
 );
+
+// >>> MUDANÇA 4: Computed para filtrar as páginas baseado na Wing
+const pages = computed<PageSection[]>(() => {
+  if (!props.campaignWing) {
+    // Se não tiver filtro, retorna TUDO (Start Here + Wings)
+    return [...startHerePages, ...bookPages];
+  }
+
+  const wingKey = props.campaignWing.toUpperCase();
+
+  // Se o usuário selecionou "Start Here"
+  if (wingKey.includes("START")) {
+    return startHerePages;
+  }
+
+  // Se for Wing 3
+  if (wingKey.includes("WING 3")) {
+    return bookPages.filter((p) => p.section.toUpperCase().includes("WING 3"));
+  }
+  // Se for Wing 4
+  else if (wingKey.includes("WING 4")) {
+    return bookPages.filter((p) => p.section.toUpperCase().includes("WING 4"));
+  }
+
+  // Fallback padrão: retorna páginas do livro normal
+  return bookPages;
+});
 
 // Helpers to persist/restore state
 const saveCurrentBookState = () => {
@@ -969,6 +991,7 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
   const items: NavigationItemExtended[] = [];
 
   // Pages -> itens com título
+  // >>> MUDANÇA: Usa 'pages.value' que agora é COMPUTED com o filtro correto
   pages.value.forEach((section, sectionGlobalIdx) => {
     if (section.content?.length) {
       section.content.forEach((contentItem, contentIdx) => {
@@ -1378,6 +1401,26 @@ watch(currentView, async (newView, oldView) => {
   }
 });
 
+// Quando a prop campaignWing mudar (ex: usuário trocou de aba), atualizamos.
+watch(
+  () => props.campaignWing,
+  () => {
+    // Reset para a primeira página da nova seleção
+    currentIndex.value = 0;
+    
+    // Tenta abrir o primeiro grupo automaticamente
+    const keys = Object.keys(wingGroups.value);
+    if (keys.length > 0) {
+       // Opcional: navegar automaticamente para o primeiro item
+       // const firstGroup = wingGroups.value[keys[0]];
+       // if (firstGroup.length > 0) navigateToSection(firstGroup[0]);
+    }
+    
+    // Rola para o topo
+    scrollToTop();
+  }
+);
+
 watch(
   () => route.params.bookId,
   async (newBookId, oldBookId) => {
@@ -1417,6 +1460,17 @@ onMounted(async () => {
     await nextTick();
     await new Promise((r) => setTimeout(r, 150));
     openBookById(initialBookId);
+  } else {
+    // Se não tiver ID específico, tenta abrir o primeiro item disponível
+    // Isso ajuda a carregar o "Start Here" se ele for o primeiro
+    const keys = Object.keys(wingGroups.value);
+    if (keys.length > 0) {
+      const firstGroup = wingGroups.value[keys[0]];
+      if (firstGroup && firstGroup.length > 0) {
+        navigateToSection(firstGroup[0]);
+        openGroups.value = [keys[0]];
+      }
+    }
   }
 });
 
