@@ -43,15 +43,14 @@
       </v-card-actions>
     </v-card>
 
-    <!-- Checkbox para filtrar campanhas legacy -->
     <v-card class="mt-3 pa-3 elevation-0">
       <v-checkbox
-        v-model="showLegacyCampaigns"
-        label="Filter Campaigns (Season 2)"
+        v-model="showAllCampaigns"
+        label="Other Campaigns"
         color="primary"
         hide-details
         @update:modelValue="onFilterChange"
-      />
+      ></v-checkbox>
     </v-card>
 
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
@@ -62,7 +61,7 @@
             :size="80"
             :width="7"
             color="primary"
-          />
+          ></v-progress-circular>
         </v-card>
       </v-row>
 
@@ -84,35 +83,35 @@
               src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'apocalypse'"
               src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'awakenings'"
               src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'underkeep'"
               src="@/assets/underkeep.png"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'underkeep2'"
               src="@/assets/underkeep2.png"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-card-title class="d-flex flex-column text-uppercase">
               <span class="text-h5 font-weight-bold mb-0">{{
@@ -137,7 +136,7 @@
                     rounded="0"
                     :image="hero.images.avatar"
                     :size="avatarSize"
-                  />
+                  ></v-avatar>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -154,7 +153,7 @@
             size="80"
             width="7"
             color="primary"
-          />
+          ></v-progress-circular>
         </div>
 
         <v-card-title class="d-flex justify-space-between align-center pa-0">
@@ -173,7 +172,7 @@
             label="Campaign ID"
             hide-details
             dense
-          />
+          ></v-text-field>
         </v-card-text>
 
         <v-card-actions>
@@ -217,7 +216,7 @@ const joiningCampaign = ref(false);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
-const showLegacyCampaigns = ref(false);
+const showAllCampaigns = ref(false);
 
 const BOX_ID = 38;
 
@@ -294,7 +293,7 @@ const loadCampaigns = async () => {
     const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user!.users_pk,
-        legacy_campaign: showLegacyCampaigns.value,
+        show_season2: showAllCampaigns.value,
       },
     });
 
