@@ -42,38 +42,20 @@
           </div>
 
           <div class="d-flex flex-column gap-2 mt-1">
-             <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
-               <template v-slot:activator="{ props }">
-                 <div 
-                    v-bind="props" 
-                    class="bookmark-tab left-side start-here-tab mb-2" 
-                    @click.stop="openStartHere"
-                 >
-                    <v-icon icon="mdi-school" color="amber-accent-2"></v-icon>
-                    <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">START HERE</span>
-                 </div>
-               </template>
-             </v-tooltip>
+            <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
+              <template v-slot:activator="{ props }">
+                <div 
+                   v-bind="props" 
+                   class="bookmark-tab left-side start-here-tab mb-2" 
+                   @click.stop="openStartHere"
+                >
+                   <v-icon icon="mdi-school" color="amber-accent-2"></v-icon>
+                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">START HERE</span>
+                </div>
+              </template>
+            </v-tooltip>
 
-             <v-tooltip text="Campaign Book" location="right">
-               <template v-slot:activator="{ props }">
-                 <div v-bind="props" class="bookmark-tab left-side" @click.stop="openBookDialog">
-                    <v-icon icon="mdi-book-open-variant"></v-icon>
-                    <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2">BOOKS</span>
-                 </div>
-               </template>
-             </v-tooltip>
-
-             <v-tooltip text="Keywords" location="right">
-               <template v-slot:activator="{ props }">
-                 <div v-bind="props" class="bookmark-tab left-side" @click.stop="openKeywordsDialog">
-                    <v-icon icon="mdi-book-search-outline"></v-icon>
-                    <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2">KEYWORDS</span>
-                 </div>
-               </template>
-             </v-tooltip>
-
-             <v-tooltip text="Door Instructions" location="right">
+            <v-tooltip text="Campaign Book" location="right">
               <template v-slot:activator="{ props }">
                 <div
                   v-bind="props"
@@ -219,12 +201,26 @@
 
       <div class="hud-area bottom-center">
         <div class="heroes-rack interactive-content">
-           <div v-for="hero in enrichedHeroes" :key="hero.heroId" class="hero-token-wrapper" @click.stop="openHeroCard(hero)">
-             <div class="hero-token">
-                 <v-img :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover class="hero-token-img" @error="onImgError"></v-img>
-             </div>
-             <div class="hero-name-tag">{{ hero.name }}</div>
-           </div>
+          <div
+            v-for="hero in enrichedHeroes"
+            :key="hero.heroId"
+            class="hero-token-wrapper"
+            @click.stop="openHeroCard(hero)"
+          >
+            <div class="hero-token">
+              <v-img
+                :src="
+                  hero.images?.avatar ||
+                  hero.images?.trackerimage ||
+                  '/assets/hero/avatar/default.webp'
+                "
+                cover
+                class="hero-token-img"
+                @error="onImgError"
+              ></v-img>
+            </div>
+            <div class="hero-name-tag">{{ hero.name }}</div>
+          </div>
         </div>
       </div>
 
@@ -264,7 +260,7 @@
             </template>
           </v-tooltip>
 
-          <v-tooltip :text="nextButtonLabel" location="left">
+          <v-tooltip :text="nextButtonLabel" location="left" v-if="showSaveCampaignButton">
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
@@ -310,25 +306,35 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="interactionsDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
-        <v-card color="black">
-            <InteractViewNew 
-                v-if="interactionsDialog.visible"
-                :current-door="activeCampaignData.door" 
-                :wing="activeCampaignData.wing" 
-                @close="interactionsDialog.visible = false" 
-            />
-        </v-card>
+    <v-dialog
+      v-model="interactionsDialog.visible"
+      fullscreen
+      transition="dialog-bottom-transition"
+      :scrim="false"
+    >
+      <v-card color="black">
+        <InteractViewNew
+          v-if="interactionsDialog.visible"
+          :current-door="activeCampaignData.door"
+          :wing="activeCampaignData.wing"
+          @close="interactionsDialog.visible = false"
+        />
+      </v-card>
     </v-dialog>
 
-    <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
-       <v-card color="black" class="book-dialog-card">
-          <v-toolbar color="primary" density="compact" class="d-none d-md-block">
-             <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
-             <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
-          </v-toolbar>
+    <v-dialog
+      v-model="bookDialog.visible"
+      fullscreen
+      transition="dialog-bottom-transition"
+      :scrim="false"
+    >
+      <v-card color="black" class="book-dialog-card">
+        <v-toolbar color="primary" density="compact" class="d-none d-md-block">
+          <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
+          <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
+        </v-toolbar>
 
-          <v-btn
+        <v-btn
             v-if="$vuetify.display.smAndDown"
             icon="mdi-close"
             color="red"
@@ -337,10 +343,10 @@
             class="mobile-close-book-btn"
             elevation="8"
             @click="bookDialog.visible = false"
-          ></v-btn>
+        ></v-btn>
 
-          <CampaignBookNew :campaign-wing="bookContext" />
-       </v-card>
+        <CampaignBookNew :campaign-wing="bookContext" />
+      </v-card>
     </v-dialog>
 
     <v-dialog
@@ -717,7 +723,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, inject, watch } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted, inject, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore"; // Importar a store
@@ -996,27 +1002,6 @@ const transform = ref({ x: 0, y: 0, scale: 1 });
 let isDragging = false;
 let startPos = { x: 0, y: 0 };
 
-const syncEventScenario = async () => {
-    if (activeCampaignData.value.wing) return;
-    try {
-        const res = await axios.get("/rl_events_users/list_players", {
-            params: {
-                events_fk: 206, 
-                limit: 100
-            }
-        });
-        const scenario = "Wing 04 Advanced"; 
-        
-        if (scenario.includes("Wing 04")) {
-            campaignStore.updateCampaignProperty(props.campaignId, 'wing', 'Wing 4');
-            campaignStore.updateCampaignProperty(props.campaignId, 'door', 'First Setup');
-        } else if (scenario.includes("Wing 03")) {
-            campaignStore.updateCampaignProperty(props.campaignId, 'wing', 'Wing 3');
-            campaignStore.updateCampaignProperty(props.campaignId, 'door', 'First Setup');
-        }
-    } catch (e) {
-        console.error("Error syncing scenario", e);
-
 const mapTransformStyle = computed(() => ({
   transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})`,
 }));
@@ -1106,47 +1091,30 @@ const saveDoorOpening = async (doorCode: string): Promise<boolean> => {
 };
 
 const syncEventScenario = async () => {
-  // Se já tem Wing definida, não precisa fazer sync
   if (activeCampaignData.value.wing) {
     console.log("[ImmersiveView] Wing already set, skipping event sync");
     return;
   }
 
   try {
-    // Buscar dados completos da campanha para pegar event_fk
     const campaignResponse = await axios.get(`/campaigns/${props.campaignId}`);
     const campaign = campaignResponse.data;
     
-    // Se a campanha não tem evento associado, não precisa fazer sync
     if (!campaign.event_fk) {
       console.log("[ImmersiveView] Campaign not associated with event, skipping sync");
       return;
     }
 
-    console.log(`[ImmersiveView] Campaign linked to event ${campaign.event_fk}`);
-
-    // Buscar dados do evento
     const eventResponse = await axios.get("/events/search", {
       params: { events_pk: campaign.event_fk }
     });
 
     const event = eventResponse.data?.events?.[0];
     
-    if (!event) {
-      console.warn(`[ImmersiveView] Event ${campaign.event_fk} not found`);
-      return;
-    }
-
-    if (!event.scenario) {
-      console.warn("[ImmersiveView] Event found but no scenario defined");
-      return;
-    }
+    if (!event) return;
+    if (!event.scenario) return;
 
     const scenario = event.scenario.toUpperCase();
-    
-    console.log(`[ImmersiveView] Event scenario: ${scenario}`);
-
-    // Detectar Wing baseado no cenário
     let wingToSet = null;
     
     if (scenario.includes("WING 04") || scenario.includes("WING 4")) {
@@ -1155,38 +1123,26 @@ const syncEventScenario = async () => {
       wingToSet = "Wing 3";
     }
 
-onMounted(() => { 
-    generatePartyCode(); 
-    syncEventScenario();
-    tutorialStore.loadPreferences(); // Carregar preferências ao montar
     if (wingToSet) {
       campaignStore.updateCampaignProperty(props.campaignId, "wing", wingToSet);
       campaignStore.updateCampaignProperty(props.campaignId, "door", "FIRST SETUP");
       
-      console.log(`[ImmersiveView] Set ${wingToSet} from event scenario`);
-
-      // Salvar no backend
       if (savePutRef.value) {
         savePutRef.value.save();
       }
-    } else {
-      console.warn(`[ImmersiveView] Could not determine Wing from scenario: ${scenario}`);
     }
   } catch (error: any) {
-    // Se o erro for 404, a campanha não existe (erro crítico)
     if (error.response?.status === 404) {
       console.error(`[ImmersiveView] Campaign ${props.campaignId} not found`);
       return;
     }
-    
-    // Outros erros apenas logamos mas não quebram a aplicação
     console.error("[ImmersiveView] Error syncing event scenario:", error);
   }
 };
 
 onMounted(async () => {
   generatePartyCode();
-  
+  tutorialStore.loadPreferences(); // Carregar preferências ao montar
   await syncEventScenario();
   
   await fetchAllDoors();
@@ -1211,7 +1167,7 @@ function openStartHere() {
 
 function acceptTutorial() {
     if (tutorialPromptDialog.value.dontShowAgain) {
-        tutorialStore.setStartHerePreference(true); // "True" aqui significa "não mostrar mais" (conforme sua lógica de store anterior, ou adapte)
+        tutorialStore.setStartHerePreference(true); // "True" = não mostrar mais
     }
     tutorialPromptDialog.value.visible = false;
     openStartHere();
@@ -1286,19 +1242,6 @@ function stopDrag() {
   window.removeEventListener("touchend", stopDrag);
 }
 
-function openBookDialog() {
-  bookDialog.value = {
-    visible: true,
-    title: activeCampaignData.value.wing || "Campaign Book",
-  };
-}
-
-function openKeywordsDialog() { keywordsDialog.value = { visible: true }; }
-function openInteractionsDialog() { interactionsDialog.value.visible = true; }
-function handleQRCodeAction() {}
-function openOnlyInstructions() { 
-    if (activeCampaignData.value.door !== 'BOTH OPEN') forcedDoorInstruction.value = null; 
-    instructionsDialogVisible.value = true; 
 function openKeywordsDialog() {
   keywordsDialog.value = { visible: true };
 }
@@ -1328,14 +1271,6 @@ function openNextDoorScanner() {
   doorScannerDialog.value.visible = true;
 }
 
-function handleNextAction() {
-  if (isBossBattle.value) {
-    bossConfirmationDialog.value.visible = true;
-  } else {
-    openNextDoorScanner();
-  }
-}
-
 function confirmBossStart() {
   bossConfirmationDialog.value.visible = false;
   if (savePutRef.value) savePutRef.value.save();
@@ -1360,19 +1295,6 @@ function openHeroCard(h: any) {
   setTimeout(() => {
     heroCardDialog.value = { visible: true, hero: h };
   }, 150);
-}
-
-function getMonsterImageSrc(m: string) {
-  const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  const folder = wing.includes("WING 4") ? "wing4" : "wing3";
-  try {
-    return new URL(
-      `../assets/campaign_monsters/${folder}/${m}.jpg`,
-      import.meta.url,
-    ).href;
-  } catch {
-    return "";
-  }
 }
 
 function openMonsterGroupDialog() {
@@ -1430,19 +1352,6 @@ function handleImageError() {
 function saveWing4Path(choice: string) {
   localStorage.setItem(`campaign_${props.campaignId}_w4_choice`, choice);
 }
-
-const qrToDoorMap: Record<string, string> = {
-  "book02.01": "DUNGEON FOYER",
-  "book02.02": "QUEEN'S HALL",
-  "book02.03": "THE FORGE",
-  "book02.04": "ARTISAN'S GALLERY",
-  "book02.05": "PROVING GROUNDS",
-  "book02.06": "MAIN HALL",
-  "book02.07": "DRACONIC CHAPEL",
-  "book02.08": "CRYPTS",
-  "book02.09": "LIBRARY",
-  "book02.10": "LABORATORY",
-};
 
 async function handleDoorScanned(code: string) {
   const normalized = code.toLowerCase().trim();
@@ -1752,114 +1661,75 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 }
 
 @media (max-width: 960px) {
-  .hud-layer {
-    padding: 8px 8px 8px 8px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr auto;
-    box-sizing: border-box;
+  .hud-layer { 
+      padding: 8px 8px 8px 8px; 
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      box-sizing: border-box; 
   }
 
-  .top-left {
-    grid-area: 1 / 1;
+  .top-left { grid-area: 1 / 1; }
+  .top-right { grid-area: 1 / 2; }
+  
+  .bottom-left { 
+      grid-area: 3 / 1; 
+      margin-bottom: 0 !important;
+      padding-bottom: 0px !important; 
+      justify-content: flex-end !important; 
+      align-items: flex-start !important; 
+      z-index: 25;
+      pointer-events: none;
   }
-
-  .top-right {
-    grid-area: 1 / 2;
-  }
-
-  .bottom-left {
-    grid-area: 3 / 1;
-    margin-bottom: 0 !important;
-    padding-bottom: 0px !important;
-    justify-content: flex-end !important;
-    align-items: flex-start !important;
-    z-index: 25;
-    pointer-events: none;
-  }
-
-  .bottom-left > * {
-    pointer-events: auto;
-  }
+  .bottom-left > * { pointer-events: auto; }
 
   .bookmark-tab.left-side {
-    min-width: auto;
-    width: 48px;
-    justify-content: center;
-    padding: 8px;
+      min-width: auto;
+      width: 48px;
+      justify-content: center;
+      padding: 8px;
   }
 
-  .bottom-right {
-    grid-area: 3 / 2;
-    justify-content: flex-end;
-    align-items: flex-end !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0px !important;
-    padding-right: 0px;
-    z-index: 25;
-    pointer-events: none;
+  .bottom-right { 
+      grid-area: 3 / 2; 
+      justify-content: flex-end; 
+      align-items: flex-end !important; 
+      margin-bottom: 0 !important;
+      padding-bottom: 0px !important; 
+      padding-right: 0px; 
+      z-index: 25;
+      pointer-events: none;
+  }
+  .bottom-right > * { pointer-events: auto; }
+
+  .bottom-center { 
+      grid-area: 3 / 1 / 4 / 3; 
+      justify-content: center; 
+      align-items: flex-end; 
+      margin-bottom: 0; 
+      padding-bottom: 4px; 
+      z-index: 20; 
+      pointer-events: none; 
+  }
+  
+  .heroes-rack { 
+      pointer-events: auto;
+      padding: 0;
+      margin-bottom: 0;
+      gap: 8px; 
   }
 
-  .bottom-right > * {
-    pointer-events: auto;
-  }
-
-  .bottom-center {
-    grid-area: 3 / 1 / 4 / 3;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: 0;
-    padding-bottom: 4px;
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  .heroes-rack {
-    pointer-events: auto;
-    padding: 0;
-    margin-bottom: 0;
-    gap: 8px;
-  }
-
-  .hero-token {
-    width: 50px;
-    height: 75px;
-  }
-
-  .hero-name-tag {
-    display: none;
-  }
-
-  .square-hud-btn {
-    width: 36px !important;
-    height: 36px !important;
-    font-size: 0.9rem;
-  }
-
-  .bookmark-tab {
-    padding: 6px 8px;
-    min-width: 36px;
-  }
-
-  .objective-panel {
-    padding: 2px 6px;
-  }
-
-  .objective-label {
-    font-size: 0.5rem !important;
-  }
-
-  .objective-text {
-    font-size: 0.7rem !important;
-  }
-
-  .monster-card {
-    width: 55px;
-    height: 82px;
-  }
+  .hero-token { width: 50px; height: 75px; }
+  .hero-name-tag { display: none; }
+  .square-hud-btn { width: 36px !important; height: 36px !important; font-size: 0.9rem; }
+  .bookmark-tab { padding: 6px 8px; min-width: 36px; }
+  .objective-panel { padding: 2px 6px; }
+  .objective-label { font-size: 0.5rem !important; }
+  .objective-text { font-size: 0.7rem !important; }
+  .monster-card { width: 55px; height: 82px; } 
 
   .right-tab-btn {
-    width: 50px !important;
-    height: 45px !important;
+      width: 50px !important;
+      height: 45px !important;
   }
 }
 </style>
