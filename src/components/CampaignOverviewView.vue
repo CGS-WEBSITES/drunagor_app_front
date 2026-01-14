@@ -43,6 +43,17 @@
       </v-card-actions>
     </v-card>
 
+    <!-- Checkbox para filtrar campanhas legacy -->
+    <v-card class="mt-3 pa-3 elevation-0">
+      <v-checkbox
+        v-model="showLegacyCampaigns"
+        label="Filter Campaigns (Season 2)"
+        color="primary"
+        hide-details
+        @update:modelValue="onFilterChange"
+      />
+    </v-card>
+
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
       <v-row v-if="loading" class="justify-center" no-gutters>
         <v-card width="100%" class="d-flex justify-center pa-16">
@@ -206,6 +217,7 @@ const joiningCampaign = ref(false);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
+const showLegacyCampaigns = ref(false);
 
 const BOX_ID = 38;
 
@@ -271,6 +283,34 @@ const loadCampaignWithHeroes = async (campaignData: any) => {
     );
     return false;
   }
+};
+
+const loadCampaigns = async () => {
+  loading.value = true;
+  campaignStore.reset();
+  loadingErrors.value = [];
+
+  try {
+    const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: userStore.user!.users_pk,
+        legacy_campaign: showLegacyCampaigns.value,
+      },
+    });
+
+    for (const campaignData of campaignsResponse.data.campaigns) {
+      await loadCampaignWithHeroes(campaignData);
+    }
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
+    addLoadingError("Error fetching campaigns. Please try again later.");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onFilterChange = () => {
+  loadCampaigns();
 };
 
 const goToCampaign = (id: string) => {
@@ -382,23 +422,7 @@ const confirmJoinCampaign = async () => {
 };
 
 onBeforeMount(async () => {
-  campaignStore.reset();
-  loadingErrors.value = [];
-
-  try {
-    const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
-      params: { users_fk: userStore.user!.users_pk },
-    });
-
-    for (const campaignData of campaignsResponse.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
-    }
-  } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    addLoadingError("Error fetching campaigns. Please try again later.");
-  } finally {
-    loading.value = false;
-  }
+  await loadCampaigns();
 });
 </script>
 
