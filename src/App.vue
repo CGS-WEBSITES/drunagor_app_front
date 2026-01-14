@@ -2,7 +2,6 @@
   <v-app :theme="theme">
     <Toast />
 
-    <!-- Barra de Navegação Superior -->
     <v-row no-gutters v-if="display.mdAndUp">
       <v-app-bar app min-height="50" color="secundary">
         <div
@@ -10,7 +9,6 @@
           style="cursor: pointer"
           class="d-flex align-center pl-6"
         >
-          <!-- Ícone Drunagor -->
           <v-img
             src="@/assets/darknessl.png"
             height="30"
@@ -24,7 +22,6 @@
 
         <v-spacer></v-spacer>
 
-        <!-- Avatar + Nome do Usuário + Menu Suspenso -->
         <v-menu open-on-hover offset-y>
           <v-list>
             <v-list-item @click="logout">
@@ -103,7 +100,6 @@
       </v-app-bar>
     </v-row>
 
-    <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
     <v-row
       no-gutters
       v-else-if="
@@ -111,7 +107,9 @@
         route.name !== 'Login' &&
         route.name !== 'RetailerRegistration' &&
         route.name !== 'Gama' &&
-        route.name !== 'Community'
+        route.name !== 'Community' &&
+        route.name !== 'Lobby' &&
+        route.name !== 'Campaign'
       "
     >
       <v-app-bar app min-height="56" color="secundary" elevation="4">
@@ -138,20 +136,17 @@
 
         <v-spacer></v-spacer>
 
-        <!-- Botão Hamburguer -->
         <v-btn icon @click="drawer = !drawer" class="mr-2">
           <v-icon>mdi-menu</v-icon>
         </v-btn>
       </v-app-bar>
 
-      <!-- Navigation Drawer -->
       <v-navigation-drawer
         v-model="drawer"
         temporary
         location="right"
         width="280"
       >
-        <!-- Header do Drawer com Avatar -->
         <v-list-item
           class="pa-4"
           :prepend-avatar="
@@ -166,7 +161,6 @@
 
         <v-divider></v-divider>
 
-        <!-- Menu Items -->
         <v-list density="compact" nav>
           <v-list-item
             v-for="(item, index) in menuItems"
@@ -214,7 +208,6 @@
       </v-navigation-drawer>
     </v-row>
 
-    <!-- Exibe o conteúdo da rota -->
     <router-view :style="contentStyle" class="pt-10" />
   </v-app>
 </template>
@@ -227,6 +220,7 @@ import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useTutorialStore } from "@/store/TutorialStore";
 import themeIcon from "@/assets/theme.png";
+import VectorIcon from "@/assets/Vector.png";
 
 const axios: any = inject("axios");
 const openLink = (url) => {
@@ -260,8 +254,6 @@ const logOut = () => {
 };
 
 const role = computed(() => userStore.user?.roles_fk || 2);
-
-import VectorIcon from "@/assets/Vector.png";
 
 const menuItems = computed(() => {
   return [
@@ -301,7 +293,7 @@ const menuItems = computed(() => {
 const handleMenuClick = (item) => {
   if (item.to) {
     router.push(item.to);
-    drawer.value = false; // Fecha o drawer após navegar
+    drawer.value = false;
   } else if (item.do) {
     item.do();
     drawer.value = false;

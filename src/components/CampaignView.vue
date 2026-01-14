@@ -5,8 +5,8 @@
       :campaign="campaign"
       :hero-store="heroStore"
       :user-store="userStore"
-      :show-save-campaign-button="showSaveCampaignButton"
-      @refresh-campaign="fetchRole"
+      :show-save-campaign-button="true"
+      @refresh-campaign="() => {}"
     />
   </template>
 
@@ -48,7 +48,7 @@
           <CampaignPlayerList
             ref="campaignPlayerListRef"
             :campaign-id="campaignId"
-            :show-remove-button="showSaveCampaignButton"
+            :show-remove-button="true"
             @player-removed="onPlayerRemoved"
             density="compact"
           />
@@ -64,104 +64,7 @@
           >
             Invite Player
           </v-btn>
-          <v-btn
-            v-if="showSaveCampaignButton"
-            class="my-2"
-            @click="openTransferDialog"
-            variant="elevated"
-            rounded
-            prepend-icon="mdi-account-switch-outline"
-          >
-            Transfer Drunagor Master
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="transferDialogVisible" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="text-h5">Transfer Drunagor Master</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-alert
-              v-if="transferAlertVisible"
-              :type="transferAlertType"
-              class="mb-4"
-              closable
-              @click:close="transferAlertVisible = false"
-            >
-              {{ transferAlertText }}
-            </v-alert>
-            <div v-if="transferLoading" class="text-center py-8">
-              <v-progress-circular indeterminate color="primary" />
-              <p class="mt-4">Loading players...</p>
-            </div>
-            <div v-else-if="!confirmingTransfer">
-              <p class="mb-4">
-                Select the player who will become the new Drunagor Master:
-              </p>
-              <v-list>
-                <v-list-item
-                  v-for="player in players.filter((p) => p.party_roles_fk !== 1)"
-                  :key="player.rl_campaigns_users_pk"
-                  @click="initTransfer(player)"
-                  class="mb-2"
-                  rounded
-                  color="primary"
-                >
-                  <v-list-item-title>{{ player.user_name }}</v-list-item-title>
-                  <v-list-item-subtitle>{{
-                    player.role_name
-                  }}</v-list-item-subtitle>
-                </v-list-item>
-              </v-list>
-            </div>
-            <div v-else>
-              <v-alert type="warning" class="mb-4">
-                <strong>Confirm Transfer</strong>
-                <p class="mt-2">
-                  Are you sure you want to transfer Drunagor Master role to
-                  <strong>{{ selectedUser?.user_name }}</strong
-                  >?
-                </p>
-                <p class="mt-2 text-caption">
-                  You will become a regular player and lose editing privileges.
-                </p>
-              </v-alert>
-            </div>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            v-if="!confirmingTransfer"
-            color="grey"
-            variant="text"
-            @click="closeTransferDialog"
-          >
-            Cancel
-          </v-btn>
-          <template v-else>
-            <v-btn
-              color="grey"
-              variant="text"
-              @click="cancelTransfer"
-              :disabled="transferLoading"
-            >
-              Cancel
-            </v-btn>
-            <v-btn
-              color="error"
-              variant="elevated"
-              @click="confirmTransfer"
-              :loading="transferLoading"
-            >
-              Confirm Transfer
-            </v-btn>
-          </template>
-        </v-card-actions>
+          </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -186,7 +89,6 @@
       </template>
 
       <v-btn
-        v-if="showSaveCampaignButton"
         key="save"
         size="small"
         color="success"
@@ -225,7 +127,6 @@
         color="orange"
         icon
         class="speed-dial-item"
-        :disabled="!showSaveCampaignButton"
         @click="handleSpeedDialAction('export')"
       >
         <v-icon>mdi-export</v-icon>
@@ -259,7 +160,6 @@
       </v-btn>
 
       <v-btn
-        v-if="showSaveCampaignButton"
         key="remove"
         size="small"
         color="error"
@@ -283,7 +183,6 @@
       height="65"
     >
       <v-btn
-        v-if="showSaveCampaignButton"
         value="save"
         @click="handleBottomNavAction('save')"
         class="bottom-nav-btn"
@@ -308,7 +207,6 @@
 
       <v-btn
         value="export"
-        :disabled="!showSaveCampaignButton"
         @click="handleBottomNavAction('export')"
         class="bottom-nav-btn"
       >
@@ -335,7 +233,6 @@
       </v-btn>
 
       <v-btn
-        v-if="showSaveCampaignButton"
         value="remove"
         @click="handleBottomNavAction('remove')"
         class="bottom-nav-btn"
@@ -350,43 +247,9 @@
         <template v-if="campaign">
           <v-row justify="center" no-gutters>
             <v-col cols="12" lg="9" xl="8">
-              <v-card-text
-                v-if="
-                  !showSaveCampaignButton &&
-                  !['underkeep', 'underkeep2'].includes(campaign.campaign)
-                "
-                class="pa-2"
-              >
-                <BaseAlert
-                  :modelValue="true"
-                  type="warning"
-                  text
-                  border="start"
-                  variant="tonal"
-                  :closable="true"
-                >
-                  Players can only view information for this campaign. Only a
-                  Dunagor Master can save, edit, or delete a campaign.
-                </BaseAlert>
-              </v-card-text>
-
               <template
                 v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
               >
-                <v-card-text v-if="!showSaveCampaignButton" class="pa-2">
-                  <BaseAlert
-                    :modelValue="true"
-                    type="warning"
-                    text
-                    border="start"
-                    variant="tonal"
-                    :closable="true"
-                  >
-                    Players can only view information for this campaign. Only a
-                    Drunagor Master can save, edit, or delete a campaign.
-                  </BaseAlert>
-                </v-card-text>
-
                 <v-tabs
                   v-model="currentTab"
                   density="compact"
@@ -472,11 +335,7 @@
                       </v-col>
                     </v-card>
 
-                    <v-row
-                      class="my-3"
-                      no-gutters
-                      v-if="showSaveCampaignButton"
-                    >
+                    <v-row class="my-3" no-gutters>
                       <v-col cols="12">
                         <v-card
                           class="pa-2 shepherd-hero-actions"
@@ -526,7 +385,7 @@
                             <v-col cols="12">
                               <SelectCompanion
                                 :campaign-id="campaignId"
-                                :is-admin="showSaveCampaignButton"
+                                :is-admin="true"
                               />
                             </v-col>
                           </div>
@@ -542,11 +401,7 @@
                       </v-col>
                     </v-row>
 
-                    <v-row
-                      class="my-3"
-                      no-gutters
-                      v-if="showSaveCampaignButton"
-                    >
+                    <v-row class="my-3" no-gutters>
                       <v-col cols="12">
                         <v-card
                           class="pa-2 shepherd-hero-actions"
@@ -624,13 +479,11 @@
                       <div
                         class="d-flex justify-start justify-sm-end align-center"
                       >
-                        <div
-                          v-if="showSaveCampaignButton"
-                          class="mx-1 my-1 d-flex align-center"
-                        >
+                        <div class="mx-1 my-1 d-flex align-center">
                           <div class="mr-3">
                             <div class="d-flex align-center">
-                              <span class="text-caption font-weight-bold mr-1"
+                              <span
+                                class="text-caption font-weight-bold mr-1"
                                 >CAMPAIGN ID:</span
                               >
                               <v-tooltip location="top">
@@ -644,20 +497,24 @@
                                     mdi-information-outline
                                   </v-icon>
                                 </template>
-                                <span>Use this code to invite your friends</span>
+                                <span
+                                  >Use this code to invite your friends</span
+                                >
                               </v-tooltip>
                             </div>
                           </div>
                           <v-chip v-if="partyCode" label size="large">{{
                             partyCode
                           }}</v-chip>
-                          <v-chip v-else label size="large">Generating...</v-chip>
+                          <v-chip v-else label size="large"
+                            >Generating...</v-chip
+                          >
                         </div>
                       </div>
                     </v-col>
                   </v-row>
 
-                  <v-row class="my-3" no-gutters v-if="showSaveCampaignButton">
+                  <v-row class="my-3" no-gutters>
                     <v-col cols="12">
                       <v-card class="pa-2" color="primary">
                         <div class="d-flex justify-center flex-wrap gap-2">
@@ -680,7 +537,11 @@
 
                   <v-row no-gutters>
                     <v-col cols="12">
-                      <v-sheet rounded border="md" class="text-white pa-2">
+                      <v-sheet
+                        rounded
+                        border="md"
+                        class="text-white pa-2 shepherd-heroes-list"
+                      >
                         <div
                           v-if="
                             heroStore.findAllInCampaign(campaignId).length === 0
@@ -690,7 +551,9 @@
                           No heroes added to this campaign yet.
                         </div>
                         <div
-                          v-for="hero in heroStore.findAllInCampaign(campaignId)"
+                          v-for="hero in heroStore.findAllInCampaign(
+                            campaignId,
+                          )"
                           :key="hero.heroId"
                           class="mb-2"
                         >
@@ -738,7 +601,6 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed } from "vue";
 import { ref as vueRef } from "vue";
-import axios from "axios";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
@@ -746,10 +608,7 @@ import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignName from "@/components/CampaignName.vue";
-import CampaignRunes from "@/components/CampaignRunes.vue";
 import CampaignBook from "@/components/CampaignBook.vue";
-import SelectDoor from "@/components/SelectDoor.vue";
-import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
@@ -761,7 +620,7 @@ import { type Campaign } from "@/store/Campaign";
 import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour";
 import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
 import SelectCompanion from "@/components/SelectCompanion.vue";
-import CampaignImmersiveView from "@/components/CampaignImmersiveView.vue"; // Import the new component
+import CampaignImmersiveView from "@/components/CampaignImmersiveView.vue";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const campaignStore = CampaignStore();
@@ -772,8 +631,6 @@ const route = useRoute();
 const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
-// Computed property to check if we should use the new Immersive View
-// Checks if campaign exists and is 'underkeep2' (which you said is Wing 3 and 4)
 const isImmersiveMode = computed(() => {
   return campaign.value && campaign.value.campaign === 'underkeep2';
 });
@@ -783,7 +640,6 @@ const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 const currentTab = ref("normal");
-const showSaveCampaignButton = ref(false);
 const showLoadInstructions = ref(false);
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
@@ -810,31 +666,11 @@ const shareCampaignRef = vueRef<InstanceType<
   typeof ShareCampaignButton
 > | null>(null);
 
-const transferLoading = ref(false);
-const transferDialogVisible = ref(false);
-const players = ref<
-  Array<{
-    rl_campaigns_users_pk: number;
-    user_name: string;
-    role_name: string;
-    party_roles_fk: number;
-    users_fk: number;
-  }>
->([]);
-const selectedUser = ref<(typeof players.value)[0] | null>(null);
-const confirmingTransfer = ref(false);
-const originalMaster = ref<(typeof players.value)[0] | null>(null);
-const transferAlertVisible = ref(false);
-const transferAlertText = ref("");
-const transferAlertType = ref<"success" | "error">("success");
-
 const {
   startSaveTour,
   destroyTour: destroySaveTour,
   isActive: saveTourActive,
   pauseTourForNavigation,
-  shouldResumeAfterNav,
-  consumeResumeFlag,
   tryAutoResume,
   hasPausedTour,
 } = useSaveCampaignTour({
@@ -847,7 +683,6 @@ const {
 const {
   startLoadTour,
   destroyTour: destroyLoadTour,
-  isActive: loadTourActive,
 } = useLoadCampaignTour({
   onManageResourcesClick: handleManageResourcesAction,
   onEquipmentSkillsClick: handleEquipmentSkillsAction,
@@ -917,16 +752,6 @@ function showHeroSelectionAlert(action: string, heroes: any[]) {
 }
 
 function navigateToHeroSequentialState(heroId: string) {
-  if (!showSaveCampaignButton.value) {
-    setAlert(
-      "mdi-alert-circle",
-      "Access Denied",
-      "Only the Drunagor Master can access this feature.",
-      "error",
-    );
-    return;
-  }
-
   if (saveTourActive.value) {
     console.log(
       "[CampaignView] Pausando tour para navegação - manage resources",
@@ -941,16 +766,6 @@ function navigateToHeroSequentialState(heroId: string) {
 }
 
 function navigateToHeroEquipmentSkills(heroId: string) {
-  if (!showSaveCampaignButton.value) {
-    setAlert(
-      "mdi-alert-circle",
-      "Access Denied",
-      "Only the Drunagor Master can access this feature.",
-      "error",
-    );
-    return;
-  }
-
   if (saveTourActive.value) {
     console.log(
       "[CampaignView] Pausando tour para navegação - equipment skills",
@@ -1122,89 +937,9 @@ const onSaveFail = () => {
   );
 };
 
-const initTransfer = (user: (typeof players.value)[0]) => {
-  selectedUser.value = user;
-  confirmingTransfer.value = true;
-};
-
-const openTransferDialog = () => {
-  transferDialogVisible.value = true;
-  transferLoading.value = true;
-  axios
-    .get("/rl_campaigns_users/list_players", {
-      params: { campaigns_fk: campaignId },
-    })
-    .then(({ data }) => {
-      players.value = data.Users;
-      originalMaster.value =
-        players.value.find((u) => u.party_roles_fk === 1) || null;
-    })
-    .catch((err) => console.error("Error fetching players:", err))
-    .finally(() => (transferLoading.value = false));
-};
-
-const confirmTransfer = () => {
-  if (!selectedUser.value || !originalMaster.value) return;
-  transferLoading.value = true;
-  const promote = axios.put("/rl_campaigns_users/alter", {
-    rl_campaigns_users_pk: selectedUser.value.rl_campaigns_users_pk,
-    party_roles_fk: 1,
-  });
-  const demote = axios.put("/rl_campaigns_users/alter", {
-    rl_campaigns_users_pk: originalMaster.value.rl_campaigns_users_pk,
-    party_roles_fk: 2,
-  });
-  Promise.all([promote, demote])
-    .then(() => {
-      transferAlertText.value = "Transfer successful!";
-      transferAlertType.value = "success";
-      transferAlertVisible.value = true;
-      setTimeout(() => {
-        transferAlertVisible.value = false;
-        closeTransferDialog();
-        router.push({ name: "Campaigns" });
-      }, 1500);
-    })
-    .catch((err) => {
-      const payload = err.response?.data;
-      transferAlertText.value =
-        payload?.message || JSON.stringify(payload?.errors || {});
-      transferAlertType.value = "error";
-      transferAlertVisible.value = true;
-      setTimeout(() => (transferAlertVisible.value = false), 1500);
-    })
-    .finally(() => {
-      transferLoading.value = false;
-      confirmingTransfer.value = false;
-      selectedUser.value = null;
-    });
-};
-
-const cancelTransfer = () => {
-  confirmingTransfer.value = false;
-  selectedUser.value = null;
-};
-
-const closeTransferDialog = () => {
-  transferDialogVisible.value = false;
-  confirmingTransfer.value = false;
-  selectedUser.value = null;
-};
-
 const onCampaignRemoved = () => {
   setAlert("mdi-check", "Success", "Campaign removed successfully", "success");
   router.push({ name: "Campaigns" });
-};
-
-const fetchRole = async () => {
-  try {
-    const { data } = await axios.get("rl_campaigns_users/search", {
-      params: { users_fk: userStore.user.users_pk, campaigns_fk: campaignId },
-    });
-    showSaveCampaignButton.value = data.campaigns[0]?.party_role === "Admin";
-  } catch {
-    showSaveCampaignButton.value = false;
-  }
 };
 
 const onPlayerRemoved = async () => {
@@ -1213,10 +948,6 @@ const onPlayerRemoved = async () => {
     await campaignPlayerListRef.value.fetchPlayers();
   }
 };
-
-watch(transferAlertVisible, (v) => {
-  if (!v && transferAlertType.value === "success") closeTransferDialog();
-});
 
 watch(
   campaign,
@@ -1301,7 +1032,7 @@ onMounted(async () => {
     return;
   }
 
-  await fetchRole();
+  // fetchRole removido. Acesso é total por padrão agora.
   generatePartyCode();
 
   const openInstructions = route.query.openInstructions;
