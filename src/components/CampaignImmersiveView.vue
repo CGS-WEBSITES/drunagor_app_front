@@ -41,6 +41,7 @@
             </div>
           </div>
 
+          <!--
           <v-menu :close-on-content-click="false" v-if="showSaveCampaignButton">
             <template v-slot:activator="{ props }">
               <v-btn
@@ -56,6 +57,7 @@
               <SelectDoor :campaign-id="campaignId" density="compact" />
             </v-card>
           </v-menu>
+          -->
 
           <div class="d-flex flex-column gap-2 mt-1">
             <v-tooltip text="Campaign Book" location="right">
@@ -204,36 +206,18 @@
 
       <div class="hud-area bottom-center">
         <div class="heroes-rack interactive-content">
-          <div
-            v-for="hero in enrichedHeroes"
-            :key="hero.heroId"
-            class="hero-token-wrapper"
-            @click.stop="openHeroCard(hero)"
-          >
-            <div class="hero-token">
-              <v-img
-                :src="
-                  hero.images?.avatar ||
-                  hero.images?.trackerimage ||
-                  '/assets/hero/avatar/default.webp'
-                "
-                cover
-                class="hero-token-img"
-                @error="onImgError"
-              ></v-img>
-            </div>
-            <div class="hero-name-tag">{{ hero.name }}</div>
-          </div>
-          <div
-            v-if="showSaveCampaignButton && enrichedHeroes.length < 4"
-            class="hero-token-wrapper add-hero"
-            @click.stop="addHeroDialogVisible = true"
-          >
-            <div class="hero-token empty">
-              <v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon>
-            </div>
-            <div class="hero-name-tag">Add</div>
-          </div>
+           <div v-for="hero in enrichedHeroes" :key="hero.heroId" class="hero-token-wrapper" @click.stop="openHeroCard(hero)">
+             <div class="hero-token">
+                 <v-img :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover class="hero-token-img" @error="onImgError"></v-img>
+             </div>
+             <div class="hero-name-tag">{{ hero.name }}</div>
+           </div>
+           <!--
+           <div v-if="showSaveCampaignButton && enrichedHeroes.length < 4" class="hero-token-wrapper add-hero" @click.stop="addHeroDialogVisible = true">
+             <div class="hero-token empty"><v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon></div>
+             <div class="hero-name-tag">Add</div>
+           </div>
+           -->
         </div>
       </div>
 
