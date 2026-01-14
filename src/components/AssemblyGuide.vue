@@ -433,166 +433,166 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.assembly-guide {
-  max-width: 100%;
-  margin: 0 auto;
-  background-color: #1e1e1e;
-}
-
-.image-container {
-  position: relative;
-}
-
-.image-wrapper {
-  position: relative;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.assembly-image {
-  width: 100%;
-  background-color: #000;
-}
-
-.zoom-hint-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 8px;
-}
-
-.zoom-hint {
-  background-color: rgba(255, 255, 255, 0.15);
-  padding: 4px 10px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.zoom-hint:hover {
-  background-color: rgba(255, 255, 255, 0.25);
-}
-
-.instruction-box {
-  min-height: 60px;
-  border-top: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.navigation-bar {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.zoom-dialog-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.zoom-header {
-  flex-shrink: 0;
-  background-color: rgba(0, 0, 0, 0.95);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.zoom-content {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  touch-action: none;
-  background-color: #000;
-}
-
-.zoom-image-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.zoom-image {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-.zoom-controls {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  padding: 8px 16px;
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-}
-
-.mobile-zoom-hint {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
-  padding: 8px 16px;
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  color: white;
-  animation: fadeInOut 3s ease-in-out forwards;
-}
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
+  .assembly-guide {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #1e1e1e;
   }
-  15% {
-    opacity: 1;
+  
+  .image-container {
+    position: relative;
   }
-  85% {
-    opacity: 1;
+  
+  .image-wrapper {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  100% {
-    opacity: 0;
+  
+  .assembly-image {
+    width: 100%;
+    background-color: #000;
   }
-}
-
-.zoom-navigation {
-  flex-shrink: 0;
-  background-color: rgba(0, 0, 0, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@media (max-width: 600px) {
-  .zoom-hint {
-    padding: 3px 8px;
-  }
-
-  .zoom-hint .text-caption {
-    font-size: 0.7rem !important;
-  }
-
-  .instruction-box {
-    min-height: 50px;
-  }
-
-  .zoom-image-wrapper {
-    padding: 4px;
-  }
-}
-
-@media (min-width: 601px) and (max-width: 960px) {
+  
   .zoom-hint-container {
-    margin-top: 12px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
   }
-}
-</style>
+  
+  .zoom-hint {
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  .zoom-hint:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+  
+  .instruction-box {
+    min-height: 60px;
+    border-top: 2px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .navigation-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .zoom-dialog-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .zoom-header {
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .zoom-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    touch-action: none;
+    background-color: #000;
+  }
+  
+  .zoom-image-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .zoom-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  
+  .zoom-controls {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 8px 16px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .mobile-zoom-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 8px 16px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    color: white;
+    animation: fadeInOut 3s ease-in-out forwards;
+  }
+  
+  @keyframes fadeInOut {
+    0% { opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  .zoom-navigation {
+    flex-shrink: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .navigation-bar :deep(.v-btn--disabled) {
+    opacity: 0.3 !important;
+  }
+  
+  .zoom-navigation :deep(.v-btn--disabled) {
+    opacity: 0.3 !important;
+  }
+  
+  @media (max-width: 600px) {
+    .zoom-hint {
+      padding: 3px 8px;
+    }
+    
+    .zoom-hint .text-caption {
+      font-size: 0.7rem !important;
+    }
+    
+    .instruction-box {
+      min-height: 50px;
+    }
+    
+    .zoom-image-wrapper {
+      padding: 4px;
+    }
+  }
+  
+  @media (min-width: 601px) and (max-width: 960px) {
+    .zoom-hint-container {
+      margin-top: 12px;
+    }
+  }
+  </style>
