@@ -1068,7 +1068,7 @@
           </div>
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12">
                 <v-select
                   v-model="newEvent.store"
                   :items="stores.map((store) => store.name)"
@@ -1078,15 +1078,6 @@
                   no-data-text="No stores found"
                 />
               </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="newEvent.seats"
-                  :items="[1, 2, 3, 4]"
-                  label="SEATS"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-
               <v-col cols="12" md="6">
                 <v-select
                   v-model="newEvent.season"
@@ -2089,7 +2080,6 @@ const addEvent = () => {
     !newEvent.value.date ||
     !newEvent.value.hour ||
     !newEvent.value.store ||
-    !newEvent.value.seats ||
     !newEvent.value.season ||
     !newEvent.value.scenario ||
     !userId
@@ -2145,7 +2135,7 @@ const addEvent = () => {
       return axios.post(
         "/events/cadastro",
         {
-          seats_number: newEvent.value.seats,
+          seats_number: 0,
           seasons_fk: newEvent.value.season,
           sceneries_fk: newEvent.value.scenario,
           date,
@@ -2209,7 +2199,6 @@ const addEvent = () => {
         hour: "",
         ampm: "AM",
         store: "",
-        seats: null,
         season: null,
         scenario: null,
       };
