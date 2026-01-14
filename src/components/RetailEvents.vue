@@ -42,7 +42,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      
+
       <v-dialog v-model="turnAwayConfirmDialog.show" max-width="500" persistent>
         <v-card>
           <v-card-title class="headline">Are you sure?</v-card-title>
@@ -54,9 +54,7 @@
             <v-btn text @click="turnAwayConfirmDialog.show = false">
               Cancel
             </v-btn>
-            <v-btn color="red" text @click="executeTurnAway">
-              Confirm
-            </v-btn>
+            <v-btn color="red" text @click="executeTurnAway"> Confirm </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -493,7 +491,7 @@
                     variant="outlined"
                   ></v-select>
                 </v-col>
-                
+
                 <v-col cols="12" md="6">
                   <v-select
                     v-model="newEvent.season"
@@ -860,9 +858,7 @@
                     </v-card>
                   </v-col>
                   <v-col>
-                    <p class="pb-3 font-weight-bold">
-                      PLAYERS INTERESTED
-                    </p>
+                    <p class="pb-3 font-weight-bold">PLAYERS INTERESTED</p>
                   </v-col>
                   <v-row>
                     <v-col
@@ -941,9 +937,7 @@
                                 block
                                 @click="confirmTurnAway(player)"
                               >
-                                <v-icon start
-                                  >mdi-close-circle-outline</v-icon
-                                >
+                                <v-icon start>mdi-close-circle-outline</v-icon>
                                 Turn Away
                               </v-btn>
                             </template>
@@ -998,9 +992,7 @@
                                   updatePlayerStatus(player, grantedStatus)
                                 "
                               >
-                                <v-icon start
-                                  >mdi-check-circle-outline</v-icon
-                                >
+                                <v-icon start>mdi-check-circle-outline</v-icon>
                                 Grant Passage
                               </v-btn>
                               <v-btn
@@ -1010,9 +1002,7 @@
                                 block
                                 @click="confirmTurnAway(player)"
                               >
-                                <v-icon start
-                                  >mdi-close-circle-outline</v-icon
-                                >
+                                <v-icon start>mdi-close-circle-outline</v-icon>
                                 Turn Away
                               </v-btn>
                             </template>
@@ -1049,6 +1039,8 @@
       </div>
     </v-card>
   </v-col>
+
+  <TutorialPromptDialog v-model="showTutorialPrompt" />
 </template>
 
 <script setup>
@@ -1057,11 +1049,16 @@ import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
 import { useDebounceFn } from "@vueuse/core";
 import { set } from "lodash-es";
-import s1flag from '@/assets/s1flag.png';
-import s2flag from '@/assets/s2flag.png';
+import s1flag from "@/assets/s1flag.png";
+import s2flag from "@/assets/s2flag.png";
+import { useTutorialStore } from "@/store/TutorialStore";
+import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
+
+const tutorialStore = useTutorialStore();
+const showTutorialPrompt = ref(false);
 
 const assets = inject("assets");
 const isEditable = ref(false);
@@ -1118,17 +1115,15 @@ if (!axios) {
   throw new Error("Axios não foi injetado na aplicação.");
 }
 
-
 const getSeasonInfo = (fk) => {
   if (fk == 2) {
-    return { flag: s1flag, name: 'Season 1' };
+    return { flag: s1flag, name: "Season 1" };
   }
   if (fk == 3) {
-    return { flag: s2flag, name: 'Season 2' };
+    return { flag: s2flag, name: "Season 2" };
   }
-  return { flag: null, name: '' };
+  return { flag: null, name: "" };
 };
-
 
 const confirmTurnAway = (player) => {
   turnAwayConfirmDialog.value = {
@@ -1147,7 +1142,6 @@ const executeTurnAway = () => {
   }
 };
 
-
 const sortedEvents = computed(() => {
   if (sortBy.value === "date") {
     return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -1157,19 +1151,18 @@ const sortedEvents = computed(() => {
 
 const filteredScenarios = computed(() => {
   if (!newEvent.value.season) {
-    return []; 
+    return [];
   }
 
-  if (newEvent.value.season === 2) { 
-    return sceneries.value.filter(s => [2, 3, 4].includes(s.sceneries_pk));
+  if (newEvent.value.season === 2) {
+    return sceneries.value.filter((s) => [2, 3, 4].includes(s.sceneries_pk));
   }
-  if (newEvent.value.season === 3) { 
-    return sceneries.value.filter(s => [5, 6].includes(s.sceneries_pk));
+  if (newEvent.value.season === 3) {
+    return sceneries.value.filter((s) => [5, 6].includes(s.sceneries_pk));
   }
 
-  return []; 
+  return [];
 });
-
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
@@ -1279,8 +1272,8 @@ const openEditDialog = (event, editable = false) => {
       });
       fetchPlayersForEvent(event.events_pk);
       fetchStatuses();
-      
-      clearInterval(playersInterval.value); 
+
+      clearInterval(playersInterval.value);
       playersInterval.value = setInterval(() => {
         fetchPlayersForEvent(event.events_pk);
       }, 5000);
@@ -1679,14 +1672,13 @@ const addEvent = () => {
   successDialog.value = false;
 
   const userId = userStore.user.users_pk;
- 
 
   if (
     !newEvent.value.date ||
     !newEvent.value.hour ||
     !newEvent.value.store ||
     !newEvent.value.seats ||
-    !newEvent.value.season || 
+    !newEvent.value.season ||
     !newEvent.value.scenario ||
     !userId
   ) {
@@ -1798,6 +1790,12 @@ const addEvent = () => {
 
       fetchUserCreatedEvents(showPast.value).catch(() => {});
       fetchPlayerEvents().catch(() => {});
+      // Verificar se deve mostrar tutorial após fechar success dialog
+      setTimeout(() => {
+        if (tutorialStore.shouldShowInitialSetup) {
+          showTutorialPrompt.value = true;
+        }
+      }, 500);
 
       newEvent.value = {
         date: "",
@@ -2075,15 +2073,17 @@ onMounted(() => {
   }, 5000);
 });
 
-watch(() => newEvent.value.season, (newSeasonValue) => {
-  newEvent.value.scenario = null;
-}); 
-  
+watch(
+  () => newEvent.value.season,
+  (newSeasonValue) => {
+    newEvent.value.scenario = null;
+  },
+);
+
 onUnmounted(() => {
   clearInterval(eventsInterval.value);
   clearInterval(playersInterval.value);
 });
-
 
 watch(showPast, async (novo) => {
   if (activeTab.value == 1) {
@@ -2126,7 +2126,6 @@ watch(editEventDialog, (isOpen) => {
     playersInterval.value = null;
   }
 });
-
 </script>
 
 <style scoped>

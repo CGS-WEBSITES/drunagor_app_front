@@ -218,6 +218,7 @@ import { setToken } from "@/service/AccessToken";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
+import { useTutorialStore } from "@/store/TutorialStore";
 import themeIcon from "@/assets/theme.png";
 import VectorIcon from "@/assets/Vector.png";
 
@@ -227,6 +228,7 @@ const openLink = (url) => {
 };
 
 const userStore = useUserStore();
+const tutorialStore = useTutorialStore();
 const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
@@ -363,6 +365,8 @@ onMounted(() => {
   if (userObject) {
     useUserStore().setUser(userObject);
   }
+
+  tutorialStore.loadPreferences();
 });
 
 onBeforeMount(() => {
