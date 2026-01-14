@@ -22,7 +22,6 @@
     style="display: none"
   />
 
-  <!-- Loading State -->
   <v-row v-if="!isLoaded" no-gutters>
     <v-col
       cols="12"
@@ -243,7 +242,6 @@ const localState = ref({
   resources: {} as Record<string, number>,
 });
 
-// Initialize resources
 RESOURCE_DEFINITIONS.forEach((resource) => {
   localState.value.resources[resource.id] = 0;
 });
@@ -349,51 +347,6 @@ const onSaveFail = () => {
   snackbarVisible.value = true;
 };
 
-function navigateBack() {
-  router.push({
-    name: "Campaign",
-    params: { id: campaignId },
-    query: { instructions: "open", tab: "save" },
-  });
-}
-
-function syncStateToStore() {
-  if (campaignHeroRef.value) {
-    if (!campaignHeroRef.value.sequentialAdventureState) {
-      campaignHeroRef.value.sequentialAdventureState =
-        new SequentialAdventureState();
-    }
-  };
-
-    campaignHeroRef.value.sequentialAdventureState.lifepoints =
-      Number(localState.value.lifepoints) || 0;
-    campaignHeroRef.value.sequentialAdventureState.curseCubes =
-      Number(localState.value.curseCubes) || 0;
-    campaignHeroRef.value.sequentialAdventureState.traumaCubes =
-      Number(localState.value.traumaCubes) || 0;
-    campaignHeroRef.value.sequentialAdventureState.availableCubes =
-      Number(localState.value.availableCubes) || 0;
-    campaignHeroRef.value.sequentialAdventureState.usedCubes =
-      Number(localState.value.usedCubes) || 0;
-
-    Object.keys(localState.value.resources).forEach((key) => {
-      campaignHeroRef.value.sequentialAdventureState.resources[key] =
-        Number(localState.value.resources[key]) || 0;
-    });
-  }
-
-const onSaveSuccess = () => {
-  snackbarText.value = "Resources saved successfully!";
-  snackbarColor.value = "success";
-  snackbarVisible.value = true;
-};
-
-const onSaveFail = () => {
-  snackbarText.value = "Failed to save resources.";
-  snackbarColor.value = "error";
-  snackbarVisible.value = true;
-};
-
 function saveAndGoBack() {
   syncStateToStore();
   isSaving.value = true;
@@ -425,7 +378,6 @@ onMounted(async () => {
       campaignHeroRef.value = updatedHero;
       heroStaticData.value = heroDataRepository.find(heroId) ?? null;
 
-      // Initialize sequential adventure state if not exists
       if (!updatedHero.sequentialAdventureState) {
         updatedHero.sequentialAdventureState = new SequentialAdventureState();
       }
@@ -434,7 +386,6 @@ onMounted(async () => {
         updatedHero.sequentialAdventureState.resources = {};
       }
 
-      // Ensure all resources exist
       RESOURCE_DEFINITIONS.forEach((resource) => {
         if (
           updatedHero.sequentialAdventureState!.resources[resource.id] ===
@@ -444,7 +395,6 @@ onMounted(async () => {
         }
       });
 
-      // Load state into local state
       localState.value = {
         lifepoints: updatedHero.sequentialAdventureState.lifepoints || 0,
         curseCubes: updatedHero.sequentialAdventureState.curseCubes || 0,
