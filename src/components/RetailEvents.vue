@@ -1108,6 +1108,8 @@
                   placeholder="HH:MM"
                   maxlength="5"
                   v-mask="'##:##'"
+                  @blur="newEvent.hour = validateTimeInput(newEvent.hour)"
+                  @input="newEvent.hour = validateAndFormatTime($event.target.value)"
                 ></v-text-field>
               </v-col>
               <v-col cols="6" md="4">
@@ -1229,7 +1231,8 @@
                   variant="outlined"
                   placeholder="HH:MM"
                   maxlength="5"
-                  @blur="validateTime"
+                  @blur="editableEvent.hour = validateTimeInput(editableEvent.hour)"
+                  @input="editableEvent.hour = validateAndFormatTime($event.target.value)"
                 ></v-text-field>
               </v-col>
               <v-col cols="6" md="2" v-if="isEditable">
@@ -1483,21 +1486,6 @@ const openInGoogleMaps = () => {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
 
   window.open(mapsUrl, "_blank");
-};
-
-const validateTime = () => {
-  const value = editableEvent.value.hour;
-  if (!value || value.length !== 5 || !value.includes(":")) return;
-  let [hh, mm] = value.split(":");
-  hh = parseInt(hh);
-  mm = parseInt(mm);
-  if (isNaN(hh) || hh < 1) hh = 1;
-  if (hh > 12) hh = 12;
-  if (isNaN(mm)) mm = 0;
-  if (mm > 59) mm = 59;
-  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
-    .toString()
-    .padStart(2, "0")}`;
 };
 
 // ==========================
@@ -2069,6 +2057,23 @@ const removeReward = async (reward) => {
   }
 };
 
+const validateTimeInput = (timeString) => {
+  if (!timeString || !timeString.includes(':')) return timeString;
+  
+  let [hours, minutes] = timeString.split(':');
+  
+  hours = parseInt(hours) || 0;
+  minutes = parseInt(minutes) || 0;
+  
+  if (hours < 1) hours = 1;
+  if (hours > 12) hours = 12;
+  
+  if (minutes < 0) minutes = 0;
+  if (minutes > 59) minutes = 59;
+  
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+};
+
 const roundTimeToNearest15Minutes = (timeString) => {
   if (!timeString || !timeString.includes(':')) return timeString;
   
@@ -2082,6 +2087,50 @@ const roundTimeToNearest15Minutes = (timeString) => {
   }
   
   return `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+};
+
+const validateAndFormatTime = (value) => {
+  if (!value) return '';
+  
+  // Remove tudo que não é número ou :
+  let cleaned = value.replace(/[^\d:]/g, '');
+  
+  // Se não tem :, adiciona quando tiver 2 dígitos
+  if (!cleaned.includes(':') && cleaned.length >= 2) {
+    cleaned = cleaned.slice(0, 2) + ':' + cleaned.slice(2);
+  }
+  
+  // Limita o tamanho
+  if (cleaned.length > 5) {
+    cleaned = cleaned.slice(0, 5);
+  }
+  
+  // Se tem :, valida hora e minutos
+  if (cleaned.includes(':')) {
+    let [hours, minutes] = cleaned.split(':');
+    
+    // Valida horas (01-12)
+    if (hours) {
+      let h = parseInt(hours);
+      if (h === 0) hours = '01';
+      else if (h > 12) hours = '12';
+      else hours = String(h).padStart(2, '0');
+    }
+    
+    // Valida minutos (00-59)
+    if (minutes !== undefined) {
+      if (minutes.length > 0) {
+        let m = parseInt(minutes);
+        if (m > 59) minutes = '59';
+        else minutes = String(m).padStart(2, '0');
+      }
+      cleaned = hours + ':' + minutes;
+    } else {
+      cleaned = hours + ':';
+    }
+  }
+  
+  return cleaned;
 };
 
 const addEvent = () => {
