@@ -712,6 +712,8 @@
     </v-dialog>
 
   </v-card>
+  
+  <TutorialPromptDialog v-model="showTutorialPrompt" />
 </template>
 
 <script setup>
@@ -720,6 +722,8 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import { useDisplay } from "vuetify";
 import QrcodeVue from "qrcode-vue3";
+import { useTutorialStore } from "@/store/TutorialStore";
+import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 
@@ -780,6 +784,8 @@ const newStore = ref({
   city: "",
   state: "",
 });
+const tutorialStore = useTutorialStore();
+const showTutorialPrompt = ref(false);
 
 const upcomingRetailerEventsPreview = computed(() => {
   const now = new Date();
@@ -1041,6 +1047,10 @@ const createTable = async () => {
 
     await fetchTablesForEvent(selectedEvent.value.events_pk);
     createTableDialog.value = false;
+    
+    if (tutorialStore.shouldShowInitialSetup) {
+      showTutorialPrompt.value = true;
+    }
   } catch (error) {
     console.error("Error creating table:", error);
     alert(error.response?.data?.message || "Failed to create table");

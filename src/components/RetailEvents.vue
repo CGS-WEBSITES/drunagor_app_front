@@ -1310,6 +1310,8 @@
       </v-dialog>
     </v-card>
   </v-col>
+
+  <TutorialPromptDialog v-model="showTutorialPrompt" />
 </template>
 
 <script setup>
@@ -1322,11 +1324,16 @@ import { useRouter, useRoute } from "vue-router";
 import QrcodeVue from "qrcode-vue3";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
+import { useTutorialStore } from "@/store/TutorialStore";
+import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
+
+const tutorialStore = useTutorialStore();
+const showTutorialPrompt = ref(false);
 
 const assets = inject("assets");
 const isEditable = ref(false);
@@ -2190,6 +2197,12 @@ const addEvent = () => {
 
       fetchUserCreatedEvents(showPast.value).catch(() => {});
       fetchPlayerEvents().catch(() => {});
+      // Verificar se deve mostrar tutorial após fechar success dialog
+      setTimeout(() => {
+        if (tutorialStore.shouldShowInitialSetup) {
+          showTutorialPrompt.value = true;
+        }
+      }, 500);
 
       newEvent.value = {
         date: "",
