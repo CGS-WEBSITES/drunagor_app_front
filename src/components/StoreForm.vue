@@ -25,10 +25,8 @@
   <v-col cols="12" class="d-flex justify-center pa-0">
     <v-container max-width="800" style="min-width: 360px" class="pa-4">
       <v-card class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3">
-        <!-- Formulário de Criação da Loja -->
         <v-card-text v-if="isExpanded">
           <v-form ref="storeForm">
-            <!-- Upload de Imagem -->
             <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Store Image</p>
             <v-file-input
               label="Upload Store Image (Recommended square images)"
@@ -38,7 +36,6 @@
               class="mb-3"
             ></v-file-input>
 
-            <!-- Preview da Imagem -->
             <v-img
               v-if="form.storeImage"
               :src="
@@ -50,7 +47,6 @@
               class="rounded-lg mb-3"
             />
 
-            <!-- Campos do Formulário -->
             <v-text-field
               label="Website"
               variant="outlined"
@@ -121,7 +117,6 @@
             ></v-text-field>
           </v-form>
 
-          <!-- Botões de Ação -->
           <v-card-actions>
             <v-btn color="green" @click="saveStore">Save Store</v-btn>
             <v-btn color="red" text="true" @click="cancelForm">Cancel</v-btn>
@@ -130,7 +125,6 @@
 
         <v-divider class="my-4"></v-divider>
 
-        <!-- Lista de Lojas Salvas -->
         <v-row v-if="stores.length > 0" no-gutters class="d-flex flex-column">
           <v-col
             v-for="(store, index) in stores"
@@ -140,7 +134,6 @@
           >
             <v-card color="primary" min-height="130px" class="mb-4 event-card">
               <v-row no-gutters>
-                <!-- Imagem da Loja -->
                 <v-col cols="2" lg="2">
                   <v-img
                     :src="
@@ -152,7 +145,6 @@
                   />
                 </v-col>
 
-                <!-- Informações da Loja -->
                 <v-col cols="8" lg="9" class="pa-2">
                   <h3 class="text-subtitle-1 font-weight-bold">
                     {{ store.name }}
@@ -217,7 +209,6 @@
           </v-col>
         </v-row>
 
-        <!-- Dialog para Editar Store -->
         <v-dialog v-model="editDialog" max-width="500">
           <v-card>
             <v-card-title class="text-h5 font-weight-bold">
@@ -280,7 +271,6 @@
                 v-model="editableStore.MerchantID"
               ></v-text-field>
 
-              <!-- Upload de Imagem -->
               <v-file-input
                 label="Upload Store Image"
                 accept="image/*"
@@ -300,6 +290,36 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <v-dialog v-model="successDialog" max-width="500" persistent>
+          <v-card>
+            <v-card-title class="text-h5 text-success font-weight-bold">
+              <v-icon start color="success">mdi-check-circle</v-icon>
+              Store Created & Verified!
+            </v-card-title>
+            <v-card-text>
+              Your store has been successfully created and verified. What would
+              you like to do next?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="grey-darken-1"
+                variant="text"
+                @click="successDialog = false"
+              >
+                Manage Stores
+              </v-btn>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                @click="goToCreateEvent"
+              >
+                Create Event Now
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-card>
     </v-container>
   </v-col>
@@ -307,14 +327,14 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject } from "vue";
+import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
-// Interface para o formulário de Store
 interface StoreForm {
   site: string;
   storename: string;
-  country: string | number | null; // Alterado para aceitar number
+  country: string | number | null;
   zipcode: string;
   MerchantID: string;
   storeImage: string;
@@ -325,7 +345,6 @@ interface StoreForm {
   state: string;
 }
 
-// Interface para País
 interface Country {
   countries_pk: number;
   name: string;
@@ -336,7 +355,7 @@ interface EditableStore {
   stores_pk?: number;
   site: string;
   storename: string;
-  country: number | null; // Alterado para number
+  country: number | null;
   zipcode: string;
   MerchantID: string;
   storeImage: string;
@@ -348,6 +367,7 @@ interface EditableStore {
 }
 
 const userStore = useUserStore();
+const router = useRouter();
 
 const editableStore = ref<EditableStore>({
   site: "",
@@ -417,7 +437,6 @@ const StateList = ref([
   { name: "Wyoming" },
 ]);
 
-// Exemplo de controle de país
 const selectedCountry = ref(250);
 
 const stores = ref<any[]>([]);
@@ -440,9 +459,9 @@ const storeForm = ref(null);
 const showVerificationMessage = ref(false);
 const isExpanded = ref(false);
 const editDialog = ref(false);
+const successDialog = ref(false);
 const accountData = ref(null);
 
-// Obtendo o axios injetado
 const axios: any = inject("axios");
 
 const isUnitedStates = computed(() => {
@@ -451,12 +470,11 @@ const isUnitedStates = computed(() => {
     return selectedCountry === 250;
   }
   const countryObject = countriesList.value.find(
-    (c) => c.name.toLowerCase() === (selectedCountry || "").toLowerCase(),
+    (c) => c.name.toLowerCase() === (selectedCountry || "").toLowerCase()
   );
   return countryObject?.countries_pk === 250;
 });
 
-// Obter usuário logado
 const storedUser = localStorage.getItem("app_user");
 const appUser = storedUser ? JSON.parse(storedUser).users_pk : null;
 
@@ -487,14 +505,14 @@ const fetchStores = async () => {
   } catch (error) {
     console.error(
       "❌ Erro ao buscar lojas:",
-      (error as any)?.response?.data || (error as any)?.message,
+      (error as any)?.response?.data || (error as any)?.message
     );
     stores.value = [];
   }
 };
 
 const onlyAllowAlphanumeric = (event: KeyboardEvent) => {
-  const char = event.key; // permite apenas letras e números
+  const char = event.key;
   if (!/^[a-zA-Z0-9]$/.test(char)) {
     event.preventDefault();
   }
@@ -502,14 +520,12 @@ const onlyAllowAlphanumeric = (event: KeyboardEvent) => {
 
 const getCountryNameFromId = (id: string | number | null): string => {
   if (typeof id === "string") {
-    // Se o id for string (ex: 'Belgium'), tenta encontrar na lista. Isso é um fallback.
     const matchByName = countriesList.value.find(
-      (c) => c.name.toLowerCase() === id.toLowerCase(),
+      (c) => c.name.toLowerCase() === id.toLowerCase()
     );
     if (matchByName) return matchByName.name;
   }
   if (typeof id === "number") {
-    // Se for número, procura pelo PK
     const matchById = countriesList.value.find((c) => c.countries_pk === id);
     if (matchById) return matchById.name;
   }
@@ -547,6 +563,17 @@ const saveStore = async () => {
       },
     });
 
+    const newStorePk =
+      response.data.store?.stores_pk || response.data.stores_pk;
+
+    if (newStorePk) {
+      await axios.get(`/stores/${newStorePk}/verify`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+    }
+
     form.value = {
       storename: "",
       site: "",
@@ -562,20 +589,20 @@ const saveStore = async () => {
     };
 
     isExpanded.value = false;
-
-    showVerificationMessage.value = true;
-
     await fetchStores();
 
-    setTimeout(() => {
-      showVerificationMessage.value = false;
-    }, 1500);
+    successDialog.value = true;
   } catch (error: any) {
     console.error(
-      "❌ Erro ao cadastrar a loja:",
-      error.response?.data || error.message,
+      "❌ Erro ao cadastrar/validar a loja:",
+      error.response?.data || error.message
     );
   }
+};
+
+const goToCreateEvent = () => {
+  successDialog.value = false;
+  router.push({ path: "/events", query: { action: "create" } });
 };
 
 const cancelForm = () => {
@@ -600,18 +627,15 @@ const toggleForm = () => {
 };
 
 const openEditDialog = (store: any, index: number) => {
-  // Separa o endereço em partes
   const addressParts =
     store.address?.split(",").map((s: any) => s.trim()) || [];
   const [streetNumber, address, complement, city, state, countryName] =
     addressParts;
 
-  // Encontra o objeto do país na sua lista 'countriesList' usando o nome do país
   const countryObject = countriesList.value.find(
-    (c) => c.name.toLowerCase() === (countryName || "").toLowerCase(),
+    (c) => c.name.toLowerCase() === (countryName || "").toLowerCase()
   );
 
-  // Pega o ID (countries_pk) do objeto encontrado. Se não encontrar, usa null.
   const countryId = countryObject ? countryObject.countries_pk : null;
 
   editableStore.value = {
@@ -619,7 +643,7 @@ const openEditDialog = (store: any, index: number) => {
     storename: store.name || store.storename,
     site: store.web_site || store.site || "",
     zipcode: store.zip_code || store.zipcode || "",
-    country: countryId, // Usa o ID do país aqui, em vez do nome!
+    country: countryId,
     state: state || "",
     city: city || "",
     complement: complement || "",
@@ -692,7 +716,7 @@ const saveEditedStore = async () => {
   } catch (error: any) {
     console.error(
       "❌ Erro ao atualizar a loja:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
   }
 };
@@ -706,13 +730,13 @@ const removeStore = async (stores_pk: any) => {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,
       },
-    }); // Atualiza a lista após excluir
+    });
 
     await fetchStores();
   } catch (error: any) {
     console.error(
       "❌ Erro ao excluir a loja:",
-      error.response?.data || error.message,
+      error.response?.data || error.message
     );
   }
 };
@@ -728,7 +752,7 @@ const getMerchantAccount = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     )
     .then((response: any) => {
       console.log("Dados da conta:", response.data);

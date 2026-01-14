@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 
 interface TutorialPreferences {
-  initialSetupTutorial: boolean; // false = mostrar, true = não mostrar mais
+  initialSetupTutorial: boolean; 
+  startHereTutorial: boolean;    
 }
 
 interface TutorialState {
@@ -10,6 +11,7 @@ interface TutorialState {
 
 const DEFAULT_PREFERENCES: TutorialPreferences = {
   initialSetupTutorial: false,
+  startHereTutorial: false, 
 };
 
 export const useTutorialStore = defineStore('tutorial', {
@@ -19,6 +21,7 @@ export const useTutorialStore = defineStore('tutorial', {
 
   getters: {
     shouldShowInitialSetup: (state): boolean => !state.preferences.initialSetupTutorial,
+    shouldShowStartHere: (state): boolean => !state.preferences.startHereTutorial,
   },
 
   actions: {
@@ -27,7 +30,7 @@ export const useTutorialStore = defineStore('tutorial', {
       
       if (stored) {
         try {
-          const parsed = JSON.parse(stored) as TutorialPreferences;
+          const parsed = JSON.parse(stored) as Partial<TutorialPreferences>;
           
           this.preferences = {
             ...DEFAULT_PREFERENCES,
@@ -41,20 +44,22 @@ export const useTutorialStore = defineStore('tutorial', {
         this.preferences = { ...DEFAULT_PREFERENCES };
       }
       
+      
       this.savePreferences();
     },
 
     savePreferences(): void {
-      const preferencesToSave: TutorialPreferences = {
-        ...DEFAULT_PREFERENCES,
-        ...this.preferences
-      };
-      
-      localStorage.setItem('tutorial_preferences', JSON.stringify(preferencesToSave));
+      localStorage.setItem('tutorial_preferences', JSON.stringify(this.preferences));
     },
 
     setInitialSetupPreference(value: boolean): void {
       this.preferences.initialSetupTutorial = value;
+      this.savePreferences();
+    },
+
+    // Nova action para o Start Here
+    setStartHerePreference(value: boolean): void {
+      this.preferences.startHereTutorial = value;
       this.savePreferences();
     },
 

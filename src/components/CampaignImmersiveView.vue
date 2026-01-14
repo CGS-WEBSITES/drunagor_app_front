@@ -41,25 +41,20 @@
             </div>
           </div>
 
-          <!--
-          <v-menu :close-on-content-click="false" v-if="showSaveCampaignButton">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon="mdi-cog"
-                variant="text"
-                density="compact"
-                color="white"
-                class="opacity-50 hud-icon-btn ml-1 mb-2"
-              ></v-btn>
-            </template>
-            <v-card min-width="300" class="pa-4 bg-grey-darken-4 border-thin">
-              <SelectDoor :campaign-id="campaignId" density="compact" />
-            </v-card>
-          </v-menu>
-          -->
-
           <div class="d-flex flex-column gap-2 mt-1">
+            <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
+              <template v-slot:activator="{ props }">
+                <div 
+                   v-bind="props" 
+                   class="bookmark-tab left-side start-here-tab mb-2" 
+                   @click.stop="openStartHere"
+                >
+                   <v-icon icon="mdi-school" color="amber-accent-2"></v-icon>
+                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">START HERE</span>
+                </div>
+              </template>
+            </v-tooltip>
+
             <v-tooltip text="Campaign Book" location="right">
               <template v-slot:activator="{ props }">
                 <div
@@ -206,18 +201,26 @@
 
       <div class="hud-area bottom-center">
         <div class="heroes-rack interactive-content">
-           <div v-for="hero in enrichedHeroes" :key="hero.heroId" class="hero-token-wrapper" @click.stop="openHeroCard(hero)">
-             <div class="hero-token">
-                 <v-img :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover class="hero-token-img" @error="onImgError"></v-img>
-             </div>
-             <div class="hero-name-tag">{{ hero.name }}</div>
-           </div>
-           <!--
-           <div v-if="showSaveCampaignButton && enrichedHeroes.length < 4" class="hero-token-wrapper add-hero" @click.stop="addHeroDialogVisible = true">
-             <div class="hero-token empty"><v-icon icon="mdi-plus" size="32" color="grey-lighten-1"></v-icon></div>
-             <div class="hero-name-tag">Add</div>
-           </div>
-           -->
+          <div
+            v-for="hero in enrichedHeroes"
+            :key="hero.heroId"
+            class="hero-token-wrapper"
+            @click.stop="openHeroCard(hero)"
+          >
+            <div class="hero-token">
+              <v-img
+                :src="
+                  hero.images?.avatar ||
+                  hero.images?.trackerimage ||
+                  '/assets/hero/avatar/default.webp'
+                "
+                cover
+                class="hero-token-img"
+                @error="onImgError"
+              ></v-img>
+            </div>
+            <div class="hero-name-tag">{{ hero.name }}</div>
+          </div>
         </div>
       </div>
 
@@ -257,7 +260,7 @@
             </template>
           </v-tooltip>
 
-          <v-tooltip :text="nextButtonLabel" location="left">
+          <v-tooltip :text="nextButtonLabel" location="left" v-if="showSaveCampaignButton">
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
@@ -277,6 +280,31 @@
         </div>
       </div>
     </div>
+
+    <v-dialog v-model="tutorialPromptDialog.visible" max-width="400" persistent>
+        <v-card class="bg-grey-darken-4 border-xl border-amber-accent-4 rounded-lg elevation-20">
+            <v-card-title class="text-center text-uppercase font-weight-bold pt-6 text-h5 text-amber-accent-2" style="font-family: 'Cinzel', serif;">
+                <v-icon start icon="mdi-school" class="mr-2"></v-icon> Tutorial Available
+            </v-card-title>
+            <v-card-text class="py-4 px-6 text-body-1">
+                <p class="text-center">Welcome to <strong>Drunagor Nights</strong>.</p>
+                <p class="mt-2 text-center text-grey-lighten-1">Would you like to open the <strong>"Start Here"</strong> guide to learn the basics and setup your heroes?</p>
+                
+                <v-checkbox
+                  v-model="tutorialPromptDialog.dontShowAgain"
+                  label="Don't ask me again"
+                  color="amber-accent-4"
+                  density="compact"
+                  class="mt-4"
+                  hide-details
+                ></v-checkbox>
+            </v-card-text>
+            <v-card-actions class="justify-center pb-6 gap-4">
+                <v-btn color="grey" variant="text" @click="declineTutorial">Maybe Later</v-btn>
+                <v-btn color="amber-accent-4" variant="flat" class="text-black font-weight-bold px-6" @click="acceptTutorial">Read Now</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 
     <v-dialog
       v-model="interactionsDialog.visible"
@@ -300,12 +328,24 @@
       transition="dialog-bottom-transition"
       :scrim="false"
     >
-      <v-card color="black">
-        <v-toolbar color="primary" density="compact">
+      <v-card color="black" class="book-dialog-card">
+        <v-toolbar color="primary" density="compact" class="d-none d-md-block">
           <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
           <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
         </v-toolbar>
-        <CampaignBookNew :campaign-wing="activeCampaignData.wing" />
+
+        <v-btn
+            v-if="$vuetify.display.smAndDown"
+            icon="mdi-close"
+            color="red"
+            variant="elevated"
+            size="small"
+            class="mobile-close-book-btn"
+            elevation="8"
+            @click="bookDialog.visible = false"
+        ></v-btn>
+
+        <CampaignBookNew :campaign-wing="bookContext" />
       </v-card>
     </v-dialog>
 
@@ -683,9 +723,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, nextTick, onMounted, onUnmounted, inject, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
+import { useTutorialStore } from "@/store/TutorialStore"; // Importar a store
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import axios from "axios";
@@ -735,6 +776,7 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const campaignStore = CampaignStore();
+const tutorialStore = useTutorialStore(); // Inicializar
 const heroDataRepository = new HeroDataRepository();
 
 const savePutRef = ref<any>(null);
@@ -759,6 +801,10 @@ const bossConfirmationDialog = ref({ visible: false });
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
+// START HERE STATE
+const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
+const bookContext = ref('');
+
 const partyCode = ref<string | null>(null);
 const forcedDoorInstruction = ref<string | null>(null);
 
@@ -782,6 +828,15 @@ const currentLocationDisplay = computed(
   () =>
     `${activeCampaignData.value.wing || "Unknown"} - ${activeCampaignData.value.door || "Setup"}`,
 );
+
+const isWing3Start = computed(() => {
+    const wing = (activeCampaignData.value.wing || '').toUpperCase();
+    const door = (activeCampaignData.value.door || '').toUpperCase();
+    if (wing.includes("WING 3")) {
+        return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
+    }
+    return false;
+});
 
 const currentDoorInstruction = computed(() => {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
@@ -850,33 +905,26 @@ const currentMonsters = computed(() => {
 });
 
 const currentBackgroundImage = computed(() => {
-  const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  const door = (activeCampaignData.value.door || "").toUpperCase();
-  if (!wing) return "";
-  let wingFolder = wing.includes("WING 3")
-    ? "wing3"
-    : wing.includes("WING 4")
-      ? "wing4"
-      : "";
-  if (!wingFolder) return "";
-  let doorFile = "setup";
-  if (wingFolder === "wing4") {
-    if (door.includes("FIRST SETUP")) doorFile = "setup";
-    else if (door === "DRACONIC CHAPEL") doorFile = "first_door";
-    else if (door === "CRYPTS") doorFile = "first_door2";
-    else if (door === "BOTH OPEN") {
-      const firstChoice = localStorage.getItem(
-        `campaign_${props.campaignId}_w4_choice`,
-      );
-
-      if (firstChoice === "DRACONIC CHAPEL") {
-        doorFile = "second_door2";
-      } else {
-        doorFile = "second_door";
-      }
-    } else if (door === "LIBRARY" || door === "LABORATORY")
-      doorFile = "fourth_door";
-    else if (door === "DRAGON BOSS") doorFile = "fifth_door";
+  const wing = (activeCampaignData.value.wing || '').toUpperCase();
+  const door = (activeCampaignData.value.door || '').toUpperCase();
+  if (!wing) return '';
+  let wingFolder = wing.includes('WING 3') ? 'wing3' : (wing.includes('WING 4') ? 'wing4' : '');
+  if (!wingFolder) return '';
+  let doorFile = 'setup';
+  if (wingFolder === 'wing4') {
+     if (door.includes('FIRST SETUP')) doorFile = 'setup';
+     else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
+     else if (door === 'CRYPTS') doorFile = 'first_door2'; 
+     else if (door === 'BOTH OPEN') {
+         const firstChoice = localStorage.getItem(`campaign_${props.campaignId}_w4_choice`);
+         if (firstChoice === 'DRACONIC CHAPEL') {
+            doorFile = 'second_door2';
+         } else {
+            doorFile = 'second_door';
+         }
+     }
+     else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
+     else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
   } else {
     const doorsList = [
       "FIRST SETUP",
@@ -953,7 +1001,6 @@ const nextButtonIcon = computed(() =>
 const transform = ref({ x: 0, y: 0, scale: 1 });
 let isDragging = false;
 let startPos = { x: 0, y: 0 };
-
 
 const mapTransformStyle = computed(() => ({
   transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})`,
@@ -1044,47 +1091,30 @@ const saveDoorOpening = async (doorCode: string): Promise<boolean> => {
 };
 
 const syncEventScenario = async () => {
-  // Se já tem Wing definida, não precisa fazer sync
   if (activeCampaignData.value.wing) {
     console.log("[ImmersiveView] Wing already set, skipping event sync");
     return;
   }
 
   try {
-    // Buscar dados completos da campanha para pegar event_fk
     const campaignResponse = await axios.get(`/campaigns/${props.campaignId}`);
     const campaign = campaignResponse.data;
     
-    // Se a campanha não tem evento associado, não precisa fazer sync
     if (!campaign.event_fk) {
       console.log("[ImmersiveView] Campaign not associated with event, skipping sync");
       return;
     }
 
-    console.log(`[ImmersiveView] Campaign linked to event ${campaign.event_fk}`);
-
-    // Buscar dados do evento
     const eventResponse = await axios.get("/events/search", {
       params: { events_pk: campaign.event_fk }
     });
 
     const event = eventResponse.data?.events?.[0];
     
-    if (!event) {
-      console.warn(`[ImmersiveView] Event ${campaign.event_fk} not found`);
-      return;
-    }
-
-    if (!event.scenario) {
-      console.warn("[ImmersiveView] Event found but no scenario defined");
-      return;
-    }
+    if (!event) return;
+    if (!event.scenario) return;
 
     const scenario = event.scenario.toUpperCase();
-    
-    console.log(`[ImmersiveView] Event scenario: ${scenario}`);
-
-    // Detectar Wing baseado no cenário
     let wingToSet = null;
     
     if (scenario.includes("WING 04") || scenario.includes("WING 4")) {
@@ -1097,30 +1127,22 @@ const syncEventScenario = async () => {
       campaignStore.updateCampaignProperty(props.campaignId, "wing", wingToSet);
       campaignStore.updateCampaignProperty(props.campaignId, "door", "FIRST SETUP");
       
-      console.log(`[ImmersiveView] Set ${wingToSet} from event scenario`);
-
-      // Salvar no backend
       if (savePutRef.value) {
         savePutRef.value.save();
       }
-    } else {
-      console.warn(`[ImmersiveView] Could not determine Wing from scenario: ${scenario}`);
     }
   } catch (error: any) {
-    // Se o erro for 404, a campanha não existe (erro crítico)
     if (error.response?.status === 404) {
       console.error(`[ImmersiveView] Campaign ${props.campaignId} not found`);
       return;
     }
-    
-    // Outros erros apenas logamos mas não quebram a aplicação
     console.error("[ImmersiveView] Error syncing event scenario:", error);
   }
 };
 
 onMounted(async () => {
   generatePartyCode();
-  
+  tutorialStore.loadPreferences(); // Carregar preferências ao montar
   await syncEventScenario();
   
   await fetchAllDoors();
@@ -1131,6 +1153,61 @@ onMounted(async () => {
 onUnmounted(() => {
   stopPolling();
 });
+
+// START HERE & TUTORIAL LOGIC
+function openBookDialog() { 
+    bookContext.value = activeCampaignData.value.wing;
+    bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
+}
+
+function openStartHere() {
+    bookContext.value = "START HERE";
+    bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
+}
+
+function acceptTutorial() {
+    if (tutorialPromptDialog.value.dontShowAgain) {
+        tutorialStore.setStartHerePreference(true); // "True" = não mostrar mais
+    }
+    tutorialPromptDialog.value.visible = false;
+    openStartHere();
+}
+
+function declineTutorial() {
+    if (tutorialPromptDialog.value.dontShowAgain) {
+        tutorialStore.setStartHerePreference(true);
+    }
+    tutorialPromptDialog.value.visible = false;
+    snackbar.value = { 
+        visible: true, 
+        text: 'You can access the tutorial later via the "Start Here" button or the Book menu.', 
+        color: 'info' 
+    };
+}
+
+function checkTutorialTrigger() {
+    const wing = (activeCampaignData.value.wing || '').toUpperCase();
+    const door = (activeCampaignData.value.door || '').toUpperCase();
+    
+    // Se a store diz que devemos mostrar (shouldShowStartHere = true) e estamos no lugar certo
+    if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
+        if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
+            tutorialPromptDialog.value.visible = true;
+            sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
+        }
+    }
+}
+
+watch(
+    () => [activeCampaignData.value.wing, activeCampaignData.value.door],
+    ([newWing, newDoor]) => {
+        if (!bookDialog.value.visible) {
+            bookContext.value = newWing as string;
+        }
+        checkTutorialTrigger();
+    },
+    { immediate: true }
+);
 
 function handleZoom(e: WheelEvent) {
   const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1165,13 +1242,6 @@ function stopDrag() {
   window.removeEventListener("touchend", stopDrag);
 }
 
-function openBookDialog() {
-  bookDialog.value = {
-    visible: true,
-    title: activeCampaignData.value.wing || "Campaign Book",
-  };
-}
-
 function openKeywordsDialog() {
   keywordsDialog.value = { visible: true };
 }
@@ -1201,14 +1271,6 @@ function openNextDoorScanner() {
   doorScannerDialog.value.visible = true;
 }
 
-function handleNextAction() {
-  if (isBossBattle.value) {
-    bossConfirmationDialog.value.visible = true;
-  } else {
-    openNextDoorScanner();
-  }
-}
-
 function confirmBossStart() {
   bossConfirmationDialog.value.visible = false;
   if (savePutRef.value) savePutRef.value.save();
@@ -1233,19 +1295,6 @@ function openHeroCard(h: any) {
   setTimeout(() => {
     heroCardDialog.value = { visible: true, hero: h };
   }, 150);
-}
-
-function getMonsterImageSrc(m: string) {
-  const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  const folder = wing.includes("WING 4") ? "wing4" : "wing3";
-  try {
-    return new URL(
-      `../assets/campaign_monsters/${folder}/${m}.jpg`,
-      import.meta.url,
-    ).href;
-  } catch {
-    return "";
-  }
 }
 
 function openMonsterGroupDialog() {
@@ -1303,19 +1352,6 @@ function handleImageError() {
 function saveWing4Path(choice: string) {
   localStorage.setItem(`campaign_${props.campaignId}_w4_choice`, choice);
 }
-
-const qrToDoorMap: Record<string, string> = {
-  "book02.01": "DUNGEON FOYER",
-  "book02.02": "QUEEN'S HALL",
-  "book02.03": "THE FORGE",
-  "book02.04": "ARTISAN'S GALLERY",
-  "book02.05": "PROVING GROUNDS",
-  "book02.06": "MAIN HALL",
-  "book02.07": "DRACONIC CHAPEL",
-  "book02.08": "CRYPTS",
-  "book02.09": "LIBRARY",
-  "book02.10": "LABORATORY",
-};
 
 async function handleDoorScanned(code: string) {
   const normalized = code.toLowerCase().trim();
@@ -1535,405 +1571,165 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 }
 
 @media (orientation: portrait) {
-  .immersive-container {
-    width: 100vh;
-    height: 100vw;
+  .immersive-container { width: 100vh; height: 100vw; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); z-index: 0; }
+}
+.map-viewport { width: 100%; height: 100%; background: #050505; overflow: hidden; cursor: grab; }
+.map-viewport:active { cursor: grabbing; }
+.map-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.map-image { max-width: none; width: 100%; height: 100%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)); }
+
+.hud-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 24px; display: grid; grid-template-columns: 250px 1fr 250px; grid-template-rows: auto 1fr auto; z-index: 10; }
+.hud-area { pointer-events: none; }
+.interactive-content, .bookmark-tab, .square-hud-btn, .monster-card, .right-tab-btn { pointer-events: auto; }
+
+.top-left { grid-area: 1 / 1; display: flex; flex-direction: column; }
+.top-right { grid-area: 1 / 3; display: flex; flex-direction: column; align-items: flex-end; }
+
+.bottom-left { 
+    grid-area: 3 / 1; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-end !important; 
+    padding-bottom: 24px; 
+}
+.bottom-center { 
+    grid-area: 3 / 2; 
+    display: flex; 
+    align-items: flex-end; 
+    justify-content: center; 
+    z-index: 20; 
+    padding-bottom: 24px; 
+}
+.bottom-right { 
+    grid-area: 3 / 3; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-end; 
+    padding-bottom: 24px; 
+}
+
+.bookmark-tab { background: rgba(20, 20, 20, 0.9); border: 1px solid #444; color: #ccc; padding: 8px 12px; cursor: pointer; transition: transform 0.2s, background 0.2s; display: flex; align-items: center; min-width: 40px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+.bookmark-tab:hover, .bookmark-tab.active { background: rgba(40, 40, 40, 1); color: white; }
+.bookmark-tab.left-side { border-left: 3px solid #d4af37; border-radius: 0 8px 8px 0; margin-left: 0; }
+.bookmark-tab.left-side:hover { transform: translateX(5px); border-left-color: #ffc107; }
+.bookmark-tab.right-side { border-right: 3px solid #d4af37; border-radius: 8px 0 0 8px; margin-right: 0; justify-content: flex-end; }
+.bookmark-tab.right-side:hover, .bookmark-tab.right-side.active { transform: translateX(-5px); border-right-color: #ffc107; }
+
+/* ESTILO NOVO PARA O BOTÃO START HERE */
+.start-here-tab {
+    border-left-color: #ffd740 !important; /* Amber accent */
+    background: rgba(40, 30, 10, 0.95);
+    box-shadow: 0 0 10px rgba(255, 215, 64, 0.2);
+}
+.start-here-tab:hover {
+    border-left-color: #ffab00 !important;
+    background: rgba(60, 45, 10, 1);
+    box-shadow: 0 0 15px rgba(255, 215, 64, 0.4);
+}
+
+.bookmark-tab.blue-border-tab { border-left-color: #1565C0; }
+.bookmark-tab.blue-border-tab:hover { border-left-color: #42a5f5; }
+
+.text-label { text-align: center; }
+
+.monster-list-container { max-height: 150px; overflow-y: hidden; overflow-x: auto; padding-right: 4px; pointer-events: auto; }
+
+.monster-card { width: 90px; height: 135px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.6); overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: transform 0.2s; cursor: pointer; }
+.monster-card:hover { transform: scale(1.05); z-index: 50; border-color: #b71c1c; }
+.monster-card img { width: 100%; height: 100%; object-fit: cover; }
+.monster-group-img { width: 100%; max-height: 300px; object-fit: contain; border: 2px solid #555; }
+
+.square-hud-btn { width: 48px; height: 48px; border-radius: 8px; background: rgba(20, 20, 20, 0.9) !important; border: 1px solid #444; color: white !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: all 0.2s ease; }
+.square-hud-btn:hover { background: rgba(40, 40, 40, 0.95) !important; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.7); }
+
+.objective-panel { background: rgba(0, 0, 0, 0.7); border-left: 4px solid #42a5f5; padding: 8px 12px; backdrop-filter: blur(4px); border-radius: 0 8px 8px 0; }
+.heroes-rack { display: flex; gap: 16px; padding: 10px; background: none; box-shadow: none; }
+.hero-token-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s ease-in-out; position: relative; z-index: 30; }
+.hero-token-wrapper:hover { transform: translateY(-5px); filter: brightness(1.2); }
+.hero-token { width: 80px; height: 120px; border-radius: 6px; overflow: hidden; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+.hero-token.empty { height: 80px; border-radius: 50%; border: 2px dashed #666; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
+.hero-token-img { width: 100%; height: 100%; object-fit: cover; }
+.hero-name-tag { margin-top: 4px; background: rgba(0,0,0,0.8); color: #ddd; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Estilo para o botão de fechar flutuante no livro (Mobile) */
+.mobile-close-book-btn {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    z-index: 0;
-  }
-}
-
-.map-viewport {
-  width: 100%;
-  height: 100%;
-  background: #050505;
-  overflow: hidden;
-  cursor: grab;
-}
-
-.map-viewport:active {
-  cursor: grabbing;
-}
-
-.map-content {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.map-image {
-  max-width: none;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
-  filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
-}
-
-.hud-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  padding: 24px;
-  display: grid;
-  grid-template-columns: 250px 1fr 250px;
-  grid-template-rows: auto 1fr auto;
-  z-index: 10;
-}
-
-.hud-area {
-  pointer-events: none;
-}
-
-.interactive-content,
-.bookmark-tab,
-.square-hud-btn,
-.monster-card,
-.right-tab-btn {
-  pointer-events: auto;
-}
-
-.top-left {
-  grid-area: 1 / 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.top-right {
-  grid-area: 1 / 3;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.bottom-left {
-  grid-area: 3 / 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end !important;
-  padding-bottom: 24px;
-}
-
-.bottom-center {
-  grid-area: 3 / 2;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 20;
-  padding-bottom: 24px;
-}
-
-.bottom-right {
-  grid-area: 3 / 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 24px;
-}
-
-.bookmark-tab {
-  background: rgba(20, 20, 20, 0.9);
-  border: 1px solid #444;
-  color: #ccc;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.2s,
-    background 0.2s;
-  display: flex;
-  align-items: center;
-  min-width: 40px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.bookmark-tab:hover,
-.bookmark-tab.active {
-  background: rgba(40, 40, 40, 1);
-  color: white;
-}
-
-.bookmark-tab.left-side {
-  border-left: 3px solid #d4af37;
-  border-radius: 0 8px 8px 0;
-  margin-left: 0;
-}
-
-.bookmark-tab.left-side:hover {
-  transform: translateX(5px);
-  border-left-color: #ffc107;
-}
-
-.bookmark-tab.right-side {
-  border-right: 3px solid #d4af37;
-  border-radius: 8px 0 0 8px;
-  margin-right: 0;
-  justify-content: flex-end;
-}
-
-.bookmark-tab.right-side:hover,
-.bookmark-tab.right-side.active {
-  transform: translateX(-5px);
-  border-right-color: #ffc107;
-}
-
-.bookmark-tab.blue-border-tab {
-  border-left-color: #1565c0;
-}
-
-.bookmark-tab.blue-border-tab:hover {
-  border-left-color: #42a5f5;
-}
-
-.text-label {
-  text-align: center;
-}
-
-.monster-list-container {
-  max-height: 150px;
-  overflow-y: hidden;
-  overflow-x: auto;
-  padding-right: 4px;
-  pointer-events: auto;
-}
-
-.monster-card {
-  width: 90px;
-  height: 135px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(0, 0, 0, 0.6);
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s;
-  cursor: pointer;
-}
-
-.monster-card:hover {
-  transform: scale(1.05);
-  z-index: 50;
-  border-color: #b71c1c;
-}
-
-.monster-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.monster-group-img {
-  width: 100%;
-  max-height: 300px;
-  object-fit: contain;
-  border: 2px solid #555;
-}
-
-.square-hud-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  background: rgba(20, 20, 20, 0.9) !important;
-  border: 1px solid #444;
-  color: white !important;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s ease;
-}
-
-.square-hud-btn:hover {
-  background: rgba(40, 40, 40, 0.95) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-}
-
-.objective-panel {
-  background: rgba(0, 0, 0, 0.7);
-  border-left: 4px solid #42a5f5;
-  padding: 8px 12px;
-  backdrop-filter: blur(4px);
-  border-radius: 0 8px 8px 0;
-}
-
-.heroes-rack {
-  display: flex;
-  gap: 16px;
-  padding: 10px;
-  background: none;
-  box-shadow: none;
-}
-
-.hero-token-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  position: relative;
-  z-index: 30;
-}
-
-.hero-token-wrapper:hover {
-  transform: translateY(-5px);
-  filter: brightness(1.2);
-}
-
-.hero-token {
-  width: 80px;
-  height: 120px;
-  border-radius: 6px;
-  overflow: hidden;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-}
-
-.hero-token.empty {
-  height: 80px;
-  border-radius: 50%;
-  border: 2px dashed #666;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.6;
-}
-
-.hero-token-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.hero-name-tag {
-  margin-top: 4px;
-  background: rgba(0, 0, 0, 0.8);
-  color: #ddd;
-  font-size: 0.7rem;
-  padding: 1px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  max-width: 90px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    top: 16px;
+    right: 16px;
+    z-index: 9999; /* Garante que fique acima do livro */
+    opacity: 0.8;
 }
 
 @media (max-width: 960px) {
-  .hud-layer {
-    padding: 8px 8px 8px 8px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr auto;
-    box-sizing: border-box;
+  .hud-layer { 
+      padding: 8px 8px 8px 8px; 
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      box-sizing: border-box; 
   }
 
-  .top-left {
-    grid-area: 1 / 1;
+  .top-left { grid-area: 1 / 1; }
+  .top-right { grid-area: 1 / 2; }
+  
+  .bottom-left { 
+      grid-area: 3 / 1; 
+      margin-bottom: 0 !important;
+      padding-bottom: 0px !important; 
+      justify-content: flex-end !important; 
+      align-items: flex-start !important; 
+      z-index: 25;
+      pointer-events: none;
   }
-
-  .top-right {
-    grid-area: 1 / 2;
-  }
-
-  .bottom-left {
-    grid-area: 3 / 1;
-    margin-bottom: 0 !important;
-    padding-bottom: 0px !important;
-    justify-content: flex-end !important;
-    align-items: flex-start !important;
-    z-index: 25;
-    pointer-events: none;
-  }
-
-  .bottom-left > * {
-    pointer-events: auto;
-  }
+  .bottom-left > * { pointer-events: auto; }
 
   .bookmark-tab.left-side {
-    min-width: auto;
-    width: 48px;
-    justify-content: center;
-    padding: 8px;
+      min-width: auto;
+      width: 48px;
+      justify-content: center;
+      padding: 8px;
   }
 
-  .bottom-right {
-    grid-area: 3 / 2;
-    justify-content: flex-end;
-    align-items: flex-end !important;
-    margin-bottom: 0 !important;
-    padding-bottom: 0px !important;
-    padding-right: 0px;
-    z-index: 25;
-    pointer-events: none;
+  .bottom-right { 
+      grid-area: 3 / 2; 
+      justify-content: flex-end; 
+      align-items: flex-end !important; 
+      margin-bottom: 0 !important;
+      padding-bottom: 0px !important; 
+      padding-right: 0px; 
+      z-index: 25;
+      pointer-events: none;
+  }
+  .bottom-right > * { pointer-events: auto; }
+
+  .bottom-center { 
+      grid-area: 3 / 1 / 4 / 3; 
+      justify-content: center; 
+      align-items: flex-end; 
+      margin-bottom: 0; 
+      padding-bottom: 4px; 
+      z-index: 20; 
+      pointer-events: none; 
+  }
+  
+  .heroes-rack { 
+      pointer-events: auto;
+      padding: 0;
+      margin-bottom: 0;
+      gap: 8px; 
   }
 
-  .bottom-right > * {
-    pointer-events: auto;
-  }
-
-  .bottom-center {
-    grid-area: 3 / 1 / 4 / 3;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: 0;
-    padding-bottom: 4px;
-    z-index: 20;
-    pointer-events: none;
-  }
-
-  .heroes-rack {
-    pointer-events: auto;
-    padding: 0;
-    margin-bottom: 0;
-    gap: 8px;
-  }
-
-  .hero-token {
-    width: 50px;
-    height: 75px;
-  }
-
-  .hero-name-tag {
-    display: none;
-  }
-
-  .square-hud-btn {
-    width: 36px !important;
-    height: 36px !important;
-    font-size: 0.9rem;
-  }
-
-  .bookmark-tab {
-    padding: 6px 8px;
-    min-width: 36px;
-  }
-
-  .objective-panel {
-    padding: 2px 6px;
-  }
-
-  .objective-label {
-    font-size: 0.5rem !important;
-  }
-
-  .objective-text {
-    font-size: 0.7rem !important;
-  }
-
-  .monster-card {
-    width: 55px;
-    height: 82px;
-  }
+  .hero-token { width: 50px; height: 75px; }
+  .hero-name-tag { display: none; }
+  .square-hud-btn { width: 36px !important; height: 36px !important; font-size: 0.9rem; }
+  .bookmark-tab { padding: 6px 8px; min-width: 36px; }
+  .objective-panel { padding: 2px 6px; }
+  .objective-label { font-size: 0.5rem !important; }
+  .objective-text { font-size: 0.7rem !important; }
+  .monster-card { width: 55px; height: 82px; } 
 
   .right-tab-btn {
-    width: 50px !important;
-    height: 45px !important;
+      width: 50px !important;
+      height: 45px !important;
   }
 }
 </style>

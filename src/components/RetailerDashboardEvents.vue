@@ -628,6 +628,89 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="createStoreDialog" max-width="600" persistent>
+      <v-card>
+        <div v-if="creatingStore" class="dialog-overlay">
+          <v-progress-circular indeterminate size="80" color="primary" />
+        </div>
+        <v-card-title class="text-h5 font-weight-bold">
+          Create Your Store
+        </v-card-title>
+        <v-card-text>
+          <p class="mb-4 text-grey">You need a store to create events. Let's set it up quickly.</p>
+          <v-form ref="storeForm" v-model="isStoreFormValid">
+            <v-text-field
+              label="Store Name"
+              variant="outlined"
+              v-model="newStore.storename"
+              :rules="[(v) => !!v || 'Store name is required']"
+            ></v-text-field>
+            
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  label="Street Number"
+                  variant="outlined"
+                  v-model="newStore.streetNumber"
+                  :rules="[(v) => !!v || 'Required']"
+                />
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  label="Street Name"
+                  variant="outlined"
+                  v-model="newStore.address"
+                  :rules="[(v) => !!v || 'Required']"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="12" md="6">
+                <v-text-field
+                  label="City"
+                  variant="outlined"
+                  v-model="newStore.city"
+                  :rules="[(v) => !!v || 'Required']"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" md="6">
+                <v-autocomplete
+                  v-model="newStore.country"
+                  :items="countriesList"
+                  item-title="name"
+                  item-value="countries_pk"
+                  variant="outlined"
+                  label="Country"
+                  :rules="[(v) => !!v || 'Required']"
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+
+            <v-text-field
+              label="Zip Code"
+              variant="outlined"
+              v-model="newStore.zipcode"
+              :rules="[(v) => !!v || 'Required']"
+            ></v-text-field>
+            
+            <v-file-input
+              label="Store Image (Optional)"
+              accept="image/*"
+              @change="handleStoreImageUpload"
+              variant="outlined"
+            ></v-file-input>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" variant="text" @click="createStoreDialog = false">Cancel</v-btn>
+          <v-btn color="primary" variant="elevated" @click="saveNewStore">Create & Continue</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-card>
   
   <TutorialPromptDialog v-model="showTutorialPrompt" />
@@ -682,6 +765,25 @@ const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 const JoinedtheQuest = ref(null);
 
+// Store Creation Vars
+const createStoreDialog = ref(false);
+const creatingStore = ref(false);
+const isStoreFormValid = ref(false);
+const storeForm = ref(null);
+const countriesList = ref([]);
+const newStore = ref({
+  storename: "",
+  site: "",
+  country: null,
+  zipcode: "",
+  MerchantID: "",
+  storeImage: "",
+  complement: "",
+  address: "",
+  streetNumber: "",
+  city: "",
+  state: "",
+});
 const tutorialStore = useTutorialStore();
 const showTutorialPrompt = ref(false);
 
@@ -736,8 +838,110 @@ const openManageDialog = async (event) => {
   manageDialog.value = true;
 };
 
-const goToEventsPageAndCreate = () => {
-  router.push({ path: "/events", query: { action: "create" } });
+// Funcao Principal de verificacao de loja
+const goToEventsPageAndCreate = async () => {
+  try {
+    const { data } = await axios.get("/stores/list", {
+      params: { users_fk: userStore.user.users_pk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const stores = data.stores || [];
+
+    if (stores.length > 0) {
+      router.push({ path: "/events", query: { action: "create" } });
+    } else {
+      // Abre o modal de criar loja DENTRO da dashboard
+      fetchCountries();
+      createStoreDialog.value = true;
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+       // Se deu 404 é pq nao tem loja, abre o modal
+       fetchCountries();
+       createStoreDialog.value = true;
+    } else {
+      console.error("Error checking stores:", error);
+      alert("Unable to verify store status.");
+    }
+  }
+};
+
+// Funcoes de Criacao de Loja Dinamica
+const fetchCountries = () => {
+  if (countriesList.value.length > 0) return;
+  axios.get("countries/search").then((response) => {
+      countriesList.value = response.data.countries.map((country) => ({
+        countries_pk: country.countries_pk,
+        name: country.name,
+      }));
+    }).catch(console.error);
+};
+
+const handleStoreImageUpload = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append("file", file);
+  try {
+    const { data } = await axios.post("/images/upload", formData, {
+      headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+    newStore.value.storeImage = data.image_key;
+  } catch (e) { console.error(e); }
+};
+
+const getCountryNameFromId = (id) => {
+  const c = countriesList.value.find(c => c.countries_pk === id);
+  return c ? c.name : "";
+};
+
+const saveNewStore = async () => {
+  const { valid } = await storeForm.value.validate();
+  if (!valid) return;
+
+  creatingStore.value = true;
+  const store = newStore.value;
+  const countryName = getCountryNameFromId(store.country);
+  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
+
+  const payload = {
+    web_site: store.site,
+    name: store.storename,
+    zip_code: store.zipcode,
+    countries_fk: store.country,
+    users_fk: userStore.user?.users_pk,
+    address: fullAddress,
+    picture_hash: store.storeImage,
+    merchant_id: store.MerchantID,
+  };
+
+  try {
+    const response = await axios.post("/stores/cadastro", payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+
+    const newStorePk = response.data.store?.stores_pk || response.data.stores_pk;
+
+    if (newStorePk) {
+      // Valida automaticamente
+      await axios.get(`/stores/${newStorePk}/verify`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      });
+    }
+
+    createStoreDialog.value = false;
+    // Redireciona imediatamente para criar o evento
+    router.push({ path: "/events", query: { action: "create" } });
+
+  } catch (error) {
+    console.error("Error creating store:", error);
+    alert("Failed to create store. Please try again.");
+  } finally {
+    creatingStore.value = false;
+  }
 };
 
 const fetchTablesForEvent = async (eventFk) => {
@@ -1001,6 +1205,7 @@ watch(currentPage, () => {
 .season-flag {
   position: absolute;
   top: 0;
+  left: auto;
   right: 0;
   width: 60px;
   height: 60px;

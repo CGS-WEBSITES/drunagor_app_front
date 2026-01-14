@@ -100,18 +100,17 @@
       </v-app-bar>
     </v-row>
 
-    <v-row
-      no-gutters
-      v-else-if="
-        route.name !== 'Home' &&
-        route.name !== 'Login' &&
-        route.name !== 'RetailerRegistration' &&
-        route.name !== 'Gama' &&
-        route.name !== 'Community' &&
-        route.name !== 'Lobby' &&
-        route.name !== 'Campaign'
-      "
-    >
+    <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
+    <v-row no-gutters v-else-if="
+      route.name !== 'Home' &&
+      route.name !== 'Login' &&
+      route.name !== 'RetailerRegistration' &&
+      route.name !== 'Gama' &&
+      route.name !== 'Community' &&
+      route.name !== 'Community' &&
+      route.name !== 'Lobby' &&
+      route.name !== 'Campaign'
+    ">
       <v-app-bar app min-height="56" color="secundary" elevation="4">
         <div
           v-if="route.name === 'Dashboard'"
@@ -366,7 +365,7 @@ onMounted(() => {
     useUserStore().setUser(userObject);
   }
 
-  tutorialStore.loadPreferences();
+   tutorialStore.loadPreferences();
 });
 
 onBeforeMount(() => {
