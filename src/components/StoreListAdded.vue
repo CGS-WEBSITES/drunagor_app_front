@@ -13,7 +13,9 @@
             offset-x="8"
             offset-y="8"
           >
-            <v-tab :value="'requests'" class="text-h5 text-bold">Requests</v-tab>
+            <v-tab :value="'requests'" class="text-h5 text-bold"
+              >Requests</v-tab
+            >
           </v-badge>
         </v-tabs>
       </v-col>
@@ -103,13 +105,11 @@
 import { ref, computed, onMounted, onBeforeUnmount, watch, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
-import { socketKey } from "@/plugins/socket";
 
 const axios = inject("axios");
 const apiUrl = inject("apiUrl");
 const userStore = useUserStore();
 const router = useRouter();
-const socketApi = inject(socketKey);
 
 const userId = userStore.user?.users_pk;
 
@@ -118,7 +118,8 @@ const activeTab = ref("friends");
 const searchQuery = ref("");
 const friends = ref([]);
 const requests = ref([]);
-const processingRequest = ref(null); // loading por item
+const processingRequest = ref(null);
+let pollingInterval = null;
 
 const filteredList = computed(() => {
   const list = activeTab.value === "friends" ? friends.value : requests.value;
@@ -279,59 +280,34 @@ const declineFriend = async (friends_pk) => {
   }
 };
 
-// === SOCKET HANDLERS ===
-function onNewRequest(evt) {
-  // Só interessa se o pedido é para mim
-  if (evt.recipient_users_fk !== userId) return;
+// Função para atualizar dados periodicamente
+const refreshData = async () => {
+  // Atualiza ambas as listas para garantir sincronização
+  await Promise.all([fetchFriends(), fetchRequests()]);
+};
 
-  // Evita duplicar
-  if (requests.value.some((r) => r.friends_pk === evt.friends_pk)) return;
+// Inicia polling
+const startPolling = () => {
+  // Atualiza a cada 5 segundos (ajuste conforme necessário)
+  pollingInterval = setInterval(refreshData, 5000);
+};
 
-  // Busca atualizado (garante consistência)
-  fetchRequests();
-}
-
-function onAccepted(evt) {
-  // Interessa se sou uma das pontas
-  if (evt.invite_users_fk !== userId && evt.recipient_users_fk !== userId) return;
-
-  // Remove da lista de requests, se existir
-  const ix = requests.value.findIndex((r) => r.friends_pk === evt.friends_pk);
-  if (ix > -1) requests.value.splice(ix, 1);
-
-  // Recarrega amigos
-  fetchFriends();
-}
-
-function onRemoved(evt) {
-  // Remove de ambas as listas se presente
-  const ixReq = requests.value.findIndex((r) => r.friends_pk === evt.friends_pk);
-  if (ixReq > -1) requests.value.splice(ixReq, 1);
-  const ixFrd = friends.value.findIndex((r) => r.friends_pk === evt.friends_pk);
-  if (ixFrd > -1) friends.value.splice(ixFrd, 1);
-}
+// Para polling
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
 
 onMounted(() => {
   fetchRequests();
   fetchFriends();
-
-  const s = socketApi.get();
-  if (s) {
-    s.on("friends:new_request", onNewRequest);
-    s.on("friends:accepted", onAccepted);
-    s.on("friends:removed", onRemoved);
-  } else {
-    console.warn("[friends] socket não disponível ainda");
-  }
+  startPolling();
 });
 
 onBeforeUnmount(() => {
-  const s = socketApi.get();
-  if (s) {
-    s.off("friends:new_request", onNewRequest);
-    s.off("friends:accepted", onAccepted);
-    s.off("friends:removed", onRemoved);
-  }
+  stopPolling();
 });
 
 watch(activeTab, (newTab) => {

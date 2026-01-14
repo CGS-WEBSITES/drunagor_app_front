@@ -9,8 +9,7 @@
       --v-layout-top: 0px;
     "
   >
-    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-10 pt-md-0">
-      
+    <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
       <v-card
         color="background"
         class="card-overlay full-screen-card"
@@ -24,18 +23,17 @@
         <v-card
           color="transparent"
           height="136"
-          class="card-overlay1 full-screen-card"
+          class="card-overlay1 full-screen-card" 
           flat
         ></v-card>
       </v-card>
 
-      <v-col cols="12" class="avatar-mobile pa-0">
+      <v-col cols="12" class="avatar-mobile">
         <v-container
-          class="mx-auto pa-0"
+          class="mx-auto"
           :style="{ maxWidth: containerMaxWidth }"
         >
           <v-row no-gutters align="end" class="pa-4">
-            
             <v-col cols="auto">
               <v-avatar
                 size="100"
@@ -58,7 +56,6 @@
                 />
               </v-avatar>
             </v-col>
-            
             <v-col class="ml-n4">
               <div
                 class="pa-3 rounded-lg"
@@ -96,25 +93,10 @@
       "
     >
       <v-container
-        class="mx-auto px-4 align-start"
+        class="mx-auto px-4 fill-height align-start"
         :style="{ maxWidth: containerMaxWidth }"
       >
-        <RetailerDashboardEvents style="width: 100%" /> 
-
-        <v-row class="justify-center pb-6 px-3 pt-4">
-          <v-col cols="12">
-            <v-card
-              @click="router.push({ name: 'CommunityBuilds' })"
-              flat
-              style="cursor: pointer"
-            >
-              <v-img
-                src="https://assets.drunagor.app/Dashboard/btn-CB-mobile.png"
-              />
-            </v-card>
-          </v-col>
-        </v-row>
-
+        <RetailerDashboardEvents style="width: 100%" />
       </v-container>
     </div>
 
@@ -185,8 +167,7 @@ import { Campaign } from "@/store/Campaign";
 import { Hero } from "@/store/Hero";
 import { HeroEquipment } from "@/store/Hero";
 import axios from "axios";
-// Padronizado o nome do import para o nome do arquivo (RetailerDashboardEvents.vue)
-import RetailerDashboardEvents from "@/components/RetailerDashboardEvents.vue"; 
+import RetailerDashboardEvents from "@/components/RetailerDashboardEvents.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -207,7 +188,6 @@ const containerMaxWidth = computed(() => {
   return "100%";
 });
 
-// --- Rotas Atualizadas para Retailer ---
 const goToProfile = () => router.push({ name: "PerfilHome" });
 const goToFAQ = () => router.push({ name: "FAQ" });
 const goToEvents = () => router.push({ name: "Events" });
@@ -305,10 +285,9 @@ onBeforeMount(async () => {
 </script>
 
 <style>
-/* CSS idêntico ao componente de User */
 .avatar-mobile {
   position: relative;
-  transform: translateY(-95px);
+  transform: translateY(-95px); /* Ajustado para subir o card */
   z-index: 3;
 }
 .card-overlay {
