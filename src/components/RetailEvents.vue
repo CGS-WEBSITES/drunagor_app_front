@@ -2069,6 +2069,21 @@ const removeReward = async (reward) => {
   }
 };
 
+const roundTimeToNearest15Minutes = (timeString) => {
+  if (!timeString || !timeString.includes(':')) return timeString;
+  
+  const [hours, minutes] = timeString.split(':').map(Number);
+  // Arredonda minutos para o múltiplo de 5 mais próximo
+  const roundedMinutes = Math.round(minutes / 5) * 5;
+  // Se arredondar para 60, adicionar 1 hora e zerar minutos
+  if (roundedMinutes === 60) {
+    const newHours = hours === 12 ? 1 : hours + 1;
+    return `${String(newHours).padStart(2, '0')}:00`;
+  }
+  
+  return `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+};
+
 const addEvent = () => {
   loading.value = true;
   errorDialog.value.show = false;
@@ -2091,6 +2106,8 @@ const addEvent = () => {
     loading.value = false;
     return;
   }
+
+  newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
 
   axios
     .get("/stores/list", {
