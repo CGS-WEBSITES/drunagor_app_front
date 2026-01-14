@@ -43,6 +43,16 @@
       </v-card-actions>
     </v-card>
 
+    <v-card class="mt-3 pa-3 elevation-0">
+      <v-checkbox
+        v-model="showAllCampaigns"
+        label="Other Campaigns"
+        color="primary"
+        hide-details
+        @update:modelValue="onFilterChange"
+      ></v-checkbox>
+    </v-card>
+
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
       <v-row v-if="loading" class="justify-center" no-gutters>
         <v-card width="100%" class="d-flex justify-center pa-16">
@@ -51,7 +61,7 @@
             :size="80"
             :width="7"
             color="primary"
-          />
+          ></v-progress-circular>
         </v-card>
       </v-row>
 
@@ -73,35 +83,35 @@
               src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'apocalypse'"
               src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'awakenings'"
               src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'underkeep'"
               src="@/assets/underkeep.png"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-img
               v-else-if="campaign.campaign === 'underkeep2'"
               src="@/assets/underkeep2.png"
               max-height="200"
               cover
-            />
+            ></v-img>
 
             <v-card-title class="d-flex flex-column text-uppercase">
               <span class="text-h5 font-weight-bold mb-0">{{
@@ -126,7 +136,7 @@
                     rounded="0"
                     :image="hero.images.avatar"
                     :size="avatarSize"
-                  />
+                  ></v-avatar>
                 </v-col>
               </v-row>
             </v-card-text>
@@ -143,7 +153,7 @@
             size="80"
             width="7"
             color="primary"
-          />
+          ></v-progress-circular>
         </div>
 
         <v-card-title class="d-flex justify-space-between align-center pa-0">
@@ -162,7 +172,7 @@
             label="Campaign ID"
             hide-details
             dense
-          />
+          ></v-text-field>
         </v-card-text>
 
         <v-card-actions>
@@ -206,6 +216,7 @@ const joiningCampaign = ref(false);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
+const showAllCampaigns = ref(false);
 
 const BOX_ID = 38;
 
@@ -271,6 +282,34 @@ const loadCampaignWithHeroes = async (campaignData: any) => {
     );
     return false;
   }
+};
+
+const loadCampaigns = async () => {
+  loading.value = true;
+  campaignStore.reset();
+  loadingErrors.value = [];
+
+  try {
+    const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: userStore.user!.users_pk,
+        show_season2: showAllCampaigns.value,
+      },
+    });
+
+    for (const campaignData of campaignsResponse.data.campaigns) {
+      await loadCampaignWithHeroes(campaignData);
+    }
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
+    addLoadingError("Error fetching campaigns. Please try again later.");
+  } finally {
+    loading.value = false;
+  }
+};
+
+const onFilterChange = () => {
+  loadCampaigns();
 };
 
 const goToCampaign = (id: string) => {
@@ -382,23 +421,7 @@ const confirmJoinCampaign = async () => {
 };
 
 onBeforeMount(async () => {
-  campaignStore.reset();
-  loadingErrors.value = [];
-
-  try {
-    const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
-      params: { users_fk: userStore.user!.users_pk },
-    });
-
-    for (const campaignData of campaignsResponse.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
-    }
-  } catch (error) {
-    console.error("Error fetching campaigns:", error);
-    addLoadingError("Error fetching campaigns. Please try again later.");
-  } finally {
-    loading.value = false;
-  }
+  await loadCampaigns();
 });
 </script>
 
