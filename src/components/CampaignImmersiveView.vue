@@ -1153,6 +1153,7 @@ onUnmounted(() => {
   stopPolling();
 });
 
+// START HERE & TUTORIAL LOGIC
 function openBookDialog() { 
     bookContext.value = activeCampaignData.value.wing;
     bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
@@ -1187,6 +1188,7 @@ function checkTutorialTrigger() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     
+    // Se a store diz que devemos mostrar (shouldShowStartHere = true) e estamos no lugar certo
     if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
         if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
             tutorialPromptDialog.value.visible = true;
@@ -1369,6 +1371,30 @@ function saveWing4Path(choice: string) {
   localStorage.setItem(`campaign_${props.campaignId}_w4_choice`, choice);
 }
 
+const qrToDoorMap: Record<string, string> = {
+  "door02.01": "DUNGEON FOYER",
+  "door02.02": "QUEEN'S HALL",
+  "door02.03": "THE FORGE",
+  "door02.04": "ARTISAN'S GALLERY",
+  "door02.05": "PROVING GROUNDS",
+  "door02.06": "MAIN HALL",
+  "door02.07": "DRACONIC CHAPEL",
+  "door02.08": "CRYPTS",
+  "door02.09": "LIBRARY",
+  "door02.10": "LABORATORY",
+  
+  "book02.01": "DUNGEON FOYER",
+  "book02.02": "QUEEN'S HALL",
+  "book02.03": "THE FORGE",
+  "book02.04": "ARTISAN'S GALLERY",
+  "book02.05": "PROVING GROUNDS",
+  "book02.06": "MAIN HALL",
+  "book02.07": "DRACONIC CHAPEL",
+  "book02.08": "CRYPTS",
+  "book02.09": "LIBRARY",
+  "book02.10": "LABORATORY"
+};
+
 async function handleDoorScanned(code: string) {
   const normalized = code.toLowerCase().trim();
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
@@ -1377,7 +1403,7 @@ async function handleDoorScanned(code: string) {
   await saveDoorOpening(normalized);
 
   if (wing.includes("WING 4")) {
-    if (normalized.includes("book02.07")) {
+    if (normalized.includes("book02.07") || normalized.includes("door02.07")) {
       if (currentDoor === "CRYPTS") {
         saveWing4Path("CRYPTS");
         commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
@@ -1385,7 +1411,7 @@ async function handleDoorScanned(code: string) {
         saveWing4Path("DRACONIC CHAPEL");
         commitNextDoor("DRACONIC CHAPEL");
       }
-    } else if (normalized.includes("book02.08")) {
+    } else if (normalized.includes("book02.08") || normalized.includes("door02.08")) {
       if (currentDoor === "DRACONIC CHAPEL") {
         saveWing4Path("DRACONIC CHAPEL");
         commitNextDoor("BOTH OPEN", "CRYPTS");
@@ -1393,8 +1419,8 @@ async function handleDoorScanned(code: string) {
         saveWing4Path("CRYPTS");
         commitNextDoor("CRYPTS");
       }
-    } else if (normalized.includes("book02.09")) commitNextDoor("LIBRARY");
-    else if (normalized.includes("book02.10")) commitNextDoor("LABORATORY");
+    } else if (normalized.includes("book02.09") || normalized.includes("door02.09")) commitNextDoor("LIBRARY");
+    else if (normalized.includes("book02.10") || normalized.includes("door02.10")) commitNextDoor("LABORATORY");
     else {
       const door = qrToDoorMap[normalized];
       if (door) commitNextDoor(door);
