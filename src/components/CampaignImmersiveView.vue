@@ -726,7 +726,7 @@
 import { ref, computed, nextTick, onMounted, onUnmounted, inject, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
-import { useTutorialStore } from "@/store/TutorialStore"; // Importar a store
+import { useTutorialStore } from "@/store/TutorialStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import axios from "axios";
@@ -776,7 +776,7 @@ const emit = defineEmits<{
 
 const router = useRouter();
 const campaignStore = CampaignStore();
-const tutorialStore = useTutorialStore(); // Inicializar
+const tutorialStore = useTutorialStore();
 const heroDataRepository = new HeroDataRepository();
 
 const savePutRef = ref<any>(null);
@@ -801,7 +801,6 @@ const bossConfirmationDialog = ref({ visible: false });
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
-// START HERE STATE
 const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
 const bookContext = ref('');
 
@@ -1021,7 +1020,7 @@ const fetchAllDoors = async () => {
 
 const fetchOpenedDoors = async () => {
   try {
-    const response = await axios.get("/rl_campaign_door/search", {
+    const response = await axios.get("/rl_campaigns_doors/search", {
       params: { campaign_fk: parseInt(props.campaignId) },
     });
 
@@ -1072,7 +1071,7 @@ const saveDoorOpening = async (doorCode: string): Promise<boolean> => {
   }
 
   try {
-    await axios.post("/rl_campaign_door/cadastro", {
+    await axios.post("/rl_campaigns_doors/cadastro", {
       doors_fk: doorObj.doors_pk,
       campaign_fk: parseInt(props.campaignId),
     });
@@ -1142,7 +1141,7 @@ const syncEventScenario = async () => {
 
 onMounted(async () => {
   generatePartyCode();
-  tutorialStore.loadPreferences(); // Carregar preferências ao montar
+  tutorialStore.loadPreferences(); 
   await syncEventScenario();
   
   await fetchAllDoors();
@@ -1154,7 +1153,6 @@ onUnmounted(() => {
   stopPolling();
 });
 
-// START HERE & TUTORIAL LOGIC
 function openBookDialog() { 
     bookContext.value = activeCampaignData.value.wing;
     bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
@@ -1167,7 +1165,7 @@ function openStartHere() {
 
 function acceptTutorial() {
     if (tutorialPromptDialog.value.dontShowAgain) {
-        tutorialStore.setStartHerePreference(true); // "True" = não mostrar mais
+        tutorialStore.setStartHerePreference(true); 
     }
     tutorialPromptDialog.value.visible = false;
     openStartHere();
@@ -1189,7 +1187,6 @@ function checkTutorialTrigger() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     
-    // Se a store diz que devemos mostrar (shouldShowStartHere = true) e estamos no lugar certo
     if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
         if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
             tutorialPromptDialog.value.visible = true;
@@ -1257,8 +1254,6 @@ function openOnlyInstructions() {
 }
 
 function openNarrativeDialog() {
-  if (activeCampaignData.value.door !== "BOTH OPEN")
-    forcedDoorInstruction.value = null;
   narrativeDialogVisible.value = true;
 }
 
@@ -1269,6 +1264,14 @@ function proceedToInstructions() {
 
 function openNextDoorScanner() {
   doorScannerDialog.value.visible = true;
+}
+
+function handleNextAction() {
+  if (isBossBattle.value) {
+    bossConfirmationDialog.value.visible = true;
+  } else {
+    openNextDoorScanner();
+  }
 }
 
 function confirmBossStart() {
@@ -1347,6 +1350,19 @@ function readTheScene() {
 
 function handleImageError() {
   console.warn("bg error");
+}
+
+function getMonsterImageSrc(m: string) {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const folder = wing.includes("WING 4") ? "wing4" : "wing3";
+  try {
+    return new URL(
+      `../assets/campaign_monsters/${folder}/${m}.jpg`,
+      import.meta.url,
+    ).href;
+  } catch {
+    return "";
+  }
 }
 
 function saveWing4Path(choice: string) {
@@ -1571,165 +1587,425 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 }
 
 @media (orientation: portrait) {
-  .immersive-container { width: 100vh; height: 100vw; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); z-index: 0; }
-}
-.map-viewport { width: 100%; height: 100%; background: #050505; overflow: hidden; cursor: grab; }
-.map-viewport:active { cursor: grabbing; }
-.map-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-.map-image { max-width: none; width: 100%; height: 100%; object-fit: contain; pointer-events: none; filter: drop-shadow(0 0 20px rgba(0,0,0,0.8)); }
-
-.hud-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; padding: 24px; display: grid; grid-template-columns: 250px 1fr 250px; grid-template-rows: auto 1fr auto; z-index: 10; }
-.hud-area { pointer-events: none; }
-.interactive-content, .bookmark-tab, .square-hud-btn, .monster-card, .right-tab-btn { pointer-events: auto; }
-
-.top-left { grid-area: 1 / 1; display: flex; flex-direction: column; }
-.top-right { grid-area: 1 / 3; display: flex; flex-direction: column; align-items: flex-end; }
-
-.bottom-left { 
-    grid-area: 3 / 1; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: flex-end !important; 
-    padding-bottom: 24px; 
-}
-.bottom-center { 
-    grid-area: 3 / 2; 
-    display: flex; 
-    align-items: flex-end; 
-    justify-content: center; 
-    z-index: 20; 
-    padding-bottom: 24px; 
-}
-.bottom-right { 
-    grid-area: 3 / 3; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: flex-end; 
-    padding-bottom: 24px; 
+  .immersive-container {
+    width: 100vh;
+    height: 100vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    z-index: 0;
+  }
 }
 
-.bookmark-tab { background: rgba(20, 20, 20, 0.9); border: 1px solid #444; color: #ccc; padding: 8px 12px; cursor: pointer; transition: transform 0.2s, background 0.2s; display: flex; align-items: center; min-width: 40px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
-.bookmark-tab:hover, .bookmark-tab.active { background: rgba(40, 40, 40, 1); color: white; }
-.bookmark-tab.left-side { border-left: 3px solid #d4af37; border-radius: 0 8px 8px 0; margin-left: 0; }
-.bookmark-tab.left-side:hover { transform: translateX(5px); border-left-color: #ffc107; }
-.bookmark-tab.right-side { border-right: 3px solid #d4af37; border-radius: 8px 0 0 8px; margin-right: 0; justify-content: flex-end; }
-.bookmark-tab.right-side:hover, .bookmark-tab.right-side.active { transform: translateX(-5px); border-right-color: #ffc107; }
+.map-viewport {
+  width: 100%;
+  height: 100%;
+  background: #050505;
+  overflow: hidden;
+  cursor: grab;
+}
+
+.map-viewport:active {
+  cursor: grabbing;
+}
+
+.map-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-image {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
+}
+
+.hud-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 250px 1fr 250px;
+  grid-template-rows: auto 1fr auto;
+  z-index: 10;
+}
+
+.hud-area {
+  pointer-events: none;
+}
+
+.interactive-content,
+.bookmark-tab,
+.square-hud-btn,
+.monster-card,
+.right-tab-btn {
+  pointer-events: auto;
+}
+
+.top-left {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-right {
+  grid-area: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.bottom-left {
+  grid-area: 3 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end !important;
+  padding-bottom: 24px;
+}
+
+.bottom-center {
+  grid-area: 3 / 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 20;
+  padding-bottom: 24px;
+}
+
+.bottom-right {
+  grid-area: 3 / 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 24px;
+}
+
+.bookmark-tab {
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  min-width: 40px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.bookmark-tab:hover,
+.bookmark-tab.active {
+  background: rgba(40, 40, 40, 1);
+  color: white;
+}
+
+.bookmark-tab.left-side {
+  border-left: 3px solid #d4af37;
+  border-radius: 0 8px 8px 0;
+  margin-left: 0;
+}
+
+.bookmark-tab.left-side:hover {
+  transform: translateX(5px);
+  border-left-color: #ffc107;
+}
+
+.bookmark-tab.right-side {
+  border-right: 3px solid #d4af37;
+  border-radius: 8px 0 0 8px;
+  margin-right: 0;
+  justify-content: flex-end;
+}
+
+.bookmark-tab.right-side:hover,
+.bookmark-tab.right-side.active {
+  transform: translateX(-5px);
+  border-right-color: #ffc107;
+}
 
 /* ESTILO NOVO PARA O BOTÃO START HERE */
 .start-here-tab {
-    border-left-color: #ffd740 !important; /* Amber accent */
-    background: rgba(40, 30, 10, 0.95);
-    box-shadow: 0 0 10px rgba(255, 215, 64, 0.2);
+  border-left-color: #ffd740 !important; /* Amber accent */
+  background: rgba(40, 30, 10, 0.95);
+  box-shadow: 0 0 10px rgba(255, 215, 64, 0.2);
 }
+
 .start-here-tab:hover {
-    border-left-color: #ffab00 !important;
-    background: rgba(60, 45, 10, 1);
-    box-shadow: 0 0 15px rgba(255, 215, 64, 0.4);
+  border-left-color: #ffab00 !important;
+  background: rgba(60, 45, 10, 1);
+  box-shadow: 0 0 15px rgba(255, 215, 64, 0.4);
 }
 
-.bookmark-tab.blue-border-tab { border-left-color: #1565C0; }
-.bookmark-tab.blue-border-tab:hover { border-left-color: #42a5f5; }
+.bookmark-tab.blue-border-tab {
+  border-left-color: #1565c0;
+}
 
-.text-label { text-align: center; }
+.bookmark-tab.blue-border-tab:hover {
+  border-left-color: #42a5f5;
+}
 
-.monster-list-container { max-height: 150px; overflow-y: hidden; overflow-x: auto; padding-right: 4px; pointer-events: auto; }
+.text-label {
+  text-align: center;
+}
 
-.monster-card { width: 90px; height: 135px; border-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.6); overflow: hidden; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.5); transition: transform 0.2s; cursor: pointer; }
-.monster-card:hover { transform: scale(1.05); z-index: 50; border-color: #b71c1c; }
-.monster-card img { width: 100%; height: 100%; object-fit: cover; }
-.monster-group-img { width: 100%; max-height: 300px; object-fit: contain; border: 2px solid #555; }
+.monster-list-container {
+  max-height: 150px;
+  overflow-y: hidden;
+  overflow-x: auto;
+  padding-right: 4px;
+  pointer-events: auto;
+}
 
-.square-hud-btn { width: 48px; height: 48px; border-radius: 8px; background: rgba(20, 20, 20, 0.9) !important; border: 1px solid #444; color: white !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: all 0.2s ease; }
-.square-hud-btn:hover { background: rgba(40, 40, 40, 0.95) !important; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.7); }
+.monster-card {
+  width: 90px;
+  height: 135px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s;
+  cursor: pointer;
+}
 
-.objective-panel { background: rgba(0, 0, 0, 0.7); border-left: 4px solid #42a5f5; padding: 8px 12px; backdrop-filter: blur(4px); border-radius: 0 8px 8px 0; }
-.heroes-rack { display: flex; gap: 16px; padding: 10px; background: none; box-shadow: none; }
-.hero-token-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.2s ease-in-out; position: relative; z-index: 30; }
-.hero-token-wrapper:hover { transform: translateY(-5px); filter: brightness(1.2); }
-.hero-token { width: 80px; height: 120px; border-radius: 6px; overflow: hidden; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-.hero-token.empty { height: 80px; border-radius: 50%; border: 2px dashed #666; display: flex; align-items: center; justify-content: center; opacity: 0.6; }
-.hero-token-img { width: 100%; height: 100%; object-fit: cover; }
-.hero-name-tag { margin-top: 4px; background: rgba(0,0,0,0.8); color: #ddd; font-size: 0.7rem; padding: 1px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.monster-card:hover {
+  transform: scale(1.05);
+  z-index: 50;
+  border-color: #b71c1c;
+}
+
+.monster-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.monster-group-img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border: 2px solid #555;
+}
+
+.square-hud-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: rgba(20, 20, 20, 0.9) !important;
+  border: 1px solid #444;
+  color: white !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.square-hud-btn:hover {
+  background: rgba(40, 40, 40, 0.95) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+}
+
+.objective-panel {
+  background: rgba(0, 0, 0, 0.7);
+  border-left: 4px solid #42a5f5;
+  padding: 8px 12px;
+  backdrop-filter: blur(4px);
+  border-radius: 0 8px 8px 0;
+}
+
+.heroes-rack {
+  display: flex;
+  gap: 16px;
+  padding: 10px;
+  background: none;
+  box-shadow: none;
+}
+
+.hero-token-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  position: relative;
+  z-index: 30;
+}
+
+.hero-token-wrapper:hover {
+  transform: translateY(-5px);
+  filter: brightness(1.2);
+}
+
+.hero-token {
+  width: 80px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.hero-token.empty {
+  height: 80px;
+  border-radius: 50%;
+  border: 2px dashed #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.hero-token-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-name-tag {
+  margin-top: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #ddd;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Estilo para o botão de fechar flutuante no livro (Mobile) */
 .mobile-close-book-btn {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 9999; /* Garante que fique acima do livro */
-    opacity: 0.8;
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999; /* Garante que fique acima do livro */
+  opacity: 0.8;
 }
 
 @media (max-width: 960px) {
-  .hud-layer { 
-      padding: 8px 8px 8px 8px; 
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto 1fr auto;
-      box-sizing: border-box; 
+  .hud-layer {
+    padding: 8px 8px 8px 8px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr auto;
+    box-sizing: border-box;
   }
 
-  .top-left { grid-area: 1 / 1; }
-  .top-right { grid-area: 1 / 2; }
-  
-  .bottom-left { 
-      grid-area: 3 / 1; 
-      margin-bottom: 0 !important;
-      padding-bottom: 0px !important; 
-      justify-content: flex-end !important; 
-      align-items: flex-start !important; 
-      z-index: 25;
-      pointer-events: none;
+  .top-left {
+    grid-area: 1 / 1;
   }
-  .bottom-left > * { pointer-events: auto; }
+
+  .top-right {
+    grid-area: 1 / 2;
+  }
+
+  .bottom-left {
+    grid-area: 3 / 1;
+    margin-bottom: 0 !important;
+    padding-bottom: 0px !important;
+    justify-content: flex-end !important;
+    align-items: flex-start !important;
+    z-index: 25;
+    pointer-events: none;
+  }
+
+  .bottom-left > * {
+    pointer-events: auto;
+  }
 
   .bookmark-tab.left-side {
-      min-width: auto;
-      width: 48px;
-      justify-content: center;
-      padding: 8px;
+    min-width: auto;
+    width: 48px;
+    justify-content: center;
+    padding: 8px;
   }
 
-  .bottom-right { 
-      grid-area: 3 / 2; 
-      justify-content: flex-end; 
-      align-items: flex-end !important; 
-      margin-bottom: 0 !important;
-      padding-bottom: 0px !important; 
-      padding-right: 0px; 
-      z-index: 25;
-      pointer-events: none;
-  }
-  .bottom-right > * { pointer-events: auto; }
-
-  .bottom-center { 
-      grid-area: 3 / 1 / 4 / 3; 
-      justify-content: center; 
-      align-items: flex-end; 
-      margin-bottom: 0; 
-      padding-bottom: 4px; 
-      z-index: 20; 
-      pointer-events: none; 
-  }
-  
-  .heroes-rack { 
-      pointer-events: auto;
-      padding: 0;
-      margin-bottom: 0;
-      gap: 8px; 
+  .bottom-right {
+    grid-area: 3 / 2;
+    justify-content: flex-end;
+    align-items: flex-end !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0px !important;
+    padding-right: 0px;
+    z-index: 25;
+    pointer-events: none;
   }
 
-  .hero-token { width: 50px; height: 75px; }
-  .hero-name-tag { display: none; }
-  .square-hud-btn { width: 36px !important; height: 36px !important; font-size: 0.9rem; }
-  .bookmark-tab { padding: 6px 8px; min-width: 36px; }
-  .objective-panel { padding: 2px 6px; }
-  .objective-label { font-size: 0.5rem !important; }
-  .objective-text { font-size: 0.7rem !important; }
-  .monster-card { width: 55px; height: 82px; } 
+  .bottom-right > * {
+    pointer-events: auto;
+  }
+
+  .bottom-center {
+    grid-area: 3 / 1 / 4 / 3;
+    justify-content: center;
+    align-items: flex-end;
+    margin-bottom: 0;
+    padding-bottom: 4px;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  .heroes-rack {
+    pointer-events: auto;
+    padding: 0;
+    margin-bottom: 0;
+    gap: 8px;
+  }
+
+  .hero-token {
+    width: 50px;
+    height: 75px;
+  }
+
+  .hero-name-tag {
+    display: none;
+  }
+
+  .square-hud-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.9rem;
+  }
+
+  .bookmark-tab {
+    padding: 6px 8px;
+    min-width: 36px;
+  }
+
+  .objective-panel {
+    padding: 2px 6px;
+  }
+
+  .objective-label {
+    font-size: 0.5rem !important;
+  }
+
+  .objective-text {
+    font-size: 0.7rem !important;
+  }
+
+  .monster-card {
+    width: 55px;
+    height: 82px;
+  }
 
   .right-tab-btn {
-      width: 50px !important;
-      height: 45px !important;
+    width: 50px !important;
+    height: 45px !important;
   }
 }
 </style>
