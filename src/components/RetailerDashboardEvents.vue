@@ -758,6 +758,8 @@ const qrCodeData = ref(null);
 const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
+const tablePlayersRefreshTimer = ref(null);
+const TABLE_PLAYERS_REFRESH_INTERVAL = 3000;
 const currentPage = ref(1);
 const totalPages = ref(1);
 const statuses = ref([]);
@@ -992,11 +994,26 @@ const generateQRCode = async (table) => {
 const showTablePlayers = async () => {
   if (!showPlayers.value) {
     await fetchTablePlayers();
+    
+    if (tablePlayersRefreshTimer.value) {
+      clearInterval(tablePlayersRefreshTimer.value);
+    }
+    tablePlayersRefreshTimer.value = setInterval(() => {
+      fetchTablePlayers();
+    }, TABLE_PLAYERS_REFRESH_INTERVAL);
+  } else {
+    if (tablePlayersRefreshTimer.value) {
+      clearInterval(tablePlayersRefreshTimer.value);
+      tablePlayersRefreshTimer.value = null;
+    }
   }
   showPlayers.value = !showPlayers.value;
 };
 
+
 const fetchTablePlayers = async () => {
+  if (!selectedTable.value) return;
+  
   loadingTablePlayers.value = true;
   try {
     const { data } = await axios.get(
@@ -1167,6 +1184,20 @@ const updatePlayerStatus = async (player, statusPk) => {
 
 onMounted(async () => {
   await fetchUserCreatedEvents();
+});
+
+onUnmounted(() => {
+  if (tablePlayersRefreshTimer.value) {
+    clearInterval(tablePlayersRefreshTimer.value);
+  }
+});
+
+watch(qrCodeDialog, (newValue) => {
+  if (!newValue && tablePlayersRefreshTimer.value) {
+    clearInterval(tablePlayersRefreshTimer.value);
+    tablePlayersRefreshTimer.value = null;
+    showPlayers.value = false;
+  }
 });
 
 watch(currentPage, () => {
