@@ -22,6 +22,7 @@
             }"
           ></div>
 
+          <!--
           <v-btn
             v-if="
               props.showRemoveButton && item.role_name !== 'Drunagor Master'
@@ -38,6 +39,7 @@
               >Remove Player</v-tooltip
             >
           </v-btn>
+          -->
 
           <v-row
             align="center"
