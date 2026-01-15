@@ -7,16 +7,20 @@
       class="map-viewport"
       ref="mapContainerRef"
       @mousedown="startDrag"
-      @touchstart="startDrag"
+      @touchstart.prevent="handleTouchStart"
+      @touchmove.prevent="handleTouchMove"
+      @touchend="handleTouchEnd"
       @wheel.prevent="handleZoom"
     >
       <div class="map-content" :style="mapTransformStyle">
         <img
           v-if="currentBackgroundImage"
+          ref="mapImageRef"
           :src="currentBackgroundImage"
           class="map-image"
           alt="Campaign Map"
           @error="handleImageError"
+          @load="updateBounds"
         />
         <div
           v-else
@@ -784,6 +788,7 @@ const campaignRemoveRef = ref<any>(null);
 const campaignExportRef = ref<any>(null);
 const shareCampaignRef = ref<any>(null);
 const mapContainerRef = ref<HTMLElement | null>(null);
+const mapImageRef = ref<HTMLImageElement | null>(null);
 
 const playerListDialogVisible = ref(false);
 const addHeroDialogVisible = ref(false);
@@ -1000,10 +1005,111 @@ const nextButtonIcon = computed(() =>
 const transform = ref({ x: 0, y: 0, scale: 1 });
 let isDragging = false;
 let startPos = { x: 0, y: 0 };
+let initialPinchDistance = 0;
+let initialScale = 1;
+const MIN_SCALE = 1;
+const MAX_SCALE = 4;
 
 const mapTransformStyle = computed(() => ({
   transform: `translate(${transform.value.x}px, ${transform.value.y}px) scale(${transform.value.scale})`,
+  transition: isDragging ? 'none' : 'transform 0.1s ease-out'
 }));
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function updateBounds() {
+  if (!mapContainerRef.value || !mapImageRef.value) return;
+  const container = mapContainerRef.value.getBoundingClientRect();
+  const scaledWidth = mapImageRef.value.naturalWidth * transform.value.scale;
+  const scaledHeight = mapImageRef.value.naturalHeight * transform.value.scale;
+  
+  if (scaledWidth <= container.width) {
+     transform.value.x = 0;
+  } else {
+     const overflowX = (scaledWidth - container.width) / 2;
+     transform.value.x = clamp(transform.value.x, -overflowX, overflowX);
+  }
+  
+  if (scaledHeight <= container.height) {
+     transform.value.y = 0;
+  } else {
+     const overflowY = (scaledHeight - container.height) / 2;
+     transform.value.y = clamp(transform.value.y, -overflowY, overflowY);
+  }
+}
+
+function handleZoom(e: WheelEvent) {
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  const newScale = clamp(transform.value.scale + delta, MIN_SCALE, MAX_SCALE);
+  transform.value.scale = newScale;
+  nextTick(() => updateBounds());
+}
+
+function getDistance(touches: TouchList) {
+  return Math.hypot(
+    touches[0].clientX - touches[1].clientX,
+    touches[0].clientY - touches[1].clientY
+  );
+}
+
+function handleTouchStart(e: TouchEvent) {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    startPos = { 
+        x: e.touches[0].clientX - transform.value.x, 
+        y: e.touches[0].clientY - transform.value.y 
+    };
+  } else if (e.touches.length === 2) {
+    isDragging = false;
+    initialPinchDistance = getDistance(e.touches);
+    initialScale = transform.value.scale;
+  }
+}
+
+function handleTouchMove(e: TouchEvent) {
+  if (e.touches.length === 1 && isDragging) {
+    const newX = e.touches[0].clientX - startPos.x;
+    const newY = e.touches[0].clientY - startPos.y;
+    transform.value.x = newX;
+    transform.value.y = newY;
+  } else if (e.touches.length === 2) {
+    const currentDistance = getDistance(e.touches);
+    if (initialPinchDistance > 0) {
+        const pinchRatio = currentDistance / initialPinchDistance;
+        const newScale = clamp(initialScale * pinchRatio, MIN_SCALE, MAX_SCALE);
+        transform.value.scale = newScale;
+    }
+  }
+}
+
+function handleTouchEnd(e: TouchEvent) {
+  isDragging = false;
+  initialPinchDistance = 0;
+  updateBounds();
+}
+
+function startDrag(e: MouseEvent) {
+  isDragging = true;
+  startPos = { x: e.clientX - transform.value.x, y: e.clientY - transform.value.y };
+  window.addEventListener("mousemove", onDrag);
+  window.addEventListener("mouseup", stopDrag);
+}
+
+function onDrag(e: MouseEvent) {
+  if (!isDragging) return;
+  transform.value.x = e.clientX - startPos.x;
+  transform.value.y = e.clientY - startPos.y;
+  updateBounds();
+}
+
+function stopDrag() {
+  isDragging = false;
+  window.removeEventListener("mousemove", onDrag);
+  window.removeEventListener("mouseup", stopDrag);
+  updateBounds();
+}
 
 const generatePartyCode = () => {
   partyCode.value = `${Math.floor(1000 + Math.random() * 9000)}${props.campaignId}`;
@@ -1153,7 +1259,6 @@ onUnmounted(() => {
   stopPolling();
 });
 
-// START HERE & TUTORIAL LOGIC
 function openBookDialog() { 
     bookContext.value = activeCampaignData.value.wing;
     bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
@@ -1188,7 +1293,6 @@ function checkTutorialTrigger() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     
-    // Se a store diz que devemos mostrar (shouldShowStartHere = true) e estamos no lugar certo
     if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
         if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
             tutorialPromptDialog.value.visible = true;
@@ -1207,39 +1311,6 @@ watch(
     },
     { immediate: true }
 );
-
-function handleZoom(e: WheelEvent) {
-  const delta = e.deltaY > 0 ? -0.1 : 0.1;
-  const newScale = transform.value.scale + delta;
-  transform.value.scale = Math.max(0.5, Math.min(4, newScale));
-}
-
-function startDrag(e: MouseEvent | TouchEvent) {
-  isDragging = true;
-  const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
-  const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
-  startPos = { x: cx - transform.value.x, y: cy - transform.value.y };
-  window.addEventListener("mousemove", onDrag);
-  window.addEventListener("touchmove", onDrag);
-  window.addEventListener("mouseup", stopDrag);
-  window.addEventListener("touchend", stopDrag);
-}
-
-function onDrag(e: MouseEvent | TouchEvent) {
-  if (!isDragging) return;
-  const cx = "touches" in e ? e.touches[0].clientX : e.clientX;
-  const cy = "touches" in e ? e.touches[0].clientY : e.clientY;
-  transform.value.x = cx - startPos.x;
-  transform.value.y = cy - startPos.y;
-}
-
-function stopDrag() {
-  isDragging = false;
-  window.removeEventListener("mousemove", onDrag);
-  window.removeEventListener("touchmove", onDrag);
-  window.removeEventListener("mouseup", stopDrag);
-  window.removeEventListener("touchend", stopDrag);
-}
 
 function openKeywordsDialog() {
   keywordsDialog.value = { visible: true };
@@ -1492,109 +1563,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 </script>
 
 <style scoped>
-.monster-card-large {
-  width: 120px;
-  cursor: pointer;
-  text-align: center;
-}
-
-.monster-card-large img {
-  width: 100%;
-  border-radius: 8px;
-  border: 2px solid #444;
-}
-
-.right-tab-btn {
-  width: 60px;
-  height: 50px;
-  background: #333;
-  border-radius: 8px 0 0 8px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.2s;
-  cursor: pointer;
-  box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-right: none;
-}
-
-.right-tab-btn:hover {
-  transform: translateX(-8px);
-  filter: brightness(1.2);
-}
-
-.interaction-tab {
-  background-color: #bf529d !important;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid #9c4381;
-}
-
-.blue-tab {
-  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
-  border: 1px solid #1976d2;
-}
-
-.grey-tab {
-  background: rgba(40, 40, 40, 0.95) !important;
-  border: 1px solid #555;
-}
-
-.primary-tab {
-  background: linear-gradient(135deg, #b71c1c 0%, #880e4f 100%) !important;
-  border: 1px solid #ff5252;
-}
-
-.tab-icon-img {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-}
-
-.book-style-card {
-  background-color: #eee8e0 !important;
-  color: #212121;
-  border: 1px solid #1e1e1e;
-}
-
-.narrative-text :deep(div),
-.narrative-text :deep(p) {
-  font-family: "EB Garamond", serif !important;
-  font-style: italic !important;
-  color: #000000 !important;
-  font-size: 1.35rem !important;
-  line-height: 1.4 !important;
-}
-
-.narrative-text :deep(p) {
-  margin-bottom: 0.5rem !important;
-}
-
-.instruction-box {
-  margin-top: 10px;
-}
-
-.instruction-box :deep(div[style*="background-color"]) {
-  background-color: #f0f0f0 !important;
-  border: 1px solid #ccc !important;
-  color: #1a120f !important;
-}
-
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 .immersive-container {
   position: fixed;
   top: 0;
@@ -1605,23 +1573,7 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   background-color: #000;
   color: white;
   font-family: "Cinzel", serif;
-}
-
-.immersive-container.desktop-layout {
-  top: 64px;
-  height: calc(100vh - 64px);
-}
-
-@media (orientation: portrait) {
-  .immersive-container {
-    width: 100vh;
-    height: 100vw;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    z-index: 0;
-  }
+  touch-action: none; 
 }
 
 .map-viewport {
@@ -1630,6 +1582,9 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   background: #050505;
   overflow: hidden;
   cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .map-viewport:active {
@@ -1642,15 +1597,21 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-origin: center center;
+  will-change: transform;
 }
 
 .map-image {
-  max-width: none;
+  max-width: none; 
+  max-height: none;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: contain; 
   pointer-events: none;
   filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .hud-layer {
@@ -1760,9 +1721,8 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   border-right-color: #ffc107;
 }
 
-/* ESTILO NOVO PARA O BOTÃO START HERE */
 .start-here-tab {
-  border-left-color: #ffd740 !important; /* Amber accent */
+  border-left-color: #ffd740 !important;
   background: rgba(40, 30, 10, 0.95);
   box-shadow: 0 0 10px rgba(255, 215, 64, 0.2);
 }
@@ -1914,13 +1874,80 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   text-overflow: ellipsis;
 }
 
-/* Estilo para o botão de fechar flutuante no livro (Mobile) */
 .mobile-close-book-btn {
   position: fixed;
   top: 16px;
   right: 16px;
-  z-index: 9999; /* Garante que fique acima do livro */
+  z-index: 9999;
   opacity: 0.8;
+}
+
+.monster-card-large {
+  width: 120px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.monster-card-large img {
+  width: 100%;
+  border-radius: 8px;
+  border: 2px solid #444;
+}
+
+.right-tab-btn {
+  width: 60px;
+  height: 50px;
+  background: #333;
+  border-radius: 8px 0 0 8px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+}
+
+.right-tab-btn:hover {
+  transform: translateX(-8px);
+  filter: brightness(1.2);
+}
+
+.interaction-tab {
+  background-color: #bf529d !important;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #9c4381;
+}
+
+.blue-tab {
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
+  border: 1px solid #1976d2;
+}
+
+.grey-tab {
+  background: rgba(40, 40, 40, 0.95) !important;
+  border: 1px solid #555;
+}
+
+.primary-tab {
+  background: linear-gradient(135deg, #b71c1c 0%, #880e4f 100%) !important;
+  border: 1px solid #ff5252;
+}
+
+.tab-icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.book-style-card {
+  background-color: #eee8e0 !important;
+  color: #212121;
+  border: 1px solid #1e1e1e;
 }
 
 @media (max-width: 960px) {
