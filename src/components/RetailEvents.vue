@@ -141,7 +141,7 @@
                               hour: "2-digit",
                               minute: "2-digit",
                               hour12: true,
-                            }
+                            },
                           )
                         }}
                       </p>
@@ -281,7 +281,7 @@
                                   hour: "2-digit",
                                   minute: "2-digit",
                                   hour12: true,
-                                }
+                                },
                               )
                             }}
                           </p>
@@ -359,11 +359,13 @@
             <v-tab value="players">
               <v-icon start>mdi-account-group</v-icon> Players
             </v-tab>
+            <v-tab value="setup">
+              <v-icon start>mdi-tools</v-icon> Setup Guide
+            </v-tab>
           </v-tabs>
 
           <v-card-text>
             <v-window v-model="manageTab">
-              
               <v-window-item value="details">
                 <v-card-text class="pt-0">
                   <p>
@@ -381,14 +383,17 @@
                   <p class="text-end scheduled-box">
                     Scheduled for:
                     {{
-                      new Date(selectedEvent?.event_date).toLocaleString("en-US", {
-                        month: "2-digit",
-                        day: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })
+                      new Date(selectedEvent?.event_date).toLocaleString(
+                        "en-US",
+                        {
+                          month: "2-digit",
+                          day: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        },
+                      )
                     }}
                   </p>
                 </v-card-text>
@@ -663,7 +668,7 @@
                                   day: "numeric",
                                   hour: "2-digit",
                                   minute: "2-digit",
-                                }
+                                },
                               )
                             }}
                           </p>
@@ -770,6 +775,25 @@
                     ></v-pagination>
                   </v-col>
                 </v-row>
+              </v-window-item>
+
+              <v-window-item value="setup">
+                <div class="setup-guide-container">
+                  <div class="mb-4">
+                    <h3 class="text-h6 font-weight-bold mb-2">
+                      <v-icon color="primary" class="mr-2"
+                        >mdi-lightbulb-on</v-icon
+                      >
+                      Initial Setup Tutorial
+                    </h3>
+                    <p class="text-body-2 text-grey">
+                      Follow this step-by-step guide to prepare the game
+                      components for your event.
+                    </p>
+                  </div>
+
+                  <AssemblyGuide />
+                </div>
               </v-window-item>
             </v-window>
           </v-card-text>
@@ -962,7 +986,9 @@
                       </v-avatar>
                     </template>
 
-                    <v-list-item-title>{{ player.user_name }}</v-list-item-title>
+                    <v-list-item-title>{{
+                      player.user_name
+                    }}</v-list-item-title>
                     <v-list-item-subtitle v-if="player.party_role">
                       {{ player.party_role }}
                     </v-list-item-subtitle>
@@ -1291,9 +1317,11 @@
                   clearable
                 ></v-autocomplete>
               </v-col>
-              
+
               <v-col cols="12" class="d-flex justify-space-between">
-                <v-btn color="red" @click="editEventDialog = false">Close</v-btn>
+                <v-btn color="red" @click="editEventDialog = false"
+                  >Close</v-btn
+                >
                 <v-btn
                   v-if="isEditable"
                   color="green"
@@ -1326,6 +1354,7 @@ import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
+import AssemblyGuide from "@/components/AssemblyGuide.vue";
 
 const eventStore = useEventStore();
 const userStore = useUserStore();
@@ -1435,7 +1464,7 @@ const executeTurnAway = () => {
   if (turnAwayConfirmDialog.value.player) {
     updatePlayerStatus(
       turnAwayConfirmDialog.value.player,
-      turnedAwayStatus.value
+      turnedAwayStatus.value,
     );
     turnAwayConfirmDialog.value = { show: false, player: null };
   }
@@ -1465,7 +1494,7 @@ const filteredScenarios = computed(() => {
 
 const selectedStoreImage = computed(() => {
   const store = stores.value.find(
-    (s) => s.storename === selectedEvent.value?.store
+    (s) => s.storename === selectedEvent.value?.store,
   );
   return store?.picture_hash
     ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
@@ -1523,7 +1552,7 @@ const openManageDialog = async (event) => {
     fetchPlayersForEvent(event.events_pk),
     fetchStatuses(),
     fetchEventRewards(event.events_pk).then((rewards) => {
-        eventRewards.value = rewards;
+      eventRewards.value = rewards;
     }),
   ]);
 
@@ -1591,7 +1620,7 @@ const fetchTablePlayers = async () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     );
     tablePlayers.value = data.players || [];
   } catch (error) {
@@ -1742,12 +1771,12 @@ const openEditDialog = (event, editable = false) => {
       .then(() =>
         axios.get("/rl_events_rewards/list_rewards", {
           params: { events_fk: event.events_pk },
-        })
+        }),
       )
       .then(({ data }) => {
         existingRewards.value = data.rewards || [];
         editableEvent.value.rewards_pk = existingRewards.value.map(
-          (r) => r.rewards_pk
+          (r) => r.rewards_pk,
         );
       })
       .catch((err) => {
@@ -1773,13 +1802,13 @@ const fetchStatuses = () => {
       statuses.value = response.data.event_status;
 
       grantedStatus.value = statuses.value.find(
-        (s) => s.name === "Granted Passage"
+        (s) => s.name === "Granted Passage",
       )?.event_status_pk;
       turnedAwayStatus.value = statuses.value.find(
-        (s) => s.name === "Turned Away"
+        (s) => s.name === "Turned Away",
       )?.event_status_pk;
       JoinedtheQuest.value = statuses.value.find(
-        (s) => s.name === "Joined the Quest"
+        (s) => s.name === "Joined the Quest",
       )?.event_status_pk;
     })
     .catch((error) => {
@@ -1803,7 +1832,7 @@ const fetchPlayersForEvent = (eventFk) => {
     .catch((error) => {
       console.error(
         "Error fetching players:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       playersByEvent.value = [];
     });
@@ -1834,7 +1863,7 @@ const updatePlayerStatus = (player, statusPk) => {
         Array.isArray(eventRewards.value)
       ) {
         console.log(
-          `Concedendo ${eventRewards.value.length} recompensas para o jogador ${player.user_name}`
+          `Concedendo ${eventRewards.value.length} recompensas para o jogador ${player.user_name}`,
         );
         return Promise.all(
           eventRewards.value.map((reward) =>
@@ -1847,12 +1876,12 @@ const updatePlayerStatus = (player, statusPk) => {
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem(
-                    "accessToken"
+                    "accessToken",
                   )}`,
                 },
-              }
-            )
-          )
+              },
+            ),
+          ),
         );
       }
     })
@@ -1933,7 +1962,7 @@ const fetchPlayerEvents = async (past, isPolling = false) => {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
-            }
+            },
           );
           const rewards = rewardsResponse.data.rewards || [];
           const formattedRewards = rewards.map((r) => ({
@@ -1944,11 +1973,11 @@ const fetchPlayerEvents = async (past, isPolling = false) => {
         } catch (rewardError) {
           console.error(
             `Falha ao buscar recompensas para o evento ${event.events_pk}:`,
-            rewardError
+            rewardError,
           );
           return { ...event, rewards: [] };
         }
-      })
+      }),
     );
     events.value = eventsWithRewards;
   } catch (err) {
@@ -1988,7 +2017,7 @@ const fetchUserCreatedEvents = async (past, isPolling = false) => {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
-            }
+            },
           );
 
           const rewards = rewardsResponse.data.rewards || [];
@@ -2001,11 +2030,11 @@ const fetchUserCreatedEvents = async (past, isPolling = false) => {
         } catch (rewardError) {
           console.error(
             `Falha ao buscar recompensas para o evento ${event.events_pk}:`,
-            rewardError
+            rewardError,
           );
           return { ...event, rewards: [] };
         }
-      })
+      }),
     );
 
     userCreatedEvents.value = eventsWithRewards;
@@ -2045,7 +2074,7 @@ const fetchSceneries = async () => {
     .catch((error) => {
       console.error(
         "❌ Erro ao buscar cenários:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
     });
 };
@@ -2064,13 +2093,13 @@ const removeReward = async (reward) => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     );
     existingRewards.value = existingRewards.value.filter(
-      (r) => r.rl_events_rewards_pk !== relationPk
+      (r) => r.rl_events_rewards_pk !== relationPk,
     );
     editableEvent.value.rewards_pk = editableEvent.value.rewards_pk.filter(
-      (id) => id !== reward.rewards_pk
+      (id) => id !== reward.rewards_pk,
     );
   } catch (err) {
     console.error("Erro ao remover reward:", err);
@@ -2114,7 +2143,7 @@ const addEvent = () => {
       const found = allStores.find(
         (s) =>
           s.name?.toLowerCase().trim() ===
-          newEvent.value.store.toLowerCase().trim()
+          newEvent.value.store.toLowerCase().trim(),
       );
 
       if (!found) {
@@ -2157,7 +2186,7 @@ const addEvent = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
-        }
+        },
       );
     })
     .then(({ data }) => {
@@ -2182,13 +2211,13 @@ const addEvent = () => {
               {
                 headers: {
                   Authorization: `Bearer ${localStorage.getItem(
-                    "accessToken"
+                    "accessToken",
                   )}`,
                 },
-              }
+              },
             )
-            .catch(() => null)
-        )
+            .catch(() => null),
+        ),
       ).then(() => id);
     })
     .then((id) => {
@@ -2247,7 +2276,7 @@ const deleteEvent = (events_pk) => {
     .catch((error) => {
       console.error(
         "❌ Erro ao excluir o evento:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
     });
 };
@@ -2275,7 +2304,7 @@ const saveEditedEvent = () => {
     .then((response) => {
       const allStores = response.data.stores || [];
       const foundStore = allStores.find(
-        (s) => s.name === editableEvent.value.store
+        (s) => s.name === editableEvent.value.store,
       );
       if (!foundStore) {
         console.error(`❌ Store "${editableEvent.value.store}" não encontrada`);
@@ -2318,8 +2347,8 @@ const saveEditedEvent = () => {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
-            }
-          )
+            },
+          ),
         ),
         ...toRemove.map((id) =>
           axios.post(
@@ -2329,8 +2358,8 @@ const saveEditedEvent = () => {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
               },
-            }
-          )
+            },
+          ),
         ),
       ];
 
@@ -2433,7 +2462,7 @@ onMounted(async () => {
     .catch((error) => {
       console.error(
         "❌ Erro ao buscar lojas:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
     });
 
@@ -2457,7 +2486,7 @@ watch(
   () => newEvent.value.season,
   (newSeasonValue) => {
     newEvent.value.scenario = null;
-  }
+  },
 );
 
 onUnmounted(() => {
@@ -2491,7 +2520,7 @@ watch(
   () => newEvent.value.store,
   (selectedStoreName) => {
     const selectedStore = stores.value.find(
-      (store) => store.storename === selectedStoreName
+      (store) => store.storename === selectedStoreName,
     );
     if (selectedStore) {
       const { address, streetNumber, complement, city, state } = selectedStore;
@@ -2499,7 +2528,7 @@ watch(
     } else {
       newEvent.value.address = "";
     }
-  }
+  },
 );
 
 watch(editEventDialog, (isOpen) => {
@@ -2511,6 +2540,11 @@ watch(editEventDialog, (isOpen) => {
 </script>
 
 <style scoped>
+.setup-guide-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
 .loading-overlay {
   position: absolute;
   top: 0;
