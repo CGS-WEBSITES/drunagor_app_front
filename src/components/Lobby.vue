@@ -245,8 +245,6 @@ const axios: any = inject('axios');
 const heroDataRepository = new HeroDataRepository();
 
 // --- CONSTANTES ---
-const REGISTERED_STATUS_ID = 1;
-const JOINED_THE_QUEST_ID = 3; 
 const PLAYING_STATUS_ID = 4;
 const DEFAULT_SKU = 39; 
 
@@ -366,29 +364,25 @@ const eventDateObj = computed(() => {
   }
 });
 
-
-
+// --- LÓGICA DE RECONEXÃO ---
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
 
-
-    const relevantStatuses = [REGISTERED_STATUS_ID, JOINED_THE_QUEST_ID, PLAYING_STATUS_ID];
-    
-    if (relevantStatuses.includes(myPlayerStatus)) {
+    // FIX: Somente tenta reconectar se status for JOGANDO (4)
+    if (myPlayerStatus === PLAYING_STATUS_ID) {
         try {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
                 params: { users_fk: userStore.user.users_pk } 
             });
             
             const allCampaigns = searchRes.data.campaigns || [];
-            mente
+            
             const activeCampaigns = allCampaigns
                 .filter((c: any) => c.active === true || c.active === 1 || c.active === 'true')
                 .sort((a: any, b: any) => b.campaigns_fk - a.campaigns_fk);
 
             if (activeCampaigns.length > 0) {
                 const target = activeCampaigns[0];
-                
                 isReconnecting.value = true;
                 selectedCampaign.value = target;
                 
@@ -410,7 +404,6 @@ const fetchTablePlayers = async () => {
         
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
         
-        // Tenta recuperar
         if (me) {
             await checkAndRecoverActiveCampaign(me.event_status_fk);
         }
@@ -598,36 +591,34 @@ const fetchAndShowLoadDialog = async () => {
     } catch(e) { } finally { loadingCampaigns.value = false; }
 };
 
+
 const confirmLoadCampaign = async () => {
     const camp: any = availableCampaigns.value.find((c:any) => c.campaigns_fk === selectedLoadCampaignId.value);
-    if(camp) {
+    
+    if (camp) {
         loadingCampaignAction.value = true; 
         showLoadDialog.value = false;
         showCampaignDialog.value = false;
+
         await executeStartGameFlow(camp.campaigns_fk);
     }
 };
 
-// --- AQUI ESTÁ A LÓGICA DO LÍDER FORÇAR O STATUS ---
 const executeStartGameFlow = async (campaignFk: number) => {
     loadingStart.value = true; 
     showCampaignDialog.value = false;
 
     try {
-        // Pega todos os jogadores que têm herói selecionado
         const currentPlayers = lobbySlots.value.filter(s => s.player !== null && s.hero !== null);
         
-        // 1. Vínculo com a Campanha
         const linkPromises = currentPlayers.map(async (slot) => {
             const pUserFk = slot.player.users_fk;
             try {
-                // Remove vínculos antigos para garantir
                 const check = await axios.get("/rl_campaigns_users/search", {
                     params: { users_fk: pUserFk, skus_fk: DEFAULT_SKU, active: true }
                 });
                 if (check.data.campaigns && check.data.campaigns.length > 0) {
-                     // Lógica opcional: desativar campanhas velhas se necessário, 
-                     // mas o foco aqui é criar a nova.
+                     // Cleanup
                 }
             } catch(ignore) {}
 
@@ -646,22 +637,20 @@ const executeStartGameFlow = async (campaignFk: number) => {
 
         await Promise.all(linkPromises);
 
-        // 2. ATUALIZAÇÃO DE STATUS NA MESA (FORÇANDO STATUS 4)
-        // Isso roda para CADA jogador no lobby
+        // FORÇA O STATUS 4 (PLAYING)
         const statusPromises = currentPlayers.map(slot => {
             console.log(`Setting status 4 for user ${slot.player.users_fk}`);
             return axios.post("/rl_events_users/cadastro", {
                 users_fk: slot.player.users_fk,
                 events_fk: Number(eventId),
                 event_tables_fk: Number(tablePk.value),
-                status: PLAYING_STATUS_ID, // 4
+                status: PLAYING_STATUS_ID,
                 active: true
             });
         });
         
         await Promise.all(statusPromises);
         
-        // Pequeno delay para o banco processar
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         selectedCampaign.value = { campaigns_fk: campaignFk, boxSku: DEFAULT_SKU };
