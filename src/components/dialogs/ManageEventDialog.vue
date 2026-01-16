@@ -446,50 +446,7 @@
           <!-- Setup Tab -->
           <v-window-item value="setup">
             <div class="setup-guide-container">
-              <div class="mb-4">
-                <h3 class="text-h6 font-weight-bold mb-2">
-                  <v-icon color="primary" class="mr-2">mdi-lightbulb-on</v-icon>
-                  Initial Setup Tutorial
-                </h3>
-                <p class="text-body-2 text-grey">
-                  Follow this step-by-step guide to prepare the game components
-                  for your event.
-                </p>
-              </div>
-
-              <v-dialog v-model="showAssemblyGuide" max-width="1200" persistent>
-                <template v-slot:activator="{ props }">
-                  <v-btn
-                    color="primary"
-                    size="large"
-                    block
-                    v-bind="props"
-                    class="mb-4"
-                  >
-                    <v-icon start>mdi-play-circle</v-icon>
-                    Start Inital Setup
-                  </v-btn>
-                </template>
-
-                <v-card>
-                  <v-card-title
-                    class="d-flex justify-space-between align-center"
-                  >
-                    <span class="text-h6">Initial Setup Guide</span>
-                    <v-btn
-                      icon
-                      variant="text"
-                      @click="showAssemblyGuide = false"
-                    >
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-card-title>
-
-                  <v-card-text>
-                    <AssemblyGuide @close="showAssemblyGuide = false" />
-                  </v-card-text>
-                </v-card>
-              </v-dialog>
+              <InitialSetupViewer v-if="event?.scenario" :scenario="event.scenario" />
             </div>
           </v-window-item>
         </v-window>
@@ -668,7 +625,7 @@
 <script setup>
 import { ref, computed, watch, inject } from "vue";
 import QrcodeVue from "qrcode-vue3";
-import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import InitialSetupViewer from "@/components/InitialSetupViewer.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 
@@ -724,9 +681,6 @@ const qrCodeData = ref(null);
 const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
-
-// Assembly Guide
-const showAssemblyGuide = ref(false);
 
 // Methods
 const getSeasonInfo = (fk) => {
@@ -1043,7 +997,7 @@ watch(currentPage, () => {
 
 <style scoped>
 .setup-guide-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
