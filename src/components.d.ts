@@ -92,6 +92,7 @@ declare module 'vue' {
     LoadInstructions: typeof import('./components/LoadInstructions.vue')['default']
     Lobby: typeof import('./components/Lobby.vue')['default']
     MainMenu: typeof import('./components/MainMenu.vue')['default']
+    ManageEventDialog: typeof import('./components/dialogs/ManageEventDialog.vue')['default']
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']
     NextDoorQRScanner: typeof import('./components/NextDoorQRScanner.vue')['default']
     PerfilHome: typeof import('./components/PerfilHome.vue')['default']
