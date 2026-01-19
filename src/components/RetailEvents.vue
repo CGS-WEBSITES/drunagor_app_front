@@ -1170,7 +1170,7 @@ const addEvent = () => {
       ).then(() => id);
     })
     .then((id) => {
-      successDialog.value = true;
+      successDialog.value = false;
       createEventDialog.value = false;
 
       fetchUserCreatedEvents(showPast.value).catch(() => {});
@@ -1179,6 +1179,7 @@ const addEvent = () => {
       pendingSuccessAfterTutorial.value = true;
 
       if (tutorialStore.shouldShowInitialSetup) {
+        pendingSuccessAfterTutorial.value = true;
         showTutorialPrompt.value = true;
       } else {
         pendingSuccessAfterTutorial.value = false;
@@ -1255,13 +1256,13 @@ const handleEventCreatedOk = async () => {
 
   if (!eventToOpen) return;
 
+  manageDialogRef.value?.openTablesAndStartQrTutorial?.();
+
   openManageDialog(eventToOpen);
 
-  await nextTick();
+  activeTab.value = 2;
 
-  setTimeout(() => {
-    manageDialogRef.value?.openTablesAndStartQrTutorial?.();
-  }, 50);
+  await nextTick();
 };
 
 const deleteEvent = (events_pk) => {

@@ -707,6 +707,7 @@ const qrCodeData = ref(null);
 const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
+const startInTables = ref(false);
 
 const qrTutorial = ref({
   active: false,
@@ -725,7 +726,8 @@ const qrTutorialCopy = computed(() => {
     return {
       title: "Step 1 — Generate a QR Code",
       message:
-        'Tap "Generate QR Code" on your table. Players will scan it to join the table for this event.',
+        `Generate a QR code by clicking the Generate QR Code button below and share it with your players. 
+          They will scan it to enter the table.`,
     };
   }
 
@@ -1063,12 +1065,18 @@ const fetchTablePlayers = async () => {
 };
 
 const openTablesAndStartQrTutorial = async () => {
-  activeTab.value = "tables";
+  startInTables.value = true;
   qrTutorial.value = { active: true, step: 1 };
-  await nextTick();
+
+  if (props.modelValue) {
+    activeTab.value = "tables";
+    await nextTick();
+  }
 };
 
-defineExpose({ openTablesAndStartQrTutorial });
+defineExpose({
+  openTablesAndStartQrTutorial,
+});
 
 const loadImage = (src) =>
   new Promise((resolve, reject) => {
@@ -1204,13 +1212,25 @@ watch(
   async (isOpen) => {
     if (isOpen && props.event) {
       currentPage.value = 1;
-      activeTab.value = "details";
+
+      activeTab.value = startInTables.value ? "tables" : "details";
+
       await Promise.all([
         fetchTablesForEvent(props.event.events_pk),
         fetchPlayersForEvent(props.event.events_pk),
         fetchStatuses(),
         fetchEventRewards(props.event.events_pk),
       ]);
+
+      if (startInTables.value) {
+        activeTab.value = "tables";
+        qrTutorial.value = { active: true, step: 1 };
+        await nextTick();
+      }
+    }
+
+    if (!isOpen) {
+      startInTables.value = false;
     }
   },
 );
