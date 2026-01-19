@@ -38,7 +38,7 @@
           <v-card-text>Event created successfully!</v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn text @click="successDialog = false">OK</v-btn>
+            <v-btn text @click="handleEventCreatedOk">OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -322,12 +322,6 @@
           </v-row>
         </div>
       </div>
-
-      <ManageEventDialog
-        v-model="manageDialog"
-        :event="selectedEvent"
-        @refresh="handleRefresh"
-      />
 
       <v-dialog v-model="dialog" max-width="600" min-height="410">
         <v-card color="surface">
@@ -698,11 +692,26 @@
     </v-card>
   </v-col>
 
+  <ManageEventDialog
+    ref="manageDialogRef"
+    v-model="manageDialog"
+    :event="selectedEvent"
+    @refresh="handleRefresh"
+  />
+
   <TutorialPromptDialog v-model="showTutorialPrompt" />
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, inject } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  inject,
+  nextTick,
+} from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter, useRoute } from "vue-router";
 import { useTutorialStore } from "@/store/TutorialStore";
@@ -750,6 +759,10 @@ const turnAwayConfirmDialog = ref({
   player: null,
 });
 const seasons = ref([]);
+const manageDialogRef = ref(null);
+const lastCreatedEventId = ref(null);
+const lastCreatedEventFallback = ref(null);
+const pendingSuccessAfterTutorial = ref(false);
 
 const getSeasonInfo = (fk) => {
   if (fk == 2) return { flag: s1flag, name: "Season 1" };
@@ -1108,8 +1121,10 @@ const addEvent = () => {
         },
       );
     })
-    .then(({ data }) => {
-      const id = data.event?.events_pk;
+    .then(async ({ data }) => {
+      const created = data.event;
+      const id = created?.events_pk;
+
       if (!id) {
         errorDialog.value = {
           show: true,
@@ -1117,6 +1132,21 @@ const addEvent = () => {
         };
         return Promise.reject("EventCreationFailed");
       }
+
+      lastCreatedEventId.value = id;
+
+      lastCreatedEventFallback.value = {
+        ...(created || {}),
+        events_pk: id,
+        store_name: created?.store_name || newEvent.value.store || "",
+        address: created?.address || newEvent.value.address || "",
+        scenario: created?.scenario || "",
+        seats_number: created?.seats_number || newEvent.value.seats || null,
+        event_date: created?.event_date || null,
+      };
+
+      await createInitialTableForEvent(id);
+
       return Promise.all(
         selectedRewards.value.map((r) =>
           axios
@@ -1144,13 +1174,16 @@ const addEvent = () => {
       createEventDialog.value = false;
 
       fetchUserCreatedEvents(showPast.value).catch(() => {});
-      fetchPlayerEvents().catch(() => {});
+      fetchPlayerEvents(showPast.value).catch(() => {});
 
-      setTimeout(() => {
-        if (tutorialStore.shouldShowInitialSetup) {
-          showTutorialPrompt.value = true;
-        }
-      }, 500);
+      pendingSuccessAfterTutorial.value = true;
+
+      if (tutorialStore.shouldShowInitialSetup) {
+        showTutorialPrompt.value = true;
+      } else {
+        pendingSuccessAfterTutorial.value = false;
+        successDialog.value = true;
+      }
 
       newEvent.value = {
         date: "",
@@ -1179,6 +1212,56 @@ const addEvent = () => {
     .finally(() => {
       loading.value = false;
     });
+};
+
+const createInitialTableForEvent = async (eventPk) => {
+  try {
+    await axios.post(
+      "/event_tables/create",
+      {
+        events_fk: eventPk,
+        max_players: 4,
+        active: true,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
+    );
+  } catch (err) {
+    console.error("Error creating initial table:", err);
+  }
+};
+
+const handleEventCreatedOk = async () => {
+  successDialog.value = false;
+
+  try {
+    await fetchUserCreatedEvents(showPast.value);
+  } catch (_) {}
+
+  let eventToOpen = null;
+
+  if (lastCreatedEventId.value) {
+    eventToOpen = userCreatedEvents.value.find(
+      (e) => e.events_pk === lastCreatedEventId.value,
+    );
+  }
+
+  if (!eventToOpen && lastCreatedEventFallback.value) {
+    eventToOpen = lastCreatedEventFallback.value;
+  }
+
+  if (!eventToOpen) return;
+
+  openManageDialog(eventToOpen);
+
+  await nextTick();
+
+  setTimeout(() => {
+    manageDialogRef.value?.openTablesAndStartQrTutorial?.();
+  }, 50);
 };
 
 const deleteEvent = (events_pk) => {
@@ -1455,6 +1538,13 @@ watch(
     }
   },
 );
+
+watch(showTutorialPrompt, (val, old) => {
+  if (old === true && val === false && pendingSuccessAfterTutorial.value) {
+    pendingSuccessAfterTutorial.value = false;
+    successDialog.value = true;
+  }
+});
 </script>
 
 <style scoped>
@@ -1494,8 +1584,11 @@ watch(
 }
 
 .event-img {
-  width: 110px;
-  height: 110px;
+  width: 100%;
+  max-width: 110px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: 4px;
 }
 
@@ -1531,9 +1624,7 @@ watch(
   height: 60px;
   z-index: 2;
 }
-</style>
 
-<style>
 .cinzel-text {
   font-family: "Cinzel", serif;
 }
@@ -1661,5 +1752,11 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .event-card {
+    margin-right: 0 !important;
+  }
 }
 </style>

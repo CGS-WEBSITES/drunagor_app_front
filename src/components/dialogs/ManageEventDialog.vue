@@ -4,6 +4,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
     scroll-target="#app"
     max-width="900"
+    :fullscreen="smAndDown"
     persistent
   >
     <v-card color="surface">
@@ -148,12 +149,19 @@
 
           <!-- Tables Tab -->
           <v-window-item value="tables">
+            <!-- ALERT SEMPRE VISÍVEL -->
+            <v-alert type="info" variant="tonal" class="mb-4" border="start">
+              <div class="font-weight-bold">{{ tablesAlertCopy.title }}</div>
+              <div class="mt-1">{{ tablesAlertCopy.message }}</div>
+            </v-alert>
+
             <v-row class="mb-4">
               <v-col
                 cols="12"
                 class="d-flex justify-space-between align-center flex-wrap"
               >
                 <h3 class="text-h6 mb-2 mb-md-0">Event Tables</h3>
+
                 <div class="d-flex gap-3 flex-wrap">
                   <v-btn
                     color="primary"
@@ -175,10 +183,7 @@
             </v-row>
 
             <div v-if="loadingTables" class="text-center py-6">
-              <v-progress-circular
-                indeterminate
-                color="primary"
-              ></v-progress-circular>
+              <v-progress-circular indeterminate color="primary" />
             </div>
 
             <v-row v-else>
@@ -214,13 +219,14 @@
                         label
                         class="font-weight-bold"
                       >
-                        <v-icon start color="white" size="small">
-                          mdi-table-furniture
-                        </v-icon>
-                        <span class="table-number-text">
-                          Table {{ table.table_number }}
-                        </span>
+                        <v-icon start color="white" size="small"
+                          >mdi-table-furniture</v-icon
+                        >
+                        <span class="table-number-text"
+                          >Table {{ table.table_number }}</span
+                        >
                       </v-chip>
+
                       <v-btn
                         icon
                         size="small"
@@ -245,6 +251,7 @@
                           {{ table.players_count }}/{{ table.max_players }}
                         </v-chip>
                       </div>
+
                       <v-progress-linear
                         :model-value="
                           (table.players_count / table.max_players) * 100
@@ -252,7 +259,7 @@
                         :color="table.is_full ? 'red' : 'green'"
                         height="8"
                         rounded
-                      ></v-progress-linear>
+                      />
                     </v-col>
 
                     <v-col cols="12" class="mt-3">
@@ -316,8 +323,9 @@
                         max-width="90"
                         max-height="90"
                         class="rounded-lg"
-                      ></v-img>
+                      />
                     </v-col>
+
                     <v-col
                       cols="8"
                       class="pl-3 d-flex flex-column justify-center"
@@ -344,6 +352,7 @@
                         }}
                       </p>
                     </v-col>
+
                     <v-col cols="12" md="3" class="d-flex flex-column">
                       <template
                         v-if="player.event_status === 'Granted Passage'"
@@ -368,6 +377,7 @@
                           Away
                         </v-btn>
                       </template>
+
                       <template
                         v-else-if="player.event_status === 'Joined the Quest'"
                       >
@@ -387,6 +397,7 @@
                           </v-chip>
                         </v-row>
                       </template>
+
                       <template
                         v-else-if="player.event_status === 'Turned Away'"
                       >
@@ -403,6 +414,7 @@
                           </v-btn>
                         </v-row>
                       </template>
+
                       <template v-else>
                         <v-btn
                           color="green"
@@ -435,10 +447,7 @@
                 class="d-flex justify-center"
                 v-if="totalPages > 1"
               >
-                <v-pagination
-                  v-model="currentPage"
-                  :length="totalPages"
-                ></v-pagination>
+                <v-pagination v-model="currentPage" :length="totalPages" />
               </v-col>
             </v-row>
           </v-window-item>
@@ -446,7 +455,10 @@
           <!-- Setup Tab -->
           <v-window-item value="setup">
             <div class="setup-guide-container">
-              <InitialSetupViewer v-if="event?.scenario" :scenario="event.scenario" />
+              <InitialSetupViewer
+                v-if="event?.scenario"
+                :scenario="event.scenario"
+              />
             </div>
           </v-window-item>
         </v-window>
@@ -454,16 +466,21 @@
     </v-card>
 
     <!-- QR Code Dialog -->
-    <v-dialog v-model="qrCodeDialog" max-width="500" persistent>
+    <v-dialog
+      v-model="qrCodeDialog"
+      max-width="500"
+      :fullscreen="smAndDown"
+      persistent
+    >
       <v-card color="surface">
         <div v-if="generatingQR" class="dialog-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
 
         <v-card-title class="d-flex justify-space-between align-center">
-          <span class="text-h6">
-            Table {{ selectedTable?.table_number }} QR Code
-          </span>
+          <span class="text-h6"
+            >Table {{ selectedTable?.table_number }} QR Code</span
+          >
           <v-btn icon variant="text" @click="qrCodeDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -471,14 +488,39 @@
 
         <v-card-text class="text-center">
           <div v-if="qrCodeData" class="qr-code-container pa-6 mb-4">
-            <qrcode-vue
-              :value="qrCodeData.code"
-              :size="300"
-              level="H"
-              render-as="canvas"
-              class="mx-auto"
-            />
+            <div ref="qrCanvasWrap" class="d-flex justify-center">
+              <QrcodeVue
+                :value="qrCodeData.code"
+                :size="qrCanvasSize"
+                level="H"
+                render-as="canvas"
+              />
+            </div>
           </div>
+
+          <!-- ALERT SEMPRE VISÍVEL -->
+          <v-alert
+            v-if="qrCodeData"
+            type="success"
+            variant="tonal"
+            class="mb-4"
+          >
+            Share this QR code with your players. They must scan it to join the
+            table.
+          </v-alert>
+
+          <v-btn
+            block
+            color="primary"
+            size="large"
+            class="mb-4"
+            :disabled="!qrCodeData"
+            :loading="downloadingPdf"
+            @click="downloadQrPdf"
+          >
+            <v-icon start>mdi-download</v-icon>
+            Download QR Code (PDF)
+          </v-btn>
 
           <v-btn
             block
@@ -493,15 +535,11 @@
 
           <v-expand-transition>
             <div v-if="showPlayers">
-              <v-divider class="mb-4"></v-divider>
+              <v-divider class="mb-4" />
               <h4 class="text-left mb-3">Players at this table:</h4>
 
               <div v-if="loadingTablePlayers" class="text-center py-4">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                  size="40"
-                ></v-progress-circular>
+                <v-progress-circular indeterminate color="primary" size="40" />
               </div>
 
               <div
@@ -526,7 +564,7 @@
                             ? `https://assets.drunagor.app/Profile/${player.picture_hash}`
                             : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
                         "
-                      ></v-img>
+                      />
                     </v-avatar>
                   </template>
 
@@ -555,7 +593,7 @@
                 type="number"
                 variant="outlined"
                 hint="Leave empty to auto-generate"
-              ></v-text-field>
+              />
             </v-col>
             <v-col cols="12">
               <v-text-field
@@ -564,12 +602,12 @@
                 type="number"
                 variant="outlined"
                 :rules="[(v) => v > 0 || 'Must be greater than 0']"
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="grey" variant="text" @click="createTableDialog = false">
             Cancel
           </v-btn>
@@ -591,7 +629,7 @@
                 type="number"
                 variant="outlined"
                 :rules="[(v) => (v > 0 && v <= 50) || 'Between 1 and 50']"
-              ></v-text-field>
+              />
             </v-col>
             <v-col cols="12">
               <v-text-field
@@ -600,12 +638,12 @@
                 type="number"
                 variant="outlined"
                 :rules="[(v) => v > 0 || 'Must be greater than 0']"
-              ></v-text-field>
+              />
             </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn
             color="grey"
             variant="text"
@@ -623,28 +661,25 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, inject } from "vue";
+import { ref, computed, watch, inject, nextTick } from "vue";
+import { useDisplay } from "vuetify";
+import { jsPDF } from "jspdf";
 import QrcodeVue from "qrcode-vue3";
+import QRCode from "qrcode";
 import InitialSetupViewer from "@/components/InitialSetupViewer.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 
+const { smAndDown } = useDisplay();
+
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-  event: {
-    type: Object,
-    default: null,
-  },
+  modelValue: { type: Boolean, required: true },
+  event: { type: Object, default: null },
 });
 
 const emit = defineEmits(["update:modelValue", "refresh"]);
-
 const axios = inject("axios");
 
-// State
 const activeTab = ref("details");
 const dialogLoading = ref(false);
 const tables = ref([]);
@@ -654,26 +689,17 @@ const currentPage = ref(1);
 const totalPages = ref(1);
 const eventRewards = ref([]);
 
-// Statuses
 const statuses = ref([]);
 const grantedStatus = ref(null);
 const turnedAwayStatus = ref(null);
 const JoinedtheQuest = ref(null);
 
-// Table Creation
 const createTableDialog = ref(false);
 const createMultipleTablesDialog = ref(false);
 const creatingTable = ref(false);
-const newTable = ref({
-  table_number: null,
-  max_players: 4,
-});
-const multipleTables = ref({
-  quantity: 4,
-  max_players: 4,
-});
+const newTable = ref({ table_number: null, max_players: 4 });
+const multipleTables = ref({ quantity: 4, max_players: 4 });
 
-// QR Code
 const qrCodeDialog = ref(false);
 const generatingQR = ref(false);
 const selectedTable = ref(null);
@@ -682,7 +708,53 @@ const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
 
-// Methods
+const qrTutorial = ref({
+  active: false,
+  step: 1, // 1 = gerar QR, 2 = compartilhar, 3 = finalizado
+});
+
+const qrCanvasWrap = ref(null);
+const qrPngDataUrl = ref("");
+const qrCanvasSize = computed(() => (smAndDown.value ? 240 : 300));
+const downloadingPdf = ref(false);
+
+const qrTutorialCopy = computed(() => {
+  if (!qrTutorial.value.active) return null;
+
+  if (qrTutorial.value.step === 1) {
+    return {
+      title: "Step 1 — Generate a QR Code",
+      message:
+        'Tap "Generate QR Code" on your table. Players will scan it to join the table for this event.',
+    };
+  }
+
+  if (qrTutorial.value.step === 2) {
+    return {
+      title: "Step 2 — Share it with players",
+      message:
+        "Great. Now share this QR code with your players. They should scan it with their phone camera to check in and join the table.",
+    };
+  }
+
+  return {
+    title: "All set",
+    message:
+      "Your QR code is ready. Share it with players before the event starts.",
+  };
+});
+
+const tablesAlertCopy = computed(() => {
+  if (qrTutorial.value.active && qrTutorialCopy.value)
+    return qrTutorialCopy.value;
+
+  return {
+    title: "QR Code Setup",
+    message:
+      "Generate a QR code for each table and share it with your players. They will scan it to join the table.",
+  };
+});
+
 const getSeasonInfo = (fk) => {
   if (fk == 2) return { flag: s1flag, name: "Season 1" };
   if (fk == 3) return { flag: s2flag, name: "Season 2" };
@@ -706,9 +778,7 @@ const openInGoogleMaps = () => {
   window.open(mapsUrl, "_blank");
 };
 
-const closeDialog = () => {
-  emit("update:modelValue", false);
-};
+const closeDialog = () => emit("update:modelValue", false);
 
 const fetchTablesForEvent = async (eventFk) => {
   loadingTables.value = true;
@@ -785,9 +855,7 @@ const fetchEventRewards = async (eventFk) => {
 };
 
 const refreshPlayers = () => {
-  if (props.event?.events_pk) {
-    fetchPlayersForEvent(props.event.events_pk);
-  }
+  if (props.event?.events_pk) fetchPlayersForEvent(props.event.events_pk);
 };
 
 const updatePlayerStatus = async (player, statusPk) => {
@@ -806,16 +874,12 @@ const updatePlayerStatus = async (player, statusPk) => {
     });
     await fetchPlayersForEvent(props.event.events_pk);
 
-    // Grant rewards if starting event
     if (statusPk === JoinedtheQuest.value && eventRewards.value.length > 0) {
       await Promise.all(
         eventRewards.value.map((reward) =>
           axios.post(
             "/rl_users_rewards/cadastro",
-            {
-              users_fk: player.users_pk,
-              rewards_fk: reward.rewards_pk,
-            },
+            { users_fk: player.users_pk, rewards_fk: reward.rewards_pk },
             {
               headers: {
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -851,10 +915,8 @@ const createTable = async () => {
       max_players: newTable.value.max_players || 4,
       active: true,
     };
-
-    if (newTable.value.table_number) {
+    if (newTable.value.table_number)
       payload.table_number = newTable.value.table_number;
-    }
 
     await axios.post("/event_tables/create", payload, {
       headers: {
@@ -916,11 +978,30 @@ const deleteTable = async (eventTablesPk) => {
   }
 };
 
+const captureQrPngFromCanvas = async () => {
+  qrPngDataUrl.value = "";
+  if (!qrCanvasWrap.value) return;
+
+  await nextTick();
+  await new Promise((resolve) => requestAnimationFrame(resolve));
+
+  const canvas = qrCanvasWrap.value.querySelector("canvas");
+  if (!canvas) return;
+
+  try {
+    qrPngDataUrl.value = canvas.toDataURL("image/png");
+  } catch (err) {
+    console.error("Failed to read QR canvas:", err);
+    qrPngDataUrl.value = "";
+  }
+};
+
 const generateQRCode = async (table) => {
   selectedTable.value = table;
   generatingQR.value = true;
   qrCodeDialog.value = true;
   showPlayers.value = false;
+  qrPngDataUrl.value = "";
 
   try {
     const { data } = await axios.post("/qr_code/generate", null, {
@@ -935,6 +1016,10 @@ const generateQRCode = async (table) => {
     });
 
     qrCodeData.value = data;
+
+    if (qrTutorial.value.active) qrTutorial.value.step = 2;
+
+    await captureQrPngFromCanvas();
   } catch (error) {
     console.error("Error generating QR Code:", error);
     alert(error.response?.data?.message || "Failed to generate QR Code");
@@ -944,10 +1029,16 @@ const generateQRCode = async (table) => {
   }
 };
 
-const showTablePlayers = async () => {
-  if (!showPlayers.value) {
-    await fetchTablePlayers();
+watch([qrCodeDialog, qrCodeData], async ([open, data]) => {
+  if (!open || !data?.code) {
+    qrPngDataUrl.value = "";
+    return;
   }
+  await captureQrPngFromCanvas();
+});
+
+const showTablePlayers = async () => {
+  if (!showPlayers.value) await fetchTablePlayers();
   showPlayers.value = !showPlayers.value;
 };
 
@@ -971,7 +1062,143 @@ const fetchTablePlayers = async () => {
   }
 };
 
-// Watchers
+const openTablesAndStartQrTutorial = async () => {
+  activeTab.value = "tables";
+  qrTutorial.value = { active: true, step: 1 };
+  await nextTick();
+};
+
+defineExpose({ openTablesAndStartQrTutorial });
+
+const loadImage = (src) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+
+const getQrPngDataUrl = async () => {
+  await nextTick();
+  await new Promise((r) => requestAnimationFrame(r));
+
+  const wrap = qrCanvasWrap.value;
+
+  if (wrap) {
+    const canvas = wrap.querySelector("canvas");
+    if (canvas) {
+      try {
+        return canvas.toDataURL("image/png");
+      } catch (e) {
+        console.error("toDataURL(canvas) failed:", e);
+      }
+    }
+
+    const svg = wrap.querySelector("svg");
+    if (svg) {
+      try {
+        if (!svg.getAttribute("xmlns")) {
+          svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        }
+
+        const svgString = new XMLSerializer().serializeToString(svg);
+        const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
+
+        const img = await loadImage(svgUrl);
+
+        const size = 900;
+        const c = document.createElement("canvas");
+        c.width = size;
+        c.height = size;
+
+        const ctx = c.getContext("2d");
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, size, size);
+        ctx.drawImage(img, 0, 0, size, size);
+
+        return c.toDataURL("image/png");
+      } catch (e) {
+        console.error("SVG -> PNG failed:", e);
+      }
+    }
+  }
+
+  if (qrCodeData.value?.code) {
+    try {
+      return await QRCode.toDataURL(qrCodeData.value.code, {
+        errorCorrectionLevel: "H",
+        width: 900,
+        margin: 1,
+      });
+    } catch (e) {
+      console.error("QRCode.toDataURL fallback failed:", e);
+    }
+  }
+
+  return "";
+};
+
+const downloadQrPdf = async () => {
+  try {
+    downloadingPdf.value = true;
+
+    const imgData = await getQrPngDataUrl();
+
+    if (!imgData || !selectedTable.value) {
+      alert("QR code image is not ready yet. Please try again.");
+      return;
+    }
+
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 48;
+
+    doc.setFontSize(18);
+    doc.text(`Table ${selectedTable.value.table_number} — QR Code`, margin, 56);
+
+    const qrSize = Math.min(360, pageWidth - margin * 2);
+    doc.addImage(imgData, "PNG", (pageWidth - qrSize) / 2, 80, qrSize, qrSize);
+
+    doc.setFontSize(12);
+    const y = 80 + qrSize + 36;
+    doc.text("How to use this QR code:", margin, y);
+
+    const steps = [
+      "1. Share this QR code with players before the event.",
+      "2. Players scan it using their phone camera (or any QR scanner app).",
+      "3. They will be redirected to the event check-in / table join page.",
+      "4. If needed, you can show the QR on your screen at the venue.",
+    ];
+
+    doc.text(steps, margin, y + 18, { maxWidth: pageWidth - margin * 2 });
+
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text(
+      "Tip: You can print this PDF and place it on the table.",
+      margin,
+      pageHeight - 40,
+    );
+
+    const filename = `event-${props.event?.events_pk || "unknown"}-table-${selectedTable.value.table_number}-qr.pdf`;
+    doc.save(filename);
+
+    if (qrTutorial.value.active) {
+      qrTutorial.value.step = 3;
+    }
+  } catch (err) {
+    console.error("downloadQrPdf failed:", err);
+    alert("Failed to download the QR code PDF.");
+  } finally {
+    downloadingPdf.value = false;
+  }
+};
+
 watch(
   () => props.modelValue,
   async (isOpen) => {
@@ -989,9 +1216,8 @@ watch(
 );
 
 watch(currentPage, () => {
-  if (props.modelValue && props.event) {
+  if (props.modelValue && props.event)
     fetchPlayersForEvent(props.event.events_pk);
-  }
 });
 </script>
 
@@ -1016,8 +1242,11 @@ watch(currentPage, () => {
 }
 
 .event-img {
-  width: 110px;
-  height: 110px;
+  width: 100%;
+  max-width: 110px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: 4px;
 }
 
@@ -1071,5 +1300,14 @@ watch(currentPage, () => {
   font-weight: 500;
   color: black;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 600px) {
+  .event-card {
+    margin-right: 0 !important;
+  }
+  .qr-code-container {
+    padding: 16px !important;
+  }
 }
 </style>
