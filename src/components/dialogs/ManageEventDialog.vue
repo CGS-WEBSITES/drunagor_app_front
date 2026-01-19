@@ -722,27 +722,10 @@ const downloadingPdf = ref(false);
 const qrTutorialCopy = computed(() => {
   if (!qrTutorial.value.active) return null;
 
-  if (qrTutorial.value.step === 1) {
-    return {
-      title: "Step 1 — Generate a QR Code",
-      message:
-        `Generate a QR code by clicking the Generate QR Code button below and share it with your players. 
-          They will scan it to enter the table.`,
-    };
-  }
-
-  if (qrTutorial.value.step === 2) {
-    return {
-      title: "Step 2 — Share it with players",
-      message:
-        "Great. Now share this QR code with your players. They should scan it with their phone camera to check in and join the table.",
-    };
-  }
-
   return {
-    title: "All set",
+    title: "Step 1 — Generate a QR Code",
     message:
-      "Your QR code is ready. Share it with players before the event starts.",
+      "Generate a QR code by clicking the Generate QR Code button below and share it with your players. They will scan it to enter the table.",
   };
 });
 
@@ -1019,8 +1002,6 @@ const generateQRCode = async (table) => {
 
     qrCodeData.value = data;
 
-    if (qrTutorial.value.active) qrTutorial.value.step = 2;
-
     await captureQrPngFromCanvas();
   } catch (error) {
     console.error("Error generating QR Code:", error);
@@ -1195,10 +1176,6 @@ const downloadQrPdf = async () => {
 
     const filename = `event-${props.event?.events_pk || "unknown"}-table-${selectedTable.value.table_number}-qr.pdf`;
     doc.save(filename);
-
-    if (qrTutorial.value.active) {
-      qrTutorial.value.step = 3;
-    }
   } catch (err) {
     console.error("downloadQrPdf failed:", err);
     alert("Failed to download the QR code PDF.");
