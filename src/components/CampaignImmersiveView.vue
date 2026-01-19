@@ -598,6 +598,7 @@
             <v-divider class="my-4 border-opacity-25"></v-divider>
             <CampaignLogSequentialAdventure
               :campaign-id="campaignId"
+              :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
               :hero="heroCardDialog.hero"
               :hide-manage-button="true"
             />
@@ -1142,13 +1143,40 @@ const fetchOpenedDoors = async () => {
     const previousSize = openedDoors.value.size;
     openedDoors.value = newOpenedDoors;
 
-    if (newOpenedDoors.size > previousSize && previousSize > 0) {
-      snackbar.value = {
-        visible: true,
-        text: "Another player opened a door!",
-        color: "info",
-      };
-      emit("refresh-campaign");
+    if (doors.length > 0) {
+      const sortedDoors = doors.sort((a: any, b: any) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      const latestDoor = sortedDoors[0];
+      const wing = (activeCampaignData.value.wing || "").toUpperCase();
+      const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
+      let incomingDoor = latestDoor.door_name.toUpperCase();
+
+      if (wing.includes("WING 4")) {
+        const hasChapel = doors.some((d: any) => d.door_name === 'DRACONIC CHAPEL');
+        const hasCrypts = doors.some((d: any) => d.door_name === 'CRYPTS');
+        const hasLaterStags = doors.some((d: any) => ['LIBRARY', 'LABORATORY', 'DRAGON BOSS'].includes(d.door_name));
+
+        if (hasChapel && hasCrypts && !hasLaterStags) {
+          incomingDoor = "BOTH OPEN";
+        }
+      }
+
+      if (currentDoor !== incomingDoor) {
+         campaignStore.updateCampaignProperty(props.campaignId, "door", incomingDoor);
+         if (props.campaign) props.campaign.door = incomingDoor;
+         
+         forcedDoorInstruction.value = incomingDoor;
+         openNarrativeDialog();
+
+         if (newOpenedDoors.size > previousSize && previousSize > 0) {
+            snackbar.value = {
+              visible: true,
+              text: `Sync: Area updated to ${incomingDoor}`,
+              color: "info",
+            };
+         }
+      }
     }
   } catch (error) {
     console.error("Error fetching opened doors:", error);
