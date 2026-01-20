@@ -11,6 +11,10 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
+      <div v-if="openingManageDialog" class="page-loading-overlay">
+        <v-progress-circular indeterminate size="80" color="primary" />
+      </div>
+
       <v-dialog v-model="errorDialog.show" max-width="400">
         <v-card>
           <v-card-title class="headline">Error</v-card-title>
@@ -763,6 +767,7 @@ const manageDialogRef = ref(null);
 const lastCreatedEventId = ref(null);
 const lastCreatedEventFallback = ref(null);
 const pendingSuccessAfterTutorial = ref(false);
+const openingManageDialog = ref(false);
 
 const getSeasonInfo = (fk) => {
   if (fk == 2) return { flag: s1flag, name: "Season 1" };
@@ -1237,6 +1242,7 @@ const createInitialTableForEvent = async (eventPk) => {
 
 const handleEventCreatedOk = async () => {
   successDialog.value = false;
+  openingManageDialog.value = true;
 
   try {
     await fetchUserCreatedEvents(showPast.value);
@@ -1254,15 +1260,23 @@ const handleEventCreatedOk = async () => {
     eventToOpen = lastCreatedEventFallback.value;
   }
 
-  if (!eventToOpen) return;
-
-  manageDialogRef.value?.openTablesAndStartQrTutorial?.();
+  if (!eventToOpen) {
+    openingManageDialog.value = false;
+    return;
+  }
 
   openManageDialog(eventToOpen);
+
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  manageDialogRef.value?.openTablesAndStartQrTutorial?.();
 
   activeTab.value = 2;
 
   await nextTick();
+
+  openingManageDialog.value = false;
 };
 
 const deleteEvent = (events_pk) => {
@@ -1549,6 +1563,20 @@ watch(showTutorialPrompt, (val, old) => {
 </script>
 
 <style scoped>
+.page-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .loading-overlay {
   position: absolute;
   top: 0;

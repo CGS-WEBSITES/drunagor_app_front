@@ -711,7 +711,7 @@ const startInTables = ref(false);
 
 const qrTutorial = ref({
   active: false,
-  step: 1, // 1 = gerar QR, 2 = compartilhar, 3 = finalizado
+  step: 1,
 });
 
 const qrCanvasWrap = ref(null);
@@ -723,7 +723,7 @@ const qrTutorialCopy = computed(() => {
   if (!qrTutorial.value.active) return null;
 
   return {
-    title: "Step 1 — Generate a QR Code",
+    title: "Generate a QR Code",
     message:
       "Generate a QR code by clicking the Generate QR Code button below and share it with your players. They will scan it to enter the table.",
   };
