@@ -703,7 +703,10 @@
     @refresh="handleRefresh"
   />
 
-  <TutorialPromptDialog v-model="showTutorialPrompt" />
+  <TutorialPromptDialog 
+    v-model="showTutorialPrompt" 
+    @tutorial-completed="handleTutorialCompleted"
+  />
 </template>
 
 <script setup>
@@ -1476,6 +1479,13 @@ const fetchAllRewards = () => {
     });
 };
 
+const handleTutorialCompleted = () => {
+  if (pendingSuccessAfterTutorial.value) {
+    pendingSuccessAfterTutorial.value = false;
+    successDialog.value = true;
+  }
+};
+
 onMounted(async () => {
   if (route.query.action === "create") {
     activeTab.value = 2;
@@ -1554,12 +1564,7 @@ watch(
   },
 );
 
-watch(showTutorialPrompt, (val, old) => {
-  if (old === true && val === false && pendingSuccessAfterTutorial.value) {
-    pendingSuccessAfterTutorial.value = false;
-    successDialog.value = true;
-  }
-});
+
 </script>
 
 <style scoped>

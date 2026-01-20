@@ -1158,10 +1158,11 @@ const downloadQrPdf = async () => {
     doc.text("How to use this QR code:", margin, y);
 
     const steps = [
-      "1. Share this QR code with players before the event.",
-      "2. Players scan it using their phone camera (or any QR scanner app).",
-      "3. They will be redirected to the event check-in / table join page.",
-      "4. If needed, you can show the QR on your screen at the venue.",
+      "1. Share this QR code with the players before the event.",
+      "2. Players need to be logged into the Drunagor app - https://drunagor.app/",
+      "3. After logging in, they will be directed to the Dashboard page, where there will be a 'PLAY' button.",
+      "4. The player needs to click this button and scan the QR code provided by the retailer.",
+      "5. By scanning the QR code, they will be redirected to the event table, where they need to select a hero.",
     ];
 
     doc.text(steps, margin, y + 18, { maxWidth: pageWidth - margin * 2 });
