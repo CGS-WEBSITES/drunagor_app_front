@@ -11,6 +11,10 @@
 
   <v-col cols="12" md="10" class="mx-auto">
     <v-card class="pb-12" min-height="500px" color="#151515">
+      <div v-if="openingManageDialog" class="page-loading-overlay">
+        <v-progress-circular indeterminate size="80" color="primary" />
+      </div>
+
       <v-dialog v-model="errorDialog.show" max-width="400">
         <v-card>
           <v-card-title class="headline">Error</v-card-title>
@@ -38,7 +42,7 @@
           <v-card-text>Event created successfully!</v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn text @click="successDialog = false">OK</v-btn>
+            <v-btn text @click="handleEventCreatedOk">OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -322,12 +326,6 @@
           </v-row>
         </div>
       </div>
-
-      <ManageEventDialog
-        v-model="manageDialog"
-        :event="selectedEvent"
-        @refresh="handleRefresh"
-      />
 
       <v-dialog v-model="dialog" max-width="600" min-height="410">
         <v-card color="surface">
@@ -689,11 +687,29 @@
     </v-card>
   </v-col>
 
-  <TutorialPromptDialog v-model="showTutorialPrompt" />
+  <ManageEventDialog
+    ref="manageDialogRef"
+    v-model="manageDialog"
+    :event="selectedEvent"
+    @refresh="handleRefresh"
+  />
+
+  <TutorialPromptDialog 
+    v-model="showTutorialPrompt" 
+    @tutorial-completed="handleTutorialCompleted"
+  />
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, inject } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onUnmounted,
+  inject,
+  nextTick,
+} from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter, useRoute } from "vue-router";
 import { useTutorialStore } from "@/store/TutorialStore";
@@ -741,6 +757,11 @@ const turnAwayConfirmDialog = ref({
   player: null,
 });
 const seasons = ref([]);
+const manageDialogRef = ref(null);
+const lastCreatedEventId = ref(null);
+const lastCreatedEventFallback = ref(null);
+const pendingSuccessAfterTutorial = ref(false);
+const openingManageDialog = ref(false);
 
 const getSeasonInfo = (fk) => {
   if (fk == 2) return { flag: s1flag, name: "Season 1" };
@@ -1063,145 +1084,176 @@ const roundTimeToNearest15Minutes = (timeString) => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      })
-      .then(({ data }) => {
-        const allStores = data.stores || [];
-        const found = allStores.find(
-          (s) =>
-            s.name?.toLowerCase().trim() ===
-            newEvent.value.store.toLowerCase().trim(),
-        );
+      );
+    })
+    .then(async ({ data }) => {
+      const created = data.event;
+      const id = created?.events_pk;
 
-        if (!found) {
-          errorDialog.value = { show: true, message: "Store not found." };
-          return Promise.reject("StoreNotFound");
-        }
-        if (!found.active) {
-          errorDialog.value = { show: true, message: "This store is inactive." };
-          return Promise.reject("StoreInactive");
-        }
-        if (!found.verified) {
-          errorDialog.value = {
-            show: true,
-            message: "Unverified stores cannot create events.",
-          };
-          return Promise.reject("StoreUnverified");
-        }
-
-        return found.stores_pk;
-      })
-      .then((storesFk) => {
-        const [h, m] = newEvent.value.hour.split(":").map(Number);
-        const ampm = newEvent.value.ampm || "AM";
-        const hh = String(h).padStart(2, "0");
-        const mm = String(m).padStart(2, "0");
-        const date = `${newEvent.value.date}; ${hh}:${mm} ${ampm}`;
-
-        return axios.post(
-          "/events/cadastro",
-          {
-            seats_number: 0,
-            seasons_fk: newEvent.value.season,
-            sceneries_fk: newEvent.value.scenario,
-            date,
-            stores_fk: storesFk,
-            users_fk: userId,
-            active: true,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
-        );
-      })
-      .then(({ data }) => {
-        const id = data.event?.events_pk;
-        if (!id) {
-          errorDialog.value = {
-            show: true,
-            message: "Error creating event. Please try again.",
-          };
-          return Promise.reject("EventCreationFailed");
-        }
-        return Promise.all(
-          selectedRewards.value.map((r) =>
-            axios
-              .post(
-                "/rl_events_rewards/cadastro",
-                {
-                  events_fk: id,
-                  rewards_fk: r.rewards_pk,
-                  active: true,
-                },
-                {
-                  headers: {
-                    Authorization: `Bearer ${localStorage.getItem(
-                      "accessToken",
-                    )}`,
-                  },
-                },
-              )
-              .catch(() => null),
-          ),
-        ).then(() => id);
-      })
-      .then((id) => {
-        successDialog.value = true;
-        createEventDialog.value = false;
-
-        fetchUserCreatedEvents(showPast.value).catch(() => {});
-        fetchPlayerEvents().catch(() => {});
-
-        setTimeout(() => {
-          if (tutorialStore.shouldShowInitialSetup) {
-            showTutorialPrompt.value = true;
-          }
-        }, 500);
-
-        newEvent.value = {
-          date: "",
-          hour: "",
-          ampm: "AM",
-          store: "",
-          season: null,
-          scenario: null,
+      if (!id) {
+        errorDialog.value = {
+          show: true,
+          message: "Error creating event. Please try again.",
         };
-        selectedRewards.value = [];
-      })
-      .catch((err) => {
-        if (
-          [
-            "StoreNotFound",
-            "StoreInactive",
-            "StoreUnverified",
-            "EventCreationFailed",
-          ].includes(err)
-        )
-          return;
-        console.error("Unexpected error:", err);
-        loading.value = false;
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-  };
+        return Promise.reject("EventCreationFailed");
+      }
 
-  const deleteEvent = (events_pk) => {
-    axios
-      .delete(`/events/${events_pk}/delete/`, {
+      lastCreatedEventId.value = id;
+
+      lastCreatedEventFallback.value = {
+        ...(created || {}),
+        events_pk: id,
+        store_name: created?.store_name || newEvent.value.store || "",
+        address: created?.address || newEvent.value.address || "",
+        scenario: created?.scenario || "",
+        seats_number: created?.seats_number || newEvent.value.seats || null,
+        event_date: created?.event_date || null,
+      };
+
+      await createInitialTableForEvent(id);
+
+      return Promise.all(
+        selectedRewards.value.map((r) =>
+          axios
+            .post(
+              "/rl_events_rewards/cadastro",
+              {
+                events_fk: id,
+                rewards_fk: r.rewards_pk,
+                active: true,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken",
+                  )}`,
+                },
+              },
+            )
+            .catch(() => null),
+        ),
+      ).then(() => id);
+    })
+    .then((id) => {
+      successDialog.value = false;
+      createEventDialog.value = false;
+
+      fetchUserCreatedEvents(showPast.value).catch(() => {});
+      fetchPlayerEvents(showPast.value).catch(() => {});
+
+      pendingSuccessAfterTutorial.value = true;
+
+      if (tutorialStore.shouldShowInitialSetup) {
+        pendingSuccessAfterTutorial.value = true;
+        showTutorialPrompt.value = true;
+      } else {
+        pendingSuccessAfterTutorial.value = false;
+        successDialog.value = true;
+      }
+
+      newEvent.value = {
+        date: "",
+        hour: "",
+        ampm: "AM",
+        store: "",
+        seats: null,
+        season: null,
+        scenario: null,
+      };
+      selectedRewards.value = [];
+    })
+    .catch((err) => {
+      if (
+        [
+          "StoreNotFound",
+          "StoreInactive",
+          "StoreUnverified",
+          "EventCreationFailed",
+        ].includes(err)
+      )
+        return;
+      console.error("Unexpected error:", err);
+      loading.value = false;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
+const createInitialTableForEvent = async (eventPk) => {
+  try {
+    await axios.post(
+      "/event_tables/create",
+      {
+        events_fk: eventPk,
+        max_players: 4,
+        active: true,
+      },
+      {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      })
-      .then(() => {
-        fetchUserCreatedEvents(showPast.value);
-        fetchPlayerEvents(showPast.value);
-      })
-      .catch((error) => {
-        console.error("Error deleting event:", error);
-      });
-  };
+      },
+    );
+  } catch (err) {
+    console.error("Error creating initial table:", err);
+  }
+};
+
+const handleEventCreatedOk = async () => {
+  successDialog.value = false;
+  openingManageDialog.value = true;
+
+  try {
+    await fetchUserCreatedEvents(showPast.value);
+  } catch (_) {}
+
+  let eventToOpen = null;
+
+  if (lastCreatedEventId.value) {
+    eventToOpen = userCreatedEvents.value.find(
+      (e) => e.events_pk === lastCreatedEventId.value,
+    );
+  }
+
+  if (!eventToOpen && lastCreatedEventFallback.value) {
+    eventToOpen = lastCreatedEventFallback.value;
+  }
+
+  if (!eventToOpen) {
+    openingManageDialog.value = false;
+    return;
+  }
+
+  openManageDialog(eventToOpen);
+
+  await nextTick();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+
+  manageDialogRef.value?.openTablesAndStartQrTutorial?.();
+
+  activeTab.value = 2;
+
+  await nextTick();
+
+  openingManageDialog.value = false;
+};
+
+const deleteEvent = (events_pk) => {
+  axios
+    .delete(`/events/${events_pk}/delete/`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then(() => {
+      fetchUserCreatedEvents(showPast.value);
+      fetchPlayerEvents(showPast.value);
+    })
+    .catch((error) => {
+      console.error("Error deleting event:", error);
+    });
+};
 
   const openCreateEventDialog = () => {
     createEventDialog.value = true;
@@ -1384,6 +1436,13 @@ const fetchAllRewards = () => {
     });
 };
 
+const handleTutorialCompleted = () => {
+  if (pendingSuccessAfterTutorial.value) {
+    pendingSuccessAfterTutorial.value = false;
+    successDialog.value = true;
+  }
+};
+
 onMounted(async () => {
   if (route.query.action === "create") {
     activeTab.value = 2;
@@ -1461,9 +1520,25 @@ watch(
     }
   },
 );
+
+
 </script>
 
 <style scoped>
+.page-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -1500,8 +1575,11 @@ watch(
 }
 
 .event-img {
-  width: 110px;
-  height: 110px;
+  width: 100%;
+  max-width: 110px;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
   border-radius: 4px;
 }
 
@@ -1537,9 +1615,7 @@ watch(
   height: 60px;
   z-index: 2;
 }
-</style>
 
-<style>
 .cinzel-text {
   font-family: "Cinzel", serif;
 }
@@ -1667,5 +1743,11 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .event-card {
+    margin-right: 0 !important;
+  }
 }
 </style>

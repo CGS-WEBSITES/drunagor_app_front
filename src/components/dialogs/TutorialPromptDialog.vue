@@ -102,6 +102,8 @@ const { mobile } = useDisplay();
 const tutorialStore = useTutorialStore();
 
 const dialog = defineModel('modelValue', { type: Boolean, default: false });
+const emit = defineEmits(['tutorial-completed']);
+
 const dontShowAgain = ref(false);
 const assemblyDialog = ref(false);
 
@@ -120,10 +122,14 @@ const handleNo = () => {
     tutorialStore.setInitialSetupPreference(true);
   }
   dialog.value = false;
+
+  emit('tutorial-completed');
 };
 
 const closeAssemblyGuide = () => {
   assemblyDialog.value = false;
+
+  emit('tutorial-completed');
 };
 </script>
 
