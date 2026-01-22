@@ -1068,7 +1068,7 @@
           </div>
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12">
                 <v-select
                   v-model="newEvent.store"
                   :items="stores.map((store) => store.name)"
@@ -1078,15 +1078,6 @@
                   no-data-text="No stores found"
                 />
               </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="newEvent.seats"
-                  :items="[1, 2, 3, 4]"
-                  label="SEATS"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-
               <v-col cols="12" md="6">
                 <v-select
                   v-model="newEvent.season"
@@ -1492,21 +1483,6 @@ const openInGoogleMaps = () => {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
 
   window.open(mapsUrl, "_blank");
-};
-
-const validateTime = () => {
-  const value = editableEvent.value.hour;
-  if (!value || value.length !== 5 || !value.includes(":")) return;
-  let [hh, mm] = value.split(":");
-  hh = parseInt(hh);
-  mm = parseInt(mm);
-  if (isNaN(hh) || hh < 1) hh = 1;
-  if (hh > 12) hh = 12;
-  if (isNaN(mm)) mm = 0;
-  if (mm > 59) mm = 59;
-  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
-    .toString()
-    .padStart(2, "0")}`;
 };
 
 // ==========================
@@ -2078,6 +2054,21 @@ const removeReward = async (reward) => {
   }
 };
 
+const roundTimeToNearest15Minutes = (timeString) => {
+  if (!timeString || !timeString.includes(':')) return timeString;
+  
+  const [hours, minutes] = timeString.split(':').map(Number);
+  // Arredonda minutos para o múltiplo de 5 mais próximo
+  const roundedMinutes = Math.round(minutes / 5) * 5;
+  // Se arredondar para 60, adicionar 1 hora e zerar minutos
+  if (roundedMinutes === 60) {
+    const newHours = hours === 12 ? 1 : hours + 1;
+    return `${String(newHours).padStart(2, '0')}:00`;
+  }
+  
+  return `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+};
+
 const addEvent = () => {
   loading.value = true;
   errorDialog.value.show = false;
@@ -2089,7 +2080,6 @@ const addEvent = () => {
     !newEvent.value.date ||
     !newEvent.value.hour ||
     !newEvent.value.store ||
-    !newEvent.value.seats ||
     !newEvent.value.season ||
     !newEvent.value.scenario ||
     !userId
@@ -2101,6 +2091,8 @@ const addEvent = () => {
     loading.value = false;
     return;
   }
+
+  newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
 
   axios
     .get("/stores/list", {
@@ -2145,7 +2137,7 @@ const addEvent = () => {
       return axios.post(
         "/events/cadastro",
         {
-          seats_number: newEvent.value.seats,
+          seats_number: 0,
           seasons_fk: newEvent.value.season,
           sceneries_fk: newEvent.value.scenario,
           date,
@@ -2209,7 +2201,6 @@ const addEvent = () => {
         hour: "",
         ampm: "AM",
         store: "",
-        seats: null,
         season: null,
         scenario: null,
       };
@@ -2254,6 +2245,21 @@ const deleteEvent = (events_pk) => {
 
 const openCreateEventDialog = () => {
   createEventDialog.value = true;
+};
+
+const validateTime = () => {
+  const value = editableEvent.value.hour;
+  if (!value || value.length !== 5 || !value.includes(":")) return;
+  let [hh, mm] = value.split(":");
+  hh = parseInt(hh);
+  mm = parseInt(mm);
+  if (isNaN(hh) || hh < 1) hh = 1;
+  if (hh > 12) hh = 12;
+  if (isNaN(mm)) mm = 0;
+  if (mm > 59) mm = 59;
+  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 const saveEditedEvent = () => {
