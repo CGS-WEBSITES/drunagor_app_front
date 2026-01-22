@@ -133,501 +133,11 @@
       </div>
     </div>
 
-    <v-dialog
+    <ManageEventDialog
       v-model="manageDialog"
-      scroll-target="#app"
-      max-width="900"
-      persistent
-    >
-      <v-card color="surface">
-        <div v-if="dialogLoading" class="dialog-overlay">
-          <v-progress-circular indeterminate size="80" color="primary" />
-        </div>
-
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span class="text-h6">Manage Event</span>
-          <v-btn icon variant="text" @click="manageDialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-
-        <v-tabs
-          v-model="activeTab"
-          bg-color="background"
-          centered
-          grow
-          class="mb-4"
-        >
-          <v-tab value="tables">
-            <v-icon start>mdi-table-chair</v-icon> Tables
-          </v-tab>
-          <v-tab value="players">
-            <v-icon start>mdi-account-group</v-icon> Players
-          </v-tab>
-        </v-tabs>
-
-        <v-card-text>
-          <v-window v-model="activeTab">
-            <v-window-item value="tables">
-              <v-row class="mb-4">
-                <v-col
-                  cols="12"
-                  class="d-flex justify-space-between align-center flex-wrap"
-                >
-                  <h3 class="text-h6 mb-2 mb-md-0">Event Tables</h3>
-                  <div class="d-flex gap-3 flex-wrap">
-                    <v-btn
-                      color="primary"
-                      @click="openCreateTableDialog"
-                      size="default"
-                    >
-                      <v-icon start>mdi-plus</v-icon> Create Table
-                    </v-btn>
-                    <v-btn
-                      color="secondary"
-                      @click="openCreateMultipleTablesDialog"
-                      size="default"
-                    >
-                      <v-icon start>mdi-table-multiple</v-icon> Create Multiple
-                      Tables
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
-
-              <div v-if="loadingTables" class="text-center py-6">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                ></v-progress-circular>
-              </div>
-
-              <v-row v-else>
-                <v-col
-                  cols="12"
-                  v-if="tables.length === 0"
-                  class="text-center text-grey py-6"
-                >
-                  No tables created yet. Create your first table!
-                </v-col>
-
-                <v-col
-                  v-for="table in tables"
-                  :key="table.event_tables_pk"
-                  cols="12"
-                  sm="6"
-                  md="4"
-                >
-                  <v-card
-                    class="pa-4 table-card"
-                    elevation="4"
-                    rounded="lg"
-                    @click="generateQRCode(table)"
-                  >
-                    <v-row no-gutters>
-                      <v-col
-                        cols="12"
-                        class="d-flex justify-space-between align-center mb-2"
-                      >
-                        <v-chip
-                          color="primary"
-                          size="small"
-                          label
-                          class="font-weight-bold"
-                        >
-                          <v-icon start color="white" size="small">
-                            mdi-table-furniture
-                          </v-icon>
-                          <span class="table-number-text">
-                            Table {{ table.table_number }}
-                          </span>
-                        </v-chip>
-                        <v-btn
-                          icon
-                          size="small"
-                          color="red"
-                          variant="text"
-                          @click.stop="deleteTable(table.event_tables_pk)"
-                        >
-                          <v-icon>mdi-delete</v-icon>
-                        </v-btn>
-                      </v-col>
-
-                      <v-col cols="12">
-                        <div
-                          class="d-flex align-center justify-space-between mb-2"
-                        >
-                          <span class="text-caption text-grey">Players</span>
-                          <v-chip
-                            size="small"
-                            :color="table.is_full ? 'red' : 'green'"
-                            variant="flat"
-                          >
-                            {{ table.players_count }}/{{ table.max_players }}
-                          </v-chip>
-                        </div>
-                        <v-progress-linear
-                          :model-value="
-                            (table.players_count / table.max_players) * 100
-                          "
-                          :color="table.is_full ? 'red' : 'green'"
-                          height="8"
-                          rounded
-                        ></v-progress-linear>
-                      </v-col>
-
-                      <v-col cols="12" class="mt-3">
-                        <div class="text-caption text-grey">
-                          <v-icon size="small" class="mr-1">mdi-seat</v-icon>
-                          {{ table.available_seats }} seat(s) available
-                        </div>
-                      </v-col>
-
-                      <v-col cols="12" class="mt-2">
-                        <v-btn
-                          block
-                          size="small"
-                          color="white"
-                          variant="tonal"
-                          @click.stop="generateQRCode(table)"
-                        >
-                          <v-icon start size="small">mdi-qrcode</v-icon>
-                          Generate QR Code
-                        </v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-window-item>
-
-            <v-window-item value="players">
-              <v-row>
-                <v-col cols="12" class="d-flex align-end flex-column">
-                  <p class="pb-3 font-weight-bold">
-                    PLAYERS INTERESTED
-                    <v-btn
-                      icon
-                      size="medium"
-                      variant="text"
-                      @click="fetchPlayersForEvent(selectedEvent.events_pk)"
-                    >
-                      <v-icon class="mb-1" color="white">mdi-refresh</v-icon>
-                    </v-btn>
-                  </p>
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  v-for="player in playersByEvent"
-                  :key="player.users_pk"
-                  class="pa-1"
-                >
-                  <v-card class="player-card mb-3" rounded="lg" elevation="10">
-                    <v-row no-gutters>
-                      <v-col cols="4" lg="1" class="d-flex">
-                        <v-img
-                          :src="
-                            player.picture_hash
-                              ? `https://assets.drunagor.app/Profile/${player.picture_hash}`
-                              : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
-                          "
-                          alt="Player Image"
-                          max-width="90"
-                          max-height="90"
-                          class="rounded-lg"
-                        ></v-img>
-                      </v-col>
-                      <v-col
-                        cols="8"
-                        class="pl-3 d-flex flex-column justify-center"
-                      >
-                        <p class="font-weight-bold text-truncate">
-                          {{ player.user_name }}
-                        </p>
-                        <p class="text-caption">
-                          Status: {{ player.event_status }}
-                        </p>
-                        <p
-                          v-if="player.status_date"
-                          class="text-caption grey--text"
-                        >
-                          Received:
-                          {{
-                            new Date(player.status_date).toLocaleString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              },
-                            )
-                          }}
-                        </p>
-                      </v-col>
-                      <v-col cols="12" md="3" class="d-flex flex-column">
-                        <template
-                          v-if="player.event_status === 'Granted Passage'"
-                        >
-                          <v-btn
-                            color="deep-purple"
-                            size="x-small"
-                            class="mt-2 mt-md-0 pa-0"
-                            block
-                            @click="updatePlayerStatus(player, JoinedtheQuest)"
-                          >
-                            <v-icon start>mdi-flag-checkered</v-icon>Start Event
-                          </v-btn>
-                          <v-btn
-                            color="red"
-                            size="x-small"
-                            class="mt-2"
-                            block
-                            @click="
-                              updatePlayerStatus(player, turnedAwayStatus)
-                            "
-                          >
-                            <v-icon start>mdi-close-circle-outline</v-icon>Turn
-                            Away
-                          </v-btn>
-                        </template>
-                        <template
-                          v-else-if="player.event_status === 'Joined the Quest'"
-                        >
-                          <v-row
-                            no-gutters
-                            class="fill-height"
-                            align="center"
-                            justify="center"
-                          >
-                            <v-chip
-                              color="yellow"
-                              text-color="black"
-                              class="ma-1"
-                              label
-                            >
-                              <v-icon start>mdi-sword-cross</v-icon>Playing
-                            </v-chip>
-                          </v-row>
-                        </template>
-                        <template
-                          v-else-if="player.event_status === 'Turned Away'"
-                        >
-                          <v-row
-                            no-gutters
-                            class="fill-height"
-                            align="center"
-                            justify="center"
-                          >
-                            <v-btn icon disabled class="ma-0 pa-0">
-                              <v-icon color="red" size="24"
-                                >mdi-close-circle</v-icon
-                              >
-                            </v-btn>
-                          </v-row>
-                        </template>
-                        <template v-else>
-                          <v-btn
-                            color="green"
-                            size="x-small"
-                            class="mt-2"
-                            block
-                            @click="updatePlayerStatus(player, grantedStatus)"
-                          >
-                            <v-icon start>mdi-check-circle-outline</v-icon>Grant
-                            Passage
-                          </v-btn>
-                          <v-btn
-                            color="red"
-                            size="x-small"
-                            class="mt-2"
-                            block
-                            @click="
-                              updatePlayerStatus(player, turnedAwayStatus)
-                            "
-                          >
-                            <v-icon start>mdi-close-circle-outline</v-icon>Turn
-                            Away
-                          </v-btn>
-                        </template>
-                      </v-col>
-                    </v-row>
-                  </v-card>
-                </v-col>
-
-                <v-col
-                  cols="12"
-                  class="d-flex justify-center"
-                  v-if="totalPages > 1"
-                >
-                  <v-pagination
-                    v-model="currentPage"
-                    :length="totalPages"
-                  ></v-pagination>
-                </v-col>
-              </v-row>
-            </v-window-item>
-          </v-window>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="qrCodeDialog" max-width="500" persistent>
-      <v-card color="surface">
-        <div v-if="generatingQR" class="dialog-overlay">
-          <v-progress-circular indeterminate size="80" color="primary" />
-        </div>
-
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span class="text-h6">
-            Table {{ selectedTable?.table_number }} QR Code
-          </span>
-          <v-btn icon variant="text" @click="qrCodeDialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-
-        <v-card-text class="text-center">
-          <div v-if="qrCodeData" class="qr-code-container pa-6 mb-4">
-            <qrcode-vue
-              :value="qrCodeData.code"
-              :size="300"
-              level="H"
-              render-as="canvas"
-              class="mx-auto"
-            />
-          </div>
-
-          <v-btn
-            block
-            color="secondary"
-            size="large"
-            class="mb-4"
-            @click="showTablePlayers"
-          >
-            <v-icon start>mdi-account-group</v-icon>
-            View Players ({{ tablePlayers.length }})
-          </v-btn>
-
-          <v-expand-transition>
-            <div v-if="showPlayers">
-              <v-divider class="mb-4"></v-divider>
-              <h4 class="text-left mb-3">Players at this table:</h4>
-
-              <div v-if="loadingTablePlayers" class="text-center py-4">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                  size="40"
-                ></v-progress-circular>
-              </div>
-
-              <div
-                v-else-if="tablePlayers.length === 0"
-                class="text-center text-grey py-4"
-              >
-                No players at this table yet.
-              </div>
-
-              <v-list v-else class="transparent">
-                <v-list-item
-                  v-for="player in tablePlayers"
-                  :key="player.users_pk"
-                  class="mb-2 rounded-lg"
-                  elevation="2"
-                >
-                  <template v-slot:prepend>
-                    <v-avatar size="40">
-                      <v-img
-                        :src="
-                          player.picture_hash
-                            ? `https://assets.drunagor.app/Profile/${player.picture_hash}`
-                            : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
-                        "
-                      ></v-img>
-                    </v-avatar>
-                  </template>
-
-                  <v-list-item-title>{{ player.user_name }}</v-list-item-title>
-                  <v-list-item-subtitle v-if="player.party_role">
-                    {{ player.party_role }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </v-list>
-            </div>
-          </v-expand-transition>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="createTableDialog" max-width="400">
-      <v-card color="surface">
-        <v-card-title>Create New Table</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model.number="newTable.max_players"
-                label="Max Players"
-                type="number"
-                variant="outlined"
-                :rules="[(v) => v > 0 || 'Must be greater than 0']"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="createTableDialog = false">
-            Cancel
-          </v-btn>
-          <v-btn :loading="creatingTable" @click="createTable">Create</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="createMultipleTablesDialog" max-width="400">
-      <v-card color="surface">
-        <v-card-title>Create Multiple Tables</v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model.number="multipleTables.quantity"
-                label="Number of Tables"
-                type="number"
-                variant="outlined"
-                :rules="[(v) => (v > 0 && v <= 50) || 'Between 1 and 50']"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field
-                v-model.number="multipleTables.max_players"
-                label="Max Players per Table"
-                type="number"
-                variant="outlined"
-                :rules="[(v) => v > 0 || 'Must be greater than 0']"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="grey"
-            variant="text"
-            @click="createMultipleTablesDialog = false"
-          >
-            Cancel
-          </v-btn>
-          <v-btn :loading="creatingTable" @click="createMultipleTables">
-            Create
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      :event="selectedEvent"
+      @refresh="fetchUserCreatedEvents"
+    />
 
     <v-dialog v-model="createStoreDialog" max-width="600" persistent>
       <v-card>
@@ -722,13 +232,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject, watch } from "vue";
+import { ref, computed, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import { useDisplay } from "vuetify";
-import QrcodeVue from "qrcode-vue3";
 import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
+import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 
@@ -737,39 +247,9 @@ const userStore = useUserStore();
 const axios = inject("axios");
 const display = useDisplay();
 const loading = ref(true);
-const dialogLoading = ref(false);
 const userCreatedEvents = ref([]);
 const selectedEvent = ref(null);
 const manageDialog = ref(false);
-const playersByEvent = ref([]);
-const activeTab = ref("tables");
-const tables = ref([]);
-const loadingTables = ref(false);
-const createTableDialog = ref(false);
-const createMultipleTablesDialog = ref(false);
-const creatingTable = ref(false);
-const newTable = ref({
-  max_players: 4,
-});
-const multipleTables = ref({
-  quantity: 4,
-  max_players: 4,
-});
-const qrCodeDialog = ref(false);
-const generatingQR = ref(false);
-const selectedTable = ref(null);
-const qrCodeData = ref(null);
-const showPlayers = ref(false);
-const tablePlayers = ref([]);
-const loadingTablePlayers = ref(false);
-const tablePlayersRefreshTimer = ref(null);
-const TABLE_PLAYERS_REFRESH_INTERVAL = 3000;
-const currentPage = ref(1);
-const totalPages = ref(1);
-const statuses = ref([]);
-const grantedStatus = ref(null);
-const turnedAwayStatus = ref(null);
-const JoinedtheQuest = ref(null);
 
 // Store Creation Vars
 const createStoreDialog = ref(false);
@@ -830,21 +310,11 @@ const fetchUserCreatedEvents = async () => {
   }
 };
 
-const openManageDialog = async (event) => {
+const openManageDialog = (event) => {
   selectedEvent.value = event;
-  currentPage.value = 1;
-  activeTab.value = "tables";
-
-  await Promise.all([
-    fetchTablesForEvent(event.events_pk),
-    fetchPlayersForEvent(event.events_pk),
-    fetchStatuses(),
-  ]);
-
   manageDialog.value = true;
 };
 
-// Funcao Principal de verificacao de loja
 const goToEventsPageAndCreate = async () => {
   try {
     const { data } = await axios.get("/stores/list", {
@@ -859,13 +329,11 @@ const goToEventsPageAndCreate = async () => {
     if (stores.length > 0) {
       router.push({ path: "/events", query: { action: "create" } });
     } else {
-      // Abre o modal de criar loja DENTRO da dashboard
       fetchCountries();
       createStoreDialog.value = true;
     }
   } catch (error) {
     if (error.response && error.response.status === 404) {
-      // Se deu 404 é pq nao tem loja, abre o modal
       fetchCountries();
       createStoreDialog.value = true;
     } else {
@@ -875,7 +343,6 @@ const goToEventsPageAndCreate = async () => {
   }
 };
 
-// Funcoes de Criacao de Loja Dinamica
 const fetchCountries = () => {
   if (countriesList.value.length > 0) return;
   axios
@@ -943,7 +410,6 @@ const saveNewStore = async () => {
       response.data.store?.stores_pk || response.data.stores_pk;
 
     if (newStorePk) {
-      // Valida automaticamente
       await axios.get(`/stores/${newStorePk}/verify`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -952,7 +418,6 @@ const saveNewStore = async () => {
     }
 
     createStoreDialog.value = false;
-    // Redireciona imediatamente para criar o evento
     router.push({ path: "/events", query: { action: "create" } });
   } catch (error) {
     console.error("Error creating store:", error);
@@ -962,260 +427,8 @@ const saveNewStore = async () => {
   }
 };
 
-const fetchTablesForEvent = async (eventFk) => {
-  loadingTables.value = true;
-  try {
-    const { data } = await axios.get(`/event_tables/list/${eventFk}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    tables.value = data.tables || [];
-  } catch (error) {
-    console.error("Error fetching tables:", error);
-    tables.value = [];
-  } finally {
-    loadingTables.value = false;
-  }
-};
-
-const generateQRCode = async (table) => {
-  selectedTable.value = table;
-  generatingQR.value = true;
-  qrCodeDialog.value = true;
-  showPlayers.value = false;
-
-  try {
-    const { data } = await axios.post("/qr_code/generate", null, {
-      params: {
-        events_fk: selectedEvent.value.events_pk,
-        event_tables_pk: table.event_tables_pk,
-        expires_in_hours: 24,
-      },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    qrCodeData.value = data;
-  } catch (error) {
-    console.error("Error generating QR Code:", error);
-    alert(error.response?.data?.message || "Failed to generate QR Code");
-    qrCodeDialog.value = false;
-  } finally {
-    generatingQR.value = false;
-  }
-};
-
-const showTablePlayers = async () => {
-  if (!showPlayers.value) {
-    await fetchTablePlayers();
-    
-    if (tablePlayersRefreshTimer.value) {
-      clearInterval(tablePlayersRefreshTimer.value);
-    }
-    tablePlayersRefreshTimer.value = setInterval(() => {
-      fetchTablePlayers();
-    }, TABLE_PLAYERS_REFRESH_INTERVAL);
-  } else {
-    if (tablePlayersRefreshTimer.value) {
-      clearInterval(tablePlayersRefreshTimer.value);
-      tablePlayersRefreshTimer.value = null;
-    }
-  }
-  showPlayers.value = !showPlayers.value;
-};
-
-
-const fetchTablePlayers = async () => {
-  if (!selectedTable.value) return;
-  
-  loadingTablePlayers.value = true;
-  try {
-    const { data } = await axios.get(
-      `/rl_events_users/table_players/${selectedEvent.value.events_pk}/${selectedTable.value.event_tables_pk}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
-    );
-    tablePlayers.value = data.players || [];
-  } catch (error) {
-    console.error("Error fetching table players:", error);
-    tablePlayers.value = [];
-  } finally {
-    loadingTablePlayers.value = false;
-  }
-};
-
-const openCreateTableDialog = () => {
-  newTable.value = { max_players: 4 };
-  createTableDialog.value = true;
-};
-
-const openCreateMultipleTablesDialog = () => {
-  multipleTables.value = { quantity: 4, max_players: 4 };
-  createMultipleTablesDialog.value = true;
-};
-
-const createTable = async () => {
-  creatingTable.value = true;
-  try {
-    const payload = {
-      events_fk: selectedEvent.value.events_pk,
-      max_players: newTable.value.max_players || 4,
-      active: true,
-    };
-
-    await axios.post("/event_tables/create", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    await fetchTablesForEvent(selectedEvent.value.events_pk);
-    createTableDialog.value = false;
-
-    if (tutorialStore.shouldShowInitialSetup) {
-      showTutorialPrompt.value = true;
-    }
-  } catch (error) {
-    console.error("Error creating table:", error);
-    alert(error.response?.data?.message || "Failed to create table");
-  } finally {
-    creatingTable.value = false;
-  }
-};
-
-const createMultipleTables = async () => {
-  creatingTable.value = true;
-  try {
-    const payload = {
-      events_fk: selectedEvent.value.events_pk,
-      quantity: multipleTables.value.quantity,
-      max_players: multipleTables.value.max_players || 4,
-    };
-
-    await axios.post("/event_tables/create_multiple", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    await fetchTablesForEvent(selectedEvent.value.events_pk);
-    createMultipleTablesDialog.value = false;
-  } catch (error) {
-    console.error("Error creating multiple tables:", error);
-    alert(error.response?.data?.message || "Failed to create tables");
-  } finally {
-    creatingTable.value = false;
-  }
-};
-
-const deleteTable = async (eventTablesPk) => {
-  if (!confirm("Are you sure you want to delete this table?")) return;
-
-  try {
-    await axios.delete(`/event_tables/${eventTablesPk}/delete`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    await fetchTablesForEvent(selectedEvent.value.events_pk);
-  } catch (error) {
-    console.error("Error deleting table:", error);
-    alert("Failed to delete table");
-  }
-};
-
-const fetchStatuses = async () => {
-  try {
-    const { data } = await axios.get("/event_status/search");
-    statuses.value = data.event_status;
-    grantedStatus.value = statuses.value.find(
-      (s) => s.name === "Granted Passage",
-    )?.event_status_pk;
-    turnedAwayStatus.value = statuses.value.find(
-      (s) => s.name === "Turned Away",
-    )?.event_status_pk;
-    JoinedtheQuest.value = statuses.value.find(
-      (s) => s.name === "Joined the Quest",
-    )?.event_status_pk;
-  } catch (error) {
-    console.error("Error fetching statuses:", error);
-  }
-};
-
-const fetchPlayersForEvent = async (eventFk) => {
-  dialogLoading.value = true;
-  try {
-    const params = {
-      events_fk: eventFk,
-      limit: 5,
-      offset: (currentPage.value - 1) * 5,
-    };
-    const { data } = await axios.get("/rl_events_users/list_players", {
-      params,
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    playersByEvent.value = data.players || [];
-    totalPages.value = data.last_page || 1;
-  } catch (error) {
-    console.error("Error fetching players:", error);
-    playersByEvent.value = [];
-  } finally {
-    dialogLoading.value = false;
-  }
-};
-
-const updatePlayerStatus = async (player, statusPk) => {
-  dialogLoading.value = true;
-  const payload = {
-    users_fk: player.users_pk,
-    events_fk: selectedEvent.value.events_pk,
-    status: statusPk,
-    active: true,
-  };
-  try {
-    await axios.post("/rl_events_users/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-    await fetchPlayersForEvent(selectedEvent.value.events_pk);
-  } catch (error) {
-    console.error("Error updating player status:", error);
-    alert("Failed to update player status");
-  } finally {
-    dialogLoading.value = false;
-  }
-};
-
 onMounted(async () => {
   await fetchUserCreatedEvents();
-});
-
-onUnmounted(() => {
-  if (tablePlayersRefreshTimer.value) {
-    clearInterval(tablePlayersRefreshTimer.value);
-  }
-});
-
-watch(qrCodeDialog, (newValue) => {
-  if (!newValue && tablePlayersRefreshTimer.value) {
-    clearInterval(tablePlayersRefreshTimer.value);
-    tablePlayersRefreshTimer.value = null;
-    showPlayers.value = false;
-  }
-});
-
-watch(currentPage, () => {
-  if (manageDialog.value && selectedEvent.value) {
-    fetchPlayersForEvent(selectedEvent.value.events_pk);
-  }
 });
 </script>
 
@@ -1258,28 +471,6 @@ watch(currentPage, () => {
 }
 .content-scroll {
   padding-bottom: 12px;
-}
-.table-card {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-.table-card:hover {
-  transform: translateY(-2px);
-}
-.qr-code-container {
-  background: white;
-  border-radius: 12px;
-}
-.table-number-text {
-  color: white !important;
-  font-weight: 700 !important;
-  font-size: 0.875rem;
-}
-.player-card {
-  padding: 10px !important;
-}
-.gap-3 {
-  gap: 12px !important;
 }
 .create-event-card {
   cursor: pointer;
