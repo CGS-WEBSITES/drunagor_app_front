@@ -453,7 +453,7 @@
           </div>
           <v-card-text>
             <v-row>
-              <v-col cols="12" md="6">
+              <v-col cols="12">
                 <v-select
                   v-model="newEvent.store"
                   :items="stores.map((store) => store.name)"
@@ -463,15 +463,6 @@
                   no-data-text="No stores found"
                 />
               </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="newEvent.seats"
-                  :items="[1, 2, 3, 4]"
-                  label="SEATS"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-
               <v-col cols="12" md="6">
                 <v-select
                   v-model="newEvent.season"
@@ -1026,182 +1017,197 @@ const removeReward = async (reward) => {
   }
 };
 
-const addEvent = () => {
-  loading.value = true;
-  errorDialog.value.show = false;
-  successDialog.value = false;
-
-  const userId = userStore.user.users_pk;
-
-  if (
-    !newEvent.value.date ||
-    !newEvent.value.hour ||
-    !newEvent.value.store ||
-    !newEvent.value.seats ||
-    !newEvent.value.season ||
-    !newEvent.value.scenario ||
-    !userId
-  ) {
-    errorDialog.value = {
-      show: true,
-      message: "Please fill in all fields before creating the event.",
-    };
-    loading.value = false;
-    return;
+const roundTimeToNearest15Minutes = (timeString) => {
+  if (!timeString || !timeString.includes(':')) return timeString;
+  
+  const [hours, minutes] = timeString.split(':').map(Number);
+  // Arredonda minutos para o múltiplo de 5 mais próximo
+  const roundedMinutes = Math.round(minutes / 5) * 5;
+  // Se arredondar para 60, adicionar 1 hora e zerar minutos
+  if (roundedMinutes === 60) {
+    const newHours = hours === 12 ? 1 : hours + 1;
+    return `${String(newHours).padStart(2, '0')}:00`;
   }
+  
+  return `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+};
 
-  axios
-    .get("/stores/list", {
-      params: { users_fk: userId },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    })
-    .then(({ data }) => {
-      const allStores = data.stores || [];
-      const found = allStores.find(
-        (s) =>
-          s.name?.toLowerCase().trim() ===
-          newEvent.value.store.toLowerCase().trim(),
-      );
+  const addEvent = () => {
+    loading.value = true;
+    errorDialog.value.show = false;
+    successDialog.value = false;
 
-      if (!found) {
-        errorDialog.value = { show: true, message: "Store not found." };
-        return Promise.reject("StoreNotFound");
-      }
-      if (!found.active) {
-        errorDialog.value = { show: true, message: "This store is inactive." };
-        return Promise.reject("StoreInactive");
-      }
-      if (!found.verified) {
-        errorDialog.value = {
-          show: true,
-          message: "Unverified stores cannot create events.",
-        };
-        return Promise.reject("StoreUnverified");
-      }
+    const userId = userStore.user.users_pk;
 
-      return found.stores_pk;
-    })
-    .then((storesFk) => {
-      const [h, m] = newEvent.value.hour.split(":").map(Number);
-      const ampm = newEvent.value.ampm || "AM";
-      const hh = String(h).padStart(2, "0");
-      const mm = String(m).padStart(2, "0");
-      const date = `${newEvent.value.date}; ${hh}:${mm} ${ampm}`;
-
-      return axios.post(
-        "/events/cadastro",
-        {
-          seats_number: newEvent.value.seats,
-          seasons_fk: newEvent.value.season,
-          sceneries_fk: newEvent.value.scenario,
-          date,
-          stores_fk: storesFk,
-          users_fk: userId,
-          active: true,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        },
-      );
-    })
-    .then(({ data }) => {
-      const id = data.event?.events_pk;
-      if (!id) {
-        errorDialog.value = {
-          show: true,
-          message: "Error creating event. Please try again.",
-        };
-        return Promise.reject("EventCreationFailed");
-      }
-      return Promise.all(
-        selectedRewards.value.map((r) =>
-          axios
-            .post(
-              "/rl_events_rewards/cadastro",
-              {
-                events_fk: id,
-                rewards_fk: r.rewards_pk,
-                active: true,
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem(
-                    "accessToken",
-                  )}`,
-                },
-              },
-            )
-            .catch(() => null),
-        ),
-      ).then(() => id);
-    })
-    .then((id) => {
-      successDialog.value = true;
-      createEventDialog.value = false;
-
-      fetchUserCreatedEvents(showPast.value).catch(() => {});
-      fetchPlayerEvents().catch(() => {});
-
-      setTimeout(() => {
-        if (tutorialStore.shouldShowInitialSetup) {
-          showTutorialPrompt.value = true;
-        }
-      }, 500);
-
-      newEvent.value = {
-        date: "",
-        hour: "",
-        ampm: "AM",
-        store: "",
-        seats: null,
-        season: null,
-        scenario: null,
+    if (
+      !newEvent.value.date ||
+      !newEvent.value.hour ||
+      !newEvent.value.store ||
+      !newEvent.value.season ||
+      !newEvent.value.scenario ||
+      !userId
+    ) {
+      errorDialog.value = {
+        show: true,
+        message: "Please fill in all fields before creating the event.",
       };
-      selectedRewards.value = [];
-    })
-    .catch((err) => {
-      if (
-        [
-          "StoreNotFound",
-          "StoreInactive",
-          "StoreUnverified",
-          "EventCreationFailed",
-        ].includes(err)
-      )
-        return;
-      console.error("Unexpected error:", err);
       loading.value = false;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-};
+      return;
+    }
 
-const deleteEvent = (events_pk) => {
-  axios
-    .delete(`/events/${events_pk}/delete/`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    })
-    .then(() => {
-      fetchUserCreatedEvents(showPast.value);
-      fetchPlayerEvents(showPast.value);
-    })
-    .catch((error) => {
-      console.error("Error deleting event:", error);
-    });
-};
+    newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
 
-const openCreateEventDialog = () => {
-  createEventDialog.value = true;
-};
+    axios
+      .get("/stores/list", {
+        params: { users_fk: userId },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      })
+      .then(({ data }) => {
+        const allStores = data.stores || [];
+        const found = allStores.find(
+          (s) =>
+            s.name?.toLowerCase().trim() ===
+            newEvent.value.store.toLowerCase().trim(),
+        );
 
-const openEditDialog = (event, editable = false) => {
+        if (!found) {
+          errorDialog.value = { show: true, message: "Store not found." };
+          return Promise.reject("StoreNotFound");
+        }
+        if (!found.active) {
+          errorDialog.value = { show: true, message: "This store is inactive." };
+          return Promise.reject("StoreInactive");
+        }
+        if (!found.verified) {
+          errorDialog.value = {
+            show: true,
+            message: "Unverified stores cannot create events.",
+          };
+          return Promise.reject("StoreUnverified");
+        }
+
+        return found.stores_pk;
+      })
+      .then((storesFk) => {
+        const [h, m] = newEvent.value.hour.split(":").map(Number);
+        const ampm = newEvent.value.ampm || "AM";
+        const hh = String(h).padStart(2, "0");
+        const mm = String(m).padStart(2, "0");
+        const date = `${newEvent.value.date}; ${hh}:${mm} ${ampm}`;
+
+        return axios.post(
+          "/events/cadastro",
+          {
+            seats_number: 0,
+            seasons_fk: newEvent.value.season,
+            sceneries_fk: newEvent.value.scenario,
+            date,
+            stores_fk: storesFk,
+            users_fk: userId,
+            active: true,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+      })
+      .then(({ data }) => {
+        const id = data.event?.events_pk;
+        if (!id) {
+          errorDialog.value = {
+            show: true,
+            message: "Error creating event. Please try again.",
+          };
+          return Promise.reject("EventCreationFailed");
+        }
+        return Promise.all(
+          selectedRewards.value.map((r) =>
+            axios
+              .post(
+                "/rl_events_rewards/cadastro",
+                {
+                  events_fk: id,
+                  rewards_fk: r.rewards_pk,
+                  active: true,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${localStorage.getItem(
+                      "accessToken",
+                    )}`,
+                  },
+                },
+              )
+              .catch(() => null),
+          ),
+        ).then(() => id);
+      })
+      .then((id) => {
+        successDialog.value = true;
+        createEventDialog.value = false;
+
+        fetchUserCreatedEvents(showPast.value).catch(() => {});
+        fetchPlayerEvents().catch(() => {});
+
+        setTimeout(() => {
+          if (tutorialStore.shouldShowInitialSetup) {
+            showTutorialPrompt.value = true;
+          }
+        }, 500);
+
+        newEvent.value = {
+          date: "",
+          hour: "",
+          ampm: "AM",
+          store: "",
+          season: null,
+          scenario: null,
+        };
+        selectedRewards.value = [];
+      })
+      .catch((err) => {
+        if (
+          [
+            "StoreNotFound",
+            "StoreInactive",
+            "StoreUnverified",
+            "EventCreationFailed",
+          ].includes(err)
+        )
+          return;
+        console.error("Unexpected error:", err);
+        loading.value = false;
+      })
+      .finally(() => {
+        loading.value = false;
+      });
+  };
+
+  const deleteEvent = (events_pk) => {
+    axios
+      .delete(`/events/${events_pk}/delete/`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      })
+      .then(() => {
+        fetchUserCreatedEvents(showPast.value);
+        fetchPlayerEvents(showPast.value);
+      })
+      .catch((error) => {
+        console.error("Error deleting event:", error);
+      });
+  };
+
+  const openCreateEventDialog = () => {
+    createEventDialog.value = true;
+  };
+
+  const openEditDialog = (event, editable = false) => {
   const [datePart, timePart] = event.event_date.split("T");
   const [hoursStr, minutesStr] = timePart.split(":");
   const hours24 = parseInt(hoursStr, 10);

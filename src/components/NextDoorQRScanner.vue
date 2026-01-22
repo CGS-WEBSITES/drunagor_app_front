@@ -27,7 +27,7 @@
           </div>
 
           <v-divider class="w-75 mb-6 border-opacity-25"></v-divider>
-
+<!--
           <v-btn
             color="primary"
             size="x-large"
@@ -41,6 +41,7 @@
           >
             SKIP SCAN &<br>OPEN NEXT DOOR
           </v-btn>
+          -->
         </v-col>
       </v-row>
     </v-container>
