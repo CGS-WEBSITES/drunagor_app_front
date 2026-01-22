@@ -36,7 +36,10 @@
                   />
                   <v-row no-gutters align="center">
                     <v-col cols="3" class="d-flex justify-center">
-                      <div class="text-center" style="width: 70px; color: black">
+                      <div
+                        class="text-center"
+                        style="width: 70px; color: black"
+                      >
                         <p class="pt-3 text-caption font-weight-bold">
                           {{
                             new Date(event.event_date)
@@ -45,7 +48,9 @@
                           }}
                         </p>
                         <p class="cinzel-text text-h3 font-weight-bold">
-                          {{ String(event.event_date).split("T")[0].split("-")[2] }}
+                          {{
+                            String(event.event_date).split("T")[0].split("-")[2]
+                          }}
                         </p>
                         <p class="text-caption font-weight-bold">
                           {{
@@ -55,7 +60,7 @@
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 hour12: true,
-                              }
+                              },
                             )
                           }}
                         </p>
@@ -183,7 +188,8 @@
                       @click="openCreateMultipleTablesDialog"
                       size="default"
                     >
-                      <v-icon start>mdi-table-multiple</v-icon> Create Multiple Tables
+                      <v-icon start>mdi-table-multiple</v-icon> Create Multiple
+                      Tables
                     </v-btn>
                   </div>
                 </v-col>
@@ -317,11 +323,7 @@
                   :key="player.users_pk"
                   class="pa-1"
                 >
-                  <v-card
-                    class="player-card mb-3"
-                    rounded="lg"
-                    elevation="10"
-                  >
+                  <v-card class="player-card mb-3" rounded="lg" elevation="10">
                     <v-row no-gutters>
                       <v-col cols="4" lg="1" class="d-flex">
                         <v-img
@@ -360,7 +362,7 @@
                                 day: "numeric",
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              }
+                              },
                             )
                           }}
                         </p>
@@ -383,9 +385,12 @@
                             size="x-small"
                             class="mt-2"
                             block
-                            @click="updatePlayerStatus(player, turnedAwayStatus)"
+                            @click="
+                              updatePlayerStatus(player, turnedAwayStatus)
+                            "
                           >
-                            <v-icon start>mdi-close-circle-outline</v-icon>Turn Away
+                            <v-icon start>mdi-close-circle-outline</v-icon>Turn
+                            Away
                           </v-btn>
                         </template>
                         <template
@@ -431,16 +436,20 @@
                             block
                             @click="updatePlayerStatus(player, grantedStatus)"
                           >
-                            <v-icon start>mdi-check-circle-outline</v-icon>Grant Passage
+                            <v-icon start>mdi-check-circle-outline</v-icon>Grant
+                            Passage
                           </v-btn>
                           <v-btn
                             color="red"
                             size="x-small"
                             class="mt-2"
                             block
-                            @click="updatePlayerStatus(player, turnedAwayStatus)"
+                            @click="
+                              updatePlayerStatus(player, turnedAwayStatus)
+                            "
                           >
-                            <v-icon start>mdi-close-circle-outline</v-icon>Turn Away
+                            <v-icon start>mdi-close-circle-outline</v-icon>Turn
+                            Away
                           </v-btn>
                         </template>
                       </v-col>
@@ -560,15 +569,6 @@
           <v-row>
             <v-col cols="12">
               <v-text-field
-                v-model.number="newTable.table_number"
-                label="Table Number (optional)"
-                type="number"
-                variant="outlined"
-                hint="Leave empty to auto-generate"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field
                 v-model.number="newTable.max_players"
                 label="Max Players"
                 type="number"
@@ -638,7 +638,9 @@
           Create Your Store
         </v-card-title>
         <v-card-text>
-          <p class="mb-4 text-grey">You need a store to create events. Let's set it up quickly.</p>
+          <p class="mb-4 text-grey">
+            You need a store to create events. Let's set it up quickly.
+          </p>
           <v-form ref="storeForm" v-model="isStoreFormValid">
             <v-text-field
               label="Store Name"
@@ -646,7 +648,7 @@
               v-model="newStore.storename"
               :rules="[(v) => !!v || 'Store name is required']"
             ></v-text-field>
-            
+
             <v-row>
               <v-col cols="12" md="6">
                 <v-text-field
@@ -694,7 +696,7 @@
               v-model="newStore.zipcode"
               :rules="[(v) => !!v || 'Required']"
             ></v-text-field>
-            
+
             <v-file-input
               label="Store Image (Optional)"
               accept="image/*"
@@ -705,14 +707,17 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="createStoreDialog = false">Cancel</v-btn>
-          <v-btn color="primary" variant="elevated" @click="saveNewStore">Create & Continue</v-btn>
+          <v-btn color="grey" variant="text" @click="createStoreDialog = false"
+            >Cancel</v-btn
+          >
+          <v-btn color="primary" variant="elevated" @click="saveNewStore"
+            >Create & Continue</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
-
   </v-card>
-  
+
   <TutorialPromptDialog v-model="showTutorialPrompt" />
 </template>
 
@@ -744,7 +749,6 @@ const createTableDialog = ref(false);
 const createMultipleTablesDialog = ref(false);
 const creatingTable = ref(false);
 const newTable = ref({
-  table_number: null,
   max_players: 4,
 });
 const multipleTables = ref({
@@ -758,6 +762,8 @@ const qrCodeData = ref(null);
 const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
+const tablePlayersRefreshTimer = ref(null);
+const TABLE_PLAYERS_REFRESH_INTERVAL = 3000;
 const currentPage = ref(1);
 const totalPages = ref(1);
 const statuses = ref([]);
@@ -859,9 +865,9 @@ const goToEventsPageAndCreate = async () => {
     }
   } catch (error) {
     if (error.response && error.response.status === 404) {
-       // Se deu 404 é pq nao tem loja, abre o modal
-       fetchCountries();
-       createStoreDialog.value = true;
+      // Se deu 404 é pq nao tem loja, abre o modal
+      fetchCountries();
+      createStoreDialog.value = true;
     } else {
       console.error("Error checking stores:", error);
       alert("Unable to verify store status.");
@@ -872,12 +878,15 @@ const goToEventsPageAndCreate = async () => {
 // Funcoes de Criacao de Loja Dinamica
 const fetchCountries = () => {
   if (countriesList.value.length > 0) return;
-  axios.get("countries/search").then((response) => {
+  axios
+    .get("countries/search")
+    .then((response) => {
       countriesList.value = response.data.countries.map((country) => ({
         countries_pk: country.countries_pk,
         name: country.name,
       }));
-    }).catch(console.error);
+    })
+    .catch(console.error);
 };
 
 const handleStoreImageUpload = async (event) => {
@@ -887,14 +896,19 @@ const handleStoreImageUpload = async (event) => {
   formData.append("file", file);
   try {
     const { data } = await axios.post("/images/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
     newStore.value.storeImage = data.image_key;
-  } catch (e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const getCountryNameFromId = (id) => {
-  const c = countriesList.value.find(c => c.countries_pk === id);
+  const c = countriesList.value.find((c) => c.countries_pk === id);
   return c ? c.name : "";
 };
 
@@ -920,22 +934,26 @@ const saveNewStore = async () => {
 
   try {
     const response = await axios.post("/stores/cadastro", payload, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
     });
 
-    const newStorePk = response.data.store?.stores_pk || response.data.stores_pk;
+    const newStorePk =
+      response.data.store?.stores_pk || response.data.stores_pk;
 
     if (newStorePk) {
       // Valida automaticamente
       await axios.get(`/stores/${newStorePk}/verify`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
     }
 
     createStoreDialog.value = false;
     // Redireciona imediatamente para criar o evento
     router.push({ path: "/events", query: { action: "create" } });
-
   } catch (error) {
     console.error("Error creating store:", error);
     alert("Failed to create store. Please try again.");
@@ -992,11 +1010,26 @@ const generateQRCode = async (table) => {
 const showTablePlayers = async () => {
   if (!showPlayers.value) {
     await fetchTablePlayers();
+    
+    if (tablePlayersRefreshTimer.value) {
+      clearInterval(tablePlayersRefreshTimer.value);
+    }
+    tablePlayersRefreshTimer.value = setInterval(() => {
+      fetchTablePlayers();
+    }, TABLE_PLAYERS_REFRESH_INTERVAL);
+  } else {
+    if (tablePlayersRefreshTimer.value) {
+      clearInterval(tablePlayersRefreshTimer.value);
+      tablePlayersRefreshTimer.value = null;
+    }
   }
   showPlayers.value = !showPlayers.value;
 };
 
+
 const fetchTablePlayers = async () => {
+  if (!selectedTable.value) return;
+  
   loadingTablePlayers.value = true;
   try {
     const { data } = await axios.get(
@@ -1005,7 +1038,7 @@ const fetchTablePlayers = async () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      }
+      },
     );
     tablePlayers.value = data.players || [];
   } catch (error) {
@@ -1017,7 +1050,7 @@ const fetchTablePlayers = async () => {
 };
 
 const openCreateTableDialog = () => {
-  newTable.value = { table_number: null, max_players: 4 };
+  newTable.value = { max_players: 4 };
   createTableDialog.value = true;
 };
 
@@ -1035,10 +1068,6 @@ const createTable = async () => {
       active: true,
     };
 
-    if (newTable.value.table_number) {
-      payload.table_number = newTable.value.table_number;
-    }
-
     await axios.post("/event_tables/create", payload, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -1047,7 +1076,7 @@ const createTable = async () => {
 
     await fetchTablesForEvent(selectedEvent.value.events_pk);
     createTableDialog.value = false;
-    
+
     if (tutorialStore.shouldShowInitialSetup) {
       showTutorialPrompt.value = true;
     }
@@ -1105,13 +1134,13 @@ const fetchStatuses = async () => {
     const { data } = await axios.get("/event_status/search");
     statuses.value = data.event_status;
     grantedStatus.value = statuses.value.find(
-      (s) => s.name === "Granted Passage"
+      (s) => s.name === "Granted Passage",
     )?.event_status_pk;
     turnedAwayStatus.value = statuses.value.find(
-      (s) => s.name === "Turned Away"
+      (s) => s.name === "Turned Away",
     )?.event_status_pk;
     JoinedtheQuest.value = statuses.value.find(
-      (s) => s.name === "Joined the Quest"
+      (s) => s.name === "Joined the Quest",
     )?.event_status_pk;
   } catch (error) {
     console.error("Error fetching statuses:", error);
@@ -1169,6 +1198,20 @@ onMounted(async () => {
   await fetchUserCreatedEvents();
 });
 
+onUnmounted(() => {
+  if (tablePlayersRefreshTimer.value) {
+    clearInterval(tablePlayersRefreshTimer.value);
+  }
+});
+
+watch(qrCodeDialog, (newValue) => {
+  if (!newValue && tablePlayersRefreshTimer.value) {
+    clearInterval(tablePlayersRefreshTimer.value);
+    tablePlayersRefreshTimer.value = null;
+    showPlayers.value = false;
+  }
+});
+
 watch(currentPage, () => {
   if (manageDialog.value && selectedEvent.value) {
     fetchPlayersForEvent(selectedEvent.value.events_pk);
@@ -1179,7 +1222,9 @@ watch(currentPage, () => {
 <style scoped>
 .event-card {
   cursor: pointer;
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
   position: relative;
   overflow: hidden;
 }
