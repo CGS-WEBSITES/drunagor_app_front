@@ -22,20 +22,45 @@
            
            <div style="width: 40px;"></div>
         </div>
+      </div>
 
-        <div class="responsive-container d-flex flex-column fill-height position-relative" style="z-index: 1">
-            <div class="px-4 pt-4 pb-2 flex-shrink-0 w-100">
-                <div class="d-flex align-center justify-space-between mb-2">
-                    <v-btn icon="mdi-arrow-left" variant="text" color="white" @click="leaveLobby"></v-btn>
+      <div class="flex-grow-1 px-4 py-2 w-100 overflow-y-auto">
+        <v-row dense>
+          <v-col cols="6" v-for="(slot, index) in lobbySlots" :key="index">
+            <div 
+              class="player-slot-card rounded-lg position-relative d-flex align-center justify-center bg-grey-darken-3 elevation-4"
+              style="aspect-ratio: 1/1.2; border: 1px dashed rgba(255,255,255,0.2);"
+              @click="handleSlotClick(index)"
+            >
+              <v-progress-circular v-if="slot.loadingHero" indeterminate color="amber"></v-progress-circular>
 
-                    <div class="d-flex flex-column align-center">
-                        <span class="text-h6 font-weight-bold text-white cinzel-text text-truncate">
-                            {{ eventDetails?.store_name || "Lobby" }}
-                        </span>
-                      </div>
-                  </template>
+              <template v-else-if="slot.hero">
+                 <v-img :src="slot.hero.image" cover class="rounded-lg h-100 w-100" style="opacity: 0.8"></v-img>
+                 <div class="player-overlay-header">
+                    <span class="text-caption font-weight-bold text-white text-shadow">{{ slot.player?.name }}</span>
+                 </div>
+                 <div class="position-absolute bottom-0 w-100 text-center py-1 bg-black bg-opacity-50">
+                    <span class="text-caption text-amber cinzel-text">{{ slot.hero.name }}</span>
+                 </div>
               </template>
-            </v-card>
+
+              <template v-else-if="slot.player">
+                 <div class="d-flex flex-column align-center">
+                    <v-avatar size="48" class="mb-2">
+                        <v-img :src="slot.player.avatar"></v-img>
+                    </v-avatar>
+                    <span class="text-caption text-white font-weight-bold">{{ slot.player.name }}</span>
+                    <span class="text-caption text-grey mt-1">Selecting...</span>
+                 </div>
+              </template>
+
+              <template v-else>
+                 <div class="d-flex flex-column align-center text-grey-darken-1">
+                    <v-icon size="large" class="mb-1">mdi-account-outline</v-icon>
+                    <span class="text-caption">Empty</span>
+                 </div>
+              </template>
+            </div>
           </v-col>
         </v-row>
       </div>
@@ -138,97 +163,29 @@
             <div class="d-flex align-center">
                 <v-divider></v-divider><span class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
             </div>
-        </v-overlay>
+            <v-btn block color="blue-darken-2" size="large" variant="flat" @click="fetchAndShowLoadDialog">
+                <v-icon start>mdi-folder-open</v-icon> Load Campaign
+            </v-btn>
+         </v-card-text>
+      </v-card>
+    </v-dialog>
 
-        <v-dialog v-model="heroDialog" max-width="600" scrollable>
-            <v-card color="#1e1e1e" class="rounded-lg">
-                <v-card-title class="text-white text-center pt-4 pb-2 cinzel-text">
-                    {{
-                        heroDialogTab === "mine" ? "Choose your Hero" : "Create New Hero"
-                    }}
-                </v-card-title>
-                <v-card-text class="pa-2" style="max-height: 600px">
-                    <div v-if="heroDialogTab === 'mine'" class="d-flex flex-column gap-3">
-                        <div v-if="loadingHeroes" class="text-center py-6">
-                            <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                        </div>
-                        <template v-else>
-                            <div v-if="myHeroes.length === 0" class="text-center text-grey py-4">
-                                No available heroes found (or all taken).
-                            </div>
-                            <div v-for="hero in myHeroes" :key="hero.pk"
-                                class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative my-1"
-                                @click="selectHero(hero)">
-                                <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover></v-img>
-                            </div>
-                            <v-btn block variant="outlined" color="grey-lighten-1" class="mt-4 border-dashed py-6"
-                                @click="heroDialogTab = 'new'">
-                                <v-icon start>mdi-plus-circle-outline</v-icon> Create New Hero
-                            </v-btn>
-                        </template>
-                    </div>
-                    <div v-else class="d-flex flex-column gap-3">
-                        <div v-if="loadingHeroes" class="text-center py-6">
-                            <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                        </div>
-                        <template v-else>
-                            <div v-for="heroData in availableHeroesToCreate" :key="heroData.id"
-                                class="hero-selection-card rounded-lg elevation-6 overflow-hidden"
-                                @click="createNewHero(heroData.id)">
-                                <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52"
-                                    cover></v-img>
-                            </div>
-                        </template>
-                        <v-btn block variant="text" color="white" class="mt-2" @click="heroDialogTab = 'mine'">
-                            <v-icon start>mdi-arrow-left</v-icon> Back to My Heroes
-                        </v-btn>
-                    </div>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showCampaignDialog" max-width="340">
-            <v-card color="#1e1e1e" class="rounded-lg pa-2">
-                <v-card-title class="text-white d-flex justify-space-between align-center">
-                    <span class="text-body-1 font-weight-bold">Start Game</span>
-                    <v-btn icon variant="text" size="small"
-                        @click="showCampaignDialog = false"><v-icon>mdi-close</v-icon></v-btn>
-                </v-card-title>
-                <v-card-text class="d-flex flex-column ga-3 pt-2">
-                    <div class="text-caption text-grey mb-2 text-center">
-                        How do you want to start this adventure?
-                    </div>
-                    <v-btn block color="success" size="large" variant="flat" :loading="loadingCampaignAction"
-                        @click="handleNewCampaign">
-                        <v-icon start>mdi-plus-box</v-icon> New Underkeep 2
-                    </v-btn>
-                    <div class="d-flex align-center">
-                        <v-divider></v-divider><span
-                            class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
-                    </div>
-                    <v-btn block color="blue-darken-2" size="large" variant="flat" @click="fetchAndShowLoadDialog">
-                        <v-icon start>mdi-folder-open</v-icon> Load Campaign
-                    </v-btn>
-                </v-card-text>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showLoadDialog" max-width="400">
-            <v-card color="#1e1e1e" class="rounded-lg">
-                <v-card-title class="text-white">Select Campaign</v-card-title>
-                <v-card-text>
-                    <v-select v-model="selectedLoadCampaignId" :items="availableCampaigns" item-title="party_name"
-                        item-value="campaigns_fk" label="Select a campaign" variant="outlined" bg-color="grey-darken-4"
-                        color="white" :loading="loadingCampaigns" no-data-text="No campaigns found"></v-select>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="grey" variant="text" @click="showLoadDialog = false">Cancel</v-btn>
-                    <v-btn color="success" @click="confirmLoadCampaign" :disabled="!selectedLoadCampaignId">Play</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    </v-main>
+    <v-dialog v-model="showLoadDialog" max-width="400">
+        <v-card color="#1e1e1e" class="rounded-lg">
+            <v-card-title class="text-white">Select Campaign</v-card-title>
+            <v-card-text>
+                <v-select v-model="selectedLoadCampaignId" :items="availableCampaigns" item-title="party_name"
+                    item-value="campaigns_fk" label="Select a campaign" variant="outlined" bg-color="grey-darken-4"
+                    color="white" :loading="loadingCampaigns" no-data-text="No campaigns found"></v-select>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="grey" variant="text" @click="showLoadDialog = false">Cancel</v-btn>
+                <v-btn color="success" @click="confirmLoadCampaign" :disabled="!selectedLoadCampaignId">Play</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+  </v-main>
 </template>
 
 <script setup lang="ts">
@@ -248,14 +205,12 @@ const campaignStore = CampaignStore();
 const axios: any = inject('axios');
 const heroDataRepository = new HeroDataRepository();
 
-// --- CONSTANTES ---
 const PLAYING_STATUS_ID = 4;
 const DEFAULT_SKU = 39;
 const LOBBY_REFRESH_INTERVAL = 3000;
 
 const ALLOWED_HEROES = ['Vorn', 'Elros', 'Lorelai', 'Maya', 'Jaheen'];
 
-// --- ESTADOS ---
 const eventDetails = ref<any>(null);
 const loadingStart = ref(false);
 const isReconnecting = ref(false);
@@ -354,11 +309,6 @@ const availableHeroesToCreate = computed(() => {
         .filter(h => !takenHeroNames.value.includes(h.name));
 });
 
-const selectedCampaignName = computed(() => {
-    if (!selectedCampaign.value) return 'Unknown';
-    return selectedCampaign.value.party_name || `Campaign #${selectedCampaign.value.campaigns_fk}`;
-});
-
 const eventDateObj = computed(() => {
     if (!eventDetails.value) return { month: '', day: '', time: '' };
     const d = new Date(eventDetails.value.event_date);
@@ -369,11 +319,9 @@ const eventDateObj = computed(() => {
     }
 });
 
-// --- LÓGICA DE RECONEXÃO ---
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
 
-    // FIX: Somente tenta reconectar se status for JOGANDO (4)
     if (myPlayerStatus === PLAYING_STATUS_ID) {
         try {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
@@ -532,7 +480,6 @@ const selectHero = async (hero: any) => {
             }
         });
 
-        // Atualiza imediatamente após selecionar herói
         await fetchTablePlayers();
     } catch (e) { console.error("Error selecting hero:", e); }
 };
@@ -643,9 +590,7 @@ const executeStartGameFlow = async (campaignFk: number) => {
 
         await Promise.all(linkPromises);
 
-        // FORÇA O STATUS 4 (PLAYING)
         const statusPromises = currentPlayers.map(slot => {
-            console.log(`Setting status 4 for user ${slot.player.users_fk}`);
             return axios.post("/rl_events_users/cadastro", {
                 users_fk: slot.player.users_fk,
                 events_fk: Number(eventId),
@@ -717,7 +662,6 @@ const handleSlotClick = (index: number) => {
     if (slot.player?.users_fk === userStore.user.users_pk) openHeroSelection();
 };
 
-const clearCampaign = () => { if (isLeader.value) selectedCampaign.value = null; };
 const leaveLobby = () => router.go(-1);
 
 onMounted(async () => {
@@ -725,7 +669,6 @@ onMounted(async () => {
     if (tablePk.value) await joinTable();
     await fetchTablePlayers();
 
-    // Polling com intervalo de 3 segundos
     pollingTimer.value = setInterval(() => {
         fetchTablePlayers();
     }, LOBBY_REFRESH_INTERVAL);

@@ -1,18 +1,23 @@
 <template>
   <div v-if="setupImage" class="initial-setup-viewer">
-    <div class="mb-4">
+    <div v-if="!previewMode" class="mb-4">
       <h3 class="text-h6 font-weight-bold mb-2">
         <v-icon color="primary" class="mr-2">mdi-map</v-icon>
         Initial Setup
       </h3>
     </div>
 
-    <v-card class="setup-image-card" elevation="4" @click.stop>
+    <v-card
+      class="setup-image-card"
+      :class="{ 'preview-card': previewMode }"
+      elevation="4"
+    >
       <v-img
         :src="setupImage"
         :alt="`Initial Setup for ${scenarioName}`"
         contain
         class="setup-image"
+        :class="{ 'preview-image': previewMode }"
       >
         <template v-slot:placeholder>
           <div class="d-flex align-center justify-center fill-height">
@@ -31,10 +36,9 @@
 import { computed } from "vue";
 
 const props = defineProps({
-  scenario: {
-    type: String,
-    required: true,
-  },
+  scenario: { type: String, required: true },
+  attach: { type: [String, Object], default: undefined },
+  previewMode: { type: Boolean, default: false },
 });
 
 const SCENARIO_SETUP_MAP = {
@@ -72,6 +76,7 @@ const scenarioName = computed(() => {
   border-radius: 12px;
   overflow: hidden;
   background-color: #ffffff;
+  position: relative;
 }
 
 .setup-image {
@@ -82,10 +87,22 @@ const scenarioName = computed(() => {
   background-color: #ffffff;
 }
 
+.preview-card .setup-image,
+.preview-image {
+  min-height: 300px;
+  max-height: 400px;
+  pointer-events: none;
+}
+
 @media (max-width: 960px) {
   .setup-image {
     min-height: 400px;
     max-height: 600px;
+  }
+
+  .preview-image {
+    min-height: 250px;
+    max-height: 350px;
   }
 }
 
@@ -93,6 +110,11 @@ const scenarioName = computed(() => {
   .setup-image {
     min-height: 300px;
     max-height: 500px;
+  }
+
+  .preview-image {
+    min-height: 200px;
+    max-height: 300px;
   }
 }
 </style>
