@@ -62,6 +62,10 @@ keyword:
       Aura on their Campaign Log or Companion App. You can keep this token on your board
       as a tactile and visual reminder that you have a special effect noted there. Aura
       tokens are Reminder tokens and were introduced in Apocalypse.
+  - id: aura-of-sickness
+    keyword: AURA OF SICKNESS
+    description: |
+      At the beginning of this Monster's turn, trigger the Poison condition on all Heroes, Pets, and Companions.
   - id: available
     keyword: AVAILABLE
     description: |
@@ -120,6 +124,10 @@ keyword:
       10 or lower, even if they have succeeded on their Weapon's Accuracy check. BLINDNESS
       is a Redundant Condition that lasts until the Character takes a Recall Action
       or it is removed by a CLEANSE effect.
+  - id: blood-feast
+    keyword: BLOOD FEAST
+    description: |
+      As a Collateral Damage effect, all Monsters of this type permanently gain +1 DMG. Mark this with a +1 DMG token on their card.
   - id: bloodseeker
     keyword: BLOODSEEKER
     description: |
@@ -808,7 +816,7 @@ keyword:
   - id: penitence
     keyword: PENITENCE
     description: |
-      Target takes 1 non-preventable Damage per CURSE CUBE.
+      Target takes 1 non-preventable Damage per CURSE CUBE on their board.
   - id: pet
     keyword: PET
     description: |
@@ -868,6 +876,15 @@ keyword:
       even if it is a harmful terrain or if they have to suffer fall damage because
       they were pushed from a dungeon tray level 2 to 0. If all possible squares are
       occupied by Solid Objects, the Character cannot be pushed.
+  - id: quick-attack
+    keyword: QUICK ATTACK
+    description: |
+      This Monster's attack does not generate a Threat. Therefore, Heroes cannot use Reactions or Interrupts to respond to it.
+  - id: raise
+    keyword: RAISE
+    description: |
+      At the beginning of this Monster's turn, spawn X Minions on squares adjacent
+      to it. If there are not enough Monsters models, spawn as many as possible and ACTIVATE one of them.
   - id: raise-a-draugr
     keyword: RAISE A DRAUGR
     description: |
@@ -1000,6 +1017,11 @@ keyword:
       resolved by its own command, it will still remove 1 charge from the Interaction
       token (unless it is a Recurring Interaction or the effect itself specifies otherwise,
       of course).
+  - id: ressurrect
+    keyword: RESURRECT
+    description: |
+      Spawn all Monsters listed, placing their models on the board, spawning one at a time in the Rune order shown on the card,
+      repeating the process until all Monsters are spawned.
   - id: restrain
     keyword: RESTRAIN
     description: |
@@ -1054,6 +1076,10 @@ keyword:
       SHIELD tokens before losing any Health or using a PREVENT effect—you cannot choose
       to take the damage and keep your SHIELD tokens or to PREVENT the damage with another
       Skill in order to save them. SHIELD tokens are a STACKABLE resource.
+  - id: shockwave
+    keyword: SHOCKWAVE
+    description: |
+      This Monster inflicts 4 damage to all Champions adjacent to it at the beginning and at the end of its movement.
   - id: shove
     keyword: SHOVE
     description: |
