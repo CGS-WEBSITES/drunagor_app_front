@@ -1084,8 +1084,7 @@ const roundTimeToNearest15Minutes = (timeString) => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      );
-    })
+      })
     .then(async ({ data }) => {
       const created = data.event;
       const id = created?.events_pk;
