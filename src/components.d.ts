@@ -121,7 +121,6 @@ declare module 'vue' {
     SelectDoor: typeof import('./components/SelectDoor.vue')['default']
     SelectRuneAndGM: typeof import('./components/SelectRuneAndGM.vue')['default']
     SequentialAdventureButton: typeof import('./components/SequentialAdventureButton.vue')['default']
-    SetupImageViewer: typeof import('./components/SetupImageViewer.vue')['default']
     ShareCampaignButton: typeof import('./components/ShareCampaignButton.vue')['default']
     StandaloneHeroArmor: typeof import('./components/StandaloneHeroArmor.vue')['default']
     StandaloneHeroBagItem: typeof import('./components/StandaloneHeroBagItem.vue')['default']
