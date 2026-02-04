@@ -694,8 +694,8 @@
     @refresh="handleRefresh"
   />
 
-  <TutorialPromptDialog 
-    v-model="showTutorialPrompt" 
+  <TutorialPromptDialog
+    v-model="showTutorialPrompt"
     @tutorial-completed="handleTutorialCompleted"
   />
 </template>
@@ -1039,28 +1039,34 @@ const removeReward = async (reward) => {
 };
 
 const roundTimeToNearest15Minutes = (timeString) => {
-  if (!timeString || !timeString.includes(':')) return timeString;
-  
-  const [hours, minutes] = timeString.split(':').map(Number);
-  // Arredonda minutos para o múltiplo de 5 mais próximo
+  if (!timeString || !timeString.includes(":")) return timeString;
+
+  const [hours, minutes] = timeString.split(":").map(Number);
   const roundedMinutes = Math.round(minutes / 5) * 5;
-  // Se arredondar para 60, adicionar 1 hora e zerar minutos
+
   if (roundedMinutes === 60) {
     const newHours = hours === 12 ? 1 : hours + 1;
-    return `${String(newHours).padStart(2, '0')}:00`;
+    return `${String(newHours).padStart(2, "0")}:00`;
   }
-  
-  return `${String(hours).padStart(2, '0')}:${String(roundedMinutes).padStart(2, '0')}`;
+
+  return `${String(hours).padStart(2, "0")}:${String(roundedMinutes).padStart(2, "0")}`;
 };
 
-  const addEvent = () => {
+const addEvent = () => {
   loading.value = true;
   errorDialog.value.show = false;
   successDialog.value = false;
 
   const userId = userStore.user.users_pk;
 
-  if (!newEvent.value.date || !newEvent.value.hour || !newEvent.value.store || !newEvent.value.season || !newEvent.value.scenario || !userId) {
+  if (
+    !newEvent.value.date ||
+    !newEvent.value.hour ||
+    !newEvent.value.store ||
+    !newEvent.value.season ||
+    !newEvent.value.scenario ||
+    !userId
+  ) {
     errorDialog.value = {
       show: true,
       message: "Please fill in all fields before creating the event.",
@@ -1068,6 +1074,90 @@ const roundTimeToNearest15Minutes = (timeString) => {
     loading.value = false;
     return;
   }
+
+  newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
+
+  axios
+    .get("/stores/list", {
+      params: { users_fk: userId },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then(({ data }) => {
+      const allStores = data.stores || [];
+      const selectedStore = allStores.find(
+        (s) => s.name === newEvent.value.store,
+      );
+
+      if (!selectedStore) {
+        errorDialog.value = {
+          show: true,
+          message: "Store not found. Please select a valid store.",
+        };
+        throw new Error("StoreNotFound");
+      }
+
+      const hour = newEvent.value.hour.trim();
+      const ampm = newEvent.value.ampm || "AM";
+      const dateFormatted = `${newEvent.value.date}; ${hour} ${ampm}`;
+
+      return axios.post("/events/cadastro", null, {
+        params: {
+          seasons_fk: newEvent.value.season,
+          sceneries_fk: newEvent.value.scenario,
+          date: dateFormatted,
+          stores_fk: selectedStore.stores_pk,
+          users_fk: userId,
+          active: true,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+    })
+    .then(async ({ data }) => {
+      const created = data.event;
+      const id = created?.events_pk;
+
+      if (!id) {
+        errorDialog.value = {
+          show: true,
+          message: "Error creating event. Please try again.",
+        };
+        return Promise.reject("EventCreationFailed");
+      }
+
+      lastCreatedEventId.value = id;
+
+  const userId = userStore.user.users_pk;
+
+      await createInitialTableForEvent(id);
+
+      // Criar as relações de rewards
+      return Promise.all(
+        selectedRewards.value.map((r) =>
+          axios
+            .post(
+              "/rl_events_rewards/cadastro",
+              {
+                events_fk: id,
+                rewards_fk: r.rewards_pk,
+                active: true,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              },
+            )
+            .catch(() => null),
+        ),
+      ).then(() => id);
+    })
+    .then((id) => {
+      successDialog.value = false;
+      createEventDialog.value = false;
 
   newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
 
@@ -1146,22 +1236,39 @@ const roundTimeToNearest15Minutes = (timeString) => {
       successDialog.value = true;
     }
 
-    // Reset Form
-    newEvent.value = { date: "", hour: "", ampm: "AM", store: "", season: null, scenario: null };
-    selectedRewards.value = [];
-  })
-  .catch((err) => {
-    console.error("Erro ao criar evento:", err);
-    let msg = "Error creating event.";
-    if (err.message === "StoreNotFound") msg = "Store not found.";
-    if (err.message === "StoreInactive") msg = "This store is inactive.";
-    if (err.message === "StoreUnverified") msg = "Unverified stores cannot create events.";
-    
-    errorDialog.value = { show: true, message: msg };
-  })
-  .finally(() => {
-    loading.value = false;
-  });
+      if (tutorialStore.shouldShowInitialSetup) {
+        pendingSuccessAfterTutorial.value = true;
+        showTutorialPrompt.value = true;
+      } else {
+        pendingSuccessAfterTutorial.value = false;
+        successDialog.value = true;
+      }
+
+      // Limpar o formulário
+      newEvent.value = {
+        date: "",
+        hour: "",
+        ampm: "AM",
+        store: "",
+        seats: null,
+        season: null,
+        scenario: null,
+      };
+      selectedRewards.value = [];
+    })
+    .catch((err) => {
+      if (["StoreNotFound", "EventCreationFailed"].includes(err)) return;
+      console.error("Unexpected error:", err);
+      errorDialog.value = {
+        show: true,
+        message:
+          err.response?.data?.message ||
+          "An error occurred while creating the event.",
+      };
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const createInitialTableForEvent = async (eventPk) => {
@@ -1239,11 +1346,11 @@ const deleteEvent = (events_pk) => {
     });
 };
 
-  const openCreateEventDialog = () => {
-    createEventDialog.value = true;
-  };
+const openCreateEventDialog = () => {
+  createEventDialog.value = true;
+};
 
-  const openEditDialog = (event, editable = false) => {
+const openEditDialog = (event, editable = false) => {
   const [datePart, timePart] = event.event_date.split("T");
   const [hoursStr, minutesStr] = timePart.split(":");
   const hours24 = parseInt(hoursStr, 10);
@@ -1504,8 +1611,6 @@ watch(
     }
   },
 );
-
-
 </script>
 
 <style scoped>

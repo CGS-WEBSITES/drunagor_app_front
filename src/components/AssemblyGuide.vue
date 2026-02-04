@@ -1,7 +1,11 @@
 <template>
   <v-card elevation="2" class="assembly-guide">
     <v-card-text class="pa-0">
-      <v-sheet class="image-container" :class="isMobile ? 'pa-2' : 'pa-4'" color="black">
+      <v-sheet
+        class="image-container"
+        :class="isMobile ? 'pa-2' : 'pa-4'"
+        color="black"
+      >
         <div class="image-wrapper" @click="openZoomDialog">
           <v-img
             :src="currentStepData.image"
@@ -19,7 +23,7 @@
               </v-row>
             </template>
           </v-img>
-          
+
           <div class="zoom-hint-container">
             <div class="zoom-hint">
               <v-icon color="white" size="x-small">mdi-magnify-plus</v-icon>
@@ -35,7 +39,10 @@
         :class="isMobile ? 'pa-3' : 'pa-4 pa-md-6'"
         color="grey-darken-4"
       >
-        <p :class="isMobile ? 'text-body-2' : 'text-body-1'" class="text-justify mb-0">
+        <p
+          :class="isMobile ? 'text-body-2' : 'text-body-1'"
+          class="text-justify mb-0"
+        >
           {{ currentStepData.instruction }}
         </p>
       </v-sheet>
@@ -49,7 +56,7 @@
             rounded
             class="mb-3"
           ></v-progress-linear>
-          
+
           <div class="d-flex justify-space-between align-center">
             <v-btn
               :disabled="currentStep === 0"
@@ -61,11 +68,11 @@
               <v-icon start size="small">mdi-chevron-left</v-icon>
               Prev
             </v-btn>
-            
+
             <span class="text-body-2 font-weight-medium">
               {{ currentStep + 1 }} / {{ assemblySteps.length }}
             </span>
-            
+
             <v-btn
               :disabled="currentStep === assemblySteps.length - 1"
               color="primary"
@@ -78,7 +85,7 @@
             </v-btn>
           </div>
         </template>
-        
+
         <template v-else>
           <v-row justify="space-between" align="center" no-gutters>
             <v-col cols="auto">
@@ -134,7 +141,9 @@
     :transition="isMobile ? 'dialog-bottom-transition' : 'fade-transition'"
   >
     <v-card color="black" class="zoom-dialog-card">
-      <v-card-title class="d-flex justify-space-between align-center pa-2 pa-sm-3 zoom-header">
+      <v-card-title
+        class="d-flex justify-space-between align-center pa-2 pa-sm-3 zoom-header"
+      >
         <span class="text-body-2 text-grey-lighten-1">
           Step {{ currentStep + 1 }} / {{ assemblySteps.length }}
         </span>
@@ -150,7 +159,7 @@
       </v-card-title>
 
       <v-card-text class="pa-0 zoom-content" ref="zoomContainer">
-        <div 
+        <div
           class="zoom-image-wrapper"
           @touchstart="handleTouchStart"
           @touchmove="handleTouchMove"
@@ -167,7 +176,7 @@
             draggable="false"
           />
         </div>
-        
+
         <div v-if="!isMobile" class="zoom-controls">
           <v-btn
             icon
@@ -179,7 +188,9 @@
           >
             <v-icon>mdi-minus</v-icon>
           </v-btn>
-          <span class="text-body-2 mx-2">{{ Math.round(zoomLevel * 100) }}%</span>
+          <span class="text-body-2 mx-2"
+            >{{ Math.round(zoomLevel * 100) }}%</span
+          >
           <v-btn
             icon
             variant="tonal"
@@ -191,10 +202,12 @@
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </div>
-        
+
         <div v-if="isMobile && showZoomHint" class="mobile-zoom-hint">
           <v-icon size="small" color="white">mdi-gesture-pinch</v-icon>
-          <span class="text-caption ml-1">Pinch to zoom • Double tap to reset</span>
+          <span class="text-caption ml-1"
+            >Pinch to zoom • Double tap to reset</span
+          >
         </div>
       </v-card-text>
 
@@ -209,9 +222,9 @@
           <v-icon start size="small">mdi-chevron-left</v-icon>
           Prev
         </v-btn>
-        
+
         <v-spacer></v-spacer>
-        
+
         <v-btn
           :disabled="currentStep === assemblySteps.length - 1"
           color="primary"
@@ -250,14 +263,14 @@ const isMobile = computed(() => mobile.value);
 
 const currentStepData = computed(() => assemblySteps[currentStep.value]);
 
-const progressPercentage = computed(() => 
-  ((currentStep.value + 1) / assemblySteps.length) * 100
+const progressPercentage = computed(
+  () => ((currentStep.value + 1) / assemblySteps.length) * 100,
 );
 
 const zoomImageStyle = computed(() => ({
   transform: `scale(${zoomLevel.value}) translate(${zoomPosition.value.x}px, ${zoomPosition.value.y}px)`,
-  transformOrigin: 'center center',
-  transition: isDragging.value ? 'none' : 'transform 0.2s ease-out'
+  transformOrigin: "center center",
+  transition: isDragging.value ? "none" : "transform 0.2s ease-out",
 }));
 
 const nextStep = () => {
@@ -289,9 +302,9 @@ const previousStepInZoom = () => {
 };
 
 const scrollToTop = () => {
-  const dialogContent = document.querySelector('.v-dialog .v-card-text');
+  const dialogContent = document.querySelector(".v-dialog .v-card-text");
   if (dialogContent) {
-    dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+    dialogContent.scrollTo({ top: 0, behavior: "smooth" });
   }
 };
 
@@ -342,7 +355,7 @@ const getTouchCenter = (touches) => {
   }
   return {
     x: (touches[0].clientX + touches[1].clientX) / 2,
-    y: (touches[0].clientY + touches[1].clientY) / 2
+    y: (touches[0].clientY + touches[1].clientY) / 2,
   };
 };
 
@@ -355,7 +368,7 @@ const handleTouchStart = (e) => {
     isDragging.value = true;
     dragStart.value = {
       x: e.touches[0].clientX - zoomPosition.value.x * zoomLevel.value,
-      y: e.touches[0].clientY - zoomPosition.value.y * zoomLevel.value
+      y: e.touches[0].clientY - zoomPosition.value.y * zoomLevel.value,
     };
   }
 };
@@ -365,26 +378,30 @@ const handleTouchMove = (e) => {
     e.preventDefault();
     const newDistance = getTouchDistance(e.touches);
     const scale = newDistance / lastTouchDistance.value;
-    
+
     let newZoom = zoomLevel.value * scale;
     newZoom = Math.max(1, Math.min(4, newZoom));
-    
+
     zoomLevel.value = newZoom;
     lastTouchDistance.value = newDistance;
-    
+
     if (newZoom === 1) {
       zoomPosition.value = { x: 0, y: 0 };
     }
-  } else if (e.touches.length === 1 && isDragging.value && zoomLevel.value > 1) {
+  } else if (
+    e.touches.length === 1 &&
+    isDragging.value &&
+    zoomLevel.value > 1
+  ) {
     e.preventDefault();
     const maxOffset = (zoomLevel.value - 1) * 100;
-    
+
     let newX = (e.touches[0].clientX - dragStart.value.x) / zoomLevel.value;
     let newY = (e.touches[0].clientY - dragStart.value.y) / zoomLevel.value;
-    
+
     newX = Math.max(-maxOffset, Math.min(maxOffset, newX));
     newY = Math.max(-maxOffset, Math.min(maxOffset, newY));
-    
+
     zoomPosition.value = { x: newX, y: newY };
   }
 };
@@ -400,7 +417,7 @@ const handleWheel = (e) => {
   let newZoom = zoomLevel.value + delta;
   newZoom = Math.max(1, Math.min(4, newZoom));
   zoomLevel.value = newZoom;
-  
+
   if (newZoom === 1) {
     zoomPosition.value = { x: 0, y: 0 };
   }
@@ -567,10 +584,18 @@ onUnmounted(() => {
 }
 
 @keyframes fadeInOut {
-  0% { opacity: 0; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .zoom-navigation {
@@ -591,15 +616,15 @@ onUnmounted(() => {
   .zoom-hint {
     padding: 3px 8px;
   }
-  
+
   .zoom-hint .text-caption {
     font-size: 0.7rem !important;
   }
-  
+
   .instruction-box {
     min-height: 50px;
   }
-  
+
   .zoom-image-wrapper {
     padding: 4px;
   }

@@ -22,6 +22,27 @@
            
            <div style="width: 40px;"></div>
         </div>
+      </div>
+
+      <div class="flex-grow-1 px-4 py-2 w-100 overflow-y-auto">
+        <v-row dense>
+          <v-col cols="6" v-for="(slot, index) in lobbySlots" :key="index">
+            <div 
+              class="player-slot-card rounded-lg position-relative d-flex align-center justify-center bg-grey-darken-3 elevation-4"
+              style="aspect-ratio: 1/1.2; border: 1px dashed rgba(255,255,255,0.2);"
+              @click="handleSlotClick(index)"
+            >
+              <v-progress-circular v-if="slot.loadingHero" indeterminate color="amber"></v-progress-circular>
+
+              <template v-else-if="slot.hero">
+                 <v-img :src="slot.hero.image" cover class="rounded-lg h-100 w-100" style="opacity: 0.8"></v-img>
+                 <div class="player-overlay-header">
+                    <span class="text-caption font-weight-bold text-white text-shadow">{{ slot.player?.name }}</span>
+                 </div>
+                 <div class="position-absolute bottom-0 w-100 text-center py-1 bg-black bg-opacity-50">
+                    <span class="text-caption text-amber cinzel-text">{{ slot.hero.name }}</span>
+                 </div>
+              </template>
 
         <div v-if="selectedCampaign" class="text-center mt-2">
              <v-chip color="purple-accent-2" variant="flat" :closable="isLeader" @click:close="clearCampaign" class="font-weight-bold w-100 justify-center">
@@ -89,7 +110,14 @@
                       </div>
                   </template>
               </template>
-            </v-card>
+
+              <template v-else>
+                 <div class="d-flex flex-column align-center text-grey-darken-1">
+                    <v-icon size="large" class="mb-1">mdi-account-outline</v-icon>
+                    <span class="text-caption">Empty</span>
+                 </div>
+              </template>
+            </div>
           </v-col>
         </v-row>
       </div>
@@ -244,13 +272,11 @@ const campaignStore = CampaignStore();
 const axios: any = inject('axios');
 const heroDataRepository = new HeroDataRepository();
 
-// --- CONSTANTES ---
 const PLAYING_STATUS_ID = 4;
 const DEFAULT_SKU = 39; 
 
 const ALLOWED_HEROES = ['Vorn', 'Elros', 'Lorelai', 'Maya', 'Jaheen'];
 
-// --- ESTADOS ---
 const eventDetails = ref<any>(null);
 const loadingStart = ref(false);
 const isReconnecting = ref(false);
@@ -349,11 +375,6 @@ const availableHeroesToCreate = computed(() => {
         .filter(h => !takenHeroNames.value.includes(h.name));
 });
 
-const selectedCampaignName = computed(() => {
-    if (!selectedCampaign.value) return 'Unknown';
-    return selectedCampaign.value.party_name || `Campaign #${selectedCampaign.value.campaigns_fk}`;
-});
-
 const eventDateObj = computed(() => {
   if(!eventDetails.value) return { month: '', day: '', time: '' };
   const d = new Date(eventDetails.value.event_date);
@@ -364,7 +385,6 @@ const eventDateObj = computed(() => {
   }
 });
 
-// --- LÓGICA DE RECONEXÃO ---
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
 
