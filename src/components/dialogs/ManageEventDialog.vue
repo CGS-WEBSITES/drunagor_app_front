@@ -455,10 +455,41 @@
           <!-- Setup Tab -->
           <v-window-item value="setup">
             <div class="setup-guide-container">
-              <InitialSetupViewer
+              <div class="mb-4 text-center">
+                <h3 class="text-h6 font-weight-bold mb-2">
+                  <v-icon color="primary" class="mr-2">mdi-map</v-icon>
+                  Initial Setup - {{ event?.scenario }}
+                </h3>
+              </div>
+
+              <!-- Preview Card -->
+              <v-card
                 v-if="event?.scenario"
-                :scenario="event.scenario"
-              />
+                class="setup-preview-card mb-4"
+                elevation="4"
+                @click="openSetupDialog"
+              >
+                <InitialSetupViewer
+                  :scenario="event.scenario"
+                  preview-mode
+                />
+                
+                <div class="click-to-enlarge-hint">
+                  <v-icon color="white" size="small">mdi-magnify-plus-outline</v-icon>
+                  <span class="ml-1">Click to enlarge</span>
+                </div>
+              </v-card>
+
+              <!-- Fallback quando não há cenário -->
+              <v-alert
+                v-else
+                type="info"
+                variant="tonal"
+                class="text-center"
+              >
+                <v-icon size="48" class="mb-2">mdi-map-marker-off</v-icon>
+                <div class="text-body-1">No setup map available for this scenario</div>
+              </v-alert>
             </div>
           </v-window-item>
         </v-window>
@@ -576,6 +607,91 @@
               </v-list>
             </div>
           </v-expand-transition>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- Initial Setup Dialog - Separado do Manage Event -->
+    <v-dialog
+      v-model="setupDialog"
+      max-width="1400"
+      :fullscreen="smAndDown"
+    >
+      <v-card color="surface">
+        <v-card-title class="d-flex justify-space-between align-center">
+          <span class="text-h6">
+            <v-icon class="mr-2">mdi-map</v-icon>
+            Initial Setup - {{ event?.scenario }}
+          </span>
+          
+          <div class="d-flex align-center gap-2">
+            <!-- Zoom Controls -->
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              @click="zoomOut"
+              :disabled="zoomLevel <= 1"
+            >
+              <v-icon>mdi-magnify-minus</v-icon>
+            </v-btn>
+            
+            <v-chip size="small" variant="flat">
+              {{ Math.round(zoomLevel * 100) }}%
+            </v-chip>
+            
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              @click="zoomIn"
+              :disabled="zoomLevel >= 3"
+            >
+              <v-icon>mdi-magnify-plus</v-icon>
+            </v-btn>
+            
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              @click="resetZoom"
+              v-if="zoomLevel !== 1"
+            >
+              <v-icon>mdi-restore</v-icon>
+            </v-btn>
+            
+            <v-divider vertical class="mx-2" />
+            
+            <v-btn icon variant="text" @click="setupDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+        </v-card-title>
+
+        <v-card-text class="pa-0 setup-dialog-content">
+          <div
+            ref="imageContainer"
+            class="image-zoom-container"
+            @wheel.prevent="handleWheel"
+            @mousedown="startPan"
+            @mousemove="handlePan"
+            @mouseup="endPan"
+            @mouseleave="endPan"
+            @touchstart="handleTouchStart"
+            @touchmove="handleTouchMove"
+            @touchend="handleTouchEnd"
+          >
+            <InitialSetupViewer
+              v-if="event?.scenario && setupDialog"
+              :scenario="event.scenario"
+              :style="{
+                transform: `scale(${zoomLevel}) translate(${panX}px, ${panY}px)`,
+                transformOrigin: 'center center',
+                transition: isZooming ? 'none' : 'transform 0.1s ease-out',
+                cursor: zoomLevel > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default'
+              }"
+            />
+          </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -709,6 +825,24 @@ const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
 const startInTables = ref(false);
 
+const setupDialog = ref(false);
+
+// Zoom and Pan state
+const zoomLevel = ref(1);
+const panX = ref(0);
+const panY = ref(0);
+const isPanning = ref(false);
+const isZooming = ref(false);
+const lastPanX = ref(0);
+const lastPanY = ref(0);
+const startX = ref(0);
+const startY = ref(0);
+const imageContainer = ref(null);
+
+// Touch gesture state
+let initialDistance = 0;
+let initialZoom = 1;
+
 const qrTutorial = ref({
   active: false,
   step: 1,
@@ -764,6 +898,124 @@ const openInGoogleMaps = () => {
 };
 
 const closeDialog = () => emit("update:modelValue", false);
+
+const openSetupDialog = () => {
+  setupDialog.value = true;
+  resetZoom();
+};
+
+// Zoom functions
+const zoomIn = () => {
+  if (zoomLevel.value < 3) {
+    zoomLevel.value = Math.min(3, zoomLevel.value + 0.25);
+  }
+};
+
+const zoomOut = () => {
+  if (zoomLevel.value > 1) {
+    zoomLevel.value = Math.max(1, zoomLevel.value - 0.25);
+    // Reset pan when zooming out to 1x
+    if (zoomLevel.value === 1) {
+      panX.value = 0;
+      panY.value = 0;
+    }
+  }
+};
+
+const resetZoom = () => {
+  zoomLevel.value = 1;
+  panX.value = 0;
+  panY.value = 0;
+};
+
+// Mouse wheel zoom
+const handleWheel = (event) => {
+  isZooming.value = true;
+  const delta = event.deltaY > 0 ? -0.1 : 0.1;
+  zoomLevel.value = Math.max(1, Math.min(3, zoomLevel.value + delta));
+  
+  if (zoomLevel.value === 1) {
+    panX.value = 0;
+    panY.value = 0;
+  }
+  
+  setTimeout(() => {
+    isZooming.value = false;
+  }, 100);
+};
+
+// Pan functions
+const startPan = (event) => {
+  if (zoomLevel.value > 1) {
+    isPanning.value = true;
+    startX.value = event.clientX - panX.value;
+    startY.value = event.clientY - panY.value;
+  }
+};
+
+const handlePan = (event) => {
+  if (isPanning.value && zoomLevel.value > 1) {
+    panX.value = event.clientX - startX.value;
+    panY.value = event.clientY - startY.value;
+  }
+};
+
+const endPan = () => {
+  isPanning.value = false;
+};
+
+// Touch gestures for pinch-to-zoom
+const getDistance = (touch1, touch2) => {
+  const dx = touch1.clientX - touch2.clientX;
+  const dy = touch1.clientY - touch2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+const handleTouchStart = (event) => {
+  if (event.touches.length === 2) {
+    // Pinch to zoom
+    initialDistance = getDistance(event.touches[0], event.touches[1]);
+    initialZoom = zoomLevel.value;
+    isZooming.value = true;
+  } else if (event.touches.length === 1 && zoomLevel.value > 1) {
+    // Pan
+    isPanning.value = true;
+    const touch = event.touches[0];
+    startX.value = touch.clientX - panX.value;
+    startY.value = touch.clientY - panY.value;
+  }
+};
+
+const handleTouchMove = (event) => {
+  event.preventDefault();
+  
+  if (event.touches.length === 2 && initialDistance > 0) {
+    // Pinch to zoom
+    const currentDistance = getDistance(event.touches[0], event.touches[1]);
+    const scale = currentDistance / initialDistance;
+    zoomLevel.value = Math.max(1, Math.min(3, initialZoom * scale));
+    
+    if (zoomLevel.value === 1) {
+      panX.value = 0;
+      panY.value = 0;
+    }
+  } else if (event.touches.length === 1 && isPanning.value && zoomLevel.value > 1) {
+    // Pan
+    const touch = event.touches[0];
+    panX.value = touch.clientX - startX.value;
+    panY.value = touch.clientY - startY.value;
+  }
+};
+
+const handleTouchEnd = (event) => {
+  if (event.touches.length < 2) {
+    initialDistance = 0;
+    isZooming.value = false;
+  }
+  if (event.touches.length === 0) {
+    isPanning.value = false;
+  }
+};
 
 const fetchTablesForEvent = async (eventFk) => {
   loadingTables.value = true;
@@ -1223,6 +1475,62 @@ watch(currentPage, () => {
 .setup-guide-container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.setup-preview-card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.setup-preview-card:hover {
+  transform: translateY(-4px);
+}
+
+.click-to-enlarge-hint {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.setup-dialog-content {
+  overflow: hidden;
+  max-height: 80vh;
+}
+
+.image-zoom-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.image-zoom-container > * {
+  max-width: 100%;
+  max-height: 80vh;
+}
+
+.gap-2 {
+  gap: 8px !important;
 }
 
 .event-card {
