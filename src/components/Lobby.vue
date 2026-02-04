@@ -368,6 +368,7 @@ const eventDateObj = computed(() => {
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
 
+    // Reconecta SOMENTE se status for JOGANDO (4)
     if (myPlayerStatus === PLAYING_STATUS_ID) {
         try {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
@@ -376,6 +377,7 @@ const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
             
             const allCampaigns = searchRes.data.campaigns || [];
             
+            // Busca a última campanha ativa
             const activeCampaigns = allCampaigns
                 .filter((c: any) => c.active === true || c.active === 1 || c.active === 'true')
                 .sort((a: any, b: any) => b.campaigns_fk - a.campaigns_fk);
@@ -485,9 +487,25 @@ function generateCampaignHash(campaign: Campaign): string {
   return btoa(JSON.stringify(data));
 }
 
+// --- JOIN TABLE CORRIGIDO: Verifica se já está jogando antes de resetar status ---
 const joinTable = async () => {
     if (!eventId || !tablePk.value) return;
     try {
+        // 1. Antes de dar POST com status 1, precisamos saber se o usuário já tem status 4
+        // Fazemos um GET para pegar os jogadores atuais da mesa
+        const tableRes = await axios.get(`/rl_events_users/table_players/${eventId}/${tablePk.value}`);
+        const players = tableRes.data.players || [];
+        
+        // 2. Procura o usuário atual na lista
+        const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
+
+        // 3. SE eu existo E meu status é 4 (PLAYING_STATUS_ID), EU NÃO FAÇO NADA
+        if (me && me.event_status_fk === PLAYING_STATUS_ID) {
+            console.log("Usuário já está em jogo (status 4). Ignorando reset para Lobby.");
+            return; // <--- TRAVA DE SEGURANÇA
+        }
+
+        // 4. Se não estiver jogando (ou não estiver na mesa), aí sim entra no Lobby (Status 1)
         await axios.post('/rl_events_users/cadastro', null, {
             params: {
                 users_fk: userStore.user.users_pk,
@@ -602,7 +620,7 @@ const confirmLoadCampaign = async () => {
     }
 };
 
-// --- START GAME FLOW (COM ATUALIZAÇÃO DE STATUS SEQUENCIAL) ---
+// --- START GAME FLOW CORRIGIDO ---
 const executeStartGameFlow = async (campaignFk: number) => {
     loadingStart.value = true; 
     showCampaignDialog.value = false;
@@ -610,14 +628,16 @@ const executeStartGameFlow = async (campaignFk: number) => {
     try {
         const currentPlayers = lobbySlots.value.filter(s => s.player !== null && s.hero !== null);
         
-        // 1. VÍNCULO DA CAMPANHA (Pode ser paralelo)
+        // 1. VÍNCULO DA CAMPANHA
         const linkPromises = currentPlayers.map(async (slot) => {
             const pUserFk = slot.player.users_fk;
             try {
                 const check = await axios.get("/rl_campaigns_users/search", {
                     params: { users_fk: pUserFk, skus_fk: DEFAULT_SKU, active: true }
                 });
-                // (Opcional: limpeza)
+                if (check.data.campaigns && check.data.campaigns.length > 0) {
+                     // Opcional: limpeza
+                }
             } catch(ignore) {}
 
             const heroFk = slot.hero?.pk; 
@@ -636,28 +656,28 @@ const executeStartGameFlow = async (campaignFk: number) => {
         await Promise.all(linkPromises);
         console.log("Vínculos de campanha criados.");
 
-        // 2. ATUALIZAÇÃO DE STATUS (SEQUENCIAL para evitar Locks e Duplicidade)
-        for (const slot of currentPlayers) {
+        // 2. ATUALIZAÇÃO DE STATUS (CORRIGIDA COM DELETE + POST)
+        const statusPromises = currentPlayers.map(async (slot) => {
             const pUserFk = slot.player.users_fk;
-            console.log(`Processando status para user ${pUserFk}...`);
+            console.log(`Atualizando status para 4: User ${pUserFk}`);
             
             try {
-                // PASSO A: Tenta limpar o status antigo (1)
+                // PASSO A: Tenta limpar o status antigo (1) para evitar erro de duplicidade
                 try {
                     const checkEvent = await axios.get("/rl_events_users/check-duplicate", {
                         params: { 
                             users_fk: pUserFk, 
-                            events_fk: Number(eventId), 
-                            event_tables_fk: Number(tablePk.value) 
+                            events_fk: eventId,
+                            event_tables_fk: tablePk.value 
                         }
                     });
                     
                     if (checkEvent.data.exists && checkEvent.data.existing_relationship) {
-                         console.log(`Deletando status antigo (1) para user ${pUserFk}`);
+                         console.log(`Deletando status antigo para user ${pUserFk}`);
                          await axios.delete(`/rl_events_users/${checkEvent.data.existing_relationship.rl_events_users_pk}/delete/`);
                     }
                 } catch (errCheck) {
-                    console.warn("Falha no check-duplicate, tentando POST direto...", errCheck);
+                    console.warn("Check duplicate status failed, trying direct post", errCheck);
                 }
 
                 // PASSO B: Cria o novo status (4)
@@ -671,17 +691,15 @@ const executeStartGameFlow = async (campaignFk: number) => {
                     }
                 });
                 
-                // Pequeno delay entre updates de jogadores
-                await new Promise(r => setTimeout(r, 200));
-
             } catch (err) {
                 console.error(`ERRO FATAL ao atualizar status do user ${pUserFk}`, err);
             }
-        }
+        });
         
-        console.log("Todos os status processados.");
+        await Promise.all(statusPromises);
+        console.log("Processo de status finalizado.");
         
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
         selectedCampaign.value = { campaigns_fk: campaignFk, boxSku: DEFAULT_SKU };
         goToCampaign();
