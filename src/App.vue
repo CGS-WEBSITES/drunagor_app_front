@@ -2,7 +2,7 @@
   <v-app :theme="theme">
     <Toast />
 
-    <v-row no-gutters v-if="display.mdAndUp">
+    <v-row no-gutters v-if="display.mdAndUp && route.name !== 'Campaign'">
       <v-app-bar app min-height="50" color="secundary">
         <div
           @click="$router.push({ name: 'Dashboard' })"
@@ -100,13 +100,11 @@
       </v-app-bar>
     </v-row>
 
-    <!-- Mobile/Tablet - Botão do Menu no Header + Navigation Drawer -->
     <v-row no-gutters v-else-if="
       route.name !== 'Home' &&
       route.name !== 'Login' &&
       route.name !== 'RetailerRegistration' &&
       route.name !== 'Gama' &&
-      route.name !== 'Community' &&
       route.name !== 'Community' &&
       route.name !== 'Lobby' &&
       route.name !== 'Campaign'
@@ -266,6 +264,13 @@ const menuItems = computed(() => {
       title: role.value === 3 ? "SKUs Manager" : "Library",
       icon: "mdi-book",
       to: { name: "Library" },
+      disabled: false,
+    },
+    // ALTERAÇÃO 2: Novo item adicionado
+    {
+      title: "Community Builds",
+      icon: "mdi-hammer-wrench",
+      to: { name: "CommunityBuilds" },
       disabled: false,
     },
     {
