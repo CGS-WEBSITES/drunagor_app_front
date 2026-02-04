@@ -9,7 +9,7 @@
     <v-card color="#121212" class="rounded-lg">
       <v-toolbar color="transparent" density="compact" class="border-b border-opacity-25 pl-2 pr-2 flex-shrink-0">
         <v-toolbar-title class="text-subtitle-1 font-weight-bold text-white">
-          {{ scanning ? 'SCAN QR CODE' : 'SELECT EVENT' }}
+           SCAN QR CODE
         </v-toolbar-title>
         <v-btn icon @click="closeDialog" density="compact" color="white">
           <v-icon>mdi-close</v-icon>
@@ -18,7 +18,7 @@
 
       <v-card-text class="pa-4" style="overflow-y: auto;">
         
-        <div v-if="scanning" class="scanner-container text-center">
+        <div class="scanner-container text-center">
             
             <div class="video-wrapper mb-4">
                 <video id="qr-video" class="qr-video" autoplay muted playsinline />
@@ -40,93 +40,13 @@
             </div>
             
             <p class="text-caption text-grey-lighten-1 mb-4 font-weight-medium">
-               Point your camera at the <span class="text-white font-weight-bold">Event QR Code</span>
+               Point your camera at the <span class="text-white font-weight-bold">Event QR Code</span> to join the table.
             </p>
 
-            <div>
-                <div class="d-flex align-center w-100 mb-4">
-                    <v-divider color="grey-darken-2"></v-divider>
-                    <span class="mx-3 text-caption font-weight-bold text-grey">OR</span>
-                    <v-divider color="grey-darken-2"></v-divider>
-                </div>
+            <v-alert v-if="errorMessage" type="error" variant="tonal" density="compact" class="mb-3 text-left">
+               {{ errorMessage }}
+            </v-alert>
 
-                <v-btn 
-                    block 
-                    size="large" 
-                    color="surface-variant" 
-                    variant="flat" 
-                    @click="switchToListView"
-                    class="font-weight-bold"
-                >
-                    <v-icon start>mdi-sword-cross</v-icon>
-                      My Upcoming Events
-                </v-btn>
-            </div>
-        </div>
-
-        <div v-else class="d-flex flex-column">
-          
-          <div class="w-100 mb-4">
-            <template v-if="displayEvents.length > 0">
-              <v-card
-                v-for="event in displayEvents"
-                :key="event.events_pk"
-                class="mb-3 event-card"
-                color="#FFFFFF" 
-                elevation="2"
-                @click="goToLobby(event.events_pk)"
-                rounded="lg"
-              >
-                <v-row no-gutters align="center">
-                    <v-col cols="3" class="d-flex flex-column align-center justify-center py-2  border-e">
-                        <span class="text-caption font-weight-bold text-uppercase pt-1" style="font-size: 0.65rem;">
-                            {{ new Date(event.event_date).toLocaleDateString('en-US',{month:'short'}) }}
-                        </span>
-                        <span class="cinzel-text text-h5 font-weight-bold text-black" style="line-height: 1;">
-                            {{ new Date(event.event_date).getDate() }}
-                        </span>
-                        <span class="text-caption font-weight-bold text-black" style="font-size: 0.7rem;">
-                            {{ new Date(event.event_date).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}) }}
-                        </span>
-                    </v-col>
-
-                    <v-col cols="9" class="pl-3 py-2 d-flex flex-column justify-center">
-                        <h3 class="text-subtitle-2 font-weight-bold text-truncate text-black mb-0 d-flex align-center">
-                            <v-icon size="x-small" color="black" class="mr-1">mdi-chess-rook</v-icon>
-                            {{ event.store_name }}
-                        </h3>
-
-                        <p class="text-caption text-truncate mb-0">
-                            <v-icon size="x-small" color="red" class="mr-1">mdi-map-marker</v-icon>
-                            {{ event.address || 'Unknown Location' }}
-                        </p>
-
-                        <p class="text-caption text-black   mb-0">
-                             <v-icon size="x-small" class="mr-1" color="red">mdi-sword-cross</v-icon>
-                             {{ event.scenario || 'Wing Unknown' }}
-                        </p>
-                    </v-col>
-                </v-row>
-              </v-card>
-            </template>
-            
-            <div v-else class="text-center pa-6 border-dashed rounded text-grey">
-              No scheduled events found.
-            </div>
-          </div>
-
-          <v-btn
-            block
-            size="large"
-            color="primary"
-            variant="flat"
-            class="mb-2 font-weight-bold text-white"
-            @click="switchToScannerView"
-          >
-            <v-icon start>mdi-qrcode-scan</v-icon>
-            Back to Scanner
-          </v-btn>
-          
         </div>
       </v-card-text>
     </v-card>
@@ -153,7 +73,6 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onBeforeUnmount, watch, inject } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '@/store/UserStore';
 import {
   BrowserMultiFormatReader,
   BarcodeFormat,
@@ -162,19 +81,16 @@ import {
 
 const props = defineProps<{
   modelValue: boolean;
-  myEvents: any[];
-  user: any;
 }>();
 
 const emit = defineEmits(['update:modelValue']);
 const router = useRouter();
 const axios: any = inject('axios');
-const userStore = useUserStore();
 
-const scanning = ref(true); 
 const showCameraDeniedDialog = ref(false);
 const processing = ref(false);
 const snackbar = ref({ show: false, text: '', color: 'error' });
+const errorMessage = ref('');
 
 const codeReader = new BrowserMultiFormatReader(undefined, 400);
 const zxingHints = new Map();
@@ -191,7 +107,7 @@ const dialog = computed({
   set: (val) => {
       emit('update:modelValue', val);
       if (val) {
-          scanning.value = true;
+          errorMessage.value = '';
           startScanner();
       } else {
           stopScanner();
@@ -199,17 +115,9 @@ const dialog = computed({
   }
 });
 
-const displayEvents = computed(() => {
-    if (props.myEvents && props.myEvents.length > 0) {
-        const futureEvents = props.myEvents.filter((e: any) => new Date(e.event_date) >= new Date(new Date().setHours(0,0,0,0)));
-        return futureEvents.sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
-    }
-    return [];
-});
-
 watch(() => props.modelValue, (val) => {
     if(val) {
-        scanning.value = true;
+        errorMessage.value = '';
         startScanner();
     } else {
         stopScanner();
@@ -218,32 +126,9 @@ watch(() => props.modelValue, (val) => {
 
 const closeDialog = () => dialog.value = false;
 
-const switchToListView = () => {
-    stopScanner(); 
-    scanning.value = false; 
-};
-
-const switchToScannerView = () => {
-    scanning.value = true;
-    startScanner(); 
-};
-
 const goToLobby = (eventId: string | number, tablePk?: string | number) => {
     stopScanner();
     dialog.value = false;
-
-    // Se for o evento hardcoded 198, força mesa 12 (lógica legada)
-    // Se vier do backend (QR Code), tablePk estará preenchido corretamente
-    if (String(eventId) === '198' && !tablePk) {
-        tablePk = 12;
-    }
-
-    // Tenta encontrar o evento na lista local para pegar a mesa se não vier do QR
-    if (!tablePk && props.myEvents) {
-        // Lógica de fallback se clicar no card e não tivermos o ID da mesa na lista de eventos
-        // Idealmente, a lista de eventos deveria ter o ID da mesa
-        tablePk = 12; 
-    }
 
     router.push({ 
         name: 'Lobby', 
@@ -272,7 +157,7 @@ const startScanner = async () => {
 
     const devices = await codeReader.listVideoInputDevices();
     if (!devices.length) {
-      console.warn("No cameras found");
+      errorMessage.value = "No camera found on this device.";
       return;
     }
 
@@ -295,39 +180,37 @@ const startScanner = async () => {
 
   } catch (e) {
     console.error("Error starting scanner:", e);
+    showCameraDeniedDialog.value = true;
   }
 };
 
 const processQrCodeData = async (qrContent: string) => {
     processing.value = true;
-    stopScanner();
+    stopScanner(); // Para o vídeo enquanto valida
 
-    // Limpa a string do QR Code
     const cleanCode = qrContent.trim().replace(/^"|"$/g, '');
 
     try {
-        // CHAMA O BACKEND PARA VALIDAR O CÓDIGO
         const { data } = await axios.get(`/qr_code/validate/${cleanCode}`);
 
         if (data.valid) {
             if (data.is_full) {
-                snackbar.value = { show: true, text: "Table is full!", color: "warning" };
-                setTimeout(() => startScanner(), 2000);
+                snackbar.value = { show: true, text: "This table is full!", color: "warning" };
+                setTimeout(() => startScanner(), 2500); // Reinicia scan após aviso
             } else {
-                // SUCESSO: Usa os IDs retornados pelo backend
+                // SUCESSO! Vai para o lobby com o ID do evento e da mesa
                 goToLobby(data.events_fk, data.event_tables_pk);
             }
         } else {
-            // Código expirado ou inválido
-            snackbar.value = { show: true, text: data.message || "Invalid QR Code", color: "error" };
-            setTimeout(() => startScanner(), 2000);
+            snackbar.value = { show: true, text: data.message || "Invalid or Expired QR Code", color: "error" };
+            setTimeout(() => startScanner(), 2500);
         }
 
     } catch (error: any) {
         console.error("QR Validation Error:", error);
-        const msg = error.response?.data?.message || "Error processing QR Code";
+        const msg = error.response?.data?.message || "Error validating QR Code";
         snackbar.value = { show: true, text: msg, color: "error" };
-        setTimeout(() => startScanner(), 2000);
+        setTimeout(() => startScanner(), 2500);
     } finally {
         processing.value = false;
     }
@@ -351,8 +234,6 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.cinzel-text { font-family: "Cinzel", serif; }
-
 .video-wrapper { 
     position: relative; 
     display: inline-block; 
@@ -396,18 +277,6 @@ onBeforeUnmount(() => {
     background: rgba(0, 0, 0, 0.6) !important; 
     color: white !important; 
     z-index: 10; 
-}
-
-.event-card {
-    border: 1px solid rgba(0,0,0,0.05);
-    transition: transform 0.1s, box-shadow 0.1s;
-}
-.event-card:active {
-    transform: scale(0.99);
-}
-
-.border-dashed {
-    border: 1px dashed rgba(255,255,255,0.2) !important;
 }
 
 .scanner-container {

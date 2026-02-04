@@ -634,5 +634,5 @@ onUnmounted(() => {
   .zoom-hint-container {
     margin-top: 12px;
   }
-}
-</style>
+  }
+  </style>

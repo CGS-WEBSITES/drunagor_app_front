@@ -1130,15 +1130,7 @@ const addEvent = () => {
 
       lastCreatedEventId.value = id;
 
-      lastCreatedEventFallback.value = {
-        ...(created || {}),
-        events_pk: id,
-        store_name: created?.store_name || newEvent.value.store || "",
-        address: created?.address || newEvent.value.address || "",
-        scenario: created?.scenario || "",
-        seats_number: created?.seats_number || newEvent.value.seats || null,
-        event_date: created?.event_date || null,
-      };
+  const userId = userStore.user.users_pk;
 
       await createInitialTableForEvent(id);
 
@@ -1167,10 +1159,82 @@ const addEvent = () => {
       successDialog.value = false;
       createEventDialog.value = false;
 
-      fetchUserCreatedEvents(showPast.value).catch(() => {});
-      fetchPlayerEvents(showPast.value).catch(() => {});
+  newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
 
+  // PASSO 1: Buscar a Store para pegar o ID correto
+  axios.get("/stores/list", {
+    params: { users_fk: userId },
+    headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+  })
+  .then(({ data }) => {
+    const allStores = data.stores || [];
+    const found = allStores.find(s => s.name?.toLowerCase().trim() === newEvent.value.store.toLowerCase().trim());
+
+    if (!found) throw new Error("StoreNotFound");
+    if (!found.active) throw new Error("StoreInactive");
+    if (!found.verified) throw new Error("StoreUnverified");
+
+    return found.stores_pk;
+  })
+  .then((storesFk) => {
+    // PASSO 2: Formatar data e enviar o POST de cadastro (O que estava faltando!)
+    const [h, m] = newEvent.value.hour.split(":").map(Number);
+    const ampm = newEvent.value.ampm || "AM";
+    const date = `${newEvent.value.date}; ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
+
+    return axios.post("/events/cadastro", {
+      seats_number: newEvent.value.seats || 0,
+      seasons_fk: newEvent.value.season,
+      sceneries_fk: newEvent.value.scenario,
+      date,
+      stores_fk: storesFk,
+      users_fk: userId,
+      active: true,
+    }, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+  })
+  .then(async ({ data }) => {
+    // PASSO 3: Pegar o ID do evento criado e criar a tabela/rewards
+    const created = data.event;
+    const id = created?.events_pk;
+
+    if (!id) throw new Error("EventCreationFailed");
+
+    lastCreatedEventId.value = id;
+    lastCreatedEventFallback.value = {
+      ...created,
+      events_pk: id,
+      store_name: newEvent.value.store,
+      address: newEvent.value.address,
+      scenario: sceneries.value.find(s => s.sceneries_pk === newEvent.value.scenario)?.name || ""
+    };
+
+    await createInitialTableForEvent(id);
+
+    // Salvar Rewards
+    return Promise.all(
+      selectedRewards.value.map((r) =>
+        axios.post("/rl_events_rewards/cadastro", {
+          events_fk: id,
+          rewards_fk: r.rewards_pk,
+          active: true,
+        }, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        }).catch(() => null)
+      )
+    ).then(() => id);
+  })
+  .then(() => {
+    createEventDialog.value = false;
+    fetchUserCreatedEvents(showPast.value);
+    
+    if (tutorialStore.shouldShowInitialSetup) {
       pendingSuccessAfterTutorial.value = true;
+      showTutorialPrompt.value = true;
+    } else {
+      successDialog.value = true;
+    }
 
       if (tutorialStore.shouldShowInitialSetup) {
         pendingSuccessAfterTutorial.value = true;

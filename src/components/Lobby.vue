@@ -44,14 +44,71 @@
                  </div>
               </template>
 
-              <template v-else-if="slot.player">
-                 <div class="d-flex flex-column align-center">
-                    <v-avatar size="48" class="mb-2">
-                        <v-img :src="slot.player.avatar"></v-img>
-                    </v-avatar>
-                    <span class="text-caption text-white font-weight-bold">{{ slot.player.name }}</span>
-                    <span class="text-caption text-grey mt-1">Selecting...</span>
-                 </div>
+        <div v-if="selectedCampaign" class="text-center mt-2">
+             <v-chip color="purple-accent-2" variant="flat" :closable="isLeader" @click:close="clearCampaign" class="font-weight-bold w-100 justify-center">
+                <v-icon start size="small">mdi-book-open-page-variant</v-icon>
+                {{ selectedCampaignName }}
+             </v-chip>
+        </div>
+      </div>
+
+      <div class="flex-grow-1 w-100 px-4 overflow-y-auto d-flex flex-column justify-center">
+        <v-row dense class="w-100 ma-0 justify-center">
+          <v-col
+            cols="6" 
+            v-for="(slot, index) in lobbySlots"
+            :key="index"
+            class="pa-3 d-flex justify-center"
+          >
+            <v-card 
+              class="player-slot-card d-flex flex-column align-center justify-center elevation-10"
+              :color="slot.player ? '#1e1e1e' : 'rgba(255,255,255,0.05)'"
+              :variant="slot.player ? 'elevated' : 'outlined'"
+              rounded="xl"
+              @click="handleSlotClick(index)"
+              v-ripple="!!slot.player"
+              style="width: 100%; max-width: 220px; aspect-ratio: 0.76; position: relative; overflow: hidden;"
+            >
+              <template v-if="!slot.player">
+                <div class="d-flex flex-column align-center justify-center fill-height" style="opacity: 0.3">
+                  <v-icon size="40" color="white">mdi-plus</v-icon>
+                  <span class="text-caption text-grey mt-2 font-weight-bold">EMPTY</span>
+                </div>
+              </template>
+
+              <template v-else>
+                  <div class="player-overlay-header">
+                      <v-avatar size="24" class="mr-2 border-sm">
+                          <v-img :src="slot.player.avatar"></v-img>
+                      </v-avatar>
+                      
+                      <span class="text-caption text-white font-weight-bold text-truncate" style="max-width: 80px;">
+                          {{ slot.player.name }}
+                      </span>
+
+                      <v-icon v-if="index === 0" color="amber" size="small" class="ml-1" title="Drunagor Master">
+                          mdi-crown
+                      </v-icon>
+                  </div>
+
+                  <template v-if="slot.hero">
+                      <v-img 
+                        :src="slot.hero.image" 
+                        cover
+                        class="w-100 h-100"
+                        position="top center"
+                      ></v-img>
+                  </template>
+
+                  <template v-else>
+                      <div class="d-flex flex-column align-center justify-center fill-height w-100 bg-grey-darken-4 border-dashed pt-6">
+                        <v-progress-circular v-if="slot.loadingHero" indeterminate color="white" size="24"></v-progress-circular>
+                        <v-icon v-else color="grey-lighten-1" size="x-large" class="mb-2">mdi-shield-account-outline</v-icon>
+                        <span class="text-caption text-grey-lighten-1 font-weight-bold text-uppercase mt-2">
+                            {{ slot.loadingHero ? 'Loading...' : 'Select Hero' }}
+                        </span>
+                      </div>
+                  </template>
               </template>
 
               <template v-else>
@@ -174,9 +231,18 @@
         <v-card color="#1e1e1e" class="rounded-lg">
             <v-card-title class="text-white">Select Campaign</v-card-title>
             <v-card-text>
-                <v-select v-model="selectedLoadCampaignId" :items="availableCampaigns" item-title="party_name"
-                    item-value="campaigns_fk" label="Select a campaign" variant="outlined" bg-color="grey-darken-4"
-                    color="white" :loading="loadingCampaigns" no-data-text="No campaigns found"></v-select>
+                <v-select
+                  v-model="selectedLoadCampaignId"
+                  :items="availableCampaigns"
+                  item-title="party_name"
+                  item-value="campaigns_fk"
+                  label="Select a campaign"
+                  variant="outlined"
+                  bg-color="grey-darken-4"
+                  color="white"
+                  :loading="loadingCampaigns"
+                  no-data-text="No campaigns found"
+                ></v-select>
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -185,6 +251,7 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
   </v-main>
 </template>
 
@@ -206,8 +273,7 @@ const axios: any = inject('axios');
 const heroDataRepository = new HeroDataRepository();
 
 const PLAYING_STATUS_ID = 4;
-const DEFAULT_SKU = 39;
-const LOBBY_REFRESH_INTERVAL = 3000;
+const DEFAULT_SKU = 39; 
 
 const ALLOWED_HEROES = ['Vorn', 'Elros', 'Lorelai', 'Maya', 'Jaheen'];
 
@@ -218,17 +284,17 @@ const loadingCampaignAction = ref(false);
 const eventId = route.params.id;
 const tablePk = computed(() => route.query.table_pk);
 const pollingTimer = ref<any>(null);
-const heroCache = ref<Record<number, any>>({});
+const heroCache = ref<Record<number, any>>({}); 
 
 const lobbySlots = ref<any[]>([
-    { player: null, hero: null, loadingHero: false },
-    { player: null, hero: null, loadingHero: false },
-    { player: null, hero: null, loadingHero: false },
+    { player: null, hero: null, loadingHero: false }, 
+    { player: null, hero: null, loadingHero: false }, 
+    { player: null, hero: null, loadingHero: false }, 
     { player: null, hero: null, loadingHero: false }
 ]);
 
 const heroDialog = ref(false);
-const heroDialogTab = ref<'mine' | 'new'>('mine');
+const heroDialogTab = ref<'mine'|'new'>('mine');
 const loadingHeroes = ref(false);
 const showCampaignDialog = ref(false);
 const showLoadDialog = ref(false);
@@ -240,7 +306,7 @@ const overlayVisible = computed(() => loadingStart.value || isReconnecting.value
 
 const currentUserSlot = computed(() => {
     return lobbySlots.value.find(s => s.player && s.player.users_fk === userStore.user.users_pk) || { player: null, hero: null };
-});
+}); 
 
 const isLeader = computed(() => {
     const leaderSlot = lobbySlots.value[0];
@@ -310,18 +376,19 @@ const availableHeroesToCreate = computed(() => {
 });
 
 const eventDateObj = computed(() => {
-    if (!eventDetails.value) return { month: '', day: '', time: '' };
-    const d = new Date(eventDetails.value.event_date);
-    return {
-        month: d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(),
-        day: d.getDate(),
-        time: d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
-    }
+  if(!eventDetails.value) return { month: '', day: '', time: '' };
+  const d = new Date(eventDetails.value.event_date);
+  return {
+    month: d.toLocaleDateString('en-US',{month:'short'}).toUpperCase(),
+    day: d.getDate(),
+    time: d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})
+  }
 });
 
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
 
+    // Reconecta SOMENTE se status for JOGANDO (4)
     if (myPlayerStatus === PLAYING_STATUS_ID) {
         try {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
@@ -330,6 +397,7 @@ const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
             
             const allCampaigns = searchRes.data.campaigns || [];
             
+            // Busca a última campanha ativa
             const activeCampaigns = allCampaigns
                 .filter((c: any) => c.active === true || c.active === 1 || c.active === 'true')
                 .sort((a: any, b: any) => b.campaigns_fk - a.campaigns_fk);
@@ -432,22 +500,38 @@ const resolveHeroForSlot = async (slotIndex: number, playableHeroFk: number, slo
 };
 
 function generateCampaignHash(campaign: Campaign): string {
-    const data = {
-        campaignData: JSON.parse(JSON.stringify(campaign)),
-        heroes: [],
-    };
-    return btoa(JSON.stringify(data));
+  const data = {
+    campaignData: JSON.parse(JSON.stringify(campaign)),
+    heroes: [], 
+  };
+  return btoa(JSON.stringify(data));
 }
 
+// --- JOIN TABLE CORRIGIDO: Verifica se já está jogando antes de resetar status ---
 const joinTable = async () => {
     if (!eventId || !tablePk.value) return;
     try {
+        // 1. Antes de dar POST com status 1, precisamos saber se o usuário já tem status 4
+        // Fazemos um GET para pegar os jogadores atuais da mesa
+        const tableRes = await axios.get(`/rl_events_users/table_players/${eventId}/${tablePk.value}`);
+        const players = tableRes.data.players || [];
+        
+        // 2. Procura o usuário atual na lista
+        const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
+
+        // 3. SE eu existo E meu status é 4 (PLAYING_STATUS_ID), EU NÃO FAÇO NADA
+        if (me && me.event_status_fk === PLAYING_STATUS_ID) {
+            console.log("Usuário já está em jogo (status 4). Ignorando reset para Lobby.");
+            return; // <--- TRAVA DE SEGURANÇA
+        }
+
+        // 4. Se não estiver jogando (ou não estiver na mesa), aí sim entra no Lobby (Status 1)
         await axios.post('/rl_events_users/cadastro', null, {
             params: {
                 users_fk: userStore.user.users_pk,
                 events_fk: eventId,
-                event_tables_fk: tablePk.value,
-                status: 1,
+                event_tables_fk: tablePk.value, 
+                status: 1, 
                 active: true
             }
         });
@@ -463,11 +547,11 @@ const selectHero = async (hero: any) => {
 
     try {
         const { data } = await axios.get("/rl_campaigns_users/check-duplicate", {
-            params: { users_fk: usersPk, skus_fk: DEFAULT_SKU }
+             params: { users_fk: usersPk, skus_fk: DEFAULT_SKU }
         });
-
+        
         if (data.exists && data.existing_relationship) {
-            await axios.delete(`/rl_campaigns_users/${data.existing_relationship.rl_campaigns_users_pk}/delete/`);
+             await axios.delete(`/rl_campaigns_users/${data.existing_relationship.rl_campaigns_users_pk}/delete/`);
         }
 
         await axios.post('/rl_campaigns_users/cadastro', null, {
@@ -476,11 +560,11 @@ const selectHero = async (hero: any) => {
                 skus_fk: DEFAULT_SKU,
                 active: true,
                 playable_heroes_fk: hero.pk,
-                campaigns_fk: null
+                campaigns_fk: null 
             }
         });
 
-        await fetchTablePlayers();
+        fetchTablePlayers(); 
     } catch (e) { console.error("Error selecting hero:", e); }
 };
 
@@ -496,7 +580,7 @@ const handleMainAction = () => {
 
 const handleNewCampaign = async () => {
     loadingCampaignAction.value = true;
-    const SKU_ID = 39;
+    const SKU_ID = 39; 
     const CAMPAIGN_TYPE = 'underkeep2';
 
     try {
@@ -505,14 +589,14 @@ const handleNewCampaign = async () => {
         const isWing3 = scenarioName.toLowerCase().includes('wing 03');
         tempCampaign.wing = isWing3 ? 'Wing 3' : 'Wing 4';
         tempCampaign.door = 'First Setup';
-
+        
         const initialHash = generateCampaignHash(tempCampaign);
         const createRes = await axios.post("/campaigns/cadastro", {
-            tracker_hash: initialHash,
-            conclusion_percentage: 0,
-            party_name: eventDetails.value?.store_name || "New Adventure",
-            box: SKU_ID,
-            active: true
+             tracker_hash: initialHash,
+             conclusion_percentage: 0,
+             party_name: eventDetails.value?.store_name || "New Adventure",
+             box: SKU_ID,
+             active: true
         });
 
         const campaignFk = createRes.data.campaign.campaigns_pk;
@@ -529,21 +613,20 @@ const handleNewCampaign = async () => {
         campaignStore.add(realCampaign);
         await executeStartGameFlow(campaignFk);
 
-    } catch (e: any) {
+    } catch (e:any) {
         alert("Error creating campaign: " + (e.response?.data?.message || e.message));
         loadingCampaignAction.value = false;
-    }
+    } 
 };
 
 const fetchAndShowLoadDialog = async () => {
     loadingCampaigns.value = true;
     showLoadDialog.value = true;
     try {
-        const res = await axios.get("/rl_campaigns_users/search", { params: { users_fk: userStore.user?.users_pk } });
-        availableCampaigns.value = res.data.campaigns;
-    } catch (e) { } finally { loadingCampaigns.value = false; }
+         const res = await axios.get("/rl_campaigns_users/search", { params: { users_fk: userStore.user?.users_pk } });
+         availableCampaigns.value = res.data.campaigns;
+    } catch(e) { } finally { loadingCampaigns.value = false; }
 };
-
 
 const confirmLoadCampaign = async () => {
     const camp: any = availableCampaigns.value.find((c:any) => c.campaigns_fk === selectedLoadCampaignId.value);
@@ -552,11 +635,12 @@ const confirmLoadCampaign = async () => {
         loadingCampaignAction.value = true; 
         showLoadDialog.value = false;
         showCampaignDialog.value = false;
-
+        
         await executeStartGameFlow(camp.campaigns_fk);
     }
 };
 
+// --- START GAME FLOW CORRIGIDO ---
 const executeStartGameFlow = async (campaignFk: number) => {
     loadingStart.value = true; 
     showCampaignDialog.value = false;
@@ -564,6 +648,7 @@ const executeStartGameFlow = async (campaignFk: number) => {
     try {
         const currentPlayers = lobbySlots.value.filter(s => s.player !== null && s.hero !== null);
         
+        // 1. VÍNCULO DA CAMPANHA
         const linkPromises = currentPlayers.map(async (slot) => {
             const pUserFk = slot.player.users_fk;
             try {
@@ -571,38 +656,70 @@ const executeStartGameFlow = async (campaignFk: number) => {
                     params: { users_fk: pUserFk, skus_fk: DEFAULT_SKU, active: true }
                 });
                 if (check.data.campaigns && check.data.campaigns.length > 0) {
-                     // Cleanup
+                     // Opcional: limpeza
                 }
-            } catch (ignore) { }
+            } catch(ignore) {}
 
-            const heroFk = slot.hero?.pk;
-
+            const heroFk = slot.hero?.pk; 
+            
             return axios.post('/rl_campaigns_users/cadastro', null, {
                 params: {
                     users_fk: pUserFk,
                     campaigns_fk: campaignFk,
                     skus_fk: DEFAULT_SKU,
-                    playable_heroes_fk: heroFk,
+                    playable_heroes_fk: heroFk, 
                     active: true
                 }
             });
         });
 
         await Promise.all(linkPromises);
+        console.log("Vínculos de campanha criados.");
 
-        const statusPromises = currentPlayers.map(slot => {
-            return axios.post("/rl_events_users/cadastro", {
-                users_fk: slot.player.users_fk,
-                events_fk: Number(eventId),
-                event_tables_fk: Number(tablePk.value),
-                status: PLAYING_STATUS_ID,
-                active: true
-            });
+        // 2. ATUALIZAÇÃO DE STATUS (CORRIGIDA COM DELETE + POST)
+        const statusPromises = currentPlayers.map(async (slot) => {
+            const pUserFk = slot.player.users_fk;
+            console.log(`Atualizando status para 4: User ${pUserFk}`);
+            
+            try {
+                // PASSO A: Tenta limpar o status antigo (1) para evitar erro de duplicidade
+                try {
+                    const checkEvent = await axios.get("/rl_events_users/check-duplicate", {
+                        params: { 
+                            users_fk: pUserFk, 
+                            events_fk: eventId,
+                            event_tables_fk: tablePk.value 
+                        }
+                    });
+                    
+                    if (checkEvent.data.exists && checkEvent.data.existing_relationship) {
+                         console.log(`Deletando status antigo para user ${pUserFk}`);
+                         await axios.delete(`/rl_events_users/${checkEvent.data.existing_relationship.rl_events_users_pk}/delete/`);
+                    }
+                } catch (errCheck) {
+                    console.warn("Check duplicate status failed, trying direct post", errCheck);
+                }
+
+                // PASSO B: Cria o novo status (4)
+                await axios.post("/rl_events_users/cadastro", null, {
+                    params: {
+                        users_fk: pUserFk,
+                        events_fk: Number(eventId),
+                        event_tables_fk: Number(tablePk.value),
+                        status: PLAYING_STATUS_ID, // 4
+                        active: true
+                    }
+                });
+                
+            } catch (err) {
+                console.error(`ERRO FATAL ao atualizar status do user ${pUserFk}`, err);
+            }
         });
-
-        await Promise.all(statusPromises);
         
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await Promise.all(statusPromises);
+        console.log("Processo de status finalizado.");
+        
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
         selectedCampaign.value = { campaigns_fk: campaignFk, boxSku: DEFAULT_SKU };
         goToCampaign();
@@ -619,7 +736,7 @@ const goToCampaign = () => {
     if (pollingTimer.value) clearInterval(pollingTimer.value);
     router.push({
         path: `/campaign-tracker/campaign/${selectedCampaign.value.campaigns_fk}`,
-        query: { sku: String(selectedCampaign.value.boxSku || DEFAULT_SKU) }
+        query: { sku: String(selectedCampaign.value.boxSku || DEFAULT_SKU) } 
     });
 };
 
@@ -639,22 +756,22 @@ const createNewHero = async (heroId: string) => {
         await playableHeroStore.createHero(heroId, userStore.user.users_pk);
         await playableHeroStore.fetchHeroes(userStore.user.users_pk);
         const createdHero = myHeroes.value.find(h => h.heroId === heroId);
-        if (createdHero) selectHero(createdHero);
+        if(createdHero) selectHero(createdHero);
         heroDialogTab.value = 'mine';
         heroDialog.value = false;
-    } catch (e) { } finally { loadingHeroes.value = false; }
+    } catch(e) { } finally { loadingHeroes.value = false; }
 };
 
 const fetchEventDetails = async () => {
     if (!eventId) return;
     try {
-        const res = await axios.get('/events/list_events/', {
+        const res = await axios.get('/events/list_events/', { 
             params: { player_fk: userStore.user?.users_pk, past_events: 'false' },
             headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
         });
-        const found = res.data.events?.find((e: any) => String(e.events_pk) === String(eventId));
-        if (found) eventDetails.value = found;
-    } catch (e) { }
+        const found = res.data.events?.find((e:any) => String(e.events_pk) === String(eventId));
+        if(found) eventDetails.value = found;
+    } catch(e) { }
 }
 
 const handleSlotClick = (index: number) => {
@@ -662,23 +779,18 @@ const handleSlotClick = (index: number) => {
     if (slot.player?.users_fk === userStore.user.users_pk) openHeroSelection();
 };
 
+const clearCampaign = () => { if(isLeader.value) selectedCampaign.value = null; };
 const leaveLobby = () => router.go(-1);
 
 onMounted(async () => {
     await fetchEventDetails();
-    if (tablePk.value) await joinTable();
-    await fetchTablePlayers();
-
-    pollingTimer.value = setInterval(() => {
-        fetchTablePlayers();
-    }, LOBBY_REFRESH_INTERVAL);
+    if(tablePk.value) await joinTable();
+    await fetchTablePlayers(); 
+    pollingTimer.value = setInterval(() => fetchTablePlayers(), 3000);
 });
 
 onBeforeUnmount(() => {
-    if (pollingTimer.value) {
-        clearInterval(pollingTimer.value);
-        pollingTimer.value = null;
-    }
+    if (pollingTimer.value) clearInterval(pollingTimer.value);
 });
 </script>
 
