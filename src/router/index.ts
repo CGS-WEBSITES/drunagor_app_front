@@ -88,6 +88,13 @@ const router = createRouter({
     },
 
     {
+      path: "/socialhub",
+      name: "SocialHub",
+      component: () => import("@/components/SocialHub.vue"),
+      beforeEnter: requireAuth,
+    },
+
+    {
       path: "/lobby/:id",
       name: "Lobby",
       component: () => import("@/components/Lobby.vue"),
