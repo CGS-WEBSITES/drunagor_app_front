@@ -186,7 +186,7 @@
          </v-card-title>
          <v-card-text class="d-flex flex-column ga-3 pt-2">
             <div class="text-caption text-grey mb-2 text-center">How do you want to start this adventure?</div>
-            <v-btn block color="success" size="large" variant="flat" :loading="loadingCampaignAction" @click="handleNewCampaign">
+            <v-btn block color="success" size="large" variant="flat" @click="openTutorialChoice">
                 <v-icon start>mdi-plus-box</v-icon> New Underkeep 2
             </v-btn>
             <div class="d-flex align-center">
@@ -196,6 +196,27 @@
                 <v-icon start>mdi-folder-open</v-icon> Load Campaign
             </v-btn>
          </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="tutorialChoiceDialog" max-width="400" persistent>
+      <v-card color="#1e1e1e" class="rounded-lg border-thin border-amber">
+        <v-card-title class="text-center text-amber-accent-2 cinzel-text pt-4">
+          Enable Guided Gameplay?
+        </v-card-title>
+        <v-card-text class="text-center text-grey-lighten-1 pb-4">
+          The <strong>"Start Here"</strong> feature is a <strong>guided gameplay introduction</strong> designed to teach you the basics of Drunagor.
+          <br/><br/>
+          Would you like to enable it?
+        </v-card-text>
+        <v-card-actions class="d-flex flex-column gap-2 px-4 pb-4">
+          <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(true)">
+            <v-icon start>mdi-school</v-icon> Yes, Guide Me
+          </v-btn>
+          <v-btn block color="grey-darken-3" variant="flat" size="large" @click="handleTutorialChoice(false)">
+            No, I know how to play
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -271,6 +292,7 @@ const heroDialog = ref(false);
 const heroDialogTab = ref<'mine'|'new'>('mine');
 const loadingHeroes = ref(false);
 const showCampaignDialog = ref(false);
+const tutorialChoiceDialog = ref(false);
 const showLoadDialog = ref(false);
 const loadingCampaigns = ref(false);
 const availableCampaigns = ref([]);
@@ -364,7 +386,6 @@ const eventDateObj = computed(() => {
   }
 });
 
-// --- LÓGICA DE RECONEXÃO ---
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
 
@@ -485,22 +506,18 @@ function generateCampaignHash(campaign: Campaign): string {
   return btoa(JSON.stringify(data));
 }
 
-// --- JOIN TABLE CORRIGIDO (Verifica status antes de POST) ---
 const joinTable = async () => {
     if (!eventId || !tablePk.value) return;
     try {
-        // 1. Verifica se já está na mesa para não resetar status 4
         const tableRes = await axios.get(`/rl_events_users/table_players/${eventId}/${tablePk.value}`);
         const players = tableRes.data.players || [];
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
 
-        // 2. Se status for 4, ignora cadastro
         if (me && me.event_status_fk === PLAYING_STATUS_ID) {
             console.log("Usuário já está em jogo (status 4). Ignorando reset para Lobby.");
             return;
         }
 
-        // 3. Caso contrário, entra no Lobby (Status 1)
         await axios.post('/rl_events_users/cadastro', null, {
             params: {
                 users_fk: userStore.user.users_pk,
@@ -553,16 +570,32 @@ const handleMainAction = () => {
     }
 };
 
-const handleNewCampaign = async () => {
+const openTutorialChoice = () => {
+    showCampaignDialog.value = false;
+    tutorialChoiceDialog.value = true;
+}
+
+const handleTutorialChoice = async (wantsTutorial: boolean) => {
+    tutorialChoiceDialog.value = false;
+    await handleNewCampaign(wantsTutorial);
+}
+
+const handleNewCampaign = async (wantsTutorial: boolean) => {
     loadingCampaignAction.value = true;
     const SKU_ID = 39; 
     const CAMPAIGN_TYPE = 'underkeep2';
 
     try {
         const tempCampaign = new Campaign("temp", CAMPAIGN_TYPE);
-        const scenarioName = eventDetails.value?.scenario || 'Wing 04';
-        const isWing3 = scenarioName.toLowerCase().includes('wing 03');
+        
+        let scenarioName = eventDetails.value?.scenario || 'Wing 04';
+        
+        const isWing3 = scenarioName.toLowerCase().includes('wing 03') || scenarioName.toLowerCase().includes('wing 3');
+        
         tempCampaign.wing = isWing3 ? 'Wing 3' : 'Wing 4';
+        
+        console.log(`[Lobby] Creating Campaign. Scenario: ${scenarioName}, Detected: ${tempCampaign.wing}`);
+
         tempCampaign.door = 'First Setup';
         
         const initialHash = generateCampaignHash(tempCampaign);
@@ -586,7 +619,7 @@ const handleNewCampaign = async () => {
         });
 
         campaignStore.add(realCampaign);
-        await executeStartGameFlow(campaignFk);
+        await executeStartGameFlow(campaignFk, wantsTutorial);
 
     } catch (e:any) {
         alert("Error creating campaign: " + (e.response?.data?.message || e.message));
@@ -611,13 +644,22 @@ const confirmLoadCampaign = async () => {
         showLoadDialog.value = false;
         showCampaignDialog.value = false;
         
-        await executeStartGameFlow(camp.campaigns_fk);
+        await executeStartGameFlow(camp.campaigns_fk, null);
     }
 };
 
-const executeStartGameFlow = async (campaignFk: number) => {
+const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean | null) => {
     loadingStart.value = true; 
     showCampaignDialog.value = false;
+
+    if (wantsTutorial !== null) {
+        const storageKey = `tutorial_shown_${campaignFk}`;
+        if (wantsTutorial === false) {
+            sessionStorage.setItem(storageKey, 'true');
+        } else {
+            sessionStorage.removeItem(storageKey);
+        }
+    }
 
     try {
         const currentPlayers = lobbySlots.value.filter(s => s.player !== null && s.hero !== null);
