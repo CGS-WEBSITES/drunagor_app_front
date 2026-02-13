@@ -118,13 +118,15 @@
       <div class="hud-area top-right">
         <div class="interactive-content d-flex flex-column align-end gap-2">
           <div class="d-flex flex-row align-center gap-2 mb-1">
-            <v-tooltip text="Back to Dashboard" location="bottom">
+            <v-tooltip text="Exit to Dashboard" location="bottom">
               <template v-slot:activator="{ props }">
                 <v-btn
                   v-bind="props"
-                  icon="mdi-arrow-left"
+                  icon="mdi-exit-to-app"
                   class="square-hud-btn"
-                  @click="goBack"
+                  color="error"
+                  variant="flat"
+                  @click="dashboardExitDialog.visible = true"
                 ></v-btn>
               </template>
             </v-tooltip>
@@ -192,9 +194,9 @@
               <template v-slot:activator="{ props }">
                 <v-btn
                   v-bind="props"
-                  icon="mdi-logout"
+                  icon="mdi-delete-forever"
                   class="square-hud-btn"
-                  color="error"
+                  color="grey-darken-3"
                   @click.stop="confirmLeave"
                 ></v-btn>
               </template>
@@ -285,6 +287,51 @@
       </div>
     </div>
 
+    <v-dialog v-model="dashboardExitDialog.visible" max-width="400">
+        <v-card class="bg-grey-darken-3 rounded-lg border-thin">
+            <v-card-title class="text-center text-white pt-4">Return to Dashboard?</v-card-title>
+            <v-card-text class="text-center text-grey-lighten-1 pb-4">
+                You will leave the campaign view. Your game state is saved automatically.
+            </v-card-text>
+            <v-card-actions class="d-flex justify-center pb-4 gap-3">
+                <v-btn color="grey" variant="text" @click="dashboardExitDialog.visible = false">Cancel</v-btn>
+                <v-btn color="error" variant="elevated" @click="exitToDashboard">Exit</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="enterBossDialog.visible" max-width="400" persistent>
+        <v-card class="bg-red-darken-4 border-xl border-white rounded-lg">
+            <v-card-title class="text-center text-uppercase font-weight-bold pt-4 text-h5">
+                <v-icon start size="small">mdi-skull</v-icon> Enter Dragon's Lair
+                <v-icon end size="small">mdi-skull</v-icon>
+            </v-card-title>
+            <v-card-text class="text-center py-4 text-body-1">
+                Are you prepared to face the Dragon?<br />There is no turning back.
+            </v-card-text>
+            <v-card-actions class="justify-center pb-4">
+                <v-btn color="white" variant="text" @click="enterBossDialog.visible = false">Not Yet</v-btn>
+                <v-btn color="black" class="text-red-accent-2 font-weight-bold" variant="elevated" @click="confirmEnterBossRoom">FIGHT!</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="finishCampaignDialog.visible" max-width="400" persistent>
+      <v-card class="bg-grey-darken-4 border-xl border-amber rounded-lg">
+        <v-card-title class="text-center text-uppercase font-weight-bold pt-4 text-h5 text-amber">
+          <v-icon start size="small">mdi-check-bold</v-icon> Finish Campaign
+        </v-card-title>
+        <v-card-text class="text-center py-4 text-body-1">
+          Are you ready to mark this adventure as complete?<br/><br/>
+          <span class="text-grey text-caption">Don't worry, you can still access the campaign log and books after finishing.</span>
+        </v-card-text>
+        <v-card-actions class="justify-center pb-4">
+          <v-btn color="white" variant="text" @click="finishCampaignDialog.visible = false">Not Yet</v-btn>
+          <v-btn color="amber-accent-4" class="text-black font-weight-bold" variant="elevated" @click="confirmFinishCampaign">FINISH</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="tutorialPromptDialog.visible" max-width="400" persistent>
         <v-card class="bg-grey-darken-4 border-xl border-amber-accent-4 rounded-lg elevation-20">
             <v-card-title class="text-center text-uppercase font-weight-bold pt-6 text-h5 text-amber-accent-2" style="font-family: 'Cinzel', serif;">
@@ -310,12 +357,7 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="interactionsDialog.visible"
-      fullscreen
-      transition="dialog-bottom-transition"
-      :scrim="false"
-    >
+    <v-dialog v-model="interactionsDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
       <v-card color="black">
         <InteractViewNew
           v-if="interactionsDialog.visible"
@@ -326,18 +368,12 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="bookDialog.visible"
-      fullscreen
-      transition="dialog-bottom-transition"
-      :scrim="false"
-    >
+    <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
       <v-card color="black" class="book-dialog-card">
         <v-toolbar color="primary" density="compact" class="d-none d-md-block">
           <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
           <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
         </v-toolbar>
-
         <v-btn
             v-if="$vuetify.display.smAndDown"
             icon="mdi-close"
@@ -348,22 +384,14 @@
             elevation="8"
             @click="bookDialog.visible = false"
         ></v-btn>
-
         <CampaignBookNew :campaign-wing="bookContext" />
       </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="keywordsDialog.visible"
-      fullscreen
-      transition="dialog-bottom-transition"
-    >
+    <v-dialog v-model="keywordsDialog.visible" fullscreen transition="dialog-bottom-transition">
       <v-card color="black">
         <v-toolbar color="primary" density="compact">
-          <v-btn
-            icon="mdi-close"
-            @click="keywordsDialog.visible = false"
-          ></v-btn>
+          <v-btn icon="mdi-close" @click="keywordsDialog.visible = false"></v-btn>
           <v-toolbar-title>Keywords</v-toolbar-title>
         </v-toolbar>
         <KeywordView />
@@ -373,31 +401,15 @@
     <v-dialog v-model="monsterGroupDialog.visible" max-width="1000" scrollable>
       <v-card class="bg-grey-darken-4 rounded-xl border-thin">
         <v-toolbar color="rgba(0,0,0,0.8)" density="compact">
-          <v-toolbar-title
-            class="cinzel-font text-red-accent-2 font-weight-bold"
-            >ENEMIES IN ROOM</v-toolbar-title
-          >
+          <v-toolbar-title class="cinzel-font text-red-accent-2 font-weight-bold">ENEMIES IN ROOM</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            @click="monsterGroupDialog.visible = false"
-          ></v-btn>
+          <v-btn icon="mdi-close" @click="monsterGroupDialog.visible = false"></v-btn>
         </v-toolbar>
         <v-card-text class="pa-4">
           <v-row justify="center" align="center">
-            <v-col
-              v-for="monster in currentMonsters"
-              :key="monster"
-              cols="4"
-              md="6"
-              lg="4"
-              class="d-flex justify-center"
-            >
+            <v-col v-for="monster in currentMonsters" :key="monster" cols="4" md="6" lg="4" class="d-flex justify-center">
               <div class="d-flex flex-column align-center">
-                <img
-                  :src="getMonsterImageSrc(monster)"
-                  class="monster-group-img elevation-10 rounded-lg"
-                />
+                <img :src="getMonsterImageSrc(monster)" class="monster-group-img elevation-10 rounded-lg" />
               </div>
             </v-col>
           </v-row>
@@ -410,118 +422,41 @@
         <v-toolbar color="black" density="compact">
           <v-toolbar-title class="text-white">Scan Next Door</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            @click="doorScannerDialog.visible = false"
-          ></v-btn>
+          <v-btn icon="mdi-close" @click="doorScannerDialog.visible = false"></v-btn>
         </v-toolbar>
-        <NextDoorQRScanner
-          v-if="doorScannerDialog.visible"
-          @scanned="handleDoorScanned"
-          @manual-advance="handleManualAdvance"
-        />
+        <NextDoorQRScanner v-if="doorScannerDialog.visible" @scanned="handleDoorScanned" @manual-advance="handleManualAdvance" />
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="leaveDialog.visible" max-width="400">
       <v-card title="Leave Campaign" class="bg-grey-darken-3">
-        <v-card-text class="pa-4 text-body-1"
-          >Are you sure you want to permanently leave this
-          campaign?</v-card-text
-        >
-        <v-card-actions
-          ><v-spacer /><v-btn color="grey" @click="leaveDialog.visible = false"
-            >Cancel</v-btn
-          ><v-btn
-            color="error"
-            variant="elevated"
-            @click="leaveDialog.onConfirm"
-            >Leave</v-btn
-          ></v-card-actions
-        >
-      </v-card>
-    </v-dialog>
-
-    <v-dialog
-      v-model="bossConfirmationDialog.visible"
-      max-width="400"
-      persistent
-    >
-      <v-card class="bg-red-darken-4 border-xl border-white rounded-lg">
-        <v-card-title
-          class="text-center text-uppercase font-weight-bold pt-4 text-h5"
-        >
-          <v-icon start size="small">mdi-skull</v-icon> Boss Battle
-          <v-icon end size="small">mdi-skull</v-icon>
-        </v-card-title>
-        <v-card-text class="text-center py-4 text-body-1">
-          Are you prepared to face the Dragon?<br />There is no turning back.
-        </v-card-text>
-        <v-card-actions class="justify-center pb-4">
-          <v-btn
-            color="white"
-            variant="text"
-            @click="bossConfirmationDialog.visible = false"
-            >Not Yet</v-btn
-          >
-          <v-btn
-            color="black"
-            class="text-red-accent-2 font-weight-bold"
-            variant="elevated"
-            @click="confirmBossStart"
-            >FIGHT!</v-btn
-          >
+        <v-card-text class="pa-4 text-body-1">Are you sure you want to permanently leave this campaign?</v-card-text>
+        <v-card-actions>
+            <v-spacer />
+            <v-btn color="grey" @click="leaveDialog.visible = false">Cancel</v-btn>
+            <v-btn color="error" variant="elevated" @click="leaveDialog.onConfirm">Leave</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="narrativeDialogVisible"
-      max-width="800"
-      scrollable
-      persistent
-    >
+    <v-dialog v-model="narrativeDialogVisible" max-width="800" scrollable persistent>
       <v-card class="book-style-card rounded-xl overflow-hidden">
         <v-toolbar color="#10594f" density="compact" class="px-2">
-          <v-toolbar-title
-            class="text-white font-weight-bold pl-2"
-            style="font-family: serif"
-            >{{ currentDoorInstruction?.title?.toUpperCase() }} -
-            STORY</v-toolbar-title
-          >
+          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorInstruction?.title?.toUpperCase() }} - STORY</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            color="white"
-            @click="narrativeDialogVisible = false"
-          ></v-btn>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="narrativeDialogVisible = false"></v-btn>
         </v-toolbar>
         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto">
           <v-container fluid v-if="currentDoorInstruction">
             <v-row>
               <v-col cols="12" class="pt-4 mt-3">
-                <div
-                  v-html="currentDoorInstruction.body"
-                  class="narrative-text"
-                ></div>
+                <div v-html="currentDoorInstruction.body" class="narrative-text"></div>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
-        <v-card-actions
-          class="justify-center py-4"
-          style="background-color: #eee8e0"
-        >
-          <v-btn
-            color="brown-darken-3"
-            variant="flat"
-            size="large"
-            class="px-6 font-weight-bold"
-            @click="proceedToInstructions"
-            >CONTINUE TO INSTRUCTIONS
-            <v-icon end>mdi-arrow-right</v-icon></v-btn
-          >
+        <v-card-actions class="justify-center py-4" style="background-color: #eee8e0">
+          <v-btn color="brown-darken-3" variant="flat" size="large" class="px-6 font-weight-bold" @click="proceedToInstructions">CONTINUE TO INSTRUCTIONS <v-icon end>mdi-arrow-right</v-icon></v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -529,201 +464,82 @@
     <v-dialog v-model="instructionsDialogVisible" max-width="900" scrollable>
       <v-card class="book-style-card rounded-xl overflow-hidden">
         <v-toolbar color="#10594f" density="compact" class="px-2">
-          <v-toolbar-title
-            class="text-white font-weight-bold pl-2"
-            style="font-family: serif"
-            >{{ currentDoorInstruction?.title?.toUpperCase() }} -
-            RULES</v-toolbar-title
-          >
+          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorInstruction?.title?.toUpperCase() }} - RULES</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            color="white"
-            @click="instructionsDialogVisible = false"
-          ></v-btn>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="instructionsDialogVisible = false"></v-btn>
         </v-toolbar>
         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto">
           <v-container fluid v-if="currentDoorInstruction">
-            <v-row
-              ><v-col cols="12">
-                <div
-                  v-html="currentDoorInstruction.instruction"
-                  class="instruction-box"
-                ></div> </v-col
-            ></v-row>
+            <v-row><v-col cols="12"><div v-html="currentDoorInstruction.instruction" class="instruction-box"></div></v-col></v-row>
           </v-container>
-          <div v-else class="text-center pa-10 text-grey">
-            No specialized instructions available.
-          </div>
+          <div v-else class="text-center pa-10 text-grey">No specialized instructions available.</div>
         </v-card-text>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="heroCardDialog.visible" max-width="600" scrollable>
-      <v-card
-        class="bg-grey-darken-4 rounded-xl hero-detail-card"
-        v-if="heroCardDialog.hero"
-      >
-        <v-toolbar
-          color="rgba(0,0,0,0.6)"
-          density="compact"
-          theme="dark"
-          class="px-2"
-        >
+      <v-card class="bg-grey-darken-4 rounded-xl hero-detail-card" v-if="heroCardDialog.hero">
+        <v-toolbar color="rgba(0,0,0,0.6)" density="compact" theme="dark" class="px-2">
           <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            @click="heroCardDialog.visible = false"
-          ></v-btn>
+          <v-btn icon="mdi-close" @click="heroCardDialog.visible = false"></v-btn>
         </v-toolbar>
         <v-card-text class="pa-0">
           <div class="hero-tracker-header">
-            <v-img
-              :src="
-                heroCardDialog.hero.images.trackerInfo ||
-                heroCardDialog.hero.images.background
-              "
-              width="100%"
-              max-height="300"
-              cover
-            ></v-img>
+            <v-img :src="heroCardDialog.hero.images.trackerInfo || heroCardDialog.hero.images.background" width="100%" max-height="300" cover></v-img>
           </div>
           <v-container fluid class="pa-4">
-            <HeroDetailSummary
-              :campaign-id="campaignId"
-              :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
-              class="mb-4"
-            />
+            <HeroDetailSummary :campaign-id="campaignId" :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id" class="mb-4" />
             <v-divider class="my-4 border-opacity-25"></v-divider>
-            <CampaignLogSequentialAdventure
-              :campaign-id="campaignId"
-              :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
-              :hero="heroCardDialog.hero"
-              :hide-manage-button="true"
-            />
+            <CampaignLogSequentialAdventure :campaign-id="campaignId" :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id" :hero="heroCardDialog.hero" :hide-manage-button="true" />
           </v-container>
         </v-card-text>
-        <v-card-actions
-          class="bg-grey-darken-3 pa-4 d-flex justify-space-between gap-4"
-        >
-          <v-btn
-            color="amber-accent-4"
-            variant="elevated"
-            class="flex-grow-1 text-black font-weight-bold"
-            prepend-icon="mdi-sack"
-            @click="
-              openResources(
-                heroCardDialog.hero.heroId || heroCardDialog.hero.id,
-              )
-            "
-          >
-            Resources
-          </v-btn>
-          <v-btn
-            color="light-blue-accent-3"
-            variant="elevated"
-            class="flex-grow-1 text-black font-weight-bold"
-            prepend-icon="mdi-shield-sword"
-            @click="
-              openEquipment(
-                heroCardDialog.hero.heroId || heroCardDialog.hero.id,
-              )
-            "
-          >
-            Equipment
-          </v-btn>
+        <v-card-actions class="bg-grey-darken-3 pa-4 d-flex justify-space-between gap-4">
+          <v-btn color="amber-accent-4" variant="elevated" class="flex-grow-1 text-black font-weight-bold" prepend-icon="mdi-sack" @click="openResources(heroCardDialog.hero.heroId || heroCardDialog.hero.id)">Resources</v-btn>
+          <v-btn color="light-blue-accent-3" variant="elevated" class="flex-grow-1 text-black font-weight-bold" prepend-icon="mdi-shield-sword" @click="openEquipment(heroCardDialog.hero.heroId || heroCardDialog.hero.id)">Equipment</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="playerListDialogVisible" max-width="600"
-      ><v-card title="Player List" class="bg-grey-darken-3"
-        ><v-card-text>
-          <CampaignPlayerList
-            :campaign-id="campaignId"
-            :show-remove-button="showSaveCampaignButton"
-          /> </v-card-text
-        ><v-card-actions class="d-flex flex-wrap justify-space-around pa-4"
-          ><v-btn
-            @click="openInviteDialog"
-            variant="elevated"
-            rounded
-            color="primary"
-            >Invite Player</v-btn
-          ><v-btn variant="text" @click="playerListDialogVisible = false"
-            >Close</v-btn
-          ></v-card-actions
-        ></v-card
-      ></v-dialog
-    >
-    <v-dialog v-model="addHeroDialogVisible" max-width="500"
-      ><v-card title="Add Hero" class="bg-grey-darken-3"
-        ><v-card-text>
-          <CampaignLogAddHero
-            :campaign-id="campaignId"
-            @hero-added="addHeroDialogVisible = false"
-          />
-          <CampaignLogImportHero
-            :campaign-id="campaignId"
-            @hero-added="addHeroDialogVisible = false"
-          /> </v-card-text
-        ><v-card-actions
-          ><v-btn block @click="addHeroDialogVisible = false"
-            >Close</v-btn
-          ></v-card-actions
-        ></v-card
-      ></v-dialog
-    >
+    <v-dialog v-model="playerListDialogVisible" max-width="600">
+        <v-card title="Player List" class="bg-grey-darken-3">
+            <v-card-text>
+              <CampaignPlayerList :campaign-id="campaignId" :show-remove-button="showSaveCampaignButton" /> 
+            </v-card-text>
+            <v-card-actions class="d-flex flex-wrap justify-space-around pa-4">
+                <v-btn @click="openInviteDialog" variant="elevated" rounded color="primary">Invite Player</v-btn>
+                <v-btn variant="text" @click="playerListDialogVisible = false">Close</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="addHeroDialogVisible" max-width="500">
+        <v-card title="Add Hero" class="bg-grey-darken-3">
+            <v-card-text>
+              <CampaignLogAddHero :campaign-id="campaignId" @hero-added="addHeroDialogVisible = false" />
+              <CampaignLogImportHero :campaign-id="campaignId" @hero-added="addHeroDialogVisible = false" /> 
+            </v-card-text>
+            <v-card-actions><v-btn block @click="addHeroDialogVisible = false">Close</v-btn></v-card-actions>
+        </v-card>
+    </v-dialog>
 
     <v-dialog v-model="wing4ChoiceDialog.visible" max-width="400">
       <v-card class="bg-grey-darken-3 pa-4 text-center">
         <v-card-title>Select Path</v-card-title>
         <v-card-text>Which door are you opening?</v-card-text>
         <v-card-actions class="justify-center flex-column gap-2">
-          <v-btn
-            block
-            color="purple-accent-2"
-            variant="elevated"
-            class="text-black font-weight-bold"
-            @click="commitWing4Choice('DRACONIC CHAPEL')"
-          >
-            <v-icon start>mdi-church</v-icon> Door 1
-          </v-btn>
-          <v-btn
-            block
-            color="cyan-accent-2"
-            variant="elevated"
-            class="text-black font-weight-bold"
-            @click="commitWing4Choice('CRYPTS')"
-          >
-            <v-icon start>mdi-grave-stone</v-icon> Door 2
-          </v-btn>
+          <v-btn block color="purple-accent-2" variant="elevated" class="text-black font-weight-bold" @click="commitWing4Choice('DRACONIC CHAPEL')"><v-icon start>mdi-church</v-icon> Door 1</v-btn>
+          <v-btn block color="cyan-accent-2" variant="elevated" class="text-black font-weight-bold" @click="commitWing4Choice('CRYPTS')"><v-icon start>mdi-grave-stone</v-icon> Door 2</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <div class="visually-hidden">
-      <CampaignSavePut
-        ref="savePutRef"
-        :campaign-id="campaignId"
-        @success="onSaveSuccess"
-        @fail="onSaveFail"
-      />
+      <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" @success="onSaveSuccess" @fail="onSaveFail" />
       <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
       <CampaignRemove ref="campaignRemoveRef" :campaign-id="campaignId" />
-      <ShareCampaignButton
-        ref="shareCampaignRef"
-        :campaignId="campaignId"
-        :inviteCode="partyCode"
-      />
+      <ShareCampaignButton ref="shareCampaignRef" :campaignId="campaignId" :inviteCode="partyCode" />
     </div>
-    <v-snackbar
-      v-model="snackbar.visible"
-      :color="snackbar.color"
-      location="top"
-      >{{ snackbar.text }}</v-snackbar
-    >
+    <v-snackbar v-model="snackbar.visible" :color="snackbar.color" location="top">{{ snackbar.text }}</v-snackbar>
   </div>
 </template>
 
@@ -803,7 +619,9 @@ const leaveDialog = ref({ visible: false, onConfirm: () => {} });
 const wing4ChoiceDialog = ref({ visible: false });
 const heroCardDialog = ref({ visible: false, hero: null as any });
 const monsterGroupDialog = ref({ visible: false });
-const bossConfirmationDialog = ref({ visible: false });
+const enterBossDialog = ref({ visible: false });
+const finishCampaignDialog = ref({ visible: false });
+const dashboardExitDialog = ref({ visible: false }); 
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
@@ -816,6 +634,27 @@ const forcedDoorInstruction = ref<string | null>(null);
 const allDoors = ref<Door[]>([]);
 const openedDoors = ref<Set<string>>(new Set());
 let pollingInterval: number | null = null;
+
+// --- ORDEM DAS PORTAS ---
+const WING3_ORDER = [
+    "FIRST SETUP",
+    "DUNGEON FOYER",
+    "QUEEN'S HALL",
+    "THE FORGE",
+    "ARTISAN'S GALLERY",
+    "PROVING GROUNDS",
+    "MAIN HALL"
+];
+
+const WING4_ORDER = [
+    "FIRST SETUP",
+    "DRACONIC CHAPEL", 
+    "CRYPTS", 
+    "BOTH OPEN", 
+    "LIBRARY", 
+    "LABORATORY", 
+    "DRAGON BOSS" 
+];
 
 const enrichedHeroes = computed(() => {
   const heroes = props.heroStore.findAllInCampaign(props.campaignId) || [];
@@ -917,19 +756,19 @@ const currentBackgroundImage = computed(() => {
   if (!wingFolder) return '';
   let doorFile = 'setup';
   if (wingFolder === 'wing4') {
-     if (door.includes('FIRST SETUP')) doorFile = 'setup';
-     else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
-     else if (door === 'CRYPTS') doorFile = 'first_door2'; 
-     else if (door === 'BOTH OPEN') {
-         const firstChoice = localStorage.getItem(`campaign_${props.campaignId}_w4_choice`);
-         if (firstChoice === 'DRACONIC CHAPEL') {
-            doorFile = 'second_door2';
-         } else {
-            doorFile = 'second_door';
-         }
-     }
-     else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
-     else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
+      if (door.includes('FIRST SETUP')) doorFile = 'setup';
+      else if (door === 'DRACONIC CHAPEL') doorFile = 'first_door'; 
+      else if (door === 'CRYPTS') doorFile = 'first_door2'; 
+      else if (door === 'BOTH OPEN') {
+          const firstChoice = localStorage.getItem(`campaign_${props.campaignId}_w4_choice`);
+          if (firstChoice === 'DRACONIC CHAPEL') {
+             doorFile = 'second_door2';
+          } else {
+             doorFile = 'second_door';
+          }
+      }
+      else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
+      else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
   } else {
     const doorsList = [
       "FIRST SETUP",
@@ -996,12 +835,25 @@ const showInteractionsButton = computed(() => {
   return false;
 });
 
-const nextButtonLabel = computed(() =>
-  isBossBattle.value ? "START BOSS BATTLE" : "OPEN NEXT DOOR",
-);
-const nextButtonIcon = computed(() =>
-  isBossBattle.value ? "mdi-sword-cross" : "mdi-door-open",
-);
+const nextButtonLabel = computed(() => {
+    if (isBossBattle.value) return "FINISH CAMPAIGN";
+    const wing = (activeCampaignData.value.wing || "").toUpperCase();
+    const door = (activeCampaignData.value.door || "").toUpperCase();
+    if (wing.includes("WING 4") && (door === "LIBRARY" || door === "LABORATORY")) {
+        return "ENTER BOSS ROOM";
+    }
+    return "OPEN NEXT DOOR";
+});
+
+const nextButtonIcon = computed(() => {
+    if (isBossBattle.value) return "mdi-check-bold";
+    const wing = (activeCampaignData.value.wing || "").toUpperCase();
+    const door = (activeCampaignData.value.door || "").toUpperCase();
+    if (wing.includes("WING 4") && (door === "LIBRARY" || door === "LABORATORY")) {
+        return "mdi-sword-cross";
+    }
+    return "mdi-door-open";
+});
 
 const transform = ref({ x: 0, y: 0, scale: 1 });
 let isDragging = false;
@@ -1027,17 +879,17 @@ function updateBounds() {
   const scaledHeight = mapImageRef.value.naturalHeight * transform.value.scale;
   
   if (scaledWidth <= container.width) {
-     transform.value.x = 0;
+      transform.value.x = 0;
   } else {
-     const overflowX = (scaledWidth - container.width) / 2;
-     transform.value.x = clamp(transform.value.x, -overflowX, overflowX);
+      const overflowX = (scaledWidth - container.width) / 2;
+      transform.value.x = clamp(transform.value.x, -overflowX, overflowX);
   }
   
   if (scaledHeight <= container.height) {
-     transform.value.y = 0;
+      transform.value.y = 0;
   } else {
-     const overflowY = (scaledHeight - container.height) / 2;
-     transform.value.y = clamp(transform.value.y, -overflowY, overflowY);
+      const overflowY = (scaledHeight - container.height) / 2;
+      transform.value.y = clamp(transform.value.y, -overflowY, overflowY);
   }
 }
 
@@ -1162,6 +1014,11 @@ const fetchOpenedDoors = async () => {
         }
       }
 
+      // CORREÇÃO DE POLLING: Se estamos localmente no DRAGON BOSS, não deixe voltar
+      if (currentDoor === "DRAGON BOSS") {
+          return;
+      }
+
       if (currentDoor !== incomingDoor) {
          campaignStore.updateCampaignProperty(props.campaignId, "door", incomingDoor);
          if (props.campaign) props.campaign.door = incomingDoor;
@@ -1170,11 +1027,11 @@ const fetchOpenedDoors = async () => {
          openNarrativeDialog();
 
          if (newOpenedDoors.size > previousSize && previousSize > 0) {
-            snackbar.value = {
-              visible: true,
-              text: `Sync: Area updated to ${incomingDoor}`,
-              color: "info",
-            };
+           snackbar.value = {
+             visible: true,
+             text: `Sync: Area updated to ${incomingDoor}`,
+             color: "info",
+           };
          }
       }
     }
@@ -1369,19 +1226,51 @@ function openNextDoorScanner() {
 
 function handleNextAction() {
   if (isBossBattle.value) {
-    bossConfirmationDialog.value.visible = true;
-  } else {
-    openNextDoorScanner();
+    // Se já está no Boss, o botão serve para FINALIZAR
+    finishCampaignDialog.value.visible = true;
+    return;
   }
+
+  // Lógica Wing 4: Se estiver no estágio anterior ao Boss, precisa confirmar entrada
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const door = (activeCampaignData.value.door || "").toUpperCase();
+  
+  if (wing.includes("WING 4") && (door === "LIBRARY" || door === "LABORATORY")) {
+      enterBossDialog.value.visible = true;
+      return;
+  }
+
+  // Padrão para os outros casos
+  openNextDoorScanner();
 }
 
-function confirmBossStart() {
-  bossConfirmationDialog.value.visible = false;
+async function confirmEnterBossRoom() {
+    enterBossDialog.value.visible = false;
+    
+    // --- CORREÇÃO PRINCIPAL: Forçar ID 12 e adicionar marcador local ---
+    try {
+        await axios.post("/rl_campaigns_doors/cadastro", {
+            doors_fk: 12, // ID 12 é a porta final do Dragão
+            campaign_fk: parseInt(props.campaignId),
+        });
+        
+        openedDoors.value.add("dragon boss"); // Adiciona ao local set para consistência
+        console.log("Dragon Boss door forced save (ID 12).");
+        
+    } catch (e) {
+        console.error("Error forcing Dragon Boss door save:", e);
+    }
+
+    commitNextDoor("DRAGON BOSS");
+}
+
+function confirmFinishCampaign() {
+  finishCampaignDialog.value.visible = false;
   if (savePutRef.value) savePutRef.value.save();
   snackbar.value = {
     visible: true,
-    text: "Boss Battle Started!",
-    color: "error",
+    text: "Campaign Finalized! You can still explore the books.",
+    color: "success",
   };
 }
 
@@ -1429,8 +1318,8 @@ function openEquipment(id: string) {
   });
 }
 
-function goBack() {
-  router.push({ name: "Campaign Overview" });
+function exitToDashboard() {
+    router.push({ name: "Campaign Overview" });
 }
 
 function openInviteDialog() {
@@ -1494,52 +1383,82 @@ const qrToDoorMap: Record<string, string> = {
   "book02.10": "LABORATORY"
 };
 
+// --- VALIDAÇÃO DE ORDEM DE PORTA ---
+function isProgressionValid(newDoor: string): boolean {
+    const wing = (activeCampaignData.value.wing || "").toUpperCase();
+    const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
+    let order: string[] = [];
+
+    if (wing.includes("WING 3")) order = WING3_ORDER;
+    else if (wing.includes("WING 4")) order = WING4_ORDER;
+    else return true; // Se não tem ordem definida, permite
+
+    const currentIndex = order.indexOf(currentDoor);
+    const newIndex = order.indexOf(newDoor.toUpperCase());
+
+    // Se a porta não está na lista principal (ex: casos especiais), permite
+    if (newIndex === -1) return true;
+
+    // Bloqueia se tentar voltar ou scanear a mesma porta
+    if (newIndex <= currentIndex) return false;
+
+    return true;
+}
+
 async function handleDoorScanned(code: string) {
   const normalized = code.toLowerCase().trim();
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
   const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
 
-  await saveDoorOpening(normalized);
+  let targetDoor = "";
 
+  // Lógica de mapeamento para descobrir qual a próxima porta antes de commitar
   if (wing.includes("WING 4")) {
     if (normalized.includes("book02.07") || normalized.includes("door02.07")) {
-      if (currentDoor === "CRYPTS") {
-        saveWing4Path("CRYPTS");
-        commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
-      } else {
-        saveWing4Path("DRACONIC CHAPEL");
-        commitNextDoor("DRACONIC CHAPEL");
-      }
+        targetDoor = (currentDoor === "CRYPTS") ? "BOTH OPEN" : "DRACONIC CHAPEL";
     } else if (normalized.includes("book02.08") || normalized.includes("door02.08")) {
-      if (currentDoor === "DRACONIC CHAPEL") {
-        saveWing4Path("DRACONIC CHAPEL");
-        commitNextDoor("BOTH OPEN", "CRYPTS");
-      } else {
-        saveWing4Path("CRYPTS");
-        commitNextDoor("CRYPTS");
-      }
-    } else if (normalized.includes("book02.09") || normalized.includes("door02.09")) commitNextDoor("LIBRARY");
-    else if (normalized.includes("book02.10") || normalized.includes("door02.10")) commitNextDoor("LABORATORY");
-    else {
-      const door = qrToDoorMap[normalized];
-      if (door) commitNextDoor(door);
-      else
-        snackbar.value = {
-          visible: true,
-          text: "Invalid Door Code",
-          color: "error",
-        };
-    }
+        targetDoor = (currentDoor === "DRACONIC CHAPEL") ? "BOTH OPEN" : "CRYPTS";
+    } else if (normalized.includes("book02.09") || normalized.includes("door02.09")) targetDoor = "LIBRARY";
+    else if (normalized.includes("book02.10") || normalized.includes("door02.10")) targetDoor = "LABORATORY";
+    else targetDoor = qrToDoorMap[normalized];
   } else {
-    const door = qrToDoorMap[normalized];
-    if (door) commitNextDoor(door);
-    else
-      snackbar.value = {
-        visible: true,
-        text: "Invalid Door Code",
-        color: "error",
-      };
+    targetDoor = qrToDoorMap[normalized];
   }
+
+  if (!targetDoor) {
+      snackbar.value = { visible: true, text: "Invalid Door Code", color: "error" };
+      doorScannerDialog.value.visible = false;
+      return;
+  }
+
+  // VALIDAÇÃO DE ORDEM
+  if (!isProgressionValid(targetDoor) && targetDoor !== "BOTH OPEN") {
+      snackbar.value = { visible: true, text: "You cannot go back to a previous area!", color: "warning" };
+      doorScannerDialog.value.visible = false;
+      return;
+  }
+
+  // Execução
+  await saveDoorOpening(normalized);
+
+  // Lógica específica de Wing 4 para salvar caminhos
+  if (wing.includes("WING 4")) {
+      if (targetDoor === "BOTH OPEN") {
+          // Lógica de path já tratada no computed, apenas commita
+          commitNextDoor("BOTH OPEN", targetDoor === "DRACONIC CHAPEL" ? "CRYPTS" : "DRACONIC CHAPEL");
+      } else if (targetDoor === "DRACONIC CHAPEL") {
+          saveWing4Path("DRACONIC CHAPEL");
+          commitNextDoor("DRACONIC CHAPEL");
+      } else if (targetDoor === "CRYPTS") {
+          saveWing4Path("CRYPTS");
+          commitNextDoor("CRYPTS");
+      } else {
+          commitNextDoor(targetDoor);
+      }
+  } else {
+      commitNextDoor(targetDoor);
+  }
+  
   doorScannerDialog.value.visible = false;
 }
 
@@ -1557,8 +1476,7 @@ function handleManualAdvance() {
       saveWing4Path("CRYPTS");
       commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
     } else if (currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY");
-    else if (currentDoor === "LIBRARY") commitNextDoor("DRAGON BOSS");
-    else if (currentDoor === "LABORATORY") commitNextDoor("DRAGON BOSS");
+    // Removido o else que levava direto pro Boss, agora é controlado pelo botão handleNextAction
   } else {
     const list = [
       "FIRST SETUP",
