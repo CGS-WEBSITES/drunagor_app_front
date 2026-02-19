@@ -8,11 +8,11 @@
       <v-btn icon="mdi-close" variant="text" color="white" @click="$emit('close')"></v-btn>
     </v-toolbar>
 
-    <v-container fluid class="fill-height align-start pa-0">
+    <v-container fluid class="fill-height align-start pa-0 overflow-y-auto w-100 main-container-scroll">
       
-      <v-row v-if="!interactionStageActive" class="fill-height w-100 ma-0">
+      <v-row v-if="!interactionStageActive && !activeScene" class="w-100 ma-0" style="min-height: 100%;">
         
-        <v-col cols="6" md="6" class="scanner-col d-flex flex-column align-center justify-center bg-grey-darken-4 border-r">
+        <v-col cols="12" md="6" class="scanner-col d-flex flex-column align-center justify-center bg-grey-darken-4 border-r pa-6">
             <div class="text-h6 text-white mb-4 font-weight-bold">Scan Interaction QR-CODE</div>
             
             <div class="video-wrapper">
@@ -30,24 +30,27 @@
             <div class="text-caption text-grey mt-2">Point camera at the QR Code</div>
         </v-col>
 
-        <v-col cols="6" md="6" class="list-col bg-grey-darken-3 pa-4">
+        <v-col cols="12" md="6" class="list-col bg-grey-darken-3 pa-6">
             <div class="text-h6 text-white mb-6 font-weight-bold text-center">Available Here</div>
             
-            <v-row justify="center">
+            <v-row justify="center" class="px-2">
                 <v-col 
                   v-for="interaction in visibleInteractions" 
                   :key="interaction.id" 
-                  cols="4" sm="3" md="4"
-                  class="d-flex flex-column align-center mb-4"
+                  cols="12" sm="10" md="12" lg="10"
+                  class="pa-2"
                 >
                   <div 
-                    class="interaction-token-wrapper"
+                    class="interaction-list-item"
                     @click="selectInteraction(interaction.id)"
                   >
-                      <img src="@/assets/interaction.png" class="interaction-token-img" alt="Interact" />
-                  </div>
-                  <div class="text-center mt-2 text-caption text-white font-weight-bold interaction-label" style="line-height: 1.1;">
-                      {{ interaction.title }}
+                      <img src="@/assets/interaction.png" class="interaction-list-icon" alt="Interact" />
+                      
+                      <div class="interaction-list-title font-weight-bold text-white">
+                          {{ interaction.title }}
+                      </div>
+                      
+                      <v-icon class="interaction-list-chevron">mdi-chevron-right</v-icon>
                   </div>
                 </v-col>
 
@@ -61,18 +64,56 @@
         </v-col>
       </v-row>
 
-      <div v-else class="interaction-detail-overlay">
-         <div class="detail-container pt-5">
+      <div v-else-if="interactionStage === 'scene' && activeScene" class="pa-0 pa-sm-4 w-100 d-flex flex-column align-center interaction-detail-overlay">
+         <v-toolbar color="transparent" density="compact" class="px-4 pt-2 w-100">
+            <v-btn variant="text" color="grey-lighten-1" @click="closeInteraction" class="text-none">
+              <v-icon start>mdi-arrow-left</v-icon> Back to Interactions List
+            </v-btn>
+         </v-toolbar>
+
+         <div class="book-page mt-2 mt-sm-4">
+             <div class="content-block pb-6">
+                 <div class="header-banner" :style="{ backgroundImage: `url(${booktops2Img})` }">
+                     <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                         <h4 class="section-title">{{ activeScene.sectionTitle }}</h4>
+                     </div>
+                     <h2 class="chapter-title-banner">{{ activeScene.title }}</h2>
+                 </div>
+                 
+                 <div class="body-text mt-6 px-4 px-sm-6" v-html="activeScene.body"></div>
+
+                 <v-card v-if="activeScene.instruction" class="instruction-card mt-6 py-0 mx-4 mx-sm-6 mb-6" flat>
+                     <v-card-text class="pa-4" v-html="activeScene.instruction" />
+                 </v-card>
+
+                 <div v-if="activeScene.instruction" class="pt-5 px-16 text-center mb-6">
+                     <v-img src="@/assets/Barra.png" max-height="20" contain />
+                 </div>
+             </div>
+         </div>
+
+         <v-btn class="mt-6 mb-10 action-btn mx-4" variant="elevated" color="primary" size="large" @click="$emit('close')" style="max-width: 800px; width: calc(100% - 32px);">
+            Finish & Close
+         </v-btn>
+      </div>
+
+      <div v-else class="interaction-detail-overlay w-100">
+         <v-toolbar color="transparent" density="compact" class="px-4 pt-2">
+            <v-btn variant="text" color="grey-lighten-1" @click="closeInteraction" class="text-none">
+              <v-icon start>mdi-arrow-left</v-icon> Back to Interactions List
+            </v-btn>
+         </v-toolbar>
+
+         <div class="detail-container pb-10">
              
              <div v-if="interactionStage === 'titles' && currentConfig" class="text-center pa-4">
                  <v-img 
                     v-if="currentConfig.background"
                     :src="currentConfig.background" 
-                    max-height="250" 
-                    cover 
+                    max-height="300" 
                     class="rounded-lg mb-4 mx-auto"
-                    style="border: 1px solid #444; max-width: 600px;"
-                  ></v-img>
+                    style="max-width: 600px;" 
+                 ></v-img>
                  
                  <h2 class="text-h4 font-cinzel text-white mb-4">{{ currentConfig.title }}</h2>
                  
@@ -84,7 +125,7 @@
                      <v-col 
                         v-for="item in interactionChoices" 
                         :key="item.id" 
-                        cols="6" 
+                        cols="12" 
                         sm="6"
                         md="6"
                         class="d-flex"
@@ -101,10 +142,6 @@
                           </v-btn>
                       </v-col>
                  </v-row>
-                 
-                 <v-btn class="mt-4" variant="text" color="grey" @click="closeInteraction">
-                    <v-icon start>mdi-arrow-left</v-icon> Back to List
-                 </v-btn>
              </div>
 
              <div v-else-if="interactionStage === 'content' && currentItem" class="text-left pa-4 mx-auto" style="max-width: 800px;">
@@ -130,7 +167,7 @@
                  </v-row>
                  
                  <v-btn v-else block class="mt-6" variant="tonal" size="large" @click="backToTitles">
-                    Return
+                    Return to Options
                  </v-btn>
              </div>
          </div>
@@ -155,10 +192,12 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } from '@zxing/library';
 
-// Imports dos Dados
+// Importações para a renderização interna de cenas
+import bookPagesData from "@/data/book/bookPages.json";
+import booktops2Img from "@/assets/booktops2.png";
+
 import rawInteractionConfigsData from "@/data/book/interactionConfigurations.json";
 
-// Imagens
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
 import WeaponsTableImg from "@/assets/Interaction_02_WeaponsTable-min.png";
@@ -172,7 +211,6 @@ import AltarImg from "@/assets/Interaction_DraconianAltar-min.png";
 import BeerImg from "@/assets/Interaction_BeerFactory-min.png";
 import RunicImg from "@/assets/Interaction_TheRunic-min.png";
 
-// JSONs de Conteúdo
 import InteractionBarricade from "@/assets/json/InteractionBarricade.json";
 import InteractionTheShiningArmor from "@/assets/json/InteractionTheShiningArmor.json";
 import InteractionWeaponsTable from "@/assets/json/InteractionWeaponsTable.json";
@@ -193,7 +231,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['close']);
 
-// --- METADADOS ---
 const interactionMeta: Record<string, { number: number, title: string }> = {
     "InteractionThePrisoner": { number: 7, title: "The Prisoner" },
     "InteractionTheSeed": { number: 8, title: "The Cube of Another World" },
@@ -215,17 +252,15 @@ const importedItemAssets: Record<string, any> = {
   InteractionDraconianAltar, InteractionBeerFactory, InteractionTheRunic
 };
 
-// === ESTADO ===
 const interactionConfigs = ref<Record<string, any>>({});
 const activeInteractionId = ref<string | null>(null);
-const interactionStage = ref<'titles' | 'content'>('titles');
+const interactionStage = ref<'titles' | 'content' | 'scene'>('titles');
 const currentConfig = ref<any>(null);
 const currentItem = ref<any>(null);
+const activeScene = ref<any>(null);
 
-// Controla se estamos mostrando detalhes ou o scanner
-const interactionStageActive = computed(() => !!currentConfig.value);
+const interactionStageActive = computed(() => !!currentConfig.value || !!activeScene.value);
 
-// === SCANNER SETUP ===
 const codeReader = new BrowserMultiFormatReader(undefined, 400);
 const zxingHints = new Map();
 zxingHints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
@@ -235,10 +270,9 @@ const availableCameras = ref<MediaDeviceInfo[]>([]);
 const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 const showCameraDeniedDialog = ref(false);
-const isMounted = ref(false); // Flag de segurança
+const isMounted = ref(false);
 let activeStream: MediaStream | null = null;
 
-// === LIFECYCLE ===
 onMounted(() => {
     isMounted.value = true;
     const configs: Record<string, any> = {};
@@ -252,7 +286,6 @@ onMounted(() => {
     }
     interactionConfigs.value = configs;
 
-    // Iniciar Scanner somente se não estiver visualizando uma interação
     if (!interactionStageActive.value) {
         startScanner();
     }
@@ -263,7 +296,6 @@ onBeforeUnmount(() => {
     stopCamera();
 });
 
-// === LÓGICA DO SCANNER ===
 const stopCamera = () => {
   codeReader.reset();
   
@@ -281,7 +313,6 @@ const stopCamera = () => {
 };
 
 const startScanner = async () => {
-  // Se já tem configuração ativa (user lendo texto), não liga camera
   if (interactionStageActive.value) return;
   
   try {
@@ -311,7 +342,6 @@ const startScanner = async () => {
         }
         if (result) {
             const text = result.getText().trim();
-            // Lógica simples de parse
             let id = text.includes("interaction/") ? text.split("/")[1] : text;
             selectInteraction(id);
         }
@@ -319,7 +349,6 @@ const startScanner = async () => {
 
     if (videoElement.srcObject) activeStream = videoElement.srcObject as MediaStream;
     
-    // Segurança final
     if (!isMounted.value) stopCamera();
 
   } catch (e) {
@@ -337,7 +366,6 @@ const switchCamera = () => {
   nextTick(() => startScanner());
 };
 
-// === FILTRO DE INTERAÇÕES VISÍVEIS (LISTA) ===
 const visibleInteractions = computed(() => {
     const list: { id: string, number: number, title: string }[] = [];
     const w = (props.wing || "").toUpperCase();
@@ -349,7 +377,6 @@ const visibleInteractions = computed(() => {
         }
     };
 
-    // WING 3 RULES
     if (w.includes("WING 3")) {
         const doorsOrder = ["FIRST SETUP", "DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"];
         const idx = doorsOrder.indexOf(d);
@@ -358,7 +385,6 @@ const visibleInteractions = computed(() => {
         if (idx >= 3) add("InteractionTheForge");
     }
 
-    // WING 4 RULES
     if (w.includes("WING 4")) {
         add("InteractionTheRunic"); 
         if (["DRACONIC CHAPEL", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionDraconianAltar");
@@ -368,7 +394,6 @@ const visibleInteractions = computed(() => {
     return list.sort((a,b) => a.number - b.number);
 });
 
-// === INTERACTION FLOW ===
 const getInteractionIntroBody = () => {
   if (!currentConfig.value) return "";
   const introItem = currentConfig.value.items.find((i:any) => i.type === "intro");
@@ -405,10 +430,11 @@ function selectInteraction(idOrKey: string) {
     }
 
     if(foundConfig) {
-        stopCamera(); // Importante: para a câmera ao entrar no modo leitura
+        stopCamera();
         currentConfig.value = foundConfig;
         activeInteractionId.value = target;
         interactionStage.value = 'titles';
+        activeScene.value = null;
     } else {
         console.error("Config not found for interaction:", target);
     }
@@ -422,16 +448,32 @@ function selectChoice(item: any) {
 function backToTitles() {
     interactionStage.value = 'titles';
     currentItem.value = null;
+    activeScene.value = null;
 }
 
 function closeInteraction() {
     activeInteractionId.value = null;
     currentConfig.value = null;
     currentItem.value = null;
-    // Só reativa a câmera se o componente ainda estiver montado
+    activeScene.value = null;
     if (isMounted.value) {
         nextTick(() => startScanner());
     }
+}
+
+function findSceneById(sceneId: string) {
+    for (const section of bookPagesData) {
+        if (!section.content) continue;
+        for (const content of section.content) {
+            if (content.id === sceneId) {
+                return {
+                    ...content,
+                    sectionTitle: section.section
+                };
+            }
+        }
+    }
+    return null;
 }
 
 function executeAction(action: any) {
@@ -439,8 +481,23 @@ function executeAction(action: any) {
         backToTitles();
         return;
     }
+    
     if (action.type === "PROCEED") {
-        if (action.target === "next-adventure-step" || action.text.toLowerCase().includes("adventure") || action.text.toLowerCase().includes("close")) {
+        // RENDERIZAÇÃO INTERNA DE SCENES
+        if (action.target && action.target.startsWith("scene-")) {
+            const sceneData = findSceneById(action.target);
+            if (sceneData) {
+                activeScene.value = sceneData;
+                interactionStage.value = 'scene';
+            } else {
+                console.error("ERRO: Cena não encontrada no bookPages.json:", action.target);
+                emit('close');
+            }
+            return;
+        }
+
+        const txt = action.text.toLowerCase();
+        if (action.target === "next-adventure-step" || txt.includes("adventure") || txt.includes("close")) {
             emit('close');
             return;
         }
@@ -451,9 +508,23 @@ function executeAction(action: any) {
         }
     }
 }
+
+const ensureCameraPermission = () => {
+    if (isMounted.value && !interactionStageActive.value) {
+        startScanner();
+    }
+};
+
+defineExpose({ ensureCameraPermission });
 </script>
 
 <style scoped>
+/* 1. PERMITIR SCROLL NO CONTAINER PRINCIPAL */
+.main-container-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .interact-view-new {
     background-color: #121212;
     min-height: 100vh;
@@ -461,13 +532,14 @@ function executeAction(action: any) {
     display: flex;
     flex-direction: column;
 }
+
 .font-cinzel { font-family: 'Cinzel', serif; }
 
-/* SCANNER STYLES */
 .scanner-col {
     position: relative;
     min-height: 50vh;
 }
+
 .video-wrapper {
     position: relative;
     width: 100%;
@@ -479,43 +551,80 @@ function executeAction(action: any) {
     background: black;
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
+
 .qr-video { width: 100%; height: 100%; object-fit: cover; }
+
 .scan-overlay {
     position: absolute; top: 0; left: 0; right: 0; bottom: 0;
     border: 40px solid rgba(0,0,0,0.3); pointer-events: none;
 }
+
 .camera-switch {
     position: absolute; top: 10px; right: 10px;
     background: rgba(0,0,0,0.6); color: white; z-index: 10;
 }
 
-/* LIST STYLES */
 .list-col {
     min-height: 50vh;
     overflow-y: auto;
 }
-.interaction-token-wrapper {
-    position: relative;
+
+.interaction-list-item {
+    display: flex;
+    align-items: center;
+    background-color: rgba(30, 30, 30, 0.8);
+    border: 2px solid rgba(191, 82, 157, 0.3);
+    border-radius: 12px;
+    padding: 12px 20px;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-.interaction-token-wrapper:hover {
-    transform: scale(1.1);
-    filter: brightness(1.2);
-}
-.interaction-token-img {
-    width: 80px;
-    height: 80px;
-    filter: drop-shadow(0 0 8px rgba(0, 122, 104, 0.6)); 
+    transition: all 0.2s ease-in-out;
 }
 
-/* DETAIL OVERLAY */
+.interaction-list-item:hover {
+    background-color: rgba(191, 82, 157, 0.15);
+    border-color: #bf529d;
+    transform: translateX(4px);
+    box-shadow: 0 4px 15px rgba(191, 82, 157, 0.3);
+}
+
+.interaction-list-item:active {
+    transform: translateX(2px) scale(0.98);
+    box-shadow: 0 2px 8px rgba(191, 82, 157, 0.4);
+}
+
+.interaction-list-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 20px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(191, 82, 157, 0.5));
+}
+
+.interaction-list-title {
+    flex-grow: 1;
+    text-align: left;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
+.interaction-list-chevron {
+    color: #bf529d;
+    font-size: 1.8rem;
+    opacity: 0.7;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.interaction-list-item:hover .interaction-list-chevron {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
 .interaction-detail-overlay {
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     background-color: #121212;
-    overflow-y: auto;
 }
+
 .narrative-text :deep(p) {
   font-family: 'EB Garamond', serif;
   font-size: 1.2rem;
@@ -524,7 +633,6 @@ function executeAction(action: any) {
   color: #e0e0e0;
 }
 
-/* BUTTON STYLES */
 .choice-btn {
     text-transform: none !important;
     font-size: 1rem !important;
@@ -536,12 +644,14 @@ function executeAction(action: any) {
     align-items: center;
     justify-content: center;
 }
+
 .choice-btn :deep(.v-btn__content) {
     white-space: normal !important;
     flex: 1 1 auto;
     width: 100%;
     line-height: 1.3;
 }
+
 .text-wrap {
     white-space: normal;
     display: block;
@@ -554,9 +664,119 @@ function executeAction(action: any) {
     padding: 12px !important;
 }
 
+/* --- 2. ESTILOS DA CENA RENDERIZADA INTERNAMENTE --- */
+.book-page {
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #1e1e1e;
+    box-shadow: 0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 800px;
+    overflow: hidden; 
+}
+
+.header-banner {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top center;
+    padding: 10px 14px;
+    position: relative;
+    z-index: 1;
+    color: #212121;
+}
+
+.section-title {
+    font-size: 0.7rem;
+    color: white;
+    padding: 10px 155px 15px;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.chapter-title-banner {
+    font-family: "Cinzel Decorative", cursive;
+    font-size: 1.8rem;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    margin-top: 1px;
+    margin-bottom: 60px;
+    padding-left: 156px;
+    padding-right: 44px;
+    text-align: left;
+}
+
+/* AQUI A COR É HERDADA CORRETAMENTE (inherit) PARA RESPEITAR O LORE DO JSON */
+.body-text {
+    color: #212121;
+}
+
+.body-text :deep(p) {
+    font-family: "EB Garamond", serif;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    text-indent: 1.5em; 
+    margin-bottom: 1.2rem;
+    color: inherit; 
+}
+
+.body-text :deep(strong) {
+    font-style: normal;
+    font-weight: bold;
+}
+
+.body-text :deep(ul) {
+    padding-left: 1.8em;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+}
+
+.body-text :deep(li) {
+    font-family: "EB Garamond", serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: inherit;
+    margin-bottom: 0.5em;
+}
+
+.instruction-card {
+    background: #e4e4e4 !important;
+    border: 2px solid #212121 !important;
+    color: #1a120f !important;
+    box-shadow: 3px 3px 0px #212121;
+}
+
+/* RESPONSIVO MOBILE */
 @media (max-width: 960px) {
     .border-r { border-right: none !important; border-bottom: 1px solid #333; }
     .scanner-col, .list-col { min-height: auto; }
-    .interaction-label { font-size: 0.7rem !important; }
+}
+
+@media (max-width: 480px) {
+    .header-banner {
+        padding: 8px 10px 6px;
+        background-position: left;
+    }
+    
+    .chapter-title-banner {
+        font-size: 1.25rem;
+        padding-left: 0;
+        margin-left: 130px;
+        margin-top: 5px;
+        padding-right: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .section-title {
+        font-size: 0.6rem;
+        padding: 8px 0px 15px;
+        margin-left: 130px;
+    }
+    
+    .body-text :deep(p) {
+        font-size: 1.05rem; 
+        text-indent: 1em; 
+    }
 }
 </style>
