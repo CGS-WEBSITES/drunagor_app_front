@@ -81,6 +81,13 @@ const router = createRouter({
     },
 
     {
+      path: "/shared-keywords",
+      name: "SharedKeywords",
+      component: () => import("@/components/SharedKeywords.vue"),
+      
+    },
+
+    {
       path: "/dashboard",
       name: "Dashboard",
       component: () => import("@/pages/Dashboard.vue"),
@@ -100,12 +107,11 @@ const router = createRouter({
       component: () => import("@/components/CommunityBuilds.vue"),
     },
 
-
     {
-  path: '/debug-interactions',
-  name: 'DebugInteractions',
-  component: () => import('@/components/DebugInteractions.vue')
-},
+      path: '/debug-interactions',
+      name: 'DebugInteractions',
+      component: () => import('@/components/DebugInteractions.vue')
+    },
 
     {
       path: "/tracker-parent",
