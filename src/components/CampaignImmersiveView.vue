@@ -442,15 +442,15 @@
     <v-dialog v-model="narrativeDialogVisible" max-width="800" scrollable persistent>
       <v-card class="book-style-card rounded-xl overflow-hidden">
         <v-toolbar color="#10594f" density="compact" class="px-2">
-          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorInstruction?.title?.toUpperCase() }} - STORY</v-toolbar-title>
+          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorData?.title?.toUpperCase() }} - STORY</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon="mdi-close" variant="text" color="white" @click="narrativeDialogVisible = false"></v-btn>
         </v-toolbar>
         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto">
-          <v-container fluid v-if="currentDoorInstruction">
+          <v-container fluid v-if="currentDoorData">
             <v-row>
               <v-col cols="12" class="pt-4 mt-3">
-                <div v-html="currentDoorInstruction.body" class="narrative-text"></div>
+                <div v-html="currentDoorData.body" class="narrative-text"></div>
               </v-col>
             </v-row>
           </v-container>
@@ -464,13 +464,45 @@
     <v-dialog v-model="instructionsDialogVisible" max-width="900" scrollable>
       <v-card class="book-style-card rounded-xl overflow-hidden">
         <v-toolbar color="#10594f" density="compact" class="px-2">
-          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorInstruction?.title?.toUpperCase() }} - RULES</v-toolbar-title>
+          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorData?.title?.toUpperCase() }} - RULES</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon="mdi-close" variant="text" color="white" @click="instructionsDialogVisible = false"></v-btn>
         </v-toolbar>
-        <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto">
-          <v-container fluid v-if="currentDoorInstruction">
-            <v-row><v-col cols="12"><div v-html="currentDoorInstruction.instruction" class="instruction-box"></div></v-col></v-row>
+        
+        <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">
+          <v-container fluid v-if="currentDoorData">
+            
+            <v-row>
+                <v-col cols="12">
+                    <div v-if="currentDoorData.instruction" v-html="currentDoorData.instruction" class="instruction-box"></div>
+                    <div v-else class="text-center pa-10 text-grey font-italic">No specific rules required at this time.</div>
+                </v-col>
+            </v-row>
+
+            <v-row v-if="currentDoorData.scene" class="mt-6 mb-4">
+                <v-col cols="12" class="d-flex flex-column align-center">
+                    <v-divider class="w-100 mb-6 border-opacity-50" color="black"></v-divider>
+                    
+                    <div class="text-center font-italic text-brown-darken-4 mb-4 font-weight-bold" style="font-family: 'Cinzel', serif;">
+                        <v-icon start color="brown-darken-4">mdi-book-open-page-variant</v-icon>
+                        Note: This Scene can also be found in the Campaign Books.
+                    </div>
+
+                    <div class="book-page w-100 mx-auto shadow-lg mt-2">
+                         <div class="content-block pb-6">
+                             <div class="header-banner" :style="{ backgroundImage: `url(${booktops2Img})` }">
+                                 <div class="d-flex align-center justify-space-between pa-0 pb-0">
+                                     <h4 class="section-title">{{ currentDoorData.scene.sectionTitle }}</h4>
+                                 </div>
+                                 <h2 class="chapter-title-banner">{{ currentDoorData.scene.title }}</h2>
+                             </div>
+                             
+                             <div class="body-text mt-6 px-4 px-md-8" v-html="currentDoorData.scene.body"></div>
+                         </div>
+                     </div>
+                </v-col>
+            </v-row>
+
           </v-container>
           <div v-else class="text-center pa-10 text-grey">No specialized instructions available.</div>
         </v-card-text>
@@ -549,8 +581,12 @@ import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
-import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import axios from "axios";
+
+// Data Imports
+import doorInstructionsData from "@/data/door/DoorInstructions.json";
+import bookPagesData from "@/data/book/bookPages.json";
+import booktops2Img from "@/assets/booktops2.png"; 
 
 import CampaignBookNew from "@/components/CampaignBookNew.vue";
 import KeywordView from "@/components/KeywordView.vue";
@@ -682,23 +718,68 @@ const isWing3Start = computed(() => {
     return false;
 });
 
-const currentDoorInstruction = computed(() => {
+// AQUI: BUSCA A PORTA E INSERE O OBJETO SCENE SE ELE EXISTIR NA INSTRUÇÃO DE FORMA À PROVA DE FALHAS
+const currentDoorData = computed(() => {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
   const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
+  
   const sectionData = doorInstructionsData.find((s: any) => {
     if (wing.includes("WING 3")) return s.section === "WING 3 - DOORS";
     if (wing.includes("WING 4")) return s.section === "WING 4 - DOORS";
     return false;
   });
+  
   if (!sectionData) return null;
-  if (forcedDoorInstruction.value)
-    return sectionData.content.find(
-      (c: any) => c.title === forcedDoorInstruction.value,
-    );
+  
+  let doorData = null;
+  if (forcedDoorInstruction.value) {
+    doorData = sectionData.content.find((c: any) => c.title === forcedDoorInstruction.value);
+  } else {
+    if (wing.includes("WING 4") && currentDoor === "BOTH OPEN") return null;
+    doorData = sectionData.content.find((c: any) => c.title === currentDoor);
+  }
 
-  if (wing.includes("WING 4") && currentDoor === "BOTH OPEN") return null;
+  if (!doorData) return null;
 
-  return sectionData.content.find((c: any) => c.title === currentDoor);
+  let sceneObj = null;
+  const sceneMatch = doorData.instruction?.match(/read '(scene\s*[-–]\s*[^']+)'/i) || 
+                     doorData.instruction?.match(/read (scene\s*[-–]\s*[^<]+)/i);
+
+  if (sceneMatch) {
+      const rawMatch = sceneMatch[1];
+      
+      // Tentativa 1: Formatar o ID extraído
+      let sceneIdTarget = rawMatch
+          .toLowerCase()
+          .replace(/scene\s*[-–]\s*/, "scene-")
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-");
+
+      // Tentativa 2 (A prova de falhas): Buscar pelo nome limpo da cena
+      let titleTarget = rawMatch
+          .toLowerCase()
+          .replace(/scene\s*[-–]\s*/, "")
+          .trim();
+
+      for (const bSection of bookPagesData) {
+          if (!bSection.content) continue;
+          for (const item of bSection.content) {
+              const itemTitle = (item.title || "").toLowerCase().trim();
+              if (item.id === sceneIdTarget || itemTitle === titleTarget) {
+                  sceneObj = { ...item, sectionTitle: bSection.section };
+                  break;
+              }
+          }
+          if (sceneObj) break;
+      }
+  }
+
+  return {
+      ...doorData,
+      scene: sceneObj
+  };
 });
 
 const currentMonsters = computed(() => {
@@ -1014,7 +1095,6 @@ const fetchOpenedDoors = async () => {
         }
       }
 
-      // CORREÇÃO DE POLLING: Se estamos localmente no DRAGON BOSS, não deixe voltar
       if (currentDoor === "DRAGON BOSS") {
           return;
       }
@@ -1226,12 +1306,10 @@ function openNextDoorScanner() {
 
 function handleNextAction() {
   if (isBossBattle.value) {
-    // Se já está no Boss, o botão serve para FINALIZAR
     finishCampaignDialog.value.visible = true;
     return;
   }
 
-  // Lógica Wing 4: Se estiver no estágio anterior ao Boss, precisa confirmar entrada
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
   const door = (activeCampaignData.value.door || "").toUpperCase();
   
@@ -1240,23 +1318,18 @@ function handleNextAction() {
       return;
   }
 
-  // Padrão para os outros casos
   openNextDoorScanner();
 }
 
 async function confirmEnterBossRoom() {
     enterBossDialog.value.visible = false;
     
-    // --- CORREÇÃO PRINCIPAL: Forçar ID 12 e adicionar marcador local ---
     try {
         await axios.post("/rl_campaigns_doors/cadastro", {
-            doors_fk: 12, // ID 12 é a porta final do Dragão
+            doors_fk: 12, 
             campaign_fk: parseInt(props.campaignId),
         });
-        
-        openedDoors.value.add("dragon boss"); // Adiciona ao local set para consistência
-        console.log("Dragon Boss door forced save (ID 12).");
-        
+        openedDoors.value.add("dragon boss"); 
     } catch (e) {
         console.error("Error forcing Dragon Boss door save:", e);
     }
@@ -1319,7 +1392,7 @@ function openEquipment(id: string) {
 }
 
 function exitToDashboard() {
-    router.push({ name: "Campaign Overview" });
+    router.push({ name: "Dashboard" });
 }
 
 function openInviteDialog() {
@@ -1383,7 +1456,6 @@ const qrToDoorMap: Record<string, string> = {
   "book02.10": "LABORATORY"
 };
 
-// --- VALIDAÇÃO DE ORDEM DE PORTA ---
 function isProgressionValid(newDoor: string): boolean {
     const wing = (activeCampaignData.value.wing || "").toUpperCase();
     const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
@@ -1391,15 +1463,12 @@ function isProgressionValid(newDoor: string): boolean {
 
     if (wing.includes("WING 3")) order = WING3_ORDER;
     else if (wing.includes("WING 4")) order = WING4_ORDER;
-    else return true; // Se não tem ordem definida, permite
+    else return true;
 
     const currentIndex = order.indexOf(currentDoor);
     const newIndex = order.indexOf(newDoor.toUpperCase());
 
-    // Se a porta não está na lista principal (ex: casos especiais), permite
     if (newIndex === -1) return true;
-
-    // Bloqueia se tentar voltar ou scanear a mesma porta
     if (newIndex <= currentIndex) return false;
 
     return true;
@@ -1412,7 +1481,6 @@ async function handleDoorScanned(code: string) {
 
   let targetDoor = "";
 
-  // Lógica de mapeamento para descobrir qual a próxima porta antes de commitar
   if (wing.includes("WING 4")) {
     if (normalized.includes("book02.07") || normalized.includes("door02.07")) {
         targetDoor = (currentDoor === "CRYPTS") ? "BOTH OPEN" : "DRACONIC CHAPEL";
@@ -1431,20 +1499,16 @@ async function handleDoorScanned(code: string) {
       return;
   }
 
-  // VALIDAÇÃO DE ORDEM
   if (!isProgressionValid(targetDoor) && targetDoor !== "BOTH OPEN") {
       snackbar.value = { visible: true, text: "You cannot go back to a previous area!", color: "warning" };
       doorScannerDialog.value.visible = false;
       return;
   }
 
-  // Execução
   await saveDoorOpening(normalized);
 
-  // Lógica específica de Wing 4 para salvar caminhos
   if (wing.includes("WING 4")) {
       if (targetDoor === "BOTH OPEN") {
-          // Lógica de path já tratada no computed, apenas commita
           commitNextDoor("BOTH OPEN", targetDoor === "DRACONIC CHAPEL" ? "CRYPTS" : "DRACONIC CHAPEL");
       } else if (targetDoor === "DRACONIC CHAPEL") {
           saveWing4Path("DRACONIC CHAPEL");
@@ -1476,7 +1540,6 @@ function handleManualAdvance() {
       saveWing4Path("CRYPTS");
       commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
     } else if (currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY");
-    // Removido o else que levava direto pro Boss, agora é controlado pelo botão handleNextAction
   } else {
     const list = [
       "FIRST SETUP",
@@ -1890,10 +1953,98 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   object-fit: contain;
 }
 
+/* NARRATIVA COMUM (Da porta) */
 .book-style-card {
   background-color: #eee8e0 !important;
   color: #212121;
   border: 1px solid #1e1e1e;
+}
+
+.narrative-text {
+  font-family: 'EB Garamond', serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #212121;
+}
+
+.narrative-text :deep(p) {
+  text-indent: 1.5em;
+  margin-bottom: 1.2em;
+  color: inherit;
+}
+
+.instruction-box {
+  font-family: sans-serif;
+  color: #1a120f;
+}
+
+/* ESTILO DA CENA DENTRO DAS INSTRUÇÕES (Clone do Book) */
+.book-page {
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #1e1e1e;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    width: 100%;
+    max-width: 800px;
+    overflow: hidden;
+}
+
+.header-banner {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top center;
+    padding: 10px 14px;
+    position: relative;
+    z-index: 1;
+    color: #212121;
+}
+
+.section-title {
+    font-size: 0.7rem;
+    color: white;
+    padding: 10px 155px 15px;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.chapter-title-banner {
+    font-family: "Cinzel Decorative", cursive;
+    font-size: 1.8rem;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+    margin-top: 1px;
+    margin-bottom: 60px;
+    padding-left: 156px;
+    padding-right: 44px;
+    text-align: left;
+}
+
+.body-text {
+    color: #212121;
+}
+
+.body-text :deep(p) {
+    font-family: "EB Garamond", serif;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    text-indent: 1.5em; 
+    margin-bottom: 1.2rem;
+    color: inherit; 
+}
+
+.body-text :deep(strong) {
+    font-style: normal;
+    font-weight: bold;
+}
+
+.body-text :deep(div) {
+    color: inherit;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
 }
 
 @media (max-width: 960px) {
@@ -2006,5 +2157,32 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
     width: 50px !important;
     height: 45px !important;
   }
+}
+
+@media (max-width: 480px) {
+    .header-banner {
+        padding: 8px 10px 6px;
+        background-position: left;
+    }
+    
+    .chapter-title-banner {
+        font-size: 1.25rem;
+        padding-left: 0;
+        margin-left: 130px;
+        margin-top: 5px;
+        padding-right: 20px;
+        margin-bottom: 40px;
+    }
+    
+    .section-title {
+        font-size: 0.6rem;
+        padding: 8px 0px 15px;
+        margin-left: 130px;
+    }
+    
+    .body-text :deep(p) {
+        font-size: 1.05rem; 
+        text-indent: 1em; 
+    }
 }
 </style>
