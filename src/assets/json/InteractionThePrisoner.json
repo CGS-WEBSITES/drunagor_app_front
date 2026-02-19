@@ -136,11 +136,11 @@
     "title": "1.7 – THE HEALING WORKS",
     "body": [
       "…a golden glow flows from your fingertips, touching the man and, little by little, the two horrific wounds close, bleeding for the last time. The prisoner grits his teeth at first, but soon an expression of relief follows, accompanied by a quiet “thank you.” His determination to live and fight returns, even if his body struggles to keep up with his spirit. You release the prisoner from his bindings, setting him free.",
-      "<br><br>Remove this Interaction token from the board.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>."
+      "<br><br>Remove this Interaction token from the board.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>.<br><br><i>(Note: Scenes are found in your Adventure Books. Close this interaction and refer to the book to continue.)</i>"
     ],
     "actions": [
       {
-        "text": "Proceed to 'Scene - Flames of Vengeance'",
+        "text": "Read 'Scene - Flames of Vengeance' (Close Interaction)",
         "type": "PROCEED",
         "target": "scene-flames-of-vengeance"
       }
@@ -168,11 +168,11 @@
     "title": "1.9 – FORTUNATELY, YOU HAVE ALREADY REMOVED THE SPIKES",
     "body": [
       "…a golden glow flows from your fingertips, touching the man and, little by little, the two horrific wounds close. The prisoner grits his teeth at first, but soon his face softens with relief, followed by a quiet “thank you.” His determination to live and fight returns, even if his body struggles to keep up with his spirit.",
-      "<br><br>Remove this Interaction token from the board.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>."
+      "<br><br>Remove this Interaction token from the board.<br>Read <span style=\"color: #ff0000;\">**“Scene – Flames of Vengeance”**</span>.<br><br><i>(Note: Scenes are found in your Adventure Books. Close this interaction and refer to the book to continue.)</i>"
     ],
     "actions": [
       {
-        "text": "Proceed to 'Scene - Flames of Vengeance'",
+        "text": "Read 'Scene - Flames of Vengeance' (Close Interaction)",
         "type": "PROCEED",
         "target": "scene-flames-of-vengeance"
       }
