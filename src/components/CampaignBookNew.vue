@@ -245,8 +245,8 @@
                           v-html="item.body"
                         ></div>
 
-                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0" flat>
-                          <v-card-text v-html="item.instruction" />
+                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0 mx-6 mb-6" flat>
+                          <v-card-text class="pa-4" v-html="item.instruction" />
                         </v-card>
 
                         <v-card-text v-if="item.setup" v-html="item.setup" />
@@ -302,9 +302,9 @@
             <div v-else-if="currentView === 'interactions'" key="interactions">
               <InteractView
                 ref="interactViewRef"
-                :navigation-items="flatNavigationItems"
-                @back="exitToolMode"
-                @navigate-to-book="handleNavigateToBook"
+                :currentDoor="props.campaignWing || ''"
+                :wing="props.campaignWing || ''"
+                @close="exitToolMode"
               />
             </div>
 
@@ -350,7 +350,7 @@ import {
 } from "vue";
 import { useRoute } from "vue-router";
 import KeywordView from "@/components/KeywordView.vue";
-import InteractView from "@/components/InteractView.vue";
+import InteractView from "@/components/InteractViewNew.vue"; 
 
 // Data Imports
 import startHereData from "@/data/book/StartHere.json";
@@ -595,8 +595,6 @@ const headerBannerStyle = computed(() => {
   const title = (vol?.title || "").toUpperCase();
   const subtitle = (vol?.subtitle || "").toUpperCase();
   
-  // LOGICA CORRIGIDA DE BANNERS:
-  // Se for Start Here, Wing 3, Wing 4 ou Dragon Boss -> Season 2 Banner (booktops2)
   if (
       id === 'start_here' || 
       id === 'dragon' ||
@@ -644,7 +642,7 @@ function exitToolMode() {
 }
 
 function navigateToInteract() { mobileNavValue.value = 'interactions'; currentView.value = 'interactions'; }
-function handleNavigateToBook(id: string) { /* Logic placeholder */ }
+
 function onScroll() {}
 function handlePageClick() {}
 
@@ -759,7 +757,7 @@ defineExpose({ navigateToInteract });
 .content-block { background-color: #fff; border-bottom: 1px solid #eee; padding-bottom: 24px; margin-bottom: 0; }
 .content-block:last-child { border-bottom: none; }
 
-.body-text p, .body-text-mechanics p { 
+.body-text :deep(p), .body-text-mechanics p { 
   font-family: "EB Garamond", serif; 
   font-size: 1.15rem; 
   line-height: 1.6; 
