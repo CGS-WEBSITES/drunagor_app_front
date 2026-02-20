@@ -486,21 +486,19 @@
                     
                     <div class="text-center font-italic text-brown-darken-4 mb-4 font-weight-bold" style="font-family: 'Cinzel', serif;">
                         <v-icon start color="brown-darken-4">mdi-book-open-page-variant</v-icon>
-                        Note: This Scene can also be found in the Campaign Books.
+                        A new Story Scene is unlocked!
                     </div>
 
-                    <div class="book-page w-100 mx-auto shadow-lg mt-2">
-                         <div class="content-block pb-6">
-                             <div class="header-banner" :style="{ backgroundImage: `url(${booktops2Img})` }">
-                                 <div class="d-flex align-center justify-space-between pa-0 pb-0">
-                                     <h4 class="section-title">{{ currentDoorData.scene.sectionTitle }}</h4>
-                                 </div>
-                                 <h2 class="chapter-title-banner">{{ currentDoorData.scene.title }}</h2>
-                             </div>
-                             
-                             <div class="body-text mt-6 px-4 px-md-8" v-html="currentDoorData.scene.body"></div>
-                         </div>
-                     </div>
+                    <v-btn
+                        color="brown-darken-3"
+                        variant="elevated"
+                        size="x-large"
+                        class="px-8 font-weight-bold"
+                        @click="openSceneFromDoor(currentDoorData.scene.target)"
+                    >
+                        READ "{{ currentDoorData.scene.title.toUpperCase() }}" IN BOOK
+                        <v-icon end>mdi-arrow-right</v-icon>
+                    </v-btn>
                 </v-col>
             </v-row>
 
@@ -766,7 +764,10 @@ const currentDoorData = computed(() => {
           for (const item of bSection.content) {
               const itemTitle = (item.title || "").toLowerCase().trim();
               if (item.id === sceneIdTarget || itemTitle === titleTarget) {
-                  sceneObj = { ...item, sectionTitle: bSection.section };
+                  sceneObj = { 
+                      title: item.title, 
+                      target: item.id || titleTarget 
+                  };
                   break;
               }
           }
@@ -1296,6 +1297,11 @@ function handleOpenScene(sceneTarget: string) {
             }
         }, 150);
     });
+}
+
+function openSceneFromDoor(sceneTarget: string) {
+    instructionsDialogVisible.value = false;
+    handleOpenScene(sceneTarget);
 }
 
 function openOnlyInstructions() {
