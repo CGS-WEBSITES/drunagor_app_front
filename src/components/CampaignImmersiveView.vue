@@ -364,6 +364,7 @@
           :current-door="activeCampaignData.door"
           :wing="activeCampaignData.wing"
           @close="interactionsDialog.visible = false"
+          @open-scene="handleOpenScene"
         />
       </v-card>
     </v-dialog>
@@ -384,7 +385,7 @@
             elevation="8"
             @click="bookDialog.visible = false"
         ></v-btn>
-        <CampaignBookNew :campaign-wing="bookContext" />
+        <CampaignBookNew ref="campaignBookRef" :campaign-wing="bookContext" />
       </v-card>
     </v-dialog>
 
@@ -576,14 +577,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onUnmounted, inject, watch } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
 
-// Data Imports
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -636,6 +636,8 @@ const campaignStore = CampaignStore();
 const tutorialStore = useTutorialStore();
 const heroDataRepository = new HeroDataRepository();
 
+const campaignBookRef = ref<any>(null);
+
 const savePutRef = ref<any>(null);
 const campaignRemoveRef = ref<any>(null);
 const campaignExportRef = ref<any>(null);
@@ -671,7 +673,6 @@ const allDoors = ref<Door[]>([]);
 const openedDoors = ref<Set<string>>(new Set());
 let pollingInterval: number | null = null;
 
-// --- ORDEM DAS PORTAS ---
 const WING3_ORDER = [
     "FIRST SETUP",
     "DUNGEON FOYER",
@@ -718,7 +719,6 @@ const isWing3Start = computed(() => {
     return false;
 });
 
-// AQUI: BUSCA A PORTA E INSERE O OBJETO SCENE SE ELE EXISTIR NA INSTRUÇÃO DE FORMA À PROVA DE FALHAS
 const currentDoorData = computed(() => {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
   const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
@@ -748,7 +748,6 @@ const currentDoorData = computed(() => {
   if (sceneMatch) {
       const rawMatch = sceneMatch[1];
       
-      // Tentativa 1: Formatar o ID extraído
       let sceneIdTarget = rawMatch
           .toLowerCase()
           .replace(/scene\s*[-–]\s*/, "scene-")
@@ -757,7 +756,6 @@ const currentDoorData = computed(() => {
           .replace(/[^a-z0-9-]/g, "")
           .replace(/-+/g, "-");
 
-      // Tentativa 2 (A prova de falhas): Buscar pelo nome limpo da cena
       let titleTarget = rawMatch
           .toLowerCase()
           .replace(/scene\s*[-–]\s*/, "")
@@ -1285,6 +1283,21 @@ function openInteractionsDialog() {
   interactionsDialog.value.visible = true;
 }
 
+function handleOpenScene(sceneTarget: string) {
+    interactionsDialog.value.visible = false;
+    
+    bookContext.value = activeCampaignData.value.wing;
+    bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' };
+    
+    nextTick(() => {
+        setTimeout(() => {
+            if (campaignBookRef.value) {
+                campaignBookRef.value.openSceneByTarget(sceneTarget);
+            }
+        }, 150);
+    });
+}
+
 function openOnlyInstructions() {
   if (activeCampaignData.value.door !== "BOTH OPEN")
     forcedDoorInstruction.value = null;
@@ -1747,7 +1760,7 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 }
 
 .bookmark-tab.blue-border-tab:hover {
-  border-left-color: #42a5f5;
+  border-left-color: #1565c0;
 }
 
 .text-label {
@@ -1953,7 +1966,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   object-fit: contain;
 }
 
-/* NARRATIVA COMUM (Da porta) */
 .book-style-card {
   background-color: #eee8e0 !important;
   color: #212121;
@@ -1978,7 +1990,6 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   color: #1a120f;
 }
 
-/* ESTILO DA CENA DENTRO DAS INSTRUÇÕES (Clone do Book) */
 .book-page {
     background-color: #ffffff;
     color: #212121;

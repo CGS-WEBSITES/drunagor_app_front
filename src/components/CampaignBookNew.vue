@@ -305,6 +305,7 @@
                 :currentDoor="props.campaignWing || ''"
                 :wing="props.campaignWing || ''"
                 @close="exitToolMode"
+                @open-scene="handleOpenSceneFromInternal"
               />
             </div>
 
@@ -343,16 +344,13 @@
 import {
   ref,
   computed,
-  onMounted,
   watch,
   nextTick,
   type CSSProperties,
 } from "vue";
-import { useRoute } from "vue-router";
 import KeywordView from "@/components/KeywordView.vue";
 import InteractView from "@/components/InteractViewNew.vue"; 
 
-// Data Imports
 import startHereData from "@/data/book/StartHere.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
@@ -361,7 +359,6 @@ import firstEncounterClarificationsData from "@/data/book/firstEncounterClarific
 import secondEncounterClarificationsData from "@/data/book/secondEncounterClarifications.json";
 import dragonClarificationsData from "@/data/book/dragonClarifications.json";
 
-// Images
 import booktopImg from "@/assets/booktop.png";
 import booktops2Img from "@/assets/booktops2.png";
 
@@ -370,7 +367,6 @@ const { smAndDown } = useDisplay();
 
 const props = defineProps<{ campaignWing?: string }>();
 
-// --- TIPOS ---
 interface Volume {
   id: string;
   title: string;
@@ -384,7 +380,6 @@ interface PageContentItem { id: string; title?: string; body: string; instructio
 interface PageSection { section: string; content: PageContentItem[]; layout: string; background: string; }
 interface NavigationItem { id: string; title: string; sectionTitle: string; originalId?: string; targetId?: string; viewType: string; sectionIndex?: number; }
 
-// --- ESTADO ---
 const mobileMenuSheet = ref(false);
 const mobileNavValue = ref<"menu" | "interactions" | "keywords">("menu");
 const openGroups = ref<string[]>([]);
@@ -397,28 +392,22 @@ const isFullscreen = ref(false);
 const scrollableContentRef = ref<HTMLElement | null>(null);
 const interactViewRef = ref<InstanceType<typeof InteractView> | null>(null);
 
-// --- DADOS BRUTOS ---
 const rawStartHere = startHereData as PageSection[];
 const rawStoryBooks = bookPagesData as PageSection[];
 
-// --- LIVROS DISPONÍVEIS ---
 const availableVolumes = computed<Volume[]>(() => {
   const vols: Volume[] = [];
   const wingKey = (props.campaignWing || "").toUpperCase();
 
-  // Story Volumes
   if (wingKey.includes("WING 4")) {
     vols.push({ id: 'wing_4', title: 'Draconic Abyss', subtitle: 'Wing 4', icon: 'mdi-fire', type: 'story', data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) });
   } else {
-    // Default Wing 3 ou "Full Story"
     const data = rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 3"));
     vols.push({ id: 'wing_3', title: 'The Underkeep', subtitle: 'Wing 3', icon: 'mdi-sword-cross', type: 'story', data: data.length ? data : rawStoryBooks });
   }
 
-  // Tutorial
   vols.unshift({ id: 'start_here', title: 'Start Here', subtitle: 'Tutorial', icon: 'mdi-school', type: 'story', data: rawStartHere });
 
-  // Reference Volumes
   vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'reference', data: playerTutorialsData });
   vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
   vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
@@ -428,13 +417,11 @@ const availableVolumes = computed<Volume[]>(() => {
   return vols;
 });
 
-// Helper para dividir na estante
 const storyVolumes = computed(() => availableVolumes.value.filter(v => v.type === 'story'));
 const referenceVolumes = computed(() => availableVolumes.value.filter(v => v.type === 'reference'));
 
 const currentVolume = computed(() => availableVolumes.value.find(v => v.id === currentVolumeId.value));
 
-// --- CONTEÚDO ---
 const storyPages = computed<PageSection[]>(() => {
   if (currentVolume.value?.type === 'story') {
     return currentVolume.value.data as PageSection[];
@@ -480,7 +467,6 @@ const currentAuxiliaryData = computed(() => {
 
 const isAuxiliaryView = computed(() => currentVolume.value?.type === 'reference');
 
-// --- NAVEGAÇÃO ---
 const currentVolumeGroups = computed(() => {
   const groups: Record<string, NavigationItem[]> = {};
 
@@ -525,7 +511,6 @@ const flatNavigationItems = computed(() => {
    return all;
 });
 
-// --- AÇÕES ---
 function backToLibrary() {
   currentVolumeId.value = null;
   mobileMenuSheet.value = false;
@@ -587,7 +572,6 @@ function scrollToTop() {
    if (scrollableContentRef.value) scrollableContentRef.value.scrollTop = 0;
 }
 
-// --- ESTILOS ---
 const headerBannerStyle = computed(() => {
   let img = booktopImg;
   const vol = currentVolume.value;
@@ -624,13 +608,12 @@ const backgroundStyle = computed<CSSProperties>(() => {
   return s;
 });
 
-// --- WATCHERS E INIT ---
 watch(() => props.campaignWing, (val) => {
    const key = (val || "").toUpperCase();
    if (key.includes("START")) {
       currentVolumeId.value = "start_here";
    } else {
-      currentVolumeId.value = null; // Abre na Library
+      currentVolumeId.value = null; 
    }
    scrollToTop();
 }, { immediate: true });
@@ -656,15 +639,64 @@ watch(mobileNavValue, (val) => {
    }
 });
 
-defineExpose({ navigateToInteract });
+function handleOpenSceneFromInternal(target: string) {
+    currentView.value = 'player';
+    openSceneByTarget(target);
+}
+
+function openSceneByTarget(target: string) {
+    let titleTarget = target.toLowerCase().replace(/scene\s*[-–]\s*/, "").trim().replace(/-/g, " ");
+    
+    let foundVolId = null;
+    let foundSectionIndex = -1;
+    let foundItemOriginalId = null;
+
+    for (const vol of availableVolumes.value) {
+        if (vol.type !== 'story') continue;
+        const sections = vol.data as PageSection[];
+        
+        for (let sIdx = 0; sIdx < sections.length; sIdx++) {
+            const sec = sections[sIdx];
+            for (let cIdx = 0; cIdx < sec.content.length; cIdx++) {
+                const item = sec.content[cIdx];
+                const itemTitle = (item.title || "").toLowerCase().trim();
+                
+                if (
+                    item.id === target || 
+                    itemTitle === titleTarget || 
+                    itemTitle.replace(/[^a-z0-9]/g, "") === titleTarget.replace(/[^a-z0-9]/g, "")
+                ) {
+                    foundVolId = vol.id;
+                    foundSectionIndex = sIdx;
+                    foundItemOriginalId = `content-block-${sIdx}-${cIdx}`;
+                    break;
+                }
+            }
+            if (foundVolId) break;
+        }
+        if (foundVolId) break;
+    }
+
+    if (foundVolId) {
+        currentVolumeId.value = foundVolId;
+        currentView.value = 'player';
+        currentIndex.value = foundSectionIndex;
+        
+        nextTick(() => {
+            setTimeout(() => {
+                if (foundItemOriginalId) scrollToElement(foundItemOriginalId);
+            }, 300);
+        });
+    }
+}
+
+defineExpose({ navigateToInteract, openSceneByTarget });
 </script>
 
 <style scoped>
-/* MAIN LAYOUT */
 .book-container { height: 100vh; overflow: hidden; background: var(--v-theme-background); display: flex; flex-direction: column; }
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-top: 0 !important; }
 
-/* COMPACT NAV BAR DESKTOP */
 .compact-nav-bar {
   height: 48px;
   background-color: #121212;
@@ -675,7 +707,6 @@ defineExpose({ navigateToInteract });
 }
 .hover-white:hover { color: white !important; }
 
-/* BOOKSHELF - CLEAN MINIMALIST */
 .bookshelf-view {
   min-height: 100%;
   background: #121212;
@@ -687,9 +718,8 @@ defineExpose({ navigateToInteract });
   padding: 16px;
 }
 
-/* CARDS SIMPLIFICADOS (Estilo "Botão Largo" ou "Tile") */
 .library-card {
-  height: 56px; /* Altura fixa compacta */
+  height: 56px; 
   border-radius: 4px;
   background-color: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.1);
@@ -704,29 +734,25 @@ defineExpose({ navigateToInteract });
 }
 
 .story-card { border-left: 3px solid #b71c1c; }
-.ref-card { border-left: 3px solid #1565C0; height: 48px; /* Referencias um pouco menores */ }
+.ref-card { border-left: 3px solid #1565C0; height: 48px; }
 
 .tracking-widest { letter-spacing: 2px; }
 
-/* SCROLL AREA */
 .scroll-root { flex: 1; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; position: relative; background: var(--v-theme-background); padding-bottom: 40px; }
 .content-container { max-width: 960px; margin: 0 auto; padding: 24px; min-height: 100%; }
 
-/* MOBILE MENU */
 .mobile-menu-card { max-height: 70vh; overflow-y: auto; }
 .mobile-nav-item { padding-left: 20px !important; }
 .mobile-section-header { font-weight: 600; font-family: "Cinzel", serif; color: #ddd; }
 
-/* READING AREA STYLES - RESTORED ORIGINAL PADDING/FONTS */
 .book-page { background-color: #ffffff; color: #212121; border: 1px solid #1e1e1e; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 8px; min-height: 400px; overflow: hidden; }
 .aux-page-style { background-color: #fff; color: #212121; border-radius: 8px; }
 
-/* Header Banner - Paddings Originais Preservados */
 .header-banner { 
   background-size: cover; 
   background-repeat: no-repeat; 
   background-position: top center; 
-  padding: 0px 0px 1px; /* Restaurado */
+  padding: 0px 0px 1px; 
   position: relative; 
   z-index: 1; 
   color: #212121; 
@@ -736,7 +762,7 @@ defineExpose({ navigateToInteract });
 .section-title { 
   font-size: 0.7rem; 
   color: white; 
-  padding: 10px 155px 20px; /* Restaurado */
+  padding: 10px 155px 20px; 
   margin: 0; 
   text-transform: uppercase; 
   font-weight: bold; 
@@ -748,12 +774,11 @@ defineExpose({ navigateToInteract });
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); 
   margin-top: 1px; 
   margin-bottom: 66px; 
-  padding-left: 156px; /* Restaurado */
+  padding-left: 156px; 
   padding-right: 44px; 
   text-align: left; 
 }
 
-/* Body Text */
 .content-block { background-color: #fff; border-bottom: 1px solid #eee; padding-bottom: 24px; margin-bottom: 0; }
 .content-block:last-child { border-bottom: none; }
 
@@ -775,7 +800,6 @@ defineExpose({ navigateToInteract });
 .font-cinzel { font-family: "Cinzel", serif !important; }
 .font-garamond { font-family: "EB Garamond", serif !important; }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .header-banner { padding: 8px 10px 6px; background-position: left; }
   .chapter-title-banner { 
@@ -796,7 +820,6 @@ defineExpose({ navigateToInteract });
   .content-container { padding: 8px; }
   .library-container { padding: 8px; }
   
-  /* Ajuste no mobile: Cards um pouco mais compactos */
   .library-card { height: 50px; }
 }
 
