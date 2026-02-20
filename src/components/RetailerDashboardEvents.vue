@@ -16,17 +16,17 @@
 
         <div v-else class="d-flex flex-column flex-grow-1">
           <div v-if="upcomingRetailerEventsPreview.length > 0">
-            <v-row dense class="mx-n1">
+            <v-row dense class="mx-0">
               <v-col
                 cols="12"
                 md="6"
                 v-for="event in upcomingRetailerEventsPreview"
                 :key="event.events_pk"
-                class="px-1"
+                class="pa-1"
               >
                 <v-card
                   color="terciary"
-                  class="pt-0 pb-2 event-card"
+                  class="pt-0 pb-2 event-card fill-height"
                   @click="openManageDialog(event)"
                 >
                   <v-img
@@ -71,18 +71,18 @@
                       class="pt-2"
                       :class="display.xs.value ? 'pl-4' : ''"
                     >
-                      <h3 class="pb-1">
+                      <h3 class="pb-1 text-truncate">
                         <v-icon class="pr-1" size="small" color="black">
                           mdi-chess-rook
                         </v-icon>
                         {{ event.store_name }}
                       </h3>
                       <p class="text-caption text-truncate">
-                        <v-icon color="red">mdi-map-marker</v-icon>
+                        <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption" v-if="event.scenario">
-                        <v-icon color="red">mdi-sword-cross</v-icon>
+                      <p class="text-caption text-truncate" v-if="event.scenario">
+                        <v-icon color="red" size="small">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
                     </v-col>
@@ -90,22 +90,18 @@
                 </v-card>
               </v-col>
 
-              <v-col cols="12" md="6" class="px-1">
+              <v-col cols="12" md="6" class="pa-1">
                 <v-card
-                  color="transparent"
-                  class="event-card d-flex align-center justify-center create-event-card"
+                  class="highlight-card d-flex align-center justify-center"
                   @click="goToEventsPageAndCreate"
-                  style="
-                    border: 2px dashed rgba(255, 255, 255, 0.3);
-                    min-height: 120px;
-                  "
                 >
-                  <div class="d-flex flex-column align-center">
-                    <v-icon size="large" color="white" class="mb-1">
-                      mdi-plus
+                  <div class="glow-effect"></div>
+                  <div class="d-flex flex-column align-center text-white z-index-2">
+                    <v-icon size="40" color="white" class="floating-icon mb-1">
+                      mdi-plus-circle
                     </v-icon>
-                    <span class="text-caption font-weight-bold">
-                      Create New Event
+                    <span class="text-button font-weight-black letter-spacing-1">
+                      CREATE NEW EVENT
                     </span>
                   </div>
                 </v-card>
@@ -117,15 +113,26 @@
             <v-card
               color="transparent"
               flat
-              class="text-center pa-5 fill-height d-flex align-center justify-center flex-column"
+              class="text-center pa-6 d-flex align-center justify-center flex-column"
             >
-              <p class="mb-4">You have no upcoming events.</p>
+              <div class="icon-circle-container mb-6">
+                <div class="pulse-ring"></div>
+                <v-icon size="80" color="#118D8E">mdi-calendar-star</v-icon>
+              </div>
+              
+              <h2 class="text-h5 font-weight-bold text-white mb-2">Host Your Drunagor Nights</h2>
+              <p class="text-body-1 text-grey-lighten-1 mb-8">No events scheduled at the moment.</p>
+              
               <v-btn
-                color="white"
-                class="text-black"
+                color="#118D8E"
+                size="x-large"
+                variant="elevated"
+                class="fancy-btn text-white font-weight-black px-12"
+                elevation="12"
                 @click="goToEventsPageAndCreate"
               >
-                Create New Event
+                <v-icon start class="mr-2">mdi-plus-thick</v-icon>
+                CREATE NEW EVENT
               </v-btn>
             </v-card>
           </div>
@@ -142,7 +149,7 @@
     <v-dialog v-model="createStoreDialog" max-width="600" persistent>
       <v-card>
         <div v-if="creatingStore" class="dialog-overlay">
-          <v-progress-circular indeterminate size="80" color="primary" />
+          <v-progress-circular indeterminate size="80" color="#118D8E" />
         </div>
         <v-card-title class="text-h5 font-weight-bold">
           Create Your Store
@@ -220,7 +227,7 @@
           <v-btn color="grey" variant="text" @click="createStoreDialog = false"
             >Cancel</v-btn
           >
-          <v-btn color="primary" variant="elevated" @click="saveNewStore"
+          <v-btn color="#118D8E" variant="elevated" class="text-white" @click="saveNewStore"
             >Create & Continue</v-btn
           >
         </v-card-actions>
@@ -251,7 +258,6 @@ const userCreatedEvents = ref([]);
 const selectedEvent = ref(null);
 const manageDialog = ref(false);
 
-// Store Creation Vars
 const createStoreDialog = ref(false);
 const creatingStore = ref(false);
 const isStoreFormValid = ref(false);
@@ -435,19 +441,98 @@ onMounted(async () => {
 <style scoped>
 .event-card {
   cursor: pointer;
-  transition:
-    transform 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+  border-radius: 8px;
+  min-height: 115px;
 }
+
 .event-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
-.cinzel-text {
-  font-family: "Cinzel", serif;
+
+.highlight-card {
+  height: 100%;
+  min-height: 115px;
+  background-color: #118D8E !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
+
+.highlight-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 8px 20px rgba(17, 141, 142, 0.4) !important;
+}
+
+.glow-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.floating-icon {
+  animation: float 3s ease-in-out infinite;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.letter-spacing-1 {
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.z-index-2 { position: relative; z-index: 2; }
+
+/* ESTADO VAZIO */
+.icon-circle-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px;
+  height: 120px;
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #118D8E;
+  border-radius: 50%;
+  animation: ring-pulse 2s infinite;
+  opacity: 0;
+}
+
+@keyframes ring-pulse {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+.fancy-btn {
+  border-radius: 50px !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fancy-btn:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 10px 30px rgba(17, 141, 142, 0.5) !important;
+}
+
+.cinzel-text { font-family: "Cinzel", serif; }
+
 .dialog-overlay {
   position: absolute;
   top: 0;
@@ -460,26 +545,15 @@ onMounted(async () => {
   align-items: center;
   justify-content: center;
 }
+
 .season-flag {
   position: absolute;
   top: 0;
-  left: auto;
   right: 0;
-  width: 60px;
-  height: 60px;
+  width: 45px;
+  height: 45px;
   z-index: 2;
 }
-.content-scroll {
-  padding-bottom: 12px;
-}
-.create-event-card {
-  cursor: pointer;
-  border: 2px dashed rgba(255, 255, 255, 0.3) !important;
-  transition: all 0.2s ease-in-out;
-}
-.create-event-card:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.6) !important;
-  transform: translateY(-4px);
-}
+
+.content-scroll { padding-bottom: 12px; }
 </style>
