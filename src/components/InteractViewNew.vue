@@ -10,7 +10,7 @@
 
     <v-container fluid class="fill-height align-start pa-0 overflow-y-auto w-100 main-container-scroll">
       
-      <v-row v-if="!interactionStageActive && !activeScene" class="w-100 ma-0" style="min-height: 100%;">
+      <v-row v-if="!interactionStageActive" class="w-100 ma-0" style="min-height: 100%;">
         
         <v-col cols="12" md="6" class="scanner-col d-flex flex-column align-center justify-center bg-grey-darken-4 border-r pa-6">
             <div class="text-h6 text-white mb-4 font-weight-bold">Scan Interaction QR-CODE</div>
@@ -63,39 +63,6 @@
             </v-row>
         </v-col>
       </v-row>
-
-      <div v-else-if="interactionStage === 'scene' && activeScene" class="pa-0 pa-sm-4 w-100 d-flex flex-column align-center interaction-detail-overlay">
-         <v-toolbar color="transparent" density="compact" class="px-4 pt-2 w-100">
-            <v-btn variant="text" color="grey-lighten-1" @click="closeInteraction" class="text-none">
-              <v-icon start>mdi-arrow-left</v-icon> Back to Interactions List
-            </v-btn>
-         </v-toolbar>
-
-         <div class="book-page mt-2 mt-sm-4">
-             <div class="content-block pb-6">
-                 <div class="header-banner" :style="{ backgroundImage: `url(${booktops2Img})` }">
-                     <div class="d-flex align-center justify-space-between pa-0 pb-0">
-                         <h4 class="section-title">{{ activeScene.sectionTitle }}</h4>
-                     </div>
-                     <h2 class="chapter-title-banner">{{ activeScene.title }}</h2>
-                 </div>
-                 
-                 <div class="body-text mt-6 px-4 px-sm-6" v-html="activeScene.body"></div>
-
-                 <v-card v-if="activeScene.instruction" class="instruction-card mt-6 py-0 mx-4 mx-sm-6 mb-6" flat>
-                     <v-card-text class="pa-4" v-html="activeScene.instruction" />
-                 </v-card>
-
-                 <div v-if="activeScene.instruction" class="pt-5 px-16 text-center mb-6">
-                     <v-img src="@/assets/Barra.png" max-height="20" contain />
-                 </div>
-             </div>
-         </div>
-
-         <v-btn class="mt-6 mb-10 action-btn mx-4" variant="elevated" color="primary" size="large" @click="$emit('close')" style="max-width: 800px; width: calc(100% - 32px);">
-            Finish & Close
-         </v-btn>
-      </div>
 
       <div v-else class="interaction-detail-overlay w-100">
          <v-toolbar color="transparent" density="compact" class="px-4 pt-2">
@@ -192,10 +159,6 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } from '@zxing/library';
 
-// Importações para a renderização interna de cenas
-import bookPagesData from "@/data/book/bookPages.json";
-import booktops2Img from "@/assets/booktops2.png";
-
 import rawInteractionConfigsData from "@/data/book/interactionConfigurations.json";
 
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
@@ -229,7 +192,7 @@ const props = defineProps<{
     wing: string;
 }>();
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'open-scene']);
 
 const interactionMeta: Record<string, { number: number, title: string }> = {
     "InteractionThePrisoner": { number: 7, title: "The Prisoner" },
@@ -254,12 +217,11 @@ const importedItemAssets: Record<string, any> = {
 
 const interactionConfigs = ref<Record<string, any>>({});
 const activeInteractionId = ref<string | null>(null);
-const interactionStage = ref<'titles' | 'content' | 'scene'>('titles');
+const interactionStage = ref<'titles' | 'content'>('titles');
 const currentConfig = ref<any>(null);
 const currentItem = ref<any>(null);
-const activeScene = ref<any>(null);
 
-const interactionStageActive = computed(() => !!currentConfig.value || !!activeScene.value);
+const interactionStageActive = computed(() => !!currentConfig.value);
 
 const codeReader = new BrowserMultiFormatReader(undefined, 400);
 const zxingHints = new Map();
@@ -434,7 +396,6 @@ function selectInteraction(idOrKey: string) {
         currentConfig.value = foundConfig;
         activeInteractionId.value = target;
         interactionStage.value = 'titles';
-        activeScene.value = null;
     } else {
         console.error("Config not found for interaction:", target);
     }
@@ -448,32 +409,15 @@ function selectChoice(item: any) {
 function backToTitles() {
     interactionStage.value = 'titles';
     currentItem.value = null;
-    activeScene.value = null;
 }
 
 function closeInteraction() {
     activeInteractionId.value = null;
     currentConfig.value = null;
     currentItem.value = null;
-    activeScene.value = null;
     if (isMounted.value) {
         nextTick(() => startScanner());
     }
-}
-
-function findSceneById(sceneId: string) {
-    for (const section of bookPagesData) {
-        if (!section.content) continue;
-        for (const content of section.content) {
-            if (content.id === sceneId) {
-                return {
-                    ...content,
-                    sectionTitle: section.section
-                };
-            }
-        }
-    }
-    return null;
 }
 
 function executeAction(action: any) {
@@ -483,16 +427,8 @@ function executeAction(action: any) {
     }
     
     if (action.type === "PROCEED") {
-        // RENDERIZAÇÃO INTERNA DE SCENES
         if (action.target && action.target.startsWith("scene-")) {
-            const sceneData = findSceneById(action.target);
-            if (sceneData) {
-                activeScene.value = sceneData;
-                interactionStage.value = 'scene';
-            } else {
-                console.error("ERRO: Cena não encontrada no bookPages.json:", action.target);
-                emit('close');
-            }
+            emit('open-scene', action.target);
             return;
         }
 
@@ -519,7 +455,6 @@ defineExpose({ ensureCameraPermission });
 </script>
 
 <style scoped>
-/* 1. PERMITIR SCROLL NO CONTAINER PRINCIPAL */
 .main-container-scroll {
     overflow-y: auto;
     overflow-x: hidden;
@@ -664,119 +599,8 @@ defineExpose({ ensureCameraPermission });
     padding: 12px !important;
 }
 
-/* --- 2. ESTILOS DA CENA RENDERIZADA INTERNAMENTE --- */
-.book-page {
-    background-color: #ffffff;
-    color: #212121;
-    border: 1px solid #1e1e1e;
-    box-shadow: 0 0 10px rgba(94, 69, 57, 0.3), inset 0 0 20px rgba(94, 69, 57, 0.2);
-    border-radius: 12px;
-    width: 100%;
-    max-width: 800px;
-    overflow: hidden; 
-}
-
-.header-banner {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top center;
-    padding: 10px 14px;
-    position: relative;
-    z-index: 1;
-    color: #212121;
-}
-
-.section-title {
-    font-size: 0.7rem;
-    color: white;
-    padding: 10px 155px 15px;
-    margin: 0;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
-.chapter-title-banner {
-    font-family: "Cinzel Decorative", cursive;
-    font-size: 1.8rem;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-    margin-top: 1px;
-    margin-bottom: 60px;
-    padding-left: 156px;
-    padding-right: 44px;
-    text-align: left;
-}
-
-/* AQUI A COR É HERDADA CORRETAMENTE (inherit) PARA RESPEITAR O LORE DO JSON */
-.body-text {
-    color: #212121;
-}
-
-.body-text :deep(p) {
-    font-family: "EB Garamond", serif;
-    font-size: 1.15rem;
-    line-height: 1.6;
-    text-indent: 1.5em; 
-    margin-bottom: 1.2rem;
-    color: inherit; 
-}
-
-.body-text :deep(strong) {
-    font-style: normal;
-    font-weight: bold;
-}
-
-.body-text :deep(ul) {
-    padding-left: 1.8em;
-    margin-top: 0.5em;
-    margin-bottom: 1em;
-}
-
-.body-text :deep(li) {
-    font-family: "EB Garamond", serif;
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: inherit;
-    margin-bottom: 0.5em;
-}
-
-.instruction-card {
-    background: #e4e4e4 !important;
-    border: 2px solid #212121 !important;
-    color: #1a120f !important;
-    box-shadow: 3px 3px 0px #212121;
-}
-
-/* RESPONSIVO MOBILE */
 @media (max-width: 960px) {
     .border-r { border-right: none !important; border-bottom: 1px solid #333; }
     .scanner-col, .list-col { min-height: auto; }
-}
-
-@media (max-width: 480px) {
-    .header-banner {
-        padding: 8px 10px 6px;
-        background-position: left;
-    }
-    
-    .chapter-title-banner {
-        font-size: 1.25rem;
-        padding-left: 0;
-        margin-left: 130px;
-        margin-top: 5px;
-        padding-right: 20px;
-        margin-bottom: 40px;
-    }
-    
-    .section-title {
-        font-size: 0.6rem;
-        padding: 8px 0px 15px;
-        margin-left: 130px;
-    }
-    
-    .body-text :deep(p) {
-        font-size: 1.05rem; 
-        text-indent: 1em; 
-    }
 }
 </style>
