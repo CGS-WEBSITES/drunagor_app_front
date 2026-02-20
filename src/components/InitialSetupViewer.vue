@@ -48,7 +48,7 @@ const SCENARIO_SETUP_MAP = {
     bookId: "book02.07",
   },
   "Wing 03 Advanced": {
-    image: "https://assets.drunagor.app/book/books2/001.png",
+    image: "https://assets.drunagor.app/book/books2/setup1.png",
     name: "The Underkeep Level 02",
     bookId: "book02.01",
   },
