@@ -2,11 +2,11 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta
-    name="description"
-    content="Companion App for Chronicles of Drunagor. Supports your game by automating."
+      name="description"
+      content="Companion App for Chronicles of Drunagor. Supports your game by automating."
     />
     <meta name="keywords" content="Chronicles, Drunagor, Companion, App, Boardgame" />
     <title>Chronicles of Drunagor - Companion App</title>
@@ -16,6 +16,7 @@
     
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
     
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -57,7 +58,7 @@
       </script>
 
   </head>
-  <body class="min-h-screen" style="background-color: var(--surface-ground)">
+  <body class="min-h-screen" style="min-height: 100dvh; background-color: var(--surface-ground)">
 
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
