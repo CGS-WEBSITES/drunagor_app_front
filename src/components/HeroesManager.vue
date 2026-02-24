@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <v-container class="py-6">
+    <v-container class="0">
       <CampaignHeroes />
     </v-container>
   </v-main>

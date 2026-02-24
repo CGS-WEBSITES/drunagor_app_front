@@ -8,7 +8,7 @@
       </v-expansion-panel-title>
 
       <v-expansion-panel-text class="pa-0">
-        <v-card-text class="px-0 pt-0 position-relative">
+        <v-card-text class="px-4 pt-3 pb-2 position-relative">
           <v-row no-gutters>
             <v-col cols="12" class="position-relative">
               <div class="action-buttons-container">
@@ -28,7 +28,7 @@
                   variant="elevated"
                   color="primary"
                   rounded
-                  class="action-btn equipment-btn ml-2 shepherd-btn-equipment-skills"
+                  class="action-btn ml-2 shepherd-btn-equipment-skills"
                   size="small"
                 >
                   {{ t("label.equipment-skills") }}
@@ -120,7 +120,7 @@ const heroStaticData = computed<HeroData | null>(() => {
 
 const heroBackgroundStyle = computed(() => ({
   backgroundImage: `url(${heroStaticData.value?.images?.trackerInfo || heroStaticData.value?.images?.background || ""})`,
-  backgroundSize: "100% auto",
+  backgroundSize: "cover", // MUDANÇA: 'cover' garante que a imagem preencha todo o espaço sem distorcer ou sobrar espaço
   backgroundPosition: "center top",
   backgroundRepeat: "no-repeat",
 }));
@@ -142,12 +142,11 @@ function openHeroEquipmentSkills() {
 
 <style scoped>
 .action-buttons-container {
-  margin-top: 10px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   flex-wrap: wrap;
-  margin-left: 15px;
+  /* margin-left removido para corrigir alinhamento torto */
 }
 
 .action-btn {
@@ -163,17 +162,13 @@ function openHeroEquipmentSkills() {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
+/* Ajustes de responsividade dos botões */
 @media (max-width: 360px) {
   .action-buttons-container {
-    flex-direction: row;
-    justify-content: flex-start;
-    width: calc(100% - 8px);
+    width: 100%;
     gap: 4px;
   }
-
   .action-btn {
-    flex: 0 0 auto;
-    max-width: 85px;
     font-size: 0.65rem !important;
     padding: 2px 4px !important;
     height: 24px !important;
@@ -220,6 +215,7 @@ function openHeroEquipmentSkills() {
   position: relative;
 }
 
+/* Altura da imagem do herói */
 .hero-background-title {
   position: relative;
   overflow: hidden;
@@ -254,6 +250,7 @@ function openHeroEquipmentSkills() {
   color: white !important;
 }
 
+/* Gradiente para o texto ficar legível sobre a imagem */
 .hero-background-title::before {
   content: "";
   position: absolute;
@@ -274,73 +271,34 @@ function openHeroEquipmentSkills() {
   );
 }
 
+/* Responsividade da altura da imagem */
 @media (max-width: 768px) {
-  .hero-background-title {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
     min-height: 250px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 250px;
-  }
-}
-
-@media (max-width: 414px) {
-  .hero-background-title {
-    min-height: 130px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 130px;
-  }
-}
-
-@media (max-width: 430px) {
-  .hero-background-title {
-    min-height: 130px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 130px;
   }
 }
 
 @media (max-width: 540px) {
-  .hero-background-title {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
     min-height: 180px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 180px;
   }
 }
 
-@media (max-width: 412px) {
-  .hero-background-title {
+@media (max-width: 430px) {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
     min-height: 130px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 130px;
   }
 }
 
 @media (max-width: 344px) {
-  .hero-background-title {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
     min-height: 100px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 100px;
   }
 }
 
 @media (min-width: 1024px) {
-  .hero-background-title {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
     min-height: 350px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 350px;
   }
 }
 </style>
