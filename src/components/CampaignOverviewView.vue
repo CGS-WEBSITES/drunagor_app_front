@@ -43,7 +43,7 @@
       </v-card-actions>
     </v-card>
 
-    <v-card class="mt-3 pa-3 elevation-0">
+    <v-card class="mt-3 pa-3 elevation-0 d-flex align-center justify-space-between flex-wrap ga-3">
       <v-checkbox
         v-model="showAllCampaigns"
         label="Other Campaigns"
@@ -51,6 +51,16 @@
         hide-details
         @update:modelValue="onFilterChange"
       ></v-checkbox>
+
+      <v-select
+        v-model="sortOrder"
+        :items="[{title: 'Newest First', value: 'desc'}, {title: 'Oldest First', value: 'asc'}]"
+        label="Sort By"
+        variant="outlined"
+        density="compact"
+        hide-details
+        style="max-width: 200px; min-width: 150px;"
+      ></v-select>
     </v-card>
 
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
@@ -217,10 +227,20 @@ const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
 const showAllCampaigns = ref(false);
+const sortOrder = ref('desc');
 
 const BOX_ID = 38;
 
-const allCampaigns = computed(() => campaignStore.findAll());
+const allCampaigns = computed(() => {
+  const campaigns = [...campaignStore.findAll()];
+  return campaigns.sort((a, b) => {
+    if (sortOrder.value === 'desc') {
+      return Number(b.campaignId) - Number(a.campaignId);
+    }
+    return Number(a.campaignId) - Number(b.campaignId);
+  });
+});
+
 const avatarSize = computed(() => (route.meta.mdAndUp ? 120 : 70));
 const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
@@ -248,7 +268,7 @@ const addLoadingError = (text: string) => {
   }, 5000);
 };
 
-const loadCampaignFromHash = (trackerHash: string, campaignPk: string) => {
+const loadCampaignFromHash = (trackerHash: string, campaignPk: string, partyName: string) => {
   try {
     const data = JSON.parse(atob(trackerHash));
 
@@ -256,7 +276,7 @@ const loadCampaignFromHash = (trackerHash: string, campaignPk: string) => {
 
     const camp = data.campaignData;
     camp.campaignId = campaignPk;
-
+    camp.name = partyName || camp.name || "Unnamed Campaign";
     camp.heroes = [];
 
     campaignStore.add(camp);
@@ -269,7 +289,7 @@ const loadCampaignFromHash = (trackerHash: string, campaignPk: string) => {
 const loadCampaignWithHeroes = async (campaignData: any) => {
   try {
     const campaignPk = String(campaignData.campaigns_fk);
-    loadCampaignFromHash(campaignData.tracker_hash, campaignPk);
+    loadCampaignFromHash(campaignData.tracker_hash, campaignPk, campaignData.party_name);
     return true;
   } catch (error) {
     console.error("Error loading campaign:", error);

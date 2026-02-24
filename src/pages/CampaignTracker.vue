@@ -1,13 +1,13 @@
 <template>
-  <v-container fluid class="pa-0" :style="contentStyle">
+  <v-container fluid class="pa-0">
     <v-row
-      v-if="!isCampaignRoute"
+      v-if="!isCampaignRoute && !isHeroesRoute"
       no-gutters
       class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
     >
       COMPANION
     </v-row>
-    <MainMenu />
+    <MainMenu v-if="!isHeroesRoute" />
     <router-view />
   </v-container>
 </template>
@@ -20,6 +20,7 @@ import MainMenu from "@/components/MainMenu.vue";
 const route = useRoute();
 
 const isCampaignRoute = computed(() => route.name === "Campaign");
+const isHeroesRoute = computed(() => route.path.includes("/campaign-tracker/heroes") || route.name === "HeroesManager");
 </script>
 
 <style>

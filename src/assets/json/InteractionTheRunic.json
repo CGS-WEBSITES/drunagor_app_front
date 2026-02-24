@@ -270,14 +270,13 @@
       "The Party successfully casts the Planar Travel spell!<br>",
       "Remove the Growing Darkness Rune card from the Initiative Track.<br>",
       "Return the <span style=\"color: #1E90FF;\">Void Stone</span> Adventure Item (regardless of who holds it) to the box.<br>",
-      "Read SCENE – NO WAY BACK HOME.<br>",
-      "Proceed with the Adventure."
+      "Read <span style=\"color: #ff0000;\">**SCENE – NO WAY BACK HOME**</span>.<br><br><i>(Note: Scenes are found in your Adventure Books. Close this interaction and refer to the book to continue.)</i>"
     ],
     "actions": [
       {
-        "text": "Proceed with the Adventure",
+        "text": "Read 'Scene - No Way Back Home' (Close Interaction)",
         "type": "PROCEED",
-        "target": "adventure-continue"
+        "target": "scene-no-way-back-home"
       }
     ]
   }

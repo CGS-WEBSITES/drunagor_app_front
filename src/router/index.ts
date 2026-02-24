@@ -83,14 +83,20 @@ const router = createRouter({
     {
       path: "/shared-keywords",
       name: "SharedKeywords",
-      component: () => import("@/components/SharedKeywords.vue"),
-      
+      component: () => import("@/components/SharedKeywords.vue"),     
     },
 
     {
       path: "/dashboard",
       name: "Dashboard",
       component: () => import("@/pages/Dashboard.vue"),
+      beforeEnter: requireAuth,
+    },
+
+    {
+      path: "/socialhub",
+      name: "SocialHub",
+      component: () => import("@/components/SocialHub.vue"),
       beforeEnter: requireAuth,
     },
 

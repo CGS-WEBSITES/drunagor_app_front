@@ -12,7 +12,10 @@
     </v-btn>
   </v-container>
 
-  <v-container v-else class="d-sm-none pa-4">
+  <v-container 
+    v-if="!isCampaignRoute && !isHeroesRoute" 
+    class="d-sm-none pa-4"
+  >
     <v-card
       color="primary"
       rounded="lg"
@@ -51,7 +54,7 @@
   </v-container>
 
   <v-container
-    v-else
+    v-if="!isCampaignRoute && !isHeroesRoute"
     max-width="800"
     style="min-width: 360px"
     class="d-none d-sm-flex"
@@ -96,13 +99,23 @@
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify"; // Import necessário para isMobile se não estiver global
 
 const { t, locale } = useI18n();
+const { mobile } = useDisplay(); // Adicionado para garantir que isMobile funcione
 
 const router = useRouter();
 const route = useRoute();
 
+const isMobile = computed(() => mobile.value);
+
 const isCampaignRoute = computed(() => route.name === 'Campaign');
+
+// Nova lógica: Verifica se é a página de heróis pelo nome ou pelo path
+const isHeroesRoute = computed(() => 
+  route.name === 'HeroesManager' || 
+  route.path.includes('/campaign-tracker/heroes')
+);
 
 const navigateTo = (route: string) => {
   router.push(route);
@@ -111,7 +124,6 @@ const navigateTo = (route: string) => {
 const goBack = () => {
   router.push({ name: 'Campaign Overview' });
 };
-
 
 const buttons = ref([
   {
