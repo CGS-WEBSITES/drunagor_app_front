@@ -199,7 +199,7 @@ const goToProfile = () => router.push({ name: "PerfilHome" });
 const goToLibrary = () => router.push({ name: "Library" });
 const goToCampaigns = () => router.push({ name: "HeroesManager" });
 const goToEvents = () => router.push({ name: "Events" });
-const goToGroup = () => router.push({ name: "Group" });
+const goToGroup = () => router.push({ name: "SocialHub" });
 
 function importCampaign(token: string) {}
   
