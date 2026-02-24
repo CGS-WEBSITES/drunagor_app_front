@@ -83,8 +83,7 @@ const router = createRouter({
     {
       path: "/shared-keywords",
       name: "SharedKeywords",
-      component: () => import("@/components/SharedKeywords.vue"),
-     
+      component: () => import("@/components/SharedKeywords.vue"),     
     },
 
     {
