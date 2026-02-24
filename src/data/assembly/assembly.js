@@ -17,17 +17,17 @@ export const assemblySteps = [
   {
     id: 4,
     image: "https://assets.drunagor.app/book/assembly/04 - Map being placed in DGTray.png",
-    instruction: "Using the Setup as a reference, place the Map Tiles in their designated positions."
+    instruction: "Using the Setup as a reference, place the Map Tiles in their positions shown."
   },
   {
     id: 5,
     image: "https://assets.drunagor.app/book/assembly/05 - What is token.png",
-    instruction: "Each Setup specifies exactly which Tokens to use, as well as the quantity and placement for each."
+    instruction: "Each Setup shows exactly which Tokens to use, as well as how many and where to place them."
   },
   {
     id: 6,
     image: "https://assets.drunagor.app/book/assembly/06 - Tokens in MAP.png",
-    instruction: "Following the Setup guide, place the corresponding Tokens in the illustrated positions."
+    instruction: "Using the Setup as a guide, place the corresponding Tokens in their positions shown."
   },
   {
     id: 7,
@@ -67,6 +67,6 @@ export const assemblySteps = [
   {
     id: 14,
     image: "https://assets.drunagor.app/book/assembly/14 - Heroes going to board.png",
-    instruction: "Finally, place the Heroes in their starting positions on the board, as outlined in the Setup."
+    instruction: "Finally, place the Heroes in their starting positions on the board, as shown in the Setup."
   }
 ];
