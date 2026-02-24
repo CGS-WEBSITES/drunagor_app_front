@@ -1,11 +1,12 @@
 <template>
   <v-card color="primary" class="fill-height d-flex flex-column w-100">
-    <div class="px-4 pt-4 pb-2">
-      <h3 class="text-h5 font-weight-bold">MY UPCOMING EVENTS</h3>
+    
+    <div class="px-4 pt-3 pb-1">
+      <h3 :class="display.xs ? 'text-h6' : 'text-h5'" class="font-weight-bold">MY UPCOMING EVENTS</h3>
     </div>
 
-    <div class="flex-grow-1 mt-2 content-scroll" style="overflow-y: auto">
-      <div class="px-2 py-3 fill-height d-flex flex-column">
+    <div class="flex-grow-1 mt-1 content-scroll" style="overflow-y: auto">
+      <div class="px-2 py-2 fill-height d-flex flex-column">
         <div
           v-if="loading"
           class="d-flex justify-center align-center"
@@ -34,25 +35,25 @@
                     :src="getSeasonInfo(event.seasons_fk).flag"
                     class="season-flag"
                   />
-                  <v-row no-gutters align="center">
-                    <v-col cols="3" class="d-flex justify-center">
+                  <v-row no-gutters align="center" class="flex-nowrap w-100 fill-height pl-2">
+                    <v-col cols="auto" class="d-flex justify-center px-1">
                       <div
                         class="text-center"
-                        style="width: 70px; color: black"
+                        style="min-width: 65px; color: black"
                       >
-                        <p class="pt-3 text-caption font-weight-bold">
+                        <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
                           {{
                             new Date(event.event_date)
                               .toLocaleDateString("en-US", { month: "short" })
                               .toUpperCase()
                           }}
                         </p>
-                        <p class="cinzel-text text-h3 font-weight-bold">
+                        <p class="cinzel-text text-h4 font-weight-bold my-1" style="line-height: 1;">
                           {{
                             String(event.event_date).split("T")[0].split("-")[2]
                           }}
                         </p>
-                        <p class="text-caption font-weight-bold">
+                        <p class="text-caption font-weight-bold" style="line-height: 1.2; font-size: 11px !important;">
                           {{
                             new Date(event.event_date).toLocaleTimeString(
                               "en-US",
@@ -60,28 +61,25 @@
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 hour12: true,
-                              },
+                              }
                             )
                           }}
                         </p>
                       </div>
                     </v-col>
-                    <v-col
-                      cols="9"
-                      class="pt-2"
-                      :class="display.xs.value ? 'pl-4' : ''"
-                    >
-                      <h3 class="pb-1 text-truncate">
+                    
+                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0;">
+                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8">
                         <v-icon class="pr-1" size="small" color="black">
                           mdi-chess-rook
                         </v-icon>
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate">
+                      <p class="text-caption text-truncate pr-8">
                         <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption text-truncate" v-if="event.scenario">
+                      <p class="text-caption text-truncate pr-8" v-if="event.scenario">
                         <v-icon color="red" size="small">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
@@ -113,21 +111,23 @@
             <v-card
               color="transparent"
               flat
-              class="text-center pa-6 d-flex align-center justify-center flex-column"
+              class="text-center d-flex align-center justify-center flex-column"
+              :class="display.xs ? 'pa-2' : 'pa-6'"
             >
-              <div class="icon-circle-container mb-6">
+              <div class="icon-circle-container" :class="display.xs ? 'mb-3' : 'mb-6'" :style="display.xs ? 'width: 80px; height: 80px;' : ''">
                 <div class="pulse-ring"></div>
-                <v-icon size="80" color="#118D8E">mdi-calendar-star</v-icon>
+                <v-icon :size="display.xs ? 50 : 80" color="#118D8E">mdi-calendar-star</v-icon>
               </div>
               
-              <h2 class="text-h5 font-weight-bold text-white mb-2">Host Your Drunagor Nights</h2>
-              <p class="text-body-1 text-grey-lighten-1 mb-8">No events scheduled at the moment.</p>
+              <h2 :class="display.xs ? 'text-subtitle-1' : 'text-h5'" class="font-weight-bold text-white mb-1">Host Your Drunagor Nights</h2>
+              <p :class="display.xs ? 'text-caption mb-4' : 'text-body-1 mb-8'" class="text-grey-lighten-1">No events scheduled at the moment.</p>
               
               <v-btn
                 color="#118D8E"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
                 variant="elevated"
-                class="fancy-btn text-white font-weight-black px-12"
+                class="fancy-btn text-white font-weight-black"
+                :class="display.xs ? 'px-6' : 'px-12'"
                 elevation="12"
                 @click="goToEventsPageAndCreate"
               >
