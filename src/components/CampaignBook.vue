@@ -215,9 +215,9 @@
             <div v-else-if="currentView === 'interactions'" key="interactions">
               <InteractView
                 ref="interactViewRef"
-                :navigation-items="navigationItems"
-                @back="goBackToBooks"
-                @navigate-to-book="handleNavigateToBook"
+                :currentDoor="props.campaignWing || ''"
+                :wing="props.campaignWing || ''"
+                @close="goBackToBooks"
               />
             </div>
 
@@ -695,12 +695,9 @@ import {
 } from "vue";
 import { useRoute } from "vue-router";
 import KeywordView from "@/components/KeywordView.vue";
-import InteractView from "@/components/InteractView.vue";
+import InteractView from "@/components/InteractViewNew.vue";
 
-// Data
-// >>> MUDANÇA 1: Importar o StartHere
 import startHereData from "@/data/book/StartHere.json";
-
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
@@ -708,17 +705,14 @@ import firstEncounterClarificationsData from "@/data/book/firstEncounterClarific
 import secondEncounterClarificationsData from "@/data/book/secondEncounterClarifications.json";
 import dragonClarificationsData from "@/data/book/dragonClarifications.json";
 
-// Images
 import booktopImg from "@/assets/booktop.png";
 import booktops2Img from "@/assets/booktops2.png";
 
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
 
-// >>> MUDANÇA 2: Definir Props para saber qual Wing carregar
 const props = defineProps<{ campaignWing?: string }>();
 
-// Types
 interface PageContentItem {
   id: string;
   title?: string;
@@ -799,7 +793,6 @@ interface LastBookState {
 
 const route = useRoute();
 
-// Reactive State
 const mobileMenuSheet = ref(false);
 const mobileNavValue = ref<"menu" | "interactions" | "keywords">("menu");
 const openGroups = ref<string[]>([]);
@@ -813,7 +806,6 @@ const fullscreenSupported = ref(false);
 const scrollableContentRef = ref<HTMLElement | null>(null);
 const interactViewRef = ref<InstanceType<typeof InteractView> | null>(null);
 
-// Last book state
 const lastBookState = ref<LastBookState>({
   view: "player",
   index: 0,
@@ -821,8 +813,6 @@ const lastBookState = ref<LastBookState>({
   openGroups: [],
 });
 
-// Data init
-// >>> MUDANÇA 3: Preparar dados brutos
 const bookPages = bookPagesData as PageSection[];
 const startHerePages = startHereData as PageSection[];
 
@@ -842,34 +832,27 @@ const dragonClarifications = ref<EncounterClarificationsBook>(
   dragonClarificationsData as EncounterClarificationsBook,
 );
 
-// >>> MUDANÇA 4: Computed para filtrar as páginas baseado na Wing
 const pages = computed<PageSection[]>(() => {
   if (!props.campaignWing) {
-    // Se não tiver filtro, retorna TUDO (Start Here + Wings)
     return [...startHerePages, ...bookPages];
   }
 
   const wingKey = props.campaignWing.toUpperCase();
 
-  // Se o usuário selecionou "Start Here"
   if (wingKey.includes("START")) {
     return startHerePages;
   }
 
-  // Se for Wing 3
   if (wingKey.includes("WING 3")) {
     return bookPages.filter((p) => p.section.toUpperCase().includes("WING 3"));
   }
-  // Se for Wing 4
   else if (wingKey.includes("WING 4")) {
     return bookPages.filter((p) => p.section.toUpperCase().includes("WING 4"));
   }
 
-  // Fallback padrão: retorna páginas do livro normal
   return bookPages;
 });
 
-// Helpers to persist/restore state
 const saveCurrentBookState = () => {
   if (
     currentView.value === "player" ||
@@ -890,13 +873,11 @@ const saveCurrentBookState = () => {
 
 const goBackToBooks = async () => {
   try {
-    // restore
     currentView.value = lastBookState.value.view;
     currentIndex.value = lastBookState.value.index;
     activeItemId.value = lastBookState.value.activeItemId;
     openGroups.value = [...lastBookState.value.openGroups];
 
-    // show books tab
     mobileNavValue.value = "menu";
 
     await nextTick();
@@ -924,7 +905,6 @@ const goBackToBooks = async () => {
   }
 };
 
-// Computed
 const showFullscreenButton = computed(() => {
   return (
     smAndDown.value &&
@@ -962,7 +942,6 @@ const backgroundStyle = computed<CSSProperties>(() => {
     borderRadius: "12px",
   };
 
-  // o JSON traz 'background' já como "url('/img/bg.png')" — aplicar direto
   if (currentPage.value.background) {
     s.background = currentPage.value.background;
     s.backgroundSize = "cover";
@@ -990,8 +969,6 @@ const headerBannerStyle = computed(() => {
 const navigationItems = computed<NavigationItemExtended[]>(() => {
   const items: NavigationItemExtended[] = [];
 
-  // Pages -> itens com título
-  // >>> MUDANÇA: Usa 'pages.value' que agora é COMPUTED com o filtro correto
   pages.value.forEach((section, sectionGlobalIdx) => {
     if (section.content?.length) {
       section.content.forEach((contentItem, contentIdx) => {
@@ -1009,7 +986,6 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     }
   });
 
-  // Tutorials
   if (playerTutorials.value?.chapters) {
     const sectionGroupTitle = playerTutorials.value.pageTitle || "Tutorials";
     let tutorialNavCounter = 0;
@@ -1028,7 +1004,6 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     });
   }
 
-  // Mechanics
   if (gameMechanicsBook.value?.mechanics) {
     const sectionGroupTitle =
       gameMechanicsBook.value.pageTitle || "Game Mechanics";
@@ -1043,7 +1018,6 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     });
   }
 
-  // First Encounter
   if (firstEncounterClarifications.value?.chapters) {
     const sectionGroupTitle =
       firstEncounterClarifications.value.pageTitle ||
@@ -1063,7 +1037,6 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     );
   }
 
-  // Second Encounter
   if (secondEncounterClarifications.value?.chapters) {
     const sectionGroupTitle =
       secondEncounterClarifications.value.pageTitle ||
@@ -1083,7 +1056,6 @@ const navigationItems = computed<NavigationItemExtended[]>(() => {
     );
   }
 
-  // Dragon Clarifications
   if (dragonClarifications.value?.chapters) {
     const sectionGroupTitle =
       dragonClarifications.value.pageTitle || "Dragon Clarifications";
@@ -1163,7 +1135,6 @@ const otherBookGroups = computed(() => {
   return result;
 });
 
-// Scroll helpers
 const scrollToTop = () => {
   const container = scrollableContentRef.value;
   if (container) {
@@ -1250,11 +1221,8 @@ const debugScroll = () => {
 
 const onScroll = (event: Event) => {
   const target = event.target as HTMLElement;
-  // debug (mantido como log simples para não poluir)
-  // console.log('Scroll:', target.scrollTop)
 };
 
-// Fullscreen helpers
 const checkFullscreenSupport = () => {
   fullscreenSupported.value = !!(
     document.fullscreenEnabled ||
@@ -1360,17 +1328,6 @@ const openBookById = async (bookId: string) => {
   }
 };
 
-const handleNavigateToBook = (bookId: string) => {
-  const navItem = navigationItems.value.find((item) => item.id === bookId);
-  if (navItem) {
-    navigateToSection(navItem);
-    mobileNavValue.value = "menu";
-  } else {
-    console.warn("Book ID not found:", bookId);
-  }
-};
-
-// Watchers
 watch(mobileNavValue, (newVal) => {
   if (newVal === "menu") {
     currentView.value = "player";
@@ -1401,22 +1358,13 @@ watch(currentView, async (newView, oldView) => {
   }
 });
 
-// Quando a prop campaignWing mudar (ex: usuário trocou de aba), atualizamos.
 watch(
   () => props.campaignWing,
   () => {
-    // Reset para a primeira página da nova seleção
     currentIndex.value = 0;
-    
-    // Tenta abrir o primeiro grupo automaticamente
     const keys = Object.keys(wingGroups.value);
     if (keys.length > 0) {
-       // Opcional: navegar automaticamente para o primeiro item
-       // const firstGroup = wingGroups.value[keys[0]];
-       // if (firstGroup.length > 0) navigateToSection(firstGroup[0]);
     }
-    
-    // Rola para o topo
     scrollToTop();
   }
 );
@@ -1432,7 +1380,6 @@ watch(
   }
 );
 
-// Lifecycle
 onMounted(async () => {
   checkFullscreenSupport();
   document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -1461,8 +1408,6 @@ onMounted(async () => {
     await new Promise((r) => setTimeout(r, 150));
     openBookById(initialBookId);
   } else {
-    // Se não tiver ID específico, tenta abrir o primeiro item disponível
-    // Isso ajuda a carregar o "Start Here" se ele for o primeiro
     const keys = Object.keys(wingGroups.value);
     if (keys.length > 0) {
       const firstGroup = wingGroups.value[keys[0]];
@@ -1491,7 +1436,6 @@ onBeforeUnmount(() => {
   if (isFullscreen.value) toggleFullscreen();
 });
 
-// Exposed (caso use fora)
 const navigateToInteract = () => {
   mobileNavValue.value = "interactions";
   currentView.value = "interactions";
@@ -1822,7 +1766,6 @@ defineExpose({ navigateToInteract, forceNavigateToInteract });
   text-transform: none !important;
 }
 
-/* Animations */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.3s ease;
@@ -1836,7 +1779,6 @@ defineExpose({ navigateToInteract, forceNavigateToInteract });
   transform: translateY(-20px);
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
   .section-title {
     padding: 10px 100px 5px;
@@ -1924,7 +1866,6 @@ defineExpose({ navigateToInteract, forceNavigateToInteract });
   }
 }
 
-/* Misc */
 .text-h6,
 .text-subtitle-1 {
   color: #191919 !important;
