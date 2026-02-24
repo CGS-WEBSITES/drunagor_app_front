@@ -17,7 +17,7 @@ export const assemblySteps = [
   {
     id: 4,
     image: "https://assets.drunagor.app/book/assembly/04 - Map being placed in DGTray.png",
-    instruction: "Using the Setup as a reference, place the Map Tiles in their shown positions."
+    instruction: "Using the Setup as a reference, place the Map Tiles in their positions shown."
   },
   {
     id: 5,
@@ -27,7 +27,7 @@ export const assemblySteps = [
   {
     id: 6,
     image: "https://assets.drunagor.app/book/assembly/06 - Tokens in MAP.png",
-    instruction: "Using the Setup as a guide, place the corresponding Tokens in their shown positions."
+    instruction: "Using the Setup as a guide, place the corresponding Tokens in their positions shown."
   },
   {
     id: 7,
