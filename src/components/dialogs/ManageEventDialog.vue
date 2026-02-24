@@ -32,17 +32,16 @@
         <v-tab value="tables">
           <v-icon start>mdi-table-chair</v-icon> Tables
         </v-tab>
+        <v-tab value="setup">
+          <v-icon start>mdi-map</v-icon> Initial Setup
+        </v-tab>
         <v-tab value="players">
           <v-icon start>mdi-account-group</v-icon> Players
-        </v-tab>
-        <v-tab value="setup">
-          <v-icon start>mdi-tools</v-icon> Initial Setup
         </v-tab>
       </v-tabs>
 
       <v-card-text>
         <v-window v-model="activeTab">
-          <!-- Details Tab -->
           <v-window-item value="details">
             <v-card-text class="pt-0">
               <p>
@@ -147,9 +146,7 @@
             </v-card-text>
           </v-window-item>
 
-          <!-- Tables Tab -->
           <v-window-item value="tables">
-            <!-- ALERT SEMPRE VISÍVEL -->
             <v-alert type="info" variant="tonal" class="mb-4" border="start">
               <div class="font-weight-bold">{{ tablesAlertCopy.title }}</div>
               <div class="mt-1">{{ tablesAlertCopy.message }}</div>
@@ -287,7 +284,47 @@
             </v-row>
           </v-window-item>
 
-          <!-- Players Tab -->
+          <v-window-item value="setup">
+            <div class="setup-guide-container">
+              <div class="mb-4 text-center">
+                <h3 class="text-h6 font-weight-bold mb-2">
+                  <v-icon color="primary" class="mr-2">mdi-map</v-icon>
+                  Initial Setup - {{ event?.scenario }}
+                </h3>
+                <p class="text-body-2 mb-4">
+                 Setting up the gaming table using the map below before your players arrive is highly recommended. It ensures a quick and smooth start to the adventure. Click on the image to enlarge and view all setup details
+                </p>
+              </div>
+
+              <v-card
+                v-if="event?.scenario"
+                class="setup-preview-card mb-4"
+                elevation="4"
+                @click="openSetupDialog"
+              >
+                <InitialSetupViewer
+                  :scenario="event.scenario"
+                  preview-mode
+                />
+                
+                <div class="click-to-enlarge-hint">
+                  <v-icon color="white" size="small">mdi-magnify-plus-outline</v-icon>
+                  <span class="ml-1">Click to enlarge</span>
+                </div>
+              </v-card>
+
+              <v-alert
+                v-else
+                type="info"
+                variant="tonal"
+                class="text-center"
+              >
+                <v-icon size="48" class="mb-2">mdi-map-marker-off</v-icon>
+                <div class="text-body-1">No setup map available for this scenario</div>
+              </v-alert>
+            </div>
+          </v-window-item>
+
           <v-window-item value="players">
             <v-row>
               <v-col cols="12" class="d-flex align-end flex-column">
@@ -451,52 +488,10 @@
               </v-col>
             </v-row>
           </v-window-item>
-
-          <!-- Setup Tab -->
-          <v-window-item value="setup">
-            <div class="setup-guide-container">
-              <div class="mb-4 text-center">
-                <h3 class="text-h6 font-weight-bold mb-2">
-                  <v-icon color="primary" class="mr-2">mdi-map</v-icon>
-                  Initial Setup - {{ event?.scenario }}
-                </h3>
-              </div>
-
-              <!-- Preview Card -->
-              <v-card
-                v-if="event?.scenario"
-                class="setup-preview-card mb-4"
-                elevation="4"
-                @click="openSetupDialog"
-              >
-                <InitialSetupViewer
-                  :scenario="event.scenario"
-                  preview-mode
-                />
-                
-                <div class="click-to-enlarge-hint">
-                  <v-icon color="white" size="small">mdi-magnify-plus-outline</v-icon>
-                  <span class="ml-1">Click to enlarge</span>
-                </div>
-              </v-card>
-
-              <!-- Fallback quando não há cenário -->
-              <v-alert
-                v-else
-                type="info"
-                variant="tonal"
-                class="text-center"
-              >
-                <v-icon size="48" class="mb-2">mdi-map-marker-off</v-icon>
-                <div class="text-body-1">No setup map available for this scenario</div>
-              </v-alert>
-            </div>
-          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>
 
-    <!-- QR Code Dialog -->
     <v-dialog
       v-model="qrCodeDialog"
       max-width="500"
@@ -529,7 +524,6 @@
             </div>
           </div>
 
-          <!-- ALERT SEMPRE VISÍVEL -->
           <v-alert
             v-if="qrCodeData"
             type="success"
@@ -611,7 +605,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Initial Setup Dialog - Separado do Manage Event -->
     <v-dialog
       v-model="setupDialog"
       max-width="1400"
@@ -625,7 +618,6 @@
           </span>
           
           <div class="d-flex align-center gap-2">
-            <!-- Zoom Controls -->
             <v-btn
               icon
               size="small"
@@ -696,7 +688,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Create Table Dialog -->
     <v-dialog v-model="createTableDialog" max-width="400">
       <v-card color="surface">
         <v-card-title>Create New Table</v-card-title>
@@ -732,7 +723,6 @@
       </v-card>
     </v-dialog>
 
-    <!-- Create Multiple Tables Dialog -->
     <v-dialog v-model="createMultipleTablesDialog" max-width="400">
       <v-card color="surface">
         <v-card-title>Create Multiple Tables</v-card-title>
@@ -827,7 +817,6 @@ const startInTables = ref(false);
 
 const setupDialog = ref(false);
 
-// Zoom and Pan state
 const zoomLevel = ref(1);
 const panX = ref(0);
 const panY = ref(0);
@@ -839,7 +828,6 @@ const startX = ref(0);
 const startY = ref(0);
 const imageContainer = ref(null);
 
-// Touch gesture state
 let initialDistance = 0;
 let initialZoom = 1;
 
@@ -904,7 +892,6 @@ const openSetupDialog = () => {
   resetZoom();
 };
 
-// Zoom functions
 const zoomIn = () => {
   if (zoomLevel.value < 3) {
     zoomLevel.value = Math.min(3, zoomLevel.value + 0.25);
@@ -914,7 +901,6 @@ const zoomIn = () => {
 const zoomOut = () => {
   if (zoomLevel.value > 1) {
     zoomLevel.value = Math.max(1, zoomLevel.value - 0.25);
-    // Reset pan when zooming out to 1x
     if (zoomLevel.value === 1) {
       panX.value = 0;
       panY.value = 0;
@@ -928,7 +914,6 @@ const resetZoom = () => {
   panY.value = 0;
 };
 
-// Mouse wheel zoom
 const handleWheel = (event) => {
   isZooming.value = true;
   const delta = event.deltaY > 0 ? -0.1 : 0.1;
@@ -944,7 +929,6 @@ const handleWheel = (event) => {
   }, 100);
 };
 
-// Pan functions
 const startPan = (event) => {
   if (zoomLevel.value > 1) {
     isPanning.value = true;
@@ -964,7 +948,6 @@ const endPan = () => {
   isPanning.value = false;
 };
 
-// Touch gestures for pinch-to-zoom
 const getDistance = (touch1, touch2) => {
   const dx = touch1.clientX - touch2.clientX;
   const dy = touch1.clientY - touch2.clientY;
@@ -973,12 +956,10 @@ const getDistance = (touch1, touch2) => {
 
 const handleTouchStart = (event) => {
   if (event.touches.length === 2) {
-    // Pinch to zoom
     initialDistance = getDistance(event.touches[0], event.touches[1]);
     initialZoom = zoomLevel.value;
     isZooming.value = true;
   } else if (event.touches.length === 1 && zoomLevel.value > 1) {
-    // Pan
     isPanning.value = true;
     const touch = event.touches[0];
     startX.value = touch.clientX - panX.value;
@@ -990,7 +971,6 @@ const handleTouchMove = (event) => {
   event.preventDefault();
   
   if (event.touches.length === 2 && initialDistance > 0) {
-    // Pinch to zoom
     const currentDistance = getDistance(event.touches[0], event.touches[1]);
     const scale = currentDistance / initialDistance;
     zoomLevel.value = Math.max(1, Math.min(3, initialZoom * scale));
@@ -1000,7 +980,6 @@ const handleTouchMove = (event) => {
       panY.value = 0;
     }
   } else if (event.touches.length === 1 && isPanning.value && zoomLevel.value > 1) {
-    // Pan
     const touch = event.touches[0];
     panX.value = touch.clientX - startX.value;
     panY.value = touch.clientY - startY.value;
