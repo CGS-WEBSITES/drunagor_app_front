@@ -44,13 +44,22 @@
     </v-card>
 
     <v-card class="mt-3 pa-3 elevation-0 d-flex align-center justify-space-between flex-wrap ga-3">
-      <v-checkbox
-        v-model="showAllCampaigns"
-        label="Other Campaigns"
-        color="primary"
-        hide-details
-        @update:modelValue="onFilterChange"
-      ></v-checkbox>
+      <div class="d-flex flex-wrap ga-3">
+        <v-checkbox
+          v-model="showAllCampaigns"
+          label="Other Campaigns"
+          color="primary"
+          hide-details
+          @update:modelValue="onFilterChange"
+        ></v-checkbox>
+
+        <v-checkbox
+          v-model="showFinishedCampaigns"
+          label="Show Finished"
+          color="red-darken-2"
+          hide-details
+        ></v-checkbox>
+      </div>
 
       <v-select
         v-model="sortOrder"
@@ -86,7 +95,8 @@
             color="primary"
             elevation="16"
             width="100%"
-            @click="goToCampaign(campaign.campaignId)"
+            class="transition-swing"
+            @click="goToCampaign(campaign)"
           >
             <v-img
               v-if="campaign.campaign === 'core'"
@@ -121,19 +131,53 @@
               src="@/assets/underkeep2.png"
               max-height="200"
               cover
-            ></v-img>
+            >
+            </v-img>
 
-            <v-card-title class="d-flex flex-column text-uppercase">
-              <span class="text-h5 font-weight-bold mb-0">{{
-                campaign.name || "Unnamed Campaign"
-              }}</span>
+            <v-card-title class="d-flex flex-column text-uppercase pb-1">
+              <div class="d-flex justify-space-between align-center w-100">
+                <span class="text-h5 font-weight-bold mb-0 text-truncate">
+                  {{ campaign.name || "Unnamed Campaign" }}
+                </span>
+                <v-chip
+                  v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]?.isFinished"
+                  color="red-darken-4"
+                  size="small"
+                  variant="flat"
+                  class="font-weight-bold ml-2"
+                >
+                  FINISHED
+                </v-chip>
+              </div>
 
-              <span v-if="campaign.wing" class="text-subtitle-1 mt-0">{{
-                campaign.wing
-              }}</span>
+              <div class="d-flex align-center text-subtitle-1 mt-0">
+                <span v-if="campaign.wing">{{ campaign.wing }}</span>
+                <span v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2 text-truncate">
+                  - Last Door: <span class="text-white font-weight-bold">{{ extraCampaignData[campaign.campaignId].lastDoorName }}</span>
+                </span>
+              </div>
             </v-card-title>
 
-            <v-card-text>
+            <v-card-text v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]">
+              
+              <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
+              <div class="d-flex flex-wrap gap-2">
+                <v-chip
+                  v-for="player in extraCampaignData[campaign.campaignId].players"
+                  :key="player.rl_campaigns_users_pk"
+                  class="bg-grey-darken-4 text-white font-weight-medium pl-1 pr-3"
+                  size="small"
+                >
+                  <v-avatar start class="mr-1">
+                    <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
+                  </v-avatar>
+                  {{ player.user_name }}
+                </v-chip>
+                <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
+              </div>
+            </v-card-text>
+
+            <v-card-text v-else>
               <v-row no-gutters>
                 <v-col
                   v-for="hero in heroAvatars(campaign.campaignId)"
@@ -227,12 +271,24 @@ const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
 const showAllCampaigns = ref(false);
+const showFinishedCampaigns = ref(false);
 const sortOrder = ref('desc');
+
+const extraCampaignData = ref<Record<string, { lastDoorName: string, isFinished: boolean, players: any[] }>>({});
 
 const BOX_ID = 38;
 
 const allCampaigns = computed(() => {
-  const campaigns = [...campaignStore.findAll()];
+  let campaigns = [...campaignStore.findAll()];
+
+  // Esconde campanhas finalizadas se o checkbox não estiver marcado
+  if (!showFinishedCampaigns.value) {
+      campaigns = campaigns.filter(c => {
+          const extra = extraCampaignData.value[c.campaignId];
+          return !extra?.isFinished;
+      });
+  }
+
   return campaigns.sort((a, b) => {
     if (sortOrder.value === 'desc') {
       return Number(b.campaignId) - Number(a.campaignId);
@@ -258,11 +314,16 @@ const getBoxName = (boxId: number) => {
   return map[boxId] || `Unknown Box (ID: ${boxId})`;
 };
 
+const getUserProfileImage = (pictureHash: string | null) => {
+    if (pictureHash) {
+        return `https://assets.drunagor.app/Profile/${pictureHash}`;
+    }
+    return '/assets/hero/avatar/default.webp';
+};
+
 const addLoadingError = (text: string) => {
   const id = Date.now();
-
   loadingErrors.value.push({ id, text });
-
   setTimeout(() => {
     loadingErrors.value = loadingErrors.value.filter((e) => e.id !== id);
   }, 5000);
@@ -304,6 +365,39 @@ const loadCampaignWithHeroes = async (campaignData: any) => {
   }
 };
 
+const loadExtraData = async (campaignId: string) => {
+    try {
+        const [doorsRes, playersRes] = await Promise.all([
+            axios.get("/rl_campaigns_doors/search", { params: { campaign_fk: campaignId } }),
+            axios.get("/rl_campaigns_users/list_players", { params: { campaigns_fk: campaignId } })
+        ]);
+        
+        const doors = doorsRes.data.campaign_doors || [];
+        let lastDoorName = "None";
+        let isFinished = false;
+
+        if (doors.length > 0) {
+            doors.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            const latest = doors[0];
+            lastDoorName = latest.door_name;
+            
+            if (latest.doors_fk === 7 || latest.doors_fk === 12 || latest.door_name === "END GAME") {
+                isFinished = true;
+            }
+        }
+
+        const players = playersRes.data.Users || [];
+
+        extraCampaignData.value[campaignId] = {
+            lastDoorName,
+            isFinished,
+            players
+        };
+    } catch (e) {
+        console.error(`Error loading extra info for campaign ${campaignId}:`, e);
+    }
+};
+
 const loadCampaigns = async () => {
   loading.value = true;
   campaignStore.reset();
@@ -320,6 +414,14 @@ const loadCampaigns = async () => {
     for (const campaignData of campaignsResponse.data.campaigns) {
       await loadCampaignWithHeroes(campaignData);
     }
+
+    const storeCampaigns = campaignStore.findAll();
+    const underkeep2Campaigns = storeCampaigns.filter(c => c.campaign === 'underkeep2');
+    
+    await Promise.allSettled(
+        underkeep2Campaigns.map(c => loadExtraData(c.campaignId))
+    );
+
   } catch (error) {
     console.error("Error fetching campaigns:", error);
     addLoadingError("Error fetching campaigns. Please try again later.");
@@ -332,8 +434,18 @@ const onFilterChange = () => {
   loadCampaigns();
 };
 
-const goToCampaign = (id: string) => {
-  router.push({ name: "Campaign", params: { id } });
+const goToCampaign = (campaign: any) => {
+  // Mantive bloqueado novamente se a campanha estiver finalizada
+  if (extraCampaignData.value[campaign.campaignId]?.isFinished) {
+      toast.add({
+          severity: 'info',
+          summary: 'Campaign Finished',
+          detail: 'This campaign is finalized. You can no longer interact with its state.',
+          life: 4000
+      });
+      return; 
+  }
+  router.push({ name: "Campaign", params: { id: campaign.campaignId } });
 };
 
 const heroAvatars = (campId: string): HeroData[] => {
@@ -351,7 +463,6 @@ const heroAvatars = (campId: string): HeroData[] => {
 
 const avatarCols = (campId: string) => {
   const count = heroAvatars(campId).length;
-
   return route.meta.mdAndUp && count <= 4 ? 3 : undefined;
 };
 
