@@ -316,14 +316,14 @@
         </v-card>
     </v-dialog>
 
-    <v-dialog v-model="finishCampaignDialog.visible" max-width="400" persistent>
+    <v-dialog v-model="finishCampaignDialog.visible" max-width="450" persistent>
       <v-card class="bg-grey-darken-4 border-xl border-amber rounded-lg">
         <v-card-title class="text-center text-uppercase font-weight-bold pt-4 text-h5 text-amber">
           <v-icon start size="small">mdi-check-bold</v-icon> Finish Campaign
         </v-card-title>
         <v-card-text class="text-center py-4 text-body-1">
-          Are you ready to mark this adventure as complete?<br/><br/>
-          <span class="text-grey text-caption">Don't worry, you can still access the campaign log and books after finishing.</span>
+          Are you ready to finalize this adventure?<br/><br/>
+          <span class="text-red-accent-2 font-weight-bold">Warning: You will not be able to return to this campaign view once finished.</span>
         </v-card-text>
         <v-card-actions class="justify-center pb-4">
           <v-btn color="white" variant="text" @click="finishCampaignDialog.visible = false">Not Yet</v-btn>
@@ -1358,12 +1358,16 @@ async function confirmEnterBossRoom() {
 
 function confirmFinishCampaign() {
   finishCampaignDialog.value.visible = false;
+  
   if (savePutRef.value) savePutRef.value.save();
+  
   snackbar.value = {
     visible: true,
-    text: "Campaign Finalized! You can still explore the books.",
+    text: "Campaign Finalized successfully!",
     color: "success",
   };
+  
+  router.push({ name: "Dashboard" });
 }
 
 function confirmLeave() {
@@ -1476,21 +1480,40 @@ const qrToDoorMap: Record<string, string> = {
 };
 
 function isProgressionValid(newDoor: string): boolean {
-    const wing = (activeCampaignData.value.wing || "").toUpperCase();
-    const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
-    let order: string[] = [];
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
+  let order: string[] = [];
 
-    if (wing.includes("WING 3")) order = WING3_ORDER;
-    else if (wing.includes("WING 4")) order = WING4_ORDER;
-    else return true;
+  if (wing.includes("WING 3")) order = WING3_ORDER;
+  else if (wing.includes("WING 4")) order = WING4_ORDER;
+  else return true;
 
-    const currentIndex = order.indexOf(currentDoor);
-    const newIndex = order.indexOf(newDoor.toUpperCase());
+  const currentIndex = order.indexOf(currentDoor);
+  const newIndex = order.indexOf(newDoor.toUpperCase());
 
-    if (newIndex === -1) return true;
-    if (newIndex <= currentIndex) return false;
+  // 1. Bloqueia porta de outra Wing ou QR totalmente inválido
+  if (newIndex === -1) return false;
 
-    return true;
+  // 2. Bloqueia voltar para uma porta anterior ou escanear a atual de novo
+  if (newIndex <= currentIndex) return false;
+
+  // 3. Bloqueia pular portas (você só pode ir para as portas estritamente adjacentes)
+  if (wing.includes("WING 4")) {
+    if (currentDoor === "FIRST SETUP") {
+      if (newDoor !== "DRACONIC CHAPEL" && newDoor !== "CRYPTS") return false;
+    } else if (currentDoor === "DRACONIC CHAPEL" || currentDoor === "CRYPTS") {
+      if (newDoor !== "BOTH OPEN") return false;
+    } else if (currentDoor === "BOTH OPEN") {
+      if (newDoor !== "LIBRARY" && newDoor !== "LABORATORY") return false;
+    } else if (currentDoor === "LIBRARY" || currentDoor === "LABORATORY") {
+      if (newDoor !== "DRAGON BOSS") return false;
+    }
+  } else {
+    // Regra geral da Wing 3: a próxima porta tem que ser exatamente o índice atual + 1
+    if (newIndex !== currentIndex + 1) return false;
+  }
+
+  return true;
 }
 
 async function handleDoorScanned(code: string) {
@@ -1513,13 +1536,13 @@ async function handleDoorScanned(code: string) {
   }
 
   if (!targetDoor) {
-      snackbar.value = { visible: true, text: "Invalid Door Code", color: "error" };
+      snackbar.value = { visible: true, text: "Invalid Door Code!", color: "error" };
       doorScannerDialog.value.visible = false;
       return;
   }
 
   if (!isProgressionValid(targetDoor) && targetDoor !== "BOTH OPEN") {
-      snackbar.value = { visible: true, text: "You cannot go back to a previous area!", color: "warning" };
+      snackbar.value = { visible: true, text: "Invalid sequence! You cannot skip, go back, or open doors from another Wing.", color: "warning" };
       doorScannerDialog.value.visible = false;
       return;
   }
