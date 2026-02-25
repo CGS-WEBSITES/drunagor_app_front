@@ -100,46 +100,57 @@
       </v-container>
     </div>
 
-    <div class="pa-4 flex-grow-0 flex-shrink-0">
+    <div class="pa-2 pa-sm-4 flex-grow-0 flex-shrink-0">
       <v-container
         style="padding: 0; width: 100%"
         class="mx-auto"
         :style="{ maxWidth: containerMaxWidth }"
       >
-        <v-toolbar height="96" rounded="lg" class="px-2" color="primary">
-          <v-row no-gutters align="center" class="fill-height ma-0 w-100">
+        <v-toolbar 
+          :height="display.xs ? 80 : 96" 
+          rounded="lg" 
+          class="px-1 px-sm-2" 
+          color="primary"
+        >
+          <v-row 
+            no-gutters 
+            align="center" 
+            justify="space-between" 
+            class="fill-height ma-0 w-100 flex-nowrap"
+          >
             
-            <v-col class="d-flex justify-center align-center">
+            <v-col cols="auto" class="d-flex justify-center align-center">
               <v-btn
                 icon
                 variant="text"
                 @click="goToCampaigns"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
               >
                 <v-icon>mdi-cards</v-icon>
               </v-btn>
             </v-col>
             
-            <v-col cols="auto" class="px-2" style="width: 50%; max-width: 250px; min-width: 160px;">
+            <v-col class="px-2 d-flex justify-center align-center">
               <v-btn
                 color="#118D8E"
                 variant="flat"
                 @click="openHub"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
                 rounded="lg"
                 class="font-weight-bold w-100"
+                style="max-width: 250px;" 
               >
                 <v-icon left class="mr-1">mdi-sword-cross</v-icon>
                 Play
               </v-btn>
             </v-col>
 
-            <v-col class="d-flex justify-center align-center">
+            <v-col cols="auto" class="d-flex justify-center align-center">
               <v-btn
                 icon
                 variant="text"
                 @click="goToGroup"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
               >
                 <v-icon>mdi-account-group</v-icon>
               </v-btn>
@@ -149,7 +160,6 @@
         </v-toolbar>
       </v-container>
     </div>
-
     <HUB 
       v-model="showHub" 
       :my-events="myEvents" 
