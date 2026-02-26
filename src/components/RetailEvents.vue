@@ -1,16 +1,19 @@
 <template>
-  <v-row justify="center">
-    <v-col cols="12" class="text-center">
-      <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
-      >
-        EVENTS
-      </h1>
-    </v-col>
-  </v-row>
+  <v-container class="pa-0 mt-0" style="min-height: 100vh;">
+    <v-row justify="center" no-gutters class="bg-transparent pt-16">
+      <v-col cols="12" class="text-center mb-4">
+        <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2 text-uppercase">
+          EVENTS
+        </h1>
+      </v-col>
+    </v-row>
 
-  <v-col cols="12" md="10" class="mx-auto">
-    <v-card class="pb-12" min-height="500px" color="#151515">
+    <v-card 
+      color="#151515" 
+      min-height="100vh" 
+      class="pb-12 rounded-t-lg"
+      flat
+    >
       <div v-if="openingManageDialog" class="page-loading-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>
@@ -66,7 +69,7 @@
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
-            class="EventsTabs mb-3"
+            class="EventsTabs mb-0"
             v-model="activeTab"
             fixed-tabs
             align-tabs="center"
@@ -79,7 +82,7 @@
       </v-row>
 
       <v-row class="mb-4" align="center">
-        <v-col cols="12" sm="6" class="d-flex align-center">
+        <v-col cols="12" sm="6" class="d-flex align-center pt-0 mt-0">
           <span class="ml-2">Upcoming</span>
           <v-switch
             v-model="showPast"
@@ -98,7 +101,7 @@
         <div v-else class="list-container">
           <v-row v-if="events.length > 0">
             <v-col
-              class="py-2 pl-1 pr-1"
+              class="py-2 pl-6 pr-1"
               cols="12"
               md="6"
               v-for="(event, index) in sortedEvents"
@@ -150,7 +153,7 @@
                     </div>
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
-                    <h3 class="pb-1">
+                    <h3 class="pb-1 text-truncate">
                       <v-icon class="pr-1" size="small" color="black"
                         >mdi-chess-rook</v-icon
                       >
@@ -160,7 +163,7 @@
                       <v-icon color="red">mdi-map-marker</v-icon>
                       {{ event.address }}
                     </p>
-                    <p class="text-caption">
+                    <p class="text-caption text-truncate">
                       <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
                       {{ event.scenario }}
                     </p>
@@ -228,99 +231,87 @@
             <v-col
               v-for="(event, index) in userCreatedEvents"
               :key="event.events_pk"
-              class="py-2 pl-1 pr-1"
+              class="py-2 pl-6 pr-1"
               cols="12"
               md="6"
             >
               <v-card
                 color="white"
-                max-height="120"
-                class="pt-0 pl-0 pb-0 event-card"
+                height="120"
+                class="pa-0 d-flex flex-row event-card-my"
                 @click="openManageDialog(event)"
               >
-                <v-row no-gutters>
-                  <v-col cols="auto" class="redbutton pt-13 pl-3">
-                    <v-btn
-                      color="#AB2929"
-                      icon
-                      class="delete-btn"
-                      @click.stop="deleteEvent(event.events_pk)"
-                    >
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="8" class="pt-6 pr-3">
-                    <v-row no-gutters>
-                      <v-col cols="4" sm="2">
-                        <div
-                          class="text-center ml-2 pr-3"
-                          style="width: 74px; color: black"
+                <div 
+                  class="redbutton d-flex align-center justify-center cursor-pointer" 
+                  @click.stop="deleteEvent(event.events_pk)"
+                >
+                  <v-icon color="white" size="x-large">mdi-close</v-icon>
+                </div>
+
+                <div class="flex-grow-1 d-flex align-center overflow-hidden pl-2">
+                  <v-row no-gutters class="align-center w-100">
+                    <v-col cols="4" sm="3">
+                      <div class="text-center" style="color: black">
+                        <p class="text-caption font-weight-bold mb-0">
+                          {{
+                            new Date(event.event_date)
+                              .toLocaleDateString("en-US", {
+                                month: "short",
+                              })
+                              .toUpperCase()
+                          }}
+                        </p>
+                        <p
+                          color="primary"
+                          class="cinzel-text text-h3 font-weight-bold mb-0"
+                          style="line-height: 1;"
                         >
-                          <p class="pt-3 text-caption font-weight-bold">
-                            {{
-                              new Date(event.event_date)
-                                .toLocaleDateString("en-US", {
-                                  month: "short",
-                                })
-                                .toUpperCase()
-                            }}
-                          </p>
-                          <p
-                            color="primary"
-                            class="cinzel-text text-h3 font-weight-bold"
-                          >
-                            {{
-                              String(event.event_date)
-                                .split("T")[0]
-                                .split("-")[2]
-                            }}
-                          </p>
-                          <p class="text-caption font-weight-bold">
-                            {{
-                              new Date(event.event_date).toLocaleTimeString(
-                                "en-US",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: true,
-                                },
-                              )
-                            }}
-                          </p>
-                        </div>
-                      </v-col>
-
-                      <v-col cols="8" sm="10" class="pt-2 pl-5">
-                        <h3 class="pb-1 text-truncate">
-                          <v-icon class="pr-1" size="small" color="black"
-                            >mdi-chess-rook</v-icon
-                          >
-                          {{ event.store_name }}
-                        </h3>
-
-                        <p class="text-caption text-truncate">
-                          <v-icon color="red">mdi-map-marker</v-icon>
-                          {{ event.address }}
+                          {{
+                            String(event.event_date)
+                              .split("T")[0]
+                              .split("-")[2]
+                          }}
                         </p>
-
-                        <p class="text-caption" v-if="event.scenario">
-                          <v-icon color="red">mdi-sword-cross</v-icon>
-                          Scenario: {{ event.scenario }}
+                        <p class="text-caption font-weight-bold mb-0 mt-1">
+                          {{
+                            new Date(event.event_date).toLocaleTimeString(
+                              "en-US",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              },
+                            )
+                          }}
                         </p>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                </v-row>
-                <v-col cols="auto" class="editbutton pt-13 pl-3">
-                  <v-btn
-                    color="white"
-                    icon
-                    class="delete-btn"
-                    @click.stop="openEditDialog(event, true)"
-                  >
-                    <v-icon>mdi mdi-pencil</v-icon>
-                  </v-btn>
-                </v-col>
+                      </div>
+                    </v-col>
+
+                    <v-col cols="8" sm="9" class="pl-2">
+                      <h3 class="pb-1 text-truncate" style="color: black;">
+                        <v-icon class="pr-1" size="small" color="black"
+                          >mdi-chess-rook</v-icon
+                        >
+                        {{ event.store_name }}
+                      </h3>
+                      <p class="text-caption text-truncate" style="color: black;">
+                        <v-icon color="red">mdi-map-marker</v-icon>
+                        {{ event.address }}
+                      </p>
+                      <p class="text-caption text-truncate" v-if="event.scenario" style="color: black;">
+                        <v-icon color="red">mdi-sword-cross</v-icon>
+                        Scenario: {{ event.scenario }}
+                      </p>
+                    </v-col>
+                  </v-row>
+                </div>
+
+                <div 
+                  class="editbutton d-flex align-center justify-center cursor-pointer" 
+                  @click.stop="openEditDialog(event, true)"
+                >
+                  <v-icon color="white" size="x-large">mdi-pencil</v-icon>
+                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -346,7 +337,7 @@
               {{ getSeasonInfo(selectedEvent.seasons_fk).name }}
             </p>
             <p class="text-end scheduled-box">
-              Sheduled for:
+              Scheduled for:
               {{
                 new Date(selectedEvent?.event_date).toLocaleString("en-US", {
                   month: "2-digit",
@@ -439,17 +430,20 @@
 
       <v-dialog
         v-model="createEventDialog"
-        max-width="1280"
+        max-width="800"
         scroll-target="#app"
       >
-        <v-btn icon class="close-btn" @click="createEventDialog = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-        <v-card class="pa-6 dark-background">
+        <v-card class="dark-background">
+          <v-card-title class="d-flex justify-space-between align-center px-6 pt-4 pb-2 border-b">
+            <span class="text-h5 font-weight-bold">Create New Event</span>
+            <v-btn icon variant="text" @click="createEventDialog = false">
+              <v-icon color="red">mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
           <div v-if="loading" class="loading-overlay">
             <v-progress-circular indeterminate size="80" color="primary" />
           </div>
-          <v-card-text>
+          <v-card-text class="pt-6">
             <v-row>
               <v-col cols="12">
                 <v-select
@@ -457,6 +451,7 @@
                   :items="stores.map((store) => store.name)"
                   label="STORE"
                   variant="outlined"
+                  density="comfortable"
                   :loading="loading"
                   no-data-text="No stores found"
                 />
@@ -469,6 +464,7 @@
                   item-value="seasons_pk"
                   label="SEASON"
                   variant="outlined"
+                  density="comfortable"
                 ></v-select>
               </v-col>
               <v-col cols="12" md="6">
@@ -479,42 +475,46 @@
                   item-value="sceneries_pk"
                   label="SCENARIO"
                   variant="outlined"
+                  density="comfortable"
                   :disabled="!newEvent.season"
                   no-data-text="Select a season first"
                 ></v-select>
               </v-col>
-              <v-col cols="6" md="4">
-                <v-text-field
-                  v-model="newEvent.hour"
-                  label="TIME"
-                  variant="outlined"
-                  placeholder="HH:MM"
-                  maxlength="5"
-                  v-mask="'##:##'"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" md="4">
-                <v-select
-                  v-model="newEvent.ampm"
-                  :items="['AM', 'PM']"
-                  label="AM/PM"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" md="4" class="d-flex align-center">
+              <v-col cols="12" md="6">
                 <v-text-field
                   v-model="newEvent.date"
                   label="DATE"
                   type="date"
                   variant="outlined"
+                  density="comfortable"
                   class="date-input"
                   :min="today"
                   :max="oneYearFromTodayISO"
                   :rules="dateRules"
                 ></v-text-field>
               </v-col>
+              <v-col cols="6" md="3">
+                <v-text-field
+                  v-model="newEvent.hour"
+                  label="TIME"
+                  variant="outlined"
+                  density="comfortable"
+                  placeholder="HH:MM"
+                  maxlength="5"
+                  v-mask="'##:##'"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6" md="3">
+                <v-select
+                  v-model="newEvent.ampm"
+                  :items="['AM', 'PM']"
+                  label="AM/PM"
+                  variant="outlined"
+                  density="comfortable"
+                ></v-select>
+              </v-col>
               <v-col cols="12">
-                <p class="pb-3 font-weight-bold">REWARDS</p>
+                <p class="pb-2 font-weight-bold">REWARDS</p>
                 <v-autocomplete
                   v-model="selectedRewards"
                   :items="allRewards"
@@ -523,6 +523,8 @@
                   label="Select Rewards"
                   multiple
                   return-object
+                  variant="outlined"
+                  density="comfortable"
                 >
                   <template #item="{ item, props }">
                     <v-list-item v-bind="props">
@@ -557,7 +559,8 @@
                 <v-btn
                   block
                   color="secundary"
-                  class="launch-btn mt-12"
+                  size="large"
+                  class="launch-btn mt-4"
                   @click="addEvent"
                   >LAUNCH EVENT</v-btn
                 >
@@ -569,13 +572,19 @@
 
       <v-dialog v-model="editEventDialog" scroll-target="#app" max-width="800">
         <v-card class="dark-background">
+          <v-card-title class="d-flex justify-space-between align-center px-6 pt-4 pb-2 border-b">
+            <span class="text-h5 font-weight-bold">Edit Event</span>
+            <v-btn icon variant="text" @click="editEventDialog = false">
+              <v-icon color="red">mdi-close</v-icon>
+            </v-btn>
+          </v-card-title>
           <div v-if="loading" class="loading-overlay">
             <v-progress-circular indeterminate size="80" color="primary" />
           </div>
-          <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
-            Event changed successfully
-          </v-alert>
-          <v-card-text>
+          <v-card-text class="pt-6">
+            <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
+              Event changed successfully
+            </v-alert>
             <v-row>
               <v-col cols="6" md="6" v-if="isEditable">
                 <v-select
@@ -583,6 +592,7 @@
                   :items="[1, 2, 3, 4]"
                   label="SEATS"
                   variant="outlined"
+                  density="comfortable"
                 ></v-select>
               </v-col>
               <v-col cols="6" md="6" v-if="isEditable">
@@ -593,6 +603,7 @@
                   item-value="sceneries_pk"
                   label="SCENARIO"
                   variant="outlined"
+                  density="comfortable"
                   :key="sceneries.length"
                   clearable
                 ></v-select>
@@ -603,44 +614,43 @@
                   :items="stores.map((store) => store.name)"
                   label="STORE"
                   variant="outlined"
+                  density="comfortable"
                 ></v-select>
               </v-col>
-              <v-col cols="6" md="3" v-if="isEditable">
-                <v-text-field
-                  v-model="editableEvent.hour"
-                  label="TIME"
-                  variant="outlined"
-                  placeholder="HH:MM"
-                  maxlength="5"
-                  @blur="validateTime"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" md="2" v-if="isEditable">
-                <v-select
-                  v-model="editableEvent.ampm"
-                  :items="['AM', 'PM']"
-                  label="AM/PM"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col
-                cols="12"
-                md="6"
-                class="d-flex align-center"
-                v-if="isEditable"
-              >
+              <v-col cols="12" md="6" v-if="isEditable">
                 <v-text-field
                   v-model="editableEvent.date"
                   label="DATE"
                   type="date"
                   variant="outlined"
+                  density="comfortable"
                   class="date-input"
                   :min="today"
                   :max="oneYearFromTodayISO"
                   :rules="dateRules"
                 ></v-text-field>
               </v-col>
-              <div v-if="existingRewards.length" class="mt-4">
+              <v-col cols="6" md="3" v-if="isEditable">
+                <v-text-field
+                  v-model="editableEvent.hour"
+                  label="TIME"
+                  variant="outlined"
+                  density="comfortable"
+                  placeholder="HH:MM"
+                  maxlength="5"
+                  @blur="validateTime"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="6" md="3" v-if="isEditable">
+                <v-select
+                  v-model="editableEvent.ampm"
+                  :items="['AM', 'PM']"
+                  label="AM/PM"
+                  variant="outlined"
+                  density="comfortable"
+                ></v-select>
+              </v-col>
+              <div v-if="existingRewards.length" class="mt-4 px-3 w-100">
                 <p class="pb-2 font-weight-bold">Current Rewards:</p>
                 <v-chip
                   v-for="reward in existingRewards"
@@ -653,7 +663,7 @@
                 </v-chip>
               </div>
               <v-col cols="12" v-if="isEditable">
-                <p class="pb-3 font-weight-bold">REWARDS</p>
+                <p class="pb-3 font-weight-bold">Add Rewards</p>
                 <v-autocomplete
                   v-model="editableEvent.rewards_pk"
                   :items="allRewards"
@@ -663,41 +673,40 @@
                   multiple
                   chips
                   clearable
+                  variant="outlined"
+                  density="comfortable"
                 ></v-autocomplete>
               </v-col>
 
-              <v-col cols="12" class="d-flex justify-space-between">
-                <v-btn color="red" @click="editEventDialog = false"
-                  >Close</v-btn
-                >
+              <v-col cols="12" class="d-flex justify-end mt-4">
                 <v-btn
                   v-if="isEditable"
                   color="green"
+                  size="large"
                   :loading="loading"
                   :disabled="loading"
                   @click="saveEditedEvent"
                 >
-                  Save Changes</v-btn
-                >
+                  Save Changes</v-btn>
               </v-col>
             </v-row>
           </v-card-text>
         </v-card>
       </v-dialog>
     </v-card>
-  </v-col>
 
-  <ManageEventDialog
-    ref="manageDialogRef"
-    v-model="manageDialog"
-    :event="selectedEvent"
-    @refresh="handleRefresh"
-  />
+    <ManageEventDialog
+      ref="manageDialogRef"
+      v-model="manageDialog"
+      :event="selectedEvent"
+      @refresh="handleRefresh"
+    />
 
-  <TutorialPromptDialog
-    v-model="showTutorialPrompt"
-    @tutorial-completed="handleTutorialCompleted"
-  />
+    <TutorialPromptDialog
+      v-model="showTutorialPrompt"
+      @tutorial-completed="handleTutorialCompleted"
+    />
+  </v-container>
 </template>
 
 <script setup>
@@ -1560,6 +1569,7 @@ watch(
   min-height: 400px;
 }
 
+/* CARDS: Flexbox puro com botões integrados */
 .event-card {
   display: flex;
   align-items: center;
@@ -1567,6 +1577,19 @@ watch(
   padding: 10px;
   margin-left: 18px;
   background-color: #292929;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.event-card-my {
+  border-radius: 8px;
+  margin-left: 18px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.event-card:hover, .event-card-my:hover {
+  transform: scale(1.02);
 }
 
 .event-img {
@@ -1633,17 +1656,6 @@ watch(
   background-color: #292929;
 }
 
-.event-card {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-.event-card:hover {
-  transform: scale(1.02);
-}
-
 .event-dialog-img {
   border-radius: 8px;
 }
@@ -1699,18 +1711,19 @@ watch(
   color: red;
 }
 
+/* CSS dos botões laterais (Delete/Edit) usando Flexbox puro */
 .redbutton {
-  background: #691d1d;
-  transform: translateY(px) translateX(-0px);
-  width: 80px;
-  height: 160px;
+  background: #AB2929;
+  width: 60px;
+  min-width: 60px;
+  height: 100%;
 }
 
 .editbutton {
   background: gray;
-  transform: translateX(10px);
-  width: 80px;
-  height: 160px;
+  width: 60px;
+  min-width: 60px;
+  height: 100%;
 }
 
 .download-fab {
@@ -1719,6 +1732,7 @@ watch(
   bottom: 24px;
   right: 24px;
 }
+
 @media (max-width: 960px) {
   .download-fab {
     position: absolute;
@@ -1741,8 +1755,9 @@ watch(
 }
 
 @media (max-width: 600px) {
-  .event-card {
+  .event-card, .event-card-my {
     margin-right: 0 !important;
+    margin-left: 0 !important;
   }
 }
 </style>

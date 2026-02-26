@@ -1,16 +1,19 @@
 <template>
-  <v-row justify="center">
-    <v-col cols="12" class="text-center">
-      <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
-      >
-        EVENTS
-      </h1>
-    </v-col>
-  </v-row>
+  <v-container class="pa-0 mt-0" style="min-height: 100vh;">
+    <v-row justify="center" no-gutters class="bg-transparent pt-16">
+      <v-col cols="12" class="text-center mb-4">
+        <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2 text-uppercase">
+          EVENTS
+        </h1>
+      </v-col>
+    </v-row>
 
-  <v-col cols="12" md="10" class="mx-auto">
-    <v-card class="pb-12" min-height="500px" color="#151515">
+    <v-card 
+      color="#151515" 
+      min-height="100vh" 
+      class="pb-12 rounded-t-lg"
+      flat
+    >
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -48,7 +51,7 @@
             <v-col
               v-for="(event, index) in sortedEvents"
               :key="index"
-              class="py-2 pl-1 pr-1"
+              class="py-2 pl-6 pr-1"
               cols="12"
               md="6"
             >
@@ -95,7 +98,7 @@
                     </div>
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
-                    <h3 class="pb-1">
+                    <h3 class="pb-1 text-truncate">
                       <v-icon class="pr-1" size="small" color="black"
                         >mdi-chess-rook</v-icon
                       >
@@ -105,8 +108,8 @@
                       <v-icon color="red">mdi-map-marker</v-icon>
                       {{ event.address }}
                     </p>
-                    <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon>
+                    <p class="text-caption text-truncate">
+                      <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
                       {{ event.scenario }}
                     </p>
                     <p class="text-caption ml-3" v-if="event.rewards?.length">
@@ -136,7 +139,7 @@
             </v-col>
           </v-row>
           <v-row v-else>
-            <v-col>No events match the selected filters.</v-col>
+            <v-col class="text-center">No events match the selected filters.</v-col>
           </v-row>
         </div>
 
@@ -202,7 +205,7 @@
                 <v-icon start>mdi-share-variant</v-icon>
                 Share Event
               </v-btn>
-              <p>
+              <p class="mt-4">
                 <v-icon>mdi-seat</v-icon> Available Seats:
                 {{ selectedEvent?.seats_number }}
               </p>
@@ -259,23 +262,23 @@
             </v-card>
 
             <v-card color="primary" class="mr-4 mt-4 event-card">
-          <v-responsive
-            style="width: 100%; height: 200px"
-            aspect-ratio="16/9"
-          >
-            <iframe
-              v-if="selectedEvent?.latitude"
-              :src="
-                `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                `&z=15&output=embed`
-              "
-              frameborder="0"
-              style="border: 0; width: 100%; height: 100%"
-              allowfullscreen
-              loading="lazy"
-            />
-          </v-responsive>
-        </v-card>
+              <v-responsive
+                style="width: 100%; height: 200px"
+                aspect-ratio="16/9"
+              >
+                <iframe
+                  v-if="selectedEvent?.latitude"
+                  :src="
+                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                    `&z=15&output=embed`
+                  "
+                  frameborder="0"
+                  style="border: 0; width: 100%; height: 100%"
+                  allowfullscreen
+                  loading="lazy"
+                />
+              </v-responsive>
+            </v-card>
 
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
@@ -336,13 +339,13 @@
             <v-col
               v-for="(evt, idx) in myEvents"
               :key="evt.events_pk"
-              class="py-2 pl-1 pr-1"
+              class="py-2 pl-6 pr-1"
               cols="12"
               md="6"
             >
               <v-card
                 color="terciary"
-                class="pt-0 event-card"
+                class="pt-0 event-card-my"
                 @click="openMyEventsDialog(evt)"
               >
                 <v-img
@@ -350,6 +353,7 @@
                   :src="getSeasonInfo(evt.seasons_fk).flag"
                   class="season-flag"
                 />
+                
                 <div class="status-icon-container">
                   <v-tooltip
                     :text="getEventStatusInfo(evt.status).tooltip"
@@ -366,23 +370,24 @@
                     </template>
                   </v-tooltip>
                 </div>
+
                 <v-row no-gutters align="center">
-                  <v-col cols="4" sm="2">
+                  <v-col cols="4" sm="3">
                     <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
+                      class="text-center"
+                      style="color: black"
                     >
-                      <p class="pt-3 text-caption font-weight-bold">
+                      <p class="pt-3 text-caption font-weight-bold mb-0">
                         {{
                           new Date(evt.event_date)
                             .toLocaleDateString("en-US", { month: "short" })
                             .toUpperCase()
                         }}
                       </p>
-                      <p class="cinzel-text text-h3 font-weight-bold">
+                      <p class="cinzel-text text-h3 font-weight-bold mb-0" style="line-height: 1;">
                         {{ String(evt.event_date).split("T")[0].split("-")[2] }}
                       </p>
-                      <p class="text-caption font-weight-bold">
+                      <p class="text-caption font-weight-bold mt-1 mb-0">
                         {{
                           new Date(evt.event_date).toLocaleTimeString("en-US", {
                             hour: "2-digit",
@@ -393,8 +398,9 @@
                       </p>
                     </div>
                   </v-col>
-                  <v-col cols="8" sm="10" class="pt-2 pr-10">
-                    <h3 class="pb-1">
+                  
+                  <v-col cols="8" sm="9" class="pt-2 pb-2 pl-2" style="padding-right: 48px;">
+                    <h3 class="pb-1 text-truncate">
                       <v-icon class="pr-1" size="small" color="black"
                         >mdi-chess-rook</v-icon
                       >
@@ -404,8 +410,8 @@
                       <v-icon color="red">mdi-map-marker</v-icon>
                       {{ evt.address }}
                     </p>
-                    <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon>
+                    <p class="text-caption text-truncate">
+                      <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
                       {{ evt.scenario }}
                     </p>
                     <p class="text-caption ml-3" v-if="evt.rewards?.length">
@@ -786,7 +792,7 @@
         </v-dialog>
       </div>
     </v-card>
-  </v-col>
+  </v-container>
 </template>
 
 <script setup>
@@ -1723,6 +1729,7 @@ watch(
   min-height: 400px;
 }
 
+/* CARDS (ALL EVENTS) */
 .event-card {
   position: relative;
   overflow: hidden;
@@ -1734,6 +1741,25 @@ watch(
   background-color: #292929;
   cursor: pointer;
   transition: 0.2s ease-in-out;
+}
+
+.event-card:hover {
+  transform: scale(1.02);
+}
+
+/* CARD PLAYER MY EVENTS */
+.event-card-my {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-left: 18px;
+  background-color: #292929;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.event-card-my:hover {
+  transform: scale(1.02);
 }
 
 .season-flag {
@@ -1806,10 +1832,6 @@ watch(
   background-color: #292929;
 }
 
-.event-card:hover {
-  transform: scale(1.02);
-}
-
 .event-dialog-img {
   border-radius: 8px;
 }
@@ -1864,20 +1886,6 @@ watch(
   z-index: 10;
 }
 
-.redbutton {
-  background: #691d1d;
-  transform: translateY(px) translateX(-0px);
-  width: 80px;
-  height: 160px;
-}
-
-.editbutton {
-  background: gray;
-  transform: translateX(10px);
-  width: 80px;
-  height: 160px;
-}
-
 .dialog-overlay {
   position: absolute;
   top: 0;
@@ -1889,5 +1897,39 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.page-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .event-card, .event-card-my {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
 }
 </style>
