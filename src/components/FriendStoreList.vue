@@ -1,6 +1,6 @@
 <template>
     <!-- Usando o Componente StoreList -->
-    <StoreListAdded />
+    <SocialHub />
 </template>
 
 <script lang="ts" setup></script>
