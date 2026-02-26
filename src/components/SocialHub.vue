@@ -1,11 +1,5 @@
 <template>
   <v-container max-width="850" class="pa-4 pt-0 mt-0 social-wrapper">
-    
-    <v-row justify="center" class="ma-0">
-      <v-col cols="12" class="pa-0 pt-2">
-        <h1 class="text-h4 font-weight-bold mb-4 text-center text-white">Social Hub</h1>
-      </v-col>
-    </v-row>
 
     <v-card color="transparent" flat>
       <v-tabs
