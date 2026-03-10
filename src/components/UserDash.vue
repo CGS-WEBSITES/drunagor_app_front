@@ -344,36 +344,29 @@ onBeforeMount(async () => {
 });
 </script>
 
-<style scoped>
-/* ESTILOS NOVOS PRO CLUSTER DE LOGOS */
+<style>
+/* CSS do Dialog Novo */
 .legacy-cluster {
   position: relative;
   padding: 10px;
 }
-
 .legacy-logo {
-  /* Filtro de sombra estilo "recorte" da imagem, ótimo para PNG/WebP */
   filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.7));
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
   cursor: pointer;
 }
-
-/* Efeito ao passar o mouse ou segurar (mobile) */
 .legacy-logo:hover {
   transform: scale(1.1) translateY(-4px);
-  filter: drop-shadow(0px 12px 20px rgba(255, 213, 79, 0.4)); /* Sombra amarela estilizada */
+  filter: drop-shadow(0px 12px 20px rgba(255, 213, 79, 0.4));
   z-index: 30 !important;
 }
-
-/* Traz o Apocalipse levemente pra frente das outras duas */
 .apoc-logo {
   z-index: 20;
 }
-
 .z-10 { z-index: 10; }
 .z-20 { z-index: 20; }
 
-/* Mantidos os estilos anteriores */
+/* CSS ORIGINAL RESTAURADO (Sem o "scoped" que estava quebrando o Vuetify) */
 .avatar-mobile {
   position: relative;
   transform: translateY(-55px);
