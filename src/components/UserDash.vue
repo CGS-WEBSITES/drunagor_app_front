@@ -124,7 +124,7 @@
               <v-btn
                 color="#118D8E"
                 variant="flat"
-                @click="openHub"
+                @click="openPlaySelection"
                 size="x-large"
                 rounded="lg"
                 class="font-weight-bold w-100"
@@ -155,6 +155,82 @@
       :my-events="myEvents" 
       :user="user" 
     />
+
+    <v-dialog v-model="showPlaySelectionDialog" max-width="500">
+      <v-card color="grey-darken-4" rounded="xl">
+        <v-card-title class="d-flex justify-space-between align-center px-4 pt-4 pb-2">
+          <span class="text-h5 font-weight-bold">Choose your adventure</span>
+          <v-btn icon variant="text" @click="showPlaySelectionDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="pa-0">
+          
+          <div class="pa-5 text-center">
+            <v-img 
+              src="@/assets/underkeep2.png" 
+              height="140" 
+              cover
+              class="mb-4 rounded-xl elevation-4"
+            ></v-img>
+            
+            <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S2</h3>
+            <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
+              Scan the Lobby QR Code to join your party and dive into the new Underkeep adventures.
+            </p>
+            
+            <v-btn 
+              color="green-accent-3" 
+              variant="flat" 
+              rounded="pill" 
+              size="x-large"
+              block
+              class="font-weight-black text-grey-darken-4"
+              @click="playDrunagorNights"
+            >
+              <v-icon left class="mr-2">mdi-qrcode-scan</v-icon>
+              Scan Lobby QR Code
+            </v-btn>
+          </div>
+
+          <v-divider class="mx-6 border-opacity-50" color="grey"></v-divider>
+
+          <div class="pa-5 text-center">
+            
+            <div class="legacy-cluster mb-6 mt-2">
+              <div class="d-flex justify-center align-center ga-6 position-relative z-10">
+                <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                <v-img :src="AwakeningsLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+              </div>
+              <div class="d-flex justify-center align-center mt-n6 position-relative z-20">
+                <v-img :src="ApocalypseLogo" height="80" max-width="130" contain class="legacy-logo apoc-logo"></v-img>
+              </div>
+            </div>
+            
+            <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">Legacy Campaign Tracker</h3>
+            <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
+              Manage your classic campaigns from Age of Darkness.
+            </p>
+            
+            <v-btn 
+              color="amber-accent-2" 
+              variant="flat" 
+              rounded="pill" 
+              size="x-large"
+              block
+              class="font-weight-black text-grey-darken-4"
+              @click="playLegacyCampaigns"
+            >
+              <v-icon left class="mr-2">mdi-book-open-page-variant</v-icon>
+              Open Tracker
+            </v-btn>
+          </div>
+
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
   </v-main>
 </template>
 
@@ -173,6 +249,11 @@ import axios from "axios";
 import DashboardEvents from "@/components/DashboardEvents.vue";
 import HUB from "@/components/HUB.vue";
 
+// Importando os Logos
+import CoreLogo from "@/assets/campaign/logo/core.webp";
+import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
+import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
+
 const router = useRouter();
 const userStore = useUserStore();
 const user = userStore.user;
@@ -184,9 +265,9 @@ const display = useDisplay();
 const loading = ref(true);
 const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 
-// Variáveis para o HUB
 const showHub = ref(false);
 const myEvents = ref<any[]>([]);
+const showPlaySelectionDialog = ref(false);
 
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
@@ -205,14 +286,12 @@ function importCampaign(token: string) {}
   
 const openHub = async () => {
   showHub.value = true;
-  // Busca rápida dos eventos confirmados para exibir no HUB
   if (user && user.users_pk) {
     try {
       const response = await (axios as any).get('/events/my_events/player', {
         params: { player_fk: user.users_pk, past_events: false },
         headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
       });
-      // Filtra e ordena (lógica similar ao DashboardEvents)
       const now = new Date();
       myEvents.value = (response.data.events || [])
         .filter((e: any) => new Date(e.event_date) > now)
@@ -222,6 +301,22 @@ const openHub = async () => {
       myEvents.value = [];
     }
   }
+};
+
+const openPlaySelection = () => {
+  showPlaySelectionDialog.value = true;
+};
+
+// Abre o componente HUB (Lobby QR Scanner)
+const playDrunagorNights = () => {
+  showPlaySelectionDialog.value = false;
+  openHub();
+};
+
+// Navega para a rota do Legacy Tracker
+const playLegacyCampaigns = () => {
+  showPlaySelectionDialog.value = false;
+  router.push({ path: "/campaign-tracker/" });
 };
 
 onBeforeMount(async () => {
@@ -249,7 +344,36 @@ onBeforeMount(async () => {
 });
 </script>
 
-<style>
+<style scoped>
+/* ESTILOS NOVOS PRO CLUSTER DE LOGOS */
+.legacy-cluster {
+  position: relative;
+  padding: 10px;
+}
+
+.legacy-logo {
+  /* Filtro de sombra estilo "recorte" da imagem, ótimo para PNG/WebP */
+  filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.7));
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+  cursor: pointer;
+}
+
+/* Efeito ao passar o mouse ou segurar (mobile) */
+.legacy-logo:hover {
+  transform: scale(1.1) translateY(-4px);
+  filter: drop-shadow(0px 12px 20px rgba(255, 213, 79, 0.4)); /* Sombra amarela estilizada */
+  z-index: 30 !important;
+}
+
+/* Traz o Apocalipse levemente pra frente das outras duas */
+.apoc-logo {
+  z-index: 20;
+}
+
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+
+/* Mantidos os estilos anteriores */
 .avatar-mobile {
   position: relative;
   transform: translateY(-55px);
