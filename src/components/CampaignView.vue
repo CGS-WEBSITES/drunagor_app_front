@@ -282,6 +282,7 @@
                           <v-col class="pb-0" cols="12" sm="6">
                             <CampaignName
                               :campaign-id="campaignId"
+                              :is-admin="true"
                               class="mb-0 shepherd-campaign-name"
                             />
                           </v-col>
@@ -473,7 +474,10 @@
                 <div>
                   <v-row no-gutters align="center" class="mb-3">
                     <v-col cols="12" sm="8">
-                      <CampaignName :campaign-id="campaignId" />
+                      <CampaignName 
+                        :campaign-id="campaignId" 
+                        :is-admin="true" 
+                      />
                     </v-col>
                     <v-col cols="12" sm="4">
                       <div
@@ -514,6 +518,31 @@
                     </v-col>
                   </v-row>
 
+                  <v-row
+                    no-gutters
+                    class="d-flex justify-center mb-3"
+                    v-if="
+                      campaign.campaign == 'awakenings' ||
+                      campaign.campaign == 'apocalypse'
+                    "
+                  >
+                    <v-col cols="12" class="px-2">
+                      <StoryRecord :campaign-id="campaignId" />
+                    </v-col>
+                  </v-row>
+
+                  <v-row
+                    no-gutters
+                    class="d-flex justify-center mb-3"
+                    v-if="campaign.campaign == 'apocalypse'"
+                  >
+                    <v-col cols="12" class="px-2">
+                      <v-sheet rounded border="md" class="pa-6 text-white bg-surface">
+                        <StoryRecordLegacyTrail :campaign-id="campaignId" />
+                        <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
+                      </v-sheet>
+                    </v-col>
+                  </v-row>
                   <v-row class="my-3" no-gutters>
                     <v-col cols="12">
                       <v-card class="pa-2" color="primary">
@@ -578,6 +607,7 @@
       <CampaignSavePut
         ref="savePutRef"
         :campaign-id="campaignId"
+        :is-admin="true"
         @success="onSaveSuccess"
         @fail="onSaveFail"
       />
@@ -613,6 +643,9 @@ import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
+import StoryRecord from "@/components/StoryRecord.vue";
+import StoryRecordLegacyTrail from "@/components/StoryRecordLegacyTrail.vue";
+import StoryRecordBackgroundAndTrait from "@/components/StoryRecordBackgroundAndTrait.vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
 import { useUserStore } from "@/store/UserStore";
