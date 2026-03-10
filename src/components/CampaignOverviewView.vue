@@ -22,9 +22,7 @@
     >
       <v-card-actions>
         <CampaignNew />
-
         <CampaignImport />
-
         <v-btn variant="elevated" rounded @click="onJoinCampaign">
           Join Campaign
         </v-btn>
@@ -34,9 +32,7 @@
     <v-card class="d-md-none justify-center pa-3 elevation-0">
       <v-card-actions class="d-flex justify-center flex-wrap ga-2">
         <CampaignNew />
-
         <CampaignImport />
-
         <v-btn variant="elevated" rounded @click="onJoinCampaign">
           Join Campaign
         </v-btn>
@@ -44,13 +40,31 @@
     </v-card>
 
     <v-card class="mt-3 pa-3 elevation-0 d-flex align-center justify-space-between flex-wrap ga-3">
-      <v-checkbox
-        v-model="showAllCampaigns"
-        label="Other Campaigns"
-        color="primary"
+      <v-select
+        v-model="selectedBoxFilter"
+        :items="boxOptions"
+        label="Filter by Box"
+        variant="outlined"
+        density="compact"
         hide-details
-        @update:modelValue="onFilterChange"
-      ></v-checkbox>
+        clearable
+        style="max-width: 300px; min-width: 250px;"
+      >
+        <template #item="{ props, item }">
+          <v-list-item v-bind="props" :title="item.raw.title">
+            <template #prepend>
+              <v-avatar rounded="0" class="mr-3">
+                <v-img v-if="item.raw.value === 'core'" src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" cover></v-img>
+                <v-img v-else-if="item.raw.value === 'apocalypse'" src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp" cover></v-img>
+                <v-img v-else-if="item.raw.value === 'awakenings'" src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp" cover></v-img>
+                <v-img v-else-if="item.raw.value === 'underkeep'" src="@/assets/underkeep.png" cover></v-img>
+                <v-img v-else-if="item.raw.value === 'underkeep2'" src="@/assets/underkeep2.png" cover></v-img>
+                <v-icon v-else>mdi-filter-variant</v-icon>
+              </v-avatar>
+            </template>
+          </v-list-item>
+        </template>
+      </v-select>
 
       <v-select
         v-model="sortOrder"
@@ -156,49 +170,7 @@
     </div>
 
     <v-dialog v-model="showJoinCampaignDialog" max-width="400" persistent>
-      <v-card style="position: relative">
-        <div v-if="joiningCampaign" class="dialog-overlay">
-          <v-progress-circular
-            indeterminate
-            size="80"
-            width="7"
-            color="primary"
-          ></v-progress-circular>
-        </div>
-
-        <v-card-title class="d-flex justify-space-between align-center pa-0">
-          <span class="text-h6 ml-4">Enter Campaign ID</span>
-
-          <v-card-actions class="pa-0">
-            <v-btn icon @click="showJoinCampaignDialog = false">
-              <v-icon color="red">mdi-close</v-icon>
-            </v-btn>
-          </v-card-actions>
-        </v-card-title>
-
-        <v-card-text>
-          <v-text-field
-            v-model="joinCampaignId"
-            label="Campaign ID"
-            hide-details
-            dense
-          ></v-text-field>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-btn
-            block
-            color="green"
-            elevation="4"
-            class="mt-4"
-            :disabled="!parsedCampaignFk"
-            @click="confirmJoinCampaign"
-          >
-            Join
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      </v-dialog>
   </v-container>
 </template>
 
@@ -226,13 +198,29 @@ const joiningCampaign = ref(false);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
-const showAllCampaigns = ref(false);
-const sortOrder = ref('desc');
 
+// NOVO: Ref e Opções para o filtro de Caixa
+const selectedBoxFilter = ref<string | null>(null);
+const boxOptions = [
+  { title: 'All Campaigns', value: null },
+  { title: 'CoD Age of Darkness CORE', value: 'core' },
+  { title: 'CoD Apocalypse', value: 'apocalypse' },
+  { title: 'CoD Awakenings', value: 'awakenings' },
+  { title: 'Drunagor Nights S1', value: 'underkeep' },
+  { title: 'Drunagor Nights S2', value: 'underkeep2' }
+];
+
+const sortOrder = ref('desc');
 const BOX_ID = 38;
 
+// ATUALIZADO: Filtra as campanhas localmente e depois ordena
 const allCampaigns = computed(() => {
-  const campaigns = [...campaignStore.findAll()];
+  let campaigns = [...campaignStore.findAll()];
+
+  if (selectedBoxFilter.value) {
+    campaigns = campaigns.filter(c => c.campaign === selectedBoxFilter.value);
+  }
+
   return campaigns.sort((a, b) => {
     if (sortOrder.value === 'desc') {
       return Number(b.campaignId) - Number(a.campaignId);
@@ -246,13 +234,15 @@ const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
 
+// ATUALIZADO: Incluído o ID 24 para Awakenings conforme sua instrução
 const getBoxName = (boxId: number) => {
   const map: Record<number, string> = {
-    22: "Corebox",
-    23: "Apocalypse",
-    34: "Awakenings",
-    38: "Underkeep Drunagor Nights",
-    39: "Underkeep Drunagor Nights Season 2",
+    22: "CoD Age of Darkness CORE",
+    23: "CoD Apocalypse",
+    24: "CoD Awakenings",
+    34: "CoD Awakenings", // Mantido por retrocompatibilidade caso existam campanhas antigas com ID 34
+    38: "Drunagor Nights S1",
+    39: "Drunagor Nights S2",
   };
 
   return map[boxId] || `Unknown Box (ID: ${boxId})`;
@@ -260,9 +250,7 @@ const getBoxName = (boxId: number) => {
 
 const addLoadingError = (text: string) => {
   const id = Date.now();
-
   loadingErrors.value.push({ id, text });
-
   setTimeout(() => {
     loadingErrors.value = loadingErrors.value.filter((e) => e.id !== id);
   }, 5000);
@@ -271,7 +259,6 @@ const addLoadingError = (text: string) => {
 const loadCampaignFromHash = (trackerHash: string, campaignPk: string, partyName: string) => {
   try {
     const data = JSON.parse(atob(trackerHash));
-
     if (!data.campaignData) return;
 
     const camp = data.campaignData;
@@ -304,6 +291,7 @@ const loadCampaignWithHeroes = async (campaignData: any) => {
   }
 };
 
+// ATUALIZADO: Carregamos sempre todas as campanhas, já que o filtro de box vai ser no front-end
 const loadCampaigns = async () => {
   loading.value = true;
   campaignStore.reset();
@@ -313,7 +301,7 @@ const loadCampaigns = async () => {
     const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user!.users_pk,
-        show_season2: showAllCampaigns.value,
+        show_season2: true, // Forçamos o true para trazer todas da API
       },
     });
 
@@ -326,10 +314,6 @@ const loadCampaigns = async () => {
   } finally {
     loading.value = false;
   }
-};
-
-const onFilterChange = () => {
-  loadCampaigns();
 };
 
 const goToCampaign = (id: string) => {
@@ -351,7 +335,6 @@ const heroAvatars = (campId: string): HeroData[] => {
 
 const avatarCols = (campId: string) => {
   const count = heroAvatars(campId).length;
-
   return route.meta.mdAndUp && count <= 4 ? 3 : undefined;
 };
 
@@ -376,9 +359,7 @@ const confirmJoinCampaign = async () => {
         skus_fk: BOX_ID,
       },
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       },
     );
 
@@ -387,9 +368,7 @@ const confirmJoinCampaign = async () => {
         users_fk: usersPk,
         campaigns_fk: campaignId,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
     const campaignData = campaignResponse.data.campaigns[0];
