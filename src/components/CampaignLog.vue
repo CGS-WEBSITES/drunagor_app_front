@@ -5,31 +5,13 @@
         class="pa-3 hero-background-title"
         :style="heroBackgroundStyle"
       >
-        <!--  <div class="d-flex align-center w-100">
-          <v-avatar
-            :image="hero.images?.avatar"
-            size="48"
-            class="mr-3"
-            rounded="sm"
-          />
-          <div class="text-left">
-            <h3 class="text-h6 font-weight-bold text-white mb-0">
-              {{ hero.name }}
-            </h3>
-            <p class="text-caption text-grey-400 mb-0">
-              {{ hero.class }} - Level {{ hero.level || 1 }}
-            </p>
-          </div>
-        </div> -->
-      </v-expansion-panel-title>
+        </v-expansion-panel-title>
 
       <v-expansion-panel-text class="pa-0">
         <v-card-text class="px-0 pt-0 position-relative">
           <v-row no-gutters>
             <v-col cols="12" class="position-relative">
-              <!-- <v-img :src="hero.images.trackerInfo" contain /> -->
-
-              <div v-if="isAdmin && !loading" class="action-buttons-container">
+              <div class="action-buttons-container">
                 <v-btn
                   v-if="isSequentialAdventure"
                   @click.stop="openSequentialStateEditor"
@@ -128,11 +110,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { computed } from "vue";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
-import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import CampaignLogCore from "./CampaignLogCore.vue";
 import CampaignLogUnderKeep from "./CampaignLogUnderKeep.vue";
@@ -141,7 +122,6 @@ import CampaignLogAwakenings from "./CampaignLogAwakenings.vue";
 import CampaignLogApocalypse from "./CampaignLogApocalypse.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
 import { useI18n } from "vue-i18n";
-import axios from "axios";
 
 const props = defineProps<{
   heroId: string;
@@ -151,12 +131,8 @@ const props = defineProps<{
 
 const heroDataRepository = new HeroDataRepository();
 const campaignStore = CampaignStore();
-const userStore = useUserStore();
 const router = useRouter();
 const { t } = useI18n();
-
-const isAdmin = ref(false);
-const loading = ref(true);
 
 const campaign = campaignStore.find(props.campaignId);
 const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
@@ -168,30 +144,7 @@ const heroBackgroundStyle = computed(() => ({
   backgroundRepeat: "no-repeat",
 }));
 
-const checkUserRole = async () => {
-  try {
-    const response = await axios.get("rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user?.users_pk,
-        campaigns_fk: props.campaignId,
-      },
-    });
-
-    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
-  } catch (error) {
-    console.error("CampaignLog - Error fetching user role:", error);
-    isAdmin.value = false;
-  } finally {
-    loading.value = false;
-  }
-};
-
 function openSequentialStateEditor() {
-  if (!isAdmin.value) {
-    console.log("CampaignLog - Cannot navigate - not admin");
-    return;
-  }
-
   router.push({
     name: "HeroSequentialState",
     params: { campaignId: props.campaignId, heroId: props.heroId },
@@ -199,20 +152,11 @@ function openSequentialStateEditor() {
 }
 
 function openHeroEquipmentSkills() {
-  if (!isAdmin.value) {
-    console.log("CampaignLog - Cannot navigate - not admin");
-    return;
-  }
-
   router.push({
     name: "Hero",
     params: { campaignId: props.campaignId, heroId: props.heroId },
   });
 }
-
-onMounted(async () => {
-  await checkUserRole();
-});
 </script>
 
 <style scoped>
