@@ -135,17 +135,6 @@
         </v-tooltip>
       </v-btn>
 
-      <v-btn
-        key="qrcode"
-        size="large"
-        color="purple"
-        icon
-        class="speed-dial-item-qr"
-        @click="handleSpeedDialAction('qrcode')"
-      >
-        <v-icon size="large">mdi-qrcode</v-icon>
-        <v-tooltip activator="parent" location="start"> QR Code </v-tooltip>
-      </v-btn>
 
       <v-btn
         key="player-list"
@@ -212,15 +201,6 @@
       >
         <v-icon>mdi-export</v-icon>
         <span class="bottom-nav-label">Export</span>
-      </v-btn>
-
-      <v-btn
-        value="qrcode"
-        @click="handleBottomNavAction('qrcode')"
-        class="bottom-nav-btn-qr"
-      >
-        <v-icon size="x-large">mdi-qrcode</v-icon>
-        <span class="bottom-nav-label-qr">QR Code</span>
       </v-btn>
 
       <v-btn
