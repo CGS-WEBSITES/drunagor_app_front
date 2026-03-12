@@ -1,102 +1,142 @@
 <template>
-  <v-container max-width="776" class="pa-4">
-    <v-card color="primary" rounded="lg" elevation="6" class="pa-4">
-      <v-col cols="12" class="d-flex justify-center pa-0">
-        <v-tabs v-model="activeTab" class="mb-4 overflow-visible-tabs">
-          <v-tab :value="'friends'" class="text-h5 text-bold">Friends</v-tab>
+  <v-container max-width="850" class="pa-4 pt-0 mt-0 social-wrapper">
 
-          <v-badge
-            :model-value="requests.length > 0"
-            color="red"
-            dot
-            location="top end"
-            offset-x="8"
-            offset-y="8"
-          >
-            <v-tab :value="'requests'" class="text-h5 text-bold"
-              >Requests</v-tab
-            >
-          </v-badge>
-        </v-tabs>
-      </v-col>
+    <v-card color="transparent" flat>
+      <v-tabs
+        v-model="mainTab"
+        grow
+        bg-color="secondary"
+        rounded="lg"
+        class="mb-6 elevation-4"
+        indicator-color="white"
+      >
+        <v-tab value="network">
+          <v-icon start>mdi-account-group</v-icon>
+          My Friends
+          <v-badge v-if="requests.length > 0" color="red" dot offset-x="-10" offset-y="-10"></v-badge>
+        </v-tab>
+        <v-tab value="search">
+          <v-icon start>mdi-magnify</v-icon>
+          Find Players
+        </v-tab>
+      </v-tabs>
 
-      <v-text-field
-        v-model="searchQuery"
-        label="Search"
-        variant="solo-filled"
-        class="pb-0"
-      ></v-text-field>
-
-      <v-virtual-scroll :items="filteredList" :item-height="100">
-        <template #default="{ item }">
-          <v-card
-            class="pa-1 mb-3 cursor-pointer"
-            rounded="lg"
-            elevation="10"
-            @click="navigateToUser(item.friends_id)"
-          >
-            <div
-              class="background-overlay"
-              :style="{
-                backgroundImage: item.background_hash
-                  ? `url(https://assets.drunagor.app/Profile/${item.background_hash})`
-                  : 'url(https://assets.drunagor.app/Profile/profile-bg-warriors-transparent.png)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                borderRadius: '8px',
-                zIndex: 0,
-              }"
-            ></div>
-            <v-row>
-              <v-col cols="4" lg="2" class="d-flex align-center justify-center">
-                <v-img
-                  :src="item.image"
-                  alt="User Image"
-                  max-width="90"
-                  max-height="90"
-                  class="rounded-lg"
-                ></v-img>
-              </v-col>
-
-              <v-col cols="6">
-                <p class="font-weight-bold text-truncate">
-                  {{ item.user_name }}
-                </p>
-              </v-col>
-
-              <v-col
-                v-if="!item.accepted"
-                cols="2"
-                md="4"
-                class="d-flex justify-end align-center"
+      <v-window v-model="mainTab" class="overflow-visible">
+        
+        <v-window-item value="network">
+          <v-card color="primary" rounded="lg" elevation="6" class="pa-4 fixed-main-card">
+            <v-tabs v-model="activeTab" class="mb-4 overflow-visible-tabs" centered>
+              <v-tab value="friends" class="text-h6">Friends</v-tab>
+              <v-badge
+                :model-value="requests.length > 0"
+                color="red"
+                :content="requests.length"
+                location="top end"
+                offset-x="8"
+                offset-y="8"
               >
-                <v-btn
-                  class="ma-2"
-                  color="green"
-                  :loading="processingRequest === item.friends_pk"
-                  :disabled="!!processingRequest"
-                  @click.stop="acceptFriend(item)"
-                  >ACCEPT</v-btn
-                >
-                <v-btn
-                  class="ma-2"
-                  color="red"
-                  :loading="processingRequest === item.friends_pk"
-                  :disabled="!!processingRequest"
-                  @click.stop="declineFriend(item.friends_pk)"
-                  >DECLINE</v-btn
-                >
-              </v-col>
-            </v-row>
+                <v-tab value="requests" class="text-h6">Requests</v-tab>
+              </v-badge>
+            </v-tabs>
+
+            <div class="search-bar-center mb-4">
+              <v-text-field
+                v-model="friendSearchQuery"
+                placeholder="Filter list..."
+                variant="solo-filled"
+                prepend-inner-icon="mdi-filter"
+                hide-details
+                density="compact"
+                class="max-width-search"
+              ></v-text-field>
+            </div>
+
+            <div class="scroll-area">
+              <v-virtual-scroll 
+                :items="filteredFriendsList" 
+                height="100%"
+                item-height="110" 
+                class="rounded-lg"
+              >
+                <template #default="{ item }">
+                  <v-card class="pa-1 mb-3 cursor-pointer position-relative" rounded="lg" elevation="10" @click="navigateToUser(item.friends_id)">
+                    <div class="background-overlay" :style="getBackgroundStyle(item.background_hash)"></div>
+                    <v-row align="center" class="ma-0 fill-height position-relative" style="z-index: 1">
+                      <v-col cols="3" sm="2" class="d-flex justify-center">
+                        <v-avatar size="60" rounded="lg" class="elevation-4 bg-black-alpha">
+                          <v-img :src="item.image"></v-img>
+                        </v-avatar>
+                      </v-col>
+                      <v-col cols="5" sm="6">
+                        <div class="text-subtitle-1 font-weight-bold text-truncate text-white">{{ item.user_name }}</div>
+                      </v-col>
+                      <v-col cols="4" class="d-flex justify-end pr-2" v-if="!item.accepted">
+                        <v-btn icon="mdi-check" color="green" size="x-small" class="mr-1" @click.stop="acceptFriend(item)"></v-btn>
+                        <v-btn icon="mdi-close" color="red" size="x-small" @click.stop="declineFriend(item.friends_pk)"></v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-card>
+                </template>
+              </v-virtual-scroll>
+              
+              <div v-if="filteredFriendsList.length === 0" class="d-flex justify-center align-center h-100 opacity-50">
+                <p>No players found here.</p>
+              </div>
+            </div>
           </v-card>
-        </template>
-      </v-virtual-scroll>
+        </v-window-item>
+
+        <v-window-item value="search">
+          <v-card color="primary" rounded="lg" elevation="6" class="pa-4 fixed-main-card">
+            
+            <div class="tabs-placeholder mb-4"></div>
+
+            <div class="search-bar-center mb-4">
+              <v-text-field
+                v-model="globalSearchQuery"
+                placeholder="Search players..."
+                variant="solo-filled"
+                append-inner-icon="mdi-magnify"
+                @input="fetchUsers"
+                hide-details
+                density="compact"
+                class="max-width-search"
+              ></v-text-field>
+            </div>
+
+            <div class="scroll-area">
+              <div class="results-wrapper">
+                <v-card 
+                  v-for="user in filteredGlobalUsers" 
+                  :key="user.users_pk" 
+                  class="pa-1 mb-3 cursor-pointer position-relative" 
+                  rounded="lg" 
+                  elevation="10" 
+                  @click="navigateToUser(user.users_pk)"
+                >
+                  <div class="background-overlay" :style="getBackgroundStyle(user.background_hash)"></div>
+                  <v-row align="center" class="ma-0 fill-height position-relative" style="z-index: 1">
+                    <v-col cols="3" sm="2" class="d-flex justify-center pl-4">
+                      <v-avatar size="60" rounded="lg" class="elevation-4 bg-black-alpha">
+                        <v-img :src="user.picture_hash"></v-img>
+                      </v-avatar>
+                    </v-col>
+                    <v-col cols="9">
+                      <div class="text-subtitle-1 font-weight-bold text-white">{{ user.user_name }}</div>
+                      <div class="text-caption text-grey-lighten-1">Joined: {{ user.join_date }}</div>
+                    </v-col>
+                  </v-row>
+                </v-card>
+
+                <v-alert v-if="globalSearchQuery && filteredGlobalUsers.length === 0" type="info" variant="tonal">
+                  No players found.
+                </v-alert>
+              </div>
+            </div>
+          </v-card>
+        </v-window-item>
+
+      </v-window>
     </v-card>
   </v-container>
 </template>
@@ -110,225 +150,162 @@ const axios = inject("axios");
 const apiUrl = inject("apiUrl");
 const userStore = useUserStore();
 const router = useRouter();
-
 const userId = userStore.user?.users_pk;
 
-// Estados
+const mainTab = ref("network");
 const activeTab = ref("friends");
-const searchQuery = ref("");
-const friends = ref([]);
-const requests = ref([]);
 const processingRequest = ref(null);
 let pollingInterval = null;
 
-const filteredList = computed(() => {
+const friends = ref([]);
+const requests = ref([]);
+const users = ref([]);
+const friendSearchQuery = ref("");
+const globalSearchQuery = ref("");
+
+const filteredFriendsList = computed(() => {
   const list = activeTab.value === "friends" ? friends.value : requests.value;
-  if (!searchQuery.value) return list;
-  return list.filter((item) =>
-    item.user_name.toLowerCase().includes(searchQuery.value.toLowerCase()),
-  );
+  if (!friendSearchQuery.value) return list;
+  return list.filter((item) => item.user_name.toLowerCase().includes(friendSearchQuery.value.toLowerCase()));
 });
 
-const navigateToUser = (userId) => {
-  try {
-    if (!userId) throw new Error("ID do usuário não encontrado!");
-    const encodedId = btoa(userId.toString());
-    router.push({ name: "User", params: { id: encodedId } });
-  } catch (error) {
-    console.error("Erro ao navegar:", error.message);
-  }
+const filteredGlobalUsers = computed(() => {
+  if (!globalSearchQuery.value) return users.value;
+  return users.value.filter((user) => user.user_name.toLowerCase().startsWith(globalSearchQuery.value.toLowerCase()));
+});
+
+const getBackgroundStyle = (hash) => ({
+  backgroundImage: hash ? `url(https://assets.drunagor.app/Profile/${hash})` : 'url(https://assets.drunagor.app/Profile/profile-bg-warriors-transparent.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+  borderRadius: '8px', zIndex: 0, filter: 'brightness(0.4)'
+});
+
+const navigateToUser = (id) => {
+  if (!id) return;
+  const encodedId = btoa(id.toString());
+  router.push({ name: "User", params: { id: encodedId } });
 };
 
-const fetchFriends = async () => {
+const fetchFriendsData = async () => {
+  if (!userId) return;
   try {
-    const uid = userStore.user?.users_pk;
-    if (!uid) {
-      console.error("❌ Erro: Usuário não identificado.");
-      return;
-    }
-
-    const response = await axios.get(`${apiUrl}/friends/list_friends`, {
-      params: { invite_users_fk: uid, accepted: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const friendData = response.data.friends || [];
-
-    friends.value = friendData.map((friend) => ({
-      friends_pk: friend.friends_pk,
-      user_name: friend.user_name,
-      friends_id:
-        friend.invite_users_fk === uid
-          ? friend.recipient_users_fk
-          : friend.invite_users_fk,
-      image: friend.picture_hash
-        ? `https://assets.drunagor.app/Profile/${friend.picture_hash}`
-        : `https://assets.drunagor.app/Profile/user.png`,
-      background_hash: friend.background_hash,
-      accepted: true,
+    const [friendsRes, requestsRes] = await Promise.all([
+      axios.get(`${apiUrl}/friends/list_friends`, { params: { invite_users_fk: userId, accepted: true } }),
+      axios.get(`${apiUrl}/friends/list_requests`, { params: { recipient_users_fk: userId, accepted: false, active: true } })
+    ]);
+    friends.value = (friendsRes.data.friends || []).map(f => ({
+      ...f,
+      friends_id: f.invite_users_fk === userId ? f.recipient_users_fk : f.invite_users_fk,
+      image: f.picture_hash ? `https://assets.drunagor.app/Profile/${f.picture_hash}` : `https://assets.drunagor.app/Profile/user.png`,
+      accepted: true
     }));
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar amigos:",
-      error.response?.data || error.message,
-    );
-  }
-};
-
-const fetchRequests = async () => {
-  try {
-    const response = await axios.get(`${apiUrl}/friends/list_requests`, {
-      params: { recipient_users_fk: userId, accepted: false, active: true },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const friendRequests = response.data.friends || [];
-    requests.value = friendRequests.map((friend) => ({
-      friends_pk: friend.friends_pk,
-      user_name: friend.user_name,
-      friends_id: friend.invite_users_fk,
-      image: friend.picture_hash
-        ? `https://assets.drunagor.app/Profile/${friend.picture_hash}`
-        : `https://assets.drunagor.app/Profile/user.png`,
-      background_hash: friend.background_hash,
-      accepted: false,
+    requests.value = (requestsRes.data.friends || []).map(r => ({
+      ...r,
+      friends_id: r.invite_users_fk,
+      image: r.picture_hash ? `https://assets.drunagor.app/Profile/${r.picture_hash}` : `https://assets.drunagor.app/Profile/user.png`,
+      accepted: false
     }));
-  } catch (error) {
-    console.error(
-      "❌ Erro ao buscar solicitações:",
-      error.response?.data || error.message,
-    );
-  }
+  } catch (e) { console.error(e); }
 };
 
-const acceptFriend = async (requestItem) => {
-  if (!requestItem || !requestItem.friends_pk) {
-    console.error("❌ Erro: Item de solicitação inválido.");
-    return;
-  }
-
-  const { friends_pk } = requestItem;
-  processingRequest.value = friends_pk;
-
-  // Optimistic UI
-  const requestIndex = requests.value.findIndex(
-    (r) => r.friends_pk === friends_pk,
-  );
-  if (requestIndex > -1) {
-    requests.value.splice(requestIndex, 1);
-  }
-  const newFriend = { ...requestItem, accepted: true };
-  friends.value.unshift(newFriend);
-
+const fetchUsers = async () => {
+  if (!globalSearchQuery.value) { users.value = []; return; }
   try {
-    await axios.put(
-      `${apiUrl}/friends/accept/${friends_pk}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
-    );
-    await fetchFriends();
-  } catch (error) {
-    console.error(
-      "❌ Erro ao aceitar amizade:",
-      error.response?.data || error.message,
-    );
-    await fetchFriends();
-    await fetchRequests();
-  } finally {
-    processingRequest.value = null;
-  }
+    const response = await axios.get(`${apiUrl}/users/search`, { params: { user_name: globalSearchQuery.value } });
+    users.value = (response.data.users || []).map(u => ({
+      ...u,
+      picture_hash: u.picture_hash ? `https://assets.drunagor.app/Profile/${u.picture_hash}` : "https://assets.drunagor.app/Profile/user.png"
+    }));
+  } catch (e) { users.value = []; }
 };
 
-const declineFriend = async (friends_pk) => {
-  if (!friends_pk) {
-    console.error("❌ Erro: ID do pedido (friends_pk) não fornecido.");
-    return;
-  }
-
-  processingRequest.value = friends_pk;
-
-  // Optimistic UI
-  const requestIndex = requests.value.findIndex(
-    (r) => r.friends_pk === friends_pk,
-  );
-  if (requestIndex > -1) {
-    requests.value.splice(requestIndex, 1);
-  }
-
-  try {
-    await axios.delete(`${apiUrl}/friends/${friends_pk}/delete`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-  } catch (error) {
-    console.error(
-      "❌ Erro ao recusar amizade:",
-      error.response?.data || error.message,
-    );
-    await fetchRequests();
-  } finally {
-    processingRequest.value = null;
-  }
+const acceptFriend = async (item) => {
+  processingRequest.value = item.friends_pk;
+  try { await axios.put(`${apiUrl}/friends/accept/${item.friends_pk}`); await fetchFriendsData(); }
+  finally { processingRequest.value = null; }
 };
 
-// Função para atualizar dados periodicamente
-const refreshData = async () => {
-  // Atualiza ambas as listas para garantir sincronização
-  await Promise.all([fetchFriends(), fetchRequests()]);
-};
-
-// Inicia polling
-const startPolling = () => {
-  // Atualiza a cada 5 segundos (ajuste conforme necessário)
-  pollingInterval = setInterval(refreshData, 5000);
-};
-
-// Para polling
-const stopPolling = () => {
-  if (pollingInterval) {
-    clearInterval(pollingInterval);
-    pollingInterval = null;
-  }
+const declineFriend = async (pk) => {
+  processingRequest.value = pk;
+  try { await axios.delete(`${apiUrl}/friends/${pk}/delete`); await fetchFriendsData(); }
+  finally { processingRequest.value = null; }
 };
 
 onMounted(() => {
-  fetchRequests();
-  fetchFriends();
-  startPolling();
+  fetchFriendsData();
+  pollingInterval = setInterval(() => { if (mainTab.value === 'network') fetchFriendsData(); }, 8000);
 });
 
-onBeforeUnmount(() => {
-  stopPolling();
-});
-
-watch(activeTab, (newTab) => {
-  if (newTab === "friends") {
-    fetchFriends();
-  } else if (newTab === "requests") {
-    fetchRequests();
-  }
-});
+onBeforeUnmount(() => { if (pollingInterval) clearInterval(pollingInterval); });
+watch(mainTab, (val) => { if (val === 'network') fetchFriendsData(); });
 </script>
 
 <style scoped>
-.overflow-visible-tabs :deep(.v-slide-group__container),
-.overflow-visible-tabs :deep(.v-slide-group__content) {
+.social-wrapper {
+  align-self: flex-start !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* O CARD PRINCIPAL AGORA TEM ALTURA FIXA BASEADA NA TELA */
+.fixed-main-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 220px) !important; /* Trava a altura do card */
+  min-height: 500px;
+}
+
+/* ÁREA DE SCROLL: Ocupa todo o resto do card */
+.scroll-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 4px; /* Espaço para a scrollbar não colar no card */
+}
+
+/* Garante que o scrollbar fique bonitinho */
+.scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* Placeholder para compensar a falta das abas na aba de busca */
+.tabs-placeholder {
+  height: 48px; /* Mesma altura de um v-tabs */
+}
+
+.search-bar-center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.max-width-search {
+  max-width: 340px;
+}
+
+.background-overlay {
+  z-index: 0;
+  transition: filter 0.3s;
+}
+
+.cursor-pointer:hover .background-overlay {
+  filter: brightness(0.6) !important;
+}
+
+.bg-black-alpha {
+  background-color: rgba(0,0,0,0.5) !important;
+}
+
+.overflow-visible-tabs :deep(.v-slide-group__container) {
   overflow: visible !important;
 }
 
-.cursor-pointer {
-  cursor: pointer;
-}
-.background-overlay {
-  filter: brightness(0.8);
+.results-wrapper {
+  width: 100%;
 }
 </style>
