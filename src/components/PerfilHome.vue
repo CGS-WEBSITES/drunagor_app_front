@@ -1,18 +1,19 @@
 <template>
     <Badges />
-
+<!-- 
     <v-row no-gutters>
         <v-col cols="12">
             <FavoriteCampaignCard image="" title="FAVORITE CAMPAIGN" subtitle="CoD: Age of Darkness" subtitle2=""
                 details="Door 01 - The entrance to the citadel - Chapter 2" />
 
-            <!--  
+            
                 <statistics-card title="STATISTICS" :stats="statsData" user-since="11/11/2011" />
             <achievements-list title="ACHIEVEMENTS" total="13/37" :achievements="achievementsData" />
             <badges-list title="BADGES" total="13/37" :badges="badgesData" />
-            -->
+            
         </v-col>
     </v-row>
+    -->
 </template>
 
 <script lang="ts" setup>
