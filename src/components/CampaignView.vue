@@ -306,81 +306,9 @@
                           </v-col>
                         </v-row>
                       </v-card-text>
-                      <v-col cols="12" md="6" class="pl-md-2">
-                        <CampaignRuneCards
-                          v-if="isSequentialAdventure"
-                          :campaign-id="campaignId"
-                          :campaign-type="campaign.campaign"
-                          class="mb-3 shepherd-rune-cards"
-                        />
-                      </v-col>
                     </v-card>
 
-                    <v-row class="my-3" no-gutters>
-                      <v-col cols="12">
-                        <v-card
-                          class="pa-2 shepherd-hero-actions"
-                          color="primary"
-                        >
-                          <div class="d-flex justify-center flex-wrap gap-2">
-                            <CampaignLogAddHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                            <CampaignLogImportHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                            <CampaignLogRemoveHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                          </div>
-                        </v-card>
-                      </v-col>
-                    </v-row>
-
-                    <v-row no-gutters>
-                      <v-col cols="12">
-                        <v-sheet
-                          rounded
-                          border="md"
-                          class="text-white pa-2 shepherd-heroes-list"
-                        >
-                          <div
-                            v-if="
-                              campaignStore.findAllHeroes(campaignId).length ===
-                              0
-                            "
-                            class="text-center pa-4"
-                          >
-                            No heroes added to this campaign yet.
-                          </div>
-                          <div
-                            v-for="hero in campaignStore.findAllHeroes(
-                              campaignId,
-                            )"
-                            :key="hero.heroId"
-                            class="mb-2"
-                          >
-                            <v-col cols="12">
-                              <SelectCompanion
-                                :campaign-id="campaignId"
-                                :is-admin="true"
-                              />
-                            </v-col>
-                          </div>
-                        </v-sheet>
-                        <v-col cols="12" md="6" class="pl-md-2">
-                          <CampaignRuneCards
-                            v-if="isSequentialAdventure"
-                            :campaign-id="campaignId"
-                            :campaign-type="campaign.campaign"
-                            class="mb-3 shepherd-rune-cards"
-                          />
-                        </v-col>
-                      </v-col>
-                    </v-row>
+                    
 
                     <v-row class="my-3" no-gutters>
                       <v-col cols="12">
