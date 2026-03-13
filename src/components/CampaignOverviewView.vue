@@ -55,7 +55,7 @@
           <template #item="{ props, item }">
             <v-list-item v-bind="props">
               <template #prepend>
-                <div class="mr-3 bg-grey-darken-4" style="width: 70px; height: 40px; border-radius: 4px; overflow: hidden;">
+                <div class="mr-3 bg-grey-darken-4" style="width: 90px; height: 40px; border-radius: 4px; overflow: hidden;">
                   <v-img v-if="item.raw.value === 'core'" src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" cover class="w-100 h-100"></v-img>
                   <v-img v-else-if="item.raw.value === 'apocalypse'" src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp" cover class="w-100 h-100"></v-img>
                   <v-img v-else-if="item.raw.value === 'awakenings'" src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp" cover class="w-100 h-100"></v-img>
@@ -195,18 +195,17 @@
             </v-card-text>
 
             <v-card-text v-else>
-              <v-row no-gutters>
+              <v-row no-gutters class="justify-start ga-2 shepherd-heroes-list">
                 <v-col
                   v-for="hero in heroAvatars(campaign.campaignId)"
                   :key="hero.heroId"
-                  :cols="avatarCols(campaign.campaignId)"
+                  cols="auto"
                   class="d-flex"
                 >
                   <v-avatar
-                    class="my-1"
-                    rounded="0"
+                    class="my-1 rounded-0"
                     :image="hero.images.avatar"
-                    :size="avatarSize"
+                    :size="calculateAvatarSize(campaign.campaignId)"
                   ></v-avatar>
                 </v-col>
               </v-row>
@@ -266,6 +265,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify"; // Importação do useDisplay
 import CampaignNew from "@/components/CampaignNew.vue";
 import CampaignImport from "@/components/CampaignImport.vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -278,6 +278,7 @@ import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
+const { mdAndUp } = useDisplay(); // Pegando a variável de breakpoint nativa do Vuetify
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const toast = useToast();
@@ -308,19 +309,16 @@ const BOX_ID = 38;
 const allCampaigns = computed(() => {
   let campaigns = [...campaignStore.findAll()];
 
-  // 1. Filtro pela expansão selecionada
   if (selectedBoxFilter.value) {
     campaigns = campaigns.filter(c => c.campaign === selectedBoxFilter.value);
   }
 
-  // 2. Filtro: Only Finished
   if (showOnlyFinished.value) {
       campaigns = campaigns.filter(c => extraCampaignData.value[c.campaignId]?.isFinished === true);
   } else {
       campaigns = campaigns.filter(c => !extraCampaignData.value[c.campaignId]?.isFinished);
   }
 
-  // 3. Ordenação
   return campaigns.sort((a, b) => {
     if (sortOrder.value === 'desc') {
       return Number(b.campaignId) - Number(a.campaignId);
@@ -329,7 +327,6 @@ const allCampaigns = computed(() => {
   });
 });
 
-const avatarSize = computed(() => (route.meta.mdAndUp ? 120 : 70));
 const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
@@ -371,7 +368,15 @@ const loadCampaignFromHash = (trackerHash: string, campaignPk: string, partyName
     const camp = data.campaignData;
     camp.campaignId = campaignPk;
     camp.name = partyName || camp.name || "Unnamed Campaign";
-    camp.heroes = [];
+    
+    if (data.heroes && Array.isArray(data.heroes)) {
+      camp.heroes = data.heroes.map((h: any) => ({
+        ...h,
+        campaignId: campaignPk
+      }));
+    } else {
+      camp.heroes = [];
+    }
 
     campaignStore.add(camp);
   } catch (error) {
@@ -489,9 +494,21 @@ const heroAvatars = (campId: string): HeroData[] => {
     .filter((h): h is HeroData => !!h);
 };
 
-const avatarCols = (campId: string) => {
-  const count = heroAvatars(campId).length;
-  return route.meta.mdAndUp && count <= 4 ? 3 : undefined;
+// CÁLCULO DE TAMANHO REATIVO
+const calculateAvatarSize = (campId: string): number => {
+    const heroCount = campaignStore.findAllHeroes(campId).length;
+
+    // Desktop (PC): Mantém o tamanho grande que você curtiu
+    if (mdAndUp.value) {
+        return 110; 
+    } 
+
+    // Mobile: Reduz de forma inteligente para não quebrar a linha
+    if (heroCount <= 4) {
+        return 75; // Cabe 4 na linha
+    } else {
+        return 60; // Cabe 5 na linha
+    }
 };
 
 const onJoinCampaign = () => {
