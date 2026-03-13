@@ -84,23 +84,27 @@ const checkingUserHero = ref(true);
 
 const campaign = computed(() => campaignStore.findOptional(props.campaignId));
 
-const MAX_HEROES = 4;
+// Flag para saber se é Underkeep/Nights (Multiplayer real) ou Campanhas Legadas
+const isMultiplayer = computed(() => {
+  return (
+    campaign.value?.campaign === "underkeep" ||
+    campaign.value?.campaign === "underkeep2"
+  );
+});
 
 const campaignHeroesCount = computed(() => {
   return campaignStore.findAllHeroes(props.campaignId).length;
 });
 
+// Limite Dinâmico: 4 para Underkeep, 5 para as Legadas
 const isLimitReached = computed(() => {
-  if (!campaign.value) {
-    return false;
-  }
-  if (
-    campaign.value.campaign === "underkeep" ||
-    campaign.value.campaign === "underkeep2"
-  ) {
-    return campaignHeroesCount.value >= MAX_HEROES;
-  }
-  return false;
+  if (!campaign.value) return false;
+
+  if (isMultiplayer.value) {
+    return campaignHeroesCount.value >= 4;
+  } 
+  
+  return campaignHeroesCount.value >= 5;
 });
 
 const availableHeroes = computed(() => {
@@ -108,10 +112,7 @@ const availableHeroes = computed(() => {
     return [];
   }
 
-  if (
-    campaign.value.campaign === "underkeep" ||
-    campaign.value.campaign === "underkeep2"
-  ) {
+  if (isMultiplayer.value) {
     const heroRepository = new HeroDataRepository();
     const allHeroes = heroRepository.findAll();
     return allHeroes.filter((hero: HeroData) => hero.content === "core");
@@ -129,6 +130,13 @@ const filteredHeroes = computed(() =>
 async function checkUserHasHero(): Promise<void> {
   checkingUserHero.value = true;
 
+  // Se for campanha antiga (Core, Apoc, Awek), ignora a trava de 1 herói por usuário.
+  if (!isMultiplayer.value) {
+    userAlreadyHasHero.value = false;
+    checkingUserHero.value = false;
+    return;
+  }
+
   try {
     const response = await axios.get("/rl_campaigns_users/list_players", {
       params: {
@@ -142,13 +150,6 @@ async function checkUserHasHero(): Promise<void> {
       );
 
       userAlreadyHasHero.value = currentUser?.playable_heroes_fk != null;
-
-      console.log(
-        `[AddHero] User ${userStore.user.user_name} has hero:`,
-        userAlreadyHasHero.value,
-        "playable_heroes_fk:",
-        currentUser?.playable_heroes_fk,
-      );
     }
   } catch (error) {
     console.error("[AddHero] Error checking user hero:", error);
@@ -263,10 +264,9 @@ async function addHeroToCampaign(heroId: string) {
   }
 
   if (isLimitReached.value) {
-    const campaignType =
-      campaign.value?.campaign === "underkeep" ? "Underkeep" : "Underkeep 2";
+    const limit = isMultiplayer.value ? 4 : 5;
     showSnackbar(
-      `${campaignType} campaigns can only have ${MAX_HEROES} heroes.`,
+      `Campaigns can only have up to ${limit} heroes.`,
       "warning",
     );
     closeModal();
@@ -277,13 +277,16 @@ async function addHeroToCampaign(heroId: string) {
 
   try {
     const newHero = createHeroWithResources(heroId);
-    const playableHeroesPk = await saveHeroAndLink(newHero);
 
-    newHero.playableHeroesPk = playableHeroesPk;
+    // Se for Nights (Multiplayer), salva no banco
+    if (isMultiplayer.value) {
+      const playableHeroesPk = await saveHeroAndLink(newHero);
+      newHero.playableHeroesPk = playableHeroesPk;
+      userAlreadyHasHero.value = true;
+    }
 
+    // Se for Core/Apoc/Awek, apenas injeta na Store
     campaignStore.addHero(props.campaignId, newHero);
-
-    userAlreadyHasHero.value = true;
 
     showSnackbar("Hero added successfully!", "success");
     closeModal();
@@ -312,10 +315,9 @@ async function addRandomHeroToCampaign() {
   }
 
   if (isLimitReached.value) {
-    const campaignType =
-      campaign.value?.campaign === "underkeep" ? "Underkeep" : "Underkeep 2";
+    const limit = isMultiplayer.value ? 4 : 5;
     showSnackbar(
-      `${campaignType} campaigns can only have ${MAX_HEROES} heroes.`,
+      `Campaigns can only have up to ${limit} heroes.`,
       "warning",
     );
     closeModal();
