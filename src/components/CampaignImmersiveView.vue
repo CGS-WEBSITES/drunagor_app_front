@@ -1624,7 +1624,7 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   background-color: #000;
   color: white;
   font-family: "Cinzel", serif;
-  touch-action: none; 
+  touch-action: none;
 }
 
 .map-viewport {
@@ -1653,11 +1653,11 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 }
 
 .map-image {
-  max-width: none; 
+  max-width: none;
   max-height: none;
   width: 100%;
   height: 100%;
-  object-fit: contain; 
+  object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.8));
   -webkit-user-select: none;
@@ -2020,133 +2020,119 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 }
 
 .book-page {
-    background-color: #ffffff;
-    color: #212121;
-    border: 1px solid #1e1e1e;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    width: 100%;
-    max-width: 800px;
-    overflow: hidden;
+  background-color: #ffffff;
+  color: #212121;
+  border: 1px solid #1e1e1e;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 800px;
+  overflow: hidden;
 }
 
 .header-banner {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top center;
-    padding: 10px 14px;
-    position: relative;
-    z-index: 1;
-    color: #212121;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  padding: 10px 14px;
+  position: relative;
+  z-index: 1;
+  color: #212121;
 }
 
 .section-title {
-    font-size: 0.7rem;
-    color: white;
-    padding: 10px 155px 15px;
-    margin: 0;
-    text-transform: uppercase;
-    font-weight: bold;
+  font-size: 0.7rem;
+  color: white;
+  padding: 10px 155px 15px;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 .chapter-title-banner {
-    font-family: "Cinzel Decorative", cursive;
-    font-size: 1.8rem;
-    color: white;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-    margin-top: 1px;
-    margin-bottom: 60px;
-    padding-left: 156px;
-    padding-right: 44px;
-    text-align: left;
+  font-family: "Cinzel Decorative", cursive;
+  font-size: 1.8rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  margin-top: 1px;
+  margin-bottom: 60px;
+  padding-left: 156px;
+  padding-right: 44px;
+  text-align: left;
 }
 
 .body-text {
-    color: #212121;
+  color: #212121;
 }
 
 .body-text :deep(p) {
-    font-family: "EB Garamond", serif;
-    font-size: 1.15rem;
-    line-height: 1.6;
-    text-indent: 1.5em; 
-    margin-bottom: 1.2rem;
-    color: inherit; 
+  font-family: "EB Garamond", serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  text-indent: 1.5em;
+  margin-bottom: 1.2rem;
+  color: inherit;
 }
 
 .body-text :deep(strong) {
-    font-style: normal;
-    font-weight: bold;
+  font-style: normal;
+  font-weight: bold;
 }
 
 .body-text :deep(div) {
-    color: inherit;
+  color: inherit;
 }
 
 .shadow-lg {
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
 }
 
 @media (max-width: 960px) {
   .hud-layer {
-    padding: 8px 8px 8px 8px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto 1fr auto;
-    box-sizing: border-box;
+    display: block !important;
+    padding: 0 !important;
   }
 
   .top-left {
-    grid-area: 1 / 1;
+    position: absolute;
+    top: 12px;
+    left: max(12px, env(safe-area-inset-left));
+    z-index: 20;
   }
 
   .top-right {
-    grid-area: 1 / 2;
+    position: absolute;
+    top: 12px;
+    right: max(12px, env(safe-area-inset-right));
+    z-index: 20;
   }
 
   .bottom-left {
-    grid-area: 3 / 1;
+    position: absolute;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
     margin-bottom: 0 !important;
-    padding-bottom: 0px !important;
-    justify-content: flex-end !important;
-    align-items: flex-start !important;
+    padding-bottom: 0 !important;
     z-index: 25;
-    pointer-events: none;
-  }
-
-  .bottom-left > * {
-    pointer-events: auto;
-  }
-
-  .bookmark-tab.left-side {
-    min-width: auto;
-    width: 48px;
-    justify-content: center;
-    padding: 8px;
   }
 
   .bottom-right {
-    grid-area: 3 / 2;
-    justify-content: flex-end;
-    align-items: flex-end !important;
+    position: absolute;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    right: max(0px, env(safe-area-inset-right));
     margin-bottom: 0 !important;
-    padding-bottom: 0px !important;
-    padding-right: 0px;
+    padding-bottom: 0 !important;
     z-index: 25;
-    pointer-events: none;
-  }
-
-  .bottom-right > * {
-    pointer-events: auto;
   }
 
   .bottom-center {
-    grid-area: 3 / 1 / 4 / 3;
-    justify-content: center;
-    align-items: flex-end;
-    margin-bottom: 0;
-    padding-bottom: 4px;
+    position: absolute;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
     z-index: 20;
-    pointer-events: none;
   }
 
   .heroes-rack {
@@ -2166,14 +2152,15 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   }
 
   .square-hud-btn {
-    width: 36px !important;
-    height: 36px !important;
+    width: 40px !important;
+    height: 40px !important;
     font-size: 0.9rem;
   }
 
   .bookmark-tab {
     padding: 6px 8px;
     min-width: 36px;
+    margin-bottom: 4px !important;
   }
 
   .objective-panel {
@@ -2196,33 +2183,61 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   .right-tab-btn {
     width: 50px !important;
     height: 45px !important;
+    margin-bottom: 6px !important;
+  }
+}
+
+@media (max-height: 450px) {
+  .bookmark-tab {
+    padding: 4px 6px;
+    margin-bottom: 2px !important;
+  }
+
+  .square-hud-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .right-tab-btn {
+    height: 38px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .objective-panel {
+    padding: 2px 6px;
+    margin-bottom: 4px !important;
+  }
+
+  .heroes-rack {
+    transform: scale(0.85);
+    transform-origin: bottom center;
   }
 }
 
 @media (max-width: 480px) {
-    .header-banner {
-        padding: 8px 10px 6px;
-        background-position: left;
-    }
-    
-    .chapter-title-banner {
-        font-size: 1.25rem;
-        padding-left: 0;
-        margin-left: 130px;
-        margin-top: 5px;
-        padding-right: 20px;
-        margin-bottom: 40px;
-    }
-    
-    .section-title {
-        font-size: 0.6rem;
-        padding: 8px 0px 15px;
-        margin-left: 130px;
-    }
-    
-    .body-text :deep(p) {
-        font-size: 1.05rem; 
-        text-indent: 1em; 
-    }
+  .header-banner {
+    padding: 8px 10px 6px;
+    background-position: left;
+  }
+
+  .chapter-title-banner {
+    font-size: 1.25rem;
+    padding-left: 0;
+    margin-left: 130px;
+    margin-top: 5px;
+    padding-right: 20px;
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 0.6rem;
+    padding: 8px 0px 15px;
+    margin-left: 130px;
+  }
+
+  .body-text :deep(p) {
+    font-size: 1.05rem;
+    text-indent: 1em;
+  }
 }
 </style>
