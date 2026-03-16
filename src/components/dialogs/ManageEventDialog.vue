@@ -33,7 +33,7 @@
           <v-icon start>mdi-table-chair</v-icon> Tables
         </v-tab>
         <v-tab value="setup">
-          <v-icon start>mdi-map</v-icon> Initial Setup
+          <v-icon start>mdi-map</v-icon> First Setup
         </v-tab>
         <v-tab value="players">
           <v-icon start>mdi-account-group</v-icon> Players
@@ -289,7 +289,7 @@
               <div class="mb-4 text-center">
                 <h3 class="text-h6 font-weight-bold mb-2">
                   <v-icon color="primary" class="mr-2">mdi-map</v-icon>
-                  Initial Setup - {{ event?.scenario }}
+                  First Setup - {{ event?.scenario }}
                 </h3>
                 <p class="text-body-2 mb-4">
                  Setting up the gaming table using the map below before your players arrive is highly recommended. It ensures a quick and smooth start to the adventure. Click on the image to enlarge and view all setup details
@@ -614,7 +614,7 @@
         <v-card-title class="d-flex justify-space-between align-center">
           <span class="text-h6">
             <v-icon class="mr-2">mdi-map</v-icon>
-            Initial Setup - {{ event?.scenario }}
+            First Setup - {{ event?.scenario }}
           </span>
           
           <div class="d-flex align-center gap-2">
