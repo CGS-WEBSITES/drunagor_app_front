@@ -234,28 +234,65 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="showLoadDialog" max-width="400">
+    <v-dialog v-model="showLoadDialog" max-width="500" scrollable>
         <v-card color="#1e1e1e" class="rounded-lg">
-            <v-card-title class="text-white">Select Campaign</v-card-title>
-            <v-card-text>
-                <v-select
-                  v-model="selectedLoadCampaignId"
-                  :items="availableCampaigns"
-                  item-title="party_name"
-                  item-value="campaigns_fk"
-                  label="Select a campaign"
-                  variant="outlined"
-                  bg-color="grey-darken-4"
-                  color="white"
-                  :loading="loadingCampaigns"
-                  no-data-text="No campaigns found"
-                ></v-select>
+            <v-card-title class="text-white d-flex justify-space-between align-center">
+                <span class="text-body-1 font-weight-bold">Select Campaign to Load</span>
+                <v-btn icon variant="text" size="small" @click="showLoadDialog = false"><v-icon>mdi-close</v-icon></v-btn>
+            </v-card-title>
+            
+            <v-card-text class="pa-3" style="max-height: 60vh;">
+                <div v-if="loadingCampaigns" class="text-center py-8">
+                    <v-progress-circular indeterminate color="amber-accent-4"></v-progress-circular>
+                </div>
+                <div v-else-if="availableCampaigns.length === 0" class="text-center py-8 text-grey">
+                    No matching campaigns found for this Wing.
+                </div>
+                <div v-else class="d-flex flex-column gap-3">
+                    <v-card
+                        v-for="campaign in availableCampaigns"
+                        :key="campaign.campaigns_fk"
+                        class="campaign-load-card position-relative overflow-hidden bg-grey-darken-4"
+                        :class="{ 'finished-campaign': extraCampaignData[campaign.campaigns_fk]?.isFinished }"
+                        @click="handleSelectCampaign(campaign)"
+                    >
+                        <v-img v-if="campaign.box === 22 || campaign.campaign === 'core'" src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" height="120" cover></v-img>
+                        <v-img v-else-if="campaign.box === 23 || campaign.campaign === 'apocalypse'" src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp" height="120" cover></v-img>
+                        <v-img v-else-if="campaign.box === 34 || campaign.campaign === 'awakenings'" src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp" height="120" cover></v-img>
+                        <v-img v-else-if="campaign.box === 38 || campaign.campaign === 'underkeep'" src="@/assets/underkeep.png" height="120" cover></v-img>
+                        <v-img v-else src="@/assets/underkeep2.png" height="120" cover></v-img>
+
+                        <div class="overlay-gradient w-100 pa-2 pt-8 d-flex flex-column position-absolute bottom-0">
+                            <div class="d-flex justify-space-between align-center w-100 mb-1">
+                                <span class="text-subtitle-1 font-weight-bold text-white text-truncate" style="max-width: 80%;">
+                                    {{ campaign.party_name || 'Unnamed Campaign' }}
+                                </span>
+                                <v-chip v-if="extraCampaignData[campaign.campaigns_fk]?.isFinished" color="red-darken-4" size="x-small" variant="flat" class="font-weight-bold">
+                                    FINISHED
+                                </v-chip>
+                            </div>
+                            
+                            <div v-if="extraCampaignData[campaign.campaigns_fk]?.lastDoorName" class="text-caption text-amber-accent-2 font-weight-bold mb-2">
+                                Last Door: <span class="text-white">{{ extraCampaignData[campaign.campaigns_fk].lastDoorName }}</span>
+                            </div>
+
+                            <div v-if="extraCampaignData[campaign.campaigns_fk]?.players?.length" class="d-flex flex-wrap gap-2">
+                                <v-chip
+                                    v-for="player in extraCampaignData[campaign.campaigns_fk].players"
+                                    :key="player.rl_campaigns_users_pk"
+                                    size="small"
+                                    class="bg-black text-white pl-1 pr-2"
+                                >
+                                    <v-avatar start class="mr-1 border-sm">
+                                        <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
+                                    </v-avatar>
+                                    <span class="text-caption font-weight-medium">{{ player.user_name }}</span>
+                                </v-chip>
+                            </div>
+                        </div>
+                    </v-card>
+                </div>
             </v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="grey" variant="text" @click="showLoadDialog = false">Cancel</v-btn>
-                <v-btn color="success" @click="confirmLoadCampaign" :disabled="!selectedLoadCampaignId">Play</v-btn>
-            </v-card-actions>
         </v-card>
     </v-dialog>
 
@@ -319,8 +356,8 @@ const showCampaignDialog = ref(false);
 const tutorialChoiceDialog = ref(false);
 const showLoadDialog = ref(false);
 const loadingCampaigns = ref(false);
-const availableCampaigns = ref([]);
-const selectedLoadCampaignId = ref(null);
+const availableCampaigns = ref<any[]>([]);
+const extraCampaignData = ref<Record<string, { lastDoorName: string, isFinished: boolean, players: any[] }>>({});
 const selectedCampaign = ref<any>(null); 
 const newCampaignName = ref('');
 const overlayVisible = computed(() => loadingStart.value || isReconnecting.value);
@@ -422,6 +459,66 @@ const eventDateObj = computed(() => {
     time: d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true})
   }
 });
+
+const getUserProfileImage = (pictureHash: string | null) => {
+    if (pictureHash) {
+        return `https://assets.drunagor.app/Profile/${pictureHash}`;
+    }
+    return '/assets/hero/avatar/default.webp';
+};
+
+const loadExtraData = async (campaignId: string) => {
+    try {
+        const [doorsRes, playersRes] = await Promise.all([
+            axios.get("/rl_campaigns_doors/search", { params: { campaign_fk: campaignId } }),
+            axios.get("/rl_campaigns_users/list_players", { params: { campaigns_fk: campaignId } })
+        ]);
+        
+        const doors = doorsRes.data.campaign_doors || [];
+        let lastDoorName = "None";
+        let isFinished = false;
+
+        if (doors.length > 0) {
+            doors.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            const latest = doors[0];
+            lastDoorName = latest.door_name;
+            
+            if (latest.doors_fk === 7 || latest.doors_fk === 12 || latest.door_name === "END GAME") {
+                isFinished = true;
+            }
+        }
+
+        const players = playersRes.data.Users || [];
+
+        extraCampaignData.value[campaignId] = {
+            lastDoorName,
+            isFinished,
+            players
+        };
+    } catch (e) {
+        console.error(`Error loading extra info for campaign ${campaignId}:`, e);
+    }
+};
+
+const clearMyLobbySelection = async () => {
+    if (!userStore.user?.users_pk) return;
+    heroCache.value = {}; 
+    
+    try {
+        const res = await axios.get("/rl_campaigns_users/search", { 
+            params: { users_fk: userStore.user.users_pk } 
+        });
+        const campaigns = res.data.campaigns || [];
+        
+        const lobbyEntries = campaigns.filter((c: any) => c.campaigns_fk === null || c.campaigns_fk === undefined || c.campaigns_fk === "null");
+
+        for (const entry of lobbyEntries) {
+            await axios.delete(`/rl_campaigns_users/${entry.rl_campaigns_users_pk}/delete/`);
+        }
+    } catch (e) {
+        console.warn("Could not clear previous lobby hero", e);
+    }
+};
 
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
@@ -554,6 +651,20 @@ const joinTable = async () => {
             return;
         }
 
+        // Limpa o cache visual e na api das seleções vazias de herói
+        await clearMyLobbySelection(); 
+
+        // Destrói ativamente a conexão antiga de evento deste usuário
+        try {
+            const checkEvent = await axios.get("/rl_events_users/check-duplicate", {
+                params: { users_fk: userStore.user.users_pk, events_fk: eventId, event_tables_fk: tablePk.value }
+            });
+            if (checkEvent.data.exists && checkEvent.data.existing_relationship) {
+                 await axios.delete(`/rl_events_users/${checkEvent.data.existing_relationship.rl_events_users_pk}/delete/`);
+            }
+        } catch(e) { console.error("Failed clear event relationship", e); }
+
+        // Entra no evento sem enviar a chave playable_heroes_fk para o DB assumir null
         await axios.post('/rl_events_users/cadastro', null, {
             params: {
                 users_fk: userStore.user.users_pk,
@@ -563,6 +674,16 @@ const joinTable = async () => {
                 active: true
             }
         });
+
+        // E cria a campanha null sem heroi
+        await axios.post('/rl_campaigns_users/cadastro', null, {
+            params: {
+                users_fk: userStore.user.users_pk,
+                skus_fk: DEFAULT_SKU,
+                active: true
+            }
+        });
+
     } catch (e) { console.error(e); }
 };
 
@@ -574,23 +695,36 @@ const selectHero = async (hero: any) => {
     const usersPk = userStore.user.users_pk;
 
     try {
-        const { data } = await axios.get("/rl_campaigns_users/check-duplicate", {
-             params: { users_fk: usersPk, skus_fk: DEFAULT_SKU }
-        });
-        
-        if (data.exists && data.existing_relationship) {
-             await axios.delete(`/rl_campaigns_users/${data.existing_relationship.rl_campaigns_users_pk}/delete/`);
-        }
+        await clearMyLobbySelection(); 
 
         await axios.post('/rl_campaigns_users/cadastro', null, {
             params: {
                 users_fk: usersPk,
                 skus_fk: DEFAULT_SKU,
                 active: true,
-                playable_heroes_fk: hero.pk,
-                campaigns_fk: null 
+                playable_heroes_fk: hero.pk
             }
         });
+
+        // Atualiza a tabela de evento tbm pro endpoint de list_players enxergar
+        try {
+            const checkEvent = await axios.get("/rl_events_users/check-duplicate", {
+                params: { users_fk: usersPk, events_fk: eventId, event_tables_fk: tablePk.value }
+            });
+            if (checkEvent.data.exists && checkEvent.data.existing_relationship) {
+                 await axios.delete(`/rl_events_users/${checkEvent.data.existing_relationship.rl_events_users_pk}/delete/`);
+            }
+            await axios.post('/rl_events_users/cadastro', null, {
+                params: {
+                    users_fk: usersPk,
+                    events_fk: eventId,
+                    event_tables_fk: tablePk.value, 
+                    status: 1, 
+                    active: true,
+                    playable_heroes_fk: hero.pk
+                }
+            });
+        } catch(e) {}
 
         fetchTablePlayers(); 
     } catch (e) { console.error(e); }
@@ -651,6 +785,16 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
             party_name: newCampaignName.value || "New Adventure"
         });
 
+        // Força a gravação da porta inicial 1 na tabela de histórico de portas
+        try {
+            await axios.post("/rl_campaigns_doors/cadastro", {
+                doors_fk: 1,
+                campaign_fk: campaignFk
+            });
+        } catch (errDoor) {
+            console.warn("Failed to insert first setup door", errDoor);
+        }
+
         campaignStore.add(realCampaign);
         await executeStartGameFlow(campaignFk, wantsTutorial, false);
 
@@ -660,25 +804,66 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
     } 
 };
 
+// ====================================================================================
+// NOVA LÓGICA DE FILTRO DE LOAD PELA WING EXATA DO EVENTO
+// ====================================================================================
 const fetchAndShowLoadDialog = async () => {
     loadingCampaigns.value = true;
     showLoadDialog.value = true;
     try {
          const res = await axios.get("/rl_campaigns_users/search", { params: { users_fk: userStore.user?.users_pk } });
-         availableCampaigns.value = res.data.campaigns;
-    } catch(e) { } finally { loadingCampaigns.value = false; }
+         let camps = res.data.campaigns || [];
+         
+         // Descobre qual wing o evento que a mesa está usando
+         let scenarioName = eventDetails.value?.scenario || 'Wing 04';
+         const isWing3 = scenarioName.toLowerCase().includes('wing 03') || scenarioName.toLowerCase().includes('wing 3');
+         const expectedWing = isWing3 ? 'Wing 3' : 'Wing 4';
+
+         const filteredCampaigns = [];
+         
+         for (const camp of camps) {
+             try {
+                 let campWing = camp.wing;
+                 
+                 if (!campWing && camp.tracker_hash) {
+                     const data = JSON.parse(atob(camp.tracker_hash));
+                     campWing = data.campaignData?.wing;
+                 }
+
+                 if (campWing && (
+                     (isWing3 && campWing.toLowerCase().includes('wing 3')) ||
+                     (!isWing3 && campWing.toLowerCase().includes('wing 4'))
+                 )) {
+                     filteredCampaigns.push(camp);
+                 }
+             } catch (e) {
+                 console.error("Error parsing tracker_hash for campaign", camp.campaigns_fk);
+             }
+         }
+
+         availableCampaigns.value = filteredCampaigns.sort((a: any, b: any) => b.campaigns_fk - a.campaigns_fk);
+
+         await Promise.allSettled(
+             availableCampaigns.value.map((c:any) => loadExtraData(c.campaigns_fk))
+         );
+    } catch(e) { 
+        console.error(e);
+    } finally { 
+        loadingCampaigns.value = false; 
+    }
 };
 
-const confirmLoadCampaign = async () => {
-    const camp: any = availableCampaigns.value.find((c:any) => c.campaigns_fk === selectedLoadCampaignId.value);
-    
-    if (camp) {
-        loadingCampaignAction.value = true; 
-        showLoadDialog.value = false;
-        showCampaignDialog.value = false;
-        
-        await executeStartGameFlow(camp.campaigns_fk, null, true);
+const handleSelectCampaign = async (campaign: any) => {
+    if (extraCampaignData.value[campaign.campaigns_fk]?.isFinished) {
+        showAppAlert("This campaign is finished and cannot be loaded to play.", "info");
+        return;
     }
+
+    loadingCampaignAction.value = true; 
+    showLoadDialog.value = false;
+    showCampaignDialog.value = false;
+    
+    await executeStartGameFlow(campaign.campaigns_fk, null, true);
 };
 
 const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean | null, isLoad: boolean = false) => {
@@ -830,6 +1015,7 @@ const leaveLobby = () => router.go(-1);
 
 onMounted(async () => {
     await fetchEventDetails();
+    await clearMyLobbySelection(); 
     if(tablePk.value) await joinTable();
     await fetchTablePlayers(); 
     pollingTimer.value = setInterval(() => fetchTablePlayers(), 3000);
@@ -853,4 +1039,25 @@ onBeforeUnmount(() => {
 .player-slot-card:active { transform: scale(0.96); }
 .player-overlay-header { position: absolute; top: 0; left: 0; width: 100%; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); display: flex; align-items: center; padding: 8px; }
 .z-index-10 { z-index: 10; }
+
+.campaign-load-card {
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s, border-color 0.2s;
+}
+.campaign-load-card:hover {
+    border-color: #ffd740;
+    transform: scale(0.98);
+}
+.finished-campaign {
+    filter: grayscale(80%) brightness(0.7);
+    cursor: not-allowed !important;
+}
+.finished-campaign:hover {
+    transform: none !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+.overlay-gradient {
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
+}
 </style>

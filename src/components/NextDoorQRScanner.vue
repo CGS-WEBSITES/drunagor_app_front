@@ -13,8 +13,9 @@
               size="small"
               class="camera-switch"
               variant="flat"
+              :disabled="isProcessing"
             />
-            <div class="scan-overlay"></div>
+            <div class="scan-overlay" :class="{ 'scanning-success': isProcessing }"></div>
           </div>
         </v-col>
 
@@ -27,21 +28,6 @@
           </div>
 
           <v-divider class="w-75 mb-6 border-opacity-25"></v-divider>
-<!--
-          <v-btn
-            color="primary"
-            size="x-large"
-            variant="elevated"
-            prepend-icon="mdi-door-open"
-            class="font-weight-bold skip-btn"
-            width="100%"
-            max-width="544"
-            height="64"
-            @click="$emit('manual-advance')"
-          >
-            SKIP SCAN &<br>OPEN NEXT DOOR
-          </v-btn>
-          -->
         </v-col>
       </v-row>
     </v-container>
@@ -75,20 +61,18 @@ const availableCameras = ref<MediaDeviceInfo[]>([]);
 const currentCameraIndex = ref(0);
 const isCameraSwitchVisible = ref(false);
 const showCameraDeniedDialog = ref(false);
-const isMounted = ref(false); // Controle de montagem
+const isMounted = ref(false);
+const isProcessing = ref(false); // Evita ler múltiplos QRs seguidos
 let activeStream: MediaStream | null = null;
 
 const stopCamera = () => {
-  // 1. Reseta o leitor do ZXing
   codeReader.reset();
 
-  // 2. Para o stream salvo na variável
   if (activeStream) {
     activeStream.getTracks().forEach(track => track.stop());
     activeStream = null;
   }
 
-  // 3. Força a parada do stream no elemento de vídeo (caso tenha ficado orfão)
   const videoElement = document.getElementById('nd-qr-video') as HTMLVideoElement;
   if (videoElement && videoElement.srcObject) {
     const stream = videoElement.srcObject as MediaStream;
@@ -102,7 +86,6 @@ const startScanner = async () => {
     stopCamera();
     await nextTick();
     
-    // Se o componente desmontou enquanto esperava o nextTick, aborta
     if (!isMounted.value) return;
 
     const videoElement = document.getElementById('nd-qr-video') as HTMLVideoElement;
@@ -119,37 +102,33 @@ const startScanner = async () => {
 
     const deviceId = devices[currentCameraIndex.value].deviceId;
 
-    // Se desmontou antes de pedir a câmera, aborta
     if (!isMounted.value) return;
 
     await codeReader.decodeFromVideoDevice(deviceId, videoElement, (result) => {
-      // Verificação extra de segurança dentro do callback
       if (!isMounted.value) {
         stopCamera();
         return;
       }
-      if (result) {
+      if (result && !isProcessing.value) {
         const text = result.getText().trim();
         if (text) {
-             stopCamera(); 
-             emit('scanned', text);
+          isProcessing.value = true; // Trava o leitor
+          stopCamera(); 
+          emit('scanned', text);
         }
       }
     });
 
-    // Captura o stream ativo imediatamente
     if (videoElement.srcObject) {
       activeStream = videoElement.srcObject as MediaStream;
     }
 
-    // Se por acaso o componente foi desmontado durante o processo de decode
     if (!isMounted.value) {
       stopCamera();
     }
 
   } catch (e) {
     console.error("Scanner error", e);
-    // Só mostra erro se o componente ainda estiver na tela
     if (isMounted.value) {
       showCameraDeniedDialog.value = true;
     }
@@ -157,7 +136,7 @@ const startScanner = async () => {
 };
 
 const switchCamera = () => {
-  if (availableCameras.value.length <= 1) return;
+  if (availableCameras.value.length <= 1 || isProcessing.value) return;
   stopCamera();
   currentCameraIndex.value = (currentCameraIndex.value + 1) % availableCameras.value.length;
   nextTick(() => startScanner());
@@ -195,13 +174,15 @@ onBeforeUnmount(() => {
   box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
 
+.scanning-success {
+  border-color: rgba(76, 175, 80, 0.8) !important;
+  background: rgba(76, 175, 80, 0.2);
+  transition: all 0.3s ease;
+}
+
 @media (max-width: 600px) {
   .video-wrapper {
     max-width: 240px; 
-  }
-  .skip-btn {
-    height: 56px !important;
-    font-size: 0.9rem !important;
   }
 }
 
@@ -225,10 +206,5 @@ onBeforeUnmount(() => {
   background: rgba(0,0,0,0.6);
   color: white;
   z-index: 10;
-}
-
-.skip-btn {
-  letter-spacing: 0.5px;
-  line-height: 1.2;
 }
 </style>

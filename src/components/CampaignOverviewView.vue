@@ -195,7 +195,7 @@
             </v-card-text>
 
             <v-card-text v-else>
-              <v-row no-gutters class="justify-start ga-2 shepherd-heroes-list">
+              <v-row no-gutters>
                 <v-col
                   v-for="hero in heroAvatars(campaign.campaignId)"
                   :key="hero.heroId"

@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="800" style="min-width: 360px" class="d-md-none pa-4">
+  <v-container max-width="800" class="d-md-none pa-4">
     <v-card
       color="primary"
       rounded="lg"
@@ -116,12 +116,6 @@ const retailbuttons = ref([
     text: "stores",
   },
   {
-    icon: "mdi-magnify",
-    value: "search",
-    route: "/profile/friend-store",
-    text: "search users",
-  },
-  {
     icon: "mdi-account-group",
     value: "group",
     route: "/profile/friend-storelist",
@@ -141,12 +135,6 @@ const usermobilebuttons = ref([
     value: "PerfilHome",
     route: "/profile/home",
     text: "profile",
-  },
-  {
-    icon: "mdi-magnify",
-    value: "search",
-    route: "/profile/friend-store",
-    text: "search users",
   },
   {
     icon: "mdi-account-group",
@@ -177,12 +165,6 @@ const retailmobilebuttons = ref([
     text: "stores",
   },
   {
-    icon: "mdi-magnify",
-    value: "search",
-    route: "/profile/friend-store",
-    text: "search users",
-  },
-  {
     icon: "mdi-account-group",
     value: "group",
     route: "/profile/friend-storelist",
@@ -203,12 +185,6 @@ const userbuttons = ref([
     value: "PerfilHome",
     route: "/profile/home",
     text: "profile",
-  },
-  {
-    icon: "mdi-magnify",
-    value: "search",
-    route: "/profile/friend-store",
-    text: "search users",
   },
   {
     icon: "mdi-account-group",
