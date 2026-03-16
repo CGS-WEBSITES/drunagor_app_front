@@ -33,7 +33,7 @@
           class="mx-auto"
           :style="{ maxWidth: containerMaxWidth }"
         >
-          <v-row no-gutters align="end" class="pa-4">
+          <v-row no-gutters align="end" class="pa-4 flex-nowrap">
             <v-col cols="auto">
               <v-avatar
                 size="100"
@@ -56,7 +56,7 @@
                 />
               </v-avatar>
             </v-col>
-            <v-col class="ml-n4">
+            <v-col class="ml-n4" style="min-width: 0;">
               <div
                 class="pa-3 rounded-lg"
                 style="
@@ -66,11 +66,12 @@
                   padding-left: 32px !important;
                   position: relative;
                   z-index: 4;
+                  width: 100%;
                 "
                 @click="goToProfile"
               >
                 <h5
-                  class="text-h6 font-weight-bold text-white"
+                  class="text-h6 font-weight-bold text-white text-truncate"
                   style="line-height: 1.25rem"
                 >
                   {{ user.user_name }}
@@ -298,7 +299,7 @@ onBeforeMount(async () => {
 <style>
 .avatar-mobile {
   position: relative;
-  transform: translateY(-95px); /* Ajustado para subir o card */
+  transform: translateY(-95px);
   z-index: 3;
 }
 .card-overlay {
