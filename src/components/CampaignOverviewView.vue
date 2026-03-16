@@ -22,9 +22,7 @@
     >
       <v-card-actions>
         <CampaignNew />
-
         <CampaignImport />
-
         <v-btn variant="elevated" rounded @click="onJoinCampaign">
           Join Campaign
         </v-btn>
@@ -34,42 +32,62 @@
     <v-card class="d-md-none justify-center pa-3 elevation-0">
       <v-card-actions class="d-flex justify-center flex-wrap ga-2">
         <CampaignNew />
-
         <CampaignImport />
-
         <v-btn variant="elevated" rounded @click="onJoinCampaign">
           Join Campaign
         </v-btn>
       </v-card-actions>
     </v-card>
 
-    <v-card class="mt-3 pa-3 elevation-0 d-flex align-center justify-space-between flex-wrap ga-3">
-      <div class="d-flex flex-wrap ga-3">
-        <v-checkbox
-          v-model="showAllCampaigns"
-          label="Other Campaigns"
-          color="primary"
+    <v-card class="mt-3 pa-3 elevation-0 d-flex flex-column ga-4">
+      
+      <div class="w-100">
+        <v-select
+          v-model="selectedBoxFilter"
+          :items="boxOptions"
+          label="Filter by Box"
+          variant="outlined"
+          density="compact"
           hide-details
-          @update:modelValue="onFilterChange"
-        ></v-checkbox>
-
-        <v-checkbox
-          v-model="showFinishedCampaigns"
-          label="Show Finished"
-          color="red-darken-2"
-          hide-details
-        ></v-checkbox>
+          clearable
+          style="max-width: 720px;"
+        >
+          <template #item="{ props, item }">
+            <v-list-item v-bind="props">
+              <template #prepend>
+                <div class="mr-3 bg-grey-darken-4" style="width: 90px; height: 40px; border-radius: 4px; overflow: hidden;">
+                  <v-img v-if="item.raw.value === 'core'" src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" cover class="w-100 h-100"></v-img>
+                  <v-img v-else-if="item.raw.value === 'apocalypse'" src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp" cover class="w-100 h-100"></v-img>
+                  <v-img v-else-if="item.raw.value === 'awakenings'" src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp" cover class="w-100 h-100"></v-img>
+                  <v-img v-else-if="item.raw.value === 'underkeep'" src="@/assets/underkeep.png" cover class="w-100 h-100"></v-img>
+                  <v-img v-else-if="item.raw.value === 'underkeep2'" src="@/assets/underkeep2.png" cover class="w-100 h-100"></v-img>
+                  <v-icon v-else class="w-100 h-100 d-flex align-center justify-center">mdi-filter-variant</v-icon>
+                </div>
+              </template>
+            </v-list-item>
+          </template>
+        </v-select>
       </div>
 
-      <v-select
-        v-model="sortOrder"
-        :items="[{title: 'Newest First', value: 'desc'}, {title: 'Oldest First', value: 'asc'}]"
-        label="Sort By"
-        variant="outlined"
-        density="compact"
-        hide-details
-        style="max-width: 200px; min-width: 150px;"
-      ></v-select>
+      <div class="d-flex flex-wrap align-center ga-4">
+        <v-checkbox
+          v-model="showOnlyFinished"
+          label="Only Finished"
+          color="red-darken-2"
+          hide-details
+          class="flex-grow-0"
+        ></v-checkbox>
+
+        <v-select
+          v-model="sortOrder"
+          :items="[{title: 'Newest First', value: 'desc'}, {title: 'Oldest First', value: 'asc'}]"
+          label="Sort By"
+          variant="outlined"
+          density="compact"
+          hide-details
+          style="width: 160px; flex-grow: 0;"
+        ></v-select>
+      </div>
     </v-card>
 
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
@@ -159,7 +177,6 @@
             </v-card-title>
 
             <v-card-text v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]">
-              
               <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
               <div class="d-flex flex-wrap gap-2">
                 <v-chip
@@ -182,14 +199,13 @@
                 <v-col
                   v-for="hero in heroAvatars(campaign.campaignId)"
                   :key="hero.heroId"
-                  :cols="avatarCols(campaign.campaignId)"
+                  cols="auto"
                   class="d-flex"
                 >
                   <v-avatar
-                    class="my-1"
-                    rounded="0"
+                    class="my-1 rounded-0"
                     :image="hero.images.avatar"
-                    :size="avatarSize"
+                    :size="calculateAvatarSize(campaign.campaignId)"
                   ></v-avatar>
                 </v-col>
               </v-row>
@@ -249,6 +265,7 @@
 <script setup lang="ts">
 import { ref, computed, onBeforeMount } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useDisplay } from "vuetify"; // Importação do useDisplay
 import CampaignNew from "@/components/CampaignNew.vue";
 import CampaignImport from "@/components/CampaignImport.vue";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -261,6 +278,7 @@ import axios from "axios";
 
 const router = useRouter();
 const route = useRoute();
+const { mdAndUp } = useDisplay(); // Pegando a variável de breakpoint nativa do Vuetify
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const toast = useToast();
@@ -270,8 +288,18 @@ const joiningCampaign = ref(false);
 const loadingErrors = ref<{ id: number; text: string }[]>([]);
 const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
-const showAllCampaigns = ref(false);
-const showFinishedCampaigns = ref(false);
+
+const selectedBoxFilter = ref<string | null>(null);
+const boxOptions = [
+  { title: 'All Campaigns', value: null },
+  { title: 'CoD Core', value: 'core' },
+  { title: 'CoD Apocalypse', value: 'apocalypse' },
+  { title: 'CoD Awakenings', value: 'awakenings' },
+  { title: 'Drunagor Nights S1', value: 'underkeep' },
+  { title: 'Drunagor Nights S2', value: 'underkeep2' }
+];
+
+const showOnlyFinished = ref(false);
 const sortOrder = ref('desc');
 
 const extraCampaignData = ref<Record<string, { lastDoorName: string, isFinished: boolean, players: any[] }>>({});
@@ -281,12 +309,14 @@ const BOX_ID = 38;
 const allCampaigns = computed(() => {
   let campaigns = [...campaignStore.findAll()];
 
-  // Esconde campanhas finalizadas se o checkbox não estiver marcado
-  if (!showFinishedCampaigns.value) {
-      campaigns = campaigns.filter(c => {
-          const extra = extraCampaignData.value[c.campaignId];
-          return !extra?.isFinished;
-      });
+  if (selectedBoxFilter.value) {
+    campaigns = campaigns.filter(c => c.campaign === selectedBoxFilter.value);
+  }
+
+  if (showOnlyFinished.value) {
+      campaigns = campaigns.filter(c => extraCampaignData.value[c.campaignId]?.isFinished === true);
+  } else {
+      campaigns = campaigns.filter(c => !extraCampaignData.value[c.campaignId]?.isFinished);
   }
 
   return campaigns.sort((a, b) => {
@@ -297,18 +327,18 @@ const allCampaigns = computed(() => {
   });
 });
 
-const avatarSize = computed(() => (route.meta.mdAndUp ? 120 : 70));
 const parsedCampaignFk = computed(() => {
   return joinCampaignId.value.length > 4 ? joinCampaignId.value.slice(4) : null;
 });
 
 const getBoxName = (boxId: number) => {
   const map: Record<number, string> = {
-    22: "Corebox",
-    23: "Apocalypse",
-    34: "Awakenings",
-    38: "Underkeep Drunagor Nights",
-    39: "Underkeep Drunagor Nights Season 2",
+    22: "CoD Age of Darkness CORE",
+    23: "CoD Apocalypse",
+    24: "CoD Awakenings",
+    34: "CoD Awakenings",
+    38: "Drunagor Nights S1",
+    39: "Drunagor Nights S2",
   };
 
   return map[boxId] || `Unknown Box (ID: ${boxId})`;
@@ -338,7 +368,15 @@ const loadCampaignFromHash = (trackerHash: string, campaignPk: string, partyName
     const camp = data.campaignData;
     camp.campaignId = campaignPk;
     camp.name = partyName || camp.name || "Unnamed Campaign";
-    camp.heroes = [];
+    
+    if (data.heroes && Array.isArray(data.heroes)) {
+      camp.heroes = data.heroes.map((h: any) => ({
+        ...h,
+        campaignId: campaignPk
+      }));
+    } else {
+      camp.heroes = [];
+    }
 
     campaignStore.add(camp);
   } catch (error) {
@@ -407,7 +445,7 @@ const loadCampaigns = async () => {
     const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user!.users_pk,
-        show_season2: showAllCampaigns.value,
+        show_season2: true,
       },
     });
 
@@ -430,12 +468,7 @@ const loadCampaigns = async () => {
   }
 };
 
-const onFilterChange = () => {
-  loadCampaigns();
-};
-
 const goToCampaign = (campaign: any) => {
-  // Mantive bloqueado novamente se a campanha estiver finalizada
   if (extraCampaignData.value[campaign.campaignId]?.isFinished) {
       toast.add({
           severity: 'info',
@@ -461,9 +494,21 @@ const heroAvatars = (campId: string): HeroData[] => {
     .filter((h): h is HeroData => !!h);
 };
 
-const avatarCols = (campId: string) => {
-  const count = heroAvatars(campId).length;
-  return route.meta.mdAndUp && count <= 4 ? 3 : undefined;
+// CÁLCULO DE TAMANHO REATIVO
+const calculateAvatarSize = (campId: string): number => {
+    const heroCount = campaignStore.findAllHeroes(campId).length;
+
+    // Desktop (PC): Mantém o tamanho grande que você curtiu
+    if (mdAndUp.value) {
+        return 110; 
+    } 
+
+    // Mobile: Reduz de forma inteligente para não quebrar a linha
+    if (heroCount <= 4) {
+        return 75; // Cabe 4 na linha
+    } else {
+        return 60; // Cabe 5 na linha
+    }
 };
 
 const onJoinCampaign = () => {
@@ -487,9 +532,7 @@ const confirmJoinCampaign = async () => {
         skus_fk: BOX_ID,
       },
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       },
     );
 
@@ -498,9 +541,7 @@ const confirmJoinCampaign = async () => {
         users_fk: usersPk,
         campaigns_fk: campaignId,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
     const campaignData = campaignResponse.data.campaigns[0];
