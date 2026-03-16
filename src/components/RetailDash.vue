@@ -84,13 +84,13 @@
 
     <div
       class="flex-grow-1"
-      style="
-        margin-top: -120px;
-        overflow-y: auto;
-        min-height: 0;
-        z-index: 1;
-        width: 100%;
-      "
+      :style="{
+        marginTop: display.xs ? '-130px' : '-120px',
+        overflowY: 'auto',
+        minHeight: '0',
+        zIndex: 1,
+        width: '100%'
+      }"
     >
       <v-container
         class="mx-auto px-4 fill-height align-start"
@@ -100,46 +100,57 @@
       </v-container>
     </div>
 
-    <div class="pa-4 flex-grow-0 flex-shrink-0">
+    <div class="pa-2 pa-sm-4 flex-grow-0 flex-shrink-0">
       <v-container
         style="padding: 0; width: 100%"
         class="mx-auto"
         :style="{ maxWidth: containerMaxWidth }"
       >
-        <v-toolbar height="96" rounded="lg" class="px-2" color="primary">
-          <v-row no-gutters align="center" class="fill-height ma-0 w-100">
+        <v-toolbar 
+          :height="display.xs ? 80 : 96" 
+          rounded="lg" 
+          class="px-1 px-sm-2" 
+          color="primary"
+        >
+          <v-row 
+            no-gutters 
+            align="center" 
+            justify="space-between" 
+            class="fill-height ma-0 w-100 flex-nowrap"
+          >
             
-            <v-col class="d-flex justify-center align-center">
+            <v-col cols="auto" class="d-flex justify-center align-center">
               <v-btn
                 icon
                 variant="text"
                 @click="goToFAQ"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
               >
                 <v-icon>mdi-help-circle-outline</v-icon>
               </v-btn>
             </v-col>
             
-            <v-col cols="auto" class="px-2" style="width: 50%; max-width: 250px; min-width: 160px;">
+            <v-col class="px-2 d-flex justify-center align-center">
               <v-btn
                 color="#118D8E"
                 variant="flat"
                 @click="goToEvents"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
                 rounded="lg"
                 class="font-weight-bold w-100"
+                style="max-width: 250px;"
               >
                 <v-icon left class="mr-1">mdi-calendar</v-icon>
                 Events
               </v-btn>
             </v-col>
 
-            <v-col class="d-flex justify-center align-center">
+            <v-col cols="auto" class="d-flex justify-center align-center">
               <v-btn
                 icon
                 variant="text"
                 @click="goToStores"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
               >
                 <v-icon>mdi-store</v-icon>
               </v-btn>

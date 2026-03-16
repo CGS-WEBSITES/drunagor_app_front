@@ -42,25 +42,25 @@
                     :src="getSeasonInfo(event.seasons_fk).flag"
                     class="season-flag"
                   />
-                  <v-row no-gutters align="center">
-                    <v-col cols="3" class="d-flex justify-center">
+                  <v-row no-gutters align="center" class="flex-nowrap w-100">
+                    <v-col cols="auto" class="d-flex justify-center px-1">
                       <div
                         class="text-center"
-                        style="width: 70px; color: black"
+                        style="min-width: 65px; color: black"
                       >
-                        <p class="pt-3 text-caption font-weight-bold">
+                        <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
                           {{
                             new Date(event.event_date)
                               .toLocaleDateString("en-US", { month: "short" })
                               .toUpperCase()
                           }}
                         </p>
-                        <p class="cinzel-text text-h3 font-weight-bold">
+                        <p class="cinzel-text text-h4 font-weight-bold my-1" style="line-height: 1;">
                           {{
                             String(event.event_date).split("T")[0].split("-")[2]
                           }}
                         </p>
-                        <p class="text-caption font-weight-bold">
+                        <p class="text-caption font-weight-bold" style="line-height: 1.2; font-size: 11px !important;">
                           {{
                             new Date(event.event_date).toLocaleTimeString(
                               "en-US",
@@ -68,29 +68,26 @@
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 hour12: true,
-                              },
+                              }
                             )
                           }}
                         </p>
                       </div>
                     </v-col>
-                    <v-col
-                      cols="7"
-                      class="pt-2"
-                      :class="display.xs.value ? 'pl-4' : ''"
-                    >
-                      <h3 class="pb-1">
+                    
+                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0;">
+                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8">
                         <v-icon class="pr-1" size="small" color="black"
                           >mdi-chess-rook</v-icon
                         >
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate">
-                        <v-icon color="red">mdi-map-marker</v-icon>
+                      <p class="text-caption text-truncate pr-8">
+                        <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption">
-                        <v-icon color="red">mdi-sword-cross</v-icon>
+                      <p class="text-caption text-truncate pr-8">
+                        <v-icon color="red" size="small">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
                     </v-col>
@@ -147,25 +144,25 @@
                     :src="getSeasonInfo(event.seasons_fk).flag"
                     class="season-flag"
                   />
-                  <v-row no-gutters align="center">
-                    <v-col cols="3" class="d-flex justify-center">
+                  <v-row no-gutters align="center" class="flex-nowrap w-100">
+                    <v-col cols="auto" class="d-flex justify-center px-1">
                       <div
                         class="text-center"
-                        style="width: 70px; color: black"
+                        style="min-width: 65px; color: black"
                       >
-                        <p class="pt-3 text-caption font-weight-bold">
+                        <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
                           {{
                             new Date(event.event_date)
                               .toLocaleDateString("en-US", { month: "short" })
                               .toUpperCase()
                           }}
                         </p>
-                        <p class="cinzel-text text-h3 font-weight-bold">
+                        <p class="cinzel-text text-h4 font-weight-bold my-1" style="line-height: 1;">
                           {{
                             String(event.event_date).split("T")[0].split("-")[2]
                           }}
                         </p>
-                        <p class="text-caption font-weight-bold">
+                        <p class="text-caption font-weight-bold" style="line-height: 1.2; font-size: 11px !important;">
                           {{
                             new Date(event.event_date).toLocaleTimeString(
                               "en-US",
@@ -173,29 +170,25 @@
                                 hour: "2-digit",
                                 minute: "2-digit",
                                 hour12: true,
-                              },
+                              }
                             )
                           }}
                         </p>
                       </div>
                     </v-col>
-                    <v-col
-                      cols="9"
-                      class="pt-2"
-                      :class="display.xs.value ? 'pl-4' : ''"
-                    >
-                      <h3 class="pb-1">
+                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0;">
+                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8">
                         <v-icon class="pr-1" size="small" color="black"
                           >mdi-chess-rook</v-icon
                         >
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate">
-                        <v-icon color="red">mdi-map-marker</v-icon>
+                      <p class="text-caption text-truncate pr-8">
+                        <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption">
-                        <v-icon color="red">mdi-sword-cross</v-icon>
+                      <p class="text-caption text-truncate pr-8">
+                        <v-icon color="red" size="small">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
                     </v-col>

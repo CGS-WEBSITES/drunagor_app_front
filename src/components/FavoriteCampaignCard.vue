@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="800" style="min-width: 360px" class="pa-4">
+  <v-container max-width="800"  class="pa-4">
     <v-card
       color="primary"
       class="pl-2 pr-2 pb-2 pt-2"
