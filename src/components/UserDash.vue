@@ -33,7 +33,7 @@
           class="mx-auto"
           :style="{ maxWidth: containerMaxWidth }"
         >
-          <v-row no-gutters align="end" class="pa-4">
+          <v-row no-gutters align="end" class="pa-4 flex-nowrap">
             <v-col cols="auto">
               <v-avatar
                 size="100"
@@ -56,7 +56,7 @@
                 />
               </v-avatar>
             </v-col>
-            <v-col class="ml-n4">
+            <v-col class="ml-n4" style="min-width: 0;">
               <div
                 class="pa-3 rounded-lg"
                 style="
@@ -66,11 +66,12 @@
                   padding-left: 32px !important;
                   position: relative;
                   z-index: 4;
+                  width: 100%;
                 "
                 @click="goToProfile"
               >
                 <h5
-                  class="text-h6 font-weight-bold text-white"
+                  class="text-h6 font-weight-bold text-white text-truncate"
                   style="line-height: 1.25rem"
                 >
                   {{ user.user_name }}
@@ -84,13 +85,13 @@
 
     <div
       class="flex-grow-1"
-      style="
-        margin-top: -120px;
-        overflow-y: auto;
-        min-height: 0;
-        z-index: 1;
-        width: 100%;
-      "
+      :style="{
+        marginTop: display.xs ? '-130px' : '-120px',
+        overflowY: 'auto',
+        minHeight: '0',
+        zIndex: 1,
+        width: '100%'
+      }"
     >
       <v-container
         class="mx-auto px-4 fill-height align-start"
@@ -135,7 +136,7 @@
                 color="#118D8E"
                 variant="flat"
                 @click="openPlaySelection"
-                size="x-large"
+                :size="display.xs ? 'large' : 'x-large'"
                 rounded="lg"
                 class="font-weight-bold w-100"
                 style="max-width: 250px;" 
@@ -166,8 +167,8 @@
       :user="user" 
     />
 
-    <v-dialog v-model="showPlaySelectionDialog" max-width="500">
-      <v-card color="grey-darken-4" rounded="xl">
+    <v-dialog v-model="showPlaySelectionDialog" max-width="500" scrollable>
+      <v-card color="grey-darken-4" rounded="xl" max-height="90vh">
         <v-card-title class="d-flex justify-space-between align-center px-4 pt-4 pb-2">
           <span class="text-h5 font-weight-bold">Choose your adventure</span>
           <v-btn icon variant="text" @click="showPlaySelectionDialog = false">
@@ -175,8 +176,7 @@
           </v-btn>
         </v-card-title>
         
-        <v-card-text class="pa-0">
-          
+        <v-card-text class="pa-0" style="overflow-y: auto;">
           <div class="pa-5 text-center">
             <v-img 
               src="@/assets/underkeep2.png" 
@@ -207,7 +207,6 @@
           <v-divider class="mx-6 border-opacity-50" color="grey"></v-divider>
 
           <div class="pa-5 text-center">
-            
             <div class="legacy-cluster mb-6 mt-2">
               <div class="d-flex justify-center align-center ga-6 position-relative z-10">
                 <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
@@ -236,11 +235,9 @@
               Open Tracker
             </v-btn>
           </div>
-
         </v-card-text>
       </v-card>
     </v-dialog>
-
   </v-main>
 </template>
 
@@ -250,16 +247,12 @@ import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
-import {
-  HeroDataRepository,
-  type HeroData,
-} from "@/data/repository/HeroDataRepository";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
 import axios from "axios";
 import DashboardEvents from "@/components/DashboardEvents.vue";
 import HUB from "@/components/HUB.vue";
 
-// Importando os Logos
 import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
 import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
@@ -317,13 +310,11 @@ const openPlaySelection = () => {
   showPlaySelectionDialog.value = true;
 };
 
-// Abre o componente HUB (Lobby QR Scanner)
 const playDrunagorNights = () => {
   showPlaySelectionDialog.value = false;
   openHub();
 };
 
-// Navega para a rota do Legacy Tracker
 const playLegacyCampaigns = () => {
   showPlaySelectionDialog.value = false;
   router.push({ path: "/campaign-tracker/" });
@@ -355,7 +346,6 @@ onBeforeMount(async () => {
 </script>
 
 <style>
-/* CSS do Dialog Novo */
 .legacy-cluster {
   position: relative;
   padding: 10px;
@@ -376,7 +366,6 @@ onBeforeMount(async () => {
 .z-10 { z-index: 10; }
 .z-20 { z-index: 20; }
 
-/* CSS ORIGINAL RESTAURADO (Sem o "scoped" que estava quebrando o Vuetify) */
 .avatar-mobile {
   position: relative;
   transform: translateY(-55px);

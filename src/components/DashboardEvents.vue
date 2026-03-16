@@ -46,7 +46,7 @@
                     <v-col cols="auto" class="d-flex justify-center px-1">
                       <div
                         class="text-center"
-                        style="min-width: 65px; color: black"
+                        style="width: 70px; color: black"
                       >
                         <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
                           {{
@@ -75,18 +75,16 @@
                       </div>
                     </v-col>
                     
-                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0;">
-                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8">
-                        <v-icon class="pr-1" size="small" color="black"
-                          >mdi-chess-rook</v-icon
-                        >
+                    <v-col class="py-2 pl-2" style="min-width: 0; padding-right: 55px !important;">
+                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate" style="line-height: 1.2;">
+                        <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate pr-8">
+                      <p class="text-caption text-truncate mb-1" style="line-height: 1.2;">
                         <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption text-truncate pr-8">
+                      <p class="text-caption text-truncate" style="line-height: 1.2;">
                         <v-icon color="red" size="small">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
@@ -148,7 +146,7 @@
                     <v-col cols="auto" class="d-flex justify-center px-1">
                       <div
                         class="text-center"
-                        style="min-width: 65px; color: black"
+                        style="width: 70px; color: black"
                       >
                         <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
                           {{
@@ -176,18 +174,16 @@
                         </p>
                       </div>
                     </v-col>
-                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0;">
-                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8">
-                        <v-icon class="pr-1" size="small" color="black"
-                          >mdi-chess-rook</v-icon
-                        >
+                    <v-col class="py-2 pl-2" style="min-width: 0; padding-right: 55px !important;">
+                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate" style="line-height: 1.2;">
+                        <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate pr-8">
+                      <p class="text-caption text-truncate mb-1" style="line-height: 1.2;">
                         <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption text-truncate pr-8">
+                      <p class="text-caption text-truncate" style="line-height: 1.2;">
                         <v-icon color="red" size="small">mdi-sword-cross</v-icon>
                         {{ event.scenario }}
                       </p>
@@ -935,11 +931,12 @@ onMounted(async () => {
 }
 .season-flag {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 60px;
-  height: 60px;
+  top: -2px;
+  right: -2px;
+  width: 50px;
+  height: 50px;
   z-index: 2;
+  border-bottom-left-radius: 8px;
 }
 .content-scroll {
   padding-bottom: 12px;
