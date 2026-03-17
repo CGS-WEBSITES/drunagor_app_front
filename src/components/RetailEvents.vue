@@ -442,127 +442,186 @@
         max-width="1280"
         scroll-target="#app"
       >
-        <v-btn icon class="close-btn" @click="createEventDialog = false">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
-        <v-card class="pa-6 dark-background">
+        <v-card class="create-event-shell dark-background">
           <div v-if="loading" class="loading-overlay">
             <v-progress-circular indeterminate size="80" color="primary" />
           </div>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12">
-                <v-select
-                  v-model="newEvent.store"
-                  :items="stores.map((store) => store.name)"
-                  label="STORE"
-                  variant="outlined"
-                  :loading="loading"
-                  no-data-text="No stores found"
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="newEvent.season"
-                  :items="seasons"
-                  item-title="name"
-                  item-value="seasons_pk"
-                  label="SEASON"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-select
-                  v-model="newEvent.scenario"
-                  :items="filteredScenarios"
-                  item-title="name"
-                  item-value="sceneries_pk"
-                  label="SCENARIO"
-                  variant="outlined"
-                  :disabled="!newEvent.season"
-                  no-data-text="Select a season first"
-                ></v-select>
-              </v-col>
-              <v-col cols="6" md="4">
-                <v-text-field
-                  v-model="newEvent.hour"
-                  label="TIME"
-                  variant="outlined"
-                  placeholder="HH:MM"
-                  maxlength="5"
-                  v-mask="'##:##'"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" md="4">
-                <v-select
-                  v-model="newEvent.ampm"
-                  :items="['AM', 'PM']"
-                  label="AM/PM"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" md="4" class="d-flex align-center">
-                <v-text-field
-                  v-model="newEvent.date"
-                  label="DATE"
-                  type="date"
-                  variant="outlined"
-                  class="date-input"
-                  :min="today"
-                  :max="oneYearFromTodayISO"
-                  :rules="dateRules"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <p class="pb-3 font-weight-bold">REWARDS</p>
-                <v-autocomplete
-                  v-model="selectedRewards"
-                  :items="allRewards"
-                  item-title="name"
-                  item-value="rewards_pk"
-                  label="Select Rewards"
-                  multiple
-                  return-object
-                >
-                  <template #item="{ item, props }">
-                    <v-list-item v-bind="props">
-                      <template #prepend>
-                        <v-avatar size="32">
+          <div class="create-event-header">
+            <h2 class="text-h5 font-weight-black mb-0">
+              Create a Drunagor Nights Event
+            </h2>
+            <v-btn
+              icon
+              size="default"
+              class="close-btn"
+              @click="createEventDialog = false"
+            >
+              <v-icon size="20">mdi-close</v-icon>
+            </v-btn>
+          </div>
+          <v-card-text class="create-event-body">
+              <v-row dense>
+                <v-col cols="12">
+                  <v-select
+                    v-model="newEvent.store"
+                    :items="availableStores"
+                    label="STORE"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-store"
+                    :loading="loading"
+                    no-data-text="No stores found"
+                  />
+                </v-col>
+
+                <v-col cols="12" sm="6">
+                  <v-select
+                    v-model="newEvent.season"
+                    :items="retailerSeasonOptions"
+                    item-title="name"
+                    item-value="seasons_pk"
+                    label="SEASON"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-flag-variant"
+                    disabled
+                    readonly
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="newEvent.scenario"
+                    :items="filteredScenarios"
+                    item-title="displayName"
+                    item-value="sceneries_pk"
+                    label="WING"
+                    variant="outlined"
+                    prepend-inner-icon="mdi-sword-cross"
+                    :disabled="!filteredScenarios.length"
+                    no-data-text="No wings available"
+                  >
+                    <template #item="{ item, props }">
+                      <v-list-item
+                        v-bind="props"
+                        :title="item.raw.wingLabel || item.raw.name"
+                        :subtitle="item.raw.name"
+                      ></v-list-item>
+                    </template>
+                    <template #selection="{ item }">
+                      <span class="select-short-value">
+                        {{ item.raw.wingLabel || item.raw.name }}
+                      </span>
+                    </template>
+                  </v-select>
+                </v-col>
+
+                <v-col cols="4" sm="4" md="2">
+                  <v-select
+                    v-model="newEvent.hour"
+                    :items="hourOptions"
+                    label="HOUR"
+                    variant="outlined"
+                    class="time-input"
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="4" sm="4" md="2">
+                  <v-select
+                    v-model="newEvent.minute"
+                    :items="minuteOptions"
+                    label="MIN"
+                    variant="outlined"
+                    class="time-input"
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="4" sm="4" md="2">
+                  <v-select
+                    v-model="newEvent.ampm"
+                    :items="['AM', 'PM']"
+                    label="AM/PM"
+                    variant="outlined"
+                  ></v-select>
+                </v-col>
+
+                <v-col cols="12" sm="6" md="6" class="d-flex align-center">
+                  <v-text-field
+                    v-model="newEvent.date"
+                    label="DATE"
+                    type="date"
+                    variant="outlined"
+                    class="date-input"
+                    prepend-inner-icon="mdi-calendar"
+                    lang="en-US"
+                    placeholder="mm/dd/yyyy"
+                    :min="today"
+                    :max="oneYearFromTodayISO"
+                    :rules="dateRules"
+                  ></v-text-field>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-autocomplete
+                    v-model="selectedRewards"
+                    :items="allRewards"
+                    item-title="name"
+                    item-value="rewards_pk"
+                    label="REWARDS"
+                    variant="outlined"
+                    multiple
+                    clearable
+                    return-object
+                  >
+                    <template #item="{ item, props }">
+                      <v-list-item v-bind="props">
+                        <template #prepend>
+                          <v-avatar size="32">
+                            <v-img
+                              :src="`https://assets.drunagor.app/${item.raw.picture_hash}`"
+                            />
+                          </v-avatar>
+                        </template>
+                        <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                    <template #selection="{ item, index }">
+                      <v-chip
+                        size="small"
+                        class="ma-1"
+                        closable
+                        @click:close="selectedRewards.splice(index, 1)"
+                      >
+                        <v-avatar start size="24">
                           <v-img
                             :src="`https://assets.drunagor.app/${item.raw.picture_hash}`"
                           />
                         </v-avatar>
-                      </template>
-                      <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
-                    </v-list-item>
-                  </template>
-                  <template #selection="{ item, index }">
-                    <v-chip
-                      size="small"
-                      class="ma-1"
-                      closable
-                      @click:close="selectedRewards.splice(index, 1)"
+                        {{ item.raw.name }}
+                      </v-chip>
+                    </template>
+                  </v-autocomplete>
+                </v-col>
+
+                <v-col cols="12">
+                  <div class="create-event-actions">
+                    <v-btn
+                      variant="text"
+                      color="white"
+                      @click="createEventDialog = false"
                     >
-                      <v-avatar start size="24">
-                        <v-img
-                          :src="`https://assets.drunagor.app/${item.raw.picture_hash}`"
-                        />
-                      </v-avatar>
-                      {{ item.raw.name }}
-                    </v-chip>
-                  </template>
-                </v-autocomplete>
-              </v-col>
-              <v-col cols="12">
-                <v-btn
-                  block
-                  color="secundary"
-                  class="launch-btn mt-12"
-                  @click="addEvent"
-                  >LAUNCH EVENT</v-btn
-                >
-              </v-col>
-            </v-row>
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      color="secundary"
+                      class="launch-btn"
+                      :loading="loading"
+                      :disabled="loading || !createEventReady"
+                      @click="addEvent"
+                    >
+                      LAUNCH EVENT
+                    </v-btn>
+                  </div>
+                </v-col>
+              </v-row>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -588,19 +647,19 @@
               <v-col cols="6" md="6" v-if="isEditable">
                 <v-select
                   v-model="editableEvent.sceneries_fk"
-                  :items="sceneries"
-                  item-title="name"
+                  :items="editableScenarios"
+                  item-title="displayName"
                   item-value="sceneries_pk"
                   label="SCENARIO"
                   variant="outlined"
-                  :key="sceneries.length"
+                  :key="editableScenarios.length"
                   clearable
                 ></v-select>
               </v-col>
               <v-col cols="12" v-if="isEditable">
                 <v-select
                   v-model="editableEvent.store"
-                  :items="stores.map((store) => store.name)"
+                  :items="availableStores"
                   label="STORE"
                   variant="outlined"
                 ></v-select>
@@ -723,6 +782,23 @@ const router = useRouter();
 const route = useRoute();
 const tutorialStore = useTutorialStore();
 const axios = inject("axios");
+const LOCKED_RETAILER_SEASON_PK = 3;
+const RETAILER_ALLOWED_SCENERIES = [5, 6];
+const FALLBACK_RETAILER_SEASON = {
+  seasons_pk: LOCKED_RETAILER_SEASON_PK,
+  name: "Season 2",
+};
+
+const createDefaultNewEvent = () => ({
+  date: "",
+  hour: "12",
+  minute: "00",
+  ampm: "AM",
+  store: "",
+  season: LOCKED_RETAILER_SEASON_PK,
+  scenario: null,
+  address: "",
+});
 
 const showTutorialPrompt = ref(false);
 const isEditable = ref(false);
@@ -736,7 +812,7 @@ const events = ref([]);
 const sceneries = ref([]);
 const userCreatedEvents = ref([]);
 const createEventDialog = ref(false);
-const newEvent = ref({});
+const newEvent = ref(createDefaultNewEvent());
 const stores = ref([]);
 const editEventDialog = ref(false);
 const editableEvent = ref({ rewards_pk: [] });
@@ -769,6 +845,81 @@ const getSeasonInfo = (fk) => {
   return { flag: null, name: "" };
 };
 
+const getRetailWingLabel = (sceneryPk) => {
+  if (sceneryPk === 5) return "Wing 3";
+  if (sceneryPk === 6) return "Wing 4";
+  return "";
+};
+
+const decorateScenario = (scenario) => {
+  const wingLabel = getRetailWingLabel(scenario.sceneries_pk);
+  return {
+    ...scenario,
+    wingLabel,
+    displayName: wingLabel ? `${wingLabel} - ${scenario.name}` : scenario.name,
+  };
+};
+
+const sortRetailScenarios = (a, b) =>
+  RETAILER_ALLOWED_SCENERIES.indexOf(a.sceneries_pk) -
+  RETAILER_ALLOWED_SCENERIES.indexOf(b.sceneries_pk);
+
+const getStoreDisplayName = (store) =>
+  (store && (store.name || store.storename)) || "";
+
+const buildStoreAddress = (store) => {
+  if (!store) return "";
+
+  return [
+    store.address,
+    store.streetNumber,
+    store.complement,
+    store.city,
+    store.state,
+  ]
+    .filter(Boolean)
+    .join(", ");
+};
+
+const findStoreByNameInList = (storeList, selectedStoreName) => {
+  const normalizedName = selectedStoreName
+    ? selectedStoreName.toLowerCase().trim()
+    : "";
+  if (!normalizedName) return null;
+
+  return (
+    storeList.find(
+      (store) =>
+        getStoreDisplayName(store).toLowerCase().trim() === normalizedName,
+    ) || null
+  );
+};
+
+const findStoreByName = (selectedStoreName) =>
+  findStoreByNameInList(stores.value, selectedStoreName);
+
+const retailerSeasonOptions = computed(() => {
+  const lockedSeason = seasons.value.find(
+    (season) => season.seasons_pk === LOCKED_RETAILER_SEASON_PK,
+  );
+
+  return [lockedSeason || FALLBACK_RETAILER_SEASON];
+});
+
+const availableStores = computed(() => {
+  const names = stores.value
+    .map((store) => getStoreDisplayName(store))
+    .filter(Boolean);
+
+  return [...new Set(names)];
+});
+
+const hourOptions = Array.from({ length: 12 }, (_, index) =>
+  String(index + 1).padStart(2, "0"),
+);
+
+const minuteOptions = ["00", "15", "30", "45"];
+
 const confirmTurnAway = (player) => {
   turnAwayConfirmDialog.value = {
     show: true,
@@ -790,15 +941,47 @@ const sortedEvents = computed(() => {
 });
 
 const filteredScenarios = computed(() => {
-  if (!newEvent.value.season) return [];
-  if (newEvent.value.season === 2) {
-    return sceneries.value.filter((s) => [2, 3, 4].includes(s.sceneries_pk));
-  }
-  if (newEvent.value.season === 3) {
-    return sceneries.value.filter((s) => [5, 6].includes(s.sceneries_pk));
-  }
-  return [];
+  if (newEvent.value.season !== LOCKED_RETAILER_SEASON_PK) return [];
+
+  return sceneries.value
+    .filter((scenario) =>
+      RETAILER_ALLOWED_SCENERIES.includes(scenario.sceneries_pk),
+    )
+    .sort(sortRetailScenarios)
+    .map(decorateScenario);
 });
+
+const editableScenarios = computed(() => {
+  const currentSeason =
+    editableEvent.value.seasons_fk ?? selectedEvent.value?.seasons_fk;
+
+  if (currentSeason === 2) {
+    return sceneries.value
+      .filter((scenario) => [2, 3, 4].includes(scenario.sceneries_pk))
+      .map(decorateScenario);
+  }
+
+  if (currentSeason === LOCKED_RETAILER_SEASON_PK) {
+    return sceneries.value
+      .filter((scenario) =>
+        RETAILER_ALLOWED_SCENERIES.includes(scenario.sceneries_pk),
+      )
+      .sort(sortRetailScenarios)
+      .map(decorateScenario);
+  }
+
+  return sceneries.value.map(decorateScenario);
+});
+
+const createEventReady = computed(
+  () =>
+    !!newEvent.value.store &&
+    !!newEvent.value.season &&
+    !!newEvent.value.scenario &&
+    !!newEvent.value.date &&
+    isValid12HourTime(getFormattedNewEventTime()) &&
+    !!newEvent.value.ampm,
+);
 
 const openInGoogleMaps = () => {
   const event = selectedEvent.value;
@@ -814,8 +997,7 @@ const openInGoogleMaps = () => {
   window.open(mapsUrl, "_blank");
 };
 
-const validateTime = () => {
-  const value = editableEvent.value.hour;
+const normalize12HourTime = (value) => {
   if (!value || value.length !== 5 || !value.includes(":")) return;
   let [hh, mm] = value.split(":");
   hh = parseInt(hh);
@@ -824,9 +1006,40 @@ const validateTime = () => {
   if (hh > 12) hh = 12;
   if (isNaN(mm)) mm = 0;
   if (mm > 59) mm = 59;
-  editableEvent.value.hour = `${hh.toString().padStart(2, "0")}:${mm
-    .toString()
-    .padStart(2, "0")}`;
+  return `${hh.toString().padStart(2, "0")}:${mm.toString().padStart(2, "0")}`;
+};
+
+const validateTime = () => {
+  editableEvent.value.hour = normalize12HourTime(editableEvent.value.hour);
+};
+
+const validateNewEventTime = () => {
+  const normalizedHour = String(newEvent.value.hour || "").padStart(2, "0");
+  if (hourOptions.includes(normalizedHour)) {
+    newEvent.value.hour = normalizedHour;
+  }
+
+  if (!minuteOptions.includes(newEvent.value.minute)) {
+    newEvent.value.minute = "00";
+  }
+};
+
+const isValid12HourTime = (value) => /^(0[1-9]|1[0-2]):[0-5][0-9]$/.test(value);
+
+const getFormattedNewEventTime = () =>
+  `${String(newEvent.value.hour || "").padStart(2, "0")}:${String(newEvent.value.minute || "00").padStart(2, "0")}`;
+
+const ensureRetailerSeasonLocked = () => {
+  newEvent.value.season = LOCKED_RETAILER_SEASON_PK;
+};
+
+const resetCreateEventForm = () => {
+  newEvent.value = createDefaultNewEvent();
+  selectedRewards.value = [];
+  errorDialog.value = {
+    show: false,
+    message: "",
+  };
 };
 
 const openManageDialog = (event) => {
@@ -1038,30 +1251,17 @@ const removeReward = async (reward) => {
   }
 };
 
-const roundTimeToNearest15Minutes = (timeString) => {
-  if (!timeString || !timeString.includes(":")) return timeString;
-
-  const [hours, minutes] = timeString.split(":").map(Number);
-  const roundedMinutes = Math.round(minutes / 5) * 5;
-
-  if (roundedMinutes === 60) {
-    const newHours = hours === 12 ? 1 : hours + 1;
-    return `${String(newHours).padStart(2, "0")}:00`;
-  }
-
-  return `${String(hours).padStart(2, "0")}:${String(roundedMinutes).padStart(2, "0")}`;
-};
-
 const addEvent = () => {
   loading.value = true;
   errorDialog.value.show = false;
   successDialog.value = false;
 
   const userId = userStore.user.users_pk;
+  ensureRetailerSeasonLocked();
+  validateNewEventTime();
 
   if (
     !newEvent.value.date ||
-    !newEvent.value.hour ||
     !newEvent.value.store ||
     !newEvent.value.season ||
     !newEvent.value.scenario ||
@@ -1075,106 +1275,140 @@ const addEvent = () => {
     return;
   }
 
-  newEvent.value.hour = roundTimeToNearest15Minutes(newEvent.value.hour);
+  const formattedTime = getFormattedNewEventTime();
 
-  axios.get("/stores/list", {
-    params: { users_fk: userId },
-    headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-  })
-  .then(({ data }) => {
-    const allStores = data.stores || [];
-    const found = allStores.find(s => s.name?.toLowerCase().trim() === newEvent.value.store.toLowerCase().trim());
-
-    if (!found) throw new Error("StoreNotFound");
-    if (!found.active) throw new Error("StoreInactive");
-    if (!found.verified) throw new Error("StoreUnverified");
-
-    return found.stores_pk;
-  })
-  .then((storesFk) => {
-    const [h, m] = newEvent.value.hour.split(":").map(Number);
-    const ampm = newEvent.value.ampm || "AM";
-    const date = `${newEvent.value.date}; ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} ${ampm}`;
-
-    return axios.post("/events/cadastro", null, {
-      params: {
-        seats_number: newEvent.value.seats || 0,
-        seasons_fk: newEvent.value.season,
-        sceneries_fk: newEvent.value.scenario,
-        date,
-        stores_fk: storesFk,
-        users_fk: userId,
-        active: true,
-      },
-      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-    });
-  })
-  .then(async ({ data }) => {
-    const created = data.event;
-    const id = created?.events_pk;
-
-    if (!id) throw new Error("EventCreationFailed");
-
-    lastCreatedEventId.value = id;
-    lastCreatedEventFallback.value = {
-      ...created,
-      events_pk: id,
-      store_name: newEvent.value.store,
-      address: newEvent.value.address,
-      scenario: sceneries.value.find(s => s.sceneries_pk === newEvent.value.scenario)?.name || ""
-    };
-
-    await createInitialTableForEvent(id);
-
-    return Promise.all(
-      selectedRewards.value.map((r) =>
-        axios.post("/rl_events_rewards/cadastro", {
-          events_fk: id,
-          rewards_fk: r.rewards_pk,
-          active: true,
-        }, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-        }).catch(() => null)
-      )
-    ).then(() => id);
-  })
-  .then(() => {
-    createEventDialog.value = false;
-    fetchUserCreatedEvents(showPast.value);
-    
-    if (tutorialStore.shouldShowInitialSetup) {
-      pendingSuccessAfterTutorial.value = true;
-      showTutorialPrompt.value = true;
-    } else {
-      successDialog.value = true;
-    }
-
-    // Limpar
-    newEvent.value = {
-      date: "",
-      hour: "",
-      ampm: "AM",
-      store: "",
-      seats: null,
-      season: null,
-      scenario: null,
-    };
-    selectedRewards.value = [];
-  })
-  .catch((err) => {
-    if (["StoreNotFound", "EventCreationFailed"].includes(err.message)) {
-       errorDialog.value = { show: true, message: err.message };
-       return;
-    }
-    console.error("Unexpected error:", err);
+  if (!isValid12HourTime(formattedTime)) {
     errorDialog.value = {
       show: true,
-      message: err.response?.data?.message || "An error occurred while creating the event.",
+      message: "Please enter a valid time in HH:MM format.",
     };
-  })
-  .finally(() => {
     loading.value = false;
-  });
+    return;
+  }
+
+  axios
+    .get("/stores/list", {
+      params: { users_fk: userId },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    })
+    .then(({ data }) => {
+      const allStores = data.stores || [];
+      const found = findStoreByNameInList(allStores, newEvent.value.store);
+
+      if (!found) throw new Error("StoreNotFound");
+      if (!found.active) throw new Error("StoreInactive");
+      if (!found.verified) throw new Error("StoreUnverified");
+
+      return {
+        storesFk: found.stores_pk,
+        storeAddress: buildStoreAddress(found),
+      };
+    })
+    .then(({ storesFk, storeAddress }) => {
+      const date = `${newEvent.value.date}; ${formattedTime} ${newEvent.value.ampm || "AM"}`;
+
+      return axios
+        .post("/events/cadastro", null, {
+          params: {
+            seats_number: 4,
+            seasons_fk: newEvent.value.season,
+            sceneries_fk: newEvent.value.scenario,
+            date,
+            stores_fk: storesFk,
+            users_fk: userId,
+            active: true,
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then(({ data }) => ({ data, storeAddress }));
+    })
+    .then(async ({ data, storeAddress }) => {
+      const created = data.event;
+      const id = created?.events_pk;
+
+      if (!id) throw new Error("EventCreationFailed");
+
+      lastCreatedEventId.value = id;
+      lastCreatedEventFallback.value = {
+        ...created,
+        events_pk: id,
+        store_name: newEvent.value.store,
+        address: storeAddress || newEvent.value.address,
+        scenario:
+          filteredScenarios.value.find(
+            (scenario) => scenario.sceneries_pk === newEvent.value.scenario,
+          )?.name || "",
+      };
+
+      await createInitialTableForEvent(id);
+
+      return Promise.all(
+        selectedRewards.value.map((reward) =>
+          axios
+            .post(
+              "/rl_events_rewards/cadastro",
+              {
+                events_fk: id,
+                rewards_fk: reward.rewards_pk,
+                active: true,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+              },
+            )
+            .catch(() => null),
+        ),
+      ).then(() => id);
+    })
+    .then(() => {
+      createEventDialog.value = false;
+      fetchUserCreatedEvents(showPast.value);
+
+      if (tutorialStore.shouldShowInitialSetup) {
+        pendingSuccessAfterTutorial.value = true;
+        showTutorialPrompt.value = true;
+      } else {
+        successDialog.value = true;
+      }
+
+      resetCreateEventForm();
+    })
+    .catch((err) => {
+      const knownMessages = {
+        StoreNotFound:
+          "We couldn't find the selected store. Please choose a valid store and try again.",
+        StoreInactive: "This store is inactive and can't host events right now.",
+        StoreUnverified:
+          "This store still needs verification before creating events.",
+        EventCreationFailed:
+          "The event could not be created correctly. Please try again.",
+      };
+
+      if (knownMessages[err.message]) {
+        errorDialog.value = {
+          show: true,
+          message: knownMessages[err.message],
+        };
+        return;
+      }
+
+      console.error("Unexpected error:", err);
+      errorDialog.value = {
+        show: true,
+        message:
+          err.response?.data?.message ||
+          "An error occurred while creating the event.",
+      };
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const createInitialTableForEvent = async (eventPk) => {
@@ -1253,6 +1487,7 @@ const deleteEvent = (events_pk) => {
 };
 
 const openCreateEventDialog = () => {
+  ensureRetailerSeasonLocked();
   createEventDialog.value = true;
 };
 
@@ -1270,6 +1505,7 @@ const openEditDialog = (event, editable = false) => {
     hour: `${String(hours12).padStart(2, "0")}:${minutes}`,
     ampm,
     seats_number: event.seats_number,
+    seasons_fk: event.seasons_fk,
     sceneries_fk: event.sceneries_fk,
     store: event.store_name,
     rewards: event.rewards || [],
@@ -1338,8 +1574,9 @@ const saveEditedEvent = () => {
     })
     .then((response) => {
       const allStores = response.data.stores || [];
-      const foundStore = allStores.find(
-        (s) => s.name === editableEvent.value.store,
+      const foundStore = findStoreByNameInList(
+        allStores,
+        editableEvent.value.store,
       );
       if (!foundStore) {
         console.error(`Store "${editableEvent.value.store}" not found`);
@@ -1348,7 +1585,10 @@ const saveEditedEvent = () => {
       return foundStore.stores_pk;
     })
     .then((storesFk) => {
-      const seasonsFk = editableEvent.value.seasons_fk ?? 2;
+      const seasonsFk =
+        editableEvent.value.seasons_fk ??
+        selectedEvent.value?.seasons_fk ??
+        LOCKED_RETAILER_SEASON_PK;
       const hour = (editableEvent.value.hour || "12:00").trim();
       const ampm = editableEvent.value.ampm || "PM";
       const dateFormatted = `${editableEvent.value.date}; ${hour} ${ampm}`;
@@ -1483,6 +1723,25 @@ watch(
   },
 );
 
+watch(createEventDialog, (isOpen) => {
+  if (isOpen) {
+    ensureRetailerSeasonLocked();
+    return;
+  }
+
+  resetCreateEventForm();
+});
+
+watch(filteredScenarios, (scenarioOptions) => {
+  const hasSelectedScenario = scenarioOptions.some(
+    (scenario) => scenario.sceneries_pk === newEvent.value.scenario,
+  );
+
+  if (!hasSelectedScenario) {
+    newEvent.value.scenario = null;
+  }
+});
+
 onUnmounted(() => {
   clearInterval(eventsInterval.value);
 });
@@ -1506,12 +1765,9 @@ watch(activeTab, async (novo) => {
 watch(
   () => newEvent.value.store,
   (selectedStoreName) => {
-    const selectedStore = stores.value.find(
-      (store) => store.storename === selectedStoreName,
-    );
+    const selectedStore = findStoreByName(selectedStoreName);
     if (selectedStore) {
-      const { address, streetNumber, complement, city, state } = selectedStore;
-      newEvent.value.address = `${address}, ${streetNumber}, ${complement}, ${city}, ${state}`;
+      newEvent.value.address = buildStoreAddress(selectedStore);
     } else {
       newEvent.value.address = "";
     }
@@ -1657,8 +1913,70 @@ watch(
   color: white;
 }
 
+.create-event-shell {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #121212;
+}
+
+.create-event-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 14px 6px 18px;
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  background: #121212;
+}
+
+.create-event-header h2 {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.create-event-panel {
+  height: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+}
+
+.create-event-panel--compact {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.create-event-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.select-short-value {
+  display: block;
+  max-width: 100%;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .date-input {
-  max-width: 190px;
+  width: 100%;
+}
+
+.time-input {
+  width: 100%;
 }
 
 .hour-input {
@@ -1667,9 +1985,10 @@ watch(
 }
 
 .launch-btn {
-  background-color: white;
-  color: black;
-  font-weight: bold;
+  min-width: 220px;
+  min-height: 48px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .selected-reward {
@@ -1692,11 +2011,29 @@ watch(
 }
 
 .close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 10;
-  color: red;
+  flex-shrink: 0;
+  z-index: 13;
+  color: white;
+  width: 40px !important;
+  height: 40px !important;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.close-btn:hover {
+  transform: scale(1.04);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.create-event-body {
+  padding: 6px 18px 18px !important;
 }
 
 .redbutton {
@@ -1741,6 +2078,26 @@ watch(
 }
 
 @media (max-width: 600px) {
+  .create-event-header {
+    padding: 12px 12px 4px 16px;
+  }
+
+  .create-event-header h2 {
+    font-size: 1.05rem !important;
+  }
+
+  .create-event-body {
+    padding: 6px 16px 16px !important;
+  }
+
+  .create-event-actions {
+    justify-content: stretch;
+  }
+
+  .create-event-actions .v-btn {
+    width: 100%;
+  }
+
   .event-card {
     margin-right: 0 !important;
   }
