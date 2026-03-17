@@ -1,8 +1,8 @@
 export const assemblySteps = [
   {
     id: 1,
-    image: "https://assets.drunagor.app/book/assembly/01 - What is a SETUP.png",
-    instruction: "The Initial Setup for the first room can be found under the 'Initial Setup' tab within your created event. Players can also access it through the first scene of each wing, inside the Books section, or directly on the Interactive Campaign Screen. For the rest of the adventure, scanning each Door card will reveal the setup instructions right here."
+    image: "https://assets.drunagor.app/book/assembly/01+-+What+is+a+SETUP.png",
+    instruction: "The First Setup for the first room can be found under the 'First Setup' tab within your created event. Players can also access it through the first scene of each wing, inside the Books section, or directly on the Interactive Campaign Screen. For the rest of the adventure, scanning each Door card will reveal the setup instructions right here."
   },
   {
     id: 2,
@@ -56,7 +56,7 @@ export const assemblySteps = [
   },
   {
     id: 12,
-    image: "https://assets.drunagor.app/book/assembly/12 - What is a DOOR.png",
+    image: "https://assets.drunagor.app/book/assembly/12+-+What+is+a+DOOR.png",
     instruction: "In Chronicles of Drunagor, the story unfolds through the app. Just show the players how to tap the Door Icon in the corner to open the Drunagor App scanner. Once they scan a Door's QR Code, the lore and specific setup rules for the next room are revealed instantly on the Interactive Campaign Screen."
   },
   {
