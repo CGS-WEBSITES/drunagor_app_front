@@ -325,6 +325,17 @@ const rules = {
 
 const axios: any = inject("axios");
 
+const trimValue = (value: string) => value?.trim?.() || "";
+
+const sanitizeAuthFields = () => {
+  login.value = trimValue(login.value);
+  password.value = trimValue(password.value);
+  signupUsername.value = trimValue(signupUsername.value);
+  signupEmail.value = trimValue(signupEmail.value);
+  signupPassword.value = trimValue(signupPassword.value);
+  signupConfirmPassword.value = trimValue(signupConfirmPassword.value);
+};
+
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertIcon.value = icon;
@@ -360,6 +371,8 @@ onMounted(() => {
 
 // Função de login
 const loginUser = async () => {
+  sanitizeAuthFields();
+
   if (!login.value?.trim() || !password.value?.trim()) {
     setAllert(
       "mdi-alert-circle",
@@ -429,11 +442,13 @@ const loginUser = async () => {
 };
 
 const valReg = async () => {
+  sanitizeAuthFields();
   const { valid } = await regForm.value?.validate();
   regValid.value = valid;
 };
 
 const submitForm = async () => {
+  sanitizeAuthFields();
   await valReg();
 
   if (regValid.value) {
