@@ -238,6 +238,76 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="showDrunagorSoonDialog" max-width="540" scrollable>
+      <v-card color="grey-darken-4" rounded="0" class="overflow-hidden">
+        <v-btn
+          icon
+          variant="text"
+          class="soon-close-btn"
+          @click="showDrunagorSoonDialog = false"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+
+        <v-card-text class="pa-0 pb-6">
+          <img
+            :src="Underkeep2Banner"
+            alt="Drunagor Nights Season 2"
+            class="soon-banner"
+          />
+
+          <div class="soon-content px-5 pt-5">
+            <p class="text-overline text-green-accent-3 font-weight-bold mb-2">
+              Drunagor Nights Season 2
+            </p>
+            <h3 class="text-h4 font-weight-black text-white mb-4">Coming Soon</h3>
+
+            <div class="soon-media mb-6">
+              <video autoplay muted loop playsinline class="soon-video">
+                <source
+                  :src="assets + '/landing-page/presentation-video.mp4'"
+                  type="video/mp4"
+                />
+              </video>
+              <div class="soon-media-overlay"></div>
+            </div>
+
+            <div class="text-body-1 text-grey-lighten-1 soon-copy">
+              <p class="mb-4">
+                Welcome, fierce adventurers.
+              </p>
+              <p class="mb-4">
+                A new descent into the Underkeep is almost upon us. Drunagor
+                Nights S2 will soon open the gates to darker paths, deadlier
+                encounters, and a brand-new chapter waiting in the shadows.
+              </p>
+              <p class="mb-4">
+                For now, the journey is still being forged. Gather your party,
+                keep your blades ready, and stay close. The Darkness is stirring,
+                and Season 2 is coming soon.
+              </p>
+              <p class="mb-0">
+                When the time comes, the fate of this adventure will rest in your
+                hands once again.
+              </p>
+            </div>
+
+            <v-btn
+              color="green-accent-3"
+              variant="flat"
+              rounded="pill"
+              size="large"
+              block
+              class="font-weight-black text-grey-darken-4 mt-6"
+              @click="showDrunagorSoonDialog = false"
+            >
+              Stay Ready
+            </v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-main>
 </template>
 
@@ -256,6 +326,7 @@ import HUB from "@/components/HUB.vue";
 import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
 import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
+import Underkeep2Banner from "@/assets/underkeep2.png";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -271,6 +342,7 @@ const loadingErrors = ref<{ id: number; text: string; visible: boolean }[]>([]);
 const showHub = ref(false);
 const myEvents = ref<any[]>([]);
 const showPlaySelectionDialog = ref(false);
+const showDrunagorSoonDialog = ref(false);
 
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
@@ -312,7 +384,7 @@ const openPlaySelection = () => {
 
 const playDrunagorNights = () => {
   showPlaySelectionDialog.value = false;
-  openHub();
+  showDrunagorSoonDialog.value = true;
 };
 
 const playLegacyCampaigns = () => {
@@ -346,6 +418,54 @@ onBeforeMount(async () => {
 </script>
 
 <style>
+.soon-banner {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #111;
+}
+
+.soon-content {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.soon-media {
+  position: relative;
+  height: 190px;
+  overflow: hidden;
+  background: #0b0b0b;
+}
+
+.soon-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
+  filter: saturate(0.95) brightness(0.7);
+}
+
+.soon-media-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(6, 6, 6, 0.18) 0%, rgba(6, 6, 6, 0.6) 100%),
+    radial-gradient(circle at center, transparent 35%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+.soon-close-btn {
+  position: absolute !important;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  background: rgba(15, 15, 15, 0.55) !important;
+  backdrop-filter: blur(6px);
+}
+
+.soon-copy {
+  line-height: 1.7;
+}
+
 .legacy-cluster {
   position: relative;
   padding: 10px;
