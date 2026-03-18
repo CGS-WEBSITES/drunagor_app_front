@@ -267,6 +267,18 @@ interface Country {
 
 const countriesList = ref<Country[]>([]);
 
+const trimValue = (value: string | null | undefined) => value?.trim?.() || "";
+
+const sanitizeAccountForm = () => {
+  form.name = trimValue(form.name);
+  form.user_name = trimValue(form.user_name);
+  form.zip_code = trimValue(form.zip_code);
+  form.new_email = trimValue(form.new_email);
+  form.confirm_email = trimValue(form.confirm_email);
+  form.new_password = trimValue(form.new_password);
+  form.confirm_password = trimValue(form.confirm_password);
+};
+
 // Função para exibir alertas
 const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertIcon.value = icon;
@@ -293,12 +305,14 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
 };
 
 const valReg = async () => {
+  sanitizeAccountForm();
   const { valid } = await userForm.value!.validate();
   validForm.value = valid;
 };
 
 // Funções de salvar e cancelar
 const saveForm = async () => {
+  sanitizeAccountForm();
   await valReg();
 
   if (validForm.value) {
