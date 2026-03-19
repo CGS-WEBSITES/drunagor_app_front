@@ -1,112 +1,147 @@
 <template>
-    <v-container class="fill-height d-flex align-center justify-center pa-4" fluid>
-        <v-row align="center" justify="center">
-            <v-col cols="12" md="8" lg="6" xl="4">
-                <v-card class="elevation-12">
-                    <!-- Tabs for Login and Sign Up -->
-                    <v-tabs v-model="activeTab" fixed-tabs background-color="white">
-                        <!-- <v-tab :key="0">LOGIN</v-tab> -->
-                        <v-tab :key="1">SIGN UP</v-tab>
-                    </v-tabs>
-
-                    <!-- Content for each tab -->
-                    <v-tabs-items v-model="activeTab">
-                        <!-- Login Tab -->
-                        <v-tab-item :value="0">
-                            <v-card-text v-if="activeTab === 0">
-                                <v-btn color="primary" @click="navigateTo('/login')">
-                                    <v-icon> mdi-keyboard-backspace </v-icon>
+    <v-container class="retailer-registration fill-height d-flex align-center justify-center pa-4" fluid>
+        <v-row justify="center" class="w-100">
+            <v-col cols="12" md="9" lg="7" xl="5">
+                <v-card color="secundary" class="registration-card elevation-12">
+                    <v-card-text class="pa-0">
+                        <div class="registration-shell">
+                            <section class="registration-header">
+                                <v-btn
+                                    icon
+                                    variant="text"
+                                    color="white"
+                                    class="back-button"
+                                    @click="navigateTo('/')"
+                                >
+                                    <v-icon>mdi-arrow-left</v-icon>
                                 </v-btn>
-                                <v-container class="d-flex justify-center align-center">
-                                    <v-row justify="center">
-                                        <v-col cols="12" md="6" class="text-center">
-                                            <v-img src="@/assets/darkness.png" max-width="50" alt="Centered Icon"
-                                                class="mx-auto" />
-                                        </v-col>
-                                        <v-col cols="12">
-                                            <h1 class="display-2 font-weight-bold pl-3">
-                                                Create a Retailer Account
-                                            </h1>
-                                        </v-col>
-                                    </v-row>
-                                </v-container>
-                                <BaseAlert v-model="showAlert" :type="alertType" :icon="alertIcon" :title="alertTitle"
-                                    closable class="my-4">
+
+                                <v-img
+                                    src="@/assets/darkness.png"
+                                    width="56"
+                                    height="56"
+                                    alt="Drunagor icon"
+                                    class="mx-auto mb-4"
+                                />
+
+                                <h1 class="text-h4 font-weight-bold text-center mb-2">
+                                    Create Your Retailer Account
+                                </h1>
+                            </section>
+
+                            <section class="registration-body">
+                                <BaseAlert
+                                    v-model="showAlert"
+                                    :type="alertType"
+                                    :icon="alertIcon"
+                                    :title="alertTitle"
+                                    closable
+                                    class="mb-6"
+                                >
                                     {{ alertText }}
                                 </BaseAlert>
 
                                 <v-form ref="regForm">
-                                    <v-row>
+                                    <v-row class="form-grid">
                                         <v-col cols="12" sm="6">
-                                            <v-text-field label="Login" v-model="signupUsername"
-                                                prepend-icon="mdi-account" :rules="[rules.required]" color="black"
-                                                outlined dense />
+                                            <v-text-field
+                                                v-model="signupUsername"
+                                                label="Username"
+                                                prepend-inner-icon="mdi-account"
+                                                :rules="[rules.required]"
+                                                color="secundary"
+                                                variant="outlined"
+                                                density="comfortable"
+                                                hide-details="auto"
+                                            />
                                         </v-col>
                                         <v-col cols="12" sm="6">
-                                            <v-text-field label="Email" v-model="signupEmail" prepend-icon="mdi-email"
-                                                type="email" :rules="[rules.required, rules.email]" color="black"
-                                                outlined dense />
+                                            <v-text-field
+                                                v-model="signupEmail"
+                                                label="Email"
+                                                prepend-inner-icon="mdi-email"
+                                                type="email"
+                                                :rules="[rules.required, rules.email]"
+                                                color="secundary"
+                                                variant="outlined"
+                                                density="comfortable"
+                                                hide-details="auto"
+                                            />
+                                        </v-col>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field
+                                                v-model="signupPassword"
+                                                label="Password"
+                                                prepend-inner-icon="mdi-lock"
+                                                :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                                                :type="showPass ? 'text' : 'password'"
+                                                :rules="[rules.required, rules.min]"
+                                                color="secundary"
+                                                variant="outlined"
+                                                density="comfortable"
+                                                hide-details="auto"
+                                                @click:append-inner="showPass = !showPass"
+                                            />
+                                        </v-col>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field
+                                                v-model="signupConfirmPassword"
+                                                label="Confirm Password"
+                                                prepend-inner-icon="mdi-lock-check"
+                                                :type="showPass ? 'text' : 'password'"
+                                                :rules="[rules.required, rules.matchPasswords]"
+                                                color="secundary"
+                                                variant="outlined"
+                                                density="comfortable"
+                                                hide-details="auto"
+                                            />
                                         </v-col>
                                     </v-row>
 
-                                    <!-- Campo para o endereço da loja -->
-                                    <!-- <v-row>
-                                        <v-col cols="12">
-                                            <v-text-field label="Endereço da Loja" v-model="storeAddress"
-                                                prepend-icon="mdi-map-marker" :rules="[rules.required]" color="black"
-                                                outlined dense />
-                                        </v-col>
-                                    </v-row> -->
+                                    <div class="terms-box mt-2">
+                                        <div class="terms-check">
+                                            <v-checkbox
+                                                v-model="agreeTerms"
+                                                color="green"
+                                                hide-details
+                                            />
+                                        </div>
+                                        <p class="terms-copy mb-0">
+                                            I agree with the
+                                            <strong class="terms-link" @click="termsDialog = true">
+                                                Terms & Conditions
+                                            </strong>
+                                            and
+                                            <strong class="terms-link" @click="privacyDialog = true">
+                                                Privacy Policy
+                                            </strong>
+                                        </p>
+                                    </div>
 
-                                    <v-row>
-                                        <v-col cols="11" sm="5">
-                                            <v-text-field label="Password" prepend-icon="mdi-lock"
-                                                :type="showPass ? 'text' : 'password'" v-model="signupPassword"
-                                                :rules="[rules.required, rules.min]" color="black" outlined dense />
-                                        </v-col>
-                                        <v-col cols="1" class="d-flex justify-center align-center">
-                                            <v-icon v-if="showPass" class="olho" tag="i" @click="showPass = !showPass">
-                                                mdi-eye
-                                            </v-icon>
-                                            <v-icon v-else class="olho" tag="i" @click="showPass = !showPass">
-                                                mdi-eye-off
-                                            </v-icon>
-                                        </v-col>
-                                        <v-col cols="12" sm="6">
-                                            <v-text-field label="Confirm Password" v-model="signupConfirmPassword"
-                                                prepend-icon="mdi-lock" type="password"
-                                                :rules="[rules.required, rules.matchPasswords]" color="black" outlined
-                                                dense />
-                                        </v-col>
-
-                                        <v-col cols="12" class="d-flex align-center">
-                                            <v-checkbox v-model="agreeTerms" color="green"
-                                                :rules="[rules.required]"></v-checkbox>
-                                            <span class="ml-4">
-                                                I agree with the
-                                                <strong style="cursor: pointer" @click="termsDialog = true">
-                                                    Terms & Conditions
-                                                </strong>
-                                                and
-                                                <strong style="cursor: pointer" @click="privacyDialog = true">
-                                                    Privacy Policy
-                                                </strong>
-                                            </span>
-                                        </v-col>
-                                    </v-row>
-
-                                    <v-btn class="mt-4" color="black" dark block @click="submitForm">
+                                    <v-btn
+                                        class="mt-6"
+                                        color="black"
+                                        size="large"
+                                        block
+                                        :loading="isSubmitting"
+                                        :disabled="isSubmitting"
+                                        @click="submitForm"
+                                    >
                                         SIGN UP
                                     </v-btn>
+
+                                    <p class="registration-footer text-center text-body-2 mt-5 mb-0">
+                                        Already have access?
+                                        <span class="footer-link" @click="navigateTo('/')">Go back to login</span>
+                                    </p>
                                 </v-form>
-                            </v-card-text>
-                        </v-tab-item>
-                    </v-tabs-items>
+                            </section>
+                        </div>
+                    </v-card-text>
                 </v-card>
             </v-col>
         </v-row>
 
-        <!-- Terms dialog -->
         <v-dialog v-model="termsDialog" max-width="500">
             <terms-card />
         </v-dialog>
@@ -118,9 +153,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, watch } from "vue";
 import { useRouter } from "vue-router";
-import md5 from "js-md5"; // Certifique-se de que md5 está instalado corretamente
+import md5 from "js-md5";
 import type { VForm } from "vuetify/components";
 import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
@@ -130,21 +165,16 @@ import type { User } from "@/store/UserStore";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userStore = useUserStore();
-
-// Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
-const successDialog = ref(false);
-const activeTab = ref<number>(1); // Controla as abas (Login/Sign Up)
-const login = ref<string>(""); // Login do usuário
-const password = ref<string>(""); // Senha do usuário
-const signupUsername = ref<string>(""); // Nome de usuário para cadastro
-const signupEmail = ref<string>(""); // Email para cadastro
-const signupPassword = ref<string>(""); // Senha para cadastro
-const signupConfirmPassword = ref<string>(""); // Confirmação de senha
+const signupUsername = ref<string>("");
+const signupEmail = ref<string>("");
+const signupPassword = ref<string>("");
+const signupConfirmPassword = ref<string>("");
 const storeAddress = ref<string>("");
 const agreeTerms = ref<boolean>(false);
 const regValid = ref<boolean>(false);
+const isSubmitting = ref<boolean>(false);
 const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
@@ -159,18 +189,26 @@ const navigateTo = (route: string) => {
     router.push(route);
 };
 
-// Regras de validação
 const rules = {
-    required: (value: string) => !!value || "Required.",
+    required: (value: string | boolean) => !!value || "Required.",
     email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
-    min: (v: string) => v.length >= 8 || "Min 8 characters",
-    matchPasswords: (v: string) =>
-        v === signupPassword.value || "The passwords must match",
+    min: (value: string) => value.length >= 8 || "Min 8 characters",
+    matchPasswords: (value: string) =>
+        value === signupPassword.value || "The passwords must match",
 };
 
 const axios: any = inject("axios");
 
-// Função para exibir alertas
+const trimValue = (value: string | null | undefined) => value?.trim?.() || "";
+
+const sanitizeRetailerRegistrationFields = () => {
+    signupUsername.value = trimValue(signupUsername.value);
+    signupEmail.value = trimValue(signupEmail.value);
+    signupPassword.value = trimValue(signupPassword.value);
+    signupConfirmPassword.value = trimValue(signupConfirmPassword.value);
+    storeAddress.value = trimValue(storeAddress.value);
+};
+
 const setAllert = (icon: string, title: string, text: string, type: string) => {
     alertIcon.value = icon;
     alertTitle.value = title;
@@ -180,7 +218,7 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
 
     setTimeout(() => {
         showAlert.value = false;
-    }, 1500);
+    }, 4000);
 };
 
 function convertDecimalToDMS(coordinate: number, isLatitude: boolean): string {
@@ -196,7 +234,7 @@ function convertDecimalToDMS(coordinate: number, isLatitude: boolean): string {
         : coordinate >= 0
             ? "E"
             : "W";
-    return `${degrees}°${minutes}'${secondsRounded}"${direction}`;
+    return `${degrees} deg ${minutes}'${secondsRounded}"${direction}`;
 }
 
 function convertCoordinatesToDMS(coords: { lat: number; lon: number }): string {
@@ -208,6 +246,10 @@ function convertCoordinatesToDMS(coords: { lat: number; lon: number }): string {
 const getCoordinates = async (
     address: string,
 ): Promise<{ lat: number; lon: number } | null> => {
+    if (!address) {
+        return null;
+    }
+
     try {
         const response = await fetch(
             `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`,
@@ -218,12 +260,12 @@ const getCoordinates = async (
                 lat: parseFloat(data[0].lat),
                 lon: parseFloat(data[0].lon),
             };
-        } else {
-            console.error("Endereço não encontrado.");
-            return null;
         }
+
+        console.error("Address not found.");
+        return null;
     } catch (error) {
-        console.error("Erro ao obter coordenadas:", error);
+        console.error("Error getting coordinates:", error);
         return null;
     }
 };
@@ -245,55 +287,178 @@ watch(storeAddress, (newAddress) => {
 });
 
 const valReg = async () => {
-    const { valid, errors } = await regForm.value?.validate();
+    sanitizeRetailerRegistrationFields();
+    const { valid } = await regForm.value?.validate();
     regValid.value = valid;
 };
 
-const navigateToLogin = () => {
-    router.push({ name: "Login" });
+const completeRetailerLogin = async (loginValue: string, rawPassword: string) => {
+    const response = await axios.post("users/login", {
+        login: loginValue,
+        password: md5(rawPassword),
+    });
+
+    const dbUser = response.data.data;
+
+    const appUser: User = {
+        email: dbUser.email,
+        google_id: dbUser.google_id,
+        name: dbUser.name,
+        picture_hash: dbUser.picture_hash,
+        background_hash: dbUser.background_hash,
+        roles_fk: dbUser.roles_fk,
+        user_name: dbUser.user_name,
+        users_pk: dbUser.users_pk,
+        verified: dbUser.verified,
+        zip_code: dbUser.zipcode,
+        countries_fk: dbUser.countries_fk,
+        join_date: dbUser.join_date,
+    };
+
+    userStore.setUser(appUser);
+    localStorage.setItem("app_user", JSON.stringify(appUser));
+
+    setToken(response.data.access_token);
+    axios.defaults.headers.common["Authorization"] =
+        `Bearer ${response.data.access_token}`;
 };
 
 const submitForm = async () => {
+    sanitizeRetailerRegistrationFields();
     await valReg();
 
-    if (regValid.value) {
-        // Obter as coordenadas com base no endereço da loja informado
+    if (!regValid.value) {
+        return;
+    }
+
+    if (!agreeTerms.value) {
+        setAllert(
+            "mdi-alert-circle",
+            "400",
+            "You must agree to the Terms & Conditions and Privacy Policy.",
+            "warning",
+        );
+        return;
+    }
+
+    isSubmitting.value = true;
+
+    try {
         const locationCoordinates = await getCoordinates(storeAddress.value);
 
-        await axios
-            .post("users/cadastro", {
-                name: login.value,
-                user_name: signupUsername.value,
-                email: signupEmail.value,
-                password: signupConfirmPassword.value,
-                roles_fk: 3,
-                active: true,
-                verified: false,
-                agreement: true,
-                google_id: locationCoordinates, // Enviando as coordenadas obtidas
-            })
-            .then((response: any) => {
-                console.log(response);
+        const signupResponse = await axios.post("users/cadastro", {
+            name: signupUsername.value,
+            user_name: signupUsername.value,
+            email: signupEmail.value,
+            password: signupConfirmPassword.value,
+            roles_fk: 3,
+            active: true,
+            verified: false,
+            agreement: true,
+            google_id: locationCoordinates,
+        });
 
-                setAllert(
-                    "mdi-check",
-                    response.status,
-                    response.data.message,
-                    "success",
-                );
-                activeTab.value = 0;
+        await completeRetailerLogin(signupEmail.value, signupConfirmPassword.value);
 
-                successDialog.value = true;
-            })
-            .catch((response: any) => {
-                console.log(response);
-                setAllert(
-                    "mdi-alert-circle",
-                    response.status,
-                    response.response.data.message,
-                    "error",
-                );
-            });
+        setAllert(
+            "mdi-check",
+            signupResponse.status.toString(),
+            "Retailer account created successfully. Redirecting to your dashboard...",
+            "success",
+        );
+
+        router.push({ name: "Dashboard" });
+    } catch (error: any) {
+        console.error("Error during retailer registration:", error);
+        setAllert(
+            "mdi-alert-circle",
+            error.response?.status?.toString() || "500",
+            error.response?.data?.message ||
+                "An error occurred while creating the retailer account.",
+            "error",
+        );
+    } finally {
+        isSubmitting.value = false;
     }
 };
 </script>
+
+<style scoped>
+.retailer-registration {
+    background: url("https://assets.drunagor.app/backgrounds/login-background.png");
+    background-size: cover;
+    background-position: center;
+}
+
+.registration-card {
+    border-radius: 24px;
+    overflow: hidden;
+}
+
+.registration-header {
+    position: relative;
+    padding: 32px 32px 28px;
+    background: rgb(var(--v-theme-secundary));
+    color: white;
+}
+
+.registration-body {
+    padding: 28px 32px 32px;
+    background: rgb(var(--v-theme-secundary));
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+}
+
+.form-grid {
+    margin-top: 0;
+}
+
+.terms-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0 0;
+}
+
+.terms-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    flex-shrink: 0;
+}
+
+.terms-copy {
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.terms-link,
+.footer-link {
+    cursor: pointer;
+    color: #4fd1c5;
+    font-weight: 700;
+}
+
+.registration-footer {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+@media (max-width: 600px) {
+    .registration-header {
+        padding: 28px 20px 24px;
+    }
+
+    .registration-body {
+        padding: 24px 20px 28px;
+    }
+
+    .terms-box {
+        gap: 2px;
+    }
+}
+</style>
