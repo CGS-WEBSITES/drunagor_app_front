@@ -464,6 +464,20 @@ const accountData = ref(null);
 
 const axios: any = inject("axios");
 
+const trimValue = (value: string | null | undefined) => value?.trim?.() || "";
+
+const sanitizeStoreValues = (store: StoreForm | EditableStore) => {
+  store.site = trimValue(store.site);
+  store.storename = trimValue(store.storename);
+  store.zipcode = trimValue(store.zipcode);
+  store.MerchantID = trimValue(store.MerchantID);
+  store.complement = trimValue(store.complement);
+  store.address = trimValue(store.address);
+  store.streetNumber = trimValue(store.streetNumber);
+  store.city = trimValue(store.city);
+  store.state = trimValue(store.state || "");
+};
+
 const isUnitedStates = computed(() => {
   const selectedCountry = form.value.country;
   if (typeof selectedCountry === "number") {
@@ -533,6 +547,7 @@ const getCountryNameFromId = (id: string | number | null): string => {
 };
 
 const saveStore = async () => {
+  sanitizeStoreValues(form.value);
   const { valid } = await storeForm.value.validate();
 
   if (!valid) {
@@ -685,6 +700,7 @@ const handleImageUpload = async (event: Event) => {
 };
 
 const saveEditedStore = async () => {
+  sanitizeStoreValues(editableStore.value);
   const store = editableStore.value;
 
   const countryName = getCountryNameFromId(store.country);

@@ -3,263 +3,232 @@
     class="login-page fill-height d-flex align-center justify-center pa-4"
     fluid
   >
-    <v-row justify="center">
-      <v-col cols="12" class="text-center mb-4">
-        <h1
-          class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2"
-        >
-          DRUNAGOR APP
-        </h1>
-      </v-col>
-    </v-row>
+    <v-row justify="center" class="w-100">
+      <v-col cols="12" md="8" lg="7" xl="6">
+        <v-card color="secundary" class="auth-card elevation-12">
+          <v-card-text class="pa-0">
+            <div v-if="activeTab === 0" class="auth-section">
+              <div class="auth-header">
+                <v-img
+                  src="@/assets/darkness_white.svg"
+                  max-width="56"
+                  class="mx-auto mb-4"
+                />
+                <h1 class="text-center text-h4 font-weight-bold mb-2">
+                  Welcome back!
+                </h1>
+              </div>
 
-    <v-row justify="center">
-      <v-col cols="12" md="9" lg="9" xl="9">
-        <v-card color="secundary" min-height="500px" class="elevation-12">
-          <v-tabs-items v-model="activeTab">
-            <v-tab-item :value="0">
-              <v-card-text v-if="activeTab === 0" class="pa-0">
-                <v-row no-gutters class="justify-center">
-                  <v-col cols="12" md="7" class="pa-8 order-1 order-md-2">
-                    <v-img
-                      src="@/assets/darkness_white.svg"
-                      max-width="50"
-                      class="mx-auto mb-4"
-                    />
-                    <h1 class="text-center text-h5 font-weight-bold mb-8">
-                      Welcome back!
-                    </h1>
+              <div class="auth-body">
+                <BaseAlert
+                  v-model="showAlert"
+                  :type="alertType"
+                  :icon="alertIcon"
+                  :title="alertTitle"
+                  class="mb-6"
+                >
+                  {{ alertText }}
+                </BaseAlert>
 
-                    <BaseAlert
-                      v-model="showAlert"
-                      :type="alertType"
-                      :icon="alertIcon"
-                      :title="alertTitle"
-                      class="my-5"
-                    >
-                      {{ alertText }}
-                    </BaseAlert>
+                <v-form>
+                  <v-text-field
+                    label="Email or Username"
+                    v-model="login"
+                    prepend-inner-icon="mdi-email"
+                    color="secundary"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    class="mb-4"
+                  />
+                  <v-text-field
+                    label="Password"
+                    v-model="password"
+                    prepend-inner-icon="mdi-lock"
+                    :append-inner-icon="showPass ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="showPass ? 'text' : 'password'"
+                    color="secundary"
+                    variant="outlined"
+                    density="comfortable"
+                    hide-details="auto"
+                    @click:append-inner="showPass = !showPass"
+                    @keyup.enter="loginUser"
+                  />
+                </v-form>
 
-                    <v-form>
+                <p
+                  class="auth-link text-center mt-4 mb-0"
+                  @click="navigateTo('/forgotpassword')"
+                >
+                  Forgot your password?
+                </p>
+
+                <v-btn
+                  class="mt-8"
+                  color="black"
+                  block
+                  size="large"
+                  :loading="isLoggingIn"
+                  :disabled="isLoggingIn"
+                  @click="loginUser"
+                >
+                  LOGIN
+                </v-btn>
+
+                <p class="auth-footer text-caption text-center mt-4 mb-0">
+                  Don't have an account?
+                </p>
+
+                <v-btn
+                  color="secundary"
+                  class="mt-2"
+                  variant="outlined"
+                  block
+                  @click="activeTab = 1"
+                >
+                  SIGN UP
+                </v-btn>
+              </div>
+            </div>
+
+            <div v-else class="auth-section">
+              <div class="auth-header">
+                <v-img
+                  src="@/assets/darkness_white.svg"
+                  max-width="56"
+                  class="mx-auto mb-4"
+                />
+                <h1 class="text-center text-h4 font-weight-bold mb-2">
+                  Create an Account
+                </h1>
+              </div>
+
+              <div class="auth-body">
+                <BaseAlert
+                  v-model="showAlert"
+                  :type="alertType"
+                  :icon="alertIcon"
+                  :title="alertTitle"
+                  class="mb-6"
+                >
+                  {{ alertText }}
+                </BaseAlert>
+
+                <v-form ref="regForm">
+                  <v-row>
+                    <v-col cols="12" sm="6">
                       <v-text-field
-                        label="Email or Username"
-                        prepend-icon="mdi-email"
-                        v-model="login"
-                        color="black"
+                        label="Username"
+                        v-model="signupUsername"
+                        prepend-inner-icon="mdi-account"
+                        :rules="[rules.required]"
+                        color="secundary"
                         variant="outlined"
-                        class="mb-4"
+                        density="comfortable"
+                        hide-details="auto"
                       />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Email"
+                        v-model="signupEmail"
+                        prepend-inner-icon="mdi-email"
+                        type="email"
+                        :rules="[rules.required, rules.email]"
+                        color="secundary"
+                        variant="outlined"
+                        density="comfortable"
+                        hide-details="auto"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <v-row>
+                    <v-col cols="12" sm="6">
                       <v-text-field
                         label="Password"
-                        prepend-icon="mdi-lock"
-                        :type="showPass ? 'text' : 'password'"
-                        v-model="password"
-                        color="black"
+                        v-model="signupPassword"
+                        prepend-inner-icon="mdi-lock"
+                        :append-inner-icon="showSignupPass ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="showSignupPass ? 'text' : 'password'"
+                        :rules="[rules.required, rules.min]"
+                        color="secundary"
                         variant="outlined"
-                        @keyup.enter="loginUser"
-                      >
-                        <template #append-inner>
-                          <v-icon
-                            class="cursor-pointer"
-                            @click="showPass = !showPass"
-                          >
-                            {{ showPass ? "mdi-eye" : "mdi-eye-off" }}
-                          </v-icon>
-                        </template>
-                      </v-text-field>
-                    </v-form>
-
-                    <v-row justify="center">
-                      <h3
-                        @click="navigateTo('/forgotpassword')"
-                        class="text-center mt-4 clickable-text"
-                      >
-                        Forgot your password?
-                      </h3>
-                    </v-row>
-
-                    <v-row justify="center">
-                      <v-btn
-                        class="mt-8"
-                        color="black"
-                        block
-                        @click="loginUser"
-                      >
-                        LOGIN
-                      </v-btn>
-                    </v-row>
-
-                    <v-row justify="center">
-                      <p class="text-caption text-center mt-4">
-                        Don't have an account?
-                      </p>
-                    </v-row>
-
-                    <v-row justify="center">
-                      <v-btn
-                        color="white"
-                        class="mt-2"
+                        density="comfortable"
+                        hide-details="auto"
+                        @click:append-inner="showSignupPass = !showSignupPass"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Confirm Password"
+                        v-model="signupConfirmPassword"
+                        prepend-inner-icon="mdi-lock-check"
+                        :type="showSignupPass ? 'text' : 'password'"
+                        :rules="[rules.required, rules.matchPasswords]"
+                        color="secundary"
                         variant="outlined"
-                        @click="activeTab = 1"
+                        density="comfortable"
+                        hide-details="auto"
+                      />
+                    </v-col>
+                  </v-row>
+
+                  <div class="terms-box mt-2">
+                    <div class="terms-check">
+                      <v-checkbox
+                        v-model="agreeTerms"
+                        color="green"
+                        hide-details
+                      />
+                    </div>
+                    <p class="terms-copy mb-0">
+                      I have read and agree to the
+                      <strong
+                        class="auth-link-inline"
+                        @click="termsDialog = true"
                       >
-                        SIGN UP
-                      </v-btn>
-                    </v-row>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-tab-item>
+                        terms and conditions
+                      </strong>
+                    </p>
+                  </div>
 
-            <v-tab-item :value="1">
-              <v-card-text v-if="activeTab === 1" class="pa-0">
-                <v-row no-gutters>
-                  <v-col cols="12" md="7" class="pa-8">
-                    <v-img
-                      src="@/assets/darkness_white.svg"
-                      max-width="50"
-                      class="mx-auto mb-4"
-                    />
-                    <h1 class="text-center text-h5 font-weight-bold mb-6">
-                      Create an Account
-                    </h1>
+                  <p
+                    class="auth-link auth-link-retailer text-center mt-4 mb-0"
+                    @click="navigateTo('/retailer-registration')"
+                  >
+                    Register as a retailer
+                  </p>
 
-                    <BaseAlert
-                      v-model="showAlert"
-                      :type="alertType"
-                      :icon="alertIcon"
-                      :title="alertTitle"
-                      class="mb-6"
-                    >
-                      {{ alertText }}
-                    </BaseAlert>
+                  <v-btn
+                    class="mt-6"
+                    color="black"
+                    block
+                    size="large"
+                    :loading="isSigningUp"
+                    :disabled="isSigningUp"
+                    @click="submitForm"
+                  >
+                    SIGN UP
+                  </v-btn>
 
-                    <v-form ref="regForm">
-                      <v-row>
-                        <v-col cols="12" sm="6">
-                          <v-text-field
-                            label="Username"
-                            v-model="signupUsername"
-                            prepend-icon="mdi-account"
-                            :rules="[rules.required]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                          <v-text-field
-                            label="Email"
-                            v-model="signupEmail"
-                            prepend-icon="mdi-email"
-                            type="email"
-                            :rules="[rules.required, rules.email]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col cols="11" sm="5">
-                          <v-text-field
-                            label="Password"
-                            prepend-icon="mdi-lock"
-                            :type="showPass ? 'text' : 'password'"
-                            v-model="signupPassword"
-                            :rules="[rules.required, rules.min]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
-                        </v-col>
-                        <v-col
-                          cols="1"
-                          class="d-flex justify-center align-center mb-5"
-                        >
-                          <v-icon
-                            class="olho"
-                            tag="i"
-                            @click="showPass = !showPass"
-                          >
-                            {{ showPass ? "mdi-eye" : "mdi-eye-off" }}
-                          </v-icon>
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                          <v-text-field
-                            label="Confirm Password"
-                            v-model="signupConfirmPassword"
-                            prepend-icon="mdi-lock"
-                            type="password"
-                            :rules="[rules.required, rules.matchPasswords]"
-                            color="black"
-                            variant="outlined"
-                            dense
-                          />
-                        </v-col>
-                      </v-row>
+                  <p class="auth-footer text-caption text-center mt-4 mb-0">
+                    Already have an account?
+                  </p>
 
-                      <v-row>
-                        <v-col cols="12" class="d-flex align-center">
-                          <v-checkbox
-                            v-model="agreeTerms"
-                            color="green"
-                            class="mr-2"
-                            :rules="[rules.required]"
-                          />
-                          <span class="mb-5">
-                            I have read and agree to the
-                            <strong
-                              class="clickable-text"
-                              @click="termsDialog = true"
-                            >
-                              terms and conditions
-                            </strong>
-                          </span>
-                        </v-col>
-                      </v-row>
-
-                      <v-row justify="center">
-                        <h3
-                          @click="navigateTo('/retailer-registration')"
-                          class="pb-4 text-center clickable-text"
-                        >
-                          Register as a retailer
-                        </h3>
-                      </v-row>
-
-                      <v-row justify="center">
-                        <v-btn
-                          class="mt-2"
-                          color="black"
-                          block
-                          @click="submitForm"
-                        >
-                          SIGN UP
-                        </v-btn>
-                      </v-row>
-
-                      <v-row justify="center">
-                        <p class="text-caption text-center mt-4">
-                          Already have an account?
-                        </p>
-                      </v-row>
-
-                      <v-row justify="center">
-                        <v-btn
-                          color="white"
-                          variant="outlined"
-                          class="mt-2"
-                          @click="activeTab = 0"
-                        >
-                          LOGIN
-                        </v-btn>
-                      </v-row>
-                    </v-form>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-            </v-tab-item>
-          </v-tabs-items>
+                  <v-btn
+                    color="secundary"
+                    variant="outlined"
+                    class="mt-2"
+                    block
+                    @click="activeTab = 0"
+                  >
+                    LOGIN
+                  </v-btn>
+                </v-form>
+              </div>
+            </div>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -275,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, watch, onMounted } from "vue";
+import { ref, inject, watch, onMounted, onBeforeMount } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import md5 from "js-md5";
 import type { VForm } from "vuetify/components";
@@ -288,7 +257,6 @@ import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
 const userStore = useUserStore();
 
-// Variáveis reativas
 const regForm = ref<VForm>();
 const router = useRouter();
 const route = useRoute();
@@ -308,24 +276,36 @@ const alertTitle = ref("");
 const alertType = ref("");
 const showAlert = ref(false);
 const showPass = ref(false);
+const showSignupPass = ref(false);
 const privacyDialog = ref(false);
+const isLoggingIn = ref(false);
+const isSigningUp = ref(false);
 
 const navigateTo = (route: string) => {
   router.push(route);
 };
 
-// Regras de validação
 const rules = {
   required: (value: string) => !!value || "Required.",
   email: (value: string) => /.+@.+\..+/.test(value) || "E-mail must be valid",
-  min: (v: string) => v.length >= 8 || "Min 8 characters",
-  matchPasswords: (v: string) =>
-    v === signupPassword.value || "The passwords must match",
+  min: (value: string) => value.length >= 8 || "Min 8 characters",
+  matchPasswords: (value: string) =>
+    value === signupPassword.value || "The passwords must match",
 };
 
 const axios: any = inject("axios");
 
-// Função para exibir alertas
+const trimValue = (value: string) => value?.trim?.() || "";
+
+const sanitizeAuthFields = () => {
+  login.value = trimValue(login.value);
+  password.value = trimValue(password.value);
+  signupUsername.value = trimValue(signupUsername.value);
+  signupEmail.value = trimValue(signupEmail.value);
+  signupPassword.value = trimValue(signupPassword.value);
+  signupConfirmPassword.value = trimValue(signupConfirmPassword.value);
+};
+
 const setAllert = (icon: string, title: string, text: string, type: string) => {
   alertIcon.value = icon;
   alertTitle.value = title;
@@ -335,32 +315,25 @@ const setAllert = (icon: string, title: string, text: string, type: string) => {
 
   setTimeout(() => {
     showAlert.value = false;
-  }, 1500);
+  }, 4000);
 };
 
 watch(
   () => route.query.tab,
   (newTab) => {
-    if (newTab === "signup") {
-      activeTab.value = 1;
-    } else {
-      activeTab.value = 0;
-    }
+    activeTab.value = newTab === "signup" ? 1 : 0;
   },
   { immediate: true },
 );
 
 onMounted(() => {
-  if (route.query.tab === "signup") {
-    activeTab.value = 1;
-  } else {
-    activeTab.value = 0;
-  }
+  activeTab.value = route.query.tab === "signup" ? 1 : 0;
 });
 
-// Função de login
 const loginUser = async () => {
-  if (!login.value?.trim() || !password.value?.trim()) {
+  sanitizeAuthFields();
+
+  if (!login.value || !password.value) {
     setAllert(
       "mdi-alert-circle",
       "400",
@@ -370,101 +343,113 @@ const loginUser = async () => {
     return;
   }
 
-  login.value = login.value.trim();
-  password.value = password.value.trim();
+  isLoggingIn.value = true;
 
-  await axios
-    .post("users/login", {
+  try {
+    const response = await axios.post("users/login", {
       login: login.value,
       password: md5(password.value),
-    })
-    .then((response: any) => {
-      console.log("API Response:", response);
-
-      const dbUser = response.data.data;
-
-      const appUser: User = {
-        email: dbUser.email,
-        google_id: dbUser.google_id,
-        name: dbUser.name,
-        picture_hash: dbUser.picture_hash,
-        background_hash: dbUser.background_hash,
-        roles_fk: dbUser.roles_fk,
-        user_name: dbUser.user_name,
-        users_pk: dbUser.users_pk,
-        verified: dbUser.verified,
-        zip_code: dbUser.zipcode,
-        countries_fk: dbUser.countries_fk,
-        join_date: dbUser.join_date,
-      };
-
-      userStore.setUser(appUser);
-      localStorage.setItem("app_user", JSON.stringify(appUser));
-
-      // Exibe alerta de sucesso
-      setAllert(
-        "mdi-check",
-        response.status.toString(),
-        response.data.message,
-        "success",
-      );
-
-      setToken(response.data.access_token);
-
-      axios.defaults.headers.common["Authorization"] =
-        `Bearer ${response.data.access_token}`;
-
-      // Redireciona para o Dashboard
-      router.push({ name: "Dashboard" });
-    })
-    .catch((error: any) => {
-      console.error("Error during login:", error);
-      setAllert(
-        "mdi-alert-circle",
-        error.response?.status?.toString() || "500",
-        error.response?.data?.message || "A network error occurred.",
-        "error",
-      );
     });
+
+    const dbUser = response.data.data;
+
+    const appUser: User = {
+      email: dbUser.email,
+      google_id: dbUser.google_id,
+      name: dbUser.name,
+      picture_hash: dbUser.picture_hash,
+      background_hash: dbUser.background_hash,
+      roles_fk: dbUser.roles_fk,
+      user_name: dbUser.user_name,
+      users_pk: dbUser.users_pk,
+      verified: dbUser.verified,
+      zip_code: dbUser.zipcode,
+      countries_fk: dbUser.countries_fk,
+      join_date: dbUser.join_date,
+    };
+
+    userStore.setUser(appUser);
+    localStorage.setItem("app_user", JSON.stringify(appUser));
+
+    setAllert(
+      "mdi-check",
+      response.status.toString(),
+      response.data.message,
+      "success",
+    );
+
+    setToken(response.data.access_token);
+    axios.defaults.headers.common["Authorization"] =
+      `Bearer ${response.data.access_token}`;
+
+    router.push({ name: "Dashboard" });
+  } catch (error: any) {
+    console.error("Error during login:", error);
+    setAllert(
+      "mdi-alert-circle",
+      error.response?.status?.toString() || "500",
+      error.response?.data?.message || "A network error occurred.",
+      "error",
+    );
+  } finally {
+    isLoggingIn.value = false;
+  }
 };
 
 const valReg = async () => {
+  sanitizeAuthFields();
   const { valid } = await regForm.value?.validate();
   regValid.value = valid;
 };
 
 const submitForm = async () => {
+  sanitizeAuthFields();
   await valReg();
 
-  if (regValid.value) {
-    await axios
-      .post("users/cadastro", {
-        name: login.value,
-        user_name: signupUsername.value,
-        email: signupEmail.value,
-        password: signupConfirmPassword.value,
-        roles_fk: 2,
-        active: true,
-        verified: false,
-        agreement: true,
-      })
-      .then((response: any) => {
-        setAllert(
-          "mdi-check",
-          response.status.toString(),
-          response.data.message,
-          "success",
-        );
-        activeTab.value = 0;
-      })
-      .catch((response: any) => {
-        setAllert(
-          "mdi-alert-circle",
-          response.status?.toString() || "500",
-          response.response?.data?.message || "An error occurred",
-          "error",
-        );
-      });
+  if (!regValid.value) {
+    return;
+  }
+
+  if (!agreeTerms.value) {
+    setAllert(
+      "mdi-alert-circle",
+      "400",
+      "You must agree to the terms and conditions.",
+      "warning",
+    );
+    return;
+  }
+
+  isSigningUp.value = true;
+
+  try {
+    const response = await axios.post("users/cadastro", {
+      name: signupUsername.value,
+      user_name: signupUsername.value,
+      email: signupEmail.value,
+      password: signupConfirmPassword.value,
+      roles_fk: 2,
+      active: true,
+      verified: false,
+      agreement: true,
+    });
+
+    setAllert(
+      "mdi-check",
+      response.status.toString(),
+      response.data.message,
+      "success",
+    );
+    activeTab.value = 0;
+  } catch (error: any) {
+    setAllert(
+      "mdi-alert-circle",
+      error.response?.status?.toString() || "500",
+      error.response?.data?.message || "An error occurred",
+      "error",
+    );
+  } finally {
+    isSigningUp.value = false;
   }
 };
 
@@ -478,21 +463,83 @@ onBeforeMount(() => {
 });
 </script>
 
-<style>
-.clickable-text {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-}
-
-.clickable-text:hover {
-  transform: scale(1.1);
-}
-
+<style scoped>
 .login-page {
   background-image: url("https://assets.drunagor.app/backgrounds/login-background.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  height: 100vh;
+  min-height: 100vh;
+}
+
+.auth-card {
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.auth-section {
+  background: rgb(var(--v-theme-secundary));
+}
+
+.auth-header {
+  padding: 36px 32px 20px;
+  background: rgb(var(--v-theme-secundary));
+  color: white;
+}
+
+.auth-body {
+  padding: 12px 32px 32px;
+  background: rgb(var(--v-theme-secundary));
+}
+
+.auth-link,
+.auth-link-inline {
+  color: #4fd1c5;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.auth-link-retailer {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.auth-footer {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.terms-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.terms-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  flex-shrink: 0;
+}
+
+.terms-copy {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .auth-header {
+    padding: 28px 20px 18px;
+  }
+
+  .auth-body {
+    padding: 10px 20px 24px;
+  }
+
+  .terms-box {
+    gap: 6px;
+    align-items: flex-start;
+  }
 }
 </style>
