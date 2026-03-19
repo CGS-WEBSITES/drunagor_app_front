@@ -202,7 +202,7 @@
 
                   <v-btn
                     class="mt-6"
-                    color="secundary"
+                    color="black"
                     block
                     size="large"
                     :loading="isSigningUp"
