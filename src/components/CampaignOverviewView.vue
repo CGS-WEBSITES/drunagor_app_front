@@ -203,7 +203,7 @@
                   class="d-flex"
                 >
                   <v-avatar
-                    class="my-1 rounded-0"
+                    class="my-1 rounded-0 mx-1"
                     :image="hero.images.avatar"
                     :size="calculateAvatarSize(campaign.campaignId)"
                   ></v-avatar>
@@ -392,12 +392,13 @@ const loadCampaignWithHeroes = async (campaignData: any) => {
     return true;
   } catch (error) {
     console.error("Error loading campaign:", error);
+    const campaignId = String(campaignData.campaigns_fk);
     const boxName = getBoxName(campaignData.box);
     const partyName = campaignData.party_name || "Unnamed Party";
 
     addLoadingError(
       `Could not load the campaign "${partyName}" from the "${boxName}". ` +
-        `Data seems corrupted. Please contact support.`,
+        `Campaign ID: ${campaignId}. Data seems corrupted. Please contact support.`,
     );
     return false;
   }
