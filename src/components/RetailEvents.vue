@@ -559,46 +559,40 @@
                   ></v-text-field>
                 </v-col>
 
-                <v-col cols="12">
-                  <v-autocomplete
-                    v-model="selectedRewards"
-                    :items="allRewards"
-                    item-title="name"
-                    item-value="rewards_pk"
-                    label="REWARDS"
-                    variant="outlined"
-                    multiple
-                    clearable
-                    return-object
+                <v-col cols="12" v-if="selectedRewards.length > 0">
+                  <p class="text-subtitle-1 font-weight-bold mb-2">EVENT REWARD:</p>
+                  <v-card
+                    v-for="(reward, index) in selectedRewards"
+                    :key="index"
+                    rounded="lg"
+                    elevation="2"
+                    class="py-2 px-2 d-flex align-center position-relative mb-2"
+                    color="rgba(255, 255, 255, 0.05)"
                   >
-                    <template #item="{ item, props }">
-                      <v-list-item v-bind="props">
-                        <template #prepend>
-                          <v-avatar size="32">
-                            <v-img
-                              :src="`https://assets.drunagor.app/${item.raw.picture_hash}`"
-                            />
-                          </v-avatar>
-                        </template>
-                        <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
-                      </v-list-item>
-                    </template>
-                    <template #selection="{ item, index }">
-                      <v-chip
-                        size="small"
-                        class="ma-1"
-                        closable
-                        @click:close="selectedRewards.splice(index, 1)"
+                    <v-row class="align-center" no-gutters>
+                      <v-col
+                        cols="3"
+                        sm="2"
+                        class="d-flex align-center justify-center pl-2"
                       >
-                        <v-avatar start size="24">
-                          <v-img
-                            :src="`https://assets.drunagor.app/${item.raw.picture_hash}`"
-                          />
-                        </v-avatar>
-                        {{ item.raw.name }}
-                      </v-chip>
-                    </template>
-                  </v-autocomplete>
+                        <v-img
+                          :src="`https://assets.drunagor.app/${reward.picture_hash}`"
+                          alt="Reward Icon"
+                          max-height="64"
+                          max-width="64"
+                          contain
+                        ></v-img>
+                      </v-col>
+                      <v-col cols="9" sm="10" class="pl-4 d-flex flex-column justify-center">
+                        <p class="font-weight-bold white--text ma-0 text-h6">
+                          {{ reward.name }}
+                        </p>
+                        <p class="text-body-2 grey--text ma-0">
+                          {{ reward.description }}
+                        </p>
+                      </v-col>
+                    </v-row>
+                  </v-card>
                 </v-col>
 
                 <v-col cols="12">
@@ -694,36 +688,48 @@
                   type="date"
                   variant="outlined"
                   class="date-input"
+
                   :min="today"
                   :max="oneYearFromTodayISO"
                   :rules="dateRules"
                 ></v-text-field>
               </v-col>
-              <div v-if="existingRewards.length" class="mt-4">
-                <p class="pb-2 font-weight-bold">Current Rewards:</p>
-                <v-chip
-                  v-for="reward in existingRewards"
-                  :key="reward.rl_events_rewards_pk"
-                  class="ma-1"
-                  closable
-                  @click:close="removeReward(reward)"
+              <v-col cols="12" v-if="editableRewardsItems.length > 0">
+                <p class="pb-2 font-weight-bold cinzel-text">EVENT REWARDS:</p>
+                <v-card
+                  v-for="(reward, index) in editableRewardsItems"
+                  :key="index"
+                  rounded="lg"
+                  elevation="2"
+                  class="py-2 px-2 d-flex align-center position-relative mb-2"
+                  color="rgba(255, 255, 255, 0.05)"
                 >
-                  {{ reward.name }}
-                </v-chip>
-              </div>
-              <v-col cols="12" v-if="isEditable">
-                <p class="pb-3 font-weight-bold">REWARDS</p>
-                <v-autocomplete
-                  v-model="editableEvent.rewards_pk"
-                  :items="allRewards"
-                  item-title="name"
-                  item-value="rewards_pk"
-                  label="Select Rewards"
-                  multiple
-                  chips
-                  clearable
-                ></v-autocomplete>
+                  <v-row class="align-center" no-gutters>
+                    <v-col
+                      cols="3"
+                      sm="2"
+                      class="d-flex align-center justify-center pl-2"
+                    >
+                      <v-img
+                        :src="`https://assets.drunagor.app/${reward.picture_hash}`"
+                        alt="Reward Icon"
+                        max-height="64"
+                        max-width="64"
+                        contain
+                      ></v-img>
+                    </v-col>
+                    <v-col cols="9" sm="10" class="pl-4 d-flex flex-column justify-center">
+                      <p class="font-weight-bold white--text ma-0 text-h6">
+                        {{ reward.name }}
+                      </p>
+                      <p class="text-body-2 grey--text ma-0">
+                        {{ reward.description }}
+                      </p>
+                    </v-col>
+                  </v-row>
+                </v-card>
               </v-col>
+
 
               <v-col cols="12" class="d-flex justify-space-between">
                 <v-btn color="red" @click="editEventDialog = false"
@@ -972,6 +978,14 @@ const editableScenarios = computed(() => {
 
   return sceneries.value.map(decorateScenario);
 });
+
+const editableRewardsItems = computed(() => {
+  if (!editableEvent.value.rewards_pk) return [];
+  return editableEvent.value.rewards_pk
+    .map((pk) => allRewards.value.find((r) => r.rewards_pk === pk))
+    .filter(Boolean);
+});
+
 
 const createEventReady = computed(
   () =>
@@ -1772,6 +1786,48 @@ watch(
       newEvent.value.address = "";
     }
   },
+);
+watch(
+  () => newEvent.value.scenario,
+  (newScenarioPk) => {
+    if (!newScenarioPk) {
+      selectedRewards.value = [];
+      return;
+    }
+
+    let targetRewardPk = null;
+    if (newScenarioPk === 5) targetRewardPk = 5;
+    else if (newScenarioPk === 6) targetRewardPk = 6;
+
+    if (targetRewardPk) {
+      const rewardObject = allRewards.value.find((r) => r.rewards_pk === targetRewardPk);
+      if (rewardObject) {
+        selectedRewards.value = [rewardObject];
+      }
+    }
+  }
+);
+
+watch(
+  () => editableEvent.value.sceneries_fk,
+  (newScenarioPk) => {
+    const currentSeason =
+      editableEvent.value.seasons_fk ?? selectedEvent.value?.seasons_fk;
+    if (currentSeason !== LOCKED_RETAILER_SEASON_PK) return;
+
+    if (!newScenarioPk) {
+      editableEvent.value.rewards_pk = [];
+      return;
+    }
+
+    let targetRewardPk = null;
+    if (newScenarioPk === 5) targetRewardPk = 5;
+    else if (newScenarioPk === 6) targetRewardPk = 6;
+
+    if (targetRewardPk) {
+      editableEvent.value.rewards_pk = [targetRewardPk];
+    }
+  }
 );
 </script>
 
