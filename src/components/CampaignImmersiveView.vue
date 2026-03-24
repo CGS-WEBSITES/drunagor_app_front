@@ -571,6 +571,64 @@
       <ShareCampaignButton ref="shareCampaignRef" :campaignId="campaignId" :inviteCode="partyCode" />
     </div>
     <v-snackbar v-model="snackbar.visible" :color="snackbar.color" location="top">{{ snackbar.text }}</v-snackbar>
+
+    <!-- NOVO DIALOG DE BADGE COM FRUFRUZADA -->
+    <v-dialog v-model="newBadgeDialog.visible" max-width="500" persistent transition="dialog-bottom-transition">
+      <v-card color="transparent" elevation="0" class="text-center d-flex flex-column align-center overflow-visible">
+        
+        <div class="badge-glow-container">
+          <v-icon color="amber-accent-4" size="120" class="badge-star-icon">mdi-star-four-points</v-icon>
+          <div class="text-h4 font-weight-black text-amber-accent-4 mb-4 badge-title-anim" style="text-shadow: 0 0 15px #ffab00, 0 0 30px #ffab00;">
+            NEW BADGE UNLOCKED!
+          </div>
+        </div>
+
+        <v-card
+          v-if="newBadgeDialog.reward"
+          rounded="lg"
+          elevation="10"
+          width="100%"
+          class="py-3 px-2 mb-8 badge-card-anim"
+          color="secundary"
+          style="border: 2px solid #ffab00; position: relative; z-index: 2;"
+        >
+          <v-row class="align-center">
+            <v-col
+              cols="3"
+              class="d-flex align-center justify-center pl-4"
+            >
+              <v-img
+                :src="`https://assets.drunagor.app/${newBadgeDialog.reward.picture_hash}`"
+                alt="Reward Icon"
+                max-height="90"
+                class="rounded-lg badge-img-anim"
+              ></v-img>
+            </v-col>
+
+            <v-col cols="9" class="pl-2 d-flex flex-column justify-center text-left">
+              <p class="font-weight-black text-h6 text-amber-accent-4 ma-0 pb-1" style="line-height: 1.2; text-shadow: 0px 2px 4px rgba(0,0,0,0.5);">
+                {{ newBadgeDialog.reward.name }}
+              </p>
+              <p class="text-body-1 text-white ma-0 font-weight-medium">
+                {{ newBadgeDialog.reward.description }}
+              </p>
+            </v-col>
+          </v-row>
+        </v-card>
+        
+        <v-btn 
+          color="amber-accent-4" 
+          class="text-black font-weight-black px-8 badge-btn-anim" 
+          variant="elevated" 
+          size="x-large" 
+          rounded="pill" 
+          elevation="8"
+          @click="closeBadgeDialogAndExit"
+        >
+          RETURN TO DASHBOARD
+        </v-btn>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -601,6 +659,19 @@ import SelectDoor from "@/components/SelectDoor.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
 import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
+
+const REWARDS_DATA: Record<number, any> = {
+  5: {
+    name: "Wing 3 Completed",
+    picture_hash: "badges%26achievements/Tutorial%20Complete.png",
+    description: "complete wing 3"
+  },
+  6: {
+    name: "Season 2 Completed",
+    picture_hash: "badges%26achievements/Season%201%20Complete%20(4)-min.png",
+    description: "complete wing 4"
+  }
+};
 
 interface Door {
   doors_pk: number;
@@ -657,6 +728,7 @@ const heroCardDialog = ref({ visible: false, hero: null as any });
 const monsterGroupDialog = ref({ visible: false });
 const enterBossDialog = ref({ visible: false });
 const finishCampaignDialog = ref({ visible: false });
+const newBadgeDialog = ref({ visible: false, reward: null as any });
 const dashboardExitDialog = ref({ visible: false }); 
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
@@ -1356,8 +1428,38 @@ async function confirmEnterBossRoom() {
     commitNextDoor("DRAGON BOSS");
 }
 
-function confirmFinishCampaign() {
+async function confirmFinishCampaign() {
   finishCampaignDialog.value.visible = false;
+  let unlockedNewReward = false;
+
+  try {
+    const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
+    let rewardPk = null;
+    if (wingStr.includes("WING 3")) rewardPk = 5;
+    else if (wingStr.includes("WING 4")) rewardPk = 6;
+
+    if (rewardPk && props.userStore.user?.users_pk) {
+      const { data } = await axios.get("/rl_users_rewards/list_rewards", {
+        params: { users_fk: props.userStore.user.users_pk }
+      });
+      const userRewards = data.rewards || [];
+      const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
+
+      if (!hasReward) {
+        await axios.post("/rl_users_rewards/cadastro", {
+          users_fk: props.userStore.user.users_pk,
+          rewards_fk: rewardPk
+        });
+        unlockedNewReward = true;
+        newBadgeDialog.value = {
+          visible: true,
+          reward: REWARDS_DATA[rewardPk]
+        };
+      }
+    }
+  } catch(e) {
+    console.warn("Could not handle end-of-campaign rewards", e);
+  }
   
   if (savePutRef.value) savePutRef.value.save();
   
@@ -1367,6 +1469,13 @@ function confirmFinishCampaign() {
     color: "success",
   };
   
+  if (!unlockedNewReward) {
+    router.push({ name: "Dashboard" });
+  }
+}
+
+function closeBadgeDialogAndExit() {
+  newBadgeDialog.value.visible = false;
   router.push({ name: "Dashboard" });
 }
 
@@ -2239,5 +2348,57 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
     font-size: 1.05rem;
     text-indent: 1em;
   }
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes starReveal {
+  0% { transform: translateY(30px) scale(0.5) rotate(-45deg); opacity: 0; }
+  60% { transform: translateY(-10px) scale(1.2) rotate(10deg); opacity: 1; }
+  100% { transform: translateY(0) scale(1) rotate(0deg); opacity: 0.8; }
+}
+
+@keyframes glowCard {
+  0% { box-shadow: 0 0 10px rgba(255, 171, 0, 0.3); }
+  100% { box-shadow: 0 0 30px rgba(255, 171, 0, 0.8); }
+}
+
+.badge-glow-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.badge-star-icon {
+  position: absolute;
+  top: -50px;
+  z-index: 0;
+  animation: starReveal 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.badge-title-anim {
+  animation: badgePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  z-index: 1;
+}
+
+.badge-card-anim {
+  animation: badgePop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) both, glowCard 1.5s infinite alternate;
+  animation-delay: 0.2s, 0.9s;
+}
+
+.badge-img-anim {
+  animation: badgePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  animation-delay: 0.5s;
+}
+
+.badge-btn-anim {
+  animation: badgePop 0.5s ease-out both;
+  animation-delay: 1s;
 }
 </style>

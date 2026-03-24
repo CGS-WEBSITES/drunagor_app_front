@@ -442,14 +442,27 @@ const loadCampaigns = async () => {
   loadingErrors.value = [];
 
   try {
-    const campaignsResponse = await axios.get("/rl_campaigns_users/search", {
+    // Primeira requisição: sem season 2 (ou season 2 = false)
+    const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: userStore.user!.users_pk,
+        show_season2: false,
+      },
+    });
+
+    for (const campaignData of campaignsResponse1.data.campaigns) {
+      await loadCampaignWithHeroes(campaignData);
+    }
+
+    // Segunda requisição: com season 2 = true
+    const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user!.users_pk,
         show_season2: true,
       },
     });
 
-    for (const campaignData of campaignsResponse.data.campaigns) {
+    for (const campaignData of campaignsResponse2.data.campaigns) {
       await loadCampaignWithHeroes(campaignData);
     }
 

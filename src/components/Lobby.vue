@@ -506,7 +506,10 @@ const clearMyLobbySelection = async () => {
     
     try {
         const res = await axios.get("/rl_campaigns_users/search", { 
-            params: { users_fk: userStore.user.users_pk } 
+            params: { 
+                users_fk: userStore.user.users_pk,
+                show_season2: true
+            } 
         });
         const campaigns = res.data.campaigns || [];
         
@@ -553,7 +556,12 @@ const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
 const fetchTablePlayers = async () => {
     if (!eventId || !tablePk.value || isReconnecting.value) return;
     try {
-        const tableRes = await axios.get(`/rl_events_users/table_players/${eventId}/${tablePk.value}`);
+        const tableRes = await axios.get('/rl_events_users/table_players', {
+            params: {
+                events_fk: eventId,
+                event_tables_pk: tablePk.value
+            }
+        });
         const players = tableRes.data.players || [];
         
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
@@ -643,7 +651,12 @@ function generateCampaignHash(campaign: Campaign): string {
 const joinTable = async () => {
     if (!eventId || !tablePk.value) return;
     try {
-        const tableRes = await axios.get(`/rl_events_users/table_players/${eventId}/${tablePk.value}`);
+        const tableRes = await axios.get('/rl_events_users/table_players', {
+            params: {
+                events_fk: eventId,
+                event_tables_pk: tablePk.value
+            }
+        });
         const players = tableRes.data.players || [];
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
 
@@ -674,16 +687,6 @@ const joinTable = async () => {
                 active: true
             }
         });
-
-        // E cria a campanha null sem heroi
-        await axios.post('/rl_campaigns_users/cadastro', null, {
-            params: {
-                users_fk: userStore.user.users_pk,
-                skus_fk: DEFAULT_SKU,
-                active: true
-            }
-        });
-
     } catch (e) { console.error(e); }
 };
 
@@ -702,7 +705,8 @@ const selectHero = async (hero: any) => {
                 users_fk: usersPk,
                 skus_fk: DEFAULT_SKU,
                 active: true,
-                playable_heroes_fk: hero.pk
+                playable_heroes_fk: hero.pk,
+                events_fk: eventId
             }
         });
 
@@ -912,7 +916,8 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
                         campaigns_fk: campaignFk,
                         skus_fk: DEFAULT_SKU,
                         playable_heroes_fk: heroFk, 
-                        active: true
+                        active: true,
+                        events_fk: eventId
                     }
                 });
             });
