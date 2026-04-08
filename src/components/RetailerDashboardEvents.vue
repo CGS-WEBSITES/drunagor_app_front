@@ -279,6 +279,20 @@ const newStore = ref({
 const tutorialStore = useTutorialStore();
 const showTutorialPrompt = ref(false);
 
+const trimValue = (value) => value?.trim?.() || "";
+
+const sanitizeStoreForm = () => {
+  newStore.value.storename = trimValue(newStore.value.storename);
+  newStore.value.site = trimValue(newStore.value.site);
+  newStore.value.zipcode = trimValue(newStore.value.zipcode);
+  newStore.value.MerchantID = trimValue(newStore.value.MerchantID);
+  newStore.value.complement = trimValue(newStore.value.complement);
+  newStore.value.address = trimValue(newStore.value.address);
+  newStore.value.streetNumber = trimValue(newStore.value.streetNumber);
+  newStore.value.city = trimValue(newStore.value.city);
+  newStore.value.state = trimValue(newStore.value.state);
+};
+
 const upcomingRetailerEventsPreview = computed(() => {
   const now = new Date();
   return userCreatedEvents.value
@@ -386,6 +400,7 @@ const getCountryNameFromId = (id) => {
 };
 
 const saveNewStore = async () => {
+  sanitizeStoreForm();
   const { valid } = await storeForm.value.validate();
   if (!valid) return;
 
