@@ -12,6 +12,7 @@ import router from "../router";
 import { loadLanguage } from "../language";
 import { i18n } from "../i18n";
 import { ConfigurationStore } from "../store/ConfigurationStore";
+import { useRagStore } from "../store/ragStore";
 import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import "primevue/resources/themes/lara-dark-green/theme.css";
@@ -59,6 +60,16 @@ export async function registerPlugins(app: App, env: string) {
 
   const assets = "https://assets.drunagor.app"
 
+  let ragApiUrl: string = "";
+
+  if (env === 'local') {
+    ragApiUrl = 'http://localhost:5001/api';
+  } else if (env === 'test') {
+    ragApiUrl = 'http://3.23.4.11:5001/api';
+  } else if (env === 'prod') {
+    ragApiUrl = 'http://3.23.4.11:5001/api';
+  }
+
   const globalAxios = app.config.globalProperties.axios
 
   globalAxios.defaults.baseURL = apiUrl
@@ -66,6 +77,10 @@ export async function registerPlugins(app: App, env: string) {
   app.provide('axios', globalAxios)
   app.provide('assets', assets)
   app.provide('apiUrl', apiUrl)
+  app.provide('ragApiUrl', ragApiUrl)
+
+  const ragStore = useRagStore()
+  ragStore.setBaseUrl(ragApiUrl)
 
   await loadLanguage("en_US");
 
