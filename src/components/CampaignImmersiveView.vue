@@ -116,15 +116,13 @@
               <template v-slot:activator="{ props }">
                 <div
                   v-bind="props"
-                  class="bookmark-tab left-side"
+                  class="bookmark-tab left-side blue-border-tab"
                   @click.stop="tharmagarDialogVisible = true"
                 >
-                  <img
-                    src="@/assets/jaheen/tharmagar.png"
-                    alt="Tharmagar"
-                    class="tab-icon-img"
-                    style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; object-position: center 15%;"
-                  />
+                  <v-icon
+                    icon="mdi-comment-question-outline"
+                    size="28"
+                  ></v-icon>
                   <span
                     class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
                     >THARMAGAR</span
