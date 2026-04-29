@@ -121,31 +121,16 @@
                       style="width: 70px; color: black"
                     >
                       <p class="pt-3 text-caption font-weight-bold">
-                        {{
-                          new Date(event.event_date)
-                            .toLocaleDateString("en-US", { month: "short" })
-                            .toUpperCase()
-                        }}
+                        {{ extractMonth(event.event_date, userTimezone) }}
                       </p>
                       <p
                         color="primary"
                         class="cinzel-text text-h3 font-weight-bold"
                       >
-                        {{
-                          String(event.event_date).split("T")[0].split("-")[2]
-                        }}
+                        {{ extractDay(event.event_date, userTimezone) }}
                       </p>
                       <p class="text-caption font-weight-bold">
-                        {{
-                          new Date(event.event_date).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: true,
-                            },
-                          )
-                        }}
+                        {{ extractTime(event.event_date, userTimezone) }}
                       </p>
                     </div>
                   </v-col>
@@ -257,35 +242,16 @@
                           style="width: 74px; color: black"
                         >
                           <p class="pt-3 text-caption font-weight-bold">
-                            {{
-                              new Date(event.event_date)
-                                .toLocaleDateString("en-US", {
-                                  month: "short",
-                                })
-                                .toUpperCase()
-                            }}
+                            {{ extractMonth(event.event_date, userTimezone) }}
                           </p>
                           <p
                             color="primary"
                             class="cinzel-text text-h3 font-weight-bold"
                           >
-                            {{
-                              String(event.event_date)
-                                .split("T")[0]
-                                .split("-")[2]
-                            }}
+                            {{ extractDay(event.event_date, userTimezone) }}
                           </p>
                           <p class="text-caption font-weight-bold">
-                            {{
-                              new Date(event.event_date).toLocaleTimeString(
-                                "en-US",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                  hour12: true,
-                                },
-                              )
-                            }}
+                            {{ extractTime(event.event_date, userTimezone) }}
                           </p>
                         </div>
                       </v-col>
@@ -347,16 +313,7 @@
             </p>
             <p class="text-end scheduled-box">
               Sheduled for:
-              {{
-                new Date(selectedEvent?.event_date).toLocaleString("en-US", {
-                  month: "2-digit",
-                  day: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })
-              }}
+              {{ formatEventDate(selectedEvent?.event_date, userTimezone) }}
             </p>
           </v-card-text>
           <v-card
@@ -460,162 +417,168 @@
             </v-btn>
           </div>
           <v-card-text class="create-event-body">
-              <v-row dense>
-                <v-col cols="12">
-                  <v-select
-                    v-model="newEvent.store"
-                    :items="availableStores"
-                    label="STORE"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-store"
+            <v-row dense>
+              <v-col cols="12">
+                <v-select
+                  v-model="newEvent.store"
+                  :items="availableStores"
+                  label="STORE"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-store"
+                  :loading="loading"
+                  no-data-text="No stores found"
+                />
+              </v-col>
+
+              <v-col cols="12" sm="6">
+                <v-select
+                  v-model="newEvent.season"
+                  :items="retailerSeasonOptions"
+                  item-title="name"
+                  item-value="seasons_pk"
+                  label="SEASON"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-flag-variant"
+                  disabled
+                  readonly
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" md="6">
+                <v-select
+                  v-model="newEvent.scenario"
+                  :items="filteredScenarios"
+                  item-title="displayName"
+                  item-value="sceneries_pk"
+                  label="WING"
+                  variant="outlined"
+                  prepend-inner-icon="mdi-sword-cross"
+                  :disabled="!filteredScenarios.length"
+                  no-data-text="No wings available"
+                >
+                  <template #item="{ item, props }">
+                    <v-list-item
+                      v-bind="props"
+                      :title="item.raw.wingLabel || item.raw.name"
+                      :subtitle="item.raw.name"
+                    ></v-list-item>
+                  </template>
+                  <template #selection="{ item }">
+                    <span class="select-short-value">
+                      {{ item.raw.wingLabel || item.raw.name }}
+                    </span>
+                  </template>
+                </v-select>
+              </v-col>
+
+              <v-col cols="4" sm="4" md="2">
+                <v-select
+                  v-model="newEvent.hour"
+                  :items="hourOptions"
+                  label="HOUR"
+                  variant="outlined"
+                  class="time-input"
+                ></v-select>
+              </v-col>
+
+              <v-col cols="4" sm="4" md="2">
+                <v-select
+                  v-model="newEvent.minute"
+                  :items="minuteOptions"
+                  label="MIN"
+                  variant="outlined"
+                  class="time-input"
+                ></v-select>
+              </v-col>
+
+              <v-col cols="4" sm="4" md="2">
+                <v-select
+                  v-model="newEvent.ampm"
+                  :items="['AM', 'PM']"
+                  label="AM/PM"
+                  variant="outlined"
+                ></v-select>
+              </v-col>
+
+              <v-col cols="12" sm="6" md="6" class="d-flex align-center">
+                <v-text-field
+                  v-model="newEvent.date"
+                  label="DATE"
+                  type="date"
+                  variant="outlined"
+                  class="date-input"
+                  prepend-inner-icon="mdi-calendar"
+                  lang="en-US"
+                  placeholder="mm/dd/yyyy"
+                  :min="today"
+                  :max="oneYearFromTodayISO"
+                  :rules="dateRules"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" v-if="selectedRewards.length > 0">
+                <p class="text-subtitle-1 font-weight-bold mb-2">
+                  EVENT REWARD:
+                </p>
+                <v-card
+                  v-for="(reward, index) in selectedRewards"
+                  :key="index"
+                  rounded="lg"
+                  elevation="2"
+                  class="py-2 px-2 d-flex align-center position-relative mb-2"
+                  color="rgba(255, 255, 255, 0.05)"
+                >
+                  <v-row class="align-center" no-gutters>
+                    <v-col
+                      cols="3"
+                      sm="2"
+                      class="d-flex align-center justify-center pl-2"
+                    >
+                      <v-img
+                        :src="`https://assets.drunagor.app/${reward.picture_hash}`"
+                        alt="Reward Icon"
+                        max-height="64"
+                        max-width="64"
+                        contain
+                      ></v-img>
+                    </v-col>
+                    <v-col
+                      cols="9"
+                      sm="10"
+                      class="pl-4 d-flex flex-column justify-center"
+                    >
+                      <p class="font-weight-bold white--text ma-0 text-h6">
+                        {{ reward.name }}
+                      </p>
+                      <p class="text-body-2 grey--text ma-0">
+                        {{ reward.description }}
+                      </p>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+
+              <v-col cols="12">
+                <div class="create-event-actions">
+                  <v-btn
+                    variant="text"
+                    color="white"
+                    @click="createEventDialog = false"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    color="secundary"
+                    class="launch-btn"
                     :loading="loading"
-                    no-data-text="No stores found"
-                  />
-                </v-col>
-
-                <v-col cols="12" sm="6">
-                  <v-select
-                    v-model="newEvent.season"
-                    :items="retailerSeasonOptions"
-                    item-title="name"
-                    item-value="seasons_pk"
-                    label="SEASON"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-flag-variant"
-                    disabled
-                    readonly
-                  ></v-select>
-                </v-col>
-
-                <v-col cols="12" md="6">
-                  <v-select
-                    v-model="newEvent.scenario"
-                    :items="filteredScenarios"
-                    item-title="displayName"
-                    item-value="sceneries_pk"
-                    label="WING"
-                    variant="outlined"
-                    prepend-inner-icon="mdi-sword-cross"
-                    :disabled="!filteredScenarios.length"
-                    no-data-text="No wings available"
+                    :disabled="loading || !createEventReady"
+                    @click="addEvent"
                   >
-                    <template #item="{ item, props }">
-                      <v-list-item
-                        v-bind="props"
-                        :title="item.raw.wingLabel || item.raw.name"
-                        :subtitle="item.raw.name"
-                      ></v-list-item>
-                    </template>
-                    <template #selection="{ item }">
-                      <span class="select-short-value">
-                        {{ item.raw.wingLabel || item.raw.name }}
-                      </span>
-                    </template>
-                  </v-select>
-                </v-col>
-
-                <v-col cols="4" sm="4" md="2">
-                  <v-select
-                    v-model="newEvent.hour"
-                    :items="hourOptions"
-                    label="HOUR"
-                    variant="outlined"
-                    class="time-input"
-                  ></v-select>
-                </v-col>
-
-                <v-col cols="4" sm="4" md="2">
-                  <v-select
-                    v-model="newEvent.minute"
-                    :items="minuteOptions"
-                    label="MIN"
-                    variant="outlined"
-                    class="time-input"
-                  ></v-select>
-                </v-col>
-
-                <v-col cols="4" sm="4" md="2">
-                  <v-select
-                    v-model="newEvent.ampm"
-                    :items="['AM', 'PM']"
-                    label="AM/PM"
-                    variant="outlined"
-                  ></v-select>
-                </v-col>
-
-                <v-col cols="12" sm="6" md="6" class="d-flex align-center">
-                  <v-text-field
-                    v-model="newEvent.date"
-                    label="DATE"
-                    type="date"
-                    variant="outlined"
-                    class="date-input"
-                    prepend-inner-icon="mdi-calendar"
-                    lang="en-US"
-                    placeholder="mm/dd/yyyy"
-                    :min="today"
-                    :max="oneYearFromTodayISO"
-                    :rules="dateRules"
-                  ></v-text-field>
-                </v-col>
-
-                <v-col cols="12" v-if="selectedRewards.length > 0">
-                  <p class="text-subtitle-1 font-weight-bold mb-2">EVENT REWARD:</p>
-                  <v-card
-                    v-for="(reward, index) in selectedRewards"
-                    :key="index"
-                    rounded="lg"
-                    elevation="2"
-                    class="py-2 px-2 d-flex align-center position-relative mb-2"
-                    color="rgba(255, 255, 255, 0.05)"
-                  >
-                    <v-row class="align-center" no-gutters>
-                      <v-col
-                        cols="3"
-                        sm="2"
-                        class="d-flex align-center justify-center pl-2"
-                      >
-                        <v-img
-                          :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                          alt="Reward Icon"
-                          max-height="64"
-                          max-width="64"
-                          contain
-                        ></v-img>
-                      </v-col>
-                      <v-col cols="9" sm="10" class="pl-4 d-flex flex-column justify-center">
-                        <p class="font-weight-bold white--text ma-0 text-h6">
-                          {{ reward.name }}
-                        </p>
-                        <p class="text-body-2 grey--text ma-0">
-                          {{ reward.description }}
-                        </p>
-                      </v-col>
-                    </v-row>
-                  </v-card>
-                </v-col>
-
-                <v-col cols="12">
-                  <div class="create-event-actions">
-                    <v-btn
-                      variant="text"
-                      color="white"
-                      @click="createEventDialog = false"
-                    >
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      color="secundary"
-                      class="launch-btn"
-                      :loading="loading"
-                      :disabled="loading || !createEventReady"
-                      @click="addEvent"
-                    >
-                      LAUNCH EVENT
-                    </v-btn>
-                  </div>
-                </v-col>
-              </v-row>
+                    LAUNCH EVENT
+                  </v-btn>
+                </div>
+              </v-col>
+            </v-row>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -688,7 +651,6 @@
                   type="date"
                   variant="outlined"
                   class="date-input"
-
                   :min="today"
                   :max="oneYearFromTodayISO"
                   :rules="dateRules"
@@ -718,7 +680,11 @@
                         contain
                       ></v-img>
                     </v-col>
-                    <v-col cols="9" sm="10" class="pl-4 d-flex flex-column justify-center">
+                    <v-col
+                      cols="9"
+                      sm="10"
+                      class="pl-4 d-flex flex-column justify-center"
+                    >
                       <p class="font-weight-bold white--text ma-0 text-h6">
                         {{ reward.name }}
                       </p>
@@ -729,7 +695,6 @@
                   </v-row>
                 </v-card>
               </v-col>
-
 
               <v-col cols="12" class="d-flex justify-space-between">
                 <v-btn color="red" @click="editEventDialog = false"
@@ -782,6 +747,13 @@ import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue"
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
+import {
+  extractMonth,
+  extractDay,
+  extractTime,
+  formatEventDate,
+  parseApiDate,
+} from "@/utils/dateHelpers";
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -904,6 +876,10 @@ const findStoreByNameInList = (storeList, selectedStoreName) => {
 const findStoreByName = (selectedStoreName) =>
   findStoreByNameInList(stores.value, selectedStoreName);
 
+const userTimezone = computed(
+  () => userStore.user?.timezone?.iana_name ?? "America/Chicago",
+);
+
 const retailerSeasonOptions = computed(() => {
   const lockedSeason = seasons.value.find(
     (season) => season.seasons_pk === LOCKED_RETAILER_SEASON_PK,
@@ -985,7 +961,6 @@ const editableRewardsItems = computed(() => {
     .map((pk) => allRewards.value.find((r) => r.rewards_pk === pk))
     .filter(Boolean);
 });
-
 
 const createEventReady = computed(
   () =>
@@ -1397,7 +1372,8 @@ const addEvent = () => {
       const knownMessages = {
         StoreNotFound:
           "We couldn't find the selected store. Please choose a valid store and try again.",
-        StoreInactive: "This store is inactive and can't host events right now.",
+        StoreInactive:
+          "This store is inactive and can't host events right now.",
         StoreUnverified:
           "This store still needs verification before creating events.",
         EventCreationFailed:
@@ -1506,10 +1482,12 @@ const openCreateEventDialog = () => {
 };
 
 const openEditDialog = (event, editable = false) => {
-  const [datePart, timePart] = event.event_date.split("T");
-  const [hoursStr, minutesStr] = timePart.split(":");
-  const hours24 = parseInt(hoursStr, 10);
-  const minutes = minutesStr;
+  const parsed = parseApiDate(event.event_date);
+  const hours24 = parsed ? parsed.getHours() : 0;
+  const minutes = parsed ? String(parsed.getMinutes()).padStart(2, "0") : "00";
+  const datePart = parsed
+    ? `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`
+    : "";
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? "PM" : "AM";
 
@@ -1800,12 +1778,14 @@ watch(
     else if (newScenarioPk === 6) targetRewardPk = 6;
 
     if (targetRewardPk) {
-      const rewardObject = allRewards.value.find((r) => r.rewards_pk === targetRewardPk);
+      const rewardObject = allRewards.value.find(
+        (r) => r.rewards_pk === targetRewardPk,
+      );
       if (rewardObject) {
         selectedRewards.value = [rewardObject];
       }
     }
-  }
+  },
 );
 
 watch(
@@ -1827,7 +1807,7 @@ watch(
     if (targetRewardPk) {
       editableEvent.value.rewards_pk = [targetRewardPk];
     }
-  }
+  },
 );
 </script>
 

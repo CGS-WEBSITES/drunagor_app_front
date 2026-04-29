@@ -48,44 +48,54 @@
                         class="text-center"
                         style="width: 70px; color: black"
                       >
-                        <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
-                          {{
-                            new Date(event.event_date)
-                              .toLocaleDateString("en-US", { month: "short" })
-                              .toUpperCase()
-                          }}
+                        <p
+                          class="pt-3 text-caption font-weight-bold"
+                          style="line-height: 1.2"
+                        >
+                          {{ extractMonth(event.event_date, userTimezone) }}
                         </p>
-                        <p class="cinzel-text text-h4 font-weight-bold my-1" style="line-height: 1;">
-                          {{
-                            String(event.event_date).split("T")[0].split("-")[2]
-                          }}
+                        <p
+                          class="cinzel-text text-h4 font-weight-bold my-1"
+                          style="line-height: 1"
+                        >
+                          {{ extractDay(event.event_date, userTimezone) }}
                         </p>
-                        <p class="text-caption font-weight-bold" style="line-height: 1.2; font-size: 11px !important;">
-                          {{
-                            new Date(event.event_date).toLocaleTimeString(
-                              "en-US",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )
-                          }}
+                        <p
+                          class="text-caption font-weight-bold"
+                          style="line-height: 1.2; font-size: 11px !important"
+                        >
+                          {{ extractTime(event.event_date, userTimezone) }}
                         </p>
                       </div>
                     </v-col>
-                    
-                    <v-col class="py-2 pl-2" style="min-width: 0; padding-right: 55px !important;">
-                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate" style="line-height: 1.2;">
-                        <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+
+                    <v-col
+                      class="py-2 pl-2"
+                      style="min-width: 0; padding-right: 55px !important"
+                    >
+                      <h3
+                        class="pb-1 text-subtitle-1 font-weight-bold text-truncate"
+                        style="line-height: 1.2"
+                      >
+                        <v-icon class="pr-1" size="small" color="black"
+                          >mdi-chess-rook</v-icon
+                        >
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate mb-1" style="line-height: 1.2;">
+                      <p
+                        class="text-caption text-truncate mb-1"
+                        style="line-height: 1.2"
+                      >
                         <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption text-truncate" style="line-height: 1.2;">
-                        <v-icon color="red" size="small">mdi-sword-cross</v-icon>
+                      <p
+                        class="text-caption text-truncate"
+                        style="line-height: 1.2"
+                      >
+                        <v-icon color="red" size="small"
+                          >mdi-sword-cross</v-icon
+                        >
                         {{ event.scenario }}
                       </p>
                     </v-col>
@@ -148,43 +158,53 @@
                         class="text-center"
                         style="width: 70px; color: black"
                       >
-                        <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
-                          {{
-                            new Date(event.event_date)
-                              .toLocaleDateString("en-US", { month: "short" })
-                              .toUpperCase()
-                          }}
+                        <p
+                          class="pt-3 text-caption font-weight-bold"
+                          style="line-height: 1.2"
+                        >
+                          {{ extractMonth(event.event_date, userTimezone) }}
                         </p>
-                        <p class="cinzel-text text-h4 font-weight-bold my-1" style="line-height: 1;">
-                          {{
-                            String(event.event_date).split("T")[0].split("-")[2]
-                          }}
+                        <p
+                          class="cinzel-text text-h4 font-weight-bold my-1"
+                          style="line-height: 1"
+                        >
+                          {{ extractDay(event.event_date, userTimezone) }}
                         </p>
-                        <p class="text-caption font-weight-bold" style="line-height: 1.2; font-size: 11px !important;">
-                          {{
-                            new Date(event.event_date).toLocaleTimeString(
-                              "en-US",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )
-                          }}
+                        <p
+                          class="text-caption font-weight-bold"
+                          style="line-height: 1.2; font-size: 11px !important"
+                        >
+                          {{ extractTime(event.event_date, userTimezone) }}
                         </p>
                       </div>
                     </v-col>
-                    <v-col class="py-2 pl-2" style="min-width: 0; padding-right: 55px !important;">
-                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate" style="line-height: 1.2;">
-                        <v-icon class="pr-1" size="small" color="black">mdi-chess-rook</v-icon>
+                    <v-col
+                      class="py-2 pl-2"
+                      style="min-width: 0; padding-right: 55px !important"
+                    >
+                      <h3
+                        class="pb-1 text-subtitle-1 font-weight-bold text-truncate"
+                        style="line-height: 1.2"
+                      >
+                        <v-icon class="pr-1" size="small" color="black"
+                          >mdi-chess-rook</v-icon
+                        >
                         {{ event.store_name }}
                       </h3>
-                      <p class="text-caption text-truncate mb-1" style="line-height: 1.2;">
+                      <p
+                        class="text-caption text-truncate mb-1"
+                        style="line-height: 1.2"
+                      >
                         <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption text-truncate" style="line-height: 1.2;">
-                        <v-icon color="red" size="small">mdi-sword-cross</v-icon>
+                      <p
+                        class="text-caption text-truncate"
+                        style="line-height: 1.2"
+                      >
+                        <v-icon color="red" size="small"
+                          >mdi-sword-cross</v-icon
+                        >
                         {{ event.scenario }}
                       </p>
                     </v-col>
@@ -271,16 +291,7 @@
           </p>
           <p class="text-end scheduled-box">
             Scheduled for:
-            {{
-              new Date(selectedEvent?.event_date).toLocaleString("en-US", {
-                month: "2-digit",
-                day: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })
-            }}
+            {{ formatEventDate(selectedEvent?.event_date, userTimezone) }}
           </p>
         </v-card-text>
         <v-card
@@ -404,16 +415,7 @@
         <div class="mt-1 pl-6" style="display: inline-block">
           <p class="text-caption scheduled-box ma-0">
             Scheduled for:
-            {{
-              new Date(selectedMyEvent?.event_date).toLocaleString("en-US", {
-                month: "2-digit",
-                day: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })
-            }}
+            {{ formatEventDate(selectedMyEvent?.event_date, userTimezone) }}
           </p>
         </div>
         <v-row>
@@ -598,6 +600,15 @@ const showQuitSuccessAlert = ref(false);
 const showQuitErrorAlert = ref(false);
 const quitErrorMessage = ref("");
 const showCampaignDialog = ref(false);
+
+import {
+  extractMonth,
+  extractDay,
+  extractTime,
+  formatEventDate,
+} from "@/utils/dateHelpers";
+
+const userTimezone = computed(() => userStore.userIanaTimezone());
 
 const filterAndSortUpcoming = (eventList: any[]) => {
   const now = new Date();
