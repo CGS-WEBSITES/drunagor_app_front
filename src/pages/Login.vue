@@ -366,10 +366,10 @@ const loginUser = async () => {
       zip_code: dbUser.zipcode,
       countries_fk: dbUser.countries_fk,
       join_date: dbUser.join_date,
+      timezone: dbUser.timezone ?? null,
     };
 
     userStore.setUser(appUser);
-    localStorage.setItem("app_user", JSON.stringify(appUser));
 
     setAllert(
       "mdi-check",
