@@ -69,28 +69,13 @@
                       style="width: 70px; color: black"
                     >
                       <p class="pt-3 text-caption font-weight-bold">
-                        {{
-                          new Date(event.event_date)
-                            .toLocaleDateString("en-US", { month: "short" })
-                            .toUpperCase()
-                        }}
+                        {{ extractMonth(event.event_date, userTimezone) }}
                       </p>
                       <p class="cinzel-text text-h3 font-weight-bold">
-                        {{
-                          String(event.event_date).split("T")[0].split("-")[2]
-                        }}
+                        {{ extractDay(event.event_date, userTimezone) }}
                       </p>
                       <p class="text-caption font-weight-bold">
-                        {{
-                          new Date(event.event_date).toLocaleTimeString(
-                            "en-US",
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                              hour12: true,
-                            },
-                          )
-                        }}
+                        {{ extractTime(event.event_date, userTimezone) }}
                       </p>
                     </div>
                   </v-col>
@@ -216,16 +201,7 @@
               </p>
               <p class="text-end scheduled-box">
                 Scheduled for:
-                {{
-                  new Date(selectedEvent?.event_date).toLocaleString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
-                }}
+                {{ formatEventDate(selectedEvent?.event_date, userTimezone) }}
               </p>
             </v-card-text>
 
@@ -259,23 +235,23 @@
             </v-card>
 
             <v-card color="primary" class="mr-4 mt-4 event-card">
-          <v-responsive
-            style="width: 100%; height: 200px"
-            aspect-ratio="16/9"
-          >
-            <iframe
-              v-if="selectedEvent?.latitude"
-              :src="
-                `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                `&z=15&output=embed`
-              "
-              frameborder="0"
-              style="border: 0; width: 100%; height: 100%"
-              allowfullscreen
-              loading="lazy"
-            />
-          </v-responsive>
-        </v-card>
+              <v-responsive
+                style="width: 100%; height: 200px"
+                aspect-ratio="16/9"
+              >
+                <iframe
+                  v-if="selectedEvent?.latitude"
+                  :src="
+                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                    `&z=15&output=embed`
+                  "
+                  frameborder="0"
+                  style="border: 0; width: 100%; height: 100%"
+                  allowfullscreen
+                  loading="lazy"
+                />
+              </v-responsive>
+            </v-card>
 
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
@@ -373,23 +349,13 @@
                       style="width: 70px; color: black"
                     >
                       <p class="pt-3 text-caption font-weight-bold">
-                        {{
-                          new Date(evt.event_date)
-                            .toLocaleDateString("en-US", { month: "short" })
-                            .toUpperCase()
-                        }}
+                        {{ extractMonth(evt.event_date, userTimezone) }}
                       </p>
                       <p class="cinzel-text text-h3 font-weight-bold">
-                        {{ String(evt.event_date).split("T")[0].split("-")[2] }}
+                        {{ extractDay(evt.event_date, userTimezone) }}
                       </p>
                       <p class="text-caption font-weight-bold">
-                        {{
-                          new Date(evt.event_date).toLocaleTimeString("en-US", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            hour12: true,
-                          })
-                        }}
+                        {{ extractTime(evt.event_date, userTimezone) }}
                       </p>
                     </div>
                   </v-col>
@@ -467,19 +433,7 @@
             <div class="mt-1 pl-6" style="display: inline-block">
               <p class="text-caption scheduled-box ma-0">
                 Scheduled for:
-                {{
-                  new Date(selectedMyEvent?.event_date).toLocaleString(
-                    "en-US",
-                    {
-                      month: "2-digit",
-                      day: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    },
-                  )
-                }}
+                {{ formatEventDate(selectedMyEvent?.event_date, userTimezone) }}
               </p>
             </div>
             <v-row align="center" justify="space-between">
@@ -574,23 +528,23 @@
               </v-row>
             </v-card>
             <v-card color="primary" class="mr-4 mt-4 event-card">
-          <v-responsive
-            style="width: 100%; height: 200px"
-            aspect-ratio="16/9"
-          >
-            <iframe
-              v-if="selectedEvent?.latitude"
-              :src="
-                `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                `&z=15&output=embed`
-              "
-              frameborder="0"
-              style="border: 0; width: 100%; height: 100%"
-              allowfullscreen
-              loading="lazy"
-            />
-          </v-responsive>
-        </v-card>
+              <v-responsive
+                style="width: 100%; height: 200px"
+                aspect-ratio="16/9"
+              >
+                <iframe
+                  v-if="selectedEvent?.latitude"
+                  :src="
+                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
+                    `&z=15&output=embed`
+                  "
+                  frameborder="0"
+                  style="border: 0; width: 100%; height: 100%"
+                  allowfullscreen
+                  loading="lazy"
+                />
+              </v-responsive>
+            </v-card>
             <v-card-text v-if="eventRewards.length">
               <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
               <v-row
@@ -801,9 +755,15 @@ import { useI18n } from "vue-i18n";
 import { Campaign } from "@/store/Campaign";
 import { useDebounceFn } from "@vueuse/core";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
-import DashboardEvents from '@/components/DashboardEvents.vue';
-import s1flag from '@/assets/s1flag.png';
-import s2flag from '@/assets/s2flag.png';
+import DashboardEvents from "@/components/DashboardEvents.vue";
+import s1flag from "@/assets/s1flag.png";
+import s2flag from "@/assets/s2flag.png";
+import {
+  extractMonth,
+  extractDay,
+  extractTime,
+  formatEventDate,
+} from "@/utils/dateHelpers";
 
 const router = useRouter();
 const toast = useToast();
@@ -886,7 +846,7 @@ const eventRefreshInterval = ref(null);
 
 const BOX_ID = 38;
 
-const rewardsCache = ref({}); 
+const rewardsCache = ref({});
 
 const axios = inject("axios");
 if (!axios) {
@@ -895,14 +855,17 @@ if (!axios) {
 
 const getSeasonInfo = (fk) => {
   if (fk == 2) {
-    return { flag: s1flag, name: 'Season 1' };
+    return { flag: s1flag, name: "Season 1" };
   }
   if (fk == 3) {
-    return { flag: s2flag, name: 'Season 2' };
+    return { flag: s2flag, name: "Season 2" };
   }
-  return { flag: null, name: '' };
+  return { flag: null, name: "" };
 };
 
+const userTimezone = computed(
+  () => userStore.user?.timezone?.iana_name ?? "America/Chicago",
+);
 const user = computed(() => userStore.user);
 const boxSku = computed(() => route.query.sku || "");
 
@@ -1004,8 +967,10 @@ const fetchPlayers = async (eventPk) => {
       );
       if (currentUserEntry) {
         selectedMyEvent.value.status = currentUserEntry.event_status;
-        
-        const eventIndex = myEvents.value.findIndex(e => e.events_pk === eventPk);
+
+        const eventIndex = myEvents.value.findIndex(
+          (e) => e.events_pk === eventPk,
+        );
         if (eventIndex !== -1) {
           myEvents.value[eventIndex].status = currentUserEntry.event_status;
         }
@@ -1040,22 +1005,23 @@ const fetchRewardsForEvent = async (eventPk, forceRefresh = false) => {
   const cacheKey = eventPk;
   const now = Date.now();
   const cacheEntry = rewardsCache.value[cacheKey];
-  const CACHE_DURATION_MS = 60000; 
+  const CACHE_DURATION_MS = 60000;
 
-  if (!forceRefresh && cacheEntry && now - cacheEntry.timestamp < CACHE_DURATION_MS) {
+  if (
+    !forceRefresh &&
+    cacheEntry &&
+    now - cacheEntry.timestamp < CACHE_DURATION_MS
+  ) {
     return cacheEntry.rewards;
   }
 
   try {
-    const rewardsRes = await axios.get(
-      "/rl_events_rewards/list_rewards",
-      {
-        params: { events_fk: eventPk },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+    const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+      params: { events_fk: eventPk },
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    );
+    });
     const rewards = (rewardsRes.data.rewards || []).map((r) => ({
       ...r,
       image: `https://assets.drunagor.app/${r.picture_hash}`,
@@ -1092,12 +1058,12 @@ const handleNewCampaign = () => {
   if (!selectedMyEvent.value) return;
 
   const seasonFk = selectedMyEvent.value.seasons_fk;
-  let campaignType = '';
+  let campaignType = "";
 
   if (seasonFk == 2) {
-    campaignType = 'underkeep';
+    campaignType = "underkeep";
   } else if (seasonFk == 3) {
-    campaignType = 'underkeep2';
+    campaignType = "underkeep2";
   } else {
     toast.add({
       severity: "warn",
@@ -1206,21 +1172,21 @@ const loadCampaign = () => {
 
 const confirmLoadCampaign = () => {
   if (!selectedLoadCampaign.value) return;
-  
+
   loading.value = true;
-  
+
   try {
     toast.add({
       severity: "success",
       summary: "Success",
       detail: "Campaign loaded!",
     });
-    
+
     router.push({
       path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
       query: {
         sku: String(BOX_ID),
-        openInstructions: 'load',
+        openInstructions: "load",
       },
     });
   } catch (err) {
@@ -1251,16 +1217,15 @@ const fetchPlayerEvents = async (past) => {
       },
     });
     const eventsData = response.data.events || [];
-    
+
     const eventsWithRewards = await Promise.all(
       eventsData.map(async (event) => {
         const rewards = await fetchRewardsForEvent(event.events_pk);
         return { ...event, rewards };
       }),
     );
-    
+
     events.value = eventsWithRewards;
-    
   } catch (error) {
     console.error("Error fetching player events:", error);
     events.value = [];
@@ -1282,27 +1247,28 @@ const fetchMyEvents = async (past) => {
       },
     });
     const eventsData = response.data.events || [];
-    
+
     const eventsWithRewards = await Promise.all(
       eventsData.map(async (event) => {
         const rewards = await fetchRewardsForEvent(event.events_pk);
         return { ...event, rewards };
       }),
     );
-    
+
     myEvents.value = eventsWithRewards;
-    
+
     if (myDialog.value && selectedMyEvent.value) {
-      const currentEvent = myEvents.value.find(e => e.events_pk === selectedMyEvent.value.events_pk);
+      const currentEvent = myEvents.value.find(
+        (e) => e.events_pk === selectedMyEvent.value.events_pk,
+      );
       if (currentEvent) {
         selectedMyEvent.value = currentEvent;
         fetchPlayers(currentEvent.events_pk);
       } else {
-         myDialog.value = false;
-         selectedMyEvent.value = null;
+        myDialog.value = false;
+        selectedMyEvent.value = null;
       }
     }
-
   } catch (error) {
     console.error("Error fetching my events:", error);
     myEvents.value = [];
@@ -1340,13 +1306,13 @@ const openMyEventsDialog = async (event) => {
   selectedMyEvent.value = event;
   eventPk.value = event.events_pk;
   myDialog.value = true;
-  
+
   isRefreshingStatus.value = true;
   await fetchPlayers(event.events_pk);
   isRefreshingStatus.value = false;
 
   eventRewards.value = await fetchRewardsForEvent(event.events_pk, true);
-  
+
   const userStore = useUserStore();
   const userId = parseInt(userStore.user?.users_pk, 10);
   if (isNaN(userId)) {
@@ -1417,8 +1383,7 @@ const confirmQuitEvent = () => {
 
       return fetchMyEvents(showPast.value);
     })
-    .then(() => {
-    })
+    .then(() => {})
     .catch((error) => {
       console.error("Failed to quit event:", error);
       quitErrorMessage.value =
@@ -1495,86 +1460,93 @@ const getEventStatusInfo = (status) => {
 };
 
 const confirmJoinCampaign = () => {
-    if (!parsedCampaignFk.value) return;
+  if (!parsedCampaignFk.value) return;
 
-    loading.value = true;
-    const usersPk = userStore.user.users_pk;
-    const campaignId = parsedCampaignFk.value;
+  loading.value = true;
+  const usersPk = userStore.user.users_pk;
+  const campaignId = parsedCampaignFk.value;
 
-    axios.post("/rl_campaigns_users/cadastro", {
+  axios
+    .post(
+      "/rl_campaigns_users/cadastro",
+      {
         users_fk: usersPk,
         campaigns_fk: campaignId,
         party_roles_fk: 2,
         skus_fk: BOX_ID,
-    }, {
+      },
+      {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-    })
+      },
+    )
     .then(() => {
-        return axios.get("/rl_campaigns_users/search", {
-            params: {
-                users_fk: usersPk,
-                campaigns_fk: campaignId,
-            },
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-        });
+      return axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: usersPk,
+          campaigns_fk: campaignId,
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
     })
     .then((campaignResponse) => {
-        const campaignData = campaignResponse.data.campaigns[0];
-        
-        if (campaignData && campaignData.tracker_hash) {
-            const data = JSON.parse(atob(campaignData.tracker_hash));
-            const camp = data.campaignData;
-            camp.campaignId = String(campaignData.campaigns_fk);
-            campaignStore.add(camp);
-            data.heroes.forEach((h) => {
-                h.campaignId = String(campaignData.campaigns_fk);
-                heroStore.add(h);
-            });
-            
-            router.push({
-                path: `/campaign-tracker/campaign/${campaignId}`,
-                query: { sku: String(BOX_ID) },
-            });
-            
-            toast.add({
-                severity: "success",
-                summary: "Success",
-                detail: "You have successfully joined the campaign!",
-            });
-        } else {
-            throw new Error("Failed to retrieve campaign data after joining.");
-        }
+      const campaignData = campaignResponse.data.campaigns[0];
+
+      if (campaignData && campaignData.tracker_hash) {
+        const data = JSON.parse(atob(campaignData.tracker_hash));
+        const camp = data.campaignData;
+        camp.campaignId = String(campaignData.campaigns_fk);
+        campaignStore.add(camp);
+        data.heroes.forEach((h) => {
+          h.campaignId = String(campaignData.campaigns_fk);
+          heroStore.add(h);
+        });
+
+        router.push({
+          path: `/campaign-tracker/campaign/${campaignId}`,
+          query: { sku: String(BOX_ID) },
+        });
+
+        toast.add({
+          severity: "success",
+          summary: "Success",
+          detail: "You have successfully joined the campaign!",
+        });
+      } else {
+        throw new Error("Failed to retrieve campaign data after joining.");
+      }
     })
     .catch((err) => {
-        console.error("Error during join process:", err);
-        let errorMessage = "Error joining campaign.";
-        let severity = "error";
+      console.error("Error during join process:", err);
+      let errorMessage = "Error joining campaign.";
+      let severity = "error";
 
-        if (err.response?.data?.message?.includes("already exists") ||
-            err.response?.data?.message?.includes("já existe")) {
-            errorMessage = "You are already part of this campaign!";
-            severity = "info";
-            
-            router.push({
-                path: `/campaign-tracker/campaign/${campaignId}`,
-                query: { sku: String(BOX_ID) },
-            });
-        }
-        
-        toast.add({
-            severity: severity,
-            summary: severity === "info" ? "Info" : "Error",
-            detail: errorMessage,
+      if (
+        err.response?.data?.message?.includes("already exists") ||
+        err.response?.data?.message?.includes("já existe")
+      ) {
+        errorMessage = "You are already part of this campaign!";
+        severity = "info";
+
+        router.push({
+          path: `/campaign-tracker/campaign/${campaignId}`,
+          query: { sku: String(BOX_ID) },
         });
+      }
+
+      toast.add({
+        severity: severity,
+        summary: severity === "info" ? "Info" : "Error",
+        detail: errorMessage,
+      });
     })
     .finally(() => {
-        loading.value = false;
-        joinCampaignId.value = "";
-        showJoinCampaignDialog.value = false;
+      loading.value = false;
+      joinCampaignId.value = "";
+      showJoinCampaignDialog.value = false;
     });
 };
 
@@ -1600,7 +1572,7 @@ const joinEvent = async () => {
       alertMessage.value =
         "You’ve successfully joined this event! Visit the <strong>My Events</strong> page to view it.";
       showAlert.value = true;
-      
+
       fetchMyEvents(showPast.value);
 
       setTimeout(async () => {
@@ -1647,7 +1619,7 @@ const startEventRefreshInterval = () => {
       fetchPlayerEvents(showPast.value);
       fetchMyEvents(showPast.value);
     }
-  }, 5000); 
+  }, 5000);
 };
 
 onMounted(() => {

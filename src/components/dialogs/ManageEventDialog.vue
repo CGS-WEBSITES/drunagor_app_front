@@ -58,16 +58,7 @@
               </p>
               <p class="text-end scheduled-box">
                 Scheduled for:
-                {{
-                  new Date(event?.event_date).toLocaleString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
-                }}
+                {{ formatEventDate(event?.event_date, userTimezone) }}
               </p>
             </v-card-text>
 
@@ -292,7 +283,10 @@
                   First Setup - {{ event?.scenario }}
                 </h3>
                 <p class="text-body-2 mb-4">
-                 Setting up the gaming table using the map below before your players arrive is highly recommended. It ensures a quick and smooth start to the adventure. Click on the image to enlarge and view all setup details
+                  Setting up the gaming table using the map below before your
+                  players arrive is highly recommended. It ensures a quick and
+                  smooth start to the adventure. Click on the image to enlarge
+                  and view all setup details
                 </p>
               </div>
 
@@ -302,25 +296,21 @@
                 elevation="4"
                 @click="openSetupDialog"
               >
-                <InitialSetupViewer
-                  :scenario="event.scenario"
-                  preview-mode
-                />
-                
+                <InitialSetupViewer :scenario="event.scenario" preview-mode />
+
                 <div class="click-to-enlarge-hint">
-                  <v-icon color="white" size="small">mdi-magnify-plus-outline</v-icon>
+                  <v-icon color="white" size="small"
+                    >mdi-magnify-plus-outline</v-icon
+                  >
                   <span class="ml-1">Click to enlarge</span>
                 </div>
               </v-card>
 
-              <v-alert
-                v-else
-                type="info"
-                variant="tonal"
-                class="text-center"
-              >
+              <v-alert v-else type="info" variant="tonal" class="text-center">
                 <v-icon size="48" class="mb-2">mdi-map-marker-off</v-icon>
-                <div class="text-body-1">No setup map available for this scenario</div>
+                <div class="text-body-1">
+                  No setup map available for this scenario
+                </div>
               </v-alert>
             </div>
           </v-window-item>
@@ -378,15 +368,7 @@
                         class="text-caption grey--text"
                       >
                         Received:
-                        {{
-                          new Date(player.status_date).toLocaleString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        }}
+                        {{ formatEventDate(player.status_date, userTimezone) }}
                       </p>
                     </v-col>
 
@@ -605,18 +587,14 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="setupDialog"
-      max-width="1400"
-      :fullscreen="smAndDown"
-    >
+    <v-dialog v-model="setupDialog" max-width="1400" :fullscreen="smAndDown">
       <v-card color="surface">
         <v-card-title class="d-flex justify-space-between align-center">
           <span class="text-h6">
             <v-icon class="mr-2">mdi-map</v-icon>
             First Setup - {{ event?.scenario }}
           </span>
-          
+
           <div class="d-flex align-center gap-2">
             <v-btn
               icon
@@ -627,11 +605,11 @@
             >
               <v-icon>mdi-magnify-minus</v-icon>
             </v-btn>
-            
+
             <v-chip size="small" variant="flat">
               {{ Math.round(zoomLevel * 100) }}%
             </v-chip>
-            
+
             <v-btn
               icon
               size="small"
@@ -641,7 +619,7 @@
             >
               <v-icon>mdi-magnify-plus</v-icon>
             </v-btn>
-            
+
             <v-btn
               icon
               size="small"
@@ -651,9 +629,9 @@
             >
               <v-icon>mdi-restore</v-icon>
             </v-btn>
-            
+
             <v-divider vertical class="mx-2" />
-            
+
             <v-btn icon variant="text" @click="setupDialog = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
@@ -680,7 +658,8 @@
                 transform: `scale(${zoomLevel}) translate(${panX}px, ${panY}px)`,
                 transformOrigin: 'center center',
                 transition: isZooming ? 'none' : 'transform 0.1s ease-out',
-                cursor: zoomLevel > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default'
+                cursor:
+                  zoomLevel > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default',
               }"
             />
           </div>
@@ -775,8 +754,12 @@ import QRCode from "qrcode";
 import InitialSetupViewer from "@/components/InitialSetupViewer.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
+import { useUserStore } from "@/store/UserStore";
+import { formatEventDate } from "@/utils/dateHelpers";
 
 const { smAndDown } = useDisplay();
+
+const userStore = useUserStore();
 
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
@@ -840,6 +823,8 @@ const qrCanvasWrap = ref(null);
 const qrPngDataUrl = ref("");
 const qrCanvasSize = computed(() => (smAndDown.value ? 240 : 300));
 const downloadingPdf = ref(false);
+
+const userTimezone = computed(() => userStore.userIanaTimezone());
 
 const qrTutorialCopy = computed(() => {
   if (!qrTutorial.value.active) return null;
@@ -918,12 +903,12 @@ const handleWheel = (event) => {
   isZooming.value = true;
   const delta = event.deltaY > 0 ? -0.1 : 0.1;
   zoomLevel.value = Math.max(1, Math.min(3, zoomLevel.value + delta));
-  
+
   if (zoomLevel.value === 1) {
     panX.value = 0;
     panY.value = 0;
   }
-  
+
   setTimeout(() => {
     isZooming.value = false;
   }, 100);
@@ -969,17 +954,21 @@ const handleTouchStart = (event) => {
 
 const handleTouchMove = (event) => {
   event.preventDefault();
-  
+
   if (event.touches.length === 2 && initialDistance > 0) {
     const currentDistance = getDistance(event.touches[0], event.touches[1]);
     const scale = currentDistance / initialDistance;
     zoomLevel.value = Math.max(1, Math.min(3, initialZoom * scale));
-    
+
     if (zoomLevel.value === 1) {
       panX.value = 0;
       panY.value = 0;
     }
-  } else if (event.touches.length === 1 && isPanning.value && zoomLevel.value > 1) {
+  } else if (
+    event.touches.length === 1 &&
+    isPanning.value &&
+    zoomLevel.value > 1
+  ) {
     const touch = event.touches[0];
     panX.value = touch.clientX - startX.value;
     panY.value = touch.clientY - startY.value;

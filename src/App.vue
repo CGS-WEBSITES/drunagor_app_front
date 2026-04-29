@@ -100,15 +100,18 @@
       </v-app-bar>
     </v-row>
 
-    <v-row no-gutters v-else-if="
-      route.name !== 'Home' &&
-      route.name !== 'Login' &&
-      route.name !== 'RetailerRegistration' &&
-      route.name !== 'Gama' &&
-      route.name !== 'Community' &&
-      route.name !== 'Lobby' &&
-      route.name !== 'Campaign'
-    ">
+    <v-row
+      no-gutters
+      v-else-if="
+        route.name !== 'Home' &&
+        route.name !== 'Login' &&
+        route.name !== 'RetailerRegistration' &&
+        route.name !== 'Gama' &&
+        route.name !== 'Community' &&
+        route.name !== 'Lobby' &&
+        route.name !== 'Campaign'
+      "
+    >
       <v-app-bar app min-height="56" color="secundary" elevation="4">
         <div
           v-if="route.name === 'Dashboard'"
@@ -246,6 +249,7 @@ const switchTheme = () => {
 const drawer = ref(false);
 
 const logOut = () => {
+  userStore.clearUser();
   localStorage.removeItem("accessToken");
   router.push({ name: "Login" });
 };
@@ -363,14 +367,8 @@ const openPopup = (url: string) => {
 };
 
 onMounted(() => {
-  const loggedUser = localStorage.getItem("app_user");
-  const userObject = loggedUser ? JSON.parse(loggedUser) : null;
-
-  if (userObject) {
-    useUserStore().setUser(userObject);
-  }
-
-   tutorialStore.loadPreferences();
+  userStore.restoreFromStorage();
+  tutorialStore.loadPreferences();
 });
 
 onBeforeMount(() => {

@@ -1,8 +1,9 @@
 <template>
   <v-card color="primary" class="fill-height d-flex flex-column w-100">
-    
     <div class="px-4 pt-3 pb-1">
-      <h3 :class="display.xs ? 'text-h6' : 'text-h5'" class="font-weight-bold">MY UPCOMING EVENTS</h3>
+      <h3 :class="display.xs ? 'text-h6' : 'text-h5'" class="font-weight-bold">
+        MY UPCOMING EVENTS
+      </h3>
     </div>
 
     <div class="flex-grow-1 mt-1 content-scroll" style="overflow-y: auto">
@@ -35,41 +36,41 @@
                     :src="getSeasonInfo(event.seasons_fk).flag"
                     class="season-flag"
                   />
-                  <v-row no-gutters align="center" class="flex-nowrap w-100 fill-height pl-2">
+                  <v-row
+                    no-gutters
+                    align="center"
+                    class="flex-nowrap w-100 fill-height pl-2"
+                  >
                     <v-col cols="auto" class="d-flex justify-center px-1">
                       <div
                         class="text-center"
                         style="min-width: 65px; color: black"
                       >
-                        <p class="pt-3 text-caption font-weight-bold" style="line-height: 1.2;">
-                          {{
-                            new Date(event.event_date)
-                              .toLocaleDateString("en-US", { month: "short" })
-                              .toUpperCase()
-                          }}
+                        <p
+                          class="pt-3 text-caption font-weight-bold"
+                          style="line-height: 1.2"
+                        >
+                          {{ extractMonth(event.event_date, userTimezone) }}
                         </p>
-                        <p class="cinzel-text text-h4 font-weight-bold my-1" style="line-height: 1;">
-                          {{
-                            String(event.event_date).split("T")[0].split("-")[2]
-                          }}
+                        <p
+                          class="cinzel-text text-h4 font-weight-bold my-1"
+                          style="line-height: 1"
+                        >
+                          {{ extractDay(event.event_date, userTimezone) }}
                         </p>
-                        <p class="text-caption font-weight-bold" style="line-height: 1.2; font-size: 11px !important;">
-                          {{
-                            new Date(event.event_date).toLocaleTimeString(
-                              "en-US",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                hour12: true,
-                              }
-                            )
-                          }}
+                        <p
+                          class="text-caption font-weight-bold"
+                          style="line-height: 1.2; font-size: 11px !important"
+                        >
+                          {{ extractTime(event.event_date, userTimezone) }}
                         </p>
                       </div>
                     </v-col>
-                    
-                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0;">
-                      <h3 class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8">
+
+                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0">
+                      <h3
+                        class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8"
+                      >
                         <v-icon class="pr-1" size="small" color="black">
                           mdi-chess-rook
                         </v-icon>
@@ -79,8 +80,13 @@
                         <v-icon color="red" size="small">mdi-map-marker</v-icon>
                         {{ event.address }}
                       </p>
-                      <p class="text-caption text-truncate pr-8" v-if="event.scenario">
-                        <v-icon color="red" size="small">mdi-sword-cross</v-icon>
+                      <p
+                        class="text-caption text-truncate pr-8"
+                        v-if="event.scenario"
+                      >
+                        <v-icon color="red" size="small"
+                          >mdi-sword-cross</v-icon
+                        >
                         {{ event.scenario }}
                       </p>
                     </v-col>
@@ -94,11 +100,15 @@
                   @click="goToEventsPageAndCreate"
                 >
                   <div class="glow-effect"></div>
-                  <div class="d-flex flex-column align-center text-white z-index-2">
+                  <div
+                    class="d-flex flex-column align-center text-white z-index-2"
+                  >
                     <v-icon size="40" color="white" class="floating-icon mb-1">
                       mdi-plus-circle
                     </v-icon>
-                    <span class="text-button font-weight-black letter-spacing-1">
+                    <span
+                      class="text-button font-weight-black letter-spacing-1"
+                    >
                       CREATE NEW EVENT
                     </span>
                   </div>
@@ -114,14 +124,30 @@
               class="text-center d-flex align-center justify-center flex-column"
               :class="display.xs ? 'pa-2' : 'pa-6'"
             >
-              <div class="icon-circle-container" :class="display.xs ? 'mb-3' : 'mb-6'" :style="display.xs ? 'width: 80px; height: 80px;' : ''">
+              <div
+                class="icon-circle-container"
+                :class="display.xs ? 'mb-3' : 'mb-6'"
+                :style="display.xs ? 'width: 80px; height: 80px;' : ''"
+              >
                 <div class="pulse-ring"></div>
-                <v-icon :size="display.xs ? 50 : 80" color="#118D8E">mdi-calendar-star</v-icon>
+                <v-icon :size="display.xs ? 50 : 80" color="#118D8E"
+                  >mdi-calendar-star</v-icon
+                >
               </div>
-              
-              <h2 :class="display.xs ? 'text-subtitle-1' : 'text-h5'" class="font-weight-bold text-white mb-1">Host Your Drunagor Nights</h2>
-              <p :class="display.xs ? 'text-caption mb-4' : 'text-body-1 mb-8'" class="text-grey-lighten-1">No events scheduled at the moment.</p>
-              
+
+              <h2
+                :class="display.xs ? 'text-subtitle-1' : 'text-h5'"
+                class="font-weight-bold text-white mb-1"
+              >
+                Host Your Drunagor Nights
+              </h2>
+              <p
+                :class="display.xs ? 'text-caption mb-4' : 'text-body-1 mb-8'"
+                class="text-grey-lighten-1"
+              >
+                No events scheduled at the moment.
+              </p>
+
               <v-btn
                 color="#118D8E"
                 :size="display.xs ? 'large' : 'x-large'"
@@ -227,7 +253,11 @@
           <v-btn color="grey" variant="text" @click="createStoreDialog = false"
             >Cancel</v-btn
           >
-          <v-btn color="#118D8E" variant="elevated" class="text-white" @click="saveNewStore"
+          <v-btn
+            color="#118D8E"
+            variant="elevated"
+            class="text-white"
+            @click="saveNewStore"
             >Create & Continue</v-btn
           >
         </v-card-actions>
@@ -248,6 +278,7 @@ import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue"
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
+import { extractMonth, extractDay, extractTime } from "@/utils/dateHelpers";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -292,6 +323,8 @@ const sanitizeStoreForm = () => {
   newStore.value.city = trimValue(newStore.value.city);
   newStore.value.state = trimValue(newStore.value.state);
 };
+
+const userTimezone = computed(() => userStore.userIanaTimezone());
 
 const upcomingRetailerEventsPreview = computed(() => {
   const now = new Date();
@@ -469,7 +502,7 @@ onMounted(async () => {
 .highlight-card {
   height: 100%;
   min-height: 115px;
-  background-color: #118D8E !important;
+  background-color: #118d8e !important;
   border: 2px solid rgba(255, 255, 255, 0.2) !important;
   position: relative;
   overflow: hidden;
@@ -490,26 +523,38 @@ onMounted(async () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 100%
+  );
   pointer-events: none;
 }
 
 .floating-icon {
   animation: float 3s ease-in-out infinite;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 .letter-spacing-1 {
   letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.z-index-2 { position: relative; z-index: 2; }
+.z-index-2 {
+  position: relative;
+  z-index: 2;
+}
 
 /* ESTADO VAZIO */
 .icon-circle-container {
@@ -525,15 +570,21 @@ onMounted(async () => {
   position: absolute;
   width: 100%;
   height: 100%;
-  border: 3px solid #118D8E;
+  border: 3px solid #118d8e;
   border-radius: 50%;
   animation: ring-pulse 2s infinite;
   opacity: 0;
 }
 
 @keyframes ring-pulse {
-  0% { transform: scale(0.6); opacity: 0.8; }
-  100% { transform: scale(1.3); opacity: 0; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
 }
 
 .fancy-btn {
@@ -546,7 +597,9 @@ onMounted(async () => {
   box-shadow: 0 10px 30px rgba(17, 141, 142, 0.5) !important;
 }
 
-.cinzel-text { font-family: "Cinzel", serif; }
+.cinzel-text {
+  font-family: "Cinzel", serif;
+}
 
 .dialog-overlay {
   position: absolute;
@@ -570,5 +623,7 @@ onMounted(async () => {
   z-index: 2;
 }
 
-.content-scroll { padding-bottom: 12px; }
+.content-scroll {
+  padding-bottom: 12px;
+}
 </style>

@@ -44,7 +44,7 @@ export async function registerPlugins(app: App, env: string) {
   let apiUrl: string = "";
 
   if (env === 'local') {
-    apiUrl = 'http://localhost:81/prod/system/';
+    apiUrl = 'http://localhost:5009/';
   } else {
     if (env === 'prod') {
       apiUrl = 'https://api.drunagor.app/prod/system/';
