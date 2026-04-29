@@ -111,6 +111,25 @@
                 </div>
               </template>
             </v-tooltip>
+
+            <v-tooltip text="Ask Tharmagar" location="right">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side blue-border-tab"
+                  @click.stop="tharmagarDialogVisible = true"
+                >
+                  <v-icon
+                    icon="mdi-comment-question-outline"
+                    size="28"
+                  ></v-icon>
+                  <span
+                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
+                    >THARMAGAR</span
+                  >
+                </div>
+              </template>
+            </v-tooltip>
           </div>
         </div>
       </div>
@@ -629,6 +648,20 @@
         </v-btn>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="tharmagarDialogVisible" fullscreen transition="dialog-bottom-transition">
+      <v-card color="black" class="position-relative">
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          color="rgba(255,255,255,0.1)"
+          class="text-white"
+          style="position: absolute; top: 16px; right: 16px; z-index: 100;"
+          @click="tharmagarDialogVisible = false"
+        ></v-btn>
+        <TharmagarChat />
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -659,6 +692,7 @@ import SelectDoor from "@/components/SelectDoor.vue";
 import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
 import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
+import TharmagarChat from "@/components/TharmagarChat.vue";
 
 const REWARDS_DATA: Record<number, any> = {
   5: {
@@ -730,6 +764,7 @@ const enterBossDialog = ref({ visible: false });
 const finishCampaignDialog = ref({ visible: false });
 const newBadgeDialog = ref({ visible: false, reward: null as any });
 const dashboardExitDialog = ref({ visible: false }); 
+const tharmagarDialogVisible = ref(false);
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
