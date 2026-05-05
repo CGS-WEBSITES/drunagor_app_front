@@ -64,7 +64,7 @@
           >
             Invite Player
           </v-btn>
-          </v-card-actions>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -135,7 +135,6 @@
         </v-tooltip>
       </v-btn>
 
-
       <v-btn
         key="player-list"
         size="small"
@@ -146,6 +145,18 @@
       >
         <v-icon>mdi-account-group</v-icon>
         <v-tooltip activator="parent" location="start"> Player List </v-tooltip>
+      </v-btn>
+
+      <v-btn
+        key="tharmagar"
+        size="small"
+        color="amber-darken-2"
+        icon
+        class="speed-dial-item"
+        @click="handleSpeedDialAction('tharmagar')"
+      >
+        <v-icon>mdi-comment-question-outline</v-icon>
+        <v-tooltip activator="parent" location="start">Ask Tharmagar</v-tooltip>
       </v-btn>
 
       <v-btn
@@ -210,6 +221,15 @@
       >
         <v-icon>mdi-account-group</v-icon>
         <span class="bottom-nav-label">Players</span>
+      </v-btn>
+
+      <v-btn
+        value="tharmagar"
+        @click="handleBottomNavAction('tharmagar')"
+        class="bottom-nav-btn"
+      >
+        <v-icon>mdi-comment-question-outline</v-icon>
+        <span class="bottom-nav-label">Tharmagar</span>
       </v-btn>
 
       <v-btn
@@ -308,8 +328,6 @@
                       </v-card-text>
                     </v-card>
 
-                    
-
                     <v-row class="my-3" no-gutters>
                       <v-col cols="12">
                         <v-card
@@ -382,9 +400,9 @@
                 <div>
                   <v-row no-gutters align="center" class="mb-3">
                     <v-col cols="12" sm="8">
-                      <CampaignName 
-                        :campaign-id="campaignId" 
-                        :is-admin="true" 
+                      <CampaignName
+                        :campaign-id="campaignId"
+                        :is-admin="true"
                       />
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -394,8 +412,7 @@
                         <div class="mx-1 my-1 d-flex align-center">
                           <div class="mr-3">
                             <div class="d-flex align-center">
-                              <span
-                                class="text-caption font-weight-bold mr-1"
+                              <span class="text-caption font-weight-bold mr-1"
                                 >CAMPAIGN ID:</span
                               >
                               <v-tooltip location="top">
@@ -445,9 +462,15 @@
                     v-if="campaign.campaign == 'apocalypse'"
                   >
                     <v-col cols="12" class="px-2">
-                      <v-sheet rounded border="md" class="pa-6 text-white bg-surface">
+                      <v-sheet
+                        rounded
+                        border="md"
+                        class="pa-6 text-white bg-surface"
+                      >
                         <StoryRecordLegacyTrail :campaign-id="campaignId" />
-                        <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
+                        <StoryRecordBackgroundAndTrait
+                          :campaign-id="campaignId"
+                        />
                       </v-sheet>
                     </v-col>
                   </v-row>
@@ -531,13 +554,38 @@
         :inviteCode="partyCode"
       />
     </div>
+
+    <v-dialog
+      v-model="tharmagarDialogVisible"
+      fullscreen
+      transition="dialog-bottom-transition"
+    >
+      <v-card color="black" class="position-relative">
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          color="rgba(255,255,255,0.1)"
+          class="text-white"
+          style="position: absolute; top: 16px; right: 16px; z-index: 100"
+          @click="tharmagarDialogVisible = false"
+        ></v-btn>
+        <TharmagarChat />
+      </v-card>
+    </v-dialog>
   </template>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { ref, onMounted, watch, nextTick, onBeforeUnmount, computed } from "vue";
+import {
+  ref,
+  onMounted,
+  watch,
+  nextTick,
+  onBeforeUnmount,
+  computed,
+} from "vue";
 import { ref as vueRef } from "vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
@@ -562,6 +610,7 @@ import { useSaveCampaignTour } from "@/components/Composable/useSaveCampaignTour
 import { useLoadCampaignTour } from "@/components/Composable/useLoadCampaignTour";
 import SelectCompanion from "@/components/SelectCompanion.vue";
 import CampaignImmersiveView from "@/components/CampaignImmersiveView.vue";
+import TharmagarChat from "@/components/TharmagarChat.vue";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 
 const campaignStore = CampaignStore();
@@ -573,7 +622,7 @@ const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isImmersiveMode = computed(() => {
-  return campaign.value && campaign.value.campaign === 'underkeep2';
+  return campaign.value && campaign.value.campaign === "underkeep2";
 });
 
 const playerListDialogVisible = ref(false);
@@ -590,6 +639,7 @@ const snackbarColor = ref("success");
 const snackbarIconColor = ref("white");
 const snackbarTimeout = ref(3000);
 const speedDialOpen = ref(true);
+const tharmagarDialogVisible = ref(false);
 const bottomNavValue = ref<string | null>(null);
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
@@ -621,10 +671,7 @@ const {
   campaignId,
 });
 
-const {
-  startLoadTour,
-  destroyTour: destroyLoadTour,
-} = useLoadCampaignTour({
+const { startLoadTour, destroyTour: destroyLoadTour } = useLoadCampaignTour({
   onManageResourcesClick: handleManageResourcesAction,
   onEquipmentSkillsClick: handleEquipmentSkillsAction,
   campaignId,
@@ -826,6 +873,9 @@ const executeAction = (action: string) => {
       break;
     case "player-list":
       openPlayerListDialog();
+      break;
+    case "tharmagar":
+      tharmagarDialogVisible.value = true;
       break;
     case "remove":
       campaignRemoveRef.value?.openDialog?.();
