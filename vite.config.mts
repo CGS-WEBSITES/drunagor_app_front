@@ -50,8 +50,8 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
         globPatterns: ['**/*.{js,ts,mjs,mts,css,html,ico,png,svg,vue}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
-
       manifest: {
         name: 'Drunagor App',
         short_name: 'Drunagor App',
@@ -75,9 +75,6 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5 MB
-      }
     }),
     vueDevTools(),
     Fonts({
