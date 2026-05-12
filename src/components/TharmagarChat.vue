@@ -611,6 +611,24 @@ function lbDoubleTap() {
 .chat.vn-mode .assistant-bubble::after {
   display: none !important;
 }
+.chat.vn-mode .answer-text :deep(ol) {
+  padding-left: 1.5em;
+  margin: 8px 0;
+}
+
+.chat.vn-mode .answer-text :deep(ul) {
+  padding-left: 1.5em;
+  margin: 8px 0;
+}
+
+.chat.vn-mode .answer-text :deep(li) {
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+.chat.vn-mode .answer-text :deep(p) {
+  margin-bottom: 8px;
+}
 .chat.vn-mode .answer-text {
   font-size: 16px !important;
   line-height: 1.65;
