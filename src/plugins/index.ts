@@ -65,9 +65,9 @@ export async function registerPlugins(app: App, env: string) {
   if (env === 'local') {
     ragApiUrl = 'http://localhost:5001/api';
   } else if (env === 'test') {
-    ragApiUrl = 'https://d3dv5kznmznm19.cloudfront.net/api';
+    ragApiUrl = 'https://ai.drunagor.app/api';
   } else if (env === 'prod') {
-    ragApiUrl = 'https://d3dv5kznmznm19.cloudfront.net/api';
+    ragApiUrl = 'https://ai.drunagor.app/api';
   }
 
   const globalAxios = app.config.globalProperties.axios
