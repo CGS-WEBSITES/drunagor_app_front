@@ -384,7 +384,7 @@ const openPlaySelection = () => {
 
 const playDrunagorNights = () => {
   showPlaySelectionDialog.value = false;
-  showDrunagorSoonDialog.value = true;
+  openHub();
 };
 
 const playLegacyCampaigns = () => {
