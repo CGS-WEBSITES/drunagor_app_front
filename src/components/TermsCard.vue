@@ -64,7 +64,7 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn text="Close Dialog" @click="termsDialog = false"></v-btn>
+      <v-btn text="Close Dialog" @click="$emit('close')"></v-btn>
     </v-card-actions>
   </v-card>
 </template>

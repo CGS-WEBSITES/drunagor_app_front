@@ -76,7 +76,7 @@
     </v-row>
 
     <v-dialog v-model="termsDialog" max-width="500">
-      <terms-card />
+      <terms-card @close="termsDialog = false" />
     </v-dialog>
 
     <v-dialog v-model="privacyDialog" max-width="500">
