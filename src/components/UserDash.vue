@@ -3,9 +3,12 @@
     style="
       display: flex;
       flex-direction: column;
-      height: calc(100dvh - var(--v-layout-top, 20px));
-      max-height: calc(100dvh - var(--v-layout-top, 20px));
+      height: 100dvh;
+      max-height: 100dvh;
       overflow: hidden;
+      margin-top: -56px;
+      padding-top: 56px;
+      box-sizing: border-box;
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
