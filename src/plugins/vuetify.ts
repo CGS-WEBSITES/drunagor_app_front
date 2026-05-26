@@ -32,7 +32,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#00F5FF', // Neon Cyan
+          playbutton: '#118D8E', // Standard Teal
         },
       },
       CoreTheme: {
@@ -47,7 +47,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FFD700', // Bright Gold
+          playbutton: '#E2B13C', // Amber Gold
         },
       },
       ApocTheme: {
@@ -62,7 +62,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FF3E3E', // Neon Crimson/Red
+          playbutton: '#C62828', // Darker Red/Crimson
         },
       },
       NightsTheme: {
@@ -77,7 +77,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#A3E635', // Lime Green
+          playbutton: '#A3E635', // Lime Green (Kept)
         },
       },
       EarthTheme: {
@@ -92,7 +92,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#39FF14', // Neon Green
+          playbutton: '#81C784', // Minty Sage Green
         },
       },
       BlueTheme: {
@@ -107,7 +107,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FF9F00', // Neon Orange
+          playbutton: '#4FC3F7', // Ice Blue
         },
       },
       CrimsonTheme: {
@@ -122,7 +122,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FFFF00', // Neon Yellow
+          playbutton: '#FF8A65', // Sunset Orange
         },
       },
       VioletTheme: {
@@ -137,7 +137,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#00FFFF', // Cyan
+          playbutton: '#BA68C8', // Orchid Purple
         },
       },
       RoseTheme: {
@@ -152,7 +152,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FF007F', // Neon Rose/Pink
+          playbutton: '#FF80AB', // Bright Rose/Coral
         },
       },
     },
