@@ -70,9 +70,30 @@
             </v-hover>
           </div>
 
-          <v-btn icon @click="switchTheme" class="mr-2" variant="text">
-            <v-img :src="themeIcon" max-height="24" max-width="24" contain></v-img>
-          </v-btn>
+          <v-menu open-on-click offset-y>
+            <template v-slot:activator="{ props }">
+              <v-btn v-bind="props" icon class="mr-2" variant="text">
+                <v-img :src="themeIcon" max-height="24" max-width="24" contain></v-img>
+              </v-btn>
+            </template>
+            <v-list class="bg-grey-darken-4 pa-2" min-width="220" rounded="lg">
+              <v-list-item
+                v-for="t in themesList"
+                :key="t.name"
+                @click="selectTheme(t.name)"
+                :active="theme === t.name"
+                class="rounded-lg my-1"
+              >
+                <template v-slot:prepend>
+                  <div class="d-flex mr-3" style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.3);">
+                    <div :style="{ backgroundColor: t.bg }" style="width: 50%; height: 100%;"></div>
+                    <div :style="{ backgroundColor: t.primary }" style="width: 50%; height: 100%;"></div>
+                  </div>
+                </template>
+                <v-list-item-title class="text-white font-weight-medium">{{ t.label }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
 
           <v-menu open-on-click offset-y>
             <template v-slot:activator="{ props }">
@@ -140,10 +161,6 @@
 
         <v-spacer></v-spacer>
 
-        <v-btn icon @click="switchTheme" class="mr-2" variant="text">
-          <v-img :src="themeIcon" max-height="24" max-width="24" contain></v-img>
-        </v-btn>
-
         <v-btn icon @click="drawer = !drawer" class="mr-2">
           <v-icon>mdi-menu</v-icon>
         </v-btn>
@@ -197,6 +214,26 @@
           </v-list-item>
         </v-list>
 
+        <v-divider></v-divider>
+        <div class="px-4 py-2 text-overline text-grey-lighten-1">THEMES</div>
+        <v-list density="compact" nav class="px-2">
+          <v-list-item
+            v-for="t in themesList"
+            :key="t.name"
+            @click="selectTheme(t.name)"
+            :active="theme === t.name"
+            class="my-1 rounded-lg"
+          >
+            <template v-slot:prepend>
+              <div class="d-flex mr-3" style="width: 20px; height: 20px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.3);">
+                <div :style="{ backgroundColor: t.bg }" style="width: 50%; height: 100%;"></div>
+                <div :style="{ backgroundColor: t.primary }" style="width: 50%; height: 100%;"></div>
+              </div>
+            </template>
+            <v-list-item-title class="text-white text-body-2">{{ t.label }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+
         <template v-slot:append>
           <div class="pa-2">
             <v-divider class="mb-2"></v-divider>
@@ -247,13 +284,21 @@ const route = useRoute();
 const assets = inject<string>("assets");
 
 const theme = ref(localStorage.getItem("appTheme") || "DarkTheme");
-const themes = ["DarkTheme", "CoreTheme", "ApocTheme"];
+const themesList = [
+  { name: "DarkTheme", label: "Dark (Default)", primary: "#363636", bg: "#141414" },
+  { name: "CoreTheme", label: "Core (Aqua)", primary: "#3C7376", bg: "#172A2C" },
+  { name: "ApocTheme", label: "Apoc (Red)", primary: "#802222", bg: "#141414" },
+  { name: "NightsTheme", label: "Nights (Deep Purple)", primary: "#5D3C76", bg: "#22162C" },
+  { name: "EarthTheme", label: "Earth (Brown)", primary: "#804F22", bg: "#3C2510" },
+  { name: "BlueTheme", label: "Blue (Navy)", primary: "#224780", bg: "#102139" },
+  { name: "CrimsonTheme", label: "Crimson (Blood)", primary: "#802222", bg: "#421111" },
+  { name: "VioletTheme", label: "Violet (Bright Purple)", primary: "#622280", bg: "#2A0F36" },
+  { name: "RoseTheme", label: "Rose (Muted)", primary: "#763C3C", bg: "#392020" }
+];
 
-const switchTheme = () => {
-  const currentIndex = themes.indexOf(theme.value);
-  const nextTheme = themes[(currentIndex + 1) % themes.length];
-  theme.value = nextTheme;
-  localStorage.setItem("appTheme", nextTheme);
+const selectTheme = (themeName: string) => {
+  theme.value = themeName;
+  localStorage.setItem("appTheme", themeName);
 };
 
 const drawer = ref(false);
