@@ -1,64 +1,61 @@
 <template>
-  <v-card color="primary" class="profile-card mx-auto py-0" rounded="0" elevation="3" style="
+  <v-card color="primary" class="profile-card mx-auto py-0 mt-16" rounded="0" elevation="3" style="
     overflow: visible;
     position: relative;
     text-align: center;
     width: 100%;
   ">
-    <div class="position-relative">
-      <v-img :src="user.background_hash
-          ? assets + '/Profile/' + user.background_hash
-          : 'https://assets.drunagor.app/Profile/profile-bg-warriors-transparent.png'
-        " alt="Background Image" max-height="529px" max-width="100%" cover style="position: relative;">
+    <div class="position-relative bg-grey-darken-4" style="min-height: 120px; width: 100%;">
+      <v-img v-if="user.background_hash" :src="assets + '/Profile/' + user.background_hash" alt="Background Image" max-height="529px" cover position="center center"></v-img>
 
-        <v-btn icon="mdi-arrow-left" class="position-absolute top-0 left-0 ma-2" color="rgba(0, 0, 0, 0.6)"
-          elevation="3" @click="$router.go(-1)"></v-btn>
+      <v-btn icon="mdi-arrow-left" class="position-absolute top-0 left-0 ma-2 d-none d-md-flex" color="rgba(0, 0, 0, 0.6)" style="z-index: 10;"
+        elevation="3" @click="$router.go(-1)"></v-btn>
 
 
-        <v-menu v-if="isFriend" open-on-hover>
-          <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" icon="mdi-account-check" class="position-absolute top-0 right-0 ma-2"
-              color="rgba(0, 0, 0, 0.6)" elevation="3"></v-btn>
-          </template>
-          <!-- <v-list class="ma-2">
-            <v-list-item @click="removeFriend">
-              <v-list-item-icon>
-                <v-icon>mdi-account-remove</v-icon>
-              </v-list-item-icon>
-            </v-list-item>
-          </v-list> -->
-        </v-menu>
+      <v-menu v-if="isFriend" open-on-hover>
+        <template v-slot:activator="{ props }">
+          <v-btn v-bind="props" icon="mdi-account-check" class="position-absolute top-0 right-0 ma-2" style="z-index: 10;"
+            color="rgba(0, 0, 0, 0.6)" elevation="3"></v-btn>
+        </template>
+        <!-- <v-list class="ma-2">
+          <v-list-item @click="removeFriend">
+            <v-list-item-icon>
+              <v-icon>mdi-account-remove</v-icon>
+            </v-list-item-icon>
+          </v-list-item>
+        </v-list> -->
+      </v-menu>
 
-        <v-btn v-else icon="mdi-account-plus" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)"
-          elevation="3" @click="addFriend"></v-btn>
+      <v-btn v-else icon="mdi-account-plus" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)" style="z-index: 10;"
+        elevation="3" @click="addFriend"></v-btn>
 
 
-        <p class="user-join-date"
-          style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0;">
-          Joined: {{ formattedJoinDate }}
-        </p>
+      <p class="user-join-date"
+        style="position: absolute; bottom: 4px; right: 4px; font-size: 0.7rem; color: #ddd; margin: 0; z-index: 10; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+        Joined: {{ formattedJoinDate }}
+      </p>
+    </div>
+
+    <div class="d-flex justify-center" style="margin-top: -59px; position: relative; z-index: 20;">
+      <v-img :key="reloadKey" :src="user.picture_hash
+          ? assets + '/Profile/' + user.picture_hash
+          : assets + '/Profile/user.png'
+        " :alt="user.picture_hash" width="118" height="118" cover style="
+          border: 2px solid white;
+          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+          background-color: black;
+          flex-grow: 0;
+          flex-shrink: 0;
+      ">
       </v-img>
     </div>
 
-    <v-img :key="reloadKey" :src="user.picture_hash
-        ? assets + '/Profile/' + user.picture_hash
-        : assets + '/Profile/user.png'
-      " :alt="user.picture_hash" max-width="118" style="
-          top: -30px;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          border: 0.5px solid white;
-          box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-          background-color: black;
-      ">
-    </v-img>
-
     <v-card-text>
-      <div class="user-info" style="margin-top: -80px ">
-        <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
-          {{ user.user_name }}
+      <div class="user-info text-center mt-2">
+        <div class="user-name d-flex justify-center align-center" style="font-weight: bold; font-size: 1.4rem; gap: 8px;">
+          <span>{{ user.user_name }}</span>
 
-          <div class="d-none d-md-inline justify-center align-center">
+          <div class="d-none d-md-flex justify-center align-center">
             <v-menu v-if="isFriend" open-on-hover>
               <template v-slot:activator="{ props }">
                 <v-btn v-bind="props" icon="mdi-account-check" color="rgba(0, 0, 0, 0.0)" elevation="0"
@@ -77,24 +74,24 @@
             <v-btn v-else icon="mdi-account-plus" color="rgba(0, 0, 0, 0.6)" elevation="3" size="small"
               @click="addFriend"></v-btn>
           </div>
+        </div>
 
-          <BaseAlert
-            v-model="showAlert"
-            type="success"
-            text
-            class="custom-alert"
-          >
-            Friend request sent!
-          </BaseAlert>
+        <BaseAlert
+          v-model="showAlert"
+          type="success"
+          text
+          class="custom-alert"
+        >
+          Friend request sent!
+        </BaseAlert>
 
-          <BaseAlert
-            v-model="showErrorAlert"
-            type="error"
-            class="custom-alert"
-          >
-            {{ errorMessage }}
-          </BaseAlert>
-        </p>
+        <BaseAlert
+          v-model="showErrorAlert"
+          type="error"
+          class="custom-alert"
+        >
+          {{ errorMessage }}
+        </BaseAlert>
       </div>
     </v-card-text>
 
@@ -102,7 +99,7 @@
 
   <BadgesUser />
 
-  <favorite-campaign-card />
+  <UserLibraryWidget v-if="user.users_pk" :userId="user.users_pk" :userName="user.user_name" />
 
 </template>
 
@@ -112,6 +109,7 @@ import { useRoute } from "vue-router";
 import axios from "axios";
 import { useUserStore } from "@/store/UserStore";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
+import UserLibraryWidget from "@/components/UserLibraryWidget.vue";
 
 const assets = inject<string>("assets");
 const route = useRoute();
@@ -223,7 +221,7 @@ checkFriendStatus();
 
 <style scoped>
 .user-info {
-  margin-top: 50px;
+  /* margin controlled by layout now */
 }
 
 .user-name {
