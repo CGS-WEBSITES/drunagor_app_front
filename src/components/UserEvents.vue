@@ -2,15 +2,15 @@
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+        class="cinzel-text font-weight-black pt-4 pb-2 justify-center text-center text-h2"
       >
         EVENTS
       </h1>
     </v-col>
   </v-row>
 
-  <v-col cols="12" md="10" class="mx-auto">
-    <v-card class="pb-12" min-height="500px" color="primary">
+  <v-col cols="12" md="10" class="mx-auto pt-0">
+    <v-card class="pb-12" min-height="500px" color="#151515">
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
@@ -53,7 +53,7 @@
               md="6"
             >
               <v-card
-                color="secondary"
+                color="terciary"
                 class="pt-0 event-card"
                 @click="openDialog(event)"
               >
@@ -66,7 +66,7 @@
                   <v-col cols="4" sm="2">
                     <div
                       class="text-center ml-3"
-                      style="width: 70px; color: var(--v-theme-on-secondary)"
+                      style="width: 70px; color: black"
                     >
                       <p class="pt-3 text-caption font-weight-bold">
                         {{ extractMonth(event.event_date, userTimezone) }}
@@ -81,7 +81,7 @@
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="var(--v-theme-on-secondary)"
+                      <v-icon class="pr-1" size="small" color="black"
                         >mdi-chess-rook</v-icon
                       >
                       {{ event.store_name }}
@@ -317,7 +317,7 @@
               md="6"
             >
               <v-card
-                color="secondary"
+                color="terciary"
                 class="pt-0 event-card"
                 @click="openMyEventsDialog(evt)"
               >
@@ -346,7 +346,7 @@
                   <v-col cols="4" sm="2">
                     <div
                       class="text-center ml-3"
-                      style="width: 70px; color: var(--v-theme-on-secondary)"
+                      style="width: 70px; color: black"
                     >
                       <p class="pt-3 text-caption font-weight-bold">
                         {{ extractMonth(evt.event_date, userTimezone) }}
@@ -361,7 +361,7 @@
                   </v-col>
                   <v-col cols="8" sm="10" class="pt-2 pr-10">
                     <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="var(--v-theme-on-secondary)"
+                      <v-icon class="pr-1" size="small" color="black"
                         >mdi-chess-rook</v-icon
                       >
                       {{ evt.store_name }}
