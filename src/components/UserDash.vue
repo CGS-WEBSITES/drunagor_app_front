@@ -3,10 +3,10 @@
     style="
       display: flex;
       flex-direction: column;
-      height: calc(100dvh - var(--v-layout-top, 56px));
-      max-height: calc(100dvh - var(--v-layout-top, 56px));
+      height: 100dvh;
+      max-height: 100dvh;
       overflow: hidden;
-      /* use default layout top spacing */
+      --v-layout-top: 0px;
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
@@ -133,7 +133,7 @@
             
             <v-col class="px-2 d-flex justify-center align-center">
               <v-btn
-                :color="playButtonColor"
+                color="playbutton"
                 variant="flat"
                 @click="openPlaySelection"
                 :size="display.xs ? 'large' : 'x-large'"
