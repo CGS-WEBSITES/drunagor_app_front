@@ -270,6 +270,12 @@ const menuItems = computed(() => {
       to: { name: "Library" },
       disabled: false,
     },
+    {
+      title: "Heroes",
+      icon: "mdi-shield-sword",
+      to: { name: "HeroesManager" },
+      disabled: false,
+    },
     // ALTERAÇÃO 2: Novo item adicionado
     {
       title: "Community Builds",
