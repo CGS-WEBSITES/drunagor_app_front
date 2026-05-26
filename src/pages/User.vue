@@ -99,6 +99,8 @@
 
   <BadgesUser />
 
+  <RecentCampaignWidget v-if="user.users_pk" :userId="user.users_pk" />
+
   <UserLibraryWidget v-if="user.users_pk" :userId="user.users_pk" :userName="user.user_name" />
 
 </template>
@@ -110,6 +112,7 @@ import axios from "axios";
 import { useUserStore } from "@/store/UserStore";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import UserLibraryWidget from "@/components/UserLibraryWidget.vue";
+import RecentCampaignWidget from "@/components/RecentCampaignWidget.vue";
 
 const assets = inject<string>("assets");
 const route = useRoute();
