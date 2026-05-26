@@ -32,7 +32,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#118D8E', // Default Teal
+          playbutton: '#00F5FF', // Neon Cyan
         },
       },
       CoreTheme: {
@@ -47,7 +47,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#E2B13C', // Gold
+          playbutton: '#FFD700', // Bright Gold
         },
       },
       ApocTheme: {
@@ -62,7 +62,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FB8C00', // Orange
+          playbutton: '#FF3E3E', // Neon Crimson/Red
         },
       },
       NightsTheme: {
@@ -92,7 +92,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#10B981', // Emerald Green
+          playbutton: '#39FF14', // Neon Green
         },
       },
       BlueTheme: {
@@ -107,7 +107,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#F59E0B', // Amber
+          playbutton: '#FF9F00', // Neon Orange
         },
       },
       CrimsonTheme: {
@@ -122,7 +122,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#FACC15', // Yellow
+          playbutton: '#FFFF00', // Neon Yellow
         },
       },
       VioletTheme: {
@@ -137,7 +137,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#4ADE80', // Light Green
+          playbutton: '#00FFFF', // Cyan
         },
       },
       RoseTheme: {
@@ -152,7 +152,7 @@ export default createVuetify({
           info: '#2196F3',
           success: '#4CAF50',
           warning: '#FB8C00',
-          playbutton: '#2DD4BF', // Teal
+          playbutton: '#FF007F', // Neon Rose/Pink
         },
       },
     },

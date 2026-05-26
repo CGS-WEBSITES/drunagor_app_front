@@ -12,7 +12,7 @@
     <!-- Desktop Layout -->
     <v-row class="pa-2 pa-md-4 rounded justify-center d-none d-md-flex" align="stretch" style="min-height: calc(100vh - 200px); max-width: 1400px; margin: 0 auto;">
       <v-col cols="12" md="3" class="px-3">
-        <v-card color="#2A2A2A" class="pa-4 h-100 d-flex flex-column" rounded="lg" elevation="0">
+        <v-card color="primary" class="pa-4 h-100 d-flex flex-column" rounded="lg" elevation="0">
           <v-card-title class="pa-0 mb-4 text-white">FILTERS</v-card-title>
           <Filters
             :filter-status="filterStatus"
@@ -25,7 +25,7 @@
       </v-col>
       
       <v-col cols="12" md="9">
-        <v-card class="pa-4 h-100" color="#2A2A2A" rounded="lg">
+        <v-card class="pa-4 h-100" color="primary" rounded="lg">
           <div class="library-scroll-container pr-1 pr-md-2">
             <v-row dense>
             <v-col v-for="product in filteredProducts" :key="product.id" cols="12" md="6">
@@ -66,10 +66,10 @@
     <!-- Mobile Layout -->
     <v-row class="pa-2 justify-center mx-auto d-flex d-md-none align-start" style="max-width: 800px;">
       <v-col cols="12" class="px-2">
-        <v-card color="#2A2A2A" class="pa-3 pa-sm-4 d-flex flex-column justify-start" rounded="lg" style="min-height: calc(100vh - 100px);">
+        <v-card color="primary" class="pa-3 pa-sm-4 d-flex flex-column justify-start" rounded="lg" style="min-height: calc(100vh - 100px);">
           <!-- Filtros como Expansion Panel -->
           <v-expansion-panels class="mb-4">
-            <v-expansion-panel bg-color="#1A1A1A" elevation="0" style="border: 1px solid rgba(255,255,255,0.05);">
+            <v-expansion-panel bg-color="secondary" elevation="0" style="border: 1px solid rgba(255,255,255,0.05);">
               <v-expansion-panel-title class="font-weight-bold text-white text-h6 px-4">
                 FILTERS
               </v-expansion-panel-title>
