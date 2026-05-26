@@ -70,6 +70,10 @@
             </v-hover>
           </div>
 
+          <v-btn icon @click="switchTheme" class="mr-2" variant="text">
+            <v-img :src="themeIcon" max-height="24" max-width="24" contain></v-img>
+          </v-btn>
+
           <v-menu open-on-click offset-y>
             <template v-slot:activator="{ props }">
               <v-btn v-bind="props" text class="px-3">
@@ -135,6 +139,10 @@
         </v-btn>
 
         <v-spacer></v-spacer>
+
+        <v-btn icon @click="switchTheme" class="mr-2" variant="text">
+          <v-img :src="themeIcon" max-height="24" max-width="24" contain></v-img>
+        </v-btn>
 
         <v-btn icon @click="drawer = !drawer" class="mr-2">
           <v-icon>mdi-menu</v-icon>
@@ -238,12 +246,14 @@ const route = useRoute();
 
 const assets = inject<string>("assets");
 
-const theme = ref("DarkTheme");
+const theme = ref(localStorage.getItem("appTheme") || "DarkTheme");
 const themes = ["DarkTheme", "CoreTheme", "ApocTheme"];
 
 const switchTheme = () => {
   const currentIndex = themes.indexOf(theme.value);
-  theme.value = themes[(currentIndex + 1) % themes.length];
+  const nextTheme = themes[(currentIndex + 1) % themes.length];
+  theme.value = nextTheme;
+  localStorage.setItem("appTheme", nextTheme);
 };
 
 const drawer = ref(false);
