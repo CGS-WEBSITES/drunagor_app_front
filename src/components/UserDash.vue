@@ -3,10 +3,10 @@
     style="
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      max-height: 100vh;
+      height: calc(100dvh - var(--v-layout-top, 56px));
+      max-height: calc(100dvh - var(--v-layout-top, 56px));
       overflow: hidden;
-      --v-layout-top: 0px;
+      /* use default layout top spacing */
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
@@ -313,7 +313,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
-import { useDisplay } from "vuetify";
+import { useDisplay, useTheme } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -343,9 +343,9 @@ const showHub = ref(false);
 const myEvents = ref<any[]>([]);
 const showPlaySelectionDialog = ref(false);
 const showDrunagorSoonDialog = ref(false);
-
+const themeInstance = useTheme();
 const playButtonColor = computed(() => {
-  const tName = localStorage.getItem("appTheme") || "DarkTheme";
+  const tName = themeInstance.global.name.value;
   switch (tName) {
     case "CoreTheme":
       return "#E2B13C";
@@ -368,6 +368,7 @@ const playButtonColor = computed(() => {
       return "#118D8E";
   }
 });
+
 
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
