@@ -257,7 +257,7 @@
       </v-navigation-drawer>
     </v-row>
 
-    <router-view :style="contentStyle" class="pt-10" />
+    <router-view :style="contentStyle" :class="{ 'pt-10': display.mdAndUp }" />
   </v-app>
 </template>
 
