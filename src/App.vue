@@ -72,8 +72,12 @@
 
           <v-menu open-on-click offset-y>
             <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" icon class="mr-2" variant="text">
-                <v-img :src="themeIcon" max-height="24" max-width="24" contain></v-img>
+              <v-btn v-bind="props" icon class="mr-2" variant="text" style="min-width: 48px; width: 48px; height: 48px;">
+                <div v-if="currentThemeObj" class="d-flex" style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.8);">
+                  <div :style="{ backgroundColor: currentThemeObj.bg }" style="width: 50%; height: 100%;"></div>
+                  <div :style="{ backgroundColor: currentThemeObj.primary }" style="width: 50%; height: 100%;"></div>
+                </div>
+                <v-img v-else :src="themeIcon" max-height="24" max-width="24" contain></v-img>
               </v-btn>
             </template>
             <v-list class="bg-grey-darken-4 pa-2" min-width="220" rounded="lg">
@@ -285,16 +289,20 @@ const assets = inject<string>("assets");
 
 const theme = ref(localStorage.getItem("appTheme") || "DarkTheme");
 const themesList = [
-  { name: "DarkTheme", label: "Dark (Default)", primary: "#363636", bg: "#141414" },
-  { name: "CoreTheme", label: "Core (Aqua)", primary: "#3C7376", bg: "#172A2C" },
-  { name: "ApocTheme", label: "Apoc (Red)", primary: "#802222", bg: "#141414" },
-  { name: "NightsTheme", label: "Nights (Deep Purple)", primary: "#5D3C76", bg: "#22162C" },
-  { name: "EarthTheme", label: "Earth (Brown)", primary: "#804F22", bg: "#3C2510" },
-  { name: "BlueTheme", label: "Blue (Navy)", primary: "#224780", bg: "#102139" },
-  { name: "CrimsonTheme", label: "Crimson (Blood)", primary: "#802222", bg: "#421111" },
-  { name: "VioletTheme", label: "Violet (Bright Purple)", primary: "#622280", bg: "#2A0F36" },
-  { name: "RoseTheme", label: "Rose (Muted)", primary: "#763C3C", bg: "#392020" }
+  { name: "DarkTheme", label: "Dark", primary: "#363636", bg: "#141414" },
+  { name: "CoreTheme", label: "Age of Darkness", primary: "#3C7376", bg: "#172A2C" },
+  { name: "ApocTheme", label: "Apocalypse", primary: "#802222", bg: "#141414" },
+  { name: "NightsTheme", label: "Purple", primary: "#5D3C76", bg: "#22162C" },
+  { name: "EarthTheme", label: "Earth", primary: "#804F22", bg: "#3C2510" },
+  { name: "BlueTheme", label: "Blue", primary: "#224780", bg: "#102139" },
+  { name: "CrimsonTheme", label: "Crimson", primary: "#802222", bg: "#421111" },
+  { name: "VioletTheme", label: "Violet", primary: "#622280", bg: "#2A0F36" },
+  { name: "RoseTheme", label: "Rose", primary: "#763C3C", bg: "#392020" }
 ];
+
+const currentThemeObj = computed(() => {
+  return themesList.find(t => t.name === theme.value);
+});
 
 const selectTheme = (themeName: string) => {
   theme.value = themeName;

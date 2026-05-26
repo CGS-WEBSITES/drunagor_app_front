@@ -1,12 +1,23 @@
 <template>
-  <v-card color="primary" class="profile-card mx-auto py-0 mt-16" rounded="0" elevation="3" style="
-    overflow: visible;
-    position: relative;
-    text-align: center;
-    width: 100%;
-  ">
+  <div>
+    <v-card color="primary" class="profile-card mx-auto py-0 mt-16" rounded="0" elevation="3" style="
+      overflow: visible;
+      position: relative;
+      text-align: center;
+      width: 100%;
+    ">
     <div class="position-relative bg-grey-darken-4" style="min-height: 120px; width: 100%;">
-      <v-img v-if="user.background_hash" :src="assets + '/Profile/' + user.background_hash" alt="Background Image" max-height="529px" cover position="center center"></v-img>
+      <v-img
+        :src="
+          user.background_hash
+            ? assets + '/Profile/' + user.background_hash
+            : assets + '/Profile/profile-bg-warriors-transparent.png'
+        "
+        alt="Background Image"
+        max-height="529px"
+        cover
+        position="center center"
+      ></v-img>
 
       <v-btn icon="mdi-arrow-left" class="position-absolute top-0 left-0 ma-2 d-none d-md-flex" color="rgba(0, 0, 0, 0.6)" style="z-index: 10;"
         elevation="3" @click="$router.go(-1)"></v-btn>
@@ -102,7 +113,7 @@
   <RecentCampaignWidget v-if="user.users_pk" :userId="user.users_pk" />
 
   <UserLibraryWidget v-if="user.users_pk" :userId="user.users_pk" :userName="user.user_name" />
-
+  </div>
 </template>
 
 <script lang="ts" setup>

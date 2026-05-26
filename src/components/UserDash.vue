@@ -60,7 +60,7 @@
               <div
                 class="pa-3 rounded-lg"
                 style="
-                  background-color: rgba(50, 50, 50, 0.7);
+                  background-color: rgba(var(--v-theme-surface), 0.7);
                   backdrop-filter: blur(5px);
                   cursor: pointer;
                   padding-left: 32px !important;
@@ -133,7 +133,7 @@
             
             <v-col class="px-2 d-flex justify-center align-center">
               <v-btn
-                color="#118D8E"
+                :color="playButtonColor"
                 variant="flat"
                 @click="openPlaySelection"
                 :size="display.xs ? 'large' : 'x-large'"
@@ -343,6 +343,31 @@ const showHub = ref(false);
 const myEvents = ref<any[]>([]);
 const showPlaySelectionDialog = ref(false);
 const showDrunagorSoonDialog = ref(false);
+
+const playButtonColor = computed(() => {
+  const tName = localStorage.getItem("appTheme") || "DarkTheme";
+  switch (tName) {
+    case "CoreTheme":
+      return "#E2B13C";
+    case "ApocTheme":
+      return "#FB8C00";
+    case "NightsTheme":
+      return "#A3E635";
+    case "EarthTheme":
+      return "#10B981";
+    case "BlueTheme":
+      return "#F59E0B";
+    case "CrimsonTheme":
+      return "#FACC15";
+    case "VioletTheme":
+      return "#4ADE80";
+    case "RoseTheme":
+      return "#2DD4BF";
+    case "DarkTheme":
+    default:
+      return "#118D8E";
+  }
+});
 
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
