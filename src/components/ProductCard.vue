@@ -1,52 +1,96 @@
 <template>
   <v-card
-    class="pa-0 mt-2 mx-auto d-flex"
-    :class="isMobile ? 'my-mobile-card' : ''"
+    v-if="isMobile"
+    class="pa-0 mx-auto d-flex my-mobile-card"
+    elevation="0"
+    style="border-radius: 8px; overflow: hidden; width: 100%; aspect-ratio: 328 / 123; border: 1px solid rgba(255,255,255,0.1);"
   >
-    <v-row class="ma-0 pa-0 d-flex align-stretch flex-nowrap">
-      <!-- Coluna Esquerda: Imagem do Produto com Fundo Verde -->
-      <v-col
-        :cols="isMobile ? 4 : 4"
-        :md="4"
-        class="d-flex flex-column align-center"
-        :class="isMobile ? 'pa-' : 'pa-4'"
+    <div class="d-flex w-100 h-100">
+      <!-- Coluna Esquerda: 36.6% proporção -->
+      <div
+        class="d-flex align-center justify-center pa-0"
+        :style="{ backgroundColor: product.color, width: '36.6%', height: '100%' }"
+      >
+        <v-img
+          :src="product.image || require('@/assets/defalt-box.png')"
+          contain
+          alt="Product Image"
+          style="box-shadow: none; width: 100%; height: 100%;"
+        ></v-img>
+      </div>
+
+      <div
+        class="d-flex flex-column justify-space-between text-white pa-2"
         :style="{
-          backgroundColor: product.color,
+          flex: 1,
+          height: '100%',
+          backgroundImage: `url(${product.cardbg})`,
+          backgroundColor: 'rgba(20, 20, 25, 0.7)',
+          backgroundBlendMode: 'overlay',
+          backgroundPosition: 'center',
+          backgroundSize: '100% 100%',
+          backgroundRepeat: 'no-repeat'
         }"
       >
-        <!-- Imagem da Caixa -->
+        <v-card-title
+          class="font-weight-bold pa-0 text-wrap"
+          style="line-height: 1.1; font-size: clamp(0.9rem, 4vw, 1.1rem);"
+        >
+          {{ product.name || "No Product Selected" }}
+        </v-card-title>
+        
+        <div class="mt-auto d-flex align-center w-100">
+          <slot name="actions"></slot>
+        </div>
+      </div>
+    </div>
+  </v-card>
 
+  <v-card
+    v-else
+    class="pa-0 mt-2 mx-auto d-flex my-desktop-card"
+    elevation="0"
+    style="border-radius: 8px; overflow: hidden; height: 183px; border: 1px solid rgba(255,255,255,0.1); width: 100%;"
+  >
+    <v-row class="ma-0 pa-0 flex-nowrap w-100">
+      <!-- Coluna Esquerda: Imagem do Produto com Fundo -->
+      <v-col
+        cols="4"
+        class="d-flex align-center justify-center pa-2"
+        :style="{ backgroundColor: product.color }"
+      >
         <v-img
           :src="product.image || require('@/assets/defalt-box.png')"
           class="rounded"
-          :height="isMobile ? '75px' : '75px'"
-          width="100%"
+          max-height="150px"
+          contain
           alt="Product Image"
-        >
-        </v-img>
+          style="box-shadow: none;"
+        ></v-img>
       </v-col>
 
       <!-- Coluna Direita: Imagem de Fundo com Informações -->
       <v-col
-        class="box-shadow text-white"
-        :class="isMobile ? 'pa-3' : 'pa-4'"
+        cols="8"
+        class="d-flex flex-column justify-space-between text-white pa-3"
         :style="{
           backgroundImage: `url(${product.cardbg})`,
-          backgroundColor: 'rgba(0, 0, 0, 0.4)',
-          backgroundBlendMode: 'darken',
+          backgroundColor: 'rgba(20, 20, 25, 0.7)',
+          backgroundBlendMode: 'overlay',
           backgroundPosition: 'center',
-          backgroundSize: 'cover',
-          height: '150px',
-          paddingTop: '300px',
+          backgroundSize: 'cover'
         }"
       >
-        <!-- Texto Sobreposto -->
         <v-card-title
-          :class="isMobile ? 'text-h6' : 'text-h5'"
-          class="element3 font-weight-bold"
+          class="text-h5 font-weight-bold pa-0 text-wrap"
+          style="line-height: 1.2;"
         >
           {{ product.name || "No Product Selected" }}
         </v-card-title>
+        
+        <div class="mt-auto d-flex align-center w-100">
+          <slot name="actions"></slot>
+        </div>
       </v-col>
     </v-row>
   </v-card>
@@ -81,48 +125,10 @@ export default {
 </script>
 
 <style scoped>
-/* Centralização dos v-cards no mobile */
 .my-mobile-card {
-  margin-left: auto;
-  margin-right: auto;
-  width: 90%;
+  width: 100%;
 }
-
-/* Ajuste da altura no mobile */
-.my-mobile-card {
-  height: 50%;
-}
-
-/* Ajuste do padding e alinhamento */
-#right-column {
-  background-image: url("@/assets/bg-corebox.png");
-  background-color: rgba(0, 0, 0, 0.4);
-  background-blend-mode: darken;
-  height: 150px;
-  background-position: center;
-  padding-top: 300px;
-  background-size: cover;
-}
-
-.box-shadow {
-  background-color: rgba(0, 0, 0, 0.65);
-}
-
-.element {
-  position: relative;
-  top: -8px;
-  right: 10px;
-}
-
-.element1 {
-  position: relative;
-  top: -50px;
-  right: 10px;
-}
-
-.element3 {
-  position: relative;
-  top: -18px;
-  right: 15px;
+.my-desktop-card {
+  width: 100%;
 }
 </style>
