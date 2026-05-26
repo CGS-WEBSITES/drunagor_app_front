@@ -10,7 +10,7 @@
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto pt-0 d-flex flex-column" style="min-height: calc(100vh - 180px);">
-    <v-card class="pb-12 flex-grow-1" color="#151515">
+    <v-card class="pb-12 flex-grow-1" color="primary">
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs
