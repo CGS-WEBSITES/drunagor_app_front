@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="campaign" max-width="800" class="pa-4 pt-0 pb-0">
+  <v-container v-if="loading || campaign" max-width="800" class="pa-4 pt-0 pb-0">
     <v-card rounded="lg" elevation="3" color="primary" class="pl-1 pt-1 pr-1 pb-5">
       <v-card-title class="d-flex justify-space-between pb-0 px-3">
         <span class="text-uppercase font-weight-black text-bold text-h5 mb-2 pb-0 text-white">
@@ -7,7 +7,11 @@
         </span>
       </v-card-title>
 
-      <div class="px-2">
+      <div v-if="loading" class="d-flex justify-center align-center py-16">
+        <v-progress-circular indeterminate color="white" size="50"></v-progress-circular>
+      </div>
+
+      <div v-else-if="campaign" class="px-2">
         <v-card
           color="secundary"
           elevation="16"
@@ -150,6 +154,7 @@ const isOwner = computed(() => {
   return String(userStore.user?.users_pk) === String(props.userId);
 });
 
+const loading = ref(true);
 const campaign = ref<any | null>(null);
 const lastDoorName = ref("None");
 const isFinished = ref(false);
@@ -180,6 +185,7 @@ const formattedLastUpdate = computed(() => {
 const loadMostRecentCampaign = async () => {
   if (!props.userId) return;
 
+  loading.value = true;
   try {
     // 1. Fetch normal/legacy campaigns
     const resLegacy = await axios.get("/rl_campaigns_users/search", {
@@ -302,6 +308,8 @@ const loadMostRecentCampaign = async () => {
     }
   } catch (err) {
     console.error("Error loading most recent campaign:", err);
+  } finally {
+    loading.value = false;
   }
 };
 
