@@ -3,10 +3,9 @@
     style="
       display: flex;
       flex-direction: column;
-      height: 100dvh;
-      max-height: 100dvh;
+      height: calc(100dvh - var(--v-layout-top, 20px));
+      max-height: calc(100dvh - var(--v-layout-top, 20px));
       overflow: hidden;
-      --v-layout-top: 0px;
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
