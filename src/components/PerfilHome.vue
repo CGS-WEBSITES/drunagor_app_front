@@ -1,5 +1,7 @@
 <template>
     <Badges />
+    <RecentCampaignWidget v-if="userStore.user?.users_pk" :userId="userStore.user?.users_pk" />
+    <UserLibraryWidget v-if="userStore.user?.users_pk" :userId="userStore.user?.users_pk" :userName="userStore.user?.user_name" />
 <!-- 
     <v-row no-gutters>
         <v-col cols="12">
@@ -22,6 +24,11 @@ import NavigationBar from "@/components/NavigationBar.vue";
 import StatisticsCard from "@/components/StatisticsCard.vue";
 import AchievementsList from "@/components/AchievementsList.vue";
 import badgesList from "@/components/Badges.vue";
+import UserLibraryWidget from "@/components/UserLibraryWidget.vue";
+import RecentCampaignWidget from "@/components/RecentCampaignWidget.vue";
+import { useUserStore } from "@/store/UserStore";
+
+const userStore = useUserStore();
 
 const buttons = [
     { icon: "mdi-account", value: "profile" },

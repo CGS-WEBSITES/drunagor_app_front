@@ -1,127 +1,161 @@
 <template>
-  <v-container class="pa-0 mt-16" >
-    <!-- LIBRARY (Somente no Mobile) -->
-<v-row justify="center" class="d-md-none">
-  <v-col cols="12" class="text-center mb-4">
-    <h1 class="cinzel-text font-weight-black pt-0 pb-4 justify-center text-center text-h2">
-      LIBRARY
-    </h1>
-  </v-col>
-</v-row>
-
-<!-- LIBRARY (Somente em Desktop e Tablets grandes) -->
-<v-row justify="center" class="d-none d-md-flex">
-  <v-col cols="12" class="text-center mb-4">
-    <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2">
-      LIBRARY
-    </h1>
-  </v-col>
-</v-row>
-
-    <v-card color="primary" min-height="220px" class="pa-2">
-      <v-tabs v-model="activeTab" align-tabs="center" class="box-shadow centered-tabs d-flex justify-center">
-        <v-tab :value="1">All Products</v-tab>
-        <v-tab :value="2">Wishlist</v-tab>
-        <v-tab :value="3">Owned</v-tab>
-      </v-tabs>
-
-      <div v-if="activeTab === 1">
-        <v-row dense>
-          <v-col v-for="product in products" :key="product.id" cols="12" sm="6" md="6" lg="4">
-            <div class="card-wrapper">
-              <ProductCard :product="product" @click="() => goToLink(product.link)" />
-
-              <div class="buttons-container">
-                <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
-                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }"
-                  @click="toggleWishlist(product.id)">
-                  {{ product.wish ? "- Wishlist" : "+ Wishlist" }}
-                </v-btn>
-
-                <!-- Botão Owned -->
-                <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
-                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }"
-                  @click="toggleOwned(product.id)">
-                  {{ product.owned ? "- Owned" : "+ Owned" }}
-                </v-btn>
-              </div>
-            </div>
-          </v-col>
-        </v-row>
-      </div>
-
-      <div v-if="activeTab === 2">
-        <v-row dense>
-          <v-col v-for="product in wishlistItems" :key="product.id" cols="12" sm="6" md="4">
-            <v-card>
-              <ProductCard :product="product" @click="() => goToLink(product.link)" />
-
-              <div class="wishlist-button-container">
-                <v-btn prepend-icon="mdi-list-box-outline" size="small" variant="outlined"
-                  :style="{ backgroundColor: product.wish ? '#136D6D' : '' }" @click="toggleFromWishlist(product.id)">
-                  {{ product.wish? " - Wishlist" : "+ Wishlist" }}
-                </v-btn>
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
-      </div>
-
-      <div v-if="activeTab === 3">
-        <v-row dense>
-          <v-col v-for="product in ownedItems" :key="product.id" cols="12" sm="6" md="4">
-            <v-card>
-              <ProductCard :product="product" @click="() => goToLink(product.link)" />
-
-              <div class="owned-button-container">
-                <v-btn prepend-icon="mdi-tag-check-outline" variant="outlined" size="small"
-                  :style="{ backgroundColor: product.owned ? '#136D6D' : '' }" @click="toggleFromOwned(product.id)">
-                  {{ product.owned ? "- Owned" : "+ Owned" }}
-                </v-btn>
-              </div>
-            </v-card>
-          </v-col>
-        </v-row>
-      </div>
-    </v-card>
-  </v-container>
-
-  <v-dialog v-model="dialog" max-width="440">
-    <v-card class="custom-background">
-      <v-card-title class="font-weight-bold text-h4">
-        {{ cardName }}
-      </v-card-title>
-      <v-img src="https://assets.drunagor.app/Library/box-corebox.png" class="my-4"
-        height="200"></v-img>
-
-      <v-col cols="12">
-        <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg"
-          @click="() => goToLink('https://aodarkness.com')">
-          Explore</v-btn>
+  <v-container class="pa-0 mt-2 mt-md-16 pb-12" fluid>
+    <!-- Título -->
+    <v-row justify="center" class="d-none d-md-flex">
+      <v-col cols="12" class="text-center mb-4">
+        <h1 class="cinzel-text font-weight-black pt-4 pb-4 justify-center text-center text-h2 text-white">
+          LIBRARY
+        </h1>
       </v-col>
+    </v-row>
 
-      <h3 class="pl-4 font-weight-medium text-h5">Description</h3>
-      <h2 class="pl-4 pb-4 text-body-1">{{ Description }}</h2>
+    <!-- Desktop Layout -->
+    <v-row class="pa-2 pa-md-4 rounded justify-center d-none d-md-flex" align="stretch" style="min-height: calc(100vh - 200px); max-width: 1400px; margin: 0 auto;">
+      <v-col cols="12" md="3" class="px-3">
+        <v-card color="primary" class="pa-4 h-100 d-flex flex-column" rounded="lg" elevation="0">
+          <v-card-title class="pa-0 mb-4 text-white">FILTERS</v-card-title>
+          <Filters
+            :filter-status="filterStatus"
+            :name-filter="nameFilter"
+            :name-options="nameOptions"
+            @update:filterStatus="filterStatus = $event"
+            @update:nameFilter="nameFilter = $event"
+          />
+        </v-card>
+      </v-col>
+      
+      <v-col cols="12" md="9">
+        <v-card class="pa-4 h-100" color="primary" rounded="lg">
+          <div class="library-scroll-container pr-1 pr-md-2">
+            <v-row dense>
+            <v-col v-for="product in filteredProducts" :key="product.id" cols="12" md="6">
+              <ProductCard :product="product" @click="() => goToLink(product.link)" class="cursor-pointer">
+                <template #actions>
+                  <div class="d-flex w-100 justify-space-between mt-2" @click.stop>
+                    <v-btn
+                      prepend-icon="mdi-star"
+                      size="small"
+                      :variant="product.wish ? 'flat' : 'outlined'"
+                      :color="product.wish ? '#136D6D' : 'rgba(255,255,255,0.7)'"
+                      @click.stop="toggleWishlist(product.id)"
+                      class="text-caption rounded-pill flex-grow-1 mr-1"
+                    >
+                      WISHLIST
+                    </v-btn>
+                    
+                    <v-btn
+                      prepend-icon="mdi-check-circle"
+                      size="small"
+                      :variant="product.owned ? 'flat' : 'outlined'"
+                      :color="product.owned ? '#136D6D' : 'rgba(255,255,255,0.7)'"
+                      @click.stop="toggleOwned(product.id)"
+                      class="text-caption rounded-pill flex-grow-1 ml-1"
+                    >
+                      OWNED
+                    </v-btn>
+                  </div>
+                </template>
+              </ProductCard>
+            </v-col>
+          </v-row>
+        </div>
+        </v-card>
+      </v-col>
+    </v-row>
 
-      <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
-    </v-card>
-  </v-dialog>
+    <!-- Mobile Layout -->
+    <v-row class="pa-2 justify-center mx-auto d-flex d-md-none align-start" style="max-width: 800px;">
+      <v-col cols="12" class="px-2">
+        <v-card color="primary" class="pa-3 pa-sm-4 d-flex flex-column justify-start" rounded="lg" style="min-height: calc(100vh - 100px);">
+          <!-- Filtros como Expansion Panel -->
+          <v-expansion-panels class="mb-4">
+            <v-expansion-panel bg-color="secondary" elevation="0" style="border: 1px solid rgba(255,255,255,0.05);">
+              <v-expansion-panel-title class="font-weight-bold text-white text-h6 px-4">
+                FILTERS
+              </v-expansion-panel-title>
+              <v-expansion-panel-text>
+                <Filters
+                  :filter-status="filterStatus"
+                  :name-filter="nameFilter"
+                  :name-options="nameOptions"
+                  @update:filterStatus="filterStatus = $event"
+                  @update:nameFilter="nameFilter = $event"
+                />
+              </v-expansion-panel-text>
+            </v-expansion-panel>
+          </v-expansion-panels>
+          
+          <!-- Lista de Produtos -->
+          <div class="library-scroll-container">
+            <v-row no-gutters>
+              <v-col v-for="product in filteredProducts" :key="product.id" cols="12">
+                <ProductCard :product="product" @click="() => goToLink(product.link)" class="cursor-pointer mb-3">
+                  <template #actions>
+                    <div class="d-flex w-100 justify-space-between mt-1" @click.stop>
+                      <v-btn
+                        prepend-icon="mdi-star"
+                        size="small"
+                        :variant="product.wish ? 'flat' : 'outlined'"
+                        :color="product.wish ? '#136D6D' : 'rgba(255,255,255,0.7)'"
+                        @click.stop="toggleWishlist(product.id)"
+                        class="text-caption rounded-pill flex-grow-1 mr-1"
+                      >
+                        WISHLIST
+                      </v-btn>
+                      
+                      <v-btn
+                        prepend-icon="mdi-check-circle"
+                        size="small"
+                        :variant="product.owned ? 'flat' : 'outlined'"
+                        :color="product.owned ? '#136D6D' : 'rgba(255,255,255,0.7)'"
+                        @click.stop="toggleOwned(product.id)"
+                        class="text-caption rounded-pill flex-grow-1 ml-1"
+                      >
+                        OWNED
+                      </v-btn>
+                    </div>
+                  </template>
+                </ProductCard>
+              </v-col>
+            </v-row>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- Dialog -->
+    <v-dialog v-model="dialog" max-width="440">
+      <v-card class="custom-background">
+        <v-card-title class="font-weight-bold text-h4">
+          {{ cardName }}
+        </v-card-title>
+        <v-img src="https://assets.drunagor.app/Library/box-corebox.png" class="my-4" height="200"></v-img>
+
+        <v-col cols="12">
+          <v-btn block prepend-icon="mdi-script-text" color="#312F2F" class="explore rounded-lg" @click="() => goToLink('https://aodarkness.com')">
+            Explore
+          </v-btn>
+        </v-col>
+
+        <h3 class="pl-4 font-weight-medium text-h5">Description</h3>
+        <h2 class="pl-4 pb-4 text-body-1">{{ Description }}</h2>
+
+        <v-btn class="rounded-0" color="red" text="Close" @click="dialog = false"></v-btn>
+      </v-card>
+    </v-dialog>
+
+  </v-container>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onBeforeMount, inject, nextTick } from "vue";
-import Filters from "@/components/Library/Filters.vue";
+import { ref, computed, onBeforeMount, inject, nextTick, watch } from "vue";
+import Filters from "@/components/Filters.vue";
 import ProductCard from "@/components/ProductCard.vue";
 import { useUserStore } from "@/store/UserStore";
 import { he } from "vuetify/locale";
 
-const filterStatus = ref("owned");
-const rewardsStatus = ref("rewards_owned");
-const selectedBox = ref("");
-const componentChecked = ref(false);
-const selectedComponentType = ref("");
-const contentChecked = ref(false);
-const selectedContent = ref("");
+const filterStatus = ref("all");
+const nameFilter = ref("");
 const user = useUserStore().user;
 const cardName = ref("");
 const boximage = ref("");
@@ -130,25 +164,8 @@ const confirmationDialog = ref(false);
 const confirmationMessage = ref("");
 const dialog = ref(false);
 
-const boxOptions = [
-  "Companions and Furnitures",
-  "AoDarkness",
-  "Desert of Hellscar",
-];
-const contentOptions = ["Core", "Cosmetic", "Game Content"];
-const componentTypes = [
-  "Books",
-  "Cards",
-  "Miniatures",
-  "Maps",
-  "Doors",
-  "Playerboards",
-  "Punchboards",
-  "Scorepad",
-  "Trays",
-];
+const nameOptions = ["A - Z", "Z - A"];
 
-const showFilters = ref(false);
 const isDesktop = computed(() => window.innerWidth >= 960);
 const setDialog = (name: string, description: string, image: string) => {
   cardName.value = name;
@@ -360,28 +377,26 @@ const toggleFromOwned = async (productId: number) => {
     });
 };
 
-// const isInWishlist = (productId: number) => {
-//   return wishlistItems.value.some((product) => product.id === productId);
-// };
+const filteredProducts = computed(() => {
+  let result = products.value.filter(p => {
+    const pName = p.name?.toLowerCase() || '';
+    return !['underkeep', 'underkeep2'].includes(pName);
+  });
 
-// const isOwned = (productId: number) => {
-//   return ownedItems.value.some((product) => product.id === productId);
-// };
+  if (filterStatus.value === 'wishlist') {
+    result = result.filter((product) => product.wish === true);
+  } else if (filterStatus.value === 'owned') {
+    result = result.filter((product) => product.owned === true);
+  }
 
-const wishlistItems = computed(() => {
-  const itemsWithWishTrue = products.value.filter(
-    (product) => product.wish === true
-  );
+  // Optionally implement filtering by nameFilter, selectedBox, etc. if needed
+  if (nameFilter.value === 'A - Z') {
+    result.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (nameFilter.value === 'Z - A') {
+    result.sort((a, b) => b.name.localeCompare(a.name));
+  }
 
-  return itemsWithWishTrue;
-});
-
-const ownedItems = computed(() => {
-  const itemsWithOwnedTrue = products.value.filter(
-    (product) => product.owned === true
-  );
-
-  return itemsWithOwnedTrue;
+  return result;
 });
 
 const axios: any = inject("axios");
@@ -445,53 +460,45 @@ watch(confirmationDialog, async (newVal) => {
   /* Move a imagem 10px para cima */
 }
 
+.library-scroll-container {
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar personalizada */
+.library-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+.library-scroll-container::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+}
+.library-scroll-container::-webkit-scrollbar-thumb {
+  background: #136D6D;
+  border-radius: 4px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .box-shadow {
   background-color: rgba(0, 0, 0, 0.25);
-  /* Preto com 70% de opacidade */
 }
 
 .centered-tabs {
   width: 100%;
 }
 
-.card-wrapper {
-  position: relative;
-  padding: px;
-  /* border: 1px solid #ddd; */
-  border-radius: 8px;
-  /* background-color: white; */
+@media (max-width: 600px) {
+  .library-scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+  .library-scroll-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
-/* Estiliza o container dos botões */
-.buttons-container {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  position: absolute;
-  bottom: 25px;
-  right: 40px;
-}
-
-.wishlist-button-container {
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
-}
-
-.owned-button-container {
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
-}
-
-.custom-background {
-  background-image: url("src/assets/Frame.png");
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-position: top center;
-  background-position-y: -0px;
-  width: 100%;
-  height: 100%;
-  padding-top: px;
-}
 </style>

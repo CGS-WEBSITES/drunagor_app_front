@@ -2,15 +2,15 @@
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+        class="cinzel-text font-weight-black pt-4 pb-2 justify-center text-center text-h2"
       >
         EVENTS
       </h1>
     </v-col>
   </v-row>
 
-  <v-col cols="12" md="10" class="mx-auto">
-    <v-card class="pb-12" min-height="500px" color="#151515">
+  <v-col cols="12" md="10" class="mx-auto pt-0 d-flex flex-column" style="min-height: calc(100vh - 180px);">
+    <v-card class="pb-12 flex-grow-1" color="primary">
       <v-row no-gutters>
         <v-col cols="12">
           <v-tabs

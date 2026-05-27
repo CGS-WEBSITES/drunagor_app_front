@@ -3,10 +3,12 @@
     style="
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      max-height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
       overflow: hidden;
-      --v-layout-top: 0px;
+      margin-top: -56px;
+      padding-top: 56px;
+      box-sizing: border-box;
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
@@ -60,7 +62,7 @@
               <div
                 class="pa-3 rounded-lg"
                 style="
-                  background-color: rgba(50, 50, 50, 0.7);
+                  background-color: rgba(var(--v-theme-surface), 0.7);
                   backdrop-filter: blur(5px);
                   cursor: pointer;
                   padding-left: 32px !important;
@@ -133,7 +135,7 @@
             
             <v-col class="px-2 d-flex justify-center align-center">
               <v-btn
-                color="#118D8E"
+                color="playbutton"
                 variant="flat"
                 @click="openPlaySelection"
                 :size="display.xs ? 'large' : 'x-large'"
@@ -313,7 +315,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
-import { useDisplay } from "vuetify";
+import { useDisplay, useTheme } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -343,6 +345,32 @@ const showHub = ref(false);
 const myEvents = ref<any[]>([]);
 const showPlaySelectionDialog = ref(false);
 const showDrunagorSoonDialog = ref(false);
+const themeInstance = useTheme();
+const playButtonColor = computed(() => {
+  const tName = themeInstance.global.name.value;
+  switch (tName) {
+    case "CoreTheme":
+      return "#E2B13C";
+    case "ApocTheme":
+      return "#FB8C00";
+    case "NightsTheme":
+      return "#A3E635";
+    case "EarthTheme":
+      return "#10B981";
+    case "BlueTheme":
+      return "#F59E0B";
+    case "CrimsonTheme":
+      return "#FACC15";
+    case "VioletTheme":
+      return "#4ADE80";
+    case "RoseTheme":
+      return "#2DD4BF";
+    case "DarkTheme":
+    default:
+      return "#118D8E";
+  }
+});
+
 
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";

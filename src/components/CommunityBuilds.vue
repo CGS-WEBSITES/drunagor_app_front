@@ -201,7 +201,7 @@ function openLink(url) {
 
 <style scoped>
 .page-background {
-  background-color: #121212;
+  background-color: rgb(var(--v-theme-background));
   min-height: 100vh;
 }
 
