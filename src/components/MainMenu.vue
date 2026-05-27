@@ -71,7 +71,7 @@
         class="py-2"
         style="max-width: 800px"
       >
-        <template v-for="(button, i) in buttons" :key="button.value">
+        <template v-for="(button, i) in buttons" :key="i">
           <v-btn class="mx-1" rounded @click="navigateTo(button.route)">
             <template v-if="button.iconType === 'image'">
               <v-img
@@ -87,7 +87,7 @@
                 button.icon
               }}</v-icon>
             </template>
-            <span> {{ button.text }} </span>
+            <span> {{ $t(button.translationKey) }} </span>
           </v-btn>
         </template>
       </v-row>
@@ -131,28 +131,28 @@ const buttons = ref([
     icon: new URL("@/assets/randomiicon.png", import.meta.url).href,
     value: "Campaign Overview",
     route: "/campaign-tracker/randomizer",
-    text: "Randomize",
+    translationKey: "menu.random-monster",
   },
   {
     iconType: "mdi",
     icon: "mdi-sword",
     value: "Campaign Overview",
     route: "/campaign-tracker/",
-    text: "Campaign",
+    translationKey: "menu.campaign",
   },
   {
     iconType: "mdi",
     icon: "mdi-book-search-outline",
     value: "Keyword",
     route: "/campaign-tracker/keyword",
-    text: "Keywords",
+    translationKey: "menu.keyword",
   },
   {
     iconType: "mdi",
-    icon: "mdi-cog-outline",
+    icon: "mdi-package-variant-closed",
     value: "settings",
     route: "/campaign-tracker/configuration",
-    text: "Settings",
+    translationKey: "menu.settings",
   },
 ]);
 </script>
