@@ -399,20 +399,111 @@ const availableVolumes = computed<Volume[]>(() => {
   const vols: Volume[] = [];
   const wingKey = (props.campaignWing || "").toUpperCase();
 
-  if (wingKey.includes("WING 4")) {
-    vols.push({ id: 'wing_4', title: 'Draconic Abyss', subtitle: 'Wing 4', icon: 'mdi-fire', type: 'story', data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) });
+  if (wingKey.includes("TUTORIAL") || wingKey.includes("WING 1 TUTORIAL")) {
+    vols.push({ 
+      id: 'start_here', 
+      title: 'Start Here', 
+      subtitle: 'Tutorial', 
+      icon: 'mdi-school', 
+      type: 'story', 
+      data: rawStartHere 
+    });
+    vols.push({ 
+      id: 'wing_1_tutorial', 
+      title: 'Wing 1 Tutorial', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-book-open-variant', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL")) 
+    });
+  } else if (wingKey.includes("WING 1 ADVANCED")) {
+    vols.push({ 
+      id: 'wing_1_advanced', 
+      title: 'Wing 1 Advanced', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-sword', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - ADVANCED")) 
+    });
+  } else if (wingKey.includes("WING 2 ADVANCED") || wingKey.includes("WING 2")) {
+    vols.push({ 
+      id: 'wing_2_advanced', 
+      title: 'Wing 2 Advanced', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-shield', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 2 - ADVANCED")) 
+    });
+  } else if (wingKey.includes("WING 3")) {
+    vols.push({ 
+      id: 'wing_3', 
+      title: 'The Underkeep', 
+      subtitle: 'Wing 3', 
+      icon: 'mdi-sword-cross', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 3")) 
+    });
+  } else if (wingKey.includes("WING 4")) {
+    vols.push({ 
+      id: 'wing_4', 
+      title: 'Draconic Abyss', 
+      subtitle: 'Wing 4', 
+      icon: 'mdi-fire', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) 
+    });
   } else {
-    const data = rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 3"));
-    vols.push({ id: 'wing_3', title: 'The Underkeep', subtitle: 'Wing 3', icon: 'mdi-sword-cross', type: 'story', data: data.length ? data : rawStoryBooks });
+    vols.push({ id: 'start_here', title: 'Start Here', subtitle: 'Tutorial', icon: 'mdi-school', type: 'story', data: rawStartHere });
+    vols.push({ 
+      id: 'wing_1_tutorial', 
+      title: 'Wing 1 Tutorial', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-book-open-variant', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL")) 
+    });
+    vols.push({ 
+      id: 'wing_1_advanced', 
+      title: 'Wing 1 Advanced', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-sword', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - ADVANCED")) 
+    });
+    vols.push({ 
+      id: 'wing_2_advanced', 
+      title: 'Wing 2 Advanced', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-shield', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 2 - ADVANCED")) 
+    });
+    vols.push({ 
+      id: 'wing_3', 
+      title: 'The Underkeep', 
+      subtitle: 'Wing 3', 
+      icon: 'mdi-sword-cross', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 3")) 
+    });
+    vols.push({ 
+      id: 'wing_4', 
+      title: 'Draconic Abyss', 
+      subtitle: 'Wing 4', 
+      icon: 'mdi-fire', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) 
+    });
   }
 
-  vols.unshift({ id: 'start_here', title: 'Start Here', subtitle: 'Tutorial', icon: 'mdi-school', type: 'story', data: rawStartHere });
-
-  vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'reference', data: playerTutorialsData });
-  vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
-  vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
-  vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
-  vols.push({ id: 'dragon', title: 'Dragon Boss', subtitle: 'Rules', icon: 'mdi-alpha-d-box-outline', type: 'reference', data: dragonClarificationsData });
+  const isTutorialWing = wingKey.includes("TUTORIAL") || wingKey.includes("WING 1 TUTORIAL");
+  if (!isTutorialWing) {
+    vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'reference', data: playerTutorialsData });
+    vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
+    vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
+    vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
+    vols.push({ id: 'dragon', title: 'Dragon Boss', subtitle: 'Rules', icon: 'mdi-alpha-d-box-outline', type: 'reference', data: dragonClarificationsData });
+  }
 
   return vols;
 });
@@ -625,6 +716,7 @@ function exitToolMode() {
 }
 
 function navigateToInteract() { mobileNavValue.value = 'interactions'; currentView.value = 'interactions'; }
+function forceNavigateToInteract() { navigateToInteract(); }
 
 function onScroll() {}
 function handlePageClick() {}
@@ -690,7 +782,7 @@ function openSceneByTarget(target: string) {
     }
 }
 
-defineExpose({ navigateToInteract, openSceneByTarget });
+defineExpose({ navigateToInteract, forceNavigateToInteract, openSceneByTarget });
 </script>
 
 <style scoped>

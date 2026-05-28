@@ -413,7 +413,7 @@
                   <v-window-item value="book">
                     <CampaignBook
                       ref="campaignBookRef"
-                      :campaign-id="campaignId"
+                      :campaign-wing="campaign?.wing || ''"
                     />
                   </v-window-item>
                 </v-window>
@@ -694,7 +694,7 @@ import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignName from "@/components/CampaignName.vue";
-import CampaignBook from "@/components/CampaignBook.vue";
+import CampaignBook from "@/components/CampaignBookNew.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
