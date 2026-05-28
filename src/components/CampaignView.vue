@@ -572,6 +572,56 @@
         <TharmagarChat />
       </v-card>
     </v-dialog>
+
+    <!-- BADGE DIALOG FOR SEASON 1 WINGS -->
+    <v-dialog v-model="newBadgeDialog.visible" max-width="500" persistent transition="dialog-bottom-transition">
+      <v-card color="#1e1e1e" class="text-center d-flex flex-column align-center pa-6 rounded-lg" style="border: 2px solid #ffab00;">
+        <v-icon color="amber-accent-4" size="80" class="mb-4">mdi-star-four-points</v-icon>
+        <div class="text-h5 font-weight-black text-amber-accent-4 mb-4" style="text-shadow: 0 0 10px #ffab00;">
+          NEW BADGE UNLOCKED!
+        </div>
+
+        <v-card
+          v-if="newBadgeDialog.reward"
+          rounded="lg"
+          elevation="10"
+          width="100%"
+          class="py-3 px-2 mb-6"
+          color="secundary"
+          style="border: 1px solid rgba(255, 255, 255, 0.1);"
+        >
+          <v-row class="align-center">
+            <v-col cols="3" class="d-flex align-center justify-center pl-4">
+              <v-img
+                :src="`https://assets.drunagor.app/${newBadgeDialog.reward.picture_hash}`"
+                alt="Reward Icon"
+                max-height="80"
+                contain
+              ></v-img>
+            </v-col>
+
+            <v-col cols="9" class="pl-2 d-flex flex-column justify-center text-left">
+              <p class="font-weight-black text-h6 text-amber-accent-4 ma-0 pb-1" style="line-height: 1.2;">
+                {{ newBadgeDialog.reward.name }}
+              </p>
+              <p class="text-body-2 text-white ma-0 font-weight-medium">
+                {{ newBadgeDialog.reward.description }}
+              </p>
+            </v-col>
+          </v-row>
+        </v-card>
+        
+        <v-btn 
+          color="amber-accent-4" 
+          class="text-black font-weight-black px-8" 
+          rounded="pill" 
+          size="large"
+          @click="newBadgeDialog.visible = false"
+        >
+          GREAT!
+        </v-btn>
+      </v-card>
+    </v-dialog>
   </template>
 </template>
 
@@ -585,6 +635,7 @@ import {
   nextTick,
   onBeforeUnmount,
   computed,
+  inject,
 } from "vue";
 import { ref as vueRef } from "vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
@@ -618,6 +669,7 @@ const heroStore = HeroStore();
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
+const axios: any = inject("axios");
 const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
@@ -641,6 +693,21 @@ const snackbarTimeout = ref(3000);
 const speedDialOpen = ref(true);
 const tharmagarDialogVisible = ref(false);
 const bottomNavValue = ref<string | null>(null);
+
+const REWARDS_DATA: Record<number, any> = {
+  2: {
+    name: "Tutorial Completed",
+    picture_hash: "badges%26achievements/Tutorial%20Complete.png",
+    description: "complete wing 1 tutorial"
+  },
+  3: {
+    name: "Season 1 Completed",
+    picture_hash: "badges%26achievements/Season%201%20Complete%20(4)-min.png",
+    description: "complete wing 2 advanced"
+  }
+};
+
+const newBadgeDialog = ref({ visible: false, reward: null as any });
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const campaignBookRef = vueRef<any>(null);
@@ -1013,6 +1080,7 @@ onMounted(async () => {
       campaign.value.isSequentialAdventure = true;
       campaign.value.sequentialAdventureRunes = 0;
     }
+    checkAndAwardSeason1Achievements();
   } else {
     setAlert(
       "mdi-alert-circle",
@@ -1057,6 +1125,54 @@ onMounted(async () => {
     });
   }
 });
+
+const checkAndAwardSeason1Achievements = async () => {
+  if (!campaign.value || campaign.value.campaign !== "underkeep" || !userStore.user?.users_pk) return;
+  
+  try {
+    const { data: relationData } = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: userStore.user.users_pk,
+        campaigns_fk: campaignId,
+      },
+    });
+    
+    if (relationData?.campaigns?.length > 0) {
+      const relation = relationData.campaigns[0];
+      if (relation.events_fk) {
+        const wingStr = (campaign.value.wing || "").toUpperCase();
+        let rewardPk = null;
+        if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) {
+          rewardPk = 2;
+        } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) {
+          rewardPk = 3;
+        }
+        
+        if (rewardPk) {
+          const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
+            params: { users_fk: userStore.user.users_pk }
+          });
+          const userRewards = rewardData.rewards || [];
+          const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
+          
+          if (!hasReward) {
+            await axios.post("/rl_users_rewards/cadastro", {
+              users_fk: userStore.user.users_pk,
+              rewards_fk: rewardPk
+            });
+            
+            newBadgeDialog.value = {
+              visible: true,
+              reward: REWARDS_DATA[rewardPk]
+            };
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error checking or awarding Season 1 achievements:", error);
+  }
+};
 </script>
 
 <style scoped>

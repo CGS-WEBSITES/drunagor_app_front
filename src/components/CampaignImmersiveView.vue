@@ -695,6 +695,16 @@ import ShareCampaignButton from "./ShareCampaignButton.vue";
 import TharmagarChat from "@/components/TharmagarChat.vue";
 
 const REWARDS_DATA: Record<number, any> = {
+  2: {
+    name: "Tutorial Completed",
+    picture_hash: "badges%26achievements/Tutorial%20Complete.png",
+    description: "complete wing 1 tutorial"
+  },
+  3: {
+    name: "Season 1 Completed",
+    picture_hash: "badges%26achievements/Season%201%20Complete%20(4)-min.png",
+    description: "complete wing 2 advanced"
+  },
   5: {
     name: "Wing 3 Completed",
     picture_hash: "badges%26achievements/Tutorial%20Complete.png",
@@ -1470,7 +1480,9 @@ async function confirmFinishCampaign() {
   try {
     const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
     let rewardPk = null;
-    if (wingStr.includes("WING 3")) rewardPk = 5;
+    if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) rewardPk = 2;
+    else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) rewardPk = 3;
+    else if (wingStr.includes("WING 3")) rewardPk = 5;
     else if (wingStr.includes("WING 4")) rewardPk = 6;
 
     if (rewardPk && props.userStore.user?.users_pk) {
