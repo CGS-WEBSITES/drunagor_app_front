@@ -120,7 +120,46 @@ const isPollingActive = ref(true);
 
 // Door options from database
 const doorOptions = computed(() => {
-  return allDoors.value.map((d) => ({
+  const camp = campaignStore.findOptional(props.campaignId);
+  const wingStr = (camp?.wing || "").toUpperCase();
+
+  let filtered = allDoors.value;
+
+  if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) {
+    filtered = allDoors.value.filter(d => [1, 13, 14, 15, 16].includes(d.doors_pk));
+  } else if (wingStr.includes("WING 1 ADVANCED")) {
+    filtered = allDoors.value.filter(d => [1, 17, 18, 19, 20].includes(d.doors_pk));
+  } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) {
+    filtered = allDoors.value.filter(d => [1, 21, 22, 23, 24, 25].includes(d.doors_pk));
+  } else if (wingStr.includes("WING 3")) {
+    const wing3Names = [
+      "FIRST SETUP",
+      "DUNGEON FOYER",
+      "QUEEN'S HALL",
+      "THE FORGE",
+      "ARTISAN'S GALLERY",
+      "PROVING GROUNDS",
+      "MAIN HALL"
+    ];
+    filtered = allDoors.value.filter(d => 
+      wing3Names.includes(d.name.toUpperCase()) || d.doors_pk === 1
+    );
+  } else if (wingStr.includes("WING 4")) {
+    const wing4Names = [
+      "FIRST SETUP",
+      "DRACONIC CHAPEL",
+      "CRYPTS",
+      "BOTH OPEN",
+      "LIBRARY",
+      "LABORATORY",
+      "DRAGON BOSS"
+    ];
+    filtered = allDoors.value.filter(d => 
+      wing4Names.includes(d.name.toUpperCase()) || d.doors_pk === 1
+    );
+  }
+
+  return filtered.map((d) => ({
     name: d.name,
     code: d.code,
     doors_pk: d.doors_pk,
