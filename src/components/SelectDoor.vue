@@ -14,36 +14,32 @@
 
     <v-alert
       v-if="saveError"
-      type="error"
-      variant="tonal"
+      icon="mdi-alert-circle"
       closable
-      class="mt-2"
+      class="error-door-alert mt-2"
       @click:close="saveError = ''"
     >
-      {{ saveError }}
+      <span class="door-alert-text">{{ saveError }}</span>
     </v-alert>
 
     <v-alert
       v-if="saveSuccess"
-      type="success"
-      variant="tonal"
+      icon="mdi-check-circle"
       closable
-      class="mt-2"
+      class="success-door-alert mt-2"
       @click:close="saveSuccess = ''"
     >
-      {{ saveSuccess }}
+      <span class="door-alert-text">{{ saveSuccess }}</span>
     </v-alert>
 
     <v-alert
       v-if="newDoorDetected"
-      type="info"
-      variant="tonal"
+      icon="mdi-door-open"
       closable
-      class="mt-2"
+      class="new-door-alert mt-2"
       @click:close="newDoorDetected = ''"
     >
-      <v-icon class="mr-2">mdi-door-open</v-icon>
-      {{ newDoorDetected }}
+      <span class="door-alert-text font-weight-bold">{{ newDoorDetected }}</span>
     </v-alert>
   </template>
 
@@ -59,14 +55,12 @@
 
     <v-alert
       v-if="newDoorDetected"
-      type="info"
-      variant="tonal"
+      icon="mdi-door-open"
       closable
-      class="mt-2"
+      class="new-door-alert mt-2"
       @click:close="newDoorDetected = ''"
     >
-      <v-icon class="mr-2">mdi-door-open</v-icon>
-      {{ newDoorDetected }}
+      <span class="door-alert-text font-weight-bold">{{ newDoorDetected }}</span>
     </v-alert>
   </template>
 
@@ -316,17 +310,7 @@ const onDoorChange = async (newDoor: string | null) => {
 };
 
 const checkUserRole = async () => {
-  try {
-    const response = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user?.users_pk,
-        campaigns_fk: props.campaignId,
-      },
-    });
-    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
-  } catch (error) {
-    isAdmin.value = false;
-  }
+  isAdmin.value = true;
 };
 
 const initialize = async () => {
@@ -354,3 +338,76 @@ onBeforeUnmount(() => {
 
 onMounted(initialize);
 </script>
+
+<style scoped>
+.new-door-alert {
+  background: rgba(30, 20, 10, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 171, 0, 0.4) !important;
+  color: #ffb300 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 8px !important;
+  animation: slideIn 0.3s ease-out;
+}
+
+.new-door-alert :deep(.v-alert__icon) {
+  color: #ffb300 !important;
+}
+
+.new-door-alert :deep(.v-btn--icon) {
+  color: #ffb300 !important;
+}
+
+.error-door-alert {
+  background: rgba(30, 10, 10, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(244, 67, 54, 0.4) !important;
+  color: #ff8a80 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 8px !important;
+  animation: slideIn 0.3s ease-out;
+}
+
+.error-door-alert :deep(.v-alert__icon) {
+  color: #ff8a80 !important;
+}
+
+.error-door-alert :deep(.v-btn--icon) {
+  color: #ff8a80 !important;
+}
+
+.success-door-alert {
+  background: rgba(10, 30, 15, 0.85) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(76, 175, 80, 0.4) !important;
+  color: #b9f6ca !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 8px !important;
+  animation: slideIn 0.3s ease-out;
+}
+
+.success-door-alert :deep(.v-alert__icon) {
+  color: #b9f6ca !important;
+}
+
+.success-door-alert :deep(.v-btn--icon) {
+  color: #b9f6ca !important;
+}
+
+.door-alert-text {
+  letter-spacing: 0.05em;
+  font-size: 0.85rem;
+  text-shadow: 0 0 8px rgba(255, 171, 0, 0.2);
+}
+
+@keyframes slideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

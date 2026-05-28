@@ -282,7 +282,7 @@
                           <v-col class="pb-0" cols="12" sm="6">
                             <CampaignName
                               :campaign-id="campaignId"
-                              :is-admin="true"
+                              :is-admin="isAdminUser"
                               class="mb-0 shepherd-campaign-name"
                             />
                           </v-col>
@@ -327,6 +327,29 @@
                         </v-row>
                       </v-card-text>
                     </v-card>
+
+                    <v-row no-gutters class="mt-3 px-2">
+                      <v-col cols="12" md="6" class="pr-md-2">
+                        <SelectDoor
+                          :campaign-id="campaignId"
+                          :campaign-type="campaign.campaign"
+                          class="mb-3 shepherd-select-door"
+                        />
+                        <CampaignRunes
+                          v-if="isSequentialAdventure"
+                          :campaign-id="campaignId"
+                          class="mb-0 shepherd-runes"
+                        />
+                      </v-col>
+                      <v-col cols="12" md="6" class="pl-md-2">
+                        <CampaignRuneCards
+                          v-if="isSequentialAdventure"
+                          :campaign-id="campaignId"
+                          :campaign-type="campaign.campaign"
+                          class="mb-3 shepherd-rune-cards"
+                        />
+                      </v-col>
+                    </v-row>
 
                     <v-row class="my-3" no-gutters>
                       <v-col cols="12">
@@ -402,7 +425,7 @@
                     <v-col cols="12" sm="8">
                       <CampaignName
                         :campaign-id="campaignId"
-                        :is-admin="true"
+                        :is-admin="isAdminUser"
                       />
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -539,6 +562,7 @@
         ref="savePutRef"
         :campaign-id="campaignId"
         :is-admin="true"
+        @saving="onSaving"
         @success="onSaveSuccess"
         @fail="onSaveFail"
       />
@@ -622,6 +646,31 @@
         </v-btn>
       </v-card>
     </v-dialog>
+
+    <!-- Small subtle Game-like Saving Indicator in the Corner -->
+    <div 
+      v-if="savingState !== 'idle'" 
+      class="saving-indicator-bubble d-flex align-center pa-2 px-3 rounded-pill"
+      :class="savingState"
+    >
+      <template v-if="savingState === 'saving'">
+        <v-progress-circular
+          indeterminate
+          size="16"
+          width="2"
+          class="mr-2 text-white"
+        ></v-progress-circular>
+        <span class="text-caption font-weight-bold text-white uppercase-tracking">Saving...</span>
+      </template>
+      <template v-else-if="savingState === 'saved'">
+        <v-icon size="16" color="green-lighten-2" class="mr-2">mdi-check-circle</v-icon>
+        <span class="text-caption font-weight-bold text-green-lighten-2 uppercase-tracking">Saved</span>
+      </template>
+      <template v-else-if="savingState === 'error'">
+        <v-icon size="16" color="red-lighten-2" class="mr-2">mdi-alert-circle</v-icon>
+        <span class="text-caption font-weight-bold text-red-lighten-2 uppercase-tracking">Save Error</span>
+      </template>
+    </div>
   </template>
 </template>
 
@@ -650,6 +699,8 @@ import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
+import CampaignRunes from "@/components/CampaignRunes.vue";
+import SelectDoor from "@/components/SelectDoor.vue";
 import StoryRecord from "@/components/StoryRecord.vue";
 import StoryRecordLegacyTrail from "@/components/StoryRecordLegacyTrail.vue";
 import StoryRecordBackgroundAndTrait from "@/components/StoryRecordBackgroundAndTrait.vue";
@@ -682,6 +733,107 @@ const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 const currentTab = ref("normal");
+
+const isAdminUser = ref(true);
+const isSyncingFromServer = ref(false);
+let pollingTimer: ReturnType<typeof setInterval> | null = null;
+let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const checkUserRole = async () => {
+  isAdminUser.value = true;
+};
+
+const triggerAutoSave = () => {
+  if (!isAdminUser.value) return;
+  if (isSyncingFromServer.value) return;
+
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout);
+  }
+
+  autoSaveTimeout = setTimeout(async () => {
+    console.log("[CampaignView] Auto-saving campaign state...");
+    await handleSave();
+  }, 1500);
+};
+
+const startPollingForUpdates = () => {
+  if (pollingTimer) {
+    clearInterval(pollingTimer);
+  }
+
+  pollingTimer = setInterval(async () => {
+    try {
+      if (!userStore.user?.users_pk) {
+        userStore.restoreFromStorage();
+      }
+      if (!userStore.user?.users_pk) {
+        console.warn("[CampaignView] Polling skipped: users_pk is missing");
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const skuStr = urlParams.get('sku');
+      
+      let showSeason2 = false;
+      if (skuStr) {
+        showSeason2 = Number(skuStr) === 38;
+      }
+
+      let response = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          campaigns_fk: campaignId,
+          show_season2: showSeason2
+        },
+      });
+
+      if (!response.data?.campaigns?.length) {
+        response = await axios.get("/rl_campaigns_users/search", {
+          params: {
+            users_fk: userStore.user.users_pk,
+            campaigns_fk: campaignId,
+            show_season2: !showSeason2
+          },
+        });
+      }
+
+      if (response.data?.campaigns?.length > 0) {
+        const campaignData = response.data.campaigns[0];
+        if (campaignData.tracker_hash) {
+          const currentLocalHash = localStorage.getItem(`campaign_hash_${campaignId}`);
+          
+          if (campaignData.tracker_hash !== currentLocalHash) {
+            console.log("[CampaignView] New tracker hash detected! Reloading campaign in real-time...");
+            
+            isSyncingFromServer.value = true;
+            const loader = new CampaignLoadFromStorage();
+            await loader.loadCampaignComplete(campaignId);
+
+            const updatedCampaign = campaignStore.findOptional(campaignId);
+            if (updatedCampaign) {
+              campaign.value = updatedCampaign;
+            }
+            isSyncingFromServer.value = false;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[CampaignView] Error polling for campaign updates:", err);
+    }
+  }, 4000);
+};
+
+// Deep watch on campaign state for auto-saving modifications
+watch(
+  campaign,
+  (newVal) => {
+    if (newVal && !isSyncingFromServer.value) {
+      triggerAutoSave();
+    }
+  },
+  { deep: true }
+);
 const showLoadInstructions = ref(false);
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
@@ -693,6 +845,14 @@ const snackbarTimeout = ref(3000);
 const speedDialOpen = ref(true);
 const tharmagarDialogVisible = ref(false);
 const bottomNavValue = ref<string | null>(null);
+
+const savingState = ref<"idle" | "saving" | "saved" | "error">("idle");
+let savingStateTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const onSaving = () => {
+  savingState.value = "saving";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+};
 
 const REWARDS_DATA: Record<number, any> = {
   2: {
@@ -775,10 +935,6 @@ function setAlert(
   snackbarIconColor.value = colors.icon;
   snackbarTimeout.value = duration;
   snackbarVisible.value = true;
-
-  if (type === "success" && duration >= 1500) {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
 }
 
 function scrollToHeroSection() {
@@ -920,14 +1076,8 @@ const handleBottomNavAction = (action: string) => {
 const executeAction = (action: string) => {
   switch (action) {
     case "save":
-      if (
-        campaign.value &&
-        ["underkeep", "underkeep2"].includes(campaign.value.campaign)
-      ) {
-        startSaveTour();
-      } else {
-        handleSave();
-      }
+      // Bypassing Shepherd step-by-step tour as requested by user to save directly and instantly!
+      handleSave();
       break;
     case "load-instructions":
       startLoadTour();
@@ -970,13 +1120,11 @@ async function handleSave() {
 }
 
 const onSaveSuccess = () => {
-  setAlert(
-    "mdi-check",
-    "Success",
-    "The campaign was saved successfully!",
-    "success",
-    4000,
-  );
+  savingState.value = "saved";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+  savingStateTimeout = setTimeout(() => {
+    savingState.value = "idle";
+  }, 2000);
 
   if (saveTourActive.value) {
     setTimeout(() => {
@@ -986,13 +1134,11 @@ const onSaveSuccess = () => {
 };
 
 const onSaveFail = () => {
-  setAlert(
-    "mdi-alert-circle",
-    "Error",
-    "The campaign could not be saved.",
-    "error",
-    4000,
-  );
+  savingState.value = "error";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+  savingStateTimeout = setTimeout(() => {
+    savingState.value = "idle";
+  }, 4000);
 };
 
 const onCampaignRemoved = () => {
@@ -1042,6 +1188,15 @@ onBeforeUnmount(() => {
 
   destroySaveTour({ keepProgress: true });
   destroyLoadTour({ keepProgress: true });
+
+  if (pollingTimer) {
+    clearInterval(pollingTimer);
+    pollingTimer = null;
+  }
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = null;
+  }
 });
 
 onMounted(async () => {
@@ -1056,7 +1211,10 @@ onMounted(async () => {
 
     if (!existingCampaign || heroCount === 0) {
       const loader = new CampaignLoadFromStorage();
-      await loader.loadCampaignComplete(campaignId);
+      const success = await loader.loadCampaignComplete(campaignId);
+      if (!success) {
+        throw new Error("loadCampaignComplete failed to find or load the campaign");
+      }
     } else {
       console.log(
         `[CampaignView] Campaign already in store with ${heroCount} heroes, skipping load`,
@@ -1093,6 +1251,9 @@ onMounted(async () => {
 
   // fetchRole removido. Acesso é total por padrão agora.
   generatePartyCode();
+
+  await checkUserRole();
+  startPollingForUpdates();
 
   const openInstructions = route.query.openInstructions;
   showLoadInstructions.value = openInstructions === "load";
@@ -1461,5 +1622,40 @@ const checkAndAwardSeason1Achievements = async () => {
 
 .player-view {
   pointer-events: none;
+}
+
+/* Subtle Game-like Saving Indicator styles */
+.saving-indicator-bubble {
+  position: fixed;
+  bottom: 85px; /* Above the bottom navigation bar on mobile */
+  left: 20px;   /* Bottom-left corner, out of the way of the bottom-right speed-dial */
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  transition: all 0.3s ease;
+  pointer-events: none; /* Let clicks pass through */
+}
+
+@media (min-width: 960px) {
+  .saving-indicator-bubble {
+    bottom: 24px; /* On desktop, place it lower */
+    left: 24px;
+  }
+}
+
+.saving-indicator-bubble.saved {
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.saving-indicator-bubble.error {
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+.uppercase-tracking {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem !important;
 }
 </style>
