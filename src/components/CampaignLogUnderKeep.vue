@@ -53,6 +53,7 @@ import { CampaignLogStatusRepository } from "@/data/repository/campaign/underkee
 import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/underkeep/CampaignLogOutcomeRepository";
 import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
 import { useUserStore } from "@/store/UserStore";
+import { HeroStore } from "@/store/HeroStore";
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
@@ -66,18 +67,49 @@ const statusRepository = new CampaignLogStatusRepository();
 const outcomeRepository = new CampaignLogOutcomeRepository();
 const { t } = useI18n();
 const userStore = useUserStore();
+const heroStore = HeroStore();
 const isAdmin = ref(false);
 const loading = ref(true);
 
 const checkUserRole = async () => {
   try {
-    const response = await axios.get("rl_campaigns_users/search", {
+    if (!userStore.user?.users_pk) {
+      userStore.restoreFromStorage();
+    }
+    if (!userStore.user?.users_pk) {
+      console.warn("[UnderKeep] checkUserRole skipped: users_pk is missing");
+      loading.value = false;
+      return;
+    }
+    let response = await axios.get("rl_campaigns_users/search", {
       params: { 
         users_fk: userStore.user?.users_pk, 
-        campaigns_fk: props.campaignId 
+        campaigns_fk: props.campaignId,
+        show_season2: true
       },
     });
-    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";    
+    let campaignRelation = response.data.campaigns?.[0];
+    if (!campaignRelation) {
+      response = await axios.get("rl_campaigns_users/search", {
+        params: { 
+          users_fk: userStore.user?.users_pk, 
+          campaigns_fk: props.campaignId,
+          show_season2: false
+        },
+      });
+      campaignRelation = response.data.campaigns?.[0];
+    }
+    
+    if (campaignRelation) {
+      const isPartyAdmin = campaignRelation.party_role === "Admin";
+      
+      const hero = heroStore.findInCampaignOptional(props.heroId, props.campaignId);
+      const isHeroOwner = hero && Number(hero.playableHeroesPk) === Number(campaignRelation.playable_heroes_fk);
+      
+      isAdmin.value = isPartyAdmin || isHeroOwner;
+    } else {
+      isAdmin.value = false;
+    }
   } catch (error) {
     console.error("CampaignLog - Error fetching user role:", error);
     isAdmin.value = false;
