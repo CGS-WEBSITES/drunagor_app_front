@@ -63,7 +63,7 @@
                 {{ campaign.name || "Unnamed Campaign" }}
               </span>
               <v-chip
-                v-if="campaign.campaign === 'underkeep2' && isFinished"
+                v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && isFinished"
                 color="red-darken-4"
                 size="small"
                 variant="flat"
@@ -75,7 +75,7 @@
 
             <div class="d-flex align-center text-subtitle-1 mt-0 text-grey-lighten-1">
               <span v-if="campaign.wing">{{ campaign.wing }}</span>
-              <span v-if="campaign.campaign === 'underkeep2' && lastDoorName" class="ml-2 text-truncate">
+              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2 text-truncate">
                 - Last Door: <span class="text-white font-weight-bold">{{ lastDoorName }}</span>
               </span>
             </div>
@@ -261,7 +261,7 @@ const loadMostRecentCampaign = async () => {
       campaign.value = {
         campaignId: String(rawCamp.campaigns_fk),
         name: rawCamp.party_name || "Unnamed Campaign",
-        campaign: rawCamp.box === 38 || rawCamp.box === 39 ? "underkeep" : "core",
+        campaign: rawCamp.box === 38 ? "underkeep" : rawCamp.box === 39 ? "underkeep2" : "core",
         heroes: [],
       };
     }
