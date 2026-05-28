@@ -20,14 +20,32 @@
                </span>
            </div>
            
-           <div style="width: 40px;"></div>
-        </div>
+            <div style="width: 40px;"></div>
+         </div>
 
-        <div v-if="selectedCampaign" class="text-center mt-2">
-             <v-chip color="purple-accent-2" variant="flat" :closable="isLeader" @click:close="clearCampaign" class="font-weight-bold w-100 justify-center">
-                <v-icon start size="small">mdi-book-open-page-variant</v-icon>
-                {{ selectedCampaignName }}
-             </v-chip>
+         <div v-if="isLeader && !selectedCampaign" class="px-4 mt-2">
+              <v-text-field
+                  v-model="newCampaignName"
+                  label="Campaign Name / Lobby Name"
+                  variant="outlined"
+                  density="compact"
+                  bg-color="rgba(255,255,255,0.05)"
+                  color="amber-accent-2"
+                  hide-details
+                  class="text-left font-weight-bold text-white mb-2"
+              ></v-text-field>
+         </div>
+         <div v-else-if="!isLeader && !selectedCampaign && newCampaignName" class="text-center mt-2">
+              <v-chip color="amber-accent-2" variant="outlined" class="font-weight-bold w-100 justify-center mb-2">
+                  Lobby Name: {{ newCampaignName }}
+              </v-chip>
+         </div>
+
+         <div v-if="selectedCampaign" class="text-center mt-2">
+              <v-chip color="purple-accent-2" variant="flat" :closable="isLeader" @click:close="clearCampaign" class="font-weight-bold w-100 justify-center">
+                 <v-icon start size="small">mdi-book-open-page-variant</v-icon>
+                 {{ selectedCampaignName }}
+              </v-chip>
         </div>
       </div>
 
@@ -185,9 +203,9 @@
          </v-card-title>
          <v-card-text class="d-flex flex-column ga-3 pt-2">
             <div class="text-caption text-grey mb-2 text-center">How do you want to start this adventure?</div>
-            <v-btn block color="success" size="large" variant="flat" @click="openTutorialChoice">
-                <v-icon start>mdi-plus-box</v-icon> New Underkeep 2
-            </v-btn>
+             <v-btn block color="success" size="large" variant="flat" @click="openTutorialChoice">
+                 <v-icon start>mdi-plus-box</v-icon> New {{ currentCampaignType === 'underkeep' ? 'Underkeep 1' : 'Underkeep 2' }}
+             </v-btn>
             <div class="d-flex align-center">
                 <v-divider></v-divider><span class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
             </div>
@@ -214,22 +232,34 @@
             class="mb-4 text-left"
           ></v-text-field>
 
-          <v-divider class="mb-4"></v-divider>
+          <v-divider class="mb-4" v-if="isWing3Scenario"></v-divider>
           
-          <div class="text-body-2 mb-2">
-            The <strong>"Start Here"</strong> feature is a <strong>guided gameplay introduction</strong> designed to teach you the basics of Drunagor.
-          </div>
-          <div class="text-body-2 font-weight-bold text-white">
-            Would you like to enable it?
-          </div>
+          <template v-if="isWing3Scenario">
+            <div class="text-body-2 mb-2">
+              The <strong>"Start Here"</strong> feature is a <strong>guided gameplay introduction</strong> designed to teach you the basics of Drunagor.
+            </div>
+            <div class="text-body-2 font-weight-bold text-white">
+              Would you like to enable it?
+            </div>
+          </template>
         </v-card-text>
         <v-card-actions class="d-flex flex-column gap-2 px-4 pb-4">
-          <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(true)" :disabled="!newCampaignName.trim()">
-            <v-icon start>mdi-school</v-icon> Yes, Guide Me
-          </v-btn>
-          <v-btn block color="grey-darken-3" variant="flat" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
-            No, I know how to play
-          </v-btn>
+          <template v-if="isWing3Scenario">
+            <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(true)" :disabled="!newCampaignName.trim()">
+              <v-icon start>mdi-school</v-icon> Yes, Guide Me
+            </v-btn>
+            <v-btn block color="grey-darken-3" variant="flat" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
+              No, I know how to play
+            </v-btn>
+          </template>
+          <template v-else>
+            <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
+              <v-icon start>mdi-play</v-icon> Start Campaign
+            </v-btn>
+            <v-btn block color="grey-darken-3" variant="flat" size="large" @click="tutorialChoiceDialog = false">
+              Cancel
+            </v-btn>
+          </template>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -361,6 +391,23 @@ const extraCampaignData = ref<Record<string, { lastDoorName: string, isFinished:
 const selectedCampaign = ref<any>(null); 
 const newCampaignName = ref('');
 const overlayVisible = computed(() => loadingStart.value || isReconnecting.value);
+
+const currentEventSeasonFk = computed(() => {
+    return eventDetails.value?.seasons_fk || 3; 
+});
+
+const currentSku = computed(() => {
+    return currentEventSeasonFk.value === 2 ? 38 : 39;
+});
+
+const currentCampaignType = computed(() => {
+    return currentEventSeasonFk.value === 2 ? 'underkeep' : 'underkeep2';
+});
+
+const isWing3Scenario = computed(() => {
+    const scenarioName = (eventDetails.value?.scenario || '').toLowerCase();
+    return scenarioName.includes('wing 03') || scenarioName.includes('wing 3');
+});
 
 const snackbar = ref({
   show: false,
@@ -508,7 +555,7 @@ const clearMyLobbySelection = async () => {
         const res = await axios.get("/rl_campaigns_users/search", { 
             params: { 
                 users_fk: userStore.user.users_pk,
-                show_season2: true
+                show_season2: currentEventSeasonFk.value === 3
             } 
         });
         const campaigns = res.data.campaigns || [];
@@ -529,7 +576,10 @@ const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (myPlayerStatus === PLAYING_STATUS_ID) {
         try {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
-                params: { users_fk: userStore.user.users_pk } 
+                params: { 
+                    users_fk: userStore.user.users_pk,
+                    show_season2: currentEventSeasonFk.value === 3
+                } 
             });
             
             const allCampaigns = searchRes.data.campaigns || [];
@@ -640,13 +690,29 @@ const resolveHeroForSlot = async (slotIndex: number, playableHeroFk: number, slo
     }
 };
 
-function generateCampaignHash(campaign: Campaign): string {
+function generateCampaignHash(campaign: Campaign, heroesList: any[] = []): string {
   const data = {
     campaignData: JSON.parse(JSON.stringify(campaign)),
-    heroes: [], 
+    heroes: heroesList, 
   };
   return btoa(JSON.stringify(data));
 }
+
+const fetchHeroFullData = async (playableHeroFk: number, campaignId: string) => {
+    try {
+        const { data } = await axios.get(`/playable_heroes/${playableHeroFk}`);
+        if (data && data.hero_hash) {
+            const jsonString = atob(data.hero_hash);
+            const heroObj = JSON.parse(jsonString);
+            heroObj.campaignId = campaignId;
+            heroObj.playableHeroesPk = playableHeroFk;
+            return heroObj;
+        }
+    } catch (e) {
+        console.error("Error fetching full hero data for pk " + playableHeroFk, e);
+    }
+    return null;
+};
 
 const joinTable = async () => {
     if (!eventId || !tablePk.value) return;
@@ -703,10 +769,10 @@ const selectHero = async (hero: any) => {
         await axios.post('/rl_campaigns_users/cadastro', null, {
             params: {
                 users_fk: usersPk,
-                skus_fk: DEFAULT_SKU,
+                skus_fk: currentSku.value,
                 active: true,
                 playable_heroes_fk: hero.pk,
-                events_fk: eventId
+                events_fk: Number(eventId)
             }
         });
 
@@ -757,18 +823,34 @@ const handleTutorialChoice = async (wantsTutorial: boolean) => {
 
 const handleNewCampaign = async (wantsTutorial: boolean) => {
     loadingCampaignAction.value = true;
-    const SKU_ID = 39; 
-    const CAMPAIGN_TYPE = 'underkeep2';
+    const SKU_ID = currentSku.value; 
+    const CAMPAIGN_TYPE = currentCampaignType.value;
 
     try {
+        const currentPlayers = lobbySlots.value.filter(s => s.player !== null && s.hero !== null);
+        const heroPromises = currentPlayers.map(slot => fetchHeroFullData(slot.hero.pk, "temp"));
+        const heroesFullData = (await Promise.all(heroPromises)).filter(Boolean);
+
         const tempCampaign = new Campaign("temp", CAMPAIGN_TYPE);
-        let scenarioName = eventDetails.value?.scenario || 'Wing 04';
-        const isWing3 = scenarioName.toLowerCase().includes('wing 03') || scenarioName.toLowerCase().includes('wing 3');
-        tempCampaign.wing = isWing3 ? 'Wing 3' : 'Wing 4';
+        let scenarioName = eventDetails.value?.scenario || '';
+        if (currentEventSeasonFk.value === 2) {
+            const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial');
+            const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced');
+            if (isTutorial) {
+                tempCampaign.wing = 'Wing 1 Tutorial';
+            } else if (isWing2Adv) {
+                tempCampaign.wing = 'Wing 2 Advanced';
+            } else {
+                tempCampaign.wing = 'Wing 1 Advanced';
+            }
+        } else {
+            const isWing3 = scenarioName.toLowerCase().includes('wing 03') || scenarioName.toLowerCase().includes('wing 3');
+            tempCampaign.wing = isWing3 ? 'Wing 3' : 'Wing 4';
+        }
         
         tempCampaign.door = 'First Setup';
         
-        const initialHash = generateCampaignHash(tempCampaign);
+        const initialHash = generateCampaignHash(tempCampaign, heroesFullData);
         const createRes = await axios.post("/campaigns/cadastro", {
              tracker_hash: initialHash,
              conclusion_percentage: 0,
@@ -779,17 +861,21 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
         });
 
         const campaignFk = createRes.data.campaign.campaigns_pk;
+        
+        heroesFullData.forEach(h => {
+            h.campaignId = String(campaignFk);
+        });
+
         const realCampaign = new Campaign(String(campaignFk), CAMPAIGN_TYPE);
         realCampaign.wing = tempCampaign.wing;
         realCampaign.door = 'First Setup';
-        const finalHash = generateCampaignHash(realCampaign);
+        const finalHash = generateCampaignHash(realCampaign, heroesFullData);
 
         await axios.put(`/campaigns/alter/${campaignFk}`, {
             tracker_hash: finalHash,
             party_name: newCampaignName.value || "New Adventure"
         });
 
-        // Força a gravação da porta inicial 1 na tabela de histórico de portas
         try {
             await axios.post("/rl_campaigns_doors/cadastro", {
                 doors_fk: 1,
@@ -799,6 +885,7 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
             console.warn("Failed to insert first setup door", errDoor);
         }
 
+        realCampaign.heroes = heroesFullData;
         campaignStore.add(realCampaign);
         await executeStartGameFlow(campaignFk, wantsTutorial, false);
 
@@ -815,13 +902,32 @@ const fetchAndShowLoadDialog = async () => {
     loadingCampaigns.value = true;
     showLoadDialog.value = true;
     try {
-         const res = await axios.get("/rl_campaigns_users/search", { params: { users_fk: userStore.user?.users_pk } });
+         const res = await axios.get("/rl_campaigns_users/search", { 
+             params: { 
+                 users_fk: userStore.user?.users_pk,
+                 show_season2: currentEventSeasonFk.value === 3
+             } 
+         });
          let camps = res.data.campaigns || [];
          
-         // Descobre qual wing o evento que a mesa está usando
-         let scenarioName = eventDetails.value?.scenario || 'Wing 04';
+         let scenarioName = eventDetails.value?.scenario || '';
+         const isSeason1 = currentEventSeasonFk.value === 2;
          const isWing3 = scenarioName.toLowerCase().includes('wing 03') || scenarioName.toLowerCase().includes('wing 3');
-         const expectedWing = isWing3 ? 'Wing 3' : 'Wing 4';
+         
+         let expectedWing = '';
+         if (isSeason1) {
+             const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial');
+             const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced');
+             if (isTutorial) {
+                 expectedWing = 'Wing 1 Tutorial';
+             } else if (isWing2Adv) {
+                 expectedWing = 'Wing 2 Advanced';
+             } else {
+                 expectedWing = 'Wing 1 Advanced';
+             }
+         } else {
+             expectedWing = isWing3 ? 'Wing 3' : 'Wing 4';
+         }
 
          const filteredCampaigns = [];
          
@@ -834,11 +940,25 @@ const fetchAndShowLoadDialog = async () => {
                      campWing = data.campaignData?.wing;
                  }
 
-                 if (campWing && (
-                     (isWing3 && campWing.toLowerCase().includes('wing 3')) ||
-                     (!isWing3 && campWing.toLowerCase().includes('wing 4'))
-                 )) {
-                     filteredCampaigns.push(camp);
+                 if (campWing) {
+                     const campWingLower = campWing.toLowerCase();
+                     const expectedWingLower = expectedWing.toLowerCase();
+                     if (isSeason1) {
+                         if (
+                             (expectedWingLower.includes('tutorial') && campWingLower.includes('tutorial')) ||
+                             (expectedWingLower.includes('wing 2') && campWingLower.includes('wing 2')) ||
+                             (expectedWingLower.includes('wing 1 advanced') && campWingLower.includes('wing 1 advanced') && !campWingLower.includes('tutorial'))
+                         ) {
+                             filteredCampaigns.push(camp);
+                         }
+                     } else {
+                         if (
+                             (isWing3 && campWingLower.includes('wing 3')) ||
+                             (!isWing3 && campWingLower.includes('wing 4'))
+                         ) {
+                             filteredCampaigns.push(camp);
+                         }
+                     }
                  }
              } catch (e) {
                  console.error("Error parsing tracker_hash for campaign", camp.campaigns_fk);
@@ -888,7 +1008,7 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
         
         if (isLoad) {
             const playerListStr = currentPlayers.map(slot => {
-                return `${slot.player.users_fk},${DEFAULT_SKU},${slot.hero.pk},${eventId}`;
+                return `${slot.player.users_fk},${currentSku.value},${slot.hero.pk},${eventId}`;
             }).join(';');
 
             await axios.post('/campaigns/load', null, {
@@ -901,23 +1021,16 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
         } else {
             const linkPromises = currentPlayers.map(async (slot) => {
                 const pUserFk = slot.player.users_fk;
-                try {
-                    const check = await axios.get("/rl_campaigns_users/search", {
-                        params: { users_fk: pUserFk, skus_fk: DEFAULT_SKU, active: true }
-                    });
-                    if (check.data.campaigns && check.data.campaigns.length > 0) {}
-                } catch(ignore) {}
-
                 const heroFk = slot.hero?.pk; 
                 
                 return axios.post('/rl_campaigns_users/cadastro', null, {
                     params: {
                         users_fk: pUserFk,
                         campaigns_fk: campaignFk,
-                        skus_fk: DEFAULT_SKU,
+                        skus_fk: currentSku.value,
                         playable_heroes_fk: heroFk, 
                         active: true,
-                        events_fk: eventId
+                        events_fk: Number(eventId)
                     }
                 });
             });
@@ -957,7 +1070,7 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
         
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        selectedCampaign.value = { campaigns_fk: campaignFk, boxSku: DEFAULT_SKU };
+        selectedCampaign.value = { campaigns_fk: campaignFk, boxSku: currentSku.value };
         goToCampaign();
 
     } catch (e: any) {
@@ -972,7 +1085,7 @@ const goToCampaign = () => {
     if (pollingTimer.value) clearInterval(pollingTimer.value);
     router.push({
         path: `/campaign-tracker/campaign/${selectedCampaign.value.campaigns_fk}`,
-        query: { sku: String(selectedCampaign.value.boxSku || DEFAULT_SKU) } 
+        query: { sku: String(selectedCampaign.value.boxSku || currentSku.value) } 
     });
 };
 
@@ -1001,12 +1114,16 @@ const createNewHero = async (heroId: string) => {
 const fetchEventDetails = async () => {
     if (!eventId) return;
     try {
-        const res = await axios.get('/events/list_events/', { 
-            params: { player_fk: userStore.user?.users_pk, past_events: 'false' },
-            headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+        const res = await axios.get('/events/search', { 
+            params: { events_pk: Number(eventId) }
         });
-        const found = res.data.events?.find((e:any) => String(e.events_pk) === String(eventId));
-        if(found) eventDetails.value = found;
+        const found = res.data.events?.[0];
+        if(found) {
+            eventDetails.value = found;
+            if (!newCampaignName.value) {
+                newCampaignName.value = found.store_name || "New Adventure";
+            }
+        }
     } catch(e) { }
 }
 
