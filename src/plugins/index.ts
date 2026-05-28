@@ -74,6 +74,48 @@ export async function registerPlugins(app: App, env: string) {
 
   globalAxios.defaults.baseURL = apiUrl
 
+  // Centralized client-side fallback to compute party_role since backend removed it
+  globalAxios.interceptors.response.use(async (response: any) => {
+    const url = response.config.url || "";
+    if (url.includes("rl_campaigns_users/search") && response.data?.campaigns?.length > 0) {
+      const urlHasCampaignsFk = url.includes("campaigns_fk=");
+      const paramsHasCampaignsFk = response.config.params && response.config.params.campaigns_fk;
+      
+      if (urlHasCampaignsFk || paramsHasCampaignsFk) {
+        const campaigns = response.data.campaigns;
+        for (const campaignRelation of campaigns) {
+          if (!campaignRelation.party_role) {
+            try {
+              const campaignId = campaignRelation.campaigns_fk;
+              if (campaignId) {
+                const playersRes = await globalAxios.get("/rl_campaigns_users/list_players", {
+                  params: { campaigns_fk: campaignId }
+                });
+                const players = playersRes.data?.Users || [];
+                if (players.length > 0) {
+                  const sortedPlayers = [...players].sort((a: any, b: any) => a.rl_campaigns_users_pk - b.rl_campaigns_users_pk);
+                  const leader = sortedPlayers[0];
+                  
+                  const { useUserStore } = await import("@/store/UserStore");
+                  const userStore = useUserStore();
+                  
+                  if (userStore.user && leader.user_name === userStore.user.user_name) {
+                    campaignRelation.party_role = "Admin";
+                  } else {
+                    campaignRelation.party_role = "Player";
+                  }
+                }
+              }
+            } catch (e) {
+              console.error("Error computing party_role in Axios interceptor:", e);
+            }
+          }
+        }
+      }
+    }
+    return response;
+  });
+
   app.provide('axios', globalAxios)
   app.provide('assets', assets)
   app.provide('apiUrl', apiUrl)

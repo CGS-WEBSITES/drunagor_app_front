@@ -367,7 +367,22 @@ const eventDetails = ref<any>(null);
 const loadingStart = ref(false);
 const isReconnecting = ref(false);
 const loadingCampaignAction = ref(false);
-const eventId = route.params.id;
+const getDecodedEventId = () => {
+    const rawId = route.params.id;
+    if (!rawId) return null;
+    const rawStr = String(rawId);
+    if (/^\d+$/.test(rawStr)) {
+        return Number(rawStr);
+    }
+    try {
+        const decoded = atob(rawStr);
+        if (/^\d+$/.test(decoded)) {
+            return Number(decoded);
+        }
+    } catch (e) {}
+    return Number(rawStr);
+};
+const eventId = getDecodedEventId();
 const tablePk = computed(() => route.query.table_pk);
 const pollingTimer = ref<any>(null);
 const heroCache = ref<Record<number, any>>({}); 
@@ -393,14 +408,37 @@ const newCampaignName = ref('');
 const overlayVisible = computed(() => loadingStart.value || isReconnecting.value);
 
 const currentEventSeasonFk = computed(() => {
-    return eventDetails.value?.seasons_fk || 3; 
+    if (!eventDetails.value) return null;
+    
+    const scenarioName = (eventDetails.value.scenario || '').toLowerCase();
+    if (
+        scenarioName.includes('wing 1') || 
+        scenarioName.includes('wing 01') || 
+        scenarioName.includes('tutorial') || 
+        scenarioName.includes('wing 2') || 
+        scenarioName.includes('wing 02')
+    ) {
+        return 2; // Season 1 (Underkeep S1)
+    }
+    if (
+        scenarioName.includes('wing 3') || 
+        scenarioName.includes('wing 03') || 
+        scenarioName.includes('wing 4') || 
+        scenarioName.includes('wing 04')
+    ) {
+        return 3; // Season 2 (Underkeep S2)
+    }
+
+    return Number(eventDetails.value.seasons_fk || 3); 
 });
 
 const currentSku = computed(() => {
+    if (currentEventSeasonFk.value === null) return 39;
     return currentEventSeasonFk.value === 2 ? 38 : 39;
 });
 
 const currentCampaignType = computed(() => {
+    if (currentEventSeasonFk.value === null) return 'underkeep2';
     return currentEventSeasonFk.value === 2 ? 'underkeep' : 'underkeep2';
 });
 
@@ -549,13 +587,15 @@ const loadExtraData = async (campaignId: string) => {
 
 const clearMyLobbySelection = async () => {
     if (!userStore.user?.users_pk) return;
+    if (currentEventSeasonFk.value === null) return;
     heroCache.value = {}; 
     
     try {
         const res = await axios.get("/rl_campaigns_users/search", { 
             params: { 
                 users_fk: userStore.user.users_pk,
-                show_season2: currentEventSeasonFk.value === 3
+                show_season2: currentEventSeasonFk.value === 2,
+                events_fk: Number(eventId)
             } 
         });
         const campaigns = res.data.campaigns || [];
@@ -572,13 +612,15 @@ const clearMyLobbySelection = async () => {
 
 const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
     if (isReconnecting.value || selectedCampaign.value) return;
+    if (currentEventSeasonFk.value === null) return false;
 
     if (myPlayerStatus === PLAYING_STATUS_ID) {
         try {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
                 params: { 
                     users_fk: userStore.user.users_pk,
-                    show_season2: currentEventSeasonFk.value === 3
+                    show_season2: currentEventSeasonFk.value === 2,
+                    events_fk: Number(eventId)
                 } 
             });
             
@@ -612,7 +654,13 @@ const fetchTablePlayers = async () => {
                 event_tables_pk: tablePk.value
             }
         });
-        const players = tableRes.data.players || [];
+        const rawPlayers = tableRes.data.players || [];
+        const seen = new Set();
+        const players = rawPlayers.filter((p: any) => {
+            if (seen.has(p.users_pk)) return false;
+            seen.add(p.users_pk);
+            return true;
+        });
         
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
         
@@ -834,8 +882,8 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
         const tempCampaign = new Campaign("temp", CAMPAIGN_TYPE);
         let scenarioName = eventDetails.value?.scenario || '';
         if (currentEventSeasonFk.value === 2) {
-            const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial');
-            const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced');
+            const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial') || scenarioName.toLowerCase().includes('wing 01');
+            const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced') || scenarioName.toLowerCase().includes('wing 02');
             if (isTutorial) {
                 tempCampaign.wing = 'Wing 1 Tutorial';
             } else if (isWing2Adv) {
@@ -899,15 +947,22 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
 // NOVA LÓGICA DE FILTRO DE LOAD PELA WING EXATA DO EVENTO
 // ====================================================================================
 const fetchAndShowLoadDialog = async () => {
+    if (!userStore.user?.users_pk) {
+        userStore.restoreFromStorage();
+    }
+    if (!userStore.user?.users_pk) {
+        showAppAlert("Please log in to load campaigns.");
+        return;
+    }
     loadingCampaigns.value = true;
     showLoadDialog.value = true;
     try {
-         const res = await axios.get("/rl_campaigns_users/search", { 
-             params: { 
-                 users_fk: userStore.user?.users_pk,
-                 show_season2: currentEventSeasonFk.value === 3
-             } 
-         });
+          const res = await axios.get("/rl_campaigns_users/search", { 
+              params: { 
+                  users_fk: userStore.user.users_pk,
+                  show_season2: currentEventSeasonFk.value === 2
+              } 
+          });
          let camps = res.data.campaigns || [];
          
          let scenarioName = eventDetails.value?.scenario || '';
@@ -916,8 +971,8 @@ const fetchAndShowLoadDialog = async () => {
          
          let expectedWing = '';
          if (isSeason1) {
-             const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial');
-             const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced');
+             const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial') || scenarioName.toLowerCase().includes('wing 01');
+             const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced') || scenarioName.toLowerCase().includes('wing 02');
              if (isTutorial) {
                  expectedWing = 'Wing 1 Tutorial';
              } else if (isWing2Adv) {
@@ -1005,6 +1060,29 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
 
     try {
         const currentPlayers = lobbySlots.value.filter(s => s.player !== null && s.hero !== null);
+
+        // Clear active placeholder lobby relationships for all players to prevent DUPLICATE_RELATIONSHIP
+        for (const slot of currentPlayers) {
+            const pUserFk = slot.player.users_fk;
+            if (pUserFk) {
+                try {
+                    const res = await axios.get("/rl_campaigns_users/search", { 
+                        params: { 
+                            users_fk: pUserFk,
+                            show_season2: currentEventSeasonFk.value === 2,
+                            events_fk: Number(eventId)
+                        } 
+                    });
+                    const campaigns = res.data.campaigns || [];
+                    const lobbyEntries = campaigns.filter((c: any) => c.campaigns_fk === null || c.campaigns_fk === undefined || c.campaigns_fk === "null");
+                    for (const entry of lobbyEntries) {
+                        await axios.delete(`/rl_campaigns_users/${entry.rl_campaigns_users_pk}/delete/`);
+                    }
+                } catch (eClearing) {
+                    console.warn(`Failed clearing lobby relationship for user ${pUserFk}`, eClearing);
+                }
+            }
+        }
         
         if (isLoad) {
             const playerListStr = currentPlayers.map(slot => {
@@ -1113,18 +1191,38 @@ const createNewHero = async (heroId: string) => {
 
 const fetchEventDetails = async () => {
     if (!eventId) return;
+    const headers = { Authorization: `Bearer ${localStorage.getItem('accessToken')}` };
     try {
-        const res = await axios.get('/events/search', { 
-            params: { events_pk: Number(eventId) }
-        });
-        const found = res.data.events?.[0];
+        // 1. Direct GET standard REST endpoint (as in ShareEvent.vue)
+        const res = await axios.get(`/events/${eventId}`, { headers });
+        const found = Array.isArray(res.data) ? res.data[0] : res.data;
         if(found) {
             eventDetails.value = found;
             if (!newCampaignName.value) {
                 newCampaignName.value = found.store_name || "New Adventure";
             }
+            return;
         }
-    } catch(e) { }
+    } catch(e) {
+        console.warn("Failed direct single event fetch, trying fallback search", e);
+    }
+    
+    try {
+        // 2. Fallback to /events/search
+        const resFallback = await axios.get('/events/search', { 
+            params: { events_pk: Number(eventId) },
+            headers
+        });
+        const foundFallback = resFallback.data.events?.[0];
+        if(foundFallback) {
+            eventDetails.value = foundFallback;
+            if (!newCampaignName.value) {
+                newCampaignName.value = foundFallback.store_name || "New Adventure";
+            }
+        }
+    } catch(eFallback) {
+        console.error("Fallback search fetch failed", eFallback);
+    }
 }
 
 const handleSlotClick = (index: number) => {
