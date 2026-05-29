@@ -6,7 +6,7 @@
       :items="doorOptions"
       item-title="name"
       item-value="name"
-      variant="outlined"
+      variant="solo-filled"
       :loading="savingDoor"
       clearable
       @update:modelValue="onDoorChange"
@@ -47,7 +47,7 @@
     <v-text-field
       :model-value="door"
       label="Door"
-      variant="outlined"
+      variant="solo-filled"
       readonly
       persistent-hint
       disabled
@@ -65,7 +65,7 @@
   </template>
 
   <template v-else>
-    <v-text-field label="Door" variant="outlined" loading readonly disabled />
+    <v-text-field label="Door" variant="solo-filled" loading readonly disabled />
   </template>
 </template>
 

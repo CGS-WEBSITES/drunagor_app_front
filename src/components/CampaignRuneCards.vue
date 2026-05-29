@@ -9,18 +9,20 @@
         <v-row dense justify="center">
           <v-col v-for="slot in 3" :key="slot" cols="4">
             <div class="position-relative" v-if="selectedRuneCardIds[slot - 1]">
-              <v-card
-                @click="isAdmin ? viewOrChangeCard(slot - 1) : null"
-                class="mx-auto"
-                hover
-              >
-                <v-img 
-                  :src="getCardImageById(selectedRuneCardIds[slot - 1])" 
-                  cover 
-                  alt="Selected Rune Card"
-                  aspect-ratio="0.75"
-                ></v-img>
-              </v-card>
+              <v-responsive aspect-ratio="0.75">
+                <v-card
+                  @click="isAdmin ? viewOrChangeCard(slot - 1) : null"
+                  class="mx-auto fill-height"
+                  hover
+                >
+                  <v-img 
+                    :src="getCardImageById(selectedRuneCardIds[slot - 1])" 
+                    cover 
+                    alt="Selected Rune Card"
+                    class="fill-height"
+                  ></v-img>
+                </v-card>
+              </v-responsive>
               <v-btn
                 v-if="isAdmin"
                 icon

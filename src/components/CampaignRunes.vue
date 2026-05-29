@@ -6,7 +6,7 @@
     :label="t('text.number-of-runes')"
     :hideInput="false"
     :inset="false"
-    variant="outlined"
+    variant="solo-filled"
     id="runes"
     :min="0"
     v-model="runes"
@@ -16,7 +16,7 @@
     v-else-if="!loading"
     :model-value="runes"
     :label="t('text.number-of-runes')"
-    variant="outlined"
+    variant="solo-filled"
     readonly
     persistent-hint
     :disabled="!isAdmin"
@@ -25,7 +25,7 @@
   <v-text-field
     v-else
     :label="t('text.number-of-runes')"
-    variant="outlined"
+    variant="solo-filled"
     loading
     readonly
     :disabled="!isAdmin"
