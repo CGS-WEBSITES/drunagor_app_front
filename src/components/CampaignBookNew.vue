@@ -52,32 +52,48 @@
       </v-card>
     </v-bottom-sheet>
 
-    <v-main class="main-content">
+    <div class="main-content">
       
-      <div class="compact-nav-bar" v-if="!smAndDown && currentVolumeId">
-        <v-container class="d-flex align-center py-0 px-4 fill-height" fluid>
+      <div class="compact-nav-bar">
+        <v-container class="d-flex align-center py-0 px-2 px-sm-4 fill-height" fluid>
           
-          <v-btn 
-            variant="text" 
-            class="px-2 text-none text-grey-lighten-1 hover-white"
-            @click="backToLibrary"
-            height="32"
-          >
-            <v-icon start icon="mdi-bookshelf" size="small"></v-icon>
-            Library
-          </v-btn>
-
-          <v-icon icon="mdi-chevron-right" size="small" class="mx-2 text-grey-darken-2"></v-icon>
-
-          <div class="font-cinzel font-weight-bold text-white text-truncate" style="font-size: 1.1rem;">
-             {{ currentVolume?.title }}
-          </div>
+          <template v-if="currentView === 'keywords' || currentView === 'interactions'">
+            <v-btn 
+              variant="text" 
+              class="px-1 px-sm-2 text-none text-grey-lighten-1 hover-white"
+              @click="exitToolMode"
+              height="32"
+            >
+              <v-icon start icon="mdi-arrow-left" size="small"></v-icon>
+              <span>Back</span>
+            </v-btn>
+          </template>
+          <template v-else-if="currentVolumeId">
+            <v-btn 
+              variant="text" 
+              class="px-1 px-sm-2 text-none text-grey-lighten-1 hover-white"
+              @click="backToLibrary"
+              height="32"
+            >
+              <v-icon start icon="mdi-bookshelf" size="small"></v-icon>
+              <span class="d-none d-sm-inline">Library</span>
+            </v-btn>
+            <v-icon icon="mdi-chevron-right" size="small" class="mx-1 mx-sm-2 text-grey-darken-2"></v-icon>
+            <div class="font-cinzel font-weight-bold text-white text-truncate text-subtitle-2 text-sm-h6">
+               {{ currentVolume?.title }}
+            </div>
+          </template>
+          <template v-else>
+            <div class="font-cinzel font-weight-bold text-white tracking-widest text-subtitle-2 text-sm-h6">
+               LIBRARY
+            </div>
+          </template>
 
           <v-spacer></v-spacer>
 
-          <v-menu location="bottom end" max-height="500" width="300" :offset="10">
+          <v-menu v-if="currentVolumeId && currentView !== 'keywords' && currentView !== 'interactions'" location="bottom end" max-height="500" width="300" :offset="10">
             <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" variant="text" size="small" class="text-none text-grey-lighten-1 mr-2">
+              <v-btn v-bind="props" variant="text" size="small" class="text-none text-grey-lighten-1 mr-1 mr-sm-2">
                 Contents
                 <v-icon end>mdi-menu-down</v-icon>
               </v-btn>
@@ -103,33 +119,40 @@
             </v-card>
           </v-menu>
 
-          <div class="d-flex align-center border-s border-opacity-10 pl-2">
+          <div class="d-flex align-center border-s border-opacity-10 pl-1 pl-sm-2" v-if="!$vuetify.display.xs">
+            <!-- Interactions (QR Code) button -->
             <v-tooltip text="Interactions" location="bottom">
               <template v-slot:activator="{ props }">
                 <v-btn 
-                  v-if="currentView === 'player' || currentView === 'tutorial'"
-                  icon="mdi-eye-outline"
                   variant="text"
                   density="comfortable"
-                  :active="mobileNavValue === 'interactions'"
+                  :active="currentView === 'interactions'"
                   @click="navigateToInteract"
                   v-bind="props"
-                  color="grey-lighten-1"
-                ></v-btn>
+                  :color="currentView === 'interactions' ? 'amber' : 'grey-lighten-1'"
+                  class="text-none mr-2"
+                >
+                  <v-icon start>mdi-qrcode-scan</v-icon>
+                  <span>QR Interactions</span>
+                </v-btn>
               </template>
             </v-tooltip>
             
+            <!-- Keywords search button -->
             <v-tooltip text="Keywords" location="bottom">
               <template v-slot:activator="{ props }">
                 <v-btn 
-                  icon="mdi-book-search-outline"
                   variant="text"
                   density="comfortable"
-                  :active="mobileNavValue === 'keywords'"
-                  @click="mobileNavValue = 'keywords'"
+                  :active="currentView === 'keywords'"
+                  @click="navigateToKeywords"
                   v-bind="props"
-                  color="grey-lighten-1"
-                ></v-btn>
+                  :color="currentView === 'keywords' ? 'amber' : 'grey-lighten-1'"
+                  class="text-none"
+                >
+                  <v-icon start>mdi-book-search-outline</v-icon>
+                  <span>Keywords</span>
+                </v-btn>
               </template>
             </v-tooltip>
           </div>
@@ -138,7 +161,7 @@
 
       <div class="scroll-root" ref="scrollableContentRef" @scroll="onScroll">
         
-        <div v-if="!currentVolumeId" key="bookshelf" class="bookshelf-view d-flex align-center justify-center">
+        <div v-if="!currentVolumeId && currentView !== 'keywords' && currentView !== 'interactions'" key="bookshelf" class="bookshelf-view d-flex align-start justify-center">
            <v-container class="library-container">
                  <div class="text-center mb-4">
                     <h2 class="text-h5 font-cinzel text-white text-uppercase tracking-widest">Library</h2>
@@ -304,6 +327,7 @@
                 ref="interactViewRef"
                 :currentDoor="props.campaignWing || ''"
                 :wing="props.campaignWing || ''"
+                :campaign-type="props.campaignType || ''"
                 @close="exitToolMode"
                 @open-scene="handleOpenSceneFromInternal"
               />
@@ -312,7 +336,7 @@
           </transition>
         </v-container>
       </div>
-    </v-main>
+    </div>
 
     <v-fab
       v-if="smAndDown && currentVolumeId && currentView !== 'keywords' && currentView !== 'interactions'"
@@ -327,7 +351,7 @@
     />
     
     <v-fab
-      v-if="smAndDown && currentVolumeId"
+      v-if="smAndDown && currentVolumeId && currentView !== 'keywords' && currentView !== 'interactions'"
       icon="mdi-arrow-left"
       @click="backToLibrary"
       location="bottom left"
@@ -365,7 +389,18 @@ import booktops2Img from "@/assets/booktops2.png";
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
 
-const props = defineProps<{ campaignWing?: string }>();
+const props = defineProps<{
+  campaignWing?: string;
+  campaignType?: string;
+}>();
+
+const isSeason1 = computed(() => {
+  const t = (props.campaignType || "").toLowerCase();
+  if (t === 'core' || t === 'apocalypse' || t === 'awakenings') return true;
+  const wingKey = (props.campaignWing || "").toUpperCase();
+  if (wingKey.includes("WING 1") || wingKey.includes("WING 2")) return true;
+  return false;
+});
 
 interface Volume {
   id: string;
@@ -398,8 +433,12 @@ const rawStoryBooks = bookPagesData as PageSection[];
 const availableVolumes = computed<Volume[]>(() => {
   const vols: Volume[] = [];
   const wingKey = (props.campaignWing || "").toUpperCase();
+  const isS1 = isSeason1.value;
 
-  if (wingKey.includes("TUTORIAL") || wingKey.includes("WING 1 TUTORIAL")) {
+  // Start Here volume should ONLY be accessible in Wing 3
+  const showStartHere = wingKey.includes("WING 3");
+
+  if (showStartHere) {
     vols.push({ 
       id: 'start_here', 
       title: 'Start Here', 
@@ -408,6 +447,9 @@ const availableVolumes = computed<Volume[]>(() => {
       type: 'story', 
       data: rawStartHere 
     });
+  }
+
+  if (wingKey.includes("TUTORIAL") || wingKey.includes("WING 1 TUTORIAL")) {
     vols.push({ 
       id: 'wing_1_tutorial', 
       title: 'Wing 1 Tutorial', 
@@ -453,7 +495,7 @@ const availableVolumes = computed<Volume[]>(() => {
       data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) 
     });
   } else {
-    vols.push({ id: 'start_here', title: 'Start Here', subtitle: 'Tutorial', icon: 'mdi-school', type: 'story', data: rawStartHere });
+    // If no wing is explicitly active/selected, show all standard volumes
     vols.push({ 
       id: 'wing_1_tutorial', 
       title: 'Wing 1 Tutorial', 
@@ -502,7 +544,10 @@ const availableVolumes = computed<Volume[]>(() => {
     vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
     vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
     vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
-    vols.push({ id: 'dragon', title: 'Dragon Boss', subtitle: 'Rules', icon: 'mdi-alpha-d-box-outline', type: 'reference', data: dragonClarificationsData });
+    // Dragon clarification book is not available in Season 1
+    if (!isS1) {
+      vols.push({ id: 'dragon', title: 'Dragon Boss', subtitle: 'Rules', icon: 'mdi-alpha-d-box-outline', type: 'reference', data: dragonClarificationsData });
+    }
   }
 
   return vols;
@@ -711,23 +756,53 @@ watch(() => props.campaignWing, (val) => {
 
 function exitToolMode() { 
   mobileNavValue.value = 'menu'; 
-  if(currentVolume.value?.type === 'story') currentView.value = 'player';
-  else currentView.value = currentVolumeId.value!;
+  if (currentVolumeId.value) {
+     const vol = availableVolumes.value.find(v => v.id === currentVolumeId.value);
+     if (vol?.type === 'story') currentView.value = 'player';
+     else currentView.value = currentVolumeId.value!;
+  } else {
+     currentView.value = 'player';
+  }
 }
 
-function navigateToInteract() { mobileNavValue.value = 'interactions'; currentView.value = 'interactions'; }
-function forceNavigateToInteract() { navigateToInteract(); }
+function navigateToInteract() { 
+  if (currentView.value === 'interactions') {
+    exitToolMode();
+  } else {
+    mobileNavValue.value = 'interactions'; 
+    currentView.value = 'interactions'; 
+  }
+}
+function forceNavigateToInteract() { 
+  mobileNavValue.value = 'interactions'; 
+  currentView.value = 'interactions'; 
+}
+function navigateToKeywords() { 
+  if (currentView.value === 'keywords') {
+    exitToolMode();
+  } else {
+    mobileNavValue.value = 'keywords'; 
+    currentView.value = 'keywords'; 
+  }
+}
 
 function onScroll() {}
 function handlePageClick() {}
 
 watch(mobileNavValue, (val) => {
    if (val === 'menu') {
-      if (currentVolumeId.value) switchVolume(currentVolumeId.value);
+      if (currentVolumeId.value) {
+         switchVolume(currentVolumeId.value);
+      } else {
+         currentView.value = 'player';
+         scrollToTop();
+      }
    } else if (val === 'keywords') {
       currentView.value = 'keywords';
+      scrollToTop();
    } else if (val === 'interactions') {
       currentView.value = 'interactions';
+      scrollToTop();
    }
 });
 
@@ -782,11 +857,22 @@ function openSceneByTarget(target: string) {
     }
 }
 
-defineExpose({ navigateToInteract, forceNavigateToInteract, openSceneByTarget });
+defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, openSceneByTarget });
 </script>
 
 <style scoped>
-.book-container { height: 100vh; overflow: hidden; background: var(--v-theme-background); display: flex; flex-direction: column; }
+.book-container { 
+  height: calc(100vh - 100px); 
+  overflow: hidden; 
+  background: var(--v-theme-background); 
+  display: flex; 
+  flex-direction: column; 
+}
+@media (max-width: 960px) {
+  .book-container { 
+    height: calc(100vh - 140px); 
+  }
+}
 .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-top: 0 !important; }
 
 .compact-nav-bar {
