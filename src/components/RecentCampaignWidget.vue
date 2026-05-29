@@ -16,8 +16,6 @@
           color="secundary"
           elevation="16"
           width="100%"
-          class="transition-swing cursor-pointer"
-          @click="goToCampaign"
         >
           <!-- Banner Image -->
           <v-img
