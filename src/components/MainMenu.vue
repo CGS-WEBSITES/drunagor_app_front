@@ -1,5 +1,5 @@
 <template>
-  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end">
+  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end safe-pwa-top">
     <v-btn
       class="mx-1 ml-md-6"
       rounded
@@ -14,7 +14,7 @@
 
   <v-container 
     v-if="!isCampaignRoute && !isHeroesRoute" 
-    class="d-sm-none pa-4"
+    class="d-sm-none pa-4 safe-pwa-top"
   >
     <v-card
       color="primary"
@@ -156,3 +156,9 @@ const buttons = ref([
   },
 ]);
 </script>
+
+<style scoped>
+.safe-pwa-top {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+}
+</style>

@@ -427,7 +427,7 @@ const contentStyle = computed(() => {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat-y",
-        "padding-top": "0px",
+        "padding-top": "env(safe-area-inset-top, 0px)",
       };
 });
 
