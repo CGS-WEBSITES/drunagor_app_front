@@ -538,16 +538,13 @@ const availableVolumes = computed<Volume[]>(() => {
     });
   }
 
-  const isTutorialWing = wingKey.includes("TUTORIAL") || wingKey.includes("WING 1 TUTORIAL");
-  if (!isTutorialWing) {
-    vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'reference', data: playerTutorialsData });
-    vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
-    vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
-    vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
-    // Dragon clarification book is not available in Season 1
-    if (!isS1) {
-      vols.push({ id: 'dragon', title: 'Dragon Boss', subtitle: 'Rules', icon: 'mdi-alpha-d-box-outline', type: 'reference', data: dragonClarificationsData });
-    }
+  vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'reference', data: playerTutorialsData });
+  vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
+  vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
+  vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
+  // Dragon clarification book is not available in Season 1
+  if (!isS1) {
+    vols.push({ id: 'dragon', title: 'Dragon Boss', subtitle: 'Rules', icon: 'mdi-alpha-d-box-outline', type: 'reference', data: dragonClarificationsData });
   }
 
   return vols;
