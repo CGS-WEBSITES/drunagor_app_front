@@ -880,6 +880,7 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
         const heroesFullData = (await Promise.all(heroPromises)).filter(Boolean);
 
         const tempCampaign = new Campaign("temp", CAMPAIGN_TYPE);
+        tempCampaign.name = newCampaignName.value || "New Adventure";
         let scenarioName = eventDetails.value?.scenario || '';
         if (currentEventSeasonFk.value === 2) {
             const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial') || scenarioName.toLowerCase().includes('wing 01');
@@ -906,7 +907,7 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
              box: SKU_ID,
              active: true,
              doors_fk: 1
-        });
+         });
 
         const campaignFk = createRes.data.campaign.campaigns_pk;
         
@@ -915,6 +916,7 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
         });
 
         const realCampaign = new Campaign(String(campaignFk), CAMPAIGN_TYPE);
+        realCampaign.name = newCampaignName.value || "New Adventure";
         realCampaign.wing = tempCampaign.wing;
         realCampaign.door = 'First Setup';
         const finalHash = generateCampaignHash(realCampaign, heroesFullData);
