@@ -133,7 +133,7 @@
       no-gutters
       v-else-if="showMobileAppBar"
     >
-      <v-app-bar app min-height="56" color="secundary" elevation="4">
+      <v-app-bar app min-height="56" color="secundary" elevation="4" class="safe-pwa-top-bar">
         <div
           v-if="route.name === 'Dashboard'"
           @click="$router.push({ name: 'Dashboard' })"
@@ -463,5 +463,10 @@ onBeforeMount(() => {
 
 .v-row {
   width: 100%;
+}
+
+.safe-pwa-top-bar {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  height: calc(56px + env(safe-area-inset-top, 0px)) !important;
 }
 </style>
