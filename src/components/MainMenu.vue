@@ -1,5 +1,17 @@
 <template>
-  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end safe-pwa-top">
+  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end safe-pwa-top flex-wrap ga-2 align-center">
+    <v-btn
+      class="mx-1"
+      rounded
+      @click="goToDashboard"
+      variant="outlined"
+      color="grey-lighten-1"
+      :size="isMobile ? 'small' : 'default'"
+    >
+      <v-icon class="mr-2" style="font-size: 24px">mdi-view-dashboard</v-icon>
+      <span> Return to Dashboard </span>
+    </v-btn>
+
     <v-btn
       class="mx-1 ml-md-6"
       rounded
@@ -123,6 +135,10 @@ const navigateTo = (route: string) => {
 
 const goBack = () => {
   router.push({ name: 'Campaign Overview' });
+};
+
+const goToDashboard = () => {
+  router.push({ name: 'Dashboard' });
 };
 
 const buttons = ref([
