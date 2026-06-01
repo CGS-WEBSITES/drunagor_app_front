@@ -262,7 +262,7 @@
     <v-dialog v-model="showPlayDialog" max-width="500" scrollable>
       <v-card color="grey-darken-4" rounded="xl" max-height="90vh" class="adventure-choice-card">
         <v-card-title class="d-flex justify-space-between align-center px-4 pt-4 pb-2">
-          <span class="text-h5 font-weight-bold font-cinzel text-white">Choose your adventure</span>
+          <span class="text-h5 font-weight-bold text-white">Choose your adventure</span>
           <v-btn icon variant="text" @click="showPlayDialog = false" color="white">
             <v-icon>mdi-close</v-icon>
           </v-btn>
@@ -281,7 +281,7 @@
                   class="mb-4 rounded-xl elevation-4"
                 ></v-img>
                 
-                <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1 font-cinzel">Drunagor Nights S1</h3>
+                <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S1</h3>
                 <p class="text-body-2 text-grey-lighten-1 mb-4 px-2">
                   Join an active party to explore the Underkeep adventures.
                 </p>
@@ -314,7 +314,7 @@
                   </div>
                 </div>
                 
-                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1 font-cinzel">Legacy Campaigns</h3>
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">Legacy Campaigns</h3>
                 <p class="text-body-2 text-grey-lighten-1 mb-4 px-2">
                   Classic campaign tracker for Corebox, Awakenings, and Apocalypse.
                 </p>
@@ -360,9 +360,9 @@
                   </div>
                 </div>
 
-                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-2 font-cinzel">Legacy Campaigns Options</h3>
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-2">Legacy Campaigns Options</h3>
                 <p class="text-body-2 text-grey-lighten-1 mb-6">
-                  Select whether you want to start a brand new legacy campaign or import a save token from another device.
+                  Select whether you want to start a brand new legacy campaign, load an existing campaign, or import a save token.
                 </p>
 
                 <v-btn 
@@ -376,6 +376,19 @@
                 >
                   <v-icon left class="mr-2">mdi-plus</v-icon>
                   New Campaign
+                </v-btn>
+
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="large"
+                  block
+                  class="font-weight-black text-grey-darken-4 mb-3"
+                  @click="triggerLoadCampaign"
+                >
+                  <v-icon left class="mr-2">mdi-folder-open</v-icon>
+                  Load Campaign
                 </v-btn>
 
                 <v-btn 
@@ -442,6 +455,14 @@ const triggerNewCampaign = () => {
 const triggerImportCampaign = () => {
   showPlayDialog.value = false;
   campaignImportRef.value?.openModal();
+};
+
+const triggerLoadCampaign = () => {
+  showPlayDialog.value = false;
+  const el = document.getElementById("campaigns");
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth" });
+  }
 };
 
 const handleJoinCampaign = () => {
@@ -797,10 +818,6 @@ onBeforeMount(async () => {
   align-items: center;
   justify-content: center;
   z-index: 10;
-}
-
-.font-cinzel {
-  font-family: "Cinzel", serif;
 }
 
 .adventure-choice-card {
