@@ -3,24 +3,23 @@
     <v-btn
       class="mx-1"
       rounded
-      @click="goToDashboard"
-      variant="outlined"
-      color="grey-lighten-1"
-      :size="isMobile ? 'small' : 'default'"
-    >
-      <v-icon class="mr-2" style="font-size: 24px">mdi-view-dashboard</v-icon>
-      <span> Return to Dashboard </span>
-    </v-btn>
-
-    <v-btn
-      class="mx-1 ml-md-6"
-      rounded
       @click="goBack"
       variant="elevated"
       :size="isMobile ? 'small' : 'default'"
     >
       <v-icon class="mr-2" style="font-size: 24px">mdi-arrow-left</v-icon>
       <span> Return to Campaign List </span>
+    </v-btn>
+
+    <v-btn
+      class="mx-1 ml-md-6"
+      rounded
+      @click="goToDashboard"
+      variant="elevated"
+      :size="isMobile ? 'small' : 'default'"
+    >
+      <v-icon class="mr-2" style="font-size: 24px">mdi-view-dashboard</v-icon>
+      <span> Return to Dashboard </span>
     </v-btn>
   </v-container>
 
