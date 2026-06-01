@@ -999,4 +999,13 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 }
 
 .back-button-container { padding: 10px; display: flex; justify-content: flex-end; }
+
+:deep(.inline-icon) {
+  height: 18px !important;
+  max-height: 1.15em !important;
+  width: auto !important;
+  vertical-align: middle !important;
+  display: inline-block !important;
+  margin: 0 4px !important;
+}
 </style>
