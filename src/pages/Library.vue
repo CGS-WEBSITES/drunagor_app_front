@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-0 mt-2 mt-md-16 pb-12" fluid>
+  <v-container class="pa-0 mt-14 mt-md-16 pb-12" fluid>
     <!-- Título -->
     <v-row justify="center" class="d-none d-md-flex">
       <v-col cols="12" class="text-center mb-4">

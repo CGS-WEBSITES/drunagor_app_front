@@ -1,7 +1,7 @@
 <template>
   <v-card
     color="primary"
-    class="profile-card mx-auto py-0 mt-6 mt-md-0"
+    class="profile-card mx-auto py-0 mt-16 mt-md-0"
     rounded="0"
     elevation="3"
     style="

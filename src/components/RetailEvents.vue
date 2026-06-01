@@ -439,8 +439,6 @@
                   label="SEASON"
                   variant="outlined"
                   prepend-inner-icon="mdi-flag-variant"
-                  disabled
-                  readonly
                 ></v-select>
               </v-col>
 
@@ -824,6 +822,9 @@ const getSeasonInfo = (fk) => {
 };
 
 const getRetailWingLabel = (sceneryPk) => {
+  if (sceneryPk === 2) return "Wing 1 Tutorial";
+  if (sceneryPk === 3) return "Wing 1 Advanced";
+  if (sceneryPk === 4) return "Wing 2 Advanced";
   if (sceneryPk === 5) return "Wing 3";
   if (sceneryPk === 6) return "Wing 4";
   return "";
@@ -881,11 +882,16 @@ const userTimezone = computed(
 );
 
 const retailerSeasonOptions = computed(() => {
-  const lockedSeason = seasons.value.find(
-    (season) => season.seasons_pk === LOCKED_RETAILER_SEASON_PK,
+  const allowedSg = seasons.value.filter(
+    (season) => season.seasons_pk === 2 || season.seasons_pk === 3,
   );
-
-  return [lockedSeason || FALLBACK_RETAILER_SEASON];
+  if (allowedSg.length === 0) {
+    return [
+      { seasons_pk: 2, name: "Season 1" },
+      { seasons_pk: 3, name: "Season 2" }
+    ];
+  }
+  return allowedSg;
 });
 
 const availableStores = computed(() => {
@@ -923,14 +929,20 @@ const sortedEvents = computed(() => {
 });
 
 const filteredScenarios = computed(() => {
-  if (newEvent.value.season !== LOCKED_RETAILER_SEASON_PK) return [];
-
-  return sceneries.value
-    .filter((scenario) =>
-      RETAILER_ALLOWED_SCENERIES.includes(scenario.sceneries_pk),
-    )
-    .sort(sortRetailScenarios)
-    .map(decorateScenario);
+  const currentSeason = newEvent.value.season;
+  if (currentSeason === 2) {
+    return sceneries.value
+      .filter((scenario) => [2, 3, 4].includes(scenario.sceneries_pk))
+      .sort((a, b) => a.sceneries_pk - b.sceneries_pk)
+      .map(decorateScenario);
+  }
+  if (currentSeason === 3) {
+    return sceneries.value
+      .filter((scenario) => [5, 6].includes(scenario.sceneries_pk))
+      .sort((a, b) => a.sceneries_pk - b.sceneries_pk)
+      .map(decorateScenario);
+  }
+  return [];
 });
 
 const editableScenarios = computed(() => {
@@ -1019,7 +1031,9 @@ const getFormattedNewEventTime = () =>
   `${String(newEvent.value.hour || "").padStart(2, "0")}:${String(newEvent.value.minute || "00").padStart(2, "0")}`;
 
 const ensureRetailerSeasonLocked = () => {
-  newEvent.value.season = LOCKED_RETAILER_SEASON_PK;
+  if (!newEvent.value.season) {
+    newEvent.value.season = LOCKED_RETAILER_SEASON_PK;
+  }
 };
 
 const resetCreateEventForm = () => {
@@ -1776,6 +1790,8 @@ watch(
     let targetRewardPk = null;
     if (newScenarioPk === 5) targetRewardPk = 5;
     else if (newScenarioPk === 6) targetRewardPk = 6;
+    else if (newScenarioPk === 2) targetRewardPk = 2; // Wing 1 Tutorial -> Tutorial Completed
+    else if (newScenarioPk === 4) targetRewardPk = 3; // Wing 2 Advanced -> Season 1 Completed
 
     if (targetRewardPk) {
       const rewardObject = allRewards.value.find(
@@ -1793,7 +1809,7 @@ watch(
   (newScenarioPk) => {
     const currentSeason =
       editableEvent.value.seasons_fk ?? selectedEvent.value?.seasons_fk;
-    if (currentSeason !== LOCKED_RETAILER_SEASON_PK) return;
+    if (currentSeason !== 2 && currentSeason !== LOCKED_RETAILER_SEASON_PK) return;
 
     if (!newScenarioPk) {
       editableEvent.value.rewards_pk = [];
@@ -1803,6 +1819,8 @@ watch(
     let targetRewardPk = null;
     if (newScenarioPk === 5) targetRewardPk = 5;
     else if (newScenarioPk === 6) targetRewardPk = 6;
+    else if (newScenarioPk === 2) targetRewardPk = 2; // Wing 1 Tutorial -> Tutorial Completed
+    else if (newScenarioPk === 4) targetRewardPk = 3; // Wing 2 Advanced -> Season 1 Completed
 
     if (targetRewardPk) {
       editableEvent.value.rewards_pk = [targetRewardPk];

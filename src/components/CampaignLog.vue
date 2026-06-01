@@ -139,8 +139,8 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
 const heroBackgroundStyle = computed(() => ({
   backgroundImage: `url(${hero.images?.trackerInfo || hero.images?.background})`,
-  backgroundSize: "100% auto", 
-  backgroundPosition: "center top", 
+  backgroundSize: "100% 100%", 
+  backgroundPosition: "center center", 
   backgroundRepeat: "no-repeat",
 }));
 
@@ -263,6 +263,37 @@ function openHeroEquipmentSkills() {
   overflow: hidden;
 }
 
+/* Responsividade da altura da imagem */
+@media (max-width: 768px) {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
+    min-height: 250px !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
+    min-height: 180px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
+    min-height: 130px !important;
+  }
+}
+
+@media (max-width: 344px) {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
+    min-height: 100px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-background-title, :deep(.v-expansion-panel-title) {
+    min-height: 350px !important;
+  }
+}
+
 :deep(.v-expansion-panel-title__overlay) {
   background-color: transparent !important;
 }
@@ -300,73 +331,4 @@ function openHeroEquipmentSkills() {
   );
 }
 
-@media (max-width: 768px) {
-  .hero-background-title {
-    min-height: 250px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 250px;
-  }
-}
-
-@media (max-width: 414px) {
-  .hero-background-title {
-    min-height: 130px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 130px;
-  }
-}
-
-@media (max-width: 430px) {
-  .hero-background-title {
-    min-height: 130px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 130px;
-  }
-}
-
-@media (max-width: 540px) {
-  .hero-background-title {
-    min-height: 180px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 180px;
-  }
-}
-
-@media (max-width: 412px) {
-  .hero-background-title {
-    min-height: 130px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 130px;
-  }
-}
-
-@media (max-width: 344px) {
-  .hero-background-title {
-    min-height: 100px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 100px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-background-title {
-    min-height: 350px !important;
-  }
-
-  :deep(.v-expansion-panel-title) {
-    min-height: 350px;
-  }
-}
 </style>

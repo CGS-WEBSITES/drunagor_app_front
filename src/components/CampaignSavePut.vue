@@ -13,6 +13,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "success"): void;
   (e: "fail"): void;
+  (e: "saving"): void;
 }>();
 
 const campaignStore = CampaignStore();
@@ -40,6 +41,7 @@ function generateCampaignHash(): string {
 }
 
 async function save(): Promise<void> {
+  emit("saving");
   try {
     const campaign = campaignStore.find(props.campaignId);
     const trackerHash = generateCampaignHash();

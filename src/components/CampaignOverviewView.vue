@@ -442,11 +442,19 @@ const loadCampaigns = async () => {
   campaignStore.reset();
   loadingErrors.value = [];
 
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
+  }
+  if (!userStore.user?.users_pk) {
+    loading.value = false;
+    return;
+  }
+
   try {
     // Primeira requisição: sem season 2 (ou season 2 = false)
     const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
       params: {
-        users_fk: userStore.user!.users_pk,
+        users_fk: userStore.user.users_pk,
         show_season2: false,
       },
     });
@@ -458,7 +466,7 @@ const loadCampaigns = async () => {
     // Segunda requisição: com season 2 = true
     const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
       params: {
-        users_fk: userStore.user!.users_pk,
+        users_fk: userStore.user.users_pk,
         show_season2: true,
       },
     });

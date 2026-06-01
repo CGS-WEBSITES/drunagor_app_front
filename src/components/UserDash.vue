@@ -181,15 +181,15 @@
         <v-card-text class="pa-0" style="overflow-y: auto;">
           <div class="pa-5 text-center">
             <v-img 
-              src="@/assets/underkeep2.png" 
+              src="@/assets/underkeep.png" 
               height="140" 
               cover
               class="mb-4 rounded-xl elevation-4"
             ></v-img>
             
-            <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S2</h3>
+            <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S1</h3>
             <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
-              Scan the Lobby QR Code to join your party and dive into the new Underkeep adventures.
+              Scan the Lobby QR Code to join your party and dive into the Underkeep adventures.
             </p>
             
             <v-btn 
@@ -415,6 +415,7 @@ const playDrunagorNights = () => {
   openHub();
 };
 
+
 const playLegacyCampaigns = () => {
   showPlaySelectionDialog.value = false;
   router.push({ path: "/campaign-tracker/" });
@@ -425,13 +426,18 @@ onBeforeMount(async () => {
   heroStore.reset();
   loadingErrors.value = [];
   loading.value = true;
-  if (!user) {
+
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
+  }
+  if (!userStore.user?.users_pk) {
     loading.value = false;
     return;
   }
+
   try {
     const res = await (axios as any).get("/rl_campaigns_users/search", {
-      params: { users_fk: user.users_pk },
+      params: { users_fk: userStore.user.users_pk },
     });
     res.data.campaigns.forEach((element: any) => {
       try {

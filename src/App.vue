@@ -131,15 +131,7 @@
 
     <v-row
       no-gutters
-      v-else-if="
-        route.name !== 'Home' &&
-        route.name !== 'Login' &&
-        route.name !== 'RetailerRegistration' &&
-        route.name !== 'Gama' &&
-        route.name !== 'Community' &&
-        route.name !== 'Lobby' &&
-        route.name !== 'Campaign'
-      "
+      v-else-if="showMobileAppBar"
     >
       <v-app-bar app min-height="56" color="secundary" elevation="4">
         <div
@@ -285,6 +277,18 @@ const display = ref(useDisplay());
 const router = useRouter();
 const route = useRoute();
 
+const showMobileAppBar = computed(() => {
+  return (
+    route.name !== 'Home' &&
+    route.name !== 'Login' &&
+    route.name !== 'RetailerRegistration' &&
+    route.name !== 'Gama' &&
+    route.name !== 'Community' &&
+    route.name !== 'Lobby' &&
+    route.name !== 'Campaign'
+  );
+});
+
 const assets = inject<string>("assets");
 
 const theme = ref(localStorage.getItem("appTheme") || "DarkTheme");
@@ -422,12 +426,14 @@ const contentStyle = computed(() => {
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat",
         "padding-top": "65px",
+        "min-height": "100vh",
       }
     : {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat-y",
-        "padding-top": "0px",
+        "padding-top": "env(safe-area-inset-top, 0px)",
+        "min-height": "100vh",
       };
 });
 

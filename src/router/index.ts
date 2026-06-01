@@ -192,7 +192,7 @@ const router = createRouter({
         {
           path: "/campaign-tracker/campaign/:campaignId/book/:bookId",
           name: "BookView",
-          component: () => import("@/components/CampaignBook.vue"),
+          component: () => import("@/components/CampaignBookNew.vue"),
           beforeEnter: requireAuth,
         },
         {

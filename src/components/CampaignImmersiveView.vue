@@ -404,7 +404,7 @@
             elevation="8"
             @click="bookDialog.visible = false"
         ></v-btn>
-        <CampaignBookNew ref="campaignBookRef" :campaign-wing="bookContext" />
+        <CampaignBookNew ref="campaignBookRef" :campaign-wing="bookContext" :campaign-type="campaign?.campaign || ''" />
       </v-card>
     </v-dialog>
 
@@ -584,7 +584,7 @@
     </v-dialog>
 
     <div class="visually-hidden">
-      <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" @success="onSaveSuccess" @fail="onSaveFail" />
+      <CampaignSavePut ref="savePutRef" :campaign-id="campaignId" @saving="onSaving" @success="onSaveSuccess" @fail="onSaveFail" />
       <CampaignExport ref="campaignExportRef" :campaign-id="campaignId" />
       <CampaignRemove ref="campaignRemoveRef" :campaign-id="campaignId" />
       <ShareCampaignButton ref="shareCampaignRef" :campaignId="campaignId" :inviteCode="partyCode" />
@@ -662,6 +662,31 @@
         <TharmagarChat />
       </v-card>
     </v-dialog>
+
+    <!-- Small subtle Game-like Saving Indicator in the Corner -->
+    <div 
+      v-if="savingState !== 'idle'" 
+      class="saving-indicator-bubble d-flex align-center pa-2 px-3 rounded-pill"
+      :class="savingState"
+    >
+      <template v-if="savingState === 'saving'">
+        <v-progress-circular
+          indeterminate
+          size="16"
+          width="2"
+          class="mr-2 text-white"
+        ></v-progress-circular>
+        <span class="text-caption font-weight-bold text-white uppercase-tracking">Saving...</span>
+      </template>
+      <template v-else-if="savingState === 'saved'">
+        <v-icon size="16" color="green-lighten-2" class="mr-2">mdi-check-circle</v-icon>
+        <span class="text-caption font-weight-bold text-green-lighten-2 uppercase-tracking">Saved</span>
+      </template>
+      <template v-else-if="savingState === 'error'">
+        <v-icon size="16" color="red-lighten-2" class="mr-2">mdi-alert-circle</v-icon>
+        <span class="text-caption font-weight-bold text-red-lighten-2 uppercase-tracking">Save Error</span>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -695,6 +720,16 @@ import ShareCampaignButton from "./ShareCampaignButton.vue";
 import TharmagarChat from "@/components/TharmagarChat.vue";
 
 const REWARDS_DATA: Record<number, any> = {
+  2: {
+    name: "Tutorial Completed",
+    picture_hash: "badges%26achievements/Tutorial%20Complete.png",
+    description: "complete wing 1 tutorial"
+  },
+  3: {
+    name: "Season 1 Completed",
+    picture_hash: "badges%26achievements/Season%201%20Complete%20(4)-min.png",
+    description: "complete wing 2 advanced"
+  },
   5: {
     name: "Wing 3 Completed",
     picture_hash: "badges%26achievements/Tutorial%20Complete.png",
@@ -767,6 +802,14 @@ const dashboardExitDialog = ref({ visible: false });
 const tharmagarDialogVisible = ref(false);
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
+
+const savingState = ref<"idle" | "saving" | "saved" | "error">("idle");
+let savingStateTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const onSaving = () => {
+  savingState.value = "saving";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+};
 
 const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
 const bookContext = ref('');
@@ -1470,7 +1513,9 @@ async function confirmFinishCampaign() {
   try {
     const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
     let rewardPk = null;
-    if (wingStr.includes("WING 3")) rewardPk = 5;
+    if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) rewardPk = 2;
+    else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) rewardPk = 3;
+    else if (wingStr.includes("WING 3")) rewardPk = 5;
     else if (wingStr.includes("WING 4")) rewardPk = 6;
 
     if (rewardPk && props.userStore.user?.users_pk) {
@@ -1567,11 +1612,19 @@ function openInviteDialog() {
 }
 
 function onSaveSuccess() {
-  snackbar.value = { visible: true, text: "Saved!", color: "success" };
+  savingState.value = "saved";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+  savingStateTimeout = setTimeout(() => {
+    savingState.value = "idle";
+  }, 2000);
 }
 
 function onSaveFail() {
-  snackbar.value = { visible: true, text: "Error saving.", color: "error" };
+  savingState.value = "error";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+  savingStateTimeout = setTimeout(() => {
+    savingState.value = "idle";
+  }, 4000);
 }
 
 function readTheScene() {
@@ -2435,5 +2488,40 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 .badge-btn-anim {
   animation: badgePop 0.5s ease-out both;
   animation-delay: 1s;
+}
+
+/* Subtle Game-like Saving Indicator styles */
+.saving-indicator-bubble {
+  position: fixed;
+  bottom: 85px; /* Above the bottom navigation bar on mobile */
+  left: 20px;   /* Bottom-left corner */
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  transition: all 0.3s ease;
+  pointer-events: none; /* Let clicks pass through */
+}
+
+@media (min-width: 960px) {
+  .saving-indicator-bubble {
+    bottom: 24px; /* On desktop, place it lower */
+    left: 24px;
+  }
+}
+
+.saving-indicator-bubble.saved {
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.saving-indicator-bubble.error {
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+.uppercase-tracking {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem !important;
 }
 </style>

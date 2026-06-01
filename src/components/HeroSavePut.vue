@@ -78,8 +78,49 @@ async function updateHeroInBackend(hero: any): Promise<boolean> {
   return true;
 }
 
+async function saveCampaignOnly(campaignId: string): Promise<boolean> {
+  const campaign = campaignStore.find(campaignId);
+  const heroes = campaignStore.findAllHeroes(campaignId);
+
+  const campaignData = JSON.parse(JSON.stringify(campaign));
+  delete campaignData.heroes; 
+
+  const heroesData = heroes.map((hero) => {
+    const cleanHero = JSON.parse(JSON.stringify(hero));
+    delete cleanHero.playableHeroesPk;
+    return cleanHero;
+  });
+
+  const data = {
+    campaignData,
+    heroes: heroesData,
+    savedAt: new Date().toISOString(),
+  };
+
+  const trackerHash = btoa(JSON.stringify(data));
+
+  await axios.put(`/campaigns/alter/${campaignId}`, {
+    tracker_hash: trackerHash,
+    party_name: campaign.name || "",
+  });
+
+  const storageKey = `campaign_hash_${campaignId}`;
+  localStorage.setItem(storageKey, trackerHash);
+
+  return true;
+}
+
 async function saveHeroes(): Promise<boolean> {
   try {
+    const campaign = campaignStore.find(props.campaignId);
+    const isLegacy = ["core", "apocalypse", "awakenings"].includes(campaign.campaign);
+
+    if (isLegacy) {
+      await saveCampaignOnly(props.campaignId);
+      emit("success");
+      return true;
+    }
+
     let heroesToSave;
 
     if (props.heroId) {

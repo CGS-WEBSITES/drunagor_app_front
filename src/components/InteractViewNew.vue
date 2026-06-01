@@ -190,11 +190,18 @@ import InteractionTheRunic from "@/assets/json/InteractionTheRunic.json";
 const props = defineProps<{
     currentDoor: string;
     wing: string;
+    campaignType?: string;
 }>();
 
 const emit = defineEmits(['close', 'open-scene']);
 
 const interactionMeta: Record<string, { number: number, title: string }> = {
+    "https://qr1.be/WMJL": { number: 1, title: "The Barricade" },
+    "https://qr1.be/FNMI": { number: 2, title: "The Weapons Table" },
+    "https://qr1.be/0RLM": { number: 3, title: "The Shining Armor" },
+    "https://qr1.be/60LT": { number: 4, title: "The Stone Guardian" },
+    "https://qr1.be/LPF2": { number: 5, title: "The Reservoir" },
+    "https://qr1.be/Y4ZP": { number: 6, title: "Treasures of a Forgotten Age" },
     "InteractionThePrisoner": { number: 7, title: "The Prisoner" },
     "InteractionTheSeed": { number: 8, title: "The Cube of Another World" },
     "InteractionTheForge": { number: 9, title: "Forgotten Forge" },
@@ -332,6 +339,9 @@ const visibleInteractions = computed(() => {
     const list: { id: string, number: number, title: string }[] = [];
     const w = (props.wing || "").toUpperCase();
     const d = (props.currentDoor || "").toUpperCase();
+    const t = (props.campaignType || "").toLowerCase();
+    
+    const isS1 = t === 'core' || t === 'apocalypse' || t === 'awakenings' || w.includes("WING 1") || w.includes("WING 2");
 
     const add = (key: string) => { 
         if(interactionMeta[key] && !list.find(i => i.id === key)) {
@@ -339,18 +349,29 @@ const visibleInteractions = computed(() => {
         }
     };
 
-    if (w.includes("WING 3")) {
-        const doorsOrder = ["FIRST SETUP", "DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"];
-        const idx = doorsOrder.indexOf(d);
-        if (idx >= 0) add("InteractionThePrisoner");
-        if (idx >= 2) add("InteractionTheSeed");
-        if (idx >= 3) add("InteractionTheForge");
-    }
+    if (isS1) {
+        // Show only Season 1 interactions (IDs 1 to 6)
+        add("https://qr1.be/WMJL");
+        add("https://qr1.be/FNMI");
+        add("https://qr1.be/0RLM");
+        add("https://qr1.be/60LT");
+        add("https://qr1.be/LPF2");
+        add("https://qr1.be/Y4ZP");
+    } else {
+        // Show Season 2 interactions based on wing progress
+        if (w.includes("WING 3")) {
+            const doorsOrder = ["FIRST SETUP", "DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"];
+            const idx = doorsOrder.indexOf(d);
+            if (idx >= 0) add("InteractionThePrisoner");
+            if (idx >= 2) add("InteractionTheSeed");
+            if (idx >= 3) add("InteractionTheForge");
+        }
 
-    if (w.includes("WING 4")) {
-        add("InteractionTheRunic"); 
-        if (["DRACONIC CHAPEL", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionDraconianAltar");
-        if (["CRYPTS", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionBeerFactory");
+        if (w.includes("WING 4")) {
+            add("InteractionTheRunic"); 
+            if (["DRACONIC CHAPEL", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionDraconianAltar");
+            if (["CRYPTS", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionBeerFactory");
+        }
     }
     
     return list.sort((a,b) => a.number - b.number);
@@ -462,7 +483,7 @@ defineExpose({ ensureCameraPermission });
 
 .interact-view-new {
     background-color: #121212;
-    min-height: 100vh;
+    min-height: 100%;
     color: white;
     display: flex;
     flex-direction: column;
