@@ -16,28 +16,26 @@
       </BaseAlert>
     </div>
 
-    <v-card
-      color="primary"
-      class="d-none d-md-flex justify-center pa-3 elevation-0"
-    >
-      <v-card-actions>
-        <CampaignNew />
-        <CampaignImport />
-        <v-btn variant="elevated" rounded @click="onJoinCampaign">
-          Join Campaign
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+    <!-- Hidden helper component triggers -->
+    <div style="display: none;">
+      <CampaignNew ref="campaignNewRef" />
+      <CampaignImport ref="campaignImportRef" />
+    </div>
 
-    <v-card class="d-md-none justify-center pa-3 elevation-0">
-      <v-card-actions class="d-flex justify-center flex-wrap ga-2">
-        <CampaignNew />
-        <CampaignImport />
-        <v-btn variant="elevated" rounded @click="onJoinCampaign">
-          Join Campaign
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+    <!-- Main Play Action Button (identical to dashboard styling) -->
+    <div class="d-flex justify-center my-4">
+      <v-btn
+        color="playbutton"
+        variant="flat"
+        @click="openPlayOptions"
+        :size="$vuetify.display.xs ? 'large' : 'x-large'"
+        rounded="lg"
+        class="font-weight-bold px-10 py-3 text-subtitle-1 play-campaigns-btn"
+      >
+        <v-icon left class="mr-2">mdi-sword-cross</v-icon>
+        Play
+      </v-btn>
+    </div>
 
     <v-card class="mt-3 pa-3 elevation-0 d-flex flex-column ga-4">
       
@@ -259,6 +257,145 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Adventure Choice Dialog -->
+    <v-dialog v-model="showPlayDialog" max-width="500" scrollable>
+      <v-card color="grey-darken-4" rounded="xl" max-height="90vh" class="adventure-choice-card">
+        <v-card-title class="d-flex justify-space-between align-center px-4 pt-4 pb-2">
+          <span class="text-h5 font-weight-bold font-cinzel text-white">Choose your adventure</span>
+          <v-btn icon variant="text" @click="showPlayDialog = false" color="white">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="pa-0" style="overflow-y: auto;">
+          <v-window v-model="activePlayTab">
+            <!-- Window 1: Main Selection (Drunagor Nights S1 vs Legacy) -->
+            <v-window-item :value="0">
+              <!-- Drunagor Nights S1 (Underkeep) -->
+              <div class="pa-5 text-center">
+                <v-img 
+                  src="@/assets/underkeep.png" 
+                  height="140" 
+                  cover
+                  class="mb-4 rounded-xl elevation-4"
+                ></v-img>
+                
+                <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1 font-cinzel">Drunagor Nights S1</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-4 px-2">
+                  Join an active party to explore the Underkeep adventures.
+                </p>
+                
+                <v-btn 
+                  color="green-accent-3" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="large"
+                  block
+                  class="font-weight-black text-grey-darken-4"
+                  @click="handleJoinCampaign"
+                >
+                  <v-icon left class="mr-2">mdi-account-plus</v-icon>
+                  Join Campaign
+                </v-btn>
+              </div>
+
+              <v-divider class="mx-6 border-opacity-50" color="grey"></v-divider>
+
+              <!-- Legacy Campaigns Selector -->
+              <div class="pa-5 text-center">
+                <div class="legacy-cluster mb-4 mt-2">
+                  <div class="d-flex justify-center align-center ga-6 position-relative z-10">
+                    <v-img :src="CoreLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
+                    <v-img :src="AwakeningsLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
+                  </div>
+                  <div class="d-flex justify-center align-center mt-n4 position-relative z-20">
+                    <v-img :src="ApocalypseLogo" height="60" max-width="100" contain class="legacy-logo apoc-logo"></v-img>
+                  </div>
+                </div>
+                
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1 font-cinzel">Legacy Campaigns</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-4 px-2">
+                  Classic campaign tracker for Corebox, Awakenings, and Apocalypse.
+                </p>
+                
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="large"
+                  block
+                  class="font-weight-black text-grey-darken-4"
+                  @click="activePlayTab = 1"
+                >
+                  <v-icon left class="mr-2">mdi-book-open-page-variant</v-icon>
+                  Legacy Campaigns
+                </v-btn>
+              </div>
+            </v-window-item>
+
+            <!-- Window 2: Legacy Campaigns Submenu -->
+            <v-window-item :value="1">
+              <div class="pa-5 text-center">
+                <div class="d-flex align-center justify-start mb-4">
+                  <v-btn 
+                    variant="text" 
+                    color="grey-lighten-1" 
+                    density="comfortable" 
+                    @click="activePlayTab = 0"
+                    class="text-none"
+                  >
+                    <v-icon start>mdi-arrow-left</v-icon>
+                    Back to Choice
+                  </v-btn>
+                </div>
+
+                <div class="legacy-cluster mb-4">
+                  <div class="d-flex justify-center align-center ga-6 position-relative z-10">
+                    <v-img :src="CoreLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
+                    <v-img :src="AwakeningsLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
+                  </div>
+                  <div class="d-flex justify-center align-center mt-n4 position-relative z-20">
+                    <v-img :src="ApocalypseLogo" height="60" max-width="100" contain class="legacy-logo apoc-logo"></v-img>
+                  </div>
+                </div>
+
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-2 font-cinzel">Legacy Campaigns Options</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-6">
+                  Select whether you want to start a brand new legacy campaign or import a save token from another device.
+                </p>
+
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="large"
+                  block
+                  class="font-weight-black text-grey-darken-4 mb-3"
+                  @click="triggerNewCampaign"
+                >
+                  <v-icon left class="mr-2">mdi-plus</v-icon>
+                  New Campaign
+                </v-btn>
+
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="outlined" 
+                  rounded="pill" 
+                  size="large"
+                  block
+                  class="font-weight-bold"
+                  @click="triggerImportCampaign"
+                >
+                  <v-icon left class="mr-2">mdi-import</v-icon>
+                  Import Campaign
+                </v-btn>
+              </div>
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -275,6 +412,9 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { useToast } from "primevue/usetoast";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import axios from "axios";
+import CoreLogo from "@/assets/campaign/logo/core.webp";
+import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
+import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
 
 const router = useRouter();
 const route = useRoute();
@@ -282,6 +422,32 @@ const { mdAndUp } = useDisplay(); // Pegando a variável de breakpoint nativa do
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const toast = useToast();
+
+const campaignNewRef = ref<any>(null);
+const campaignImportRef = ref<any>(null);
+
+const showPlayDialog = ref(false);
+const activePlayTab = ref(0);
+
+const openPlayOptions = () => {
+  showPlayDialog.value = true;
+  activePlayTab.value = 0;
+};
+
+const triggerNewCampaign = () => {
+  showPlayDialog.value = false;
+  campaignNewRef.value?.openModal();
+};
+
+const triggerImportCampaign = () => {
+  showPlayDialog.value = false;
+  campaignImportRef.value?.openModal();
+};
+
+const handleJoinCampaign = () => {
+  showPlayDialog.value = false;
+  onJoinCampaign();
+};
 
 const loading = ref(true);
 const joiningCampaign = ref(false);
@@ -631,5 +797,43 @@ onBeforeMount(async () => {
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+.font-cinzel {
+  font-family: "Cinzel", serif;
+}
+
+.adventure-choice-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.play-campaigns-btn {
+  box-shadow: 0 4px 15px rgba(var(--v-theme-playbutton), 0.3) !important;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+
+.play-campaigns-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(var(--v-theme-playbutton), 0.5) !important;
+}
+
+.legacy-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.legacy-logo {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s ease-in-out;
+}
+
+.legacy-logo:hover {
+  transform: scale(1.05);
+}
+
+.apoc-logo {
+  margin-top: -16px;
 }
 </style>

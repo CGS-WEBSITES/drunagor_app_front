@@ -297,6 +297,10 @@ async function newCampaign(
     loading.value = false;
   }
 }
+
+defineExpose({
+  openModal: () => { visible.value = true; }
+});
 </script>
 
 <style scoped>
