@@ -27,3 +27,9 @@ const app = createApp(App);
 registerPlugins(app, "test");
 
 app.mount("#app");
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    window.location.reload();
+  });
+}
