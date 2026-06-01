@@ -655,7 +655,7 @@
               v-if="event?.scenario && setupDialog"
               :scenario="event.scenario"
               :style="{
-                transform: `scale(${zoomLevel}) translate(${panX}px, ${panY}px)`,
+                transform: `translate(${panX}px, ${panY}px) scale(${zoomLevel})`,
                 transformOrigin: 'center center',
                 transition: isZooming ? 'none' : 'transform 0.1s ease-out',
                 cursor:
