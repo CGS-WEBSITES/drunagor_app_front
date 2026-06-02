@@ -249,7 +249,7 @@
       </v-navigation-drawer>
     </v-row>
 
-    <router-view :style="contentStyle" :class="{ 'pt-10': display.mdAndUp }" />
+    <router-view :style="contentStyle" :class="{ 'pt-10': display.mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode) }" />
   </v-app>
 </template>
 
@@ -287,7 +287,10 @@ const campaign = computed(() => {
 });
 
 const isImmersiveMode = computed(() => {
-  return campaign.value && campaign.value.campaign === 'underkeep2';
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === 'underkeep2') return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
 });
 
 const showMobileAppBar = computed(() => {
@@ -433,12 +436,14 @@ const contentStyle = computed(() => {
         };
   }
 
+  const isImmersive = route.name === 'Campaign' && isImmersiveMode.value;
+
   return display.value.mdAndUp
     ? {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat",
-        "padding-top": "65px",
+        "padding-top": isImmersive ? "0px" : "65px",
         "min-height": "100vh",
       }
     : {

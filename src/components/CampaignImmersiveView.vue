@@ -131,24 +131,7 @@
               </template>
             </v-tooltip>
 
-            <v-tooltip text="Previous Door" location="right" v-if="isWing1Or2">
-              <template v-slot:activator="{ props }">
-                <div
-                  v-bind="props"
-                  class="bookmark-tab left-side red-border-tab"
-                  @click.stop="handlePreviousAction"
-                >
-                  <v-icon
-                    icon="mdi-arrow-left-bold"
-                    size="28"
-                  ></v-icon>
-                  <span
-                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
-                    >PREV DOOR</span
-                  >
-                </div>
-              </template>
-            </v-tooltip>
+
 
             <v-tooltip text="Runes Tracker" location="right" v-if="isWing1Or2">
               <template v-slot:activator="{ props }">
@@ -495,13 +478,48 @@
     </v-dialog>
 
     <v-dialog v-model="doorScannerDialog.visible" max-width="500" persistent>
-      <v-card class="bg-grey-darken-3 rounded-xl overflow-hidden">
+      <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
         <v-toolbar color="black" density="compact">
-          <v-toolbar-title class="text-white">Scan Next Door</v-toolbar-title>
+          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
+            <v-icon start color="amber-darken-2">mdi-door-open</v-icon>
+            DOOR NAVIGATION
+          </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" @click="doorScannerDialog.visible = false"></v-btn>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="doorScannerDialog.visible = false"></v-btn>
         </v-toolbar>
-        <NextDoorQRScanner v-if="doorScannerDialog.visible" @scanned="handleDoorScanned" @manual-advance="handleManualAdvance" />
+        <v-card-text class="pa-6 text-center">
+          <template v-if="isWing1Or2">
+            <div class="text-subtitle-1 text-grey-lighten-1 mb-6 font-weight-medium">
+              You are currently at:
+              <div class="text-h6 text-amber font-weight-bold mt-1">
+                {{ activeCampaignData.door || "FIRST SETUP" }}
+              </div>
+            </div>
+            <div class="d-flex flex-column" style="gap: 12px;">
+              <v-btn
+                block
+                color="amber-darken-3"
+                height="64"
+                class="rounded-lg text-body-1 font-weight-bold py-2"
+                @click="handleManualAdvance"
+              >
+                <v-icon start size="26">mdi-door-open</v-icon>
+                NEXT DOOR
+              </v-btn>
+              <v-btn
+                block
+                color="grey-darken-3"
+                height="64"
+                class="rounded-lg text-body-1 font-weight-bold py-2"
+                @click="handlePreviousActionInDialog"
+              >
+                <v-icon start size="26" class="text-grey-lighten-2">mdi-arrow-left-bold</v-icon>
+                PREVIOUS DOOR
+              </v-btn>
+            </div>
+          </template>
+          <NextDoorQRScanner v-else-if="doorScannerDialog.visible" @scanned="handleDoorScanned" @manual-advance="handleManualAdvance" />
+        </v-card-text>
       </v-card>
     </v-dialog>
 
@@ -1112,10 +1130,10 @@ const currentBackgroundImage = computed(() => {
   } else if (wingFolder === 'wing1') {
     const doorsList = [
       "FIRST SETUP",
-      "FIRST DOOR",
-      "SECOND DOOR",
-      "THIRD DOOR",
-      "FOURTH DOOR",
+      "DOOR 1 - THE BARRICADED PATH",
+      "DOOR 2 - THE KEEP'S COURTYARD",
+      "DOOR 3 - THE ENTRY HALL",
+      "DOOR 4 - THE GREAT HALL",
     ];
     const idx = doorsList.indexOf(door);
     const doorMap = [
@@ -1129,11 +1147,11 @@ const currentBackgroundImage = computed(() => {
   } else if (wingFolder === 'wing2') {
     const doorsList = [
       "FIRST SETUP",
-      "FIRST DOOR",
-      "SECOND DOOR",
-      "THIRD DOOR",
-      "FOURTH DOOR",
-      "FIFTH DOOR",
+      "DOOR 1 - THE GREAT CISTERN",
+      "DOOR 2 - THE DUNGEONS OF OBLIVION",
+      "DOOR 3 - THE ALCHEMY LAB",
+      "DOOR 4 - THE BURIED ARMORY",
+      "DOOR 5 - THERE AND BACK AGAIN",
     ];
     const idx = doorsList.indexOf(door);
     const doorMap = [
@@ -1183,8 +1201,8 @@ const isBossBattle = computed(() => {
   const door = (activeCampaignData.value.door || "").toUpperCase();
   if (wing.includes("WING 3") && door === "MAIN HALL") return true;
   if (wing.includes("WING 4") && door === "DRAGON BOSS") return true;
-  if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && door === "FOURTH DOOR") return true;
-  if ((wing.includes("WING 2") || wing.includes("WING 02")) && door === "FIFTH DOOR") return true;
+  if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && door === "DOOR 4 - THE GREAT HALL") return true;
+  if ((wing.includes("WING 2") || wing.includes("WING 02")) && door === "DOOR 5 - THERE AND BACK AGAIN") return true;
   return false;
 });
 
@@ -1210,6 +1228,12 @@ const showInteractionsButton = computed(() => {
       "LIBRARY",
       "LABORATORY",
     ].includes(door);
+  if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+    return door === "DOOR 3 - THE ENTRY HALL";
+  }
+  if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    return door === "DOOR 1 - THE GREAT CISTERN" || door === "DOOR 4 - THE BURIED ARMORY";
+  }
   return false;
 });
 
@@ -1635,11 +1659,6 @@ function handleNextAction() {
       return;
   }
 
-  if (isWing1Or2.value) {
-    handleManualAdvance();
-    return;
-  }
-
   openNextDoorScanner();
 }
 
@@ -1935,10 +1954,10 @@ function handleManualAdvance() {
   } else if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
     const list = [
       "FIRST SETUP",
-      "FIRST DOOR",
-      "SECOND DOOR",
-      "THIRD DOOR",
-      "FOURTH DOOR",
+      "DOOR 1 - THE BARRICADED PATH",
+      "DOOR 2 - THE KEEP'S COURTYARD",
+      "DOOR 3 - THE ENTRY HALL",
+      "DOOR 4 - THE GREAT HALL",
     ];
     const idx = list.indexOf(currentDoor);
     if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
@@ -1947,11 +1966,11 @@ function handleManualAdvance() {
   } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
     const list = [
       "FIRST SETUP",
-      "FIRST DOOR",
-      "SECOND DOOR",
-      "THIRD DOOR",
-      "FOURTH DOOR",
-      "FIFTH DOOR",
+      "DOOR 1 - THE GREAT CISTERN",
+      "DOOR 2 - THE DUNGEONS OF OBLIVION",
+      "DOOR 3 - THE ALCHEMY LAB",
+      "DOOR 4 - THE BURIED ARMORY",
+      "DOOR 5 - THERE AND BACK AGAIN",
     ];
     const idx = list.indexOf(currentDoor);
     if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
@@ -1982,19 +2001,19 @@ function handlePreviousAction() {
   if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
     list = [
       "FIRST SETUP",
-      "FIRST DOOR",
-      "SECOND DOOR",
-      "THIRD DOOR",
-      "FOURTH DOOR",
+      "DOOR 1 - THE BARRICADED PATH",
+      "DOOR 2 - THE KEEP'S COURTYARD",
+      "DOOR 3 - THE ENTRY HALL",
+      "DOOR 4 - THE GREAT HALL",
     ];
   } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
     list = [
       "FIRST SETUP",
-      "FIRST DOOR",
-      "SECOND DOOR",
-      "THIRD DOOR",
-      "FOURTH DOOR",
-      "FIFTH DOOR",
+      "DOOR 1 - THE GREAT CISTERN",
+      "DOOR 2 - THE DUNGEONS OF OBLIVION",
+      "DOOR 3 - THE ALCHEMY LAB",
+      "DOOR 4 - THE BURIED ARMORY",
+      "DOOR 5 - THERE AND BACK AGAIN",
     ];
   }
 
@@ -2006,6 +2025,11 @@ function handlePreviousAction() {
       snackbar.value = { visible: true, text: "Already at the First Setup", color: "warning" };
     }
   }
+}
+
+function handlePreviousActionInDialog() {
+  handlePreviousAction();
+  doorScannerDialog.value.visible = false;
 }
 
 function commitWing4Choice(choice: string) {
