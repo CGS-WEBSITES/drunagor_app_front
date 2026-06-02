@@ -224,6 +224,18 @@
               </template>
             </v-tooltip>
 
+            <v-tooltip text="Save Game" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-content-save"
+                  class="square-hud-btn"
+                  color="success"
+                  @click.stop="manualSave"
+                ></v-btn>
+              </template>
+            </v-tooltip>
+
             <v-tooltip
               text="Leave Campaign"
               location="top"
@@ -2091,6 +2103,37 @@ async function commitNextDoor(doorName: string, instructionOverride?: string) {
 
   setTimeout(() => openNarrativeDialog(), 500);
 }
+
+function manualSave() {
+  if (savePutRef.value) {
+    savePutRef.value.save();
+  }
+}
+
+watch(
+  () => activeCampaignData.value?.sequentialAdventureRunes,
+  (newVal, oldVal) => {
+    if (oldVal !== undefined && newVal !== oldVal) {
+      console.log("[ImmersiveView] Runes changed, saving immediately...");
+      if (savePutRef.value) {
+        savePutRef.value.save();
+      }
+    }
+  }
+);
+
+watch(
+  () => activeCampaignData.value?.runeCardIds,
+  (newVal, oldVal) => {
+    if (oldVal !== undefined && JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+      console.log("[ImmersiveView] Rune cards changed, saving immediately...");
+      if (savePutRef.value) {
+        savePutRef.value.save();
+      }
+    }
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped>
