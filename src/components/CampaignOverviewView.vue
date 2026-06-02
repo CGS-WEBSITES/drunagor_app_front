@@ -1054,14 +1054,14 @@ onBeforeMount(async () => {
   width: 105px;
   aspect-ratio: 120 / 170;
   background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 8px 8px 0 0;
+  border-radius: 0;
   overflow: hidden;
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-bottom: none;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
 }
 .player-standee-container {
   width: 105px;
