@@ -1,28 +1,4 @@
 <template>
-  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end safe-pwa-top flex-wrap ga-2 align-center">
-    <v-btn
-      class="mx-1"
-      rounded
-      @click="goBack"
-      variant="elevated"
-      :size="isMobile ? 'small' : 'default'"
-    >
-      <v-icon class="mr-2" style="font-size: 24px">mdi-arrow-left</v-icon>
-      <span> Return to Campaign List </span>
-    </v-btn>
-
-    <v-btn
-      class="mx-1 ml-md-6"
-      rounded
-      @click="goToDashboard"
-      variant="elevated"
-      :size="isMobile ? 'small' : 'default'"
-    >
-      <v-icon class="mr-2" style="font-size: 24px">mdi-view-dashboard</v-icon>
-      <span> Return to Dashboard </span>
-    </v-btn>
-  </v-container>
-
   <v-container 
     v-if="!isCampaignRoute && !isHeroesRoute" 
     class="d-sm-none pa-4 safe-pwa-top"
@@ -111,6 +87,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify"; // Import necessário para isMobile se não estiver global
+import { CampaignStore } from "@/store/CampaignStore";
 
 const { t, locale } = useI18n();
 const { mobile } = useDisplay(); // Adicionado para garantir que isMobile funcione
@@ -122,6 +99,18 @@ const isMobile = computed(() => mobile.value);
 
 const isCampaignRoute = computed(() => route.name === 'Campaign');
 
+const campaignStore = CampaignStore();
+const campaign = computed(() => {
+  if (route.name === 'Campaign' && route.params.id) {
+    return campaignStore.findOptional(String(route.params.id));
+  }
+  return null;
+});
+
+const isImmersiveMode = computed(() => {
+  return campaign.value && campaign.value.campaign === 'underkeep2';
+});
+
 // Nova lógica: Verifica se é a página de heróis pelo nome ou pelo path
 const isHeroesRoute = computed(() => 
   route.name === 'HeroesManager' || 
@@ -130,14 +119,6 @@ const isHeroesRoute = computed(() =>
 
 const navigateTo = (route: string) => {
   router.push(route);
-};
-
-const goBack = () => {
-  router.push({ name: 'Campaign Overview' });
-};
-
-const goToDashboard = () => {
-  router.push({ name: 'Dashboard' });
 };
 
 const buttons = ref([
