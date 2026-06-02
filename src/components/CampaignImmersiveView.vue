@@ -91,6 +91,25 @@
               </template>
             </v-tooltip>
 
+            <v-tooltip text="Rune Mechanics" location="right" v-if="isWing1Or2">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side"
+                  @click.stop="runesDialogVisible = true"
+                >
+                  <v-icon
+                    icon="mdi-shield-half-full"
+                    size="28"
+                  ></v-icon>
+                  <span
+                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
+                    >RUNES</span
+                  >
+                </div>
+              </template>
+            </v-tooltip>
+
             <v-tooltip text="Door Instructions" location="right">
               <template v-slot:activator="{ props }">
                 <div
@@ -126,46 +145,6 @@
                   <span
                     class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
                     >THARMAGAR</span
-                  >
-                </div>
-              </template>
-            </v-tooltip>
-
-
-
-            <v-tooltip text="Runes Tracker" location="right" v-if="isWing1Or2">
-              <template v-slot:activator="{ props }">
-                <div
-                  v-bind="props"
-                  class="bookmark-tab left-side"
-                  @click.stop="runesDialogVisible = true"
-                >
-                  <v-icon
-                    icon="mdi-counter"
-                    size="28"
-                  ></v-icon>
-                  <span
-                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
-                    >RUNES</span
-                  >
-                </div>
-              </template>
-            </v-tooltip>
-
-            <v-tooltip text="Rune Cards" location="right" v-if="isWing1Or2">
-              <template v-slot:activator="{ props }">
-                <div
-                  v-bind="props"
-                  class="bookmark-tab left-side"
-                  @click.stop="runeCardsDialogVisible = true"
-                >
-                  <v-icon
-                    icon="mdi-cards-outline"
-                    size="28"
-                  ></v-icon>
-                  <span
-                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
-                    >RUNE CARDS</span
                   >
                 </div>
               </template>
@@ -724,25 +703,37 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="runesDialogVisible" max-width="400">
-      <v-card color="surface" class="pa-4">
-        <v-card-title class="d-flex justify-space-between align-center px-0 pb-3">
-          <span class="text-h6">Runes Tracker</span>
-          <v-btn icon="mdi-close" variant="text" size="small" @click="runesDialogVisible = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="px-0">
-          <CampaignRunes :campaign-id="campaignId" />
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="runeCardsDialogVisible" max-width="500">
-      <v-card color="surface" class="pa-2">
-        <v-card-title class="d-flex justify-end px-0">
-          <v-btn icon="mdi-close" variant="text" size="small" @click="runeCardsDialogVisible = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="px-0 pt-0">
-          <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+    <v-dialog v-model="runesDialogVisible" max-width="600">
+      <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
+        <v-toolbar color="black" density="compact" class="px-2">
+          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
+            <v-icon start color="amber-darken-2" class="mr-2">mdi-shield-half-full</v-icon>
+            RUNE MECHANICS
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="runesDialogVisible = false"></v-btn>
+        </v-toolbar>
+        
+        <v-tabs v-model="activeRuneTab" bg-color="grey-darken-4" color="amber-darken-2" grow>
+          <v-tab value="tracker">
+            <v-icon start class="mr-2">mdi-counter</v-icon>
+            RUNES TRACKER
+          </v-tab>
+          <v-tab value="cards">
+            <v-icon start class="mr-2">mdi-cards-outline</v-icon>
+            RUNE CARDS
+          </v-tab>
+        </v-tabs>
+        
+        <v-card-text class="pa-4 bg-grey-darken-4" style="max-height: 80vh; overflow-y: auto;">
+          <v-window v-model="activeRuneTab">
+            <v-window-item value="tracker">
+              <CampaignRunes :campaign-id="campaignId" />
+            </v-window-item>
+            <v-window-item value="cards">
+              <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+            </v-window-item>
+          </v-window>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -901,7 +892,7 @@ const newBadgeDialog = ref({ visible: false, reward: null as any });
 const dashboardExitDialog = ref({ visible: false }); 
 const tharmagarDialogVisible = ref(false);
 const runesDialogVisible = ref(false);
-const runeCardsDialogVisible = ref(false);
+const activeRuneTab = ref("tracker");
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
@@ -922,6 +913,7 @@ const forcedDoorInstruction = ref<string | null>(null);
 const allDoors = ref<Door[]>([]);
 const openedDoors = ref<Set<string>>(new Set());
 let pollingInterval: number | null = null;
+let lastManualActionTime = 0;
 
 const WING3_ORDER = [
     "FIRST SETUP",
@@ -1380,6 +1372,9 @@ const fetchAllDoors = async () => {
 };
 
 const fetchOpenedDoors = async () => {
+  if (Date.now() - lastManualActionTime < 4000) {
+    return;
+  }
   try {
     const response = await axios.get("/rl_campaigns_doors/search", {
       params: { campaign_fk: parseInt(props.campaignId) },
@@ -2038,10 +2033,32 @@ function commitWing4Choice(choice: string) {
   commitNextDoor(choice);
 }
 
-function commitNextDoor(doorName: string, instructionOverride?: string) {
+async function commitNextDoor(doorName: string, instructionOverride?: string) {
+  lastManualActionTime = Date.now();
   campaignStore.updateCampaignProperty(props.campaignId, "door", doorName);
+  if (props.campaign) props.campaign.door = doorName;
   forcedDoorInstruction.value = instructionOverride || doorName;
   if (savePutRef.value) savePutRef.value.save();
+
+  const doorObj = allDoors.value.find(
+    (d) => d.name.toUpperCase() === doorName.toUpperCase()
+  );
+  if (doorObj) {
+    try {
+      await axios.post("/rl_campaigns_doors/cadastro", {
+        doors_fk: doorObj.doors_pk,
+        campaign_fk: parseInt(props.campaignId),
+      });
+      if (doorObj.code) {
+        openedDoors.value.add(doorObj.code.toLowerCase());
+      }
+    } catch (error: any) {
+      if (error.response?.status !== 409) {
+        console.error("Error committing manual door transition to database:", error);
+      }
+    }
+  }
+
   setTimeout(() => openNarrativeDialog(), 500);
 }
 </script>
