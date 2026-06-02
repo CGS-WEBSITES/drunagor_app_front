@@ -823,25 +823,34 @@ const startPollingForUpdates = () => {
         showSeason2 = Number(skuStr) === 39;
       }
 
-      let response = await axios.get("/rl_campaigns_users/search", {
-        params: {
-          users_fk: userStore.user.users_pk,
-          campaigns_fk: campaignId,
-          show_season2: showSeason2
-        },
-      });
-
-      if (!response.data?.campaigns?.length) {
+      let response;
+      try {
         response = await axios.get("/rl_campaigns_users/search", {
           params: {
             users_fk: userStore.user.users_pk,
             campaigns_fk: campaignId,
-            show_season2: !showSeason2
+            show_season2: showSeason2
           },
         });
+      } catch (err) {
+        console.warn(`[CampaignView] Polling primary search failed (show_season2=${showSeason2}):`, err);
       }
 
-      if (response.data?.campaigns?.length > 0) {
+      if (!response?.data?.campaigns?.length) {
+        try {
+          response = await axios.get("/rl_campaigns_users/search", {
+            params: {
+              users_fk: userStore.user.users_pk,
+              campaigns_fk: campaignId,
+              show_season2: !showSeason2
+            },
+          });
+        } catch (err) {
+          console.warn(`[CampaignView] Polling fallback search failed (show_season2=${!showSeason2}):`, err);
+        }
+      }
+
+      if (response?.data?.campaigns?.length > 0) {
         const campaignData = response.data.campaigns[0];
         if (campaignData.tracker_hash) {
           const currentLocalHash = localStorage.getItem(`campaign_hash_${campaignId}`);

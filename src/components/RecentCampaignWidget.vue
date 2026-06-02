@@ -185,25 +185,35 @@ const loadMostRecentCampaign = async () => {
 
   loading.value = true;
   try {
-    // 1. Fetch normal/legacy campaigns
-    const resLegacy = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: props.userId,
-        show_season2: false,
-      },
-    });
+    let legacyCampaigns = [];
+    try {
+      const resLegacy = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: props.userId,
+          show_season2: false,
+        },
+      });
+      legacyCampaigns = resLegacy.data?.campaigns || [];
+    } catch (err1) {
+      console.warn("[RecentCampaignWidget] Failed fetching legacy campaigns:", err1);
+    }
 
-    // 2. Fetch season 2 campaigns
-    const resS2 = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: props.userId,
-        show_season2: true,
-      },
-    });
+    let s2Campaigns = [];
+    try {
+      const resS2 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: props.userId,
+          show_season2: true,
+        },
+      });
+      s2Campaigns = resS2.data?.campaigns || [];
+    } catch (err2) {
+      console.warn("[RecentCampaignWidget] Failed fetching S2 campaigns:", err2);
+    }
 
     const allCampaignsRaw = [
-      ...(resLegacy.data?.campaigns || []),
-      ...(resS2.data?.campaigns || []),
+      ...legacyCampaigns,
+      ...s2Campaigns,
     ];
 
     if (allCampaignsRaw.length === 0) {

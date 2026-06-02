@@ -75,26 +75,35 @@ export class CampaignLoadFromStorage {
         showSeason2 = Number(skuStr) === 39;
       }
 
-      let response = await axios.get("/rl_campaigns_users/search", {
-        params: {
-          users_fk: this.userStore.user.users_pk,
-          campaigns_fk: campaignId,
-          show_season2: showSeason2
-        },
-      });
-
-      if (!response.data?.campaigns?.length) {
-        // Fallback: If campaign not found, try the other season setting
+      let response;
+      try {
         response = await axios.get("/rl_campaigns_users/search", {
           params: {
             users_fk: this.userStore.user.users_pk,
             campaigns_fk: campaignId,
-            show_season2: !showSeason2
+            show_season2: showSeason2
           },
         });
+      } catch (err) {
+        console.warn(`[CampaignLoad] Primary campaign search failed (show_season2=${showSeason2}):`, err);
       }
 
-      if (response.data?.campaigns?.length > 0) {
+      if (!response?.data?.campaigns?.length) {
+        // Fallback: If campaign not found, try the other season setting
+        try {
+          response = await axios.get("/rl_campaigns_users/search", {
+            params: {
+              users_fk: this.userStore.user.users_pk,
+              campaigns_fk: campaignId,
+              show_season2: !showSeason2
+            },
+          });
+        } catch (err) {
+          console.error(`[CampaignLoad] Fallback campaign search failed (show_season2=${!showSeason2}):`, err);
+        }
+      }
+
+      if (response?.data?.campaigns?.length > 0) {
         const campaignData = response.data.campaigns[0] as CampaignRelationData;
 
         if (campaignData.tracker_hash) {
