@@ -594,7 +594,7 @@ const clearMyLobbySelection = async () => {
         const res = await axios.get("/rl_campaigns_users/search", { 
             params: { 
                 users_fk: userStore.user.users_pk,
-                show_season2: currentEventSeasonFk.value === 2,
+                show_season2: currentEventSeasonFk.value === 3,
                 events_fk: Number(eventId)
             } 
         });
@@ -619,7 +619,7 @@ const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
             const searchRes = await axios.get("/rl_campaigns_users/search", { 
                 params: { 
                     users_fk: userStore.user.users_pk,
-                    show_season2: currentEventSeasonFk.value === 2,
+                    show_season2: currentEventSeasonFk.value === 3,
                     events_fk: Number(eventId)
                 } 
             });
@@ -962,7 +962,7 @@ const fetchAndShowLoadDialog = async () => {
           const res = await axios.get("/rl_campaigns_users/search", { 
               params: { 
                   users_fk: userStore.user.users_pk,
-                  show_season2: currentEventSeasonFk.value === 2
+                  show_season2: currentEventSeasonFk.value === 3
               } 
           });
          let camps = res.data.campaigns || [];
@@ -1071,7 +1071,7 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
                     const res = await axios.get("/rl_campaigns_users/search", { 
                         params: { 
                             users_fk: pUserFk,
-                            show_season2: currentEventSeasonFk.value === 2,
+                            show_season2: currentEventSeasonFk.value === 3,
                             events_fk: Number(eventId)
                         } 
                     });
