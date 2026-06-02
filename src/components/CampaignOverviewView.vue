@@ -114,6 +114,7 @@
             elevation="16"
             width="100%"
             class="transition-swing"
+            style="overflow: hidden;"
             @click="goToCampaign(campaign)"
           >
             <v-img
@@ -187,62 +188,53 @@
               class="mb-2"
             ></v-progress-linear>
 
-            <v-card-text v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]">
-              <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
-              <div class="d-flex flex-wrap gap-3">
-                <div
-                  v-for="player in extraCampaignData[campaign.campaignId].players"
-                  :key="player.rl_campaigns_users_pk"
-                  class="d-flex flex-column align-center text-center bg-grey-darken-4 pa-2 rounded-lg position-relative"
-                  style="min-width: 90px; border: 1px solid rgba(255,255,255,0.1);"
-                >
-                  <!-- Hero Avatar -->
-                  <v-avatar
-                    v-slot:default
+          <!-- Underkeep style: Players list -->
+          <div v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]" class="mt-auto px-3 pt-1 pb-0">
+            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+              <div
+                v-for="player in extraCampaignData[campaign.campaignId].players"
+                :key="player.rl_campaigns_users_pk"
+                class="d-flex flex-column align-center text-center player-standee-container"
+              >
+                <!-- Player Name (ABOVE the card) -->
+                <span class="text-caption font-weight-bold text-white text-center text-truncate px-1 mb-1 w-100" style="font-size: 0.75rem !important; line-height: 1.2;">
+                  {{ player.user_name }}
+                </span>
+
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
                     v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
-                    class="rounded-lg mb-2"
-                    :image="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
-                    size="60"
-                  ></v-avatar>
-                  <v-avatar
-                    v-slot:default
-                    v-else
-                    class="rounded-lg mb-2 bg-grey-darken-3 d-flex justify-center align-center"
-                    size="60"
-                  >
-                    <v-icon size="small" color="grey">mdi-help</v-icon>
-                  </v-avatar>
-
-                  <!-- Player Info (Nick + Icon) -->
-                  <div class="d-flex align-center justify-center w-100" style="gap: 4px;">
-                    <v-avatar size="16">
-                      <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
-                    </v-avatar>
-                    <span class="text-caption font-weight-bold text-white text-truncate" style="max-width: 60px;">
-                      {{ player.user_name }}
-                    </span>
-                  </div>
+                    :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                  <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
                 </div>
-                <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
               </div>
-            </v-card-text>
+              <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
+            </div>
+          </div>
 
-            <v-card-text v-else>
-              <v-row no-gutters>
-                <v-col
-                  v-for="hero in heroAvatars(campaign.campaignId)"
-                  :key="hero.heroId"
-                  cols="auto"
-                  class="d-flex"
-                >
-                  <v-avatar
-                    class="my-1 rounded-0 mx-1"
-                    :image="hero.images.avatar"
-                    :size="calculateAvatarSize(campaign.campaignId)"
-                  ></v-avatar>
-                </v-col>
-              </v-row>
-            </v-card-text>
+          <!-- Legacy style: Hero Avatars -->
+          <div v-else class="mt-auto px-3 pt-1 pb-0">
+            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+              <div
+                v-for="hero in heroAvatars(campaign.campaignId)"
+                :key="hero.heroId"
+                class="d-flex flex-column align-center text-center player-standee-container"
+              >
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    :src="hero.images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                </div>
+              </div>
+            </div>
+          </div>
           </v-card>
         </v-col>
       </v-row>
@@ -673,6 +665,26 @@ const loadExtraData = async (campaignId: string) => {
             isFinished,
             players
         };
+
+        // Load heroes for each player in parallel using Promise.allSettled
+        await Promise.allSettled(
+          players.map(async (player: any) => {
+            if (player.playable_heroes_fk) {
+              try {
+                const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+                if (res.data?.hero_hash) {
+                  const jsonStr = atob(res.data.hero_hash);
+                  const heroObj = JSON.parse(jsonStr);
+                  heroObj.campaignId = campaignId;
+                  heroObj.playableHeroesPk = player.playable_heroes_fk;
+                  campaignStore.addOrUpdateHero(campaignId, heroObj);
+                }
+              } catch (err) {
+                console.warn(`[CampaignOverviewView] Failed to load hero ${player.playable_heroes_fk}:`, err);
+              }
+            }
+          })
+        );
     } catch (e) {
         console.error(`Error loading extra info for campaign ${campaignId}:`, e);
     }
@@ -698,6 +710,7 @@ const loadCampaigns = async () => {
         params: {
           users_fk: userStore.user.users_pk,
           show_season2: false,
+          _t: Date.now(),
         },
       });
 
@@ -716,6 +729,7 @@ const loadCampaigns = async () => {
         params: {
           users_fk: userStore.user.users_pk,
           show_season2: true,
+          _t: Date.now(),
         },
       });
 
@@ -827,6 +841,7 @@ const confirmJoinCampaign = async () => {
         users_fk: usersPk,
         campaigns_fk: campaignId,
         show_season2: isSeason2,
+        _t: Date.now(),
       },
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
@@ -1034,4 +1049,49 @@ onBeforeMount(async () => {
 }
 .z-10 { z-index: 10; }
 .z-20 { z-index: 20; }
+
+.hero-standee-card {
+  width: 105px;
+  aspect-ratio: 120 / 170;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.player-standee-container {
+  width: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.standees-list-container {
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .hero-standee-card {
+    width: 82px;
+  }
+  .player-standee-container {
+    width: 82px;
+  }
+  .standees-list-container {
+    gap: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .hero-standee-card {
+    width: 72px;
+  }
+  .player-standee-container {
+    width: 72px;
+  }
+  .standees-list-container {
+    gap: 6px;
+  }
+}
 </style>

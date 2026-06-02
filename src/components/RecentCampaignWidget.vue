@@ -16,6 +16,8 @@
           color="secundary"
           elevation="16"
           width="100%"
+          class="d-flex flex-column"
+          style="overflow: hidden;"
         >
           <!-- Banner Image -->
           <v-img
@@ -76,51 +78,83 @@
               <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2 text-truncate">
                 - Last Door: <span class="text-white font-weight-bold">{{ lastDoorName }}</span>
               </span>
+              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
+                {{ calculateCompletionPercentage(campaign) }}%
+              </span>
             </div>
           </v-card-title>
 
-          <!-- Underkeep style: Players list -->
-          <v-card-text v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)">
-            <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
-            <div class="d-flex flex-wrap gap-2">
-              <v-chip
-                v-for="player in players"
-                :key="player.rl_campaigns_users_pk"
-                class="bg-grey-darken-4 text-white font-weight-medium pl-1 pr-3"
-                size="small"
-              >
-                <v-avatar start class="mr-1">
-                  <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
-                </v-avatar>
-                {{ player.user_name }}
-              </v-chip>
-              <span v-if="players.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
-            </div>
-          </v-card-text>
+          <v-progress-linear
+            v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
+            :model-value="calculateCompletionPercentage(campaign)"
+            color="amber-accent-2"
+            height="3"
+            class="mb-2"
+          ></v-progress-linear>
 
-          <!-- Legacy style: Hero Avatars -->
-          <v-card-text v-else>
-            <v-row no-gutters>
-              <v-col
-                v-for="hero in heroAvatars"
-                :key="hero.heroId"
-                cols="auto"
-                class="d-flex"
-              >
-                <v-avatar
-                  class="my-1 rounded-0 mx-1"
-                  :image="hero.images.avatar"
-                  :size="calculateAvatarSize"
-                ></v-avatar>
-              </v-col>
-            </v-row>
-          </v-card-text>
+
 
           <!-- Last Update Date -->
-          <div class="px-4 pb-3 pt-0 d-flex justify-end">
+          <div class="px-4 pb-1 pt-2 d-flex justify-end">
             <span class="text-caption text-grey-lighten-1 last-update-text">
               LAST UPDATE: {{ formattedLastUpdate }}
             </span>
+          </div>
+
+          <!-- Underkeep style: Players list -->
+          <div v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="mt-auto px-3 pt-1 pb-0">
+            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+              <div
+                v-for="player in players"
+                :key="player.rl_campaigns_users_pk"
+                class="d-flex flex-column align-center text-center player-standee-container"
+              >
+                <!-- Player Name (ABOVE the card) -->
+                <span class="text-caption font-weight-bold text-white text-center text-truncate px-1 mb-1 w-100" style="font-size: 0.75rem !important; line-height: 1.2;">
+                  {{ player.user_name }}
+                </span>
+
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
+                    :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                  <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
+                </div>
+              </div>
+              <span v-if="players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
+
+
+            </div>
+          </div>
+
+          <!-- Legacy style: Hero Avatars -->
+          <div v-else class="mt-auto px-3 pt-1 pb-0">
+            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+              <div
+                v-for="hero in heroAvatars"
+                :key="hero.heroId"
+                class="d-flex flex-column align-center text-center player-standee-container"
+              >
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    :src="hero.images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                </div>
+              </div>
+
+              <!-- Last Update Date inline -->
+              <div class="ml-auto pb-1 align-self-end d-flex align-center text-grey-lighten-1 last-update-text" style="font-size: 0.7rem;">
+                <v-icon size="12" class="mr-1">mdi-clock-outline</v-icon>
+                <span>{{ formattedLastUpdate }}</span>
+              </div>
+            </div>
           </div>
         </v-card>
       </div>
@@ -133,6 +167,7 @@ import { ref, computed, watch, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 
@@ -145,6 +180,7 @@ const props = defineProps({
 
 const router = useRouter();
 const userStore = useUserStore();
+const campaignStore = CampaignStore();
 const { mdAndUp } = useDisplay();
 const axios: any = inject("axios");
 
@@ -191,6 +227,7 @@ const loadMostRecentCampaign = async () => {
         params: {
           users_fk: props.userId,
           show_season2: false,
+          _t: Date.now()
         },
       });
       legacyCampaigns = resLegacy.data?.campaigns || [];
@@ -204,6 +241,7 @@ const loadMostRecentCampaign = async () => {
         params: {
           users_fk: props.userId,
           show_season2: true,
+          _t: Date.now()
         },
       });
       s2Campaigns = resS2.data?.campaigns || [];
@@ -310,6 +348,26 @@ const loadMostRecentCampaign = async () => {
         }
 
         players.value = playersRes.data?.Users || [];
+
+        // Load heroes for each player in parallel using Promise.allSettled
+        await Promise.allSettled(
+          players.value.map(async (player: any) => {
+            if (player.playable_heroes_fk) {
+              try {
+                const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+                if (res.data?.hero_hash) {
+                  const jsonStr = atob(res.data.hero_hash);
+                  const heroObj = JSON.parse(jsonStr);
+                  heroObj.campaignId = campaign.value.campaignId;
+                  heroObj.playableHeroesPk = player.playable_heroes_fk;
+                  campaignStore.addOrUpdateHero(campaign.value.campaignId, heroObj);
+                }
+              } catch (err) {
+                console.warn(`[RecentCampaignWidget] Failed to load hero ${player.playable_heroes_fk}:`, err);
+              }
+            }
+          })
+        );
       } catch (e) {
         console.error("Error loading extra info for recent campaign:", e);
       }
@@ -319,6 +377,89 @@ const loadMostRecentCampaign = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const heroRepo = new HeroDataRepository();
+
+const getPlayerHero = (campaignId: string, playableHeroFk: number | null) => {
+  if (!playableHeroFk) return null;
+  const hero = campaignStore.findHeroByPlayableHeroesPk(campaignId, playableHeroFk);
+  if (!hero) return null;
+  return heroRepo.find(hero.heroId) || null;
+};
+
+const calculateCompletionPercentage = (campaign: any): number => {
+  const wing = (campaign.wing || "").toUpperCase();
+  const currentDoor = (campaign.door || "").toUpperCase();
+  
+  let list: string[] = [];
+  if (wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 3") || wing.includes("WING 03")) {
+    list = [
+      "FIRST SETUP",
+      "DUNGEON FOYER",
+      "QUEEN'S HALL",
+      "THE FORGE",
+      "ARTISAN'S GALLERY",
+      "PROVING GROUNDS",
+      "MAIN HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 4") || wing.includes("WING 04")) {
+    list = [
+      "FIRST SETUP",
+      "DRACONIC CHAPEL",
+      "CRYPTS",
+      "BOTH OPEN",
+      "LIBRARY",
+      "LABORATORY",
+      "DRAGON BOSS",
+      "END GAME"
+    ];
+  }
+
+  if (list.length === 0) return 0;
+  
+  let idx = list.indexOf(currentDoor);
+  if (idx === -1) {
+    idx = list.findIndex(d => currentDoor.includes(d) || d.includes(currentDoor));
+  }
+  
+  if (idx === -1) {
+    if (currentDoor === "FIRST SETUP") idx = 0;
+    else if (currentDoor === "END GAME") idx = list.length - 1;
+    else idx = 0;
+  }
+  
+  const pct = Math.round((idx / (list.length - 1)) * 100);
+  return Math.min(100, Math.max(0, pct));
 };
 
 // Calculate hero avatars for legacy campaigns
@@ -360,9 +501,51 @@ watch(() => props.userId, loadMostRecentCampaign);
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
+.hero-standee-card {
+  width: 105px;
+  aspect-ratio: 120 / 170;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.player-standee-container {
+  width: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.standees-list-container {
+  gap: 12px;
+}
 @media (max-width: 600px) {
   .last-update-text {
     font-size: 0.65rem !important;
+  }
+  .hero-standee-card {
+    width: 82px;
+  }
+  .player-standee-container {
+    width: 82px;
+  }
+  .standees-list-container {
+    gap: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .hero-standee-card {
+    width: 72px;
+  }
+  .player-standee-container {
+    width: 72px;
+  }
+  .standees-list-container {
+    gap: 6px;
   }
 }
 </style>
