@@ -1143,12 +1143,13 @@ const handleNewCampaign = () => {
 const loadCampaign = () => {
   loading.value = true;
   const usersPk = userStore.user.users_pk;
+  const showSeason2 = selectedMyEvent.value?.seasons_fk === 3;
 
   axios
     .get("/rl_campaigns_users/search", {
       params: {
         users_fk: usersPk,
-        box: BOX_ID,
+        show_season2: showSeason2,
       },
     })
     .then(({ data }) => {
@@ -1182,10 +1183,11 @@ const confirmLoadCampaign = () => {
       detail: "Campaign loaded!",
     });
 
+    const sku = selectedMyEvent.value?.seasons_fk === 3 ? 39 : 38;
     router.push({
       path: `/campaign-tracker/campaign/${selectedLoadCampaign.value}`,
       query: {
-        sku: String(BOX_ID),
+        sku: String(sku),
         openInstructions: "load",
       },
     });
@@ -1465,6 +1467,7 @@ const confirmJoinCampaign = () => {
   loading.value = true;
   const usersPk = userStore.user.users_pk;
   const campaignId = parsedCampaignFk.value;
+  const sku = selectedMyEvent.value?.seasons_fk === 3 ? 39 : 38;
 
   axios
     .post(
@@ -1473,7 +1476,7 @@ const confirmJoinCampaign = () => {
         users_fk: usersPk,
         campaigns_fk: campaignId,
         party_roles_fk: 2,
-        skus_fk: BOX_ID,
+        skus_fk: sku,
       },
       {
         headers: {
@@ -1507,7 +1510,7 @@ const confirmJoinCampaign = () => {
 
         router.push({
           path: `/campaign-tracker/campaign/${campaignId}`,
-          query: { sku: String(BOX_ID) },
+          query: { sku: String(sku) },
         });
 
         toast.add({
