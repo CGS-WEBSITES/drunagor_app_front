@@ -130,6 +130,63 @@
                 </div>
               </template>
             </v-tooltip>
+
+            <v-tooltip text="Previous Door" location="right" v-if="isWing1Or2">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side red-border-tab"
+                  @click.stop="handlePreviousAction"
+                >
+                  <v-icon
+                    icon="mdi-arrow-left-bold"
+                    size="28"
+                  ></v-icon>
+                  <span
+                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
+                    >PREV DOOR</span
+                  >
+                </div>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip text="Runes Tracker" location="right" v-if="isWing1Or2">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side"
+                  @click.stop="runesDialogVisible = true"
+                >
+                  <v-icon
+                    icon="mdi-counter"
+                    size="28"
+                  ></v-icon>
+                  <span
+                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
+                    >RUNES</span
+                  >
+                </div>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip text="Rune Cards" location="right" v-if="isWing1Or2">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side"
+                  @click.stop="runeCardsDialogVisible = true"
+                >
+                  <v-icon
+                    icon="mdi-cards-outline"
+                    size="28"
+                  ></v-icon>
+                  <span
+                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
+                    >RUNE CARDS</span
+                  >
+                </div>
+              </template>
+            </v-tooltip>
           </div>
         </div>
       </div>
@@ -649,6 +706,29 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="runesDialogVisible" max-width="400">
+      <v-card color="surface" class="pa-4">
+        <v-card-title class="d-flex justify-space-between align-center px-0 pb-3">
+          <span class="text-h6">Runes Tracker</span>
+          <v-btn icon="mdi-close" variant="text" size="small" @click="runesDialogVisible = false"></v-btn>
+        </v-card-title>
+        <v-card-text class="px-0">
+          <CampaignRunes :campaign-id="campaignId" />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="runeCardsDialogVisible" max-width="500">
+      <v-card color="surface" class="pa-2">
+        <v-card-title class="d-flex justify-end px-0">
+          <v-btn icon="mdi-close" variant="text" size="small" @click="runeCardsDialogVisible = false"></v-btn>
+        </v-card-title>
+        <v-card-text class="px-0 pt-0">
+          <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="tharmagarDialogVisible" fullscreen transition="dialog-bottom-transition">
       <v-card color="black" class="position-relative">
         <v-btn
@@ -707,6 +787,8 @@ import KeywordView from "@/components/KeywordView.vue";
 import NextDoorQRScanner from "@/components/NextDoorQRScanner.vue";
 import InteractViewNew from "@/components/InteractViewNew.vue";
 
+import CampaignRunes from "@/components/CampaignRunes.vue";
+import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignRemove from "@/components/CampaignRemove.vue";
@@ -800,6 +882,8 @@ const finishCampaignDialog = ref({ visible: false });
 const newBadgeDialog = ref({ visible: false, reward: null as any });
 const dashboardExitDialog = ref({ visible: false }); 
 const tharmagarDialogVisible = ref(false);
+const runesDialogVisible = ref(false);
+const runeCardsDialogVisible = ref(false);
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
@@ -858,11 +942,19 @@ const currentLocationDisplay = computed(
     `${activeCampaignData.value.wing || "Unknown"} - ${activeCampaignData.value.door || "Setup"}`,
 );
 
+const isWing1Or2 = computed(() => {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
+});
+
 const isWing3Start = computed(() => {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     if (wing.includes("WING 3")) {
         return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
+    }
+    if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+        return door === "FIRST SETUP";
     }
     return false;
 });
@@ -877,7 +969,16 @@ const currentDoorData = computed(() => {
     return false;
   });
   
-  if (!sectionData) return null;
+  if (!sectionData) {
+    if (isWing1Or2.value) {
+      return {
+        title: currentDoor,
+        body: `You have arrived at ${currentDoor}. Use the Campaign Book to read the narrative and instructions.`,
+        instruction: `All rules, narrative texts, and setups for ${wing} are accessible by clicking the <strong>BOOKS</strong> button on the sidebar.`,
+      };
+    }
+    return null;
+  }
   
   let doorData = null;
   if (forcedDoorInstruction.value) {
@@ -982,7 +1083,16 @@ const currentBackgroundImage = computed(() => {
   const wing = (activeCampaignData.value.wing || '').toUpperCase();
   const door = (activeCampaignData.value.door || '').toUpperCase();
   if (!wing) return '';
-  let wingFolder = wing.includes('WING 3') ? 'wing3' : (wing.includes('WING 4') ? 'wing4' : '');
+  let wingFolder = '';
+  if (wing.includes('WING 3')) {
+    wingFolder = 'wing3';
+  } else if (wing.includes('WING 4')) {
+    wingFolder = 'wing4';
+  } else if (wing.includes('WING 1') || wing.includes('WING 01') || wing.includes('TUTORIAL')) {
+    wingFolder = 'wing1';
+  } else if (wing.includes('WING 2') || wing.includes('WING 02')) {
+    wingFolder = 'wing2';
+  }
   if (!wingFolder) return '';
   let doorFile = 'setup';
   if (wingFolder === 'wing4') {
@@ -999,6 +1109,42 @@ const currentBackgroundImage = computed(() => {
       }
       else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
       else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
+  } else if (wingFolder === 'wing1') {
+    const doorsList = [
+      "FIRST SETUP",
+      "FIRST DOOR",
+      "SECOND DOOR",
+      "THIRD DOOR",
+      "FOURTH DOOR",
+    ];
+    const idx = doorsList.indexOf(door);
+    const doorMap = [
+      "setup",
+      "first_door",
+      "second_door",
+      "third_door",
+      "fourth_door",
+    ];
+    doorFile = doorMap[idx] || "setup";
+  } else if (wingFolder === 'wing2') {
+    const doorsList = [
+      "FIRST SETUP",
+      "FIRST DOOR",
+      "SECOND DOOR",
+      "THIRD DOOR",
+      "FOURTH DOOR",
+      "FIFTH DOOR",
+    ];
+    const idx = doorsList.indexOf(door);
+    const doorMap = [
+      "setup",
+      "first_door",
+      "second_door",
+      "third_door",
+      "fourth_door",
+      "fifth_door",
+    ];
+    doorFile = doorMap[idx] || "setup";
   } else {
     const doorsList = [
       "FIRST SETUP",
@@ -1037,6 +1183,8 @@ const isBossBattle = computed(() => {
   const door = (activeCampaignData.value.door || "").toUpperCase();
   if (wing.includes("WING 3") && door === "MAIN HALL") return true;
   if (wing.includes("WING 4") && door === "DRAGON BOSS") return true;
+  if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && door === "FOURTH DOOR") return true;
+  if ((wing.includes("WING 2") || wing.includes("WING 02")) && door === "FIFTH DOOR") return true;
   return false;
 });
 
@@ -1487,6 +1635,11 @@ function handleNextAction() {
       return;
   }
 
+  if (isWing1Or2.value) {
+    handleManualAdvance();
+    return;
+  }
+
   openNextDoorScanner();
 }
 
@@ -1513,7 +1666,7 @@ async function confirmFinishCampaign() {
   try {
     const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
     let rewardPk = null;
-    if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) rewardPk = 2;
+    if (wingStr.includes("WING 1") || wingStr.includes("TUTORIAL")) rewardPk = 2;
     else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) rewardPk = 3;
     else if (wingStr.includes("WING 3")) rewardPk = 5;
     else if (wingStr.includes("WING 4")) rewardPk = 6;
@@ -1779,6 +1932,31 @@ function handleManualAdvance() {
       saveWing4Path("CRYPTS");
       commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
     } else if (currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY");
+  } else if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+    const list = [
+      "FIRST SETUP",
+      "FIRST DOOR",
+      "SECOND DOOR",
+      "THIRD DOOR",
+      "FOURTH DOOR",
+    ];
+    const idx = list.indexOf(currentDoor);
+    if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
+    else
+      snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    const list = [
+      "FIRST SETUP",
+      "FIRST DOOR",
+      "SECOND DOOR",
+      "THIRD DOOR",
+      "FOURTH DOOR",
+      "FIFTH DOOR",
+    ];
+    const idx = list.indexOf(currentDoor);
+    if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
+    else
+      snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
   } else {
     const list = [
       "FIRST SETUP",
@@ -1793,6 +1971,40 @@ function handleManualAdvance() {
     if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
     else
       snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
+  }
+}
+
+function handlePreviousAction() {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
+  let list: string[] = [];
+
+  if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "FIRST DOOR",
+      "SECOND DOOR",
+      "THIRD DOOR",
+      "FOURTH DOOR",
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "FIRST DOOR",
+      "SECOND DOOR",
+      "THIRD DOOR",
+      "FOURTH DOOR",
+      "FIFTH DOOR",
+    ];
+  }
+
+  if (list.length > 0) {
+    const idx = list.indexOf(currentDoor);
+    if (idx > 0) {
+      commitNextDoor(list[idx - 1]);
+    } else {
+      snackbar.value = { visible: true, text: "Already at the First Setup", color: "warning" };
+    }
   }
 }
 
@@ -1987,6 +2199,14 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 
 .bookmark-tab.blue-border-tab:hover {
   border-left-color: #1565c0;
+}
+
+.bookmark-tab.red-border-tab {
+  border-left-color: #d32f2f;
+}
+
+.bookmark-tab.red-border-tab:hover {
+  border-left-color: #f44336;
 }
 
 .text-label {
