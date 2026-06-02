@@ -2,7 +2,7 @@
   <v-app :theme="theme">
     <Toast />
 
-    <v-row no-gutters v-if="display.mdAndUp && route.name !== 'Campaign'">
+    <v-row no-gutters v-if="display.mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode)">
       <v-app-bar app min-height="50" color="secundary">
         <div
           @click="$router.push({ name: 'Dashboard' })"
@@ -260,6 +260,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useTutorialStore } from "@/store/TutorialStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import themeIcon from "@/assets/theme.png";
 import VectorIcon from "@/assets/Vector.png";
 
@@ -270,12 +271,24 @@ const openLink = (url) => {
 
 const userStore = useUserStore();
 const tutorialStore = useTutorialStore();
+const campaignStore = CampaignStore();
 const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
 
 const router = useRouter();
 const route = useRoute();
+
+const campaign = computed(() => {
+  if (route.name === 'Campaign' && route.params.id) {
+    return campaignStore.findOptional(String(route.params.id));
+  }
+  return null;
+});
+
+const isImmersiveMode = computed(() => {
+  return campaign.value && campaign.value.campaign === 'underkeep2';
+});
 
 const showMobileAppBar = computed(() => {
   return (
@@ -285,7 +298,7 @@ const showMobileAppBar = computed(() => {
     route.name !== 'Gama' &&
     route.name !== 'Community' &&
     route.name !== 'Lobby' &&
-    route.name !== 'Campaign'
+    (route.name !== 'Campaign' || !isImmersiveMode.value)
   );
 });
 
