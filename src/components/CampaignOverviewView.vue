@@ -387,10 +387,10 @@
                   size="x-large"
                   block
                   class="font-weight-black text-grey-darken-4 mb-3"
-                  prepend-icon="mdi-folder-open"
-                  @click="triggerLoadCampaign"
+                  prepend-icon="mdi-account-plus"
+                  @click="handleJoinCampaign"
                 >
-                  Load Campaign
+                  Join Campaign
                 </v-btn>
 
                 <v-btn 
@@ -460,14 +460,6 @@ const triggerNewCampaign = () => {
 const triggerImportCampaign = () => {
   showPlayDialog.value = false;
   campaignImportRef.value?.openModal();
-};
-
-const triggerLoadCampaign = () => {
-  showPlayDialog.value = false;
-  const el = document.getElementById("campaigns");
-  if (el) {
-    el.scrollIntoView({ behavior: "smooth" });
-  }
 };
 
 const handleJoinCampaign = () => {
