@@ -279,12 +279,6 @@ const saveDoorOpening = async (doorName: string): Promise<boolean> => {
     return false;
   }
 
-  // FIRST SETUP and END GAME have null code - local navigation only
-  if (!doorObj.code) {
-    console.log(`[SelectDoor] ${doorName} - local navigation only (no code)`);
-    return true;
-  }
-
   if (isDoorOpened(doorName)) {
     return true;
   }

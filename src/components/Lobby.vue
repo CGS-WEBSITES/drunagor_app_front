@@ -564,7 +564,7 @@ const loadExtraData = async (campaignId: string) => {
         let isFinished = false;
 
         if (doors.length > 0) {
-            doors.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            doors.sort((a: any, b: any) => b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk);
             const latest = doors[0];
             lastDoorName = latest.door_name;
             
@@ -883,8 +883,8 @@ const handleNewCampaign = async (wantsTutorial: boolean) => {
         tempCampaign.name = newCampaignName.value || "New Adventure";
         let scenarioName = eventDetails.value?.scenario || '';
         if (currentEventSeasonFk.value === 2) {
-            const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial') || scenarioName.toLowerCase().includes('wing 01');
-            const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced') || scenarioName.toLowerCase().includes('wing 02');
+            const isTutorial = scenarioName.toLowerCase().includes('tutorial');
+            const isWing2Adv = scenarioName.toLowerCase().includes('wing 2') || scenarioName.toLowerCase().includes('wing 02');
             if (isTutorial) {
                 tempCampaign.wing = 'Wing 1 Tutorial';
             } else if (isWing2Adv) {
@@ -973,7 +973,7 @@ const fetchAndShowLoadDialog = async () => {
          
          let expectedWing = '';
          if (isSeason1) {
-             const isTutorial = scenarioName.toLowerCase().includes('tutorial') || scenarioName.toLowerCase().includes('wing 1 tutorial') || scenarioName.toLowerCase().includes('wing 01');
+             const isTutorial = scenarioName.toLowerCase().includes('tutorial');
              const isWing2Adv = scenarioName.toLowerCase().includes('wing 2 advanced') || scenarioName.toLowerCase().includes('wing 2 - advanced') || scenarioName.toLowerCase().includes('wing 02');
              if (isTutorial) {
                  expectedWing = 'Wing 1 Tutorial';

@@ -99,7 +99,7 @@
                   @click.stop="runesDialogVisible = true"
                 >
                   <v-icon
-                    icon="mdi-shield-half-full"
+                    icon="mdi-cards-variant"
                     size="28"
                   ></v-icon>
                   <span
@@ -703,11 +703,11 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="runesDialogVisible" max-width="600">
+    <v-dialog v-model="runesDialogVisible" max-width="500">
       <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
         <v-toolbar color="black" density="compact" class="px-2">
           <v-toolbar-title class="text-white cinzel-font font-weight-bold">
-            <v-icon start color="amber-darken-2" class="mr-2">mdi-shield-half-full</v-icon>
+            <v-icon start color="amber-darken-2" class="mr-2">mdi-cards-variant</v-icon>
             RUNE MECHANICS
           </v-toolbar-title>
           <v-spacer></v-spacer>
@@ -725,7 +725,7 @@
           </v-tab>
         </v-tabs>
         
-        <v-card-text class="pa-4 bg-grey-darken-4" style="max-height: 80vh; overflow-y: auto;">
+        <v-card-text class="pa-2 bg-grey-darken-4" style="max-height: 80vh; overflow-y: auto;">
           <v-window v-model="activeRuneTab">
             <v-window-item value="tracker">
               <CampaignRunes :campaign-id="campaignId" />
@@ -1120,14 +1120,13 @@ const currentBackgroundImage = computed(() => {
       else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
       else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
   } else if (wingFolder === 'wing1') {
-    const doorsList = [
-      "FIRST SETUP",
-      "DOOR 1 - THE BARRICADED PATH",
-      "DOOR 2 - THE KEEP'S COURTYARD",
-      "DOOR 3 - THE ENTRY HALL",
-      "DOOR 4 - THE GREAT HALL",
-    ];
-    const idx = doorsList.indexOf(door);
+    let idx = 0;
+    if (door.includes("BARRICADED")) idx = 1;
+    else if (door.includes("COURTYARD")) idx = 2;
+    else if (door.includes("ENTRY HALL")) idx = 3;
+    else if (door.includes("GREAT HALL")) idx = 4;
+    else if (door.includes("END GAME")) idx = 4;
+
     const doorMap = [
       "setup",
       "first_door",
@@ -1137,15 +1136,14 @@ const currentBackgroundImage = computed(() => {
     ];
     doorFile = doorMap[idx] || "setup";
   } else if (wingFolder === 'wing2') {
-    const doorsList = [
-      "FIRST SETUP",
-      "DOOR 1 - THE GREAT CISTERN",
-      "DOOR 2 - THE DUNGEONS OF OBLIVION",
-      "DOOR 3 - THE ALCHEMY LAB",
-      "DOOR 4 - THE BURIED ARMORY",
-      "DOOR 5 - THERE AND BACK AGAIN",
-    ];
-    const idx = doorsList.indexOf(door);
+    let idx = 0;
+    if (door.includes("GREAT CISTERN")) idx = 1;
+    else if (door.includes("DUNGEONS")) idx = 2;
+    else if (door.includes("ALCHEMY")) idx = 3;
+    else if (door.includes("BURIED ARMORY")) idx = 4;
+    else if (door.includes("THERE AND BACK AGAIN")) idx = 5;
+    else if (door.includes("END GAME")) idx = 5;
+
     const doorMap = [
       "setup",
       "first_door",
@@ -1193,8 +1191,7 @@ const isBossBattle = computed(() => {
   const door = (activeCampaignData.value.door || "").toUpperCase();
   if (wing.includes("WING 3") && door === "MAIN HALL") return true;
   if (wing.includes("WING 4") && door === "DRAGON BOSS") return true;
-  if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && door === "DOOR 4 - THE GREAT HALL") return true;
-  if ((wing.includes("WING 2") || wing.includes("WING 02")) && door === "DOOR 5 - THERE AND BACK AGAIN") return true;
+  if (door === "END GAME") return true;
   return false;
 });
 
@@ -1220,11 +1217,11 @@ const showInteractionsButton = computed(() => {
       "LIBRARY",
       "LABORATORY",
     ].includes(door);
-  if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
-    return door === "DOOR 3 - THE ENTRY HALL";
+  if (wing.includes("WING 1") || wing.includes("TUTORIAL")) {
+    return door.includes("THE ENTRY HALL");
   }
-  if (wing.includes("WING 2") || wing.includes("WING 02")) {
-    return door === "DOOR 1 - THE GREAT CISTERN" || door === "DOOR 4 - THE BURIED ARMORY";
+  if (wing.includes("WING 2")) {
+    return door.includes("THE GREAT CISTERN") || door.includes("THE BURIED ARMORY");
   }
   return false;
 });
@@ -1394,7 +1391,7 @@ const fetchOpenedDoors = async () => {
 
     if (doors.length > 0) {
       const sortedDoors = doors.sort((a: any, b: any) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
+        b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk
       );
       const latestDoor = sortedDoors[0];
       const wing = (activeCampaignData.value.wing || "").toUpperCase();
@@ -1507,6 +1504,12 @@ const syncEventScenario = async () => {
       wingToSet = "Wing 4";
     } else if (scenario.includes("WING 03") || scenario.includes("WING 3")) {
       wingToSet = "Wing 3";
+    } else if (scenario.includes("TUTORIAL")) {
+      wingToSet = "Wing 1 Tutorial";
+    } else if (scenario.includes("WING 02") || scenario.includes("WING 2")) {
+      wingToSet = "Wing 2 Advanced";
+    } else if (scenario.includes("WING 01") || scenario.includes("WING 1")) {
+      wingToSet = "Wing 1 Advanced";
     }
 
     if (wingToSet) {
@@ -1946,13 +1949,27 @@ function handleManualAdvance() {
       saveWing4Path("CRYPTS");
       commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
     } else if (currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY");
-  } else if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+  } else if (wing.includes("TUTORIAL")) {
     const list = [
       "FIRST SETUP",
-      "DOOR 1 - THE BARRICADED PATH",
-      "DOOR 2 - THE KEEP'S COURTYARD",
-      "DOOR 3 - THE ENTRY HALL",
-      "DOOR 4 - THE GREAT HALL",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME",
+    ];
+    const idx = list.indexOf(currentDoor);
+    if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
+    else
+      snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    const list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME",
     ];
     const idx = list.indexOf(currentDoor);
     if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
@@ -1961,11 +1978,12 @@ function handleManualAdvance() {
   } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
     const list = [
       "FIRST SETUP",
-      "DOOR 1 - THE GREAT CISTERN",
-      "DOOR 2 - THE DUNGEONS OF OBLIVION",
-      "DOOR 3 - THE ALCHEMY LAB",
-      "DOOR 4 - THE BURIED ARMORY",
-      "DOOR 5 - THERE AND BACK AGAIN",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME",
     ];
     const idx = list.indexOf(currentDoor);
     if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
@@ -1993,22 +2011,33 @@ function handlePreviousAction() {
   const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
   let list: string[] = [];
 
-  if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+  if (wing.includes("TUTORIAL")) {
     list = [
       "FIRST SETUP",
-      "DOOR 1 - THE BARRICADED PATH",
-      "DOOR 2 - THE KEEP'S COURTYARD",
-      "DOOR 3 - THE ENTRY HALL",
-      "DOOR 4 - THE GREAT HALL",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME",
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME",
     ];
   } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
     list = [
       "FIRST SETUP",
-      "DOOR 1 - THE GREAT CISTERN",
-      "DOOR 2 - THE DUNGEONS OF OBLIVION",
-      "DOOR 3 - THE ALCHEMY LAB",
-      "DOOR 4 - THE BURIED ARMORY",
-      "DOOR 5 - THERE AND BACK AGAIN",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME",
     ];
   }
 

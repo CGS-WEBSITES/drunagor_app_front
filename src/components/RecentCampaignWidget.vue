@@ -291,7 +291,7 @@ const loadMostRecentCampaign = async () => {
 
         const doors = doorsRes.data?.campaign_doors || [];
         if (doors.length > 0) {
-          doors.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          doors.sort((a: any, b: any) => b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk);
           const latest = doors[0];
           lastDoorName.value = latest.door_name;
 

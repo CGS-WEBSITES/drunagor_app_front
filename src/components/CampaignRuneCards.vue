@@ -1,25 +1,27 @@
 <template>
-  <v-card class="pa-2" color="primary">
-    <v-card-title class="text-h6 pb-">
-      Select Rune, Game Mechanics and Game State Cards
-    </v-card-title>
+  <v-card class="pa-0" variant="flat" color="transparent">
+    <div class="text-caption px-0 pb-1 text-grey-lighten-1 text-center font-weight-medium">
+      Rune, Game Mechanics & State Cards
+    </div>
     
-    <v-card-text>
+    <div class="pa-0">
       <div v-if="!loading">
-        <v-row dense justify="center">
-          <v-col v-for="slot in 3" :key="slot" cols="4">
+        <v-row dense justify="center" class="ma-0">
+          <v-col v-for="slot in 3" :key="slot" cols="4" class="pa-1">
             <div class="position-relative" v-if="selectedRuneCardIds[slot - 1]">
-              <v-responsive aspect-ratio="0.75">
+              <v-responsive aspect-ratio="0.66">
                 <v-card
                   @click="isAdmin ? viewOrChangeCard(slot - 1) : null"
-                  class="mx-auto fill-height"
+                  class="mx-auto fill-height rounded-lg border-thin"
                   hover
+                  variant="flat"
+                  color="transparent"
                 >
                   <v-img 
                     :src="getCardImageById(selectedRuneCardIds[slot - 1])" 
                     cover 
                     alt="Selected Rune Card"
-                    class="fill-height"
+                    class="fill-height rounded-lg"
                   ></v-img>
                 </v-card>
               </v-responsive>
@@ -31,31 +33,32 @@
                 class="remove-card-btn"
                 elevation="4"
                 @click.stop="removeCardByIndex(slot - 1)"
+                style="position: absolute; bottom: 4px; right: 4px; z-index: 2; width: 24px; height: 24px;"
               >
-                <v-icon>mdi-close</v-icon>
+                <v-icon size="14">mdi-close</v-icon>
               </v-btn>
             </div>
             
-            <v-responsive v-else aspect-ratio="0.75">
+            <v-responsive v-else aspect-ratio="0.66">
                <v-card
                 @click="isAdmin ? openAddCardModal(slot - 1) : null"
-                style="border: 2px dashed grey"
-                class="d-flex justify-center align-center fill-height"
+                style="border: 2px dashed rgba(255,255,255,0.3); background-color: rgba(255,255,255,0.05);"
+                class="d-flex justify-center align-center fill-height rounded-lg"
                 :hover="isSlotEnabled(slot - 1)"
                 :disabled="!isSlotEnabled(slot - 1)"
               >
-                <v-icon v-if="isSlotEnabled(slot - 1)" size="x-large" color="grey">mdi-plus</v-icon>
-                <v-icon v-else size="x-large" color="grey-darken-2">mdi-lock-outline</v-icon>
+                <v-icon v-if="isSlotEnabled(slot - 1)" size="large" color="grey-lighten-1">mdi-plus</v-icon>
+                <v-icon v-else size="large" color="grey-darken-2">mdi-lock-outline</v-icon>
               </v-card>
             </v-responsive>
           </v-col>
         </v-row>
       </div>
 
-      <div v-else>
-         <v-progress-linear indeterminate color="white"></v-progress-linear>
+      <div v-else class="text-center py-4">
+         <v-progress-circular indeterminate color="white" size="24"></v-progress-circular>
       </div>
-    </v-card-text>
+    </div>
   </v-card>
 
   <v-dialog v-model="isModalVisible" max-width="90vw" scrollable>
