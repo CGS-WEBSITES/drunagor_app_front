@@ -34,6 +34,8 @@
 
 <script setup>
 import { computed } from "vue";
+import setupS101 from "@/assets/setup/setup_s1_01.png";
+import setupS102 from "@/assets/setup/setup_s1_02.png";
 
 const props = defineProps({
   scenario: { type: String, required: true },
@@ -42,6 +44,26 @@ const props = defineProps({
 });
 
 const SCENARIO_SETUP_MAP = {
+  "Wing 1 Advanced": {
+    image: setupS101,
+    name: "Wing 1 Advanced",
+    bookId: "book01.05",
+  },
+  "Wing 01 Advanced": {
+    image: setupS101,
+    name: "Wing 1 Advanced",
+    bookId: "book01.05",
+  },
+  "Wing 2 Advanced": {
+    image: setupS102,
+    name: "Wing 2 Advanced",
+    bookId: "book01.09",
+  },
+  "Wing 02 Advanced": {
+    image: setupS102,
+    name: "Wing 2 Advanced",
+    bookId: "book01.09",
+  },
   "Wing 04 Advanced": {
     image: "https://assets.drunagor.app/book/books2/002.png",
     name: "The Lost Vault",

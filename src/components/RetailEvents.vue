@@ -932,7 +932,7 @@ const filteredScenarios = computed(() => {
   const currentSeason = newEvent.value.season;
   if (currentSeason === 2) {
     return sceneries.value
-      .filter((scenario) => [2, 3, 4].includes(scenario.sceneries_pk))
+      .filter((scenario) => [3, 4].includes(scenario.sceneries_pk))
       .sort((a, b) => a.sceneries_pk - b.sceneries_pk)
       .map(decorateScenario);
   }
@@ -951,7 +951,7 @@ const editableScenarios = computed(() => {
 
   if (currentSeason === 2) {
     return sceneries.value
-      .filter((scenario) => [2, 3, 4].includes(scenario.sceneries_pk))
+      .filter((scenario) => [3, 4].includes(scenario.sceneries_pk))
       .map(decorateScenario);
   }
 
