@@ -759,7 +759,10 @@ const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isImmersiveMode = computed(() => {
-  return campaign.value && campaign.value.campaign === "underkeep2";
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === "underkeep2") return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
 });
 
 const playerListDialogVisible = ref(false);

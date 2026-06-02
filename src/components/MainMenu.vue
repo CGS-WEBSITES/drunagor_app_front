@@ -108,7 +108,10 @@ const campaign = computed(() => {
 });
 
 const isImmersiveMode = computed(() => {
-  return campaign.value && campaign.value.campaign === 'underkeep2';
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === 'underkeep2') return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
 });
 
 // Nova lógica: Verifica se é a página de heróis pelo nome ou pelo path
