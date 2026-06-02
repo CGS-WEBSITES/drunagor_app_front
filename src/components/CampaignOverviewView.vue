@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="680">
+  <v-container max-width="680" class="pt-0">
     <div v-if="loadingErrors.length > 0" class="mb-4">
       <BaseAlert
         v-for="(error, index) in loadingErrors"
@@ -21,19 +21,21 @@
       <CampaignNew ref="campaignNewRef" />
       <CampaignImport ref="campaignImportRef" />
     </div>
+    <HUB v-model="showHub" :my-events="myEvents" :user="userStore.user" />
 
     <!-- Main Play Action Button (identical to dashboard styling) -->
-    <div class="d-flex justify-center my-4">
+    <div class="d-flex justify-center mt-0 mb-4 pt-0">
       <v-btn
         color="playbutton"
         variant="flat"
         @click="openPlayOptions"
-        :size="$vuetify.display.xs ? 'large' : 'x-large'"
+        size="x-large"
         rounded="lg"
-        class="font-weight-bold px-10 py-3 text-subtitle-1 play-campaigns-btn"
+        class="font-weight-black play-campaigns-btn w-100 text-uppercase"
+        style="height: 58px; font-size: 1.35rem !important;"
+        prepend-icon="mdi-sword-cross"
       >
-        <v-icon left class="mr-2">mdi-sword-cross</v-icon>
-        Play
+        PLAY
       </v-btn>
     </div>
 
@@ -282,21 +284,21 @@
                 ></v-img>
                 
                 <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S1</h3>
-                <p class="text-body-2 text-grey-lighten-1 mb-4 px-2">
-                  Join an active party to explore the Underkeep adventures.
+                <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
+                  Scan the Lobby QR Code to join your party and dive into the Underkeep adventures.
                 </p>
                 
                 <v-btn 
                   color="green-accent-3" 
                   variant="flat" 
                   rounded="pill" 
-                  size="large"
+                  size="x-large"
                   block
                   class="font-weight-black text-grey-darken-4"
-                  @click="handleJoinCampaign"
+                  prepend-icon="mdi-qrcode-scan"
+                  @click="playDrunagorNights"
                 >
-                  <v-icon left class="mr-2">mdi-account-plus</v-icon>
-                  Join Campaign
+                  Scan Lobby QR Code
                 </v-btn>
               </div>
 
@@ -304,32 +306,32 @@
 
               <!-- Legacy Campaigns Selector -->
               <div class="pa-5 text-center">
-                <div class="legacy-cluster mb-4 mt-2">
+                <div class="legacy-cluster mb-6 mt-2">
                   <div class="d-flex justify-center align-center ga-6 position-relative z-10">
-                    <v-img :src="CoreLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
-                    <v-img :src="AwakeningsLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
+                    <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                    <v-img :src="AwakeningsLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
                   </div>
-                  <div class="d-flex justify-center align-center mt-n4 position-relative z-20">
-                    <v-img :src="ApocalypseLogo" height="60" max-width="100" contain class="legacy-logo apoc-logo"></v-img>
+                  <div class="d-flex justify-center align-center mt-n6 position-relative z-20">
+                    <v-img :src="ApocalypseLogo" height="80" max-width="130" contain class="legacy-logo apoc-logo"></v-img>
                   </div>
                 </div>
                 
-                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">Legacy Campaigns</h3>
-                <p class="text-body-2 text-grey-lighten-1 mb-4 px-2">
-                  Classic campaign tracker for Corebox, Awakenings, and Apocalypse.
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">Legacy Campaign Tracker</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
+                  Manage your classic campaigns from Age of Darkness.
                 </p>
                 
                 <v-btn 
                   color="amber-accent-2" 
                   variant="flat" 
                   rounded="pill" 
-                  size="large"
+                  size="x-large"
                   block
-                  class="font-weight-black text-grey-darken-4"
+                  class="font-weight-black text-grey-darken-4 text-uppercase"
+                  prepend-icon="mdi-book-open-page-variant"
                   @click="activePlayTab = 1"
                 >
-                  <v-icon left class="mr-2">mdi-book-open-page-variant</v-icon>
-                  Legacy Campaigns
+                  Play Legacy Campaigns
                 </v-btn>
               </div>
             </v-window-item>
@@ -350,13 +352,13 @@
                   </v-btn>
                 </div>
 
-                <div class="legacy-cluster mb-4">
+                <div class="legacy-cluster mb-6 mt-2">
                   <div class="d-flex justify-center align-center ga-6 position-relative z-10">
-                    <v-img :src="CoreLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
-                    <v-img :src="AwakeningsLogo" height="50" max-width="80" contain class="legacy-logo"></v-img>
+                    <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                    <v-img :src="AwakeningsLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
                   </div>
-                  <div class="d-flex justify-center align-center mt-n4 position-relative z-20">
-                    <v-img :src="ApocalypseLogo" height="60" max-width="100" contain class="legacy-logo apoc-logo"></v-img>
+                  <div class="d-flex justify-center align-center mt-n6 position-relative z-20">
+                    <v-img :src="ApocalypseLogo" height="80" max-width="130" contain class="legacy-logo apoc-logo"></v-img>
                   </div>
                 </div>
 
@@ -369,12 +371,12 @@
                   color="amber-accent-2" 
                   variant="flat" 
                   rounded="pill" 
-                  size="large"
+                  size="x-large"
                   block
                   class="font-weight-black text-grey-darken-4 mb-3"
+                  prepend-icon="mdi-plus"
                   @click="triggerNewCampaign"
                 >
-                  <v-icon left class="mr-2">mdi-plus</v-icon>
                   New Campaign
                 </v-btn>
 
@@ -382,12 +384,12 @@
                   color="amber-accent-2" 
                   variant="flat" 
                   rounded="pill" 
-                  size="large"
+                  size="x-large"
                   block
                   class="font-weight-black text-grey-darken-4 mb-3"
+                  prepend-icon="mdi-folder-open"
                   @click="triggerLoadCampaign"
                 >
-                  <v-icon left class="mr-2">mdi-folder-open</v-icon>
                   Load Campaign
                 </v-btn>
 
@@ -395,12 +397,12 @@
                   color="amber-accent-2" 
                   variant="outlined" 
                   rounded="pill" 
-                  size="large"
+                  size="x-large"
                   block
-                  class="font-weight-bold"
+                  class="font-weight-black mb-3"
+                  prepend-icon="mdi-import"
                   @click="triggerImportCampaign"
                 >
-                  <v-icon left class="mr-2">mdi-import</v-icon>
                   Import Campaign
                 </v-btn>
               </div>
@@ -418,6 +420,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify"; // Importação do useDisplay
 import CampaignNew from "@/components/CampaignNew.vue";
 import CampaignImport from "@/components/CampaignImport.vue";
+import HUB from "@/components/HUB.vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { useUserStore } from "@/store/UserStore";
 import type { HeroData } from "@/data/repository/HeroData";
@@ -441,6 +444,8 @@ const campaignImportRef = ref<any>(null);
 
 const showPlayDialog = ref(false);
 const activePlayTab = ref(0);
+const showHub = ref(false);
+const myEvents = ref<any[]>([]);
 
 const openPlayOptions = () => {
   showPlayDialog.value = true;
@@ -468,6 +473,30 @@ const triggerLoadCampaign = () => {
 const handleJoinCampaign = () => {
   showPlayDialog.value = false;
   onJoinCampaign();
+};
+
+const openHub = async () => {
+  showHub.value = true;
+  if (userStore.user?.users_pk) {
+    try {
+      const response = await axios.get('/events/my_events/player', {
+        params: { player_fk: userStore.user.users_pk, past_events: false },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+      });
+      const now = new Date();
+      myEvents.value = (response.data.events || [])
+        .filter((e: any) => new Date(e.event_date) > now)
+        .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    } catch (e) {
+      console.error("Error fetching events for HUB:", e);
+      myEvents.value = [];
+    }
+  }
+};
+
+const playDrunagorNights = () => {
+  showPlayDialog.value = false;
+  openHub();
 };
 
 const loading = ref(true);
@@ -836,21 +865,22 @@ onBeforeMount(async () => {
 }
 
 .legacy-cluster {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
+  padding: 10px;
 }
-
 .legacy-logo {
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
-  transition: transform 0.2s ease-in-out;
+  filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.7));
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+  cursor: pointer;
 }
-
 .legacy-logo:hover {
-  transform: scale(1.05);
+  transform: scale(1.1) translateY(-4px);
+  filter: drop-shadow(0px 12px 20px rgba(255, 213, 79, 0.4));
+  z-index: 30 !important;
 }
-
 .apoc-logo {
-  margin-top: -16px;
+  z-index: 20;
 }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
 </style>
