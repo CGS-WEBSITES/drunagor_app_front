@@ -68,8 +68,11 @@ export class CampaignLoadFromStorage {
       const skuStr = urlParams.get('sku');
       
       let showSeason2 = false;
-      if (skuStr) {
-        showSeason2 = Number(skuStr) === 38;
+      const existingCampaign = this.campaignStore.findOptional(campaignId);
+      if (existingCampaign) {
+        showSeason2 = existingCampaign.campaign === 'underkeep2';
+      } else if (skuStr) {
+        showSeason2 = Number(skuStr) === 39;
       }
 
       let response = await axios.get("/rl_campaigns_users/search", {
