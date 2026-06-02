@@ -668,27 +668,39 @@ const loadCampaigns = async () => {
 
   try {
     // Primeira requisição: sem season 2 (ou season 2 = false)
-    const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user.users_pk,
-        show_season2: false,
-      },
-    });
+    try {
+      const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          show_season2: false,
+        },
+      });
 
-    for (const campaignData of campaignsResponse1.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
+      if (campaignsResponse1.data?.campaigns) {
+        for (const campaignData of campaignsResponse1.data.campaigns) {
+          await loadCampaignWithHeroes(campaignData);
+        }
+      }
+    } catch (err1) {
+      console.warn("Error loading Season 1 campaigns:", err1);
     }
 
     // Segunda requisição: com season 2 = true
-    const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user.users_pk,
-        show_season2: true,
-      },
-    });
+    try {
+      const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          show_season2: true,
+        },
+      });
 
-    for (const campaignData of campaignsResponse2.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
+      if (campaignsResponse2.data?.campaigns) {
+        for (const campaignData of campaignsResponse2.data.campaigns) {
+          await loadCampaignWithHeroes(campaignData);
+        }
+      }
+    } catch (err2) {
+      console.warn("Error loading Season 2 campaigns:", err2);
     }
 
     const storeCampaigns = campaignStore.findAll();
@@ -761,35 +773,47 @@ const confirmJoinCampaign = async () => {
   const campaignId = parsedCampaignFk.value;
 
   try {
+    // 1. Fetch the campaign info from server first to determine its box SKU
+    const campaignInfoRes = await axios.get(`/campaigns/${campaignId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+    });
+    
+    const campaignBox = campaignInfoRes.data?.box || BOX_ID;
+    const isSeason2 = campaignBox === 39;
+
+    // 2. Perform the cadastro with the correct skus_fk via Query Parameters
     await axios.post(
       "/rl_campaigns_users/cadastro",
+      null,
       {
-        users_fk: usersPk,
-        campaigns_fk: campaignId,
-        party_roles_fk: 2,
-        skus_fk: BOX_ID,
-      },
-      {
+        params: {
+          users_fk: usersPk,
+          campaigns_fk: Number(campaignId),
+          skus_fk: campaignBox,
+          active: true
+        },
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       },
     );
 
+    // 3. Search with correct show_season2 setting
     const campaignResponse = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: usersPk,
         campaigns_fk: campaignId,
+        show_season2: isSeason2,
       },
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
-    const campaignData = campaignResponse.data.campaigns[0];
+    const campaignData = campaignResponse.data?.campaigns?.[0];
 
     if (campaignData && campaignData.tracker_hash) {
       await loadCampaignWithHeroes(campaignData);
 
       router.push({
         path: `/campaign-tracker/campaign/${campaignId}`,
-        query: { sku: String(BOX_ID) },
+        query: { sku: String(campaignBox) },
       });
 
       toast.add({
@@ -805,16 +829,31 @@ const confirmJoinCampaign = async () => {
     let errorMessage = "Error joining campaign.";
     let severity = "error";
 
+    // Since we failed, check if the user is already part of it or conflicts
     if (
       err.response?.data?.message?.includes("already exists") ||
-      err.response?.data?.message?.includes("já existe")
+      err.response?.data?.message?.includes("já existe") ||
+      err.response?.status === 409
     ) {
       errorMessage = "You are already part of this campaign!";
       severity = "info";
 
+      // Attempt to retrieve campaign box to redirect correctly
+      let campaignBox = BOX_ID;
+      try {
+        const campaignInfoRes = await axios.get(`/campaigns/${campaignId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        if (campaignInfoRes.data?.box) {
+          campaignBox = campaignInfoRes.data.box;
+        }
+      } catch (boxErr) {
+        console.warn("Could not determine campaign box on redirect fallback", boxErr);
+      }
+
       router.push({
         path: `/campaign-tracker/campaign/${campaignId}`,
-        query: { sku: String(BOX_ID) },
+        query: { sku: String(campaignBox) },
       });
     }
 
