@@ -75,7 +75,7 @@
 
             <div class="d-flex align-center text-subtitle-1 mt-0 text-grey-lighten-1">
               <span v-if="campaign.wing">{{ campaign.wing }}</span>
-              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2 text-truncate">
+              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2">
                 - Last Door: <span class="text-white font-weight-bold">{{ lastDoorName }}</span>
               </span>
               <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
@@ -93,13 +93,6 @@
           ></v-progress-linear>
 
 
-
-          <!-- Last Update Date -->
-          <div class="px-4 pb-1 pt-2 d-flex justify-end">
-            <span class="text-caption text-grey-lighten-1 last-update-text">
-              LAST UPDATE: {{ formattedLastUpdate }}
-            </span>
-          </div>
 
           <!-- Underkeep style: Players list -->
           <div v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="mt-auto px-3 pt-1 pb-0">
@@ -127,7 +120,11 @@
               </div>
               <span v-if="players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
 
-
+              <!-- Last Update Date inline -->
+              <div class="ml-auto pb-1 align-self-end d-flex align-center text-grey-lighten-1 last-update-text" style="font-size: 0.7rem;">
+                <v-icon size="12" class="mr-1">mdi-clock-outline</v-icon>
+                <span>{{ formattedLastUpdate }}</span>
+              </div>
             </div>
           </div>
 
@@ -209,10 +206,9 @@ const formattedLastUpdate = computed(() => {
   return lastUpdateDate.value.toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  });
+  }).replace(",", "");
 });
 
 // Load the most recent campaign for a user

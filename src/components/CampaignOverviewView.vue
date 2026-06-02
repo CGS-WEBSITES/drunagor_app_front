@@ -171,7 +171,7 @@
 
               <div class="d-flex align-center text-subtitle-1 mt-0 w-100">
                 <span v-if="campaign.wing">{{ campaign.wing }}</span>
-                <span v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2 text-truncate">
+                <span v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2">
                   - Last Door: <span class="text-white font-weight-bold">{{ extraCampaignData[campaign.campaignId].lastDoorName }}</span>
                 </span>
                 <span v-if="isUnderkeep(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
