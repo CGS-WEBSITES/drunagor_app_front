@@ -435,8 +435,8 @@ const availableVolumes = computed<Volume[]>(() => {
   const wingKey = (props.campaignWing || "").toUpperCase();
   const isS1 = isSeason1.value;
 
-  // Start Here volume should ONLY be accessible in Wing 3
-  const showStartHere = wingKey.includes("WING 3");
+  // Start Here volume should be accessible in Wing 3, Wing 1, or Tutorial
+  const showStartHere = wingKey.includes("WING 3") || wingKey.includes("WING 1") || wingKey.includes("TUTORIAL");
 
   if (showStartHere) {
     vols.push({ 
