@@ -158,7 +158,7 @@
                   {{ campaign.name || "Unnamed Campaign" }}
                 </span>
                 <v-chip
-                  v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]?.isFinished"
+                  v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.isFinished"
                   color="red-darken-4"
                   size="small"
                   variant="flat"
@@ -168,28 +168,61 @@
                 </v-chip>
               </div>
 
-              <div class="d-flex align-center text-subtitle-1 mt-0">
+              <div class="d-flex align-center text-subtitle-1 mt-0 w-100">
                 <span v-if="campaign.wing">{{ campaign.wing }}</span>
-                <span v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2 text-truncate">
+                <span v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2 text-truncate">
                   - Last Door: <span class="text-white font-weight-bold">{{ extraCampaignData[campaign.campaignId].lastDoorName }}</span>
+                </span>
+                <span v-if="isUnderkeep(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
+                  {{ calculateCompletionPercentage(campaign) }}%
                 </span>
               </div>
             </v-card-title>
 
-            <v-card-text v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]">
+            <v-progress-linear
+              v-if="isUnderkeep(campaign.campaign)"
+              :model-value="calculateCompletionPercentage(campaign)"
+              color="amber-accent-2"
+              height="3"
+              class="mb-2"
+            ></v-progress-linear>
+
+            <v-card-text v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]">
               <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
-              <div class="d-flex flex-wrap gap-2">
-                <v-chip
+              <div class="d-flex flex-wrap gap-3">
+                <div
                   v-for="player in extraCampaignData[campaign.campaignId].players"
                   :key="player.rl_campaigns_users_pk"
-                  class="bg-grey-darken-4 text-white font-weight-medium pl-1 pr-3"
-                  size="small"
+                  class="d-flex flex-column align-center text-center bg-grey-darken-4 pa-2 rounded-lg position-relative"
+                  style="min-width: 90px; border: 1px solid rgba(255,255,255,0.1);"
                 >
-                  <v-avatar start class="mr-1">
-                    <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
+                  <!-- Hero Avatar -->
+                  <v-avatar
+                    v-slot:default
+                    v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
+                    class="rounded-lg mb-2"
+                    :image="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
+                    size="60"
+                  ></v-avatar>
+                  <v-avatar
+                    v-slot:default
+                    v-else
+                    class="rounded-lg mb-2 bg-grey-darken-3 d-flex justify-center align-center"
+                    size="60"
+                  >
+                    <v-icon size="small" color="grey">mdi-help</v-icon>
                   </v-avatar>
-                  {{ player.user_name }}
-                </v-chip>
+
+                  <!-- Player Info (Nick + Icon) -->
+                  <div class="d-flex align-center justify-center w-100" style="gap: 4px;">
+                    <v-avatar size="16">
+                      <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
+                    </v-avatar>
+                    <span class="text-caption font-weight-bold text-white text-truncate" style="max-width: 60px;">
+                      {{ player.user_name }}
+                    </span>
+                  </div>
+                </div>
                 <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
               </div>
             </v-card-text>
@@ -696,10 +729,10 @@ const loadCampaigns = async () => {
     }
 
     const storeCampaigns = campaignStore.findAll();
-    const underkeep2Campaigns = storeCampaigns.filter(c => c.campaign === 'underkeep2');
+    const underkeepCampaigns = storeCampaigns.filter(c => c.campaign === 'underkeep' || c.campaign === 'underkeep2');
     
     await Promise.allSettled(
-        underkeep2Campaigns.map(c => loadExtraData(c.campaignId))
+        underkeepCampaigns.map(c => loadExtraData(c.campaignId))
     );
 
   } catch (error) {
@@ -859,6 +892,93 @@ const confirmJoinCampaign = async () => {
     joinCampaignId.value = "";
     showJoinCampaignDialog.value = false;
   }
+};
+
+const heroRepo = new HeroDataRepository();
+
+const isUnderkeep = (campaignType: string) => {
+  return campaignType === 'underkeep' || campaignType === 'underkeep2';
+};
+
+const getPlayerHero = (campaignId: string, playableHeroFk: number | null) => {
+  if (!playableHeroFk) return null;
+  const hero = campaignStore.findHeroByPlayableHeroesPk(campaignId, playableHeroFk);
+  if (!hero) return null;
+  return heroRepo.find(hero.heroId) || null;
+};
+
+const calculateCompletionPercentage = (campaign: any): number => {
+  const wing = (campaign.wing || "").toUpperCase();
+  const currentDoor = (campaign.door || "").toUpperCase();
+  
+  let list: string[] = [];
+  if (wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 3") || wing.includes("WING 03")) {
+    list = [
+      "FIRST SETUP",
+      "DUNGEON FOYER",
+      "QUEEN'S HALL",
+      "THE FORGE",
+      "ARTISAN'S GALLERY",
+      "PROVING GROUNDS",
+      "MAIN HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 4") || wing.includes("WING 04")) {
+    list = [
+      "FIRST SETUP",
+      "DRACONIC CHAPEL",
+      "CRYPTS",
+      "BOTH OPEN",
+      "LIBRARY",
+      "LABORATORY",
+      "DRAGON BOSS",
+      "END GAME"
+    ];
+  }
+
+  if (list.length === 0) return 0;
+  
+  let idx = list.indexOf(currentDoor);
+  if (idx === -1) {
+    idx = list.findIndex(d => currentDoor.includes(d) || d.includes(currentDoor));
+  }
+  
+  if (idx === -1) {
+    if (currentDoor === "FIRST SETUP") idx = 0;
+    else if (currentDoor === "END GAME") idx = list.length - 1;
+    else idx = 0;
+  }
+  
+  const pct = Math.round((idx / (list.length - 1)) * 100);
+  return Math.min(100, Math.max(0, pct));
 };
 
 onBeforeMount(async () => {

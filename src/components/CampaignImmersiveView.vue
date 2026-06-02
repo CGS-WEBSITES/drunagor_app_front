@@ -714,26 +714,28 @@
           <v-btn icon="mdi-close" variant="text" color="white" @click="runesDialogVisible = false"></v-btn>
         </v-toolbar>
         
-        <v-tabs v-model="activeRuneTab" bg-color="grey-darken-4" color="amber-darken-2" grow>
-          <v-tab value="tracker">
-            <v-icon start class="mr-2">mdi-counter</v-icon>
-            RUNES TRACKER
-          </v-tab>
-          <v-tab value="cards">
-            <v-icon start class="mr-2">mdi-cards-outline</v-icon>
-            RUNE CARDS
-          </v-tab>
-        </v-tabs>
-        
-        <v-card-text class="pa-2 bg-grey-darken-4" style="max-height: 80vh; overflow-y: auto;">
-          <v-window v-model="activeRuneTab">
-            <v-window-item value="tracker">
+        <v-card-text class="pa-3 bg-grey-darken-4 d-flex flex-column gap-3" style="max-height: 80vh; overflow-y: auto;">
+          <!-- Runes Tracker -->
+          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
+            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center">
+              <v-icon start class="mr-2" size="small">mdi-counter</v-icon>
+              Runes Tracker
+            </div>
+            <div class="pa-2">
               <CampaignRunes :campaign-id="campaignId" />
-            </v-window-item>
-            <v-window-item value="cards">
+            </div>
+          </div>
+          
+          <!-- Rune Cards -->
+          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
+            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center mb-1">
+              <v-icon start class="mr-2" size="small">mdi-cards-outline</v-icon>
+              Rune & Game State Cards
+            </div>
+            <div class="pa-2">
               <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
-            </v-window-item>
-          </v-window>
+            </div>
+          </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -892,7 +894,6 @@ const newBadgeDialog = ref({ visible: false, reward: null as any });
 const dashboardExitDialog = ref({ visible: false }); 
 const tharmagarDialogVisible = ref(false);
 const runesDialogVisible = ref(false);
-const activeRuneTab = ref("tracker");
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
