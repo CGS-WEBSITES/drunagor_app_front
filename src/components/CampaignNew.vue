@@ -3,8 +3,8 @@
     {{ t("label.new-campaign") }}
   </v-btn>
 
-  <v-dialog v-model="visible" max-width="750px" persistent>
-    <v-card class="rounded-lg">
+  <v-dialog v-model="visible" max-width="500px" persistent scrollable>
+    <v-card class="rounded-xl" color="grey-darken-4" style="border: 1px solid rgba(255, 255, 255, 0.1);">
       <div v-if="loading" class="loading-container">
         <v-progress-circular
           :size="70"
@@ -16,100 +16,61 @@
         <p class="text-grey-lighten-1">Please wait a moment.</p>
       </div>
 
-      <div v-else>
-        <div class="d-flex justify-end pa-2">
+      <div v-else class="d-flex flex-column" style="max-height: 90vh;">
+        <v-card-title class="d-flex justify-space-between align-center px-6 pt-6 pb-2">
+          <span class="text-h5 font-weight-black text-white">Choose Campaign Box</span>
           <v-btn
             icon="mdi-close"
             variant="text"
+            color="white"
             @click="visible = false"
           ></v-btn>
-        </div>
+        </v-card-title>
 
-        <v-card-text class="pt-0">
-          <v-container fluid>
-            <v-row>
-              <v-col cols="12" sm="6">
-                <v-card
-                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
-                  @click="newCampaign('core')"
-                  hover
-                  height="200"
-                >
-                  <v-img
-                    :src="CoreLogo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
-                </v-card>
-              </v-col>
+        <v-card-text class="px-6 pb-6 pt-2" style="overflow-y: auto;">
+          <div class="d-flex flex-column ga-4">
+            <v-card
+              class="campaign-card d-flex justify-center align-center pa-6 rounded-xl border-core"
+              @click="newCampaign('core')"
+              height="140"
+              flat
+            >
+              <v-img
+                :src="CoreLogo.toString()"
+                max-width="320"
+                max-height="90"
+                contain
+              ></v-img>
+            </v-card>
 
-              <v-col cols="12" sm="6">
-                <v-card
-                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
-                  @click="newCampaign('apocalypse')"
-                  hover
-                  height="200"
-                >
-                  <v-img
-                    :src="ApocalypseLogo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
-                </v-card>
-              </v-col>
+            <v-card
+              class="campaign-card d-flex justify-center align-center pa-6 rounded-xl border-apocalypse"
+              @click="newCampaign('apocalypse')"
+              height="140"
+              flat
+            >
+              <v-img
+                :src="ApocalypseLogo.toString()"
+                max-width="320"
+                max-height="90"
+                contain
+              ></v-img>
+            </v-card>
 
-              <v-col cols="12" sm="12">
-                <v-card
-                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
-                  @click="newCampaign('awakenings')"
-                  hover
-                  height="200"
-                >
-                  <v-img
-                    :src="AwakeningsLogo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
-                </v-card>
-              </v-col>
-<!--
-              <v-col cols="12" sm="6">
-                <v-card
-                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
-                  @click="newCampaign('underkeep')"
-                  hover
-                  height="200"
-                >
-                  <v-img
-                    :src="UnderKeepLogo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
-                </v-card>
-              </v-col>
-
-              <v-col cols="12" sm="6">
-                <v-card
-                  class="campaign-card d-flex flex-column justify-center align-center pa-4"
-                  @click="newCampaign('underkeep2')"
-                  hover
-                  height="200"
-                >
-                  <v-img
-                    :src="UnderKeep2Logo.toString()"
-                    width="280"
-                    height="100"
-                    contain
-                  ></v-img>
-                </v-card>
-              </v-col>
-            -->
-            </v-row>
-          </v-container>
+            <v-card
+              class="campaign-card d-flex justify-center align-center pa-6 rounded-xl border-awakenings"
+              @click="newCampaign('awakenings')"
+              height="140"
+              flat
+            >
+              <v-img
+                :src="AwakeningsLogo.toString()"
+                max-width="320"
+                max-height="90"
+                contain
+              ></v-img>
+            </v-card>
+          </div>
         </v-card-text>
       </div>
     </v-card>
@@ -306,11 +267,27 @@ defineExpose({
 <style scoped>
 .campaign-card {
   cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+  background: linear-gradient(145deg, rgba(45, 45, 45, 0.9) 0%, rgba(25, 25, 25, 0.9) 100%) !important;
+  border: 2px solid rgba(255, 255, 255, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
 }
 
 .campaign-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.border-core:hover {
+  border-color: #3C7376 !important;
+}
+
+.border-apocalypse:hover {
+  border-color: #802222 !important;
+}
+
+.border-awakenings:hover {
+  border-color: #E2B13C !important;
 }
 
 .loading-container {
