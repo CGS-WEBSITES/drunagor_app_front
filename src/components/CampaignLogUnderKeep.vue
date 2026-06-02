@@ -54,6 +54,7 @@ import { CampaignLogOutcomeRepository } from "@/data/repository/campaign/underke
 import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
 import { useUserStore } from "@/store/UserStore";
 import { HeroStore } from "@/store/HeroStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import { ref, onMounted } from "vue";
 import axios from "axios";
 
@@ -68,6 +69,7 @@ const outcomeRepository = new CampaignLogOutcomeRepository();
 const { t } = useI18n();
 const userStore = useUserStore();
 const heroStore = HeroStore();
+const campaignStore = CampaignStore();
 const isAdmin = ref(false);
 const loading = ref(true);
 
@@ -81,24 +83,17 @@ const checkUserRole = async () => {
       loading.value = false;
       return;
     }
-    let response = await axios.get("rl_campaigns_users/search", {
+    const campaign = campaignStore.findOptional(props.campaignId);
+    const showSeason2 = campaign ? campaign.campaign === "underkeep2" : false;
+
+    const response = await axios.get("rl_campaigns_users/search", {
       params: { 
         users_fk: userStore.user?.users_pk, 
         campaigns_fk: props.campaignId,
-        show_season2: true
+        show_season2: showSeason2
       },
     });
-    let campaignRelation = response.data.campaigns?.[0];
-    if (!campaignRelation) {
-      response = await axios.get("rl_campaigns_users/search", {
-        params: { 
-          users_fk: userStore.user?.users_pk, 
-          campaigns_fk: props.campaignId,
-          show_season2: false
-        },
-      });
-      campaignRelation = response.data.campaigns?.[0];
-    }
+    const campaignRelation = response.data.campaigns?.[0];
     
     if (campaignRelation) {
       const isPartyAdmin = campaignRelation.party_role === "Admin";
