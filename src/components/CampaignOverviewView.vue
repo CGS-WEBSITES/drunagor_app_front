@@ -170,7 +170,7 @@
               </div>
 
               <div class="d-flex align-center text-subtitle-1 mt-0 w-100">
-                <span v-if="campaign.wing">{{ campaign.wing }}</span>
+                <span v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</span>
                 <span v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2">
                   - Last Door: <span class="text-white font-weight-bold">{{ extraCampaignData[campaign.campaignId].lastDoorName }}</span>
                 </span>
@@ -185,22 +185,17 @@
               :model-value="calculateCompletionPercentage(campaign)"
               color="amber-accent-2"
               height="3"
-              class="mb-2"
+              class="mb-0"
             ></v-progress-linear>
 
           <!-- Underkeep style: Players list -->
-          <div v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]" class="mt-auto px-3 pt-1 pb-0">
-            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+          <div v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]" class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
               <div
                 v-for="player in extraCampaignData[campaign.campaignId].players"
                 :key="player.rl_campaigns_users_pk"
                 class="d-flex flex-column align-center text-center player-standee-container"
               >
-                <!-- Player Name (ABOVE the card) -->
-                <span class="text-caption font-weight-bold text-white text-center text-truncate px-1 mb-1 w-100" style="font-size: 0.75rem !important; line-height: 1.2;">
-                  {{ player.user_name }}
-                </span>
-
                 <!-- Hero Standee Card (120x170 proportional) -->
                 <div class="hero-standee-card">
                   <v-img
@@ -210,6 +205,11 @@
                     class="w-100 h-100"
                   ></v-img>
                   <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
+
+                  <!-- Player Name overlay at bottom -->
+                  <div class="player-name-overlay">
+                    <span class="player-name-text">{{ player.user_name }}</span>
+                  </div>
                 </div>
               </div>
               <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
@@ -217,8 +217,8 @@
           </div>
 
           <!-- Legacy style: Hero Avatars -->
-          <div v-else class="mt-auto px-3 pt-1 pb-0">
-            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+          <div v-else class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
               <div
                 v-for="hero in heroAvatars(campaign.campaignId)"
                 :key="hero.heroId"
@@ -915,6 +915,16 @@ const isUnderkeep = (campaignType: string) => {
   return campaignType === 'underkeep' || campaignType === 'underkeep2';
 };
 
+const formatWingName = (wing: string | null) => {
+  if (!wing) return "";
+  return wing
+    .replace(/-\s*advanced/gi, "")
+    .replace(/advanced\s*-/gi, "")
+    .replace(/advanced/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
 const getPlayerHero = (campaignId: string, playableHeroFk: number | null) => {
   if (!playableHeroFk) return null;
   const hero = campaignStore.findHeroByPlayableHeroesPk(campaignId, playableHeroFk);
@@ -1053,7 +1063,6 @@ onBeforeMount(async () => {
 .hero-standee-card {
   width: 105px;
   aspect-ratio: 120 / 170;
-  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 0;
   overflow: hidden;
   position: relative;
@@ -1071,6 +1080,29 @@ onBeforeMount(async () => {
 }
 .standees-list-container {
   gap: 12px;
+}
+.player-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+  padding: 24px 4px 10px 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+.player-name-text {
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
   .hero-standee-card {

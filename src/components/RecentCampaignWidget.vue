@@ -74,7 +74,7 @@
             </div>
 
             <div class="d-flex align-center text-subtitle-1 mt-0 text-grey-lighten-1">
-              <span v-if="campaign.wing">{{ campaign.wing }}</span>
+              <span v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</span>
               <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2">
                 - Last Door: <span class="text-white font-weight-bold">{{ lastDoorName }}</span>
               </span>
@@ -89,24 +89,19 @@
             :model-value="calculateCompletionPercentage(campaign)"
             color="amber-accent-2"
             height="3"
-            class="mb-2"
+            class="mb-0"
           ></v-progress-linear>
 
 
 
           <!-- Underkeep style: Players list -->
-          <div v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="mt-auto px-3 pt-1 pb-0">
-            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+          <div v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
               <div
                 v-for="player in players"
                 :key="player.rl_campaigns_users_pk"
                 class="d-flex flex-column align-center text-center player-standee-container"
               >
-                <!-- Player Name (ABOVE the card) -->
-                <span class="text-caption font-weight-bold text-white text-center text-truncate px-1 mb-1 w-100" style="font-size: 0.75rem !important; line-height: 1.2;">
-                  {{ player.user_name }}
-                </span>
-
                 <!-- Hero Standee Card (120x170 proportional) -->
                 <div class="hero-standee-card">
                   <v-img
@@ -116,6 +111,11 @@
                     class="w-100 h-100"
                   ></v-img>
                   <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
+
+                  <!-- Player Name overlay at bottom -->
+                  <div class="player-name-overlay">
+                    <span class="player-name-text">{{ player.user_name }}</span>
+                  </div>
                 </div>
               </div>
               <span v-if="players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
@@ -129,8 +129,8 @@
           </div>
 
           <!-- Legacy style: Hero Avatars -->
-          <div v-else class="mt-auto px-3 pt-1 pb-0">
-            <div class="d-flex flex-wrap align-end mt-1 standees-list-container">
+          <div v-else class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
               <div
                 v-for="hero in heroAvatars"
                 :key="hero.heroId"
@@ -482,6 +482,17 @@ const goToCampaign = () => {
   router.push({ name: "Campaign", params: { id: campaign.value.campaignId } });
 };
 
+// Format wing name to exclude "advanced"
+const formatWingName = (wing: string | null) => {
+  if (!wing) return "";
+  return wing
+    .replace(/-\s*advanced/gi, "")
+    .replace(/advanced\s*-/gi, "")
+    .replace(/advanced/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
 onMounted(loadMostRecentCampaign);
 watch(() => props.userId, loadMostRecentCampaign);
 </script>
@@ -500,7 +511,6 @@ watch(() => props.userId, loadMostRecentCampaign);
 .hero-standee-card {
   width: 105px;
   aspect-ratio: 120 / 170;
-  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 0;
   overflow: hidden;
   position: relative;
@@ -518,6 +528,29 @@ watch(() => props.userId, loadMostRecentCampaign);
 }
 .standees-list-container {
   gap: 12px;
+}
+.player-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+  padding: 24px 4px 10px 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+.player-name-text {
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
   .last-update-text {
