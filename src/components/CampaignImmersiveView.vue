@@ -1448,6 +1448,8 @@ const isBossBattle = computed(() => {
   const door = (activeCampaignData.value.door || "").toUpperCase();
   if (wing.includes("WING 3") && door === "MAIN HALL") return true;
   if (wing.includes("WING 4") && door === "DRAGON BOSS") return true;
+  if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && door.includes("THE GREAT HALL")) return true;
+  if ((wing.includes("WING 2") || wing.includes("WING 02")) && door === "THERE AND BACK AGAIN") return true;
   if (door === "END GAME") return true;
   return false;
 });
@@ -1955,17 +1957,42 @@ async function confirmFinishCampaign() {
   finishCampaignDialog.value.visible = false;
   let showBadgeAnimation = false;
 
-  try {
-    const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
-    let rewardPk = null;
-    if (wingStr.includes("WING 1") || wingStr.includes("TUTORIAL")) rewardPk = 2;
-    else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) rewardPk = 3;
-    else if (wingStr.includes("WING 3")) rewardPk = 5;
-    else if (wingStr.includes("WING 4")) rewardPk = 6;
+  const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
+  let rewardPk = null;
+  if (wingStr.includes("WING 1") || wingStr.includes("WING 01") || wingStr.includes("TUTORIAL")) {
+    rewardPk = 2;
+  } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2") || wingStr.includes("WING 02")) {
+    rewardPk = 3;
+  } else if (wingStr.includes("WING 3") || wingStr.includes("WING 03")) {
+    rewardPk = 5;
+  } else if (wingStr.includes("WING 4") || wingStr.includes("WING 04")) {
+    rewardPk = 6;
+  }
 
-    if (rewardPk && userStore.user?.users_pk) {
+  // Pre-configure client-side badge animation so it always runs if they finished a valid wing
+  if (rewardPk && REWARDS_DATA[rewardPk]) {
+    newBadgeDialog.value = {
+      visible: true,
+      reward: REWARDS_DATA[rewardPk]
+    };
+    showBadgeAnimation = true;
+  }
+
+  // Update campaign state to END GAME
+  campaignStore.updateCampaignProperty(props.campaignId, "door", "END GAME");
+  if (props.campaign) {
+    props.campaign.door = "END GAME";
+  }
+
+  // Persist the badge in the background, handling errors gracefully
+  if (rewardPk && userStore.user?.users_pk) {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
       const { data } = await axios.get("/rl_users_rewards/list_rewards", {
-        params: { users_fk: userStore.user.users_pk }
+        params: { users_fk: userStore.user.users_pk },
+        headers
       });
       const userRewards = data.rewards || [];
       const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
@@ -1974,19 +2001,11 @@ async function confirmFinishCampaign() {
         await axios.post("/rl_users_rewards/cadastro", {
           users_fk: userStore.user.users_pk,
           rewards_fk: rewardPk
-        });
+        }, { headers });
       }
-
-      if (REWARDS_DATA[rewardPk]) {
-        newBadgeDialog.value = {
-          visible: true,
-          reward: REWARDS_DATA[rewardPk]
-        };
-        showBadgeAnimation = true;
-      }
+    } catch(e) {
+      console.warn("Could not persist end-of-campaign rewards to the backend:", e);
     }
-  } catch(e) {
-    console.warn("Could not handle end-of-campaign rewards", e);
   }
   
   if (savePutRef.value) savePutRef.value.save();

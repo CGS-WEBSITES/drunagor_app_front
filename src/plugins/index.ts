@@ -74,6 +74,21 @@ export async function registerPlugins(app: App, env: string) {
 
   globalAxios.defaults.baseURL = apiUrl
 
+  // Automatically inject accessToken from localStorage to all outbound requests to prevent 401s due to lifecycle/initialization race conditions
+  globalAxios.interceptors.request.use(
+    (config: any) => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        config.headers = config.headers || {};
+        config.headers["Authorization"] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error: any) => {
+      return Promise.reject(error);
+    }
+  );
+
   // Centralized client-side fallback to compute party_role since backend removed it
   globalAxios.interceptors.response.use(async (response: any) => {
     const url = response.config.url || "";

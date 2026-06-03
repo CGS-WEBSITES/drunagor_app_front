@@ -1374,11 +1374,15 @@ const checkAndAwardSeason1Achievements = async () => {
   if (!campaign.value || campaign.value.campaign !== "underkeep" || !userStore.user?.users_pk) return;
   
   try {
+    const token = localStorage.getItem("accessToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
     const { data: relationData } = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user.users_pk,
         campaigns_fk: campaignId,
       },
+      headers
     });
     
     if (relationData?.campaigns?.length > 0) {
@@ -1386,15 +1390,16 @@ const checkAndAwardSeason1Achievements = async () => {
       if (relation.events_fk) {
         const wingStr = (campaign.value.wing || "").toUpperCase();
         let rewardPk = null;
-        if (wingStr.includes("WING 1") || wingStr.includes("TUTORIAL")) {
+        if (wingStr.includes("WING 1") || wingStr.includes("WING 01") || wingStr.includes("TUTORIAL")) {
           rewardPk = 2;
-        } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) {
+        } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2") || wingStr.includes("WING 02")) {
           rewardPk = 3;
         }
         
         if (rewardPk) {
           const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
-            params: { users_fk: userStore.user.users_pk }
+            params: { users_fk: userStore.user.users_pk },
+            headers
           });
           const userRewards = rewardData.rewards || [];
           const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
@@ -1403,7 +1408,7 @@ const checkAndAwardSeason1Achievements = async () => {
             await axios.post("/rl_users_rewards/cadastro", {
               users_fk: userStore.user.users_pk,
               rewards_fk: rewardPk
-            });
+            }, { headers });
             
             newBadgeDialog.value = {
               visible: true,
