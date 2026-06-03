@@ -771,7 +771,7 @@ const createDefaultNewEvent = () => ({
   minute: "00",
   ampm: "AM",
   store: "",
-  season: LOCKED_RETAILER_SEASON_PK,
+  season: 2,
   scenario: null,
   address: "",
 });
@@ -885,13 +885,22 @@ const retailerSeasonOptions = computed(() => {
   const allowedSg = seasons.value.filter(
     (season) => season.seasons_pk === 2 || season.seasons_pk === 3,
   );
-  if (allowedSg.length === 0) {
-    return [
-      { seasons_pk: 2, name: "Season 1" },
-      { seasons_pk: 3, name: "Season 2" }
-    ];
-  }
-  return allowedSg;
+  const items = allowedSg.length === 0
+    ? [
+        { seasons_pk: 2, name: "Season 1" },
+        { seasons_pk: 3, name: "Season 2" }
+      ]
+    : allowedSg.map(s => ({ seasons_pk: s.seasons_pk, name: s.name }));
+
+  return items.map(item => {
+    if (item.seasons_pk === 3) {
+      return {
+        ...item,
+        disabled: true
+      };
+    }
+    return item;
+  });
 });
 
 const availableStores = computed(() => {
@@ -1032,7 +1041,7 @@ const getFormattedNewEventTime = () =>
 
 const ensureRetailerSeasonLocked = () => {
   if (!newEvent.value.season) {
-    newEvent.value.season = LOCKED_RETAILER_SEASON_PK;
+    newEvent.value.season = 2;
   }
 };
 
@@ -1790,7 +1799,7 @@ watch(
     let targetRewardPk = null;
     if (newScenarioPk === 5) targetRewardPk = 5;
     else if (newScenarioPk === 6) targetRewardPk = 6;
-    else if (newScenarioPk === 2) targetRewardPk = 2; // Wing 1 Tutorial -> Tutorial Completed
+    else if (newScenarioPk === 2 || newScenarioPk === 3) targetRewardPk = 2; // Wing 1 Tutorial / Wing 1 Advanced -> Tutorial Completed
     else if (newScenarioPk === 4) targetRewardPk = 3; // Wing 2 Advanced -> Season 1 Completed
 
     if (targetRewardPk) {
@@ -1819,7 +1828,7 @@ watch(
     let targetRewardPk = null;
     if (newScenarioPk === 5) targetRewardPk = 5;
     else if (newScenarioPk === 6) targetRewardPk = 6;
-    else if (newScenarioPk === 2) targetRewardPk = 2; // Wing 1 Tutorial -> Tutorial Completed
+    else if (newScenarioPk === 2 || newScenarioPk === 3) targetRewardPk = 2; // Wing 1 Tutorial / Wing 1 Advanced -> Tutorial Completed
     else if (newScenarioPk === 4) targetRewardPk = 3; // Wing 2 Advanced -> Season 1 Completed
 
     if (targetRewardPk) {
