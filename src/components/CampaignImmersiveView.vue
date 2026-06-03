@@ -869,6 +869,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore";
+import { useUserStore } from "@/store/UserStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
 
@@ -948,6 +949,7 @@ const emit = defineEmits<{
 const router = useRouter();
 const campaignStore = CampaignStore();
 const tutorialStore = useTutorialStore();
+const userStore = useUserStore();
 const heroDataRepository = new HeroDataRepository();
 
 const campaignBookRef = ref<any>(null);
@@ -1844,18 +1846,23 @@ function checkTutorialTrigger() {
 let isFirstLoad = true;
 
 watch(
-    () => [activeCampaignData.value.wing, activeCampaignData.value.door],
-    (newVal, oldVal) => {
-        const [newWing, newDoor] = newVal || [];
-        const [oldWing, oldDoor] = oldVal || [];
-        if (!bookDialog.value.visible) {
-            bookContext.value = newWing as string;
+    () => activeCampaignData.value.wing,
+    (newWing) => {
+        if (newWing && !bookDialog.value.visible) {
+            bookContext.value = newWing;
         }
+    },
+    { immediate: true }
+);
+
+watch(
+    () => activeCampaignData.value.door,
+    (newDoor, oldDoor) => {
         checkTutorialTrigger();
         loadMonsterSelections();
 
-        if (newDoor && (newDoor as string).toUpperCase() === "END GAME") {
-            const isTransition = oldDoor && (oldDoor as string).toUpperCase() !== "END GAME";
+        if (newDoor && newDoor.toUpperCase() === "END GAME") {
+            const isTransition = oldDoor && oldDoor.toUpperCase() !== "END GAME";
             if (isTransition) {
                 confirmFinishCampaign();
             }
@@ -1956,16 +1963,16 @@ async function confirmFinishCampaign() {
     else if (wingStr.includes("WING 3")) rewardPk = 5;
     else if (wingStr.includes("WING 4")) rewardPk = 6;
 
-    if (rewardPk && props.userStore.user?.users_pk) {
+    if (rewardPk && userStore.user?.users_pk) {
       const { data } = await axios.get("/rl_users_rewards/list_rewards", {
-        params: { users_fk: props.userStore.user.users_pk }
+        params: { users_fk: userStore.user.users_pk }
       });
       const userRewards = data.rewards || [];
       const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
 
       if (!hasReward) {
         await axios.post("/rl_users_rewards/cadastro", {
-          users_fk: props.userStore.user.users_pk,
+          users_fk: userStore.user.users_pk,
           rewards_fk: rewardPk
         });
       }
@@ -2366,7 +2373,9 @@ async function commitNextDoor(doorName: string, instructionOverride?: string) {
     }
   }
 
-  setTimeout(() => openNarrativeDialog(), 500);
+  if (doorName.toUpperCase() !== "END GAME") {
+    setTimeout(() => openNarrativeDialog(), 500);
+  }
 }
 
 function manualSave() {

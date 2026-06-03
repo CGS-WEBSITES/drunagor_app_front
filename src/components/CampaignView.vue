@@ -1386,7 +1386,7 @@ const checkAndAwardSeason1Achievements = async () => {
       if (relation.events_fk) {
         const wingStr = (campaign.value.wing || "").toUpperCase();
         let rewardPk = null;
-        if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) {
+        if (wingStr.includes("WING 1") || wingStr.includes("TUTORIAL")) {
           rewardPk = 2;
         } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) {
           rewardPk = 3;
