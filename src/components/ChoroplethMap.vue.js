@@ -1,4 +1,4 @@
-/// <reference types="../../node_modules/.vue-global-types/vue_3.5_false.d.ts" />
+/// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { onMounted, ref, onUnmounted } from "vue";
 import * as Plotly from "plotly.js-dist";
 import * as d3 from "d3";
@@ -165,37 +165,19 @@ onMounted(() => {
 onUnmounted(() => {
     window.removeEventListener("resize", resizeMap);
 });
-; /* PartiallyEnd: #3632/scriptSetup.vue */
-function __VLS_template() {
-    const __VLS_ctx = {};
-    let __VLS_components;
-    let __VLS_directives;
-    // CSS variable injection 
-    // CSS variable injection end 
-    __VLS_elementAsFunction(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
-        ref: ("plotDiv"),
-        ...{ class: ("map-container") },
-    });
-    // @ts-ignore navigation for `const plotDiv = ref()`
-    /** @type { typeof __VLS_ctx.plotDiv } */ ;
-    ['map-container',];
-    var __VLS_slots;
-    var $slots;
-    let __VLS_inheritedAttrs;
-    var $attrs;
-    const __VLS_refs = {
-        'plotDiv': __VLS_nativeElements['div'],
-    };
-    var $refs;
-    var $el;
-    return {
-        attrs: {},
-        slots: __VLS_slots,
-        refs: $refs,
-        rootEl: $el,
-    };
-}
-;
+debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
+const __VLS_ctx = {};
+let __VLS_components;
+let __VLS_directives;
+// CSS variable injection 
+// CSS variable injection end 
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ref: "plotDiv",
+    ...{ class: "map-container" },
+});
+/** @type {typeof __VLS_ctx.plotDiv} */ ;
+/** @type {__VLS_StyleScopedClasses['map-container']} */ ;
+var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
@@ -207,7 +189,5 @@ export default (await import('vue')).defineComponent({
     setup() {
         return {};
     },
-    __typeRefs: {},
-    __typeEl: {},
 });
 ; /* PartiallyEnd: #4569/main.vue */
