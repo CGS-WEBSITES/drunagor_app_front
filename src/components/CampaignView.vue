@@ -1397,11 +1397,18 @@ const checkAndAwardSeason1Achievements = async () => {
         }
         
         if (rewardPk) {
-          const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
-            params: { users_fk: userStore.user.users_pk },
-            headers
-          });
-          const userRewards = rewardData.rewards || [];
+          let userRewards = [];
+          try {
+            const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
+              params: { users_fk: userStore.user.users_pk },
+              headers
+            });
+            userRewards = rewardData.rewards || [];
+          } catch (getErr: any) {
+            // If the backend returns 404 or fails, we assume the user has no rewards yet
+            console.warn("Could not fetch user rewards list, assuming empty list:", getErr);
+          }
+
           const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
           
           if (!hasReward) {
