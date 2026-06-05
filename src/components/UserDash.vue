@@ -24,7 +24,7 @@
       >
         <v-card
           color="transparent"
-          height="136"
+          height="166"
           class="card-overlay1 full-screen-card"
           flat
         ></v-card>
@@ -88,7 +88,7 @@
     <div
       class="flex-grow-1"
       :style="{
-        marginTop: display.xs ? '-130px' : '-120px',
+        marginTop: display.xs ? '-95px' : '-85px',
         overflowY: 'auto',
         minHeight: '0',
         zIndex: 1,
@@ -537,7 +537,7 @@ onBeforeMount(async () => {
 }
 .full-screen-card {
   width: 100%;
-  height: 150px;
+  height: 180px;
   background-size: cover;
   background-position: center;
   display: flex;
