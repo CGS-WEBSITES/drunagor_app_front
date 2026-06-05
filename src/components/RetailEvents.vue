@@ -219,12 +219,12 @@
             >
               <v-card
                 color="white"
-                max-height="120"
-                class="pt-0 pl-0 pb-0 event-card"
+                class="pt-0 pl-0 pb-0 event-card overflow-hidden"
+                style="height: 120px;"
                 @click="openManageDialog(event)"
               >
-                <v-row no-gutters>
-                  <v-col cols="auto" class="redbutton pt-13 pl-3">
+                <v-row no-gutters class="fill-height align-stretch flex-nowrap">
+                  <v-col cols="auto" class="redbutton d-flex align-center justify-center">
                     <v-btn
                       color="#AB2929"
                       icon
@@ -234,59 +234,62 @@
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-col>
-                  <v-col cols="8" class="pt-6 pr-3">
-                    <v-row no-gutters>
-                      <v-col cols="4" sm="2">
+                  
+                  <v-col class="d-flex align-center py-2 px-1" style="min-width: 0;">
+                    <v-row no-gutters align="center" class="w-100 flex-nowrap">
+                      <v-col cols="auto" class="d-flex justify-center flex-shrink-0">
                         <div
-                          class="text-center ml-2 pr-3"
+                          class="text-center"
                           style="width: 74px; color: black"
                         >
-                          <p class="pt-3 text-caption font-weight-bold">
+                          <p class="text-caption font-weight-bold mb-0">
                             {{ extractMonth(event.event_date, userTimezone) }}
                           </p>
                           <p
                             color="primary"
-                            class="cinzel-text text-h3 font-weight-bold"
+                            class="cinzel-text text-h3 font-weight-bold my-0"
+                            style="line-height: 1.1;"
                           >
                             {{ extractDay(event.event_date, userTimezone) }}
                           </p>
-                          <p class="text-caption font-weight-bold">
+                          <p class="text-caption font-weight-bold mb-0">
                             {{ extractTime(event.event_date, userTimezone) }}
                           </p>
                         </div>
                       </v-col>
 
-                      <v-col cols="8" sm="10" class="pt-2 pl-5">
-                        <h3 class="pb-1 text-truncate">
+                      <v-col class="pl-3 pr-2" style="min-width: 0;">
+                        <h3 class="pb-1 text-truncate" style="color: black;">
                           <v-icon class="pr-1" size="small" color="black"
                             >mdi-chess-rook</v-icon
                           >
                           {{ event.store_name }}
                         </h3>
 
-                        <p class="text-caption text-truncate">
-                          <v-icon color="red">mdi-map-marker</v-icon>
+                        <p class="text-caption text-truncate mb-1" style="color: #424242;">
+                          <v-icon color="red" class="mr-1" size="small">mdi-map-marker</v-icon>
                           {{ event.address }}
                         </p>
 
-                        <p class="text-caption" v-if="event.scenario">
-                          <v-icon color="red">mdi-sword-cross</v-icon>
+                        <p class="text-caption mb-0 text-truncate" style="color: #424242;" v-if="event.scenario">
+                          <v-icon color="red" class="mr-1" size="small">mdi-sword-cross</v-icon>
                           Scenario: {{ event.scenario }}
                         </p>
                       </v-col>
                     </v-row>
                   </v-col>
+                  
+                  <v-col cols="auto" class="editbutton d-flex align-center justify-center">
+                    <v-btn
+                      color="white"
+                      icon
+                      class="delete-btn"
+                      @click.stop="openEditDialog(event, true)"
+                    >
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                  </v-col>
                 </v-row>
-                <v-col cols="auto" class="editbutton pt-13 pl-3">
-                  <v-btn
-                    color="white"
-                    icon
-                    class="delete-btn"
-                    @click.stop="openEditDialog(event, true)"
-                  >
-                    <v-icon>mdi mdi-pencil</v-icon>
-                  </v-btn>
-                </v-col>
               </v-card>
             </v-col>
           </v-row>
@@ -422,11 +425,15 @@
                 <v-select
                   v-model="newEvent.store"
                   :items="availableStores"
-                  label="STORE"
+                  label="SELECT YOUR STORE *"
                   variant="outlined"
                   prepend-inner-icon="mdi-store"
                   :loading="loading"
                   no-data-text="No stores found"
+                  persistent-hint
+                  hint="Choose the store hosting this event. Required."
+                  :rules="[(v) => !!v || 'Please select your store']"
+                  class="mb-2"
                 />
               </v-col>
 
@@ -2101,16 +2108,12 @@ watch(
 
 .redbutton {
   background: #691d1d;
-  transform: translateY(px) translateX(-0px);
-  width: 80px;
-  height: 160px;
+  width: 60px;
 }
 
 .editbutton {
   background: gray;
-  transform: translateX(10px);
-  width: 80px;
-  height: 160px;
+  width: 60px;
 }
 
 .download-fab {
