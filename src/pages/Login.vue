@@ -467,7 +467,7 @@ onBeforeMount(() => {
 .login-page {
   background-image: url("https://assets.drunagor.app/backgrounds/login-background.png");
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-repeat: no-repeat;
   min-height: 100vh;
 }
