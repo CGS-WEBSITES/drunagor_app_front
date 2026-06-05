@@ -7,12 +7,12 @@
     :fullscreen="smAndDown"
     persistent
   >
-    <v-card color="surface">
+    <v-card color="surface" class="d-flex flex-column" style="height: 100%; max-height: 100%;">
       <div v-if="dialogLoading" class="dialog-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>
 
-      <v-card-title class="d-flex justify-space-between align-center">
+      <v-card-title class="d-flex justify-space-between align-center flex-shrink-0">
         <span class="text-h6">Manage Event</span>
         <v-btn icon variant="text" @click="closeDialog">
           <v-icon>mdi-close</v-icon>
@@ -24,7 +24,7 @@
         bg-color="background"
         centered
         grow
-        class="mb-4"
+        class="mb-4 flex-shrink-0"
       >
         <v-tab value="details">
           <v-icon start>mdi-information-outline</v-icon> Details
@@ -40,7 +40,7 @@
         </v-tab>
       </v-tabs>
 
-      <v-card-text>
+      <v-card-text class="flex-grow-1 overflow-y-auto pt-0">
         <v-window v-model="activeTab">
           <v-window-item value="details">
             <v-card-text class="pt-0">
@@ -250,6 +250,30 @@
                       />
                     </v-col>
 
+                    <v-col cols="12" class="mt-2" v-if="table.players && table.players.length > 0">
+                      <div class="d-flex flex-wrap gap-1">
+                        <v-chip
+                          v-for="p in table.players"
+                          :key="p.users_pk"
+                          size="x-small"
+                          color="surface"
+                          variant="outlined"
+                          class="mr-1 mb-1"
+                        >
+                          <v-avatar start size="16">
+                            <v-img
+                              :src="
+                                p.picture_hash
+                                  ? `https://assets.drunagor.app/Profile/${p.picture_hash}`
+                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
+                              "
+                            />
+                          </v-avatar>
+                          {{ p.user_name }}
+                        </v-chip>
+                      </div>
+                    </v-col>
+
                     <v-col cols="12" class="mt-3">
                       <div class="text-caption text-grey">
                         <v-icon size="small" class="mr-1">mdi-seat</v-icon>
@@ -285,8 +309,7 @@
                 <p class="text-body-2 mb-4">
                   Setting up the gaming table using the map below before your
                   players arrive is highly recommended. It ensures a quick and
-                  smooth start to the adventure. Click on the image to enlarge
-                  and view all setup details
+                  smooth start to the adventure. Tap or click on the map to zoom and view full setup details
                 </p>
               </div>
 
@@ -302,7 +325,7 @@
                   <v-icon color="white" size="small"
                     >mdi-magnify-plus-outline</v-icon
                   >
-                  <span class="ml-1">Click to enlarge</span>
+                  <span class="ml-1">Tap / Click to Zoom</span>
                 </div>
               </v-card>
 
@@ -589,52 +612,55 @@
 
     <v-dialog v-model="setupDialog" max-width="1400" :fullscreen="smAndDown">
       <v-card color="surface">
-        <v-card-title class="d-flex justify-space-between align-center">
-          <span class="text-h6">
+        <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center pa-4 ga-2">
+          <span class="text-h6 text-truncate w-100" style="max-width: 100%;">
             <v-icon class="mr-2">mdi-map</v-icon>
             First Setup - {{ event?.scenario }}
           </span>
 
-          <div class="d-flex align-center gap-2">
-            <v-btn
-              icon
-              size="small"
-              variant="text"
-              @click="zoomOut"
-              :disabled="zoomLevel <= 1"
-            >
-              <v-icon>mdi-magnify-minus</v-icon>
-            </v-btn>
+          <div class="d-flex align-center gap-2 w-100 justify-space-between justify-sm-end flex-wrap">
+            <div class="d-flex align-center gap-2">
+              <v-btn
+                icon
+                size="small"
+                variant="text"
+                @click="zoomOut"
+                :disabled="zoomLevel <= 1"
+              >
+                <v-icon>mdi-magnify-minus</v-icon>
+              </v-btn>
 
-            <v-chip size="small" variant="flat">
-              {{ Math.round(zoomLevel * 100) }}%
-            </v-chip>
+              <v-chip size="small" variant="flat">
+                {{ Math.round(zoomLevel * 100) }}%
+              </v-chip>
 
-            <v-btn
-              icon
-              size="small"
-              variant="text"
-              @click="zoomIn"
-              :disabled="zoomLevel >= 3"
-            >
-              <v-icon>mdi-magnify-plus</v-icon>
-            </v-btn>
+              <v-btn
+                icon
+                size="small"
+                variant="text"
+                @click="zoomIn"
+                :disabled="zoomLevel >= 3"
+              >
+                <v-icon>mdi-magnify-plus</v-icon>
+              </v-btn>
 
-            <v-btn
-              icon
-              size="small"
-              variant="text"
-              @click="resetZoom"
-              v-if="zoomLevel !== 1"
-            >
-              <v-icon>mdi-restore</v-icon>
-            </v-btn>
+              <v-btn
+                icon
+                size="small"
+                variant="text"
+                @click="resetZoom"
+                v-if="zoomLevel !== 1"
+              >
+                <v-icon>mdi-restore</v-icon>
+              </v-btn>
+            </div>
 
-            <v-divider vertical class="mx-2" />
-
-            <v-btn icon variant="text" @click="setupDialog = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
+            <div class="d-flex align-center">
+              <v-divider vertical class="mx-2" />
+              <v-btn icon variant="text" @click="setupDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
+            </div>
           </div>
         </v-card-title>
 
@@ -953,7 +979,9 @@ const handleTouchStart = (event) => {
 };
 
 const handleTouchMove = (event) => {
-  event.preventDefault();
+  if (event.touches.length === 2 || (event.touches.length === 1 && zoomLevel.value > 1)) {
+    event.preventDefault();
+  }
 
   if (event.touches.length === 2 && initialDistance > 0) {
     const currentDistance = getDistance(event.touches[0], event.touches[1]);
@@ -993,7 +1021,27 @@ const fetchTablesForEvent = async (eventFk) => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    tables.value = data.tables || [];
+    const fetchedTables = data.tables || [];
+    
+    await Promise.all(
+      fetchedTables.map(async (table) => {
+        try {
+          const playersRes = await axios.get(
+            `/rl_events_users/table_players/${eventFk}/${table.event_tables_pk}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          table.players = playersRes.data.players || [];
+        } catch (err) {
+          table.players = [];
+        }
+      })
+    );
+    
+    tables.value = fetchedTables;
   } catch (error) {
     console.error("Error fetching tables:", error);
     tables.value = [];
