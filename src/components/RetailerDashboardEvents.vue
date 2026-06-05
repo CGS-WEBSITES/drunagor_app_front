@@ -173,94 +173,147 @@
     />
 
     <v-dialog v-model="createStoreDialog" max-width="600" persistent>
-      <v-card>
+      <v-card class="dark-dialog-card elevation-24" color="secundary">
         <div v-if="creatingStore" class="dialog-overlay">
           <v-progress-circular indeterminate size="80" color="#118D8E" />
         </div>
-        <v-card-title class="text-h5 font-weight-bold">
-          Create Your Store
-        </v-card-title>
-        <v-card-text>
-          <p class="mb-4 text-grey">
-            You need a store to create events. Let's set it up quickly.
+
+        <!-- Form State -->
+        <div v-if="!showStoreSuccess">
+          <div class="px-6 pt-6 pb-2 d-flex align-center">
+            <v-icon size="32" color="#118D8E" class="mr-3">mdi-store-plus</v-icon>
+            <h3 class="text-h5 font-weight-black text-white cinzel-text">
+              CREATE YOUR STORE
+            </h3>
+          </div>
+          <v-card-text class="px-6">
+            <p class="mb-6 text-grey-lighten-1">
+              You need a store registered to create events. Let's set it up quickly.
+            </p>
+            <v-form ref="storeForm" v-model="isStoreFormValid">
+              <v-text-field
+                label="Store Name"
+                variant="outlined"
+                v-model="newStore.storename"
+                :rules="[(v) => !!v || 'Store name is required']"
+                color="#118D8E"
+                density="comfortable"
+                class="mb-4"
+              ></v-text-field>
+
+              <v-row dense>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    label="Number"
+                    variant="outlined"
+                    v-model="newStore.streetNumber"
+                    :rules="[(v) => !!v || 'Required']"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  />
+                </v-col>
+                <v-col cols="12" md="8">
+                  <v-text-field
+                    label="Street Address"
+                    variant="outlined"
+                    v-model="newStore.address"
+                    :rules="[(v) => !!v || 'Required']"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="City"
+                    variant="outlined"
+                    v-model="newStore.city"
+                    :rules="[(v) => !!v || 'Required']"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-autocomplete
+                    v-model="newStore.country"
+                    :items="countriesList"
+                    item-title="name"
+                    item-value="countries_pk"
+                    variant="outlined"
+                    label="Country"
+                    :rules="[(v) => !!v || 'Required']"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
+
+              <v-text-field
+                label="Zip Code"
+                variant="outlined"
+                v-model="newStore.zipcode"
+                :rules="[(v) => !!v || 'Required']"
+                color="#118D8E"
+                density="comfortable"
+                class="mb-4"
+              ></v-text-field>
+
+              <v-file-input
+                label="Store Image (Optional)"
+                accept="image/*"
+                @change="handleStoreImageUpload"
+                variant="outlined"
+                color="#118D8E"
+                density="comfortable"
+                prepend-icon=""
+                prepend-inner-icon="mdi-camera"
+              ></v-file-input>
+            </v-form>
+          </v-card-text>
+          <v-card-actions class="px-6 pb-6">
+            <v-spacer></v-spacer>
+            <v-btn color="grey-lighten-1" variant="text" @click="createStoreDialog = false" class="font-weight-bold"
+              >Cancel</v-btn
+            >
+            <v-btn
+              color="#118D8E"
+              variant="elevated"
+              class="text-white font-weight-black px-6"
+              @click="saveNewStore"
+              >Create & Continue</v-btn
+            >
+          </v-card-actions>
+        </div>
+
+        <!-- Success State -->
+        <div v-else class="pa-8 text-center d-flex flex-column align-center justify-center">
+          <div class="success-icon-container mb-6">
+            <div class="success-pulse-ring"></div>
+            <v-icon size="80" color="#118D8E" class="success-checkmark">mdi-checkbox-marked-circle</v-icon>
+          </div>
+          <h3 class="text-h4 font-weight-black text-white mb-2 cinzel-text">
+            STORE CREATED!
+          </h3>
+          <p class="text-body-1 text-grey-lighten-1 mb-8">
+            Your store <strong>{{ newStore.storename }}</strong> was successfully registered. Let's create your first event!
           </p>
-          <v-form ref="storeForm" v-model="isStoreFormValid">
-            <v-text-field
-              label="Store Name"
-              variant="outlined"
-              v-model="newStore.storename"
-              :rules="[(v) => !!v || 'Store name is required']"
-            ></v-text-field>
-
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  label="Street Number"
-                  variant="outlined"
-                  v-model="newStore.streetNumber"
-                  :rules="[(v) => !!v || 'Required']"
-                />
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  label="Street Name"
-                  variant="outlined"
-                  v-model="newStore.address"
-                  :rules="[(v) => !!v || 'Required']"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-text-field
-                  label="City"
-                  variant="outlined"
-                  v-model="newStore.city"
-                  :rules="[(v) => !!v || 'Required']"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-autocomplete
-                  v-model="newStore.country"
-                  :items="countriesList"
-                  item-title="name"
-                  item-value="countries_pk"
-                  variant="outlined"
-                  label="Country"
-                  :rules="[(v) => !!v || 'Required']"
-                ></v-autocomplete>
-              </v-col>
-            </v-row>
-
-            <v-text-field
-              label="Zip Code"
-              variant="outlined"
-              v-model="newStore.zipcode"
-              :rules="[(v) => !!v || 'Required']"
-            ></v-text-field>
-
-            <v-file-input
-              label="Store Image (Optional)"
-              accept="image/*"
-              @change="handleStoreImageUpload"
-              variant="outlined"
-            ></v-file-input>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="createStoreDialog = false"
-            >Cancel</v-btn
-          >
           <v-btn
             color="#118D8E"
+            size="large"
             variant="elevated"
-            class="text-white"
-            @click="saveNewStore"
-            >Create & Continue</v-btn
+            class="fancy-btn text-white font-weight-black px-12"
+            elevation="12"
+            @click="handleSuccessContinue"
           >
-        </v-card-actions>
+            Continue to Event Creation
+          </v-btn>
+        </div>
       </v-card>
     </v-dialog>
   </v-card>
@@ -291,6 +344,7 @@ const manageDialog = ref(false);
 
 const createStoreDialog = ref(false);
 const creatingStore = ref(false);
+const showStoreSuccess = ref(false);
 const isStoreFormValid = ref(false);
 const storeForm = ref(null);
 const countriesList = ref([]);
@@ -383,11 +437,13 @@ const goToEventsPageAndCreate = async () => {
       router.push({ path: "/events", query: { action: "create" } });
     } else {
       fetchCountries();
+      showStoreSuccess.value = false;
       createStoreDialog.value = true;
     }
   } catch (error) {
     if (error.response && error.response.status === 404) {
       fetchCountries();
+      showStoreSuccess.value = false;
       createStoreDialog.value = true;
     } else {
       console.error("Error checking stores:", error);
@@ -471,14 +527,19 @@ const saveNewStore = async () => {
       });
     }
 
-    createStoreDialog.value = false;
-    router.push({ path: "/events", query: { action: "create" } });
+    showStoreSuccess.value = true;
   } catch (error) {
     console.error("Error creating store:", error);
     alert("Failed to create store. Please try again.");
   } finally {
     creatingStore.value = false;
   }
+};
+
+const handleSuccessContinue = () => {
+  createStoreDialog.value = false;
+  showStoreSuccess.value = false;
+  router.push({ path: "/events", query: { action: "create" } });
 };
 
 onMounted(async () => {
@@ -625,5 +686,51 @@ onMounted(async () => {
 
 .content-scroll {
   padding-bottom: 12px;
+}
+
+/* Success State Styles */
+.success-icon-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 4px solid #118D8E;
+  border-radius: 50%;
+  animation: success-ring-pulse 2s infinite;
+  opacity: 0;
+}
+
+@keyframes success-ring-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+.success-checkmark {
+  animation: success-pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes success-pop-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>
