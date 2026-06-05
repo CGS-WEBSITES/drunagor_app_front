@@ -6,8 +6,7 @@
       height: 100dvh;
       max-height: 100dvh;
       overflow: hidden;
-      margin-top: -56px;
-      padding-top: 56px;
+      --v-layout-top: 0px;
       box-sizing: border-box;
     "
   >
@@ -89,14 +88,16 @@
       class="flex-grow-1"
       :style="{
         marginTop: display.xs ? '-95px' : '-85px',
-        overflowY: 'auto',
+        overflow: 'hidden',
         minHeight: '0',
         zIndex: 1,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }"
     >
       <v-container
-        class="mx-auto px-4 fill-height align-start"
+        class="mx-auto px-4 fill-height align-stretch"
         :style="{ maxWidth: containerMaxWidth }"
       >
         <DashboardEvents style="width: 100%" />
