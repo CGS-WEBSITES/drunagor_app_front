@@ -42,6 +42,7 @@
         <p
           :class="isMobile ? 'text-body-2' : 'text-body-1'"
           class="text-justify mb-0"
+          style="white-space: pre-line;"
         >
           {{ currentStepData.instruction }}
         </p>
