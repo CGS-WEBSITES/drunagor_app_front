@@ -311,6 +311,18 @@
                   players arrive is highly recommended. It ensures a quick and
                   smooth start to the adventure. Tap or click on the map to zoom and view full setup details
                 </p>
+                <div class="d-flex justify-center mb-4">
+                  <v-btn
+                    color="amber-accent-2"
+                    variant="tonal"
+                    rounded="pill"
+                    class="font-weight-bold text-white px-6"
+                    prepend-icon="mdi-help-circle-outline"
+                    @click="showTutorialPrompt = true"
+                  >
+                    Show Tutorial
+                  </v-btn>
+                </div>
               </div>
 
               <v-card
@@ -768,6 +780,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <TutorialPromptDialog v-model="showTutorialPrompt" start-with-guide />
   </v-dialog>
 </template>
 
@@ -782,6 +795,7 @@ import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
 import { formatEventDate } from "@/utils/dateHelpers";
+import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 
 const { smAndDown } = useDisplay();
 
@@ -825,6 +839,7 @@ const loadingTablePlayers = ref(false);
 const startInTables = ref(false);
 
 const setupDialog = ref(false);
+const showTutorialPrompt = ref(false);
 
 const zoomLevel = ref(1);
 const panX = ref(0);
