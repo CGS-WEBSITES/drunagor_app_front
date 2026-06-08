@@ -43,6 +43,8 @@
               'RetailerRegistration',
               'ForgotPassword',
               'ShareEvent',
+              'RetailerTutorial',
+              'NightsCommunication',
             ].includes(route.name)
           "
           color="WHITE"
@@ -303,6 +305,8 @@ const showMobileAppBar = computed(() => {
     route.name !== 'Gama' &&
     route.name !== 'Community' &&
     route.name !== 'Lobby' &&
+    route.name !== 'RetailerTutorial' &&
+    route.name !== 'NightsCommunication' &&
     (route.name !== 'Campaign' || !isImmersiveMode.value)
   );
 });

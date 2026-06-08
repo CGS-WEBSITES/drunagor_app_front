@@ -446,7 +446,12 @@
             elevation="8"
             @click="bookDialog.visible = false"
         ></v-btn>
-        <CampaignBookNew ref="campaignBookRef" :campaign-wing="bookContext" :campaign-type="campaign?.campaign || ''" />
+        <CampaignBookNew 
+          ref="campaignBookRef" 
+          :campaign-wing="bookContext" 
+          :campaign-type="activeCampaignData.campaign || campaign?.campaign || ''" 
+          :active-wing="activeCampaignData.wing || campaign?.wing || ''"
+        />
       </v-card>
     </v-dialog>
 

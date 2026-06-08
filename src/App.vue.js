@@ -40,6 +40,8 @@ const showMobileAppBar = computed(() => {
         route.name !== 'Gama' &&
         route.name !== 'Community' &&
         route.name !== 'Lobby' &&
+        route.name !== 'RetailerTutorial' &&
+        route.name !== 'NightsCommunication' &&
         (route.name !== 'Campaign' || !isImmersiveMode.value));
 });
 const assets = inject("assets");
@@ -129,6 +131,7 @@ const handleMenuClick = (item) => {
 watch(() => userStore.user?.roles_fk, (newRole) => {
     console.log("Role atualizada:", newRole);
 }, { immediate: true });
+
 const contentStyle = computed(() => {
     if (route.name === "Login" ||
         route.name === "RetailerRegistration" ||
@@ -331,6 +334,8 @@ if (__VLS_ctx.display.mdAndUp && (__VLS_ctx.route.name !== 'Campaign' || !__VLS_
         'RetailerRegistration',
         'ForgotPassword',
         'ShareEvent',
+        'RetailerTutorial',
+        'NightsCommunication',
     ].includes(__VLS_ctx.route.name)) {
         const __VLS_53 = {}.VBtn;
         /** @type {[typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ]} */ ;

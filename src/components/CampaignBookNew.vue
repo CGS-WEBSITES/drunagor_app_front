@@ -376,6 +376,7 @@ import KeywordView from "@/components/KeywordView.vue";
 import InteractView from "@/components/InteractViewNew.vue"; 
 
 import startHereData from "@/data/book/StartHere.json";
+import startHereS1Data from "@/data/book/StartHereS1.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
@@ -392,6 +393,7 @@ const { smAndDown } = useDisplay();
 const props = defineProps<{
   campaignWing?: string;
   campaignType?: string;
+  activeWing?: string;
 }>();
 
 const isSeason1 = computed(() => {
@@ -399,6 +401,8 @@ const isSeason1 = computed(() => {
   if (t === 'core' || t === 'apocalypse' || t === 'awakenings') return true;
   const wingKey = (props.campaignWing || "").toUpperCase();
   if (wingKey.includes("WING 1") || wingKey.includes("WING 2")) return true;
+  const activeKey = (props.activeWing || "").toUpperCase();
+  if (activeKey.includes("WING 1") || activeKey.includes("WING 2") || activeKey.includes("WING 01") || activeKey.includes("WING 02")) return true;
   return false;
 });
 
@@ -428,6 +432,7 @@ const scrollableContentRef = ref<HTMLElement | null>(null);
 const interactViewRef = ref<InstanceType<typeof InteractView> | null>(null);
 
 const rawStartHere = startHereData as PageSection[];
+const rawStartHereS1 = startHereS1Data as PageSection[];
 const rawStoryBooks = bookPagesData as PageSection[];
 
 const availableVolumes = computed<Volume[]>(() => {
@@ -436,7 +441,7 @@ const availableVolumes = computed<Volume[]>(() => {
   const isS1 = isSeason1.value;
 
   // Start Here volume should be accessible in Wing 3, Wing 1, or Tutorial
-  const showStartHere = wingKey.includes("WING 3") || wingKey.includes("WING 1") || wingKey.includes("TUTORIAL");
+  const showStartHere = wingKey.includes("WING 3") || wingKey.includes("WING 1") || wingKey.includes("TUTORIAL") || wingKey.includes("START");
 
   if (showStartHere) {
     vols.push({ 
@@ -445,7 +450,7 @@ const availableVolumes = computed<Volume[]>(() => {
       subtitle: 'Tutorial', 
       icon: 'mdi-school', 
       type: 'story', 
-      data: rawStartHere 
+      data: isS1 ? rawStartHereS1 : rawStartHere 
     });
   }
 
@@ -706,6 +711,7 @@ function scrollToTop() {
 }
 
 const headerBannerStyle = computed(() => {
+  const isS1 = isSeason1.value;
   let img = booktopImg;
   const vol = currentVolume.value;
   const id = currentVolumeId.value || "";
@@ -713,7 +719,7 @@ const headerBannerStyle = computed(() => {
   const subtitle = (vol?.subtitle || "").toUpperCase();
   
   if (
-      id === 'start_here' || 
+      (id === 'start_here' && !isS1) || 
       id === 'dragon' ||
       subtitle.includes("WING 3") || 
       subtitle.includes("WING 4") ||

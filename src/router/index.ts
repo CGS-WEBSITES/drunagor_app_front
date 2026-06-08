@@ -37,6 +37,16 @@ const router = createRouter({
       component: () => import("@/pages/RetailerRegistration.vue"),
     },
     {
+      path: "/retailer-tutorial",
+      name: "RetailerTutorial",
+      component: () => import("@/pages/RetailerTutorial.vue"),
+    },
+    {
+      path: "/nights-communication",
+      name: "NightsCommunication",
+      component: () => import("@/pages/DrunagorNightsCommunication.vue"),
+    },
+    {
       path: "/forgotpassword",
       name: "ForgotPassword",
       component: () => import("@/components/ForgotPassword.vue"),
