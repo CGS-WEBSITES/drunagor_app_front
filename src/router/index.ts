@@ -227,6 +227,12 @@ const router = createRouter({
           beforeEnter: requireAuth,
         },
         {
+          path: "/profile/edit",
+          name: "PerfilEdit",
+          component: () => import("@/components/PerfilImage.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
           path: "/profile/friend-store",
           name: "search",
           component: () => import("@/components/FriendStore.vue"),
