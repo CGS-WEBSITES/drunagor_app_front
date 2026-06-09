@@ -904,7 +904,7 @@ const selectedStoreImage = computed(() => {
     (s) => s.storename === selectedEvent.value?.store,
   );
   return store?.picture_hash
-    ? `http://druna-user-pic.s3-website.us-east-2.amazonaws.com/${store.picture_hash}`
+    ? `https://assets.drunagor.app/${store.picture_hash}`
     : "https://via.placeholder.com/150";
 });
 

@@ -267,13 +267,25 @@
               <v-file-input
                 label="Store Image (Optional)"
                 accept="image/*"
-                @change="handleStoreImageUpload"
+                @update:modelValue="handleStoreImageUpload"
                 variant="outlined"
                 color="#118D8E"
                 density="comfortable"
                 prepend-icon=""
                 prepend-inner-icon="mdi-camera"
               ></v-file-input>
+
+              <v-img
+                v-if="newStore.storeImage"
+                :src="
+                  newStore.storeImage.startsWith('http')
+                    ? newStore.storeImage
+                    : `https://assets.drunagor.app/${newStore.storeImage}`
+                "
+                height="100"
+                class="rounded mb-4"
+                contain
+              />
             </v-form>
           </v-card-text>
           <v-card-actions class="px-6 pb-6">
@@ -319,10 +331,6 @@
   </v-card>
 
   <TutorialPromptDialog v-model="showTutorialPrompt" />
-
-  <v-dialog v-model="communicationDialog" max-width="750">
-    <DrunagorNightsCommunication is-dialog @close="communicationDialog = false" />
-  </v-dialog>
 </template>
 
 <script setup>
@@ -333,12 +341,9 @@ import { useDisplay } from "vuetify";
 import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
-import DrunagorNightsCommunication from "@/pages/DrunagorNightsCommunication.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { extractMonth, extractDay, extractTime } from "@/utils/dateHelpers";
-
-const communicationDialog = ref(false);
 const isBeforeJulyFirst2026 = () => {
   return new Date() < new Date("2026-07-01T00:00:00");
 };
@@ -433,6 +438,11 @@ const openManageDialog = (event) => {
 };
 
 const goToEventsPageAndCreate = async () => {
+  if (isBeforeJulyFirst2026()) {
+    router.push({ name: "NightsCommunication" });
+    return;
+  }
+
   try {
     const { data } = await axios.get("/stores/list", {
       params: { users_fk: userStore.user.users_pk },
@@ -444,11 +454,7 @@ const goToEventsPageAndCreate = async () => {
     const stores = data.stores || [];
 
     if (stores.length > 0) {
-      if (isBeforeJulyFirst2026()) {
-        communicationDialog.value = true;
-      } else {
-        router.push({ path: "/events", query: { action: "create" } });
-      }
+      router.push({ path: "/events", query: { action: "create" } });
     } else {
       fetchCountries();
       showStoreSuccess.value = false;
@@ -479,9 +485,12 @@ const fetchCountries = () => {
     .catch(console.error);
 };
 
-const handleStoreImageUpload = async (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+const handleStoreImageUpload = async (files) => {
+  const file = Array.isArray(files) ? files[0] : files;
+  if (!file) {
+    newStore.value.storeImage = "";
+    return;
+  }
   const formData = new FormData();
   formData.append("file", file);
   try {
@@ -554,7 +563,7 @@ const handleSuccessContinue = () => {
   createStoreDialog.value = false;
   showStoreSuccess.value = false;
   if (isBeforeJulyFirst2026()) {
-    communicationDialog.value = true;
+    router.push({ name: "NightsCommunication" });
   } else {
     router.push({ path: "/events", query: { action: "create" } });
   }

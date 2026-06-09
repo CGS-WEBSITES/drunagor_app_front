@@ -31,7 +31,7 @@
             <v-file-input
               label="Upload Store Image (Recommended square images)"
               accept="image/*"
-              @change="handleImageUpload"
+              @update:modelValue="handleImageUpload"
               variant="outlined"
               class="mb-3"
             ></v-file-input>
@@ -41,7 +41,7 @@
               :src="
                 form.storeImage.startsWith('http')
                   ? form.storeImage
-                  : `http://druna-user-pic.s3.us-east-2.amazonaws.com/${form.storeImage}`
+                  : `https://assets.drunagor.app/${form.storeImage}`
               "
               height="100"
               class="rounded-lg mb-3"
@@ -274,11 +274,15 @@
               <v-file-input
                 label="Upload Store Image"
                 accept="image/*"
-                @change="handleImageUpload"
+                @update:modelValue="handleImageUpload"
               ></v-file-input>
               <v-img
                 v-if="editableStore.storeImage"
-                :src="editableStore.storeImage"
+                :src="
+                  editableStore.storeImage.startsWith('http')
+                    ? editableStore.storeImage
+                    : `https://assets.drunagor.app/${editableStore.storeImage}`
+                "
                 height="100"
                 class="mt-2 rounded"
               ></v-img>
@@ -672,10 +676,16 @@ const openEditDialog = (store: any, index: number) => {
   editDialog.value = true;
 };
 
-const handleImageUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
+const handleImageUpload = async (files: any) => {
+  const file = Array.isArray(files) ? files[0] : files;
+  if (!file) {
+    if (editDialog.value) {
+      editableStore.value.storeImage = "";
+    } else {
+      form.value.storeImage = "";
+    }
+    return;
+  }
 
   const formData = new FormData();
   formData.append("file", file);
@@ -702,7 +712,6 @@ const handleImageUpload = async (event: Event) => {
 const saveEditedStore = async () => {
   sanitizeStoreValues(editableStore.value);
   const store = editableStore.value;
-
   const countryName = getCountryNameFromId(store.country);
 
   const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
