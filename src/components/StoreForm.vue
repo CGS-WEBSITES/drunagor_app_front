@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-0 py-4" max-width="800">
+  <v-container class="pa-0 pt-0 pb-4" max-width="800">
     <!-- Save All Changes Button -->
     <v-btn
       color="#4CAF50"
@@ -25,7 +25,7 @@
       <div class="d-flex align-center justify-space-between px-4 py-4">
         <div class="d-flex align-center justify-center flex-grow-1">
           <v-icon size="24" color="white" class="mr-2">mdi-store-plus</v-icon>
-          <span class="text-button font-weight-black text-white text-h6 cinzel-text">
+          <span class="text-button font-weight-black text-white text-h6">
             ADD STORE
           </span>
         </div>
@@ -60,7 +60,7 @@
           style="background-color: rgba(255, 255, 255, 0.02)"
         >
           <div class="d-flex align-center">
-            <span class="cinzel-text font-weight-black text-white text-h6 text-uppercase">
+            <span class="font-weight-black text-white text-h6 text-uppercase">
               STORE {{ index + 1 }} {{ store.storename ? `- ${store.storename}` : '' }}
             </span>
             <v-chip
@@ -295,16 +295,6 @@
               ></v-text-field>
             </v-form>
 
-            <v-btn
-              v-if="store.site"
-              block
-              color="#7B1FA2"
-              class="text-white font-weight-black mt-4 py-3"
-              style="border-radius: 4px"
-              @click="goToStorePage(store.site)"
-            >
-              GO TO STORE'S PAGE
-            </v-btn>
           </div>
         </v-expand-transition>
       </v-card>
@@ -318,6 +308,189 @@
         Click "+ ADD STORE" above to register your first store.
       </p>
     </div>
+
+    <!-- Add Store Dialog -->
+    <v-dialog v-model="addStoreDialog.show" max-width="600px" persistent>
+      <v-card color="#151515" style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px">
+        <v-card-title class="text-h5 text-white font-weight-bold px-6 pt-6">
+          Add New Store
+        </v-card-title>
+        <v-card-text class="px-6 py-4">
+          <!-- Image Upload / Preview inside Dialog -->
+          <v-row align="center" class="mb-6 no-gutters">
+            <v-col cols="auto" class="d-flex flex-column align-center justify-center">
+              <span class="text-caption text-grey-lighten-1 mb-2 font-weight-bold text-uppercase tracking-wider">
+                Store Photo/Logo
+              </span>
+              <v-btn
+                color="#4CAF50"
+                class="text-white font-weight-black px-6"
+                style="border-radius: 4px"
+                :loading="addStoreDialog.uploadingImage"
+                @click="triggerDialogFileInput"
+              >
+                UPLOAD
+              </v-btn>
+              <input
+                type="file"
+                ref="dialogFileInput"
+                accept="image/*"
+                style="display: none"
+                @change="onDialogFileChanged"
+              />
+            </v-col>
+            <v-col cols="auto" class="pl-6">
+              <v-avatar size="100" rounded="lg" style="border: 2px solid rgba(255, 255, 255, 0.1)">
+                <v-img
+                  :src="
+                    addStoreDialog.storeImage
+                      ? (addStoreDialog.storeImage.startsWith('http') ? addStoreDialog.storeImage : `https://assets.drunagor.app/${addStoreDialog.storeImage}`)
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                  "
+                  cover
+                />
+              </v-avatar>
+            </v-col>
+          </v-row>
+
+          <v-form ref="dialogFormRef">
+            <v-text-field
+              label="Shop Name"
+              variant="outlined"
+              color="#118D8E"
+              v-model="addStoreDialog.storename"
+              :rules="[(v) => !!v || 'Store name is required']"
+              class="mb-3"
+              density="comfortable"
+            ></v-text-field>
+
+            <v-text-field
+              label="Address Line 1"
+              variant="outlined"
+              color="#118D8E"
+              v-model="addStoreDialog.addressLine1"
+              placeholder="e.g. 12345 Street Name"
+              :rules="[(v) => !!v || 'Address Line 1 is required']"
+              class="mb-3"
+              density="comfortable"
+            ></v-text-field>
+
+            <v-text-field
+              label="Address Line 2"
+              variant="outlined"
+              color="#118D8E"
+              v-model="addStoreDialog.complement"
+              placeholder="Apartment, suite, unit, building, floor, etc."
+              class="mb-3"
+              density="comfortable"
+            ></v-text-field>
+
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="City"
+                  variant="outlined"
+                  color="#118D8E"
+                  v-model="addStoreDialog.city"
+                  :rules="[(v) => !!v || 'City is required']"
+                  class="mb-3"
+                  density="comfortable"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="State"
+                  variant="outlined"
+                  color="#118D8E"
+                  v-model="addStoreDialog.state"
+                  :rules="[(v) => !!v || 'State is required']"
+                  class="mb-3"
+                  density="comfortable"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="ZIP Code"
+                  variant="outlined"
+                  color="#118D8E"
+                  v-model="addStoreDialog.zipcode"
+                  :rules="[(v) => !!v || 'ZIP Code is required']"
+                  class="mb-3"
+                  density="comfortable"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-autocomplete
+                  v-model="addStoreDialog.country"
+                  :items="countriesList"
+                  item-title="name"
+                  item-value="countries_pk"
+                  variant="outlined"
+                  color="#118D8E"
+                  label="Country"
+                  :rules="[(v) => !!v || 'Country is required']"
+                  class="mb-3"
+                  density="comfortable"
+                ></v-autocomplete>
+              </v-col>
+            </v-row>
+
+            <v-row dense>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Phone Number (optional)"
+                  variant="outlined"
+                  color="#118D8E"
+                  v-model="addStoreDialog.phone"
+                  class="mb-3"
+                  density="comfortable"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  label="Google Merchant ID (optional)"
+                  variant="outlined"
+                  color="#118D8E"
+                  v-model="addStoreDialog.MerchantID"
+                  class="mb-3"
+                  density="comfortable"
+                ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-text-field
+              label="Website (optional)"
+              variant="outlined"
+              color="#118D8E"
+              v-model="addStoreDialog.site"
+              placeholder="https://example.com"
+              class="mb-3"
+              density="comfortable"
+            ></v-text-field>
+          </v-form>
+        </v-card-text>
+        <v-card-actions class="px-6 pb-6 d-flex justify-end">
+          <v-btn
+            variant="text"
+            color="grey-lighten-1"
+            class="mr-2 font-weight-bold"
+            @click="closeAddStoreDialog"
+          >
+            Cancel
+          </v-btn>
+          <v-btn
+            color="#4CAF50"
+            class="text-white font-weight-bold px-6"
+            @click="confirmAddStore"
+          >
+            Add Store
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -448,8 +621,60 @@ const getCountryNameFromId = (id: number | null): string => {
   return match ? match.name : "";
 };
 
+const dialogFileInput = ref<any>(null);
+const dialogFormRef = ref<any>(null);
+
+const addStoreDialog = ref({
+  show: false,
+  storename: "",
+  site: "",
+  country: null as number | null,
+  zipcode: "",
+  MerchantID: "",
+  storeImage: "",
+  complement: "",
+  addressLine1: "",
+  city: "",
+  state: "",
+  phone: "",
+  uploadingImage: false
+});
+
+const triggerDialogFileInput = () => {
+  if (dialogFileInput.value) {
+    dialogFileInput.value.click();
+  }
+};
+
+const onDialogFileChanged = async (event: any) => {
+  const files = event.target.files;
+  const file = files?.[0];
+  if (!file) return;
+
+  addStoreDialog.value.uploadingImage = true;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axios.post("/images/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    addStoreDialog.value.storeImage = response.data.image_key;
+  } catch (error) {
+    console.error("Error uploading image inside dialog:", error);
+    alert("Failed to upload image.");
+  } finally {
+    addStoreDialog.value.uploadingImage = false;
+  }
+};
+
 const addStore = () => {
-  stores.value.push({
+  addStoreDialog.value = {
+    show: true,
     storename: "",
     site: "",
     country: null,
@@ -458,14 +683,42 @@ const addStore = () => {
     storeImage: "",
     complement: "",
     addressLine1: "",
-    streetNumber: "",
     city: "",
     state: "",
     phone: "",
+    uploadingImage: false
+  };
+};
+
+const closeAddStoreDialog = () => {
+  addStoreDialog.value.show = false;
+};
+
+const confirmAddStore = async () => {
+  if (dialogFormRef.value) {
+    const { valid } = await dialogFormRef.value.validate();
+    if (!valid) return;
+  }
+
+  stores.value.push({
+    storename: addStoreDialog.value.storename,
+    site: addStoreDialog.value.site,
+    country: addStoreDialog.value.country,
+    zipcode: addStoreDialog.value.zipcode,
+    MerchantID: addStoreDialog.value.MerchantID,
+    storeImage: addStoreDialog.value.storeImage,
+    complement: addStoreDialog.value.complement,
+    addressLine1: addStoreDialog.value.addressLine1,
+    streetNumber: "",
+    city: addStoreDialog.value.city,
+    state: addStoreDialog.value.state,
+    phone: addStoreDialog.value.phone,
     isExpanded: true,
-    isDirty: false,
+    isDirty: true,
     isNew: true
   });
+
+  closeAddStoreDialog();
 };
 
 const markAsDirty = (index: number) => {
@@ -617,11 +870,7 @@ const saveAllChanges = async () => {
   }
 };
 
-const goToStorePage = (url: string) => {
-  if (!url) return;
-  const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
-  window.open(formattedUrl, "_blank");
-};
+
 
 onMounted(async () => {
   await fetchCountries();
@@ -632,7 +881,6 @@ onMounted(async () => {
 <style scoped>
 .fancy-btn {
   border-radius: 6px !important;
-  font-family: "Cinzel", serif;
   letter-spacing: 1.5px;
   transition: all 0.3s ease;
 }
@@ -667,9 +915,7 @@ onMounted(async () => {
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
-.cinzel-text {
-  font-family: "Cinzel", serif;
-}
+
 
 .border-grey {
   border-color: rgba(255, 255, 255, 0.1) !important;
