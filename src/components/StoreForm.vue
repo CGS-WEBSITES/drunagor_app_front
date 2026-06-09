@@ -1,352 +1,350 @@
 <template>
-  <v-col class="d-flex justify-center mb-4">
+  <v-container class="pa-0 py-4" max-width="800">
+    <!-- Save All Changes Button -->
     <v-btn
-      color="secundary"
-      @click="toggleForm"
-      class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase mb-0"
-      min-width="378px"
-      min-height="60px"
+      color="#4CAF50"
+      block
+      class="text-white font-weight-black mb-4 fancy-btn"
+      size="x-large"
+      elevation="8"
+      :loading="saving"
+      @click="saveAllChanges"
     >
-      <v-icon class="pr-3"> mdi-store-plus </v-icon>
-      ADD STORE
+      <v-icon left class="mr-2">mdi-content-save-all</v-icon>
+      SAVE ALL CHANGES
     </v-btn>
-  </v-col>
-  <BaseAlert
-    v-model="showVerificationMessage"
-    type="info"
-    icon="mdi-alert-octagram-outline"
-    color="warning"
-    class="my-4"
-  >
-    Your store is under review and cannot create events yet. The verification
-    process may take up to 3 business days.
-  </BaseAlert>
 
-  <v-col cols="12" class="d-flex justify-center pa-0">
-    <v-container max-width="800" style="min-width: 360px" class="pa-4">
-      <v-card class="pl-2 pr-2 pb-2 pt-2" rounded="lg" elevation="3">
-        <v-card-text v-if="isExpanded">
-          <v-form ref="storeForm">
-            <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">Store Image</p>
-            <v-file-input
-              label="Upload Store Image (Recommended square images)"
-              accept="image/*"
-              @update:modelValue="handleImageUpload"
-              variant="outlined"
-              class="mb-3"
-            ></v-file-input>
+    <!-- Add Store Bar -->
+    <v-card
+      color="#212121"
+      class="mb-6 add-store-bar"
+      ripple
+      @click="addStore"
+      style="border: 2px solid rgba(255, 255, 255, 0.1); cursor: pointer; border-radius: 8px"
+    >
+      <div class="d-flex align-center justify-space-between px-4 py-4">
+        <div class="d-flex align-center justify-center flex-grow-1">
+          <v-icon size="24" color="white" class="mr-2">mdi-store-plus</v-icon>
+          <span class="text-button font-weight-black text-white text-h6 cinzel-text">
+            ADD STORE
+          </span>
+        </div>
+        <v-icon color="white">mdi-menu</v-icon>
+      </div>
+    </v-card>
 
-            <v-img
-              v-if="form.storeImage"
-              :src="
-                form.storeImage.startsWith('http')
-                  ? form.storeImage
-                  : `https://assets.drunagor.app/${form.storeImage}`
-              "
-              height="100"
-              class="rounded-lg mb-3"
-            />
+    <!-- Alert Message -->
+    <v-alert
+      v-if="successAlert.show"
+      type="success"
+      class="mb-4"
+      closable
+      @click:close="successAlert.show = false"
+    >
+      {{ successAlert.message }}
+    </v-alert>
 
-            <v-text-field
-              label="Website"
-              variant="outlined"
-              v-model="form.site"
-            ></v-text-field>
-            <v-text-field
-              label="Store Name"
-              variant="outlined"
-              v-model="form.storename"
-              :rules="[(v) => !!v || 'Store name is required']"
-            ></v-text-field>
-            <v-text-field
-              label="Street Number"
-              variant="outlined"
-              v-model="form.streetNumber"
-              :rules="[(v) => !!v || 'Street Number is required']"
-              type="text"
-              @keypress="onlyAllowAlphanumeric"
-            />
-            <v-text-field
-              label="Street Name"
-              variant="outlined"
-              v-model="form.address"
-              :rules="[(v) => !!v || 'Street name is required']"
-            ></v-text-field>
-            <v-text-field
-              label="Apt, suite, etc."
-              variant="outlined"
-              v-model="form.complement"
-            ></v-text-field>
-            <v-text-field
-              label="City"
-              variant="outlined"
-              v-model="form.city"
-              :rules="[(v) => !!v || 'City name is required']"
-            ></v-text-field>
-            <v-autocomplete
-              v-model="form.country"
-              :items="countriesList"
-              item-title="name"
-              item-value="countries_pk"
-              variant="solo-filled"
-              label="Select or type a country"
-              :rules="[(v) => !!v || 'country is required']"
-              class="mb-0"
-            ></v-autocomplete>
-            <v-autocomplete
-              v-if="isUnitedStates"
-              v-model="form.state"
-              :items="StateList"
-              item-title="name"
-              variant="outlined"
-              label="Select State"
-              :rules="[(v) => !!v || 'State is required']"
-              class="mb-0"
-            />
-            <v-text-field
-              v-if="isUnitedStates"
-              label="Zip Code"
-              variant="outlined"
-              v-model="form.zipcode"
-              :rules="[(v) => !!v || 'Zipcode is required']"
-            ></v-text-field>
-            <v-text-field
-              label="Google Merchant ID"
-              variant="outlined"
-              v-model="form.MerchantID"
-            ></v-text-field>
-          </v-form>
+    <!-- Collapsible Stores List -->
+    <div v-if="stores.length > 0">
+      <v-card
+        v-for="(store, index) in stores"
+        :key="index"
+        class="mb-4 store-card"
+        color="#151515"
+        style="border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; overflow: hidden"
+      >
+        <!-- Header -->
+        <div
+          class="d-flex align-center justify-space-between px-4 py-4 cursor-pointer select-none card-header"
+          @click="store.isExpanded = !store.isExpanded"
+          style="background-color: rgba(255, 255, 255, 0.02)"
+        >
+          <div class="d-flex align-center">
+            <span class="cinzel-text font-weight-black text-white text-h6 text-uppercase">
+              STORE {{ index + 1 }} {{ store.storename ? `- ${store.storename}` : '' }}
+            </span>
+            <v-chip
+              v-if="store.isNew"
+              color="success"
+              size="x-small"
+              class="ml-2 font-weight-bold"
+            >
+              NEW
+            </v-chip>
+            <v-chip
+              v-else-if="store.isDirty"
+              color="warning"
+              size="x-small"
+              class="ml-2 font-weight-bold"
+            >
+              EDITED
+            </v-chip>
+            
+            <v-tooltip location="top" v-if="store.stores_pk">
+              <template #activator="{ props }">
+                <v-icon
+                  v-bind="props"
+                  :color="store.verified ? 'green' : 'yellow'"
+                  size="20"
+                  class="ml-2"
+                >
+                  {{
+                    store.verified
+                      ? "mdi-check-decagram-outline"
+                      : "mdi-alert-octagram-outline"
+                  }}
+                </v-icon>
+              </template>
+              <span>
+                {{
+                  store.verified
+                    ? "Verified & eligible to host events"
+                    : "Under review (may take up to 3 business days)"
+                }}
+              </span>
+            </v-tooltip>
+          </div>
 
-          <v-card-actions>
-            <v-btn color="green" @click="saveStore">Save Store</v-btn>
-            <v-btn color="red" text="true" @click="cancelForm">Cancel</v-btn>
-          </v-card-actions>
-        </v-card-text>
+          <div class="d-flex align-center">
+            <v-btn
+              icon
+              variant="text"
+              color="red-lighten-1"
+              size="small"
+              class="mr-2"
+              @click.stop="markForDeletion(index)"
+            >
+              <v-icon size="20">mdi-delete-outline</v-icon>
+            </v-btn>
+            <v-icon color="white">
+              {{ store.isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+            </v-icon>
+          </div>
+        </div>
 
-        <v-divider class="my-4"></v-divider>
+        <v-divider></v-divider>
 
-        <v-row v-if="stores.length > 0" no-gutters class="d-flex flex-column">
-          <v-col
-            v-for="(store, index) in stores"
-            :key="store.stores_pk"
-            class="pr-4"
-            cols="12"
-          >
-            <v-card color="primary" min-height="130px" class="mb-4 event-card">
-              <v-row no-gutters>
-                <v-col cols="2" lg="2">
+        <!-- Body -->
+        <v-expand-transition>
+          <div v-show="store.isExpanded" class="pa-6">
+            <!-- Image Selector & Preview -->
+            <v-row align="center" class="mb-6 no-gutters">
+              <v-col cols="auto" class="d-flex flex-column align-center justify-center">
+                <span class="text-caption text-grey-lighten-1 mb-2 font-weight-bold text-uppercase tracking-wider">
+                  Store Photo/Logo
+                </span>
+                <v-btn
+                  color="#4CAF50"
+                  class="text-white font-weight-black px-6"
+                  style="border-radius: 4px"
+                  :loading="store.uploadingImage"
+                  @click="triggerFileInput(index)"
+                >
+                  UPLOAD
+                </v-btn>
+                <input
+                  type="file"
+                  :ref="el => { if (el) fileInputs[index] = el }"
+                  accept="image/*"
+                  style="display: none"
+                  @change="onFileChanged($event, index)"
+                />
+              </v-col>
+
+              <v-col cols="auto" class="pl-6">
+                <v-avatar size="100" rounded="lg" class="border-grey" style="border: 2px solid rgba(255, 255, 255, 0.1)">
                   <v-img
                     :src="
-                      store.picture_hash
-                        ? `https://assets.drunagor.app/${store.picture_hash}`
+                      store.storeImage
+                        ? (store.storeImage.startsWith('http') ? store.storeImage : `https://assets.drunagor.app/${store.storeImage}`)
                         : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                     "
-                    class="event-img"
+                    cover
                   />
-                </v-col>
+                </v-avatar>
+              </v-col>
+            </v-row>
 
-                <v-col cols="8" lg="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ store.name }}
-                    <v-tooltip location="top">
-                      <template #activator="{ props }">
-                        <v-icon
-                          v-bind="props"
-                          :color="store.verified ? 'green' : 'yellow'"
-                          size="20"
-                          class="ml-2"
-                        >
-                          {{
-                            store.verified
-                              ? "mdi-check-decagram-outline"
-                              : "mdi-alert-octagram-outline"
-                          }}
-                        </v-icon>
-                      </template>
-                      <span>
-                        {{
-                          store.verified
-                            ? "Your store has been verified and is eligible to create events."
-                            : "Your store is under review and cannot create events yet. The verification process may take up to 3 business days."
-                        }}
-                      </span>
-                    </v-tooltip>
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ store.address }}, {{ store.streetNumber }} -
-                    {{ store.city }}, {{ store.state }}
-                  </p>
-                  <p class="text-caption">
-                    🏛️ Merchant ID: {{ store.merchant_id }}
-                  </p>
+            <!-- Store Form Fields -->
+            <v-form :ref="el => { if (el) storeFormsRefs[index] = el }">
+              <v-text-field
+                label="Shop Name"
+                variant="outlined"
+                color="#118D8E"
+                v-model="store.storename"
+                :rules="[(v) => !!v || 'Store name is required']"
+                @input="markAsDirty(index)"
+                class="mb-3"
+                density="comfortable"
+              ></v-text-field>
+
+              <v-text-field
+                label="Address Line 1"
+                variant="outlined"
+                color="#118D8E"
+                v-model="store.addressLine1"
+                placeholder="e.g. 12345 Street Name"
+                :rules="[(v) => !!v || 'Address Line 1 is required']"
+                @input="markAsDirty(index)"
+                class="mb-3"
+                density="comfortable"
+              ></v-text-field>
+
+              <v-text-field
+                label="Address Line 2"
+                variant="outlined"
+                color="#118D8E"
+                v-model="store.complement"
+                placeholder="Apartment, suite, unit, building, floor, etc."
+                @input="markAsDirty(index)"
+                class="mb-3"
+                density="comfortable"
+              ></v-text-field>
+
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    label="City"
+                    variant="outlined"
+                    color="#118D8E"
+                    v-model="store.city"
+                    :rules="[(v) => !!v || 'City is required']"
+                    @input="markAsDirty(index)"
+                    class="mb-3"
+                    density="comfortable"
+                  ></v-text-field>
                 </v-col>
-                <v-col
-                  cols="2"
-                  lg="1"
-                  class="d-flex flex-column align-center justify-center gap-2"
-                >
-                  <v-btn
-                    color="terciary"
-                    icon
-                    class="mb-4"
-                    size="small"
-                    @click="openEditDialog(store, index)"
-                  >
-                    <v-icon>mdi-pencil</v-icon>
-                  </v-btn>
-                  <v-btn
-                    color="red"
-                    size="small"
-                    icon
-                    @click="removeStore(store.stores_pk)"
-                  >
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    label="State"
+                    variant="outlined"
+                    color="#118D8E"
+                    v-model="store.state"
+                    :rules="[(v) => !!v || 'State is required']"
+                    @input="markAsDirty(index)"
+                    class="mb-3"
+                    density="comfortable"
+                  ></v-text-field>
                 </v-col>
               </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
 
-        <v-dialog v-model="editDialog" max-width="500">
-          <v-card>
-            <v-card-title class="text-h5 font-weight-bold">
-              Edit Store
-            </v-card-title>
-            <v-card-text>
-              <v-text-field
-                label="Site"
-                outlined
-                v-model="editableStore.site"
-              ></v-text-field>
-              <v-text-field
-                label="Store Name"
-                outlined
-                v-model="editableStore.storename"
-              ></v-text-field>
-              <v-text-field
-                label="Street Number"
-                outlined
-                v-model="editableStore.streetNumber"
-                @keypress="onlyAllowAlphanumeric"
-              ></v-text-field>
-              <v-text-field
-                label="Street Name"
-                outlined
-                v-model="editableStore.address"
-              ></v-text-field>
-              <v-text-field
-                label="Apt, suite, etc."
-                outlined
-                v-model="editableStore.complement"
-              ></v-text-field>
-              <v-text-field
-                label="City"
-                outlined
-                v-model="editableStore.city"
-              ></v-text-field>
-              <v-text-field
-                label="State"
-                outlined
-                v-model="editableStore.state"
-              ></v-text-field>
-              <v-autocomplete
-                v-model="editableStore.country"
-                :items="countriesList"
-                item-title="name"
-                item-value="countries_pk"
-                variant="solo-filled"
-                label="Select or type a country"
-                class="mb-0"
-              ></v-autocomplete>
-              <v-text-field
-                label="Zip Code"
-                outlined
-                v-model="editableStore.zipcode"
-              ></v-text-field>
-              <v-text-field
-                label="Merchant ID"
-                outlined
-                v-model="editableStore.MerchantID"
-              ></v-text-field>
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    label="ZIP Code"
+                    variant="outlined"
+                    color="#118D8E"
+                    v-model="store.zipcode"
+                    :rules="[(v) => !!v || 'ZIP Code is required']"
+                    @input="markAsDirty(index)"
+                    class="mb-3"
+                    density="comfortable"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-autocomplete
+                    v-model="store.country"
+                    :items="countriesList"
+                    item-title="name"
+                    item-value="countries_pk"
+                    variant="outlined"
+                    color="#118D8E"
+                    label="Country"
+                    :rules="[(v) => !!v || 'Country is required']"
+                    @update:modelValue="markAsDirty(index)"
+                    class="mb-3"
+                    density="comfortable"
+                  ></v-autocomplete>
+                </v-col>
+              </v-row>
 
-              <v-file-input
-                label="Upload Store Image"
-                accept="image/*"
-                @update:modelValue="handleImageUpload"
-              ></v-file-input>
-              <v-img
-                v-if="editableStore.storeImage"
-                :src="
-                  editableStore.storeImage.startsWith('http')
-                    ? editableStore.storeImage
-                    : `https://assets.drunagor.app/${editableStore.storeImage}`
-                "
-                height="100"
-                class="mt-2 rounded"
-              ></v-img>
-            </v-card-text>
+              <v-row dense>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    label="Phone Number (optional)"
+                    variant="outlined"
+                    color="#118D8E"
+                    v-model="store.phone"
+                    @input="markAsDirty(index)"
+                    class="mb-3"
+                    density="comfortable"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" sm="6">
+                  <v-text-field
+                    label="Google Merchant ID (optional)"
+                    variant="outlined"
+                    color="#118D8E"
+                    v-model="store.MerchantID"
+                    @input="markAsDirty(index)"
+                    class="mb-3"
+                    density="comfortable"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
 
-            <v-card-actions class="d-flex justify-space-between">
-              <v-btn color="red" @click="editDialog = false">Cancel</v-btn>
-              <v-btn color="green" @click="saveEditedStore">Save</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+              <v-text-field
+                label="Website (optional)"
+                variant="outlined"
+                color="#118D8E"
+                v-model="store.site"
+                placeholder="https://example.com"
+                @input="markAsDirty(index)"
+                class="mb-3"
+                density="comfortable"
+              ></v-text-field>
+            </v-form>
 
-        <v-dialog v-model="successDialog" max-width="500" persistent>
-          <v-card>
-            <v-card-title class="text-h5 text-success font-weight-bold">
-              <v-icon start color="success">mdi-check-circle</v-icon>
-              Store Created & Verified!
-            </v-card-title>
-            <v-card-text>
-              Your store has been successfully created and verified. What would
-              you like to do next?
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn
-                color="grey-darken-1"
-                variant="text"
-                @click="successDialog = false"
-              >
-                Manage Stores
-              </v-btn>
-              <v-btn
-                color="primary"
-                variant="elevated"
-                @click="goToCreateEvent"
-              >
-                Create Event Now
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+            <v-btn
+              v-if="store.site"
+              block
+              color="#7B1FA2"
+              class="text-white font-weight-black mt-4 py-3"
+              style="border-radius: 4px"
+              @click="goToStorePage(store.site)"
+            >
+              GO TO STORE'S PAGE
+            </v-btn>
+          </div>
+        </v-expand-transition>
       </v-card>
-    </v-container>
-  </v-col>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="text-center py-12">
+      <v-icon size="64" color="grey-darken-1" class="mb-4">mdi-store-outline</v-icon>
+      <h3 class="text-h6 text-grey-lighten-1 mb-2">No Stores Registered</h3>
+      <p class="text-body-2 text-grey-darken-1 mb-6">
+        Click "+ ADD STORE" above to register your first store.
+      </p>
+    </div>
+  </v-container>
 </template>
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
-import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 
-interface StoreForm {
-  site: string;
+interface Store {
+  stores_pk?: number;
   storename: string;
-  country: string | number | null;
+  site: string;
   zipcode: string;
-  MerchantID: string;
-  storeImage: string;
-  complement: string;
-  address: string;
+  country: number | null;
   streetNumber: string;
+  addressLine1: string;
+  complement: string;
   city: string;
   state: string;
+  MerchantID: string;
+  storeImage: string;
+  phone: string;
+  verified?: boolean;
+  isExpanded: boolean;
+  isDirty: boolean;
+  isNew: boolean;
+  uploadingImage?: boolean;
 }
 
 interface Country {
@@ -355,160 +353,78 @@ interface Country {
   abbreviation: string;
 }
 
-interface EditableStore {
-  stores_pk?: number;
-  site: string;
-  storename: string;
-  country: number | null;
-  zipcode: string;
-  MerchantID: string;
-  storeImage: string;
-  address: string;
-  streetNumber: string;
-  complement: string;
-  city: string;
-  state: string | null;
-}
-
 const userStore = useUserStore();
 const router = useRouter();
-
-const editableStore = ref<EditableStore>({
-  site: "",
-  storename: "",
-  country: null,
-  zipcode: "",
-  MerchantID: "",
-  storeImage: "",
-  address: "",
-  streetNumber: "",
-  complement: "",
-  city: "",
-  state: "",
-});
-const selectedStoreIndex = ref<number | null>(null);
-
-const StateList = ref([
-  { name: "Alabama" },
-  { name: "Alaska" },
-  { name: "Arizona" },
-  { name: "Arkansas" },
-  { name: "California" },
-  { name: "Colorado" },
-  { name: "Connecticut" },
-  { name: "Delaware" },
-  { name: "Florida" },
-  { name: "Georgia" },
-  { name: "Hawaii" },
-  { name: "Idaho" },
-  { name: "Illinois" },
-  { name: "Indiana" },
-  { name: "Iowa" },
-  { name: "Kansas" },
-  { name: "Kentucky" },
-  { name: "Louisiana" },
-  { name: "Maine" },
-  { name: "Maryland" },
-  { name: "Massachusetts" },
-  { name: "Michigan" },
-  { name: "Minnesota" },
-  { name: "Mississippi" },
-  { name: "Missouri" },
-  { name: "Montana" },
-  { name: "Nebraska" },
-  { name: "Nevada" },
-  { name: "New Hampshire" },
-  { name: "New Jersey" },
-  { name: "New Mexico" },
-  { name: "New York" },
-  { name: "North Carolina" },
-  { name: "North Dakota" },
-  { name: "Ohio" },
-  { name: "Oklahoma" },
-  { name: "Oregon" },
-  { name: "Pennsylvania" },
-  { name: "Rhode Island" },
-  { name: "South Carolina" },
-  { name: "South Dakota" },
-  { name: "Tennessee" },
-  { name: "Texas" },
-  { name: "Utah" },
-  { name: "Vermont" },
-  { name: "Virginia" },
-  { name: "Washington" },
-  { name: "West Virginia" },
-  { name: "Wisconsin" },
-  { name: "Wyoming" },
-]);
-
-const selectedCountry = ref(250);
-
-const stores = ref<any[]>([]);
-const form = ref<StoreForm>({
-  site: "",
-  storename: "",
-  country: null,
-  zipcode: "",
-  MerchantID: "",
-  storeImage: "",
-  complement: "",
-  address: "",
-  streetNumber: "",
-  city: "",
-  state: "",
-});
-
-const countriesList = ref<Country[]>([]);
-const storeForm = ref(null);
-const showVerificationMessage = ref(false);
-const isExpanded = ref(false);
-const editDialog = ref(false);
-const successDialog = ref(false);
-const accountData = ref(null);
-
 const axios: any = inject("axios");
 
-const trimValue = (value: string | null | undefined) => value?.trim?.() || "";
+const stores = ref<Store[]>([]);
+const countriesList = ref<Country[]>([]);
+const fileInputs = ref<any>({});
+const storeFormsRefs = ref<any>({});
+const pendingDeletions = ref<number[]>([]);
+const saving = ref(false);
+const successAlert = ref({ show: false, message: "" });
 
-const sanitizeStoreValues = (store: StoreForm | EditableStore) => {
-  store.site = trimValue(store.site);
-  store.storename = trimValue(store.storename);
-  store.zipcode = trimValue(store.zipcode);
-  store.MerchantID = trimValue(store.MerchantID);
-  store.complement = trimValue(store.complement);
-  store.address = trimValue(store.address);
-  store.streetNumber = trimValue(store.streetNumber);
-  store.city = trimValue(store.city);
-  store.state = trimValue(store.state || "");
+const parseAddressLine1 = (line: string) => {
+  const cleanLine = (line || "").trim();
+  const parts = cleanLine.split(/\s+/);
+  const firstWord = parts[0];
+  if (/^\d+[a-zA-Z]*$/.test(firstWord) || /^\d+$/.test(firstWord)) {
+    return {
+      streetNumber: firstWord,
+      address: parts.slice(1).join(" ")
+    };
+  }
+  return {
+    streetNumber: "S/N",
+    address: cleanLine
+  };
 };
 
-const isUnitedStates = computed(() => {
-  const selectedCountry = form.value.country;
-  if (typeof selectedCountry === "number") {
-    return selectedCountry === 250;
-  }
+const mapStoreFromApi = (apiStore: any): Store => {
+  const addressParts = apiStore.address?.split(",").map((s: any) => s.trim()) || [];
+  const [streetNumber, address, complement, city, state, countryName] = addressParts;
+
   const countryObject = countriesList.value.find(
-    (c) => c.name.toLowerCase() === (selectedCountry || "").toLowerCase()
+    (c) => c.name.toLowerCase() === (countryName || "").toLowerCase()
   );
-  return countryObject?.countries_pk === 250;
-});
+  const countryId = countryObject ? countryObject.countries_pk : null;
 
-const storedUser = localStorage.getItem("app_user");
-const appUser = storedUser ? JSON.parse(storedUser).users_pk : null;
+  // Address Line 1 in Form shows streetNumber + address
+  const addressLine1 = [streetNumber, address].filter(Boolean).join(" ");
 
-const fetchCountries = () => {
-  axios
-    .get("countries/search")
-    .then((response: any) => {
-      countriesList.value = response.data.countries.map((country: any) => ({
-        countries_pk: country.countries_pk,
-        name: country.name,
-        abbreviation: country.abbreviation,
-      }));
-    })
-    .catch((error: any) => {
-      console.error("Erro ao buscar países:", error);
-    });
+  return {
+    stores_pk: apiStore.stores_pk,
+    storename: apiStore.name || apiStore.storename || "",
+    site: apiStore.web_site || apiStore.site || "",
+    zipcode: apiStore.zip_code || apiStore.zipcode || "",
+    country: countryId,
+    state: state || "",
+    city: city || "",
+    complement: complement || "",
+    addressLine1: addressLine1,
+    streetNumber: streetNumber || "",
+    MerchantID: apiStore.merchant_id || apiStore.MerchantID || "",
+    storeImage: apiStore.picture_hash || apiStore.storeImage || "",
+    phone: "",
+    verified: apiStore.verified,
+    isExpanded: false,
+    isDirty: false,
+    isNew: false
+  };
+};
+
+const fetchCountries = async () => {
+  try {
+    const response = await axios.get("countries/search");
+    countriesList.value = response.data.countries.map((country: any) => ({
+      countries_pk: country.countries_pk,
+      name: country.name,
+      abbreviation: country.abbreviation,
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar países:", error);
+  }
 };
 
 const fetchStores = async () => {
@@ -519,310 +435,247 @@ const fetchStores = async () => {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    stores.value = [...response.data.stores];
+    stores.value = (response.data.stores || []).map(mapStoreFromApi);
   } catch (error) {
-    console.error(
-      "❌ Erro ao buscar lojas:",
-      (error as any)?.response?.data || (error as any)?.message
-    );
+    console.error("❌ Erro ao buscar lojas:", error);
     stores.value = [];
   }
 };
 
-const onlyAllowAlphanumeric = (event: KeyboardEvent) => {
-  const char = event.key;
-  if (!/^[a-zA-Z0-9]$/.test(char)) {
-    event.preventDefault();
-  }
+const getCountryNameFromId = (id: number | null): string => {
+  if (!id) return "";
+  const match = countriesList.value.find((c) => c.countries_pk === id);
+  return match ? match.name : "";
 };
 
-const getCountryNameFromId = (id: string | number | null): string => {
-  if (typeof id === "string") {
-    const matchByName = countriesList.value.find(
-      (c) => c.name.toLowerCase() === id.toLowerCase()
-    );
-    if (matchByName) return matchByName.name;
-  }
-  if (typeof id === "number") {
-    const matchById = countriesList.value.find((c) => c.countries_pk === id);
-    if (matchById) return matchById.name;
-  }
-  return "";
-};
-
-const saveStore = async () => {
-  sanitizeStoreValues(form.value);
-  const { valid } = await storeForm.value.validate();
-
-  if (!valid) {
-    console.warn("❌ Formulário inválido. Corrija os erros.");
-    return;
-  }
-
-  const store = form.value;
-
-  const countryName = getCountryNameFromId(store.country);
-  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
-
-  const payload = {
-    web_site: store.site,
-    name: store.storename,
-    zip_code: store.zipcode,
-    countries_fk: store.country,
-    users_fk: userStore.user?.users_pk,
-    address: fullAddress,
-    picture_hash: form.value.storeImage,
-    merchant_id: store.MerchantID,
-  };
-
-  try {
-    const response = await axios.post("/stores/cadastro", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    const newStorePk =
-      response.data.store?.stores_pk || response.data.stores_pk;
-
-    if (newStorePk) {
-      await axios.get(`/stores/${newStorePk}/verify`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-    }
-
-    form.value = {
-      storename: "",
-      site: "",
-      country: null,
-      zipcode: "",
-      MerchantID: "",
-      storeImage: "",
-      complement: "",
-      address: "",
-      streetNumber: "",
-      city: "",
-      state: "",
-    };
-
-    isExpanded.value = false;
-    await fetchStores();
-
-    successDialog.value = true;
-  } catch (error: any) {
-    console.error(
-      "❌ Erro ao cadastrar/validar a loja:",
-      error.response?.data || error.message
-    );
-  }
-};
-
-const goToCreateEvent = () => {
-  successDialog.value = false;
-  router.push({ path: "/events", query: { action: "create" } });
-};
-
-const cancelForm = () => {
-  form.value = {
-    site: "",
+const addStore = () => {
+  stores.value.push({
     storename: "",
+    site: "",
     country: null,
     zipcode: "",
     MerchantID: "",
     storeImage: "",
     complement: "",
-    address: "",
+    addressLine1: "",
     streetNumber: "",
     city: "",
     state: "",
-  };
-  isExpanded.value = false;
+    phone: "",
+    isExpanded: true,
+    isDirty: false,
+    isNew: true
+  });
 };
 
-const toggleForm = () => {
-  isExpanded.value = !isExpanded.value;
+const markAsDirty = (index: number) => {
+  stores.value[index].isDirty = true;
 };
 
-const openEditDialog = (store: any, index: number) => {
-  const addressParts =
-    store.address?.split(",").map((s: any) => s.trim()) || [];
-  const [streetNumber, address, complement, city, state, countryName] =
-    addressParts;
-
-  const countryObject = countriesList.value.find(
-    (c) => c.name.toLowerCase() === (countryName || "").toLowerCase()
-  );
-
-  const countryId = countryObject ? countryObject.countries_pk : null;
-
-  editableStore.value = {
-    stores_pk: store.stores_pk,
-    storename: store.name || store.storename,
-    site: store.web_site || store.site || "",
-    zipcode: store.zip_code || store.zipcode || "",
-    country: countryId,
-    state: state || "",
-    city: city || "",
-    complement: complement || "",
-    address: address || "",
-    streetNumber: streetNumber || "",
-    MerchantID: store.MerchantID || store.merchant_id,
-    storeImage: store.picture_hash || store.storeImage,
-  };
-
-  selectedStoreIndex.value = index;
-  editDialog.value = true;
-};
-
-const handleImageUpload = async (files: any) => {
-  const file = Array.isArray(files) ? files[0] : files;
-  if (!file) {
-    if (editDialog.value) {
-      editableStore.value.storeImage = "";
-    } else {
-      form.value.storeImage = "";
+const markForDeletion = (index: number) => {
+  const store = stores.value[index];
+  if (confirm(`Are you sure you want to delete "${store.storename || 'this store'}"? This action cannot be undone until you save changes.`)) {
+    if (store.stores_pk) {
+      pendingDeletions.value.push(store.stores_pk);
     }
-    return;
+    stores.value.splice(index, 1);
   }
+};
+
+const triggerFileInput = (index: number) => {
+  const el = fileInputs.value[index];
+  if (el) {
+    el.click();
+  }
+};
+
+const onFileChanged = async (event: any, index: number) => {
+  const files = event.target.files;
+  const file = files?.[0];
+  if (!file) return;
+
+  stores.value[index].uploadingImage = true;
 
   const formData = new FormData();
   formData.append("file", file);
 
-  await axios
-    .post("/images/upload", formData, {
+  try {
+    const response = await axios.post("/images/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    })
-    .then((response: any) => {
-      if (editDialog.value) {
-        editableStore.value.storeImage = response.data.image_key;
-      } else {
-        form.value.storeImage = response.data.image_key;
+    });
+    stores.value[index].storeImage = response.data.image_key;
+    stores.value[index].isDirty = true;
+  } catch (error) {
+    console.error("Error uploading image:", error);
+    alert("Failed to upload image.");
+  } finally {
+    stores.value[index].uploadingImage = false;
+  }
+};
+
+const saveAllChanges = async () => {
+  let allValid = true;
+  for (let i = 0; i < stores.value.length; i++) {
+    const formRef = storeFormsRefs.value[i];
+    if (formRef) {
+      const { valid } = await formRef.validate();
+      if (!valid) {
+        allValid = false;
+        stores.value[i].isExpanded = true;
       }
-    })
-    .catch((error: any) => {
-      console.error("❌ Error uploading image:", error.response?.data || error);
-    });
-};
+    }
+  }
 
-const saveEditedStore = async () => {
-  sanitizeStoreValues(editableStore.value);
-  const store = editableStore.value;
-  const countryName = getCountryNameFromId(store.country);
+  if (!allValid) {
+    alert("Please fix the validation errors in your store forms before saving.");
+    return;
+  }
 
-  const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
-
-  const payload = {
-    stores_pk: store.stores_pk,
-    name: store.storename,
-    web_site: store.site,
-    zip_code: store.zipcode,
-    countries_fk: store.country,
-    users_fk: userStore.user?.users_pk,
-    address: fullAddress,
-    picture_hash: store.storeImage,
-    merchant_id: store.MerchantID,
-  };
+  saving.value = true;
 
   try {
-    await axios.put(`/stores/alter`, payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    });
-
-    await fetchStores();
-
-    editDialog.value = false;
-  } catch (error: any) {
-    console.error(
-      "❌ Erro ao atualizar a loja:",
-      error.response?.data || error.message
-    );
-  }
-};
-
-const removeStore = async (stores_pk: any) => {
-  try {
-    const token = localStorage.getItem("accessToken");
-
-    await axios.delete(`/stores/${stores_pk}/delete/`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    await fetchStores();
-  } catch (error: any) {
-    console.error(
-      "❌ Erro ao excluir a loja:",
-      error.response?.data || error.message
-    );
-  }
-};
-
-const getMerchantAccount = () => {
-  const merchantId = "136699508";
-  const token = "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";
-
-  axios
-    .get(
-      `https://shoppingcontent.googleapis.com/content/v2.1/${merchantId}/accounts`,
-      {
+    // 1. Deletions
+    for (const storePk of pendingDeletions.value) {
+      await axios.delete(`/stores/${storePk}/delete/`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
+      });
+    }
+    pendingDeletions.value = [];
+
+    // 2. Creations and Updates
+    for (const store of stores.value) {
+      const parsed = parseAddressLine1(store.addressLine1);
+      const countryName = getCountryNameFromId(store.country);
+      const fullAddress = `${parsed.streetNumber}, ${parsed.address}, ${store.complement || ""}, ${store.city}, ${store.state}, ${countryName}`;
+
+      if (store.isNew) {
+        const payload = {
+          web_site: store.site,
+          name: store.storename,
+          zip_code: store.zipcode,
+          countries_fk: store.country,
+          users_fk: userStore.user?.users_pk,
+          address: fullAddress,
+          picture_hash: store.storeImage,
+          merchant_id: store.MerchantID,
+        };
+
+        const response = await axios.post("/stores/cadastro", payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        const newStorePk = response.data.store?.stores_pk || response.data.stores_pk;
+        if (newStorePk) {
+          await axios.get(`/stores/${newStorePk}/verify`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          });
+        }
+      } else if (store.isDirty) {
+        const payload = {
+          stores_pk: store.stores_pk,
+          name: store.storename,
+          web_site: store.site,
+          zip_code: store.zipcode,
+          countries_fk: store.country,
+          users_fk: userStore.user?.users_pk,
+          address: fullAddress,
+          picture_hash: store.storeImage,
+          merchant_id: store.MerchantID,
+        };
+
+        await axios.put(`/stores/alter`, payload, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
       }
-    )
-    .then((response: any) => {
-      console.log("Dados da conta:", response.data);
-      accountData.value = response.data;
-    })
-    .catch((error: any) => {
-      console.error("Erro ao buscar dados da conta:", error);
-    });
+    }
+
+    await fetchStores();
+
+    successAlert.value = {
+      show: true,
+      message: "All changes saved successfully!"
+    };
+    setTimeout(() => {
+      successAlert.value.show = false;
+    }, 4000);
+  } catch (error) {
+    console.error("Error saving all store changes:", error);
+    alert("An error occurred while saving your store changes.");
+  } finally {
+    saving.value = false;
+  }
 };
 
-onMounted(() => {
-  fetchStores();
-  fetchCountries();
-  getMerchantAccount();
+const goToStorePage = (url: string) => {
+  if (!url) return;
+  const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+  window.open(formattedUrl, "_blank");
+};
+
+onMounted(async () => {
+  await fetchCountries();
+  await fetchStores();
 });
 </script>
 
 <style scoped>
-.v-autocomplete {
-  width: 100%;
+.fancy-btn {
+  border-radius: 6px !important;
+  font-family: "Cinzel", serif;
+  letter-spacing: 1.5px;
+  transition: all 0.3s ease;
 }
-.event-card {
-  display: flex;
-  align-items: center;
-  border-radius: 8px;
-  padding: 10px;
-  margin-left: 18px;
-  background-color: #292929;
-}
-.event-img {
-  width: 110px;
-  height: 110px;
-  border-radius: 4px;
-}
-</style>
 
-<style>
-.event-card {
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
+.fancy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4) !important;
 }
-.event-card:hover {
-  transform: scale(1.02);
+
+.add-store-bar {
+  transition: all 0.2s ease;
 }
-.event-dialog-img {
-  border-radius: 8px;
+
+.add-store-bar:hover {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: #2a2a2a !important;
+}
+
+.store-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.store-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.card-header {
+  transition: background-color 0.2s ease;
+}
+
+.card-header:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.cinzel-text {
+  font-family: "Cinzel", serif;
+}
+
+.border-grey {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.tracking-wider {
+  letter-spacing: 1px;
 }
 </style>
