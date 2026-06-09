@@ -317,14 +317,14 @@ const rewardAvatars: CustomizeOption[] = [
     name: "Mathias",
     badgeId: 5,
     badgeName: "Wing 3 Completed",
-    lockReason: "Your light pierces the veil of the deep and ancient ruins.",
+    lockReason: "Faced the growing shadows and descended deeper into the Underkeep.",
   },
   {
     hash: "DragonS2.png",
     name: "Dragon S2",
     badgeId: 6,
     badgeName: "Season 2 Completed",
-    lockReason: "The dragon's shadow is vanquished, and a new era begins.",
+    lockReason: "Secured the void portal, vanquished the dragon, and completed the second saga.",
   },
 ];
 
@@ -348,7 +348,7 @@ const rewardBackgrounds: CustomizeOption[] = [
     name: "Season 2 BG",
     badgeId: 6,
     badgeName: "Season 2 Completed",
-    lockReason: "The dragon's shadow is vanquished, and a new era begins.",
+    lockReason: "Secured the void portal, vanquished the dragon, and completed the second saga.",
   },
 ];
 
@@ -412,8 +412,8 @@ const getRewardDescription = (option: CustomizeOption) => {
   if (option.badgeId === 1) return "Your legend began before the first dawn.";
   if (option.badgeId === 2) return "Ready to face the darkness.";
   if (option.badgeId === 3) return "The first saga is written.";
-  if (option.badgeId === 5) return "Your light pierces the veil of the deep and ancient ruins.";
-  if (option.badgeId === 6) return "The dragon's shadow is vanquished, and a new era begins.";
+  if (option.badgeId === 5) return "Faced the growing shadows and descended deeper into the Underkeep.";
+  if (option.badgeId === 6) return "Secured the void portal, vanquished the dragon, and completed the second saga.";
   return option.lockReason || "";
 };
 
