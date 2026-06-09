@@ -888,6 +888,10 @@ const userTimezone = computed(
   () => userStore.user?.timezone?.iana_name ?? "America/Chicago",
 );
 
+const isBeforeJulyFirst2026 = () => {
+  return new Date() < new Date("2026-07-01T00:00:00");
+};
+
 const retailerSeasonOptions = computed(() => {
   const allowedSg = seasons.value.filter(
     (season) => season.seasons_pk === 2 || season.seasons_pk === 3,
@@ -899,11 +903,21 @@ const retailerSeasonOptions = computed(() => {
       ]
     : allowedSg.map(s => ({ seasons_pk: s.seasons_pk, name: s.name }));
 
+  const beforeJuly1 = isBeforeJulyFirst2026();
+
   return items.map(item => {
     if (item.seasons_pk === 3) {
       return {
         ...item,
-        disabled: true
+        disabled: true,
+        props: { disabled: true }
+      };
+    }
+    if (item.seasons_pk === 2 && beforeJuly1) {
+      return {
+        ...item,
+        disabled: true,
+        props: { disabled: true }
       };
     }
     return item;
@@ -1507,6 +1521,10 @@ const deleteEvent = (events_pk) => {
 };
 
 const openCreateEventDialog = () => {
+  if (isBeforeJulyFirst2026()) {
+    router.push({ name: "NightsCommunication" });
+    return;
+  }
   ensureRetailerSeasonLocked();
   createEventDialog.value = true;
 };

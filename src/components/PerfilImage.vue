@@ -263,6 +263,7 @@ const isSaving = ref(false);
 const isLoadingBadges = ref(true);
 const unlockedBadgeIds = ref<Set<number>>(new Set());
 const rewardsList = ref<any[]>([]);
+const allRewardsList = ref<any[]>([]);
 
 // Alert States
 const showAlert = ref(false);
@@ -322,11 +323,11 @@ const defaultBackgrounds: CustomizeOption[] = [
 
 const rewardBackgrounds: CustomizeOption[] = [
   {
-    hash: "EarlyBack.png",
+    hash: "EarlyBackNew.png",
     name: "Early Adopter BG",
     badgeId: 1,
     badgeName: "Early Adopter",
-    lockReason: "Granted to the initial users who tested the application prior to the official launch.",
+    lockReason: "Your legend began before the first dawn.",
   },
 ];
 
@@ -375,15 +376,21 @@ const showLockAlert = (option: CustomizeOption) => {
 
 const getRewardDescription = (option: CustomizeOption) => {
   // Try to look up description from fetched API rewards first (for all reward items: Early Adopter, Tutorial, Season 1)
-  const found = rewardsList.value.find((r: any) => r.rewards_pk === option.badgeId);
+  const found = allRewardsList.value.find((r: any) => r.rewards_pk === option.badgeId);
   if (found && found.description) {
     return found.description;
   }
 
+  // Fallback to unlocked rewards list
+  const foundUnlocked = rewardsList.value.find((r: any) => r.rewards_pk === option.badgeId);
+  if (foundUnlocked && foundUnlocked.description) {
+    return foundUnlocked.description;
+  }
+
   // Fallbacks if not found yet
-  if (option.badgeId === 1) return "Granted to the initial users who tested the application prior to the official launch.";
-  if (option.badgeId === 2) return "complete wing 1 tutorial";
-  if (option.badgeId === 3) return "complete wing 2 advanced";
+  if (option.badgeId === 1) return "Your legend began before the first dawn.";
+  if (option.badgeId === 2) return "Ready to face the darkness.";
+  if (option.badgeId === 3) return "The first saga is written.";
   return option.lockReason || "";
 };
 
@@ -452,11 +459,23 @@ const fetchUserRewards = async () => {
   }
 };
 
+const fetchAllRewards = async () => {
+  try {
+    const response = await axios.get("/rewards/search", {
+      headers: getToken(),
+    });
+    allRewardsList.value = response.data.rewards || [];
+  } catch (err) {
+    console.error("❌ Error fetching all rewards list:", err);
+  }
+};
+
 onMounted(() => {
   // Initialize preview refs
   userStore.editingPictureHash = userStore.user.picture_hash;
   userStore.editingBackgroundHash = userStore.user.background_hash;
   fetchUserRewards();
+  fetchAllRewards();
 });
 
 onUnmounted(() => {
