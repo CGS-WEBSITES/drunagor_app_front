@@ -88,8 +88,21 @@
 
     <v-card-text>
       <div class="user-info" style="margin-top: -80px">
-        <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
-          {{ user.user_name }}
+        <p class="user-name" style="font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">
+          {{ user?.user_name }}
+          <v-tooltip location="top" v-if="user?.roles_fk === 3">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props"
+                color="primary"
+                class="ml-2"
+                size="22"
+              >
+                mdi-store
+              </v-icon>
+            </template>
+            <span>Retailer Account</span>
+          </v-tooltip>
         </p>
       </div>
     </v-card-text>
