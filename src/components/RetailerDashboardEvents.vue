@@ -319,6 +319,10 @@
   </v-card>
 
   <TutorialPromptDialog v-model="showTutorialPrompt" />
+
+  <v-dialog v-model="communicationDialog" max-width="750">
+    <DrunagorNightsCommunication is-dialog @close="communicationDialog = false" />
+  </v-dialog>
 </template>
 
 <script setup>
@@ -329,9 +333,15 @@ import { useDisplay } from "vuetify";
 import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
+import DrunagorNightsCommunication from "@/pages/DrunagorNightsCommunication.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { extractMonth, extractDay, extractTime } from "@/utils/dateHelpers";
+
+const communicationDialog = ref(false);
+const isBeforeJulyFirst2026 = () => {
+  return new Date() < new Date("2026-07-01T00:00:00");
+};
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -434,7 +444,11 @@ const goToEventsPageAndCreate = async () => {
     const stores = data.stores || [];
 
     if (stores.length > 0) {
-      router.push({ path: "/events", query: { action: "create" } });
+      if (isBeforeJulyFirst2026()) {
+        communicationDialog.value = true;
+      } else {
+        router.push({ path: "/events", query: { action: "create" } });
+      }
     } else {
       fetchCountries();
       showStoreSuccess.value = false;
@@ -539,7 +553,11 @@ const saveNewStore = async () => {
 const handleSuccessContinue = () => {
   createStoreDialog.value = false;
   showStoreSuccess.value = false;
-  router.push({ path: "/events", query: { action: "create" } });
+  if (isBeforeJulyFirst2026()) {
+    communicationDialog.value = true;
+  } else {
+    router.push({ path: "/events", query: { action: "create" } });
+  }
 };
 
 onMounted(async () => {

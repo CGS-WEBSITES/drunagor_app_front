@@ -296,21 +296,35 @@ const rewardAvatars: CustomizeOption[] = [
     name: "Tharmagar",
     badgeId: 1,
     badgeName: "Early Adopter",
-    lockReason: "Granted to the initial users who tested the application prior to the official launch.",
+    lockReason: "Your legend began before the first dawn.",
   },
   {
     hash: "Archer.png",
     name: "Archer",
     badgeId: 2,
     badgeName: "Tutorial Completed",
-    lockReason: "Conquistado ao completar o tutorial de introdução.",
+    lockReason: "Ready to face the darkness.",
   },
   {
     hash: "Pietro.png",
     name: "Pietro",
     badgeId: 3,
     badgeName: "Season 1 Completed",
-    lockReason: "Conquistado ao completar a Campanha da Season 1.",
+    lockReason: "The first saga is written.",
+  },
+  {
+    hash: "Mathias.png",
+    name: "Mathias",
+    badgeId: 5,
+    badgeName: "Wing 3 Completed",
+    lockReason: "Your light pierces the veil of the deep and ancient ruins.",
+  },
+  {
+    hash: "DragonS2.png",
+    name: "Dragon S2",
+    badgeId: 6,
+    badgeName: "Season 2 Completed",
+    lockReason: "The dragon's shadow is vanquished, and a new era begins.",
   },
 ];
 
@@ -328,6 +342,13 @@ const rewardBackgrounds: CustomizeOption[] = [
     badgeId: 1,
     badgeName: "Early Adopter",
     lockReason: "Your legend began before the first dawn.",
+  },
+  {
+    hash: "Season2Background.png",
+    name: "Season 2 BG",
+    badgeId: 6,
+    badgeName: "Season 2 Completed",
+    lockReason: "The dragon's shadow is vanquished, and a new era begins.",
   },
 ];
 
@@ -375,7 +396,7 @@ const showLockAlert = (option: CustomizeOption) => {
 };
 
 const getRewardDescription = (option: CustomizeOption) => {
-  // Try to look up description from fetched API rewards first (for all reward items: Early Adopter, Tutorial, Season 1)
+  // Try to look up description from fetched API rewards first (for all reward items: Early Adopter, Tutorial, Season 1, etc.)
   const found = allRewardsList.value.find((r: any) => r.rewards_pk === option.badgeId);
   if (found && found.description) {
     return found.description;
@@ -391,6 +412,8 @@ const getRewardDescription = (option: CustomizeOption) => {
   if (option.badgeId === 1) return "Your legend began before the first dawn.";
   if (option.badgeId === 2) return "Ready to face the darkness.";
   if (option.badgeId === 3) return "The first saga is written.";
+  if (option.badgeId === 5) return "Your light pierces the veil of the deep and ancient ruins.";
+  if (option.badgeId === 6) return "The dragon's shadow is vanquished, and a new era begins.";
   return option.lockReason || "";
 };
 
