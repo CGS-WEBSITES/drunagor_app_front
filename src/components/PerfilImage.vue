@@ -35,7 +35,7 @@
           :style="{ borderLeft: selectedBadgeAlert.owned ? '4px solid #4caf50' : '4px solid #ff9800' }"
         >
           <div class="font-weight-bold text-subtitle-1 text-white">
-            {{ selectedBadgeAlert.owned ? 'You have the badge' : 'You do not have the badge' }}
+            {{ selectedBadgeAlert.owned ? 'Required Badge Unlocked' : 'Required Badge Locked' }}
           </div>
         </div>
 
@@ -186,7 +186,7 @@
                         <!-- Badge Indicator Overlay Icon -->
                         <div
                           v-if="item.badgeId !== undefined"
-                          style="position: absolute; top: 4px; right: 4px; z-index: 2; background: rgba(0, 0, 0, 0.75); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.15);"
+                          style="position: absolute; bottom: 4px; right: 4px; z-index: 3; background: rgba(0, 0, 0, 0.75); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.15);"
                         >
                           <v-img
                             :src="getBadgeIconUrl(item.badgeId)"
@@ -296,7 +296,7 @@
                         <!-- Badge Indicator Overlay Icon -->
                         <div
                           v-if="item.badgeId !== undefined"
-                          style="position: absolute; top: 4px; right: 4px; z-index: 2; background: rgba(0, 0, 0, 0.75); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.15);"
+                          style="position: absolute; bottom: 4px; right: 4px; z-index: 3; background: rgba(0, 0, 0, 0.75); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.15);"
                         >
                           <v-img
                             :src="getBadgeIconUrl(item.badgeId)"
