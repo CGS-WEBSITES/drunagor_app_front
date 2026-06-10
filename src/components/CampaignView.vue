@@ -280,10 +280,10 @@
                              </template>
                              <span>Use this code to invite your friends</span>
                            </v-tooltip>
-                           <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold">{{
+                           <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold" style="flex-shrink: 0;">{{
                              partyCode
                            }}</v-chip>
-                           <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold"
+                           <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold" style="flex-shrink: 0;"
                              >Generating...</v-chip
                            >
                            <v-spacer></v-spacer>
@@ -480,10 +480,10 @@
                            </template>
                            <span>Use this code to invite your friends</span>
                          </v-tooltip>
-                         <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold">{{
+                         <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold" style="flex-shrink: 0;">{{
                            partyCode
                          }}</v-chip>
-                         <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold"
+                         <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold" style="flex-shrink: 0;"
                            >Generating...</v-chip
                          >
                          <v-spacer></v-spacer>
