@@ -66,6 +66,7 @@ import { ref, watch, computed, onMounted } from "vue";
 import type { Status } from "@/data/repository/campaign/Status";
 import { HeroStore } from "@/store/HeroStore";
 import { useUserStore } from "@/store/UserStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import type { StatusRepository } from "@/data/repository/campaign/StatusRepository";
 import { useI18n } from "vue-i18n";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
@@ -79,6 +80,7 @@ const props = defineProps<{
 
 const heroStore = HeroStore();
 const userStore = useUserStore();
+const campaignStore = CampaignStore();
 const configurationStore = ConfigurationStore();
 const { t } = useI18n();
 
@@ -108,24 +110,17 @@ const checkUserRole = async () => {
       console.warn("[CampaignLogStatus] checkUserRole skipped: users_pk is missing");
       return;
     }
-    let response = await axios.get("rl_campaigns_users/search", {
+    const campaign = campaignStore.findOptional(props.campaignId);
+    const showSeason2 = campaign ? campaign.campaign === "underkeep2" : false;
+
+    const response = await axios.get("rl_campaigns_users/search", {
       params: { 
         users_fk: userStore.user.users_pk, 
         campaigns_fk: props.campaignId,
-        show_season2: true
+        show_season2: showSeason2
       },
     });
-    let campaignRelation = response.data.campaigns?.[0];
-    if (!campaignRelation) {
-      response = await axios.get("rl_campaigns_users/search", {
-        params: { 
-          users_fk: userStore.user.users_pk, 
-          campaigns_fk: props.campaignId,
-          show_season2: false
-        },
-      });
-      campaignRelation = response.data.campaigns?.[0];
-    }
+    const campaignRelation = response.data.campaigns?.[0];
     
     if (campaignRelation) {
       const isPartyAdmin = campaignRelation.party_role === "Admin";

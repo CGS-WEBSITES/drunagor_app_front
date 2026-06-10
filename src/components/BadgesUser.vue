@@ -4,12 +4,13 @@
       rounded="lg"
       elevation="3"
       color="primary"
-      class="pl-1 pt-1 pr-1 pb-0"
+      class="pl-1 pt-1 pr-1 pb-0 clickable-badges-card"
+      @click="showAllBadges = true"
     >
-      <!-- Cabeçalho -->
+      <!-- Header -->
       <v-card-title class="d-flex justify-space-between pb-0">
         <span
-          class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0"
+          class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0 text-white"
           >BADGES</span
         >
       </v-card-title>
@@ -25,7 +26,7 @@
               color="secundary"
             >
               <v-row class="align-center">
-                <!-- Ícone -->
+                <!-- Icon -->
                 <v-col
                   cols="2"
                   lg="2"
@@ -39,7 +40,7 @@
                   ></v-img>
                 </v-col>
 
-                <!-- Detalhes -->
+                <!-- Details -->
                 <v-col cols="9" class="pl-0 d-flex flex-column justify-center">
                   <p class="font-weight-bold white--text ma-0">
                     {{ item.title }}
@@ -55,8 +56,8 @@
         </v-virtual-scroll>
       </div>
 
-      <!-- Mensagem de nenhum reward -->
-      <div v-else class="text-center py-2vc">
+      <!-- No rewards message -->
+      <div v-else class="text-center py-6">
         <v-icon color="grey lighten-1" size="48"
           >mdi-emoticon-sad-outline</v-icon
         >
@@ -66,24 +67,39 @@
         <p class="text-caption grey--text pb-3"></p>
       </div>
     </v-card>
+
+    <!-- Achievements Overlay Dialog -->
+    <AllBadgesDialog v-model="showAllBadges" :userId="userId" />
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
+import AllBadgesDialog from "@/components/dialogs/AllBadgesDialog.vue";
 
 const userRewards = ref([]);
+const showAllBadges = ref(false);
 const route = useRoute();
+
+const userId = computed(() => {
+  try {
+    const encodedId = route.params.id as string;
+    if (!encodedId) return 0;
+    return atob(encodedId);
+  } catch (e) {
+    console.error("Error decoding route params.id", e);
+    return 0;
+  }
+});
 
 const fetchUserRewards = async () => {
   try {
-    const encodedId = route.params.id;
-    const userId = atob(encodedId);
+    if (!userId.value) return;
 
     const response = await axios.get("/rl_users_rewards/list_rewards", {
-      params: { users_fk: userId },
+      params: { users_fk: userId.value },
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
@@ -92,7 +108,7 @@ const fetchUserRewards = async () => {
     userRewards.value = (response.data.rewards || []).map((reward) => ({
       image: `https://assets.drunagor.app/${reward.picture_hash}`,
       title: reward.name,
-      description: "",
+      description: reward.description,
       date: new Date(reward.date).toLocaleDateString(),
     }));
   } catch (err) {
@@ -105,3 +121,15 @@ onMounted(() => {
   fetchUserRewards();
 });
 </script>
+
+<style scoped>
+.clickable-badges-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-badges-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+</style>

@@ -37,6 +37,16 @@ const router = createRouter({
       component: () => import("@/pages/RetailerRegistration.vue"),
     },
     {
+      path: "/retailer-tutorial",
+      name: "RetailerTutorial",
+      component: () => import("@/pages/RetailerTutorial.vue"),
+    },
+    {
+      path: "/nights-communication",
+      name: "NightsCommunication",
+      component: () => import("@/pages/DrunagorNightsCommunication.vue"),
+    },
+    {
       path: "/forgotpassword",
       name: "ForgotPassword",
       component: () => import("@/components/ForgotPassword.vue"),
@@ -214,6 +224,12 @@ const router = createRouter({
           path: "/profile/home",
           name: "PerfilHome",
           component: () => import("@/components/PerfilHome.vue"),
+          beforeEnter: requireAuth,
+        },
+        {
+          path: "/profile/edit",
+          name: "PerfilEdit",
+          component: () => import("@/components/PerfilImage.vue"),
           beforeEnter: requireAuth,
         },
         {

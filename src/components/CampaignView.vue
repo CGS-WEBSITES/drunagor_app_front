@@ -759,7 +759,10 @@ const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isImmersiveMode = computed(() => {
-  return campaign.value && campaign.value.campaign === "underkeep2";
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === "underkeep2") return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
 });
 
 const playerListDialogVisible = ref(false);
@@ -816,29 +819,41 @@ const startPollingForUpdates = () => {
       const skuStr = urlParams.get('sku');
       
       let showSeason2 = false;
-      if (skuStr) {
-        showSeason2 = Number(skuStr) === 38;
+      const existingCampaign = campaignStore.findOptional(campaignId);
+      if (existingCampaign) {
+        showSeason2 = existingCampaign.campaign === 'underkeep2';
+      } else if (skuStr) {
+        showSeason2 = Number(skuStr) === 39;
       }
 
-      let response = await axios.get("/rl_campaigns_users/search", {
-        params: {
-          users_fk: userStore.user.users_pk,
-          campaigns_fk: campaignId,
-          show_season2: showSeason2
-        },
-      });
-
-      if (!response.data?.campaigns?.length) {
+      let response;
+      try {
         response = await axios.get("/rl_campaigns_users/search", {
           params: {
             users_fk: userStore.user.users_pk,
             campaigns_fk: campaignId,
-            show_season2: !showSeason2
+            show_season2: showSeason2
           },
         });
+      } catch (err) {
+        console.warn(`[CampaignView] Polling primary search failed (show_season2=${showSeason2}):`, err);
       }
 
-      if (response.data?.campaigns?.length > 0) {
+      if (!response?.data?.campaigns?.length) {
+        try {
+          response = await axios.get("/rl_campaigns_users/search", {
+            params: {
+              users_fk: userStore.user.users_pk,
+              campaigns_fk: campaignId,
+              show_season2: !showSeason2
+            },
+          });
+        } catch (err) {
+          console.warn(`[CampaignView] Polling fallback search failed (show_season2=${!showSeason2}):`, err);
+        }
+      }
+
+      if (response?.data?.campaigns?.length > 0) {
         const campaignData = response.data.campaigns[0];
         if (campaignData.tracker_hash) {
           const currentLocalHash = localStorage.getItem(`campaign_hash_${campaignId}`);
@@ -1359,11 +1374,15 @@ const checkAndAwardSeason1Achievements = async () => {
   if (!campaign.value || campaign.value.campaign !== "underkeep" || !userStore.user?.users_pk) return;
   
   try {
+    const token = localStorage.getItem("accessToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
     const { data: relationData } = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: userStore.user.users_pk,
         campaigns_fk: campaignId,
       },
+      headers
     });
     
     if (relationData?.campaigns?.length > 0) {
@@ -1371,24 +1390,32 @@ const checkAndAwardSeason1Achievements = async () => {
       if (relation.events_fk) {
         const wingStr = (campaign.value.wing || "").toUpperCase();
         let rewardPk = null;
-        if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) {
+        if (wingStr.includes("WING 1") || wingStr.includes("WING 01") || wingStr.includes("TUTORIAL")) {
           rewardPk = 2;
-        } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) {
+        } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2") || wingStr.includes("WING 02")) {
           rewardPk = 3;
         }
         
         if (rewardPk) {
-          const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
-            params: { users_fk: userStore.user.users_pk }
-          });
-          const userRewards = rewardData.rewards || [];
+          let userRewards = [];
+          try {
+            const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
+              params: { users_fk: userStore.user.users_pk },
+              headers
+            });
+            userRewards = rewardData.rewards || [];
+          } catch (getErr: any) {
+            // If the backend returns 404 or fails, we assume the user has no rewards yet
+            console.warn("Could not fetch user rewards list, assuming empty list:", getErr);
+          }
+
           const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
           
           if (!hasReward) {
             await axios.post("/rl_users_rewards/cadastro", {
               users_fk: userStore.user.users_pk,
               rewards_fk: rewardPk
-            });
+            }, { headers });
             
             newBadgeDialog.value = {
               visible: true,

@@ -1,388 +1,364 @@
-/// <reference types="../../node_modules/.vue-global-types/vue_3.5_false.d.ts" />
+/// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import TermsCard from "@/components/TermsCard.vue";
 import PrivacyCard from "@/components/PrivacyCard.vue";
-import { useUserStore } from "@/store/UserStore";
-const userStore = useUserStore();
-// Variáveis reativas
+import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 const router = useRouter();
-const email = ref(""); // Login do usuário
-const signupPassword = ref(""); // Senha para cadastro
+const email = ref("");
 const alertIcon = ref("");
 const alertText = ref("");
 const alertTitle = ref("");
 const alertType = ref("");
-const termsDialog = ref(false);
 const showAlert = ref(false);
+const termsDialog = ref(false);
 const privacyDialog = ref(false);
+const isSubmitting = ref(false);
 const navigateTo = (route) => {
     router.push(route);
 };
-// Regras de validação
 const rules = {
     required: (value) => !!value || "Required.",
     email: (value) => /.+@.+\..+/.test(value) || "E-mail must be valid",
-    min: (v) => v.length >= 8 || "Min 8 characters",
-    matchPasswords: (v) => v === signupPassword.value || "The passwords must match",
 };
 const axios = inject("axios");
-// Função para exibir alertas
+const trimValue = (value) => value?.trim?.() || "";
+const sanitizeForgotPasswordFields = () => {
+    email.value = trimValue(email.value);
+};
 const setAllert = (icon, title, text, type) => {
     alertIcon.value = icon;
-    alertTitle.value = title;
+    alertTitle.value = String(title);
     alertText.value = text;
     showAlert.value = true;
     alertType.value = type;
+    setTimeout(() => {
+        showAlert.value = false;
+    }, 4000);
 };
-// Função de login
 const loginUser = async () => {
-    if (!email.value?.trim()) {
-        setAllert("mdi-alert-circle", 404, "Email field is required.", "warning");
+    sanitizeForgotPasswordFields();
+    if (!email.value) {
+        setAllert("mdi-alert-circle", 400, "Email field is required.", "warning");
         return;
     }
-    email.value = email.value.trim();
-    await axios
-        .post("users/reset_password", {
-        email: email.value,
-    })
-        .then((response) => {
-        console.log("API Response:", response);
-        // Exibe alerta de sucesso
+    isSubmitting.value = true;
+    try {
+        const response = await axios.post("users/reset_password", {
+            email: email.value,
+        });
         setAllert("mdi-check", response.status, response.data.message, "success");
-    })
-        .catch((error) => {
-        console.error("Error during login:", error);
-        // Trata erros com mensagens apropriadas
+    }
+    catch (error) {
+        console.error("Error during password reset:", error);
         setAllert("mdi-alert-circle", error.response?.status || 500, error.response?.data?.message || "A network error occurred.", "error");
-    });
+    }
+    finally {
+        isSubmitting.value = false;
+    }
 };
-; /* PartiallyEnd: #3632/scriptSetup.vue */
-function __VLS_template() {
-    const __VLS_ctx = {};
-    let __VLS_components;
-    let __VLS_directives;
-    const __VLS_0 = {}.VContainer;
-    /** @type { [typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, ] } */ ;
-    // @ts-ignore
-    const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
-        ...{ class: ("fill-height d-flex align-center justify-center pa-4") },
-        fluid: (true),
-    }));
-    const __VLS_2 = __VLS_1({
-        ...{ class: ("fill-height d-flex align-center justify-center pa-4") },
-        fluid: (true),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_1));
-    var __VLS_6 = {};
-    const __VLS_7 = {}.VRow;
-    /** @type { [typeof __VLS_components.VRow, typeof __VLS_components.vRow, typeof __VLS_components.VRow, typeof __VLS_components.vRow, ] } */ ;
-    // @ts-ignore
-    const __VLS_8 = __VLS_asFunctionalComponent(__VLS_7, new __VLS_7({
-        align: ("center"),
-        justify: ("center"),
-    }));
-    const __VLS_9 = __VLS_8({
-        align: ("center"),
-        justify: ("center"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_8));
-    const __VLS_13 = {}.VCol;
-    /** @type { [typeof __VLS_components.VCol, typeof __VLS_components.vCol, typeof __VLS_components.VCol, typeof __VLS_components.vCol, ] } */ ;
-    // @ts-ignore
-    const __VLS_14 = __VLS_asFunctionalComponent(__VLS_13, new __VLS_13({
-        cols: ("12"),
-        md: ("8"),
-        lg: ("6"),
-        xl: ("4"),
-    }));
-    const __VLS_15 = __VLS_14({
-        cols: ("12"),
-        md: ("8"),
-        lg: ("6"),
-        xl: ("4"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_14));
-    const __VLS_19 = {}.VCard;
-    /** @type { [typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ] } */ ;
-    // @ts-ignore
-    const __VLS_20 = __VLS_asFunctionalComponent(__VLS_19, new __VLS_19({
-        ...{ class: ("elevation-12") },
-    }));
-    const __VLS_21 = __VLS_20({
-        ...{ class: ("elevation-12") },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_20));
-    const __VLS_25 = {}.VCardText;
-    /** @type { [typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, ] } */ ;
-    // @ts-ignore
-    const __VLS_26 = __VLS_asFunctionalComponent(__VLS_25, new __VLS_25({}));
-    const __VLS_27 = __VLS_26({}, ...__VLS_functionalComponentArgsRest(__VLS_26));
-    const __VLS_31 = {}.VBtn;
-    /** @type { [typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ] } */ ;
-    // @ts-ignore
-    const __VLS_32 = __VLS_asFunctionalComponent(__VLS_31, new __VLS_31({
-        ...{ 'onClick': {} },
-        color: ("primary"),
-    }));
-    const __VLS_33 = __VLS_32({
-        ...{ 'onClick': {} },
-        color: ("primary"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_32));
-    let __VLS_37;
-    const __VLS_38 = {
-        onClick: (...[$event]) => {
-            __VLS_ctx.navigateTo('/login');
-        }
-    };
-    let __VLS_34;
-    let __VLS_35;
-    const __VLS_39 = {}.VIcon;
-    /** @type { [typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ] } */ ;
-    // @ts-ignore
-    const __VLS_40 = __VLS_asFunctionalComponent(__VLS_39, new __VLS_39({}));
-    const __VLS_41 = __VLS_40({}, ...__VLS_functionalComponentArgsRest(__VLS_40));
-    __VLS_44.slots.default;
-    var __VLS_44;
-    __VLS_36.slots.default;
-    var __VLS_36;
-    const __VLS_45 = {}.VContainer;
-    /** @type { [typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, ] } */ ;
-    // @ts-ignore
-    const __VLS_46 = __VLS_asFunctionalComponent(__VLS_45, new __VLS_45({
-        ...{ class: ("d-flex justify-center align-center") },
-    }));
-    const __VLS_47 = __VLS_46({
-        ...{ class: ("d-flex justify-center align-center") },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_46));
-    const __VLS_51 = {}.VRow;
-    /** @type { [typeof __VLS_components.VRow, typeof __VLS_components.vRow, typeof __VLS_components.VRow, typeof __VLS_components.vRow, ] } */ ;
-    // @ts-ignore
-    const __VLS_52 = __VLS_asFunctionalComponent(__VLS_51, new __VLS_51({
-        justify: ("center"),
-    }));
-    const __VLS_53 = __VLS_52({
-        justify: ("center"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_52));
-    const __VLS_57 = {}.VCol;
-    /** @type { [typeof __VLS_components.VCol, typeof __VLS_components.vCol, typeof __VLS_components.VCol, typeof __VLS_components.vCol, ] } */ ;
-    // @ts-ignore
-    const __VLS_58 = __VLS_asFunctionalComponent(__VLS_57, new __VLS_57({
-        cols: ("12"),
-        md: ("6"),
-        ...{ class: ("text-center") },
-    }));
-    const __VLS_59 = __VLS_58({
-        cols: ("12"),
-        md: ("6"),
-        ...{ class: ("text-center") },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_58));
-    const __VLS_63 = {}.VImg;
-    /** @type { [typeof __VLS_components.VImg, typeof __VLS_components.vImg, ] } */ ;
-    // @ts-ignore
-    const __VLS_64 = __VLS_asFunctionalComponent(__VLS_63, new __VLS_63({
-        src: ("@/assets/darkness.png"),
-        maxWidth: ("50"),
-        alt: ("Centered Icon"),
-        ...{ class: ("mx-auto") },
-    }));
-    const __VLS_65 = __VLS_64({
-        src: ("@/assets/darkness.png"),
-        maxWidth: ("50"),
-        alt: ("Centered Icon"),
-        ...{ class: ("mx-auto") },
-    }, ...__VLS_functionalComponentArgsRest(__VLS_64));
-    __VLS_62.slots.default;
-    var __VLS_62;
-    const __VLS_69 = {}.VCol;
-    /** @type { [typeof __VLS_components.VCol, typeof __VLS_components.vCol, typeof __VLS_components.VCol, typeof __VLS_components.vCol, ] } */ ;
-    // @ts-ignore
-    const __VLS_70 = __VLS_asFunctionalComponent(__VLS_69, new __VLS_69({
-        cols: ("12"),
-    }));
-    const __VLS_71 = __VLS_70({
-        cols: ("12"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_70));
-    __VLS_elementAsFunction(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({
-        ...{ class: ("display-2 font-weight-bold") },
-    });
-    __VLS_74.slots.default;
-    var __VLS_74;
-    __VLS_56.slots.default;
-    var __VLS_56;
-    __VLS_50.slots.default;
-    var __VLS_50;
-    const __VLS_75 = {}.VAlert;
-    /** @type { [typeof __VLS_components.VAlert, typeof __VLS_components.vAlert, typeof __VLS_components.VAlert, typeof __VLS_components.vAlert, ] } */ ;
-    // @ts-ignore
-    const __VLS_76 = __VLS_asFunctionalComponent(__VLS_75, new __VLS_75({
-        closable: (true),
-        modelValue: ((__VLS_ctx.showAlert)),
-        icon: ((__VLS_ctx.alertIcon)),
-        title: ((__VLS_ctx.alertTitle)),
-        text: ((__VLS_ctx.alertText)),
-        type: ((__VLS_ctx.alertType)),
-    }));
-    const __VLS_77 = __VLS_76({
-        closable: (true),
-        modelValue: ((__VLS_ctx.showAlert)),
-        icon: ((__VLS_ctx.alertIcon)),
-        title: ((__VLS_ctx.alertTitle)),
-        text: ((__VLS_ctx.alertText)),
-        type: ((__VLS_ctx.alertType)),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_76));
-    __VLS_elementAsFunction(__VLS_intrinsicElements.h4, __VLS_intrinsicElements.h4)({
-        ...{ class: ("text-center mt-4 py-3") },
-    });
-    const __VLS_81 = {}.VForm;
-    /** @type { [typeof __VLS_components.VForm, typeof __VLS_components.vForm, typeof __VLS_components.VForm, typeof __VLS_components.vForm, ] } */ ;
-    // @ts-ignore
-    const __VLS_82 = __VLS_asFunctionalComponent(__VLS_81, new __VLS_81({}));
-    const __VLS_83 = __VLS_82({}, ...__VLS_functionalComponentArgsRest(__VLS_82));
-    const __VLS_87 = {}.VRow;
-    /** @type { [typeof __VLS_components.VRow, typeof __VLS_components.vRow, typeof __VLS_components.VRow, typeof __VLS_components.vRow, ] } */ ;
-    // @ts-ignore
-    const __VLS_88 = __VLS_asFunctionalComponent(__VLS_87, new __VLS_87({}));
-    const __VLS_89 = __VLS_88({}, ...__VLS_functionalComponentArgsRest(__VLS_88));
-    const __VLS_93 = {}.VCol;
-    /** @type { [typeof __VLS_components.VCol, typeof __VLS_components.vCol, typeof __VLS_components.VCol, typeof __VLS_components.vCol, ] } */ ;
-    // @ts-ignore
-    const __VLS_94 = __VLS_asFunctionalComponent(__VLS_93, new __VLS_93({
-        cols: ("11"),
-    }));
-    const __VLS_95 = __VLS_94({
-        cols: ("11"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_94));
-    const __VLS_99 = {}.VTextField;
-    /** @type { [typeof __VLS_components.VTextField, typeof __VLS_components.vTextField, ] } */ ;
-    // @ts-ignore
-    const __VLS_100 = __VLS_asFunctionalComponent(__VLS_99, new __VLS_99({
-        label: ("Email"),
-        prependIcon: ("mdi-email"),
-        type: ("text"),
-        modelValue: ((__VLS_ctx.email)),
-        color: ("black"),
-        outlined: (true),
-        dense: (true),
-        rules: (([__VLS_ctx.rules.required])),
-    }));
-    const __VLS_101 = __VLS_100({
-        label: ("Email"),
-        prependIcon: ("mdi-email"),
-        type: ("text"),
-        modelValue: ((__VLS_ctx.email)),
-        color: ("black"),
-        outlined: (true),
-        dense: (true),
-        rules: (([__VLS_ctx.rules.required])),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_100));
-    __VLS_98.slots.default;
-    var __VLS_98;
-    __VLS_92.slots.default;
-    var __VLS_92;
-    const __VLS_105 = {}.VRow;
-    /** @type { [typeof __VLS_components.VRow, typeof __VLS_components.vRow, typeof __VLS_components.VRow, typeof __VLS_components.vRow, ] } */ ;
-    // @ts-ignore
-    const __VLS_106 = __VLS_asFunctionalComponent(__VLS_105, new __VLS_105({}));
-    const __VLS_107 = __VLS_106({}, ...__VLS_functionalComponentArgsRest(__VLS_106));
-    __VLS_86.slots.default;
-    var __VLS_86;
-    const __VLS_111 = {}.VBtn;
-    /** @type { [typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ] } */ ;
-    // @ts-ignore
-    const __VLS_112 = __VLS_asFunctionalComponent(__VLS_111, new __VLS_111({
-        ...{ 'onClick': {} },
-        ...{ class: ("mt-4") },
-        color: ("black"),
-        dark: (true),
-        block: (true),
-    }));
-    const __VLS_113 = __VLS_112({
-        ...{ 'onClick': {} },
-        ...{ class: ("mt-4") },
-        color: ("black"),
-        dark: (true),
-        block: (true),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_112));
-    let __VLS_117;
-    const __VLS_118 = {
-        onClick: (__VLS_ctx.loginUser)
-    };
-    let __VLS_114;
-    let __VLS_115;
-    __VLS_116.slots.default;
-    var __VLS_116;
-    __VLS_30.slots.default;
-    var __VLS_30;
-    __VLS_24.slots.default;
-    var __VLS_24;
-    __VLS_18.slots.default;
-    var __VLS_18;
-    __VLS_12.slots.default;
-    var __VLS_12;
-    const __VLS_119 = {}.VDialog;
-    /** @type { [typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, ] } */ ;
-    // @ts-ignore
-    const __VLS_120 = __VLS_asFunctionalComponent(__VLS_119, new __VLS_119({
-        modelValue: ((__VLS_ctx.termsDialog)),
-        maxWidth: ("500"),
-    }));
-    const __VLS_121 = __VLS_120({
-        modelValue: ((__VLS_ctx.termsDialog)),
-        maxWidth: ("500"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_120));
-    // @ts-ignore
-    /** @type { [typeof TermsCard, ] } */ ;
-    // @ts-ignore
-    const __VLS_125 = __VLS_asFunctionalComponent(TermsCard, new TermsCard({}));
-    const __VLS_126 = __VLS_125({}, ...__VLS_functionalComponentArgsRest(__VLS_125));
-    __VLS_124.slots.default;
-    var __VLS_124;
-    const __VLS_130 = {}.VDialog;
-    /** @type { [typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, ] } */ ;
-    // @ts-ignore
-    const __VLS_131 = __VLS_asFunctionalComponent(__VLS_130, new __VLS_130({
-        modelValue: ((__VLS_ctx.privacyDialog)),
-        maxWidth: ("500"),
-    }));
-    const __VLS_132 = __VLS_131({
-        modelValue: ((__VLS_ctx.privacyDialog)),
-        maxWidth: ("500"),
-    }, ...__VLS_functionalComponentArgsRest(__VLS_131));
-    // @ts-ignore
-    /** @type { [typeof PrivacyCard, ] } */ ;
-    // @ts-ignore
-    const __VLS_136 = __VLS_asFunctionalComponent(PrivacyCard, new PrivacyCard({}));
-    const __VLS_137 = __VLS_136({}, ...__VLS_functionalComponentArgsRest(__VLS_136));
-    __VLS_135.slots.default;
-    var __VLS_135;
-    __VLS_5.slots.default;
-    var __VLS_5;
-    ['fill-height', 'd-flex', 'align-center', 'justify-center', 'pa-4', 'elevation-12', 'd-flex', 'justify-center', 'align-center', 'text-center', 'mx-auto', 'display-2', 'font-weight-bold', 'text-center', 'mt-4', 'py-3', 'mt-4',];
-    var __VLS_slots;
-    var $slots;
-    let __VLS_inheritedAttrs;
-    var $attrs;
-    const __VLS_refs = {};
-    var $refs;
-    var $el;
-    return {
-        attrs: {},
-        slots: __VLS_slots,
-        refs: $refs,
-        rootEl: $el,
-    };
-}
-;
+debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
+const __VLS_ctx = {};
+let __VLS_components;
+let __VLS_directives;
+/** @type {__VLS_StyleScopedClasses['forgot-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['forgot-body']} */ ;
+// CSS variable injection 
+// CSS variable injection end 
+const __VLS_0 = {}.VContainer;
+/** @type {[typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, ]} */ ;
+// @ts-ignore
+const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
+    ...{ class: "forgot-password-page fill-height d-flex align-center justify-center pa-4" },
+    fluid: true,
+}));
+const __VLS_2 = __VLS_1({
+    ...{ class: "forgot-password-page fill-height d-flex align-center justify-center pa-4" },
+    fluid: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_1));
+var __VLS_4 = {};
+__VLS_3.slots.default;
+const __VLS_5 = {}.VRow;
+/** @type {[typeof __VLS_components.VRow, typeof __VLS_components.vRow, typeof __VLS_components.VRow, typeof __VLS_components.vRow, ]} */ ;
+// @ts-ignore
+const __VLS_6 = __VLS_asFunctionalComponent(__VLS_5, new __VLS_5({
+    justify: "center",
+    ...{ class: "w-100" },
+}));
+const __VLS_7 = __VLS_6({
+    justify: "center",
+    ...{ class: "w-100" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_6));
+__VLS_8.slots.default;
+const __VLS_9 = {}.VCol;
+/** @type {[typeof __VLS_components.VCol, typeof __VLS_components.vCol, typeof __VLS_components.VCol, typeof __VLS_components.vCol, ]} */ ;
+// @ts-ignore
+const __VLS_10 = __VLS_asFunctionalComponent(__VLS_9, new __VLS_9({
+    cols: "12",
+    md: "8",
+    lg: "7",
+    xl: "6",
+}));
+const __VLS_11 = __VLS_10({
+    cols: "12",
+    md: "8",
+    lg: "7",
+    xl: "6",
+}, ...__VLS_functionalComponentArgsRest(__VLS_10));
+__VLS_12.slots.default;
+const __VLS_13 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_14 = __VLS_asFunctionalComponent(__VLS_13, new __VLS_13({
+    color: "secundary",
+    ...{ class: "forgot-card elevation-12" },
+}));
+const __VLS_15 = __VLS_14({
+    color: "secundary",
+    ...{ class: "forgot-card elevation-12" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_14));
+__VLS_16.slots.default;
+const __VLS_17 = {}.VCardText;
+/** @type {[typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, ]} */ ;
+// @ts-ignore
+const __VLS_18 = __VLS_asFunctionalComponent(__VLS_17, new __VLS_17({
+    ...{ class: "pa-0" },
+}));
+const __VLS_19 = __VLS_18({
+    ...{ class: "pa-0" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_18));
+__VLS_20.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
+    ...{ class: "forgot-header" },
+});
+const __VLS_21 = {}.VBtn;
+/** @type {[typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ]} */ ;
+// @ts-ignore
+const __VLS_22 = __VLS_asFunctionalComponent(__VLS_21, new __VLS_21({
+    ...{ 'onClick': {} },
+    icon: true,
+    variant: "text",
+    color: "white",
+    ...{ class: "back-button" },
+}));
+const __VLS_23 = __VLS_22({
+    ...{ 'onClick': {} },
+    icon: true,
+    variant: "text",
+    color: "white",
+    ...{ class: "back-button" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_22));
+let __VLS_25;
+let __VLS_26;
+let __VLS_27;
+const __VLS_28 = {
+    onClick: (...[$event]) => {
+        __VLS_ctx.navigateTo('/');
+    }
+};
+__VLS_24.slots.default;
+const __VLS_29 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_30 = __VLS_asFunctionalComponent(__VLS_29, new __VLS_29({}));
+const __VLS_31 = __VLS_30({}, ...__VLS_functionalComponentArgsRest(__VLS_30));
+__VLS_32.slots.default;
+var __VLS_32;
+var __VLS_24;
+const __VLS_33 = {}.VImg;
+/** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+// @ts-ignore
+const __VLS_34 = __VLS_asFunctionalComponent(__VLS_33, new __VLS_33({
+    src: "@/assets/darkness_white.svg",
+    maxWidth: "56",
+    ...{ class: "mx-auto mb-4" },
+}));
+const __VLS_35 = __VLS_34({
+    src: "@/assets/darkness_white.svg",
+    maxWidth: "56",
+    ...{ class: "mx-auto mb-4" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_34));
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({
+    ...{ class: "text-center text-h4 font-weight-bold mb-2" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.section, __VLS_intrinsicElements.section)({
+    ...{ class: "forgot-body" },
+});
+/** @type {[typeof BaseAlert, typeof BaseAlert, ]} */ ;
+// @ts-ignore
+const __VLS_37 = __VLS_asFunctionalComponent(BaseAlert, new BaseAlert({
+    modelValue: (__VLS_ctx.showAlert),
+    type: (__VLS_ctx.alertType),
+    icon: (__VLS_ctx.alertIcon),
+    title: (__VLS_ctx.alertTitle),
+    ...{ class: "mb-6" },
+}));
+const __VLS_38 = __VLS_37({
+    modelValue: (__VLS_ctx.showAlert),
+    type: (__VLS_ctx.alertType),
+    icon: (__VLS_ctx.alertIcon),
+    title: (__VLS_ctx.alertTitle),
+    ...{ class: "mb-6" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_37));
+__VLS_39.slots.default;
+(__VLS_ctx.alertText);
+var __VLS_39;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "forgot-copy text-center mb-6" },
+});
+const __VLS_40 = {}.VForm;
+/** @type {[typeof __VLS_components.VForm, typeof __VLS_components.vForm, typeof __VLS_components.VForm, typeof __VLS_components.vForm, ]} */ ;
+// @ts-ignore
+const __VLS_41 = __VLS_asFunctionalComponent(__VLS_40, new __VLS_40({}));
+const __VLS_42 = __VLS_41({}, ...__VLS_functionalComponentArgsRest(__VLS_41));
+__VLS_43.slots.default;
+const __VLS_44 = {}.VTextField;
+/** @type {[typeof __VLS_components.VTextField, typeof __VLS_components.vTextField, ]} */ ;
+// @ts-ignore
+const __VLS_45 = __VLS_asFunctionalComponent(__VLS_44, new __VLS_44({
+    label: "Email",
+    prependInnerIcon: "mdi-email",
+    type: "email",
+    modelValue: (__VLS_ctx.email),
+    color: "secundary",
+    variant: "outlined",
+    density: "comfortable",
+    hideDetails: "auto",
+    rules: ([__VLS_ctx.rules.required, __VLS_ctx.rules.email]),
+}));
+const __VLS_46 = __VLS_45({
+    label: "Email",
+    prependInnerIcon: "mdi-email",
+    type: "email",
+    modelValue: (__VLS_ctx.email),
+    color: "secundary",
+    variant: "outlined",
+    density: "comfortable",
+    hideDetails: "auto",
+    rules: ([__VLS_ctx.rules.required, __VLS_ctx.rules.email]),
+}, ...__VLS_functionalComponentArgsRest(__VLS_45));
+var __VLS_43;
+const __VLS_48 = {}.VBtn;
+/** @type {[typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ]} */ ;
+// @ts-ignore
+const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
+    ...{ 'onClick': {} },
+    ...{ class: "mt-6" },
+    color: "black",
+    block: true,
+    size: "large",
+    loading: (__VLS_ctx.isSubmitting),
+    disabled: (__VLS_ctx.isSubmitting),
+}));
+const __VLS_50 = __VLS_49({
+    ...{ 'onClick': {} },
+    ...{ class: "mt-6" },
+    color: "black",
+    block: true,
+    size: "large",
+    loading: (__VLS_ctx.isSubmitting),
+    disabled: (__VLS_ctx.isSubmitting),
+}, ...__VLS_functionalComponentArgsRest(__VLS_49));
+let __VLS_52;
+let __VLS_53;
+let __VLS_54;
+const __VLS_55 = {
+    onClick: (__VLS_ctx.loginUser)
+};
+__VLS_51.slots.default;
+var __VLS_51;
+var __VLS_20;
+var __VLS_16;
+var __VLS_12;
+var __VLS_8;
+const __VLS_56 = {}.VDialog;
+/** @type {[typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, ]} */ ;
+// @ts-ignore
+const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({
+    modelValue: (__VLS_ctx.termsDialog),
+    maxWidth: "500",
+}));
+const __VLS_58 = __VLS_57({
+    modelValue: (__VLS_ctx.termsDialog),
+    maxWidth: "500",
+}, ...__VLS_functionalComponentArgsRest(__VLS_57));
+__VLS_59.slots.default;
+/** @type {[typeof TermsCard, ]} */ ;
+// @ts-ignore
+const __VLS_60 = __VLS_asFunctionalComponent(TermsCard, new TermsCard({
+    ...{ 'onClose': {} },
+}));
+const __VLS_61 = __VLS_60({
+    ...{ 'onClose': {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_60));
+let __VLS_63;
+let __VLS_64;
+let __VLS_65;
+const __VLS_66 = {
+    onClose: (...[$event]) => {
+        __VLS_ctx.termsDialog = false;
+    }
+};
+var __VLS_62;
+var __VLS_59;
+const __VLS_67 = {}.VDialog;
+/** @type {[typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, ]} */ ;
+// @ts-ignore
+const __VLS_68 = __VLS_asFunctionalComponent(__VLS_67, new __VLS_67({
+    modelValue: (__VLS_ctx.privacyDialog),
+    maxWidth: "500",
+}));
+const __VLS_69 = __VLS_68({
+    modelValue: (__VLS_ctx.privacyDialog),
+    maxWidth: "500",
+}, ...__VLS_functionalComponentArgsRest(__VLS_68));
+__VLS_70.slots.default;
+/** @type {[typeof PrivacyCard, ]} */ ;
+// @ts-ignore
+const __VLS_71 = __VLS_asFunctionalComponent(PrivacyCard, new PrivacyCard({}));
+const __VLS_72 = __VLS_71({}, ...__VLS_functionalComponentArgsRest(__VLS_71));
+var __VLS_70;
+var __VLS_3;
+/** @type {__VLS_StyleScopedClasses['forgot-password-page']} */ ;
+/** @type {__VLS_StyleScopedClasses['fill-height']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['forgot-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['elevation-12']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['forgot-header']} */ ;
+/** @type {__VLS_StyleScopedClasses['back-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['mx-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h4']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['forgot-body']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['forgot-copy']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-6']} */ ;
+var __VLS_dollars;
 const __VLS_self = (await import('vue')).defineComponent({
     setup() {
         return {
             TermsCard: TermsCard,
             PrivacyCard: PrivacyCard,
+            BaseAlert: BaseAlert,
             email: email,
             alertIcon: alertIcon,
             alertText: alertText,
             alertTitle: alertTitle,
             alertType: alertType,
-            termsDialog: termsDialog,
             showAlert: showAlert,
+            termsDialog: termsDialog,
             privacyDialog: privacyDialog,
+            isSubmitting: isSubmitting,
             navigateTo: navigateTo,
             rules: rules,
             loginUser: loginUser,
@@ -393,6 +369,5 @@ export default (await import('vue')).defineComponent({
     setup() {
         return {};
     },
-    __typeEl: {},
 });
 ; /* PartiallyEnd: #4569/main.vue */

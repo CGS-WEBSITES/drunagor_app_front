@@ -2,7 +2,7 @@
   <v-app :theme="theme">
     <Toast />
 
-    <v-row no-gutters v-if="display.mdAndUp && route.name !== 'Campaign'">
+    <v-row no-gutters v-if="display.mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode)">
       <v-app-bar app min-height="50" color="secundary">
         <div
           @click="$router.push({ name: 'Dashboard' })"
@@ -43,6 +43,8 @@
               'RetailerRegistration',
               'ForgotPassword',
               'ShareEvent',
+              'RetailerTutorial',
+              'NightsCommunication',
             ].includes(route.name)
           "
           color="WHITE"
@@ -133,7 +135,7 @@
       no-gutters
       v-else-if="showMobileAppBar"
     >
-      <v-app-bar app min-height="56" color="secundary" elevation="4">
+      <v-app-bar app min-height="56" color="secundary" elevation="4" class="safe-pwa-top-bar">
         <div
           v-if="route.name === 'Dashboard'"
           @click="$router.push({ name: 'Dashboard' })"
@@ -161,95 +163,97 @@
           <v-icon>mdi-menu</v-icon>
         </v-btn>
       </v-app-bar>
+    </v-row>
 
-      <v-navigation-drawer
-        v-model="drawer"
-        temporary
-        location="right"
-        width="280"
+    <v-navigation-drawer
+      v-model="drawer"
+      temporary
+      location="right"
+      width="280"
+    >
+      <v-list-item
+        class="pa-4"
+        style="cursor: pointer"
+        @click="router.push({ name: 'PerfilHome' }); drawer = false;"
+        :prepend-avatar="
+          user.picture_hash
+            ? assets + '/Profile/' + user.picture_hash
+            : assets + '/Profile/user.png'
+        "
+        :title="user.user_name || 'User'"
+        :subtitle="role === 3 ? 'Retailer' : 'Player'"
       >
+      </v-list-item>
+
+      <v-divider></v-divider>
+
+      <v-list density="compact" nav>
         <v-list-item
-          class="pa-4"
-          :prepend-avatar="
-            user.picture_hash
-              ? assets + '/Profile/' + user.picture_hash
-              : assets + '/Profile/user.png'
-          "
-          :title="user.user_name || 'User'"
-          :subtitle="role === 3 ? 'Retailer' : 'Player'"
+          v-for="(item, index) in menuItems"
+          :key="index"
+          :disabled="item.disabled"
+          @click="handleMenuClick(item)"
+          :value="item.title"
+          class="my-1"
         >
+          <template v-slot:prepend>
+            <div
+              class="d-flex align-center"
+              style="width: 24px; margin-right: 16px"
+            >
+              <v-img
+                v-if="item.iconImage"
+                :src="item.iconImage"
+                width="24"
+                height="24"
+                contain
+              ></v-img>
+              <v-icon v-else size="24">{{ item.icon }}</v-icon>
+            </div>
+          </template>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
+      </v-list>
 
-        <v-divider></v-divider>
+      <v-divider></v-divider>
+      <div class="px-4 py-2 text-overline text-grey-lighten-1">THEMES</div>
+      <v-list density="compact" nav class="px-2">
+        <v-list-item
+          v-for="t in themesList"
+          :key="t.name"
+          @click="selectTheme(t.name)"
+          :active="theme === t.name"
+          class="my-1 rounded-lg"
+        >
+          <template v-slot:prepend>
+            <div class="d-flex mr-3" style="width: 20px; height: 20px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.3);">
+              <div :style="{ backgroundColor: t.bg }" style="width: 50%; height: 100%;"></div>
+              <div :style="{ backgroundColor: t.primary }" style="width: 50%; height: 100%;"></div>
+            </div>
+          </template>
+          <v-list-item-title class="text-white text-body-2">{{ t.label }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
 
-        <v-list density="compact" nav>
-          <v-list-item
-            v-for="(item, index) in menuItems"
-            :key="index"
-            :disabled="item.disabled"
-            @click="handleMenuClick(item)"
-            :value="item.title"
-            class="my-1"
-          >
+      <template v-slot:append>
+        <div class="pa-2">
+          <v-divider class="mb-2"></v-divider>
+          <v-list-item @click="logOut" class="my-1">
             <template v-slot:prepend>
               <div
                 class="d-flex align-center"
                 style="width: 24px; margin-right: 16px"
               >
-                <v-img
-                  v-if="item.iconImage"
-                  :src="item.iconImage"
-                  width="24"
-                  height="24"
-                  contain
-                ></v-img>
-                <v-icon v-else size="24">{{ item.icon }}</v-icon>
+                <v-icon size="24">mdi-logout</v-icon>
               </div>
             </template>
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-title>Log Out</v-list-item-title>
           </v-list-item>
-        </v-list>
+        </div>
+      </template>
+    </v-navigation-drawer>
 
-        <v-divider></v-divider>
-        <div class="px-4 py-2 text-overline text-grey-lighten-1">THEMES</div>
-        <v-list density="compact" nav class="px-2">
-          <v-list-item
-            v-for="t in themesList"
-            :key="t.name"
-            @click="selectTheme(t.name)"
-            :active="theme === t.name"
-            class="my-1 rounded-lg"
-          >
-            <template v-slot:prepend>
-              <div class="d-flex mr-3" style="width: 20px; height: 20px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.3);">
-                <div :style="{ backgroundColor: t.bg }" style="width: 50%; height: 100%;"></div>
-                <div :style="{ backgroundColor: t.primary }" style="width: 50%; height: 100%;"></div>
-              </div>
-            </template>
-            <v-list-item-title class="text-white text-body-2">{{ t.label }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-
-        <template v-slot:append>
-          <div class="pa-2">
-            <v-divider class="mb-2"></v-divider>
-            <v-list-item @click="logOut" class="my-1">
-              <template v-slot:prepend>
-                <div
-                  class="d-flex align-center"
-                  style="width: 24px; margin-right: 16px"
-                >
-                  <v-icon size="24">mdi-logout</v-icon>
-                </div>
-              </template>
-              <v-list-item-title>Log Out</v-list-item-title>
-            </v-list-item>
-          </div>
-        </template>
-      </v-navigation-drawer>
-    </v-row>
-
-    <router-view :style="contentStyle" :class="{ 'pt-10': display.mdAndUp }" />
+    <router-view :style="contentStyle" :class="{ 'pt-10': display.mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode) }" />
   </v-app>
 </template>
 
@@ -260,6 +264,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useTutorialStore } from "@/store/TutorialStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import themeIcon from "@/assets/theme.png";
 import VectorIcon from "@/assets/Vector.png";
 
@@ -270,12 +275,27 @@ const openLink = (url) => {
 
 const userStore = useUserStore();
 const tutorialStore = useTutorialStore();
+const campaignStore = CampaignStore();
 const user = computed(() => userStore.user);
 
 const display = ref(useDisplay());
 
 const router = useRouter();
 const route = useRoute();
+
+const campaign = computed(() => {
+  if (route.name === 'Campaign' && route.params.id) {
+    return campaignStore.findOptional(String(route.params.id));
+  }
+  return null;
+});
+
+const isImmersiveMode = computed(() => {
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === 'underkeep2') return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
+});
 
 const showMobileAppBar = computed(() => {
   return (
@@ -285,7 +305,9 @@ const showMobileAppBar = computed(() => {
     route.name !== 'Gama' &&
     route.name !== 'Community' &&
     route.name !== 'Lobby' &&
-    route.name !== 'Campaign'
+    route.name !== 'RetailerTutorial' &&
+    route.name !== 'NightsCommunication' &&
+    (route.name !== 'Campaign' || !isImmersiveMode.value)
   );
 });
 
@@ -413,19 +435,21 @@ const contentStyle = computed(() => {
           "background-image":
             "url('https://assets.drunagor.app/backgrounds/mblogin-background.png')",
           "background-size": "cover",
-          "background-position": "center",
+          "background-position": "top center",
           "background-repeat": "no-repeat",
           "min-height": "100vh",
           width: "100%",
         };
   }
 
+  const isImmersive = route.name === 'Campaign' && isImmersiveMode.value;
+
   return display.value.mdAndUp
     ? {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
         "background-repeat": "repeat",
-        "padding-top": "65px",
+        "padding-top": isImmersive ? "0px" : "65px",
         "min-height": "100vh",
       }
     : {
@@ -463,5 +487,10 @@ onBeforeMount(() => {
 
 .v-row {
   width: 100%;
+}
+
+.safe-pwa-top-bar {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  height: calc(56px + env(safe-area-inset-top, 0px)) !important;
 }
 </style>

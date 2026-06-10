@@ -93,10 +93,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useDisplay } from 'vuetify';
 import { useTutorialStore } from '@/store/TutorialStore';
 import AssemblyGuide from '@/components/AssemblyGuide.vue';
+
+const props = defineProps({
+  startWithGuide: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const { mobile } = useDisplay();
 const tutorialStore = useTutorialStore();
@@ -108,6 +115,13 @@ const dontShowAgain = ref(false);
 const assemblyDialog = ref(false);
 
 const isMobile = computed(() => mobile.value);
+
+watch(dialog, (newVal) => {
+  if (newVal && props.startWithGuide) {
+    dialog.value = false;
+    assemblyDialog.value = true;
+  }
+});
 
 const handleYes = () => {
   if (dontShowAgain.value) {

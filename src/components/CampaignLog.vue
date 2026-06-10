@@ -139,8 +139,8 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
 const heroBackgroundStyle = computed(() => ({
   backgroundImage: `url(${hero.images?.trackerInfo || hero.images?.background})`,
-  backgroundSize: "100% 100%", 
-  backgroundPosition: "center center", 
+  backgroundSize: "cover", 
+  backgroundPosition: "center right", 
   backgroundRepeat: "no-repeat",
 }));
 
@@ -246,52 +246,18 @@ function openHeroEquipmentSkills() {
   position: relative;
 }
 
-.hero-background-title {
+.hero-background-title, :deep(.v-expansion-panel-title) {
+  width: 100%;
+  aspect-ratio: 1365 / 499;
+  min-height: auto !important;
+  height: auto !important;
   position: relative;
   overflow: hidden;
-  min-height: 280px !important;
 }
 
 .hero-background-title > .d-flex {
   position: relative;
   z-index: 2;
-}
-
-:deep(.v-expansion-panel-title) {
-  min-height: 280px;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Responsividade da altura da imagem */
-@media (max-width: 768px) {
-  .hero-background-title, :deep(.v-expansion-panel-title) {
-    min-height: 250px !important;
-  }
-}
-
-@media (max-width: 540px) {
-  .hero-background-title, :deep(.v-expansion-panel-title) {
-    min-height: 180px !important;
-  }
-}
-
-@media (max-width: 430px) {
-  .hero-background-title, :deep(.v-expansion-panel-title) {
-    min-height: 130px !important;
-  }
-}
-
-@media (max-width: 344px) {
-  .hero-background-title, :deep(.v-expansion-panel-title) {
-    min-height: 100px !important;
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-background-title, :deep(.v-expansion-panel-title) {
-    min-height: 350px !important;
-  }
 }
 
 :deep(.v-expansion-panel-title__overlay) {

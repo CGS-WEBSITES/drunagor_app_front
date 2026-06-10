@@ -87,14 +87,16 @@
       class="flex-grow-1"
       :style="{
         marginTop: display.xs ? '-130px' : '-120px',
-        overflowY: 'auto',
+        overflow: 'hidden',
         minHeight: '0',
         zIndex: 1,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }"
     >
       <v-container
-        class="mx-auto px-4 fill-height align-start"
+        class="mx-auto px-4 fill-height align-stretch"
         :style="{ maxWidth: containerMaxWidth }"
       >
         <RetailerDashboardEvents style="width: 100%" />

@@ -15,11 +15,11 @@
       <v-img
         :key="reloadKey"
         :src="
-          user.background_hash
-            ? assets + '/Profile/' + user.background_hash
+          currentBackgroundHash
+            ? assets + '/Profile/' + currentBackgroundHash + '?t=' + userStore.cacheBuster
             : assets + '/Profile/profile-bg-warriors-transparent.png'
         "
-        :alt="user.picture_hash"
+        :alt="currentBackgroundHash || 'profile background'"
         max-height="529px"
         max-width="100%"
         cover
@@ -40,29 +40,28 @@
         </p>
 
         <v-btn
+          v-if="!isEditPage"
           icon
           class="position-absolute bottom-0 right-0 ma-1"
           color="rgba(0, 0, 0, 0.6)"
           elevation="3"
           rounded="xl"
           size="x-small"
+          @click="router.push('/profile/edit')"
         >
           <v-icon>mdi-pencil</v-icon>
-          <profile-background-dialog /> </v-btn
-      ></v-img>
-
-      <!-- <v-btn icon="mdi-pencil" class="position-absolute top-0 right-0 ma-2" color="rgba(0, 0, 0, 0.6)" elevation="3"
-        :to="'/perfil/perfil-image'"></v-btn> -->
+        </v-btn>
+      </v-img>
     </div>
 
     <v-img
       :key="reloadKey"
       :src="
-        user.picture_hash
-          ? assets + '/Profile/' + user.picture_hash
+        currentPictureHash
+          ? assets + '/Profile/' + currentPictureHash + '?t=' + userStore.cacheBuster
           : assets + '/Profile/user.png'
       "
-      :alt="user.picture_hash"
+      :alt="currentPictureHash || 'profile picture'"
       max-width="118"
       style="
         top: -30px;
@@ -74,41 +73,58 @@
       "
     >
       <v-btn
+        v-if="!isEditPage"
         icon
         class="position-absolute bottom-0 right-0 ma-1"
         color="rgba(0, 0, 0, 0.6)"
         elevation="3"
         rounded="xl"
         size="x-small"
+        @click="router.push('/profile/edit')"
       >
         <v-icon>mdi-pencil</v-icon>
-        <profile-pic-dialog></profile-pic-dialog>
       </v-btn>
     </v-img>
 
     <v-card-text>
       <div class="user-info" style="margin-top: -80px">
-        <p class="user-name" style="font-weight: bold; font-size: 1.4rem">
-          {{ user.user_name }}
+        <p class="user-name" style="font-weight: bold; font-size: 1.4rem; display: flex; align-items: center; justify-content: center;">
+          {{ user?.user_name }}
+          <v-tooltip location="top" v-if="user?.roles_fk === 3">
+            <template #activator="{ props }">
+              <v-icon
+                v-bind="props"
+                color="primary"
+                class="ml-2"
+                size="22"
+              >
+                mdi-store
+              </v-icon>
+            </template>
+            <span>Retailer Account</span>
+          </v-tooltip>
         </p>
-        <!-- <p class="user-points" style="font-size: 1.1rem;">
-          {{ points }} pts
-        </p>
-        <p class="user-ranking" style="font-size: 1.1rem;">
-          {{ ranking }}°
-        </p> -->
       </div>
     </v-card-text>
   </v-card>
 </template>
 
 <script lang="ts" setup>
-import { inject, computed } from "vue";
+import { ref, inject, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 
+const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
+
 const reloadKey = ref(0);
-const user = computed(() => useUserStore().user); // Inicializa a store
+const user = computed(() => userStore.user);
 const assets = inject<string>("assets");
+
+const currentPictureHash = computed(() => userStore.editingPictureHash || user.value.picture_hash);
+const currentBackgroundHash = computed(() => userStore.editingBackgroundHash || user.value.background_hash);
+const isEditPage = computed(() => route.path === "/profile/edit");
 
 const formattedJoinDate = computed(() => {
   if (!user.value.join_date) return "Unknown";
@@ -121,7 +137,6 @@ const formattedJoinDate = computed(() => {
 </script>
 
 <style scoped>
-/* Estilos para o card (ajuste conforme necessário) */
 .product-card {
   border: 1px solid #ccc;
   padding: 16px;

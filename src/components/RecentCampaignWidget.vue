@@ -16,6 +16,8 @@
           color="secundary"
           elevation="16"
           width="100%"
+          class="d-flex flex-column"
+          style="overflow: hidden;"
         >
           <!-- Banner Image -->
           <v-img
@@ -72,55 +74,84 @@
             </div>
 
             <div class="d-flex align-center text-subtitle-1 mt-0 text-grey-lighten-1">
-              <span v-if="campaign.wing">{{ campaign.wing }}</span>
-              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2 text-truncate">
+              <span v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</span>
+              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2">
                 - Last Door: <span class="text-white font-weight-bold">{{ lastDoorName }}</span>
+              </span>
+              <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
+                {{ calculateCompletionPercentage(campaign) }}%
               </span>
             </div>
           </v-card-title>
 
+          <v-progress-linear
+            v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
+            :model-value="calculateCompletionPercentage(campaign)"
+            color="amber-accent-2"
+            height="3"
+            class="mb-0"
+          ></v-progress-linear>
+
+
+
           <!-- Underkeep style: Players list -->
-          <v-card-text v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)">
-            <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
-            <div class="d-flex flex-wrap gap-2">
-              <v-chip
+          <div v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
+              <div
                 v-for="player in players"
                 :key="player.rl_campaigns_users_pk"
-                class="bg-grey-darken-4 text-white font-weight-medium pl-1 pr-3"
-                size="small"
+                class="d-flex flex-column align-center text-center player-standee-container"
               >
-                <v-avatar start class="mr-1">
-                  <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
-                </v-avatar>
-                {{ player.user_name }}
-              </v-chip>
-              <span v-if="players.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
+                    :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                  <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
+
+                  <!-- Player Name overlay at bottom -->
+                  <div class="player-name-overlay">
+                    <span class="player-name-text">{{ player.user_name }}</span>
+                  </div>
+                </div>
+              </div>
+              <span v-if="players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
+
+              <!-- Last Update Date inline -->
+              <div class="ml-auto pb-1 align-self-end d-flex align-center text-grey-lighten-1 last-update-text" style="font-size: 0.7rem;">
+                <v-icon size="12" class="mr-1">mdi-clock-outline</v-icon>
+                <span>{{ formattedLastUpdate }}</span>
+              </div>
             </div>
-          </v-card-text>
+          </div>
 
           <!-- Legacy style: Hero Avatars -->
-          <v-card-text v-else>
-            <v-row no-gutters>
-              <v-col
+          <div v-else class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
+              <div
                 v-for="hero in heroAvatars"
                 :key="hero.heroId"
-                cols="auto"
-                class="d-flex"
+                class="d-flex flex-column align-center text-center player-standee-container"
               >
-                <v-avatar
-                  class="my-1 rounded-0 mx-1"
-                  :image="hero.images.avatar"
-                  :size="calculateAvatarSize"
-                ></v-avatar>
-              </v-col>
-            </v-row>
-          </v-card-text>
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    :src="hero.images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                </div>
+              </div>
 
-          <!-- Last Update Date -->
-          <div class="px-4 pb-3 pt-0 d-flex justify-end">
-            <span class="text-caption text-grey-lighten-1 last-update-text">
-              LAST UPDATE: {{ formattedLastUpdate }}
-            </span>
+              <!-- Last Update Date inline -->
+              <div class="ml-auto pb-1 align-self-end d-flex align-center text-grey-lighten-1 last-update-text" style="font-size: 0.7rem;">
+                <v-icon size="12" class="mr-1">mdi-clock-outline</v-icon>
+                <span>{{ formattedLastUpdate }}</span>
+              </div>
+            </div>
           </div>
         </v-card>
       </div>
@@ -133,6 +164,7 @@ import { ref, computed, watch, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
+import { CampaignStore } from "@/store/CampaignStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 
@@ -145,6 +177,7 @@ const props = defineProps({
 
 const router = useRouter();
 const userStore = useUserStore();
+const campaignStore = CampaignStore();
 const { mdAndUp } = useDisplay();
 const axios: any = inject("axios");
 
@@ -173,10 +206,9 @@ const formattedLastUpdate = computed(() => {
   return lastUpdateDate.value.toLocaleString("pt-BR", {
     day: "2-digit",
     month: "2-digit",
-    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  });
+  }).replace(",", "");
 });
 
 // Load the most recent campaign for a user
@@ -185,25 +217,37 @@ const loadMostRecentCampaign = async () => {
 
   loading.value = true;
   try {
-    // 1. Fetch normal/legacy campaigns
-    const resLegacy = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: props.userId,
-        show_season2: false,
-      },
-    });
+    let legacyCampaigns = [];
+    try {
+      const resLegacy = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: props.userId,
+          show_season2: false,
+          _t: Date.now()
+        },
+      });
+      legacyCampaigns = resLegacy.data?.campaigns || [];
+    } catch (err1) {
+      console.warn("[RecentCampaignWidget] Failed fetching legacy campaigns:", err1);
+    }
 
-    // 2. Fetch season 2 campaigns
-    const resS2 = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: props.userId,
-        show_season2: true,
-      },
-    });
+    let s2Campaigns = [];
+    try {
+      const resS2 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: props.userId,
+          show_season2: true,
+          _t: Date.now()
+        },
+      });
+      s2Campaigns = resS2.data?.campaigns || [];
+    } catch (err2) {
+      console.warn("[RecentCampaignWidget] Failed fetching S2 campaigns:", err2);
+    }
 
     const allCampaignsRaw = [
-      ...(resLegacy.data?.campaigns || []),
-      ...(resS2.data?.campaigns || []),
+      ...legacyCampaigns,
+      ...s2Campaigns,
     ];
 
     if (allCampaignsRaw.length === 0) {
@@ -281,7 +325,7 @@ const loadMostRecentCampaign = async () => {
 
         const doors = doorsRes.data?.campaign_doors || [];
         if (doors.length > 0) {
-          doors.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          doors.sort((a: any, b: any) => b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk);
           const latest = doors[0];
           lastDoorName.value = latest.door_name;
 
@@ -300,6 +344,26 @@ const loadMostRecentCampaign = async () => {
         }
 
         players.value = playersRes.data?.Users || [];
+
+        // Load heroes for each player in parallel using Promise.allSettled
+        await Promise.allSettled(
+          players.value.map(async (player: any) => {
+            if (player.playable_heroes_fk) {
+              try {
+                const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+                if (res.data?.hero_hash) {
+                  const jsonStr = atob(res.data.hero_hash);
+                  const heroObj = JSON.parse(jsonStr);
+                  heroObj.campaignId = campaign.value.campaignId;
+                  heroObj.playableHeroesPk = player.playable_heroes_fk;
+                  campaignStore.addOrUpdateHero(campaign.value.campaignId, heroObj);
+                }
+              } catch (err) {
+                console.warn(`[RecentCampaignWidget] Failed to load hero ${player.playable_heroes_fk}:`, err);
+              }
+            }
+          })
+        );
       } catch (e) {
         console.error("Error loading extra info for recent campaign:", e);
       }
@@ -309,6 +373,89 @@ const loadMostRecentCampaign = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const heroRepo = new HeroDataRepository();
+
+const getPlayerHero = (campaignId: string, playableHeroFk: number | null) => {
+  if (!playableHeroFk) return null;
+  const hero = campaignStore.findHeroByPlayableHeroesPk(campaignId, playableHeroFk);
+  if (!hero) return null;
+  return heroRepo.find(hero.heroId) || null;
+};
+
+const calculateCompletionPercentage = (campaign: any): number => {
+  const wing = (campaign.wing || "").toUpperCase();
+  const currentDoor = (campaign.door || "").toUpperCase();
+  
+  let list: string[] = [];
+  if (wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 3") || wing.includes("WING 03")) {
+    list = [
+      "FIRST SETUP",
+      "DUNGEON FOYER",
+      "QUEEN'S HALL",
+      "THE FORGE",
+      "ARTISAN'S GALLERY",
+      "PROVING GROUNDS",
+      "MAIN HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 4") || wing.includes("WING 04")) {
+    list = [
+      "FIRST SETUP",
+      "DRACONIC CHAPEL",
+      "CRYPTS",
+      "BOTH OPEN",
+      "LIBRARY",
+      "LABORATORY",
+      "DRAGON BOSS",
+      "END GAME"
+    ];
+  }
+
+  if (list.length === 0) return 0;
+  
+  let idx = list.indexOf(currentDoor);
+  if (idx === -1) {
+    idx = list.findIndex(d => currentDoor.includes(d) || d.includes(currentDoor));
+  }
+  
+  if (idx === -1) {
+    if (currentDoor === "FIRST SETUP") idx = 0;
+    else if (currentDoor === "END GAME") idx = list.length - 1;
+    else idx = 0;
+  }
+  
+  const pct = Math.round((idx / (list.length - 1)) * 100);
+  return Math.min(100, Math.max(0, pct));
 };
 
 // Calculate hero avatars for legacy campaigns
@@ -335,6 +482,17 @@ const goToCampaign = () => {
   router.push({ name: "Campaign", params: { id: campaign.value.campaignId } });
 };
 
+// Format wing name to exclude "advanced"
+const formatWingName = (wing: string | null) => {
+  if (!wing) return "";
+  return wing
+    .replace(/-\s*advanced/gi, "")
+    .replace(/advanced\s*-/gi, "")
+    .replace(/advanced/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
 onMounted(loadMostRecentCampaign);
 watch(() => props.userId, loadMostRecentCampaign);
 </script>
@@ -350,9 +508,73 @@ watch(() => props.userId, loadMostRecentCampaign);
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
+.hero-standee-card {
+  width: 105px;
+  aspect-ratio: 120 / 170;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+}
+.player-standee-container {
+  width: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.standees-list-container {
+  gap: 12px;
+}
+.player-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+  padding: 24px 4px 10px 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+.player-name-text {
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 @media (max-width: 600px) {
   .last-update-text {
     font-size: 0.65rem !important;
+  }
+  .hero-standee-card {
+    width: 82px;
+  }
+  .player-standee-container {
+    width: 82px;
+  }
+  .standees-list-container {
+    gap: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .hero-standee-card {
+    width: 72px;
+  }
+  .player-standee-container {
+    width: 72px;
+  }
+  .standees-list-container {
+    gap: 6px;
   }
 }
 </style>

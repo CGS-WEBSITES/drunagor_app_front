@@ -91,6 +91,25 @@
               </template>
             </v-tooltip>
 
+            <v-tooltip text="Rune Mechanics" location="right" v-if="isWing1Or2">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side"
+                  @click.stop="runesDialogVisible = true"
+                >
+                  <v-icon
+                    icon="mdi-cards-variant"
+                    size="28"
+                  ></v-icon>
+                  <span
+                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
+                    >RUNES</span
+                  >
+                </div>
+              </template>
+            </v-tooltip>
+
             <v-tooltip text="Door Instructions" location="right">
               <template v-slot:activator="{ props }">
                 <div
@@ -177,14 +196,25 @@
               <div
                 v-for="(monster, index) in currentMonsters"
                 :key="monster + index"
-                class="monster-card"
-                @click.stop="openMonsterGroupDialog"
+                class="monster-card cursor-pointer"
+                :class="{ 'placeholder-card': monster.startsWith('PLACEHOLDER_') }"
+                @click.stop="handleMonsterClick(monster, index)"
               >
-                <img
-                  :src="getMonsterImageSrc(monster)"
-                  @error="onMonsterImgError"
-                  :alt="monster"
-                />
+                <template v-if="monster.startsWith('PLACEHOLDER_')">
+                  <div class="d-flex flex-column align-center justify-center fill-height monster-placeholder-inner">
+                    <v-icon color="amber-accent-2" size="24" class="mb-1">mdi-skull-outline</v-icon>
+                    <span class="text-caption font-weight-bold text-amber-accent-2 text-center uppercase-tracking px-1" style="font-size: 0.62rem !important; line-height: 1.1;">
+                      DRAW {{ getPlaceholderType(monster).toUpperCase() }}
+                    </span>
+                  </div>
+                </template>
+                <template v-else>
+                  <img
+                    :src="getMonsterImageSrc(monster)"
+                    @error="onMonsterImgError"
+                    :alt="monster"
+                  />
+                </template>
               </div>
             </transition-group>
           </div>
@@ -201,6 +231,18 @@
                   icon="mdi-account-group"
                   class="square-hud-btn"
                   @click.stop="playerListDialogVisible = true"
+                ></v-btn>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip text="Save Game" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-content-save"
+                  class="square-hud-btn"
+                  color="success"
+                  @click.stop="manualSave"
                 ></v-btn>
               </template>
             </v-tooltip>
@@ -404,7 +446,12 @@
             elevation="8"
             @click="bookDialog.visible = false"
         ></v-btn>
-        <CampaignBookNew ref="campaignBookRef" :campaign-wing="bookContext" :campaign-type="campaign?.campaign || ''" />
+        <CampaignBookNew 
+          ref="campaignBookRef" 
+          :campaign-wing="bookContext" 
+          :campaign-type="activeCampaignData.campaign || campaign?.campaign || ''" 
+          :active-wing="activeCampaignData.wing || campaign?.wing || ''"
+        />
       </v-card>
     </v-dialog>
 
@@ -427,9 +474,29 @@
         </v-toolbar>
         <v-card-text class="pa-4">
           <v-row justify="center" align="center">
-            <v-col v-for="monster in currentMonsters" :key="monster" cols="4" md="6" lg="4" class="d-flex justify-center">
-              <div class="d-flex flex-column align-center">
-                <img :src="getMonsterImageSrc(monster)" class="monster-group-img elevation-10 rounded-lg" />
+            <v-col v-for="(monster, index) in currentMonsters" :key="monster + index" cols="12" sm="6" md="4" class="d-flex justify-center">
+              <div class="d-flex flex-column align-center w-100">
+                <template v-if="monster.startsWith('PLACEHOLDER_')">
+                  <div class="monster-group-placeholder-card d-flex flex-column align-center justify-center pa-6 rounded-lg cursor-pointer border-dashed" @click="handleMonsterClick(monster, index)">
+                    <v-icon color="amber-accent-2" size="48" class="mb-2">mdi-skull-outline</v-icon>
+                    <div class="text-subtitle-1 font-weight-bold text-amber-accent-2 text-uppercase mb-2">Draw {{ getPlaceholderType(monster).toUpperCase() }}</div>
+                    <v-btn size="small" color="amber-accent-3" variant="flat" class="font-weight-bold text-black">SELECT CARD</v-btn>
+                  </div>
+                </template>
+                <template v-else>
+                  <img :src="getMonsterImageSrc(monster)" class="monster-group-img elevation-10 rounded-lg" style="max-width: 100%; height: auto;" />
+                  <v-btn
+                    v-if="isSlotSelectable(index)"
+                    size="small"
+                    color="grey-darken-3"
+                    variant="flat"
+                    class="mt-2 font-weight-bold text-amber-accent-2"
+                    @click="openMonsterSelectorForIndex(index)"
+                  >
+                    <v-icon start size="14">mdi-refresh</v-icon>
+                    REDRAW
+                  </v-btn>
+                </template>
               </div>
             </v-col>
           </v-row>
@@ -438,13 +505,48 @@
     </v-dialog>
 
     <v-dialog v-model="doorScannerDialog.visible" max-width="500" persistent>
-      <v-card class="bg-grey-darken-3 rounded-xl overflow-hidden">
+      <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
         <v-toolbar color="black" density="compact">
-          <v-toolbar-title class="text-white">Scan Next Door</v-toolbar-title>
+          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
+            <v-icon start color="amber-darken-2">mdi-door-open</v-icon>
+            DOOR NAVIGATION
+          </v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" @click="doorScannerDialog.visible = false"></v-btn>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="doorScannerDialog.visible = false"></v-btn>
         </v-toolbar>
-        <NextDoorQRScanner v-if="doorScannerDialog.visible" @scanned="handleDoorScanned" @manual-advance="handleManualAdvance" />
+        <v-card-text class="pa-6 text-center">
+          <template v-if="isWing1Or2">
+            <div class="text-subtitle-1 text-grey-lighten-1 mb-6 font-weight-medium">
+              You are currently at:
+              <div class="text-h6 text-amber font-weight-bold mt-1">
+                {{ activeCampaignData.door || "FIRST SETUP" }}
+              </div>
+            </div>
+            <div class="d-flex flex-column" style="gap: 12px;">
+              <v-btn
+                block
+                color="amber-darken-3"
+                height="64"
+                class="rounded-lg text-body-1 font-weight-bold py-2"
+                @click="handleManualAdvance"
+              >
+                <v-icon start size="26">mdi-door-open</v-icon>
+                NEXT DOOR
+              </v-btn>
+              <v-btn
+                block
+                color="grey-darken-3"
+                height="64"
+                class="rounded-lg text-body-1 font-weight-bold py-2"
+                @click="handlePreviousActionInDialog"
+              >
+                <v-icon start size="26" class="text-grey-lighten-2">mdi-arrow-left-bold</v-icon>
+                PREVIOUS DOOR
+              </v-btn>
+            </div>
+          </template>
+          <NextDoorQRScanner v-else-if="doorScannerDialog.visible" @scanned="handleDoorScanned" @manual-advance="handleManualAdvance" />
+        </v-card-text>
       </v-card>
     </v-dialog>
 
@@ -649,6 +751,83 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="runesDialogVisible" max-width="500">
+      <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
+        <v-toolbar color="black" density="compact" class="px-2">
+          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
+            <v-icon start color="amber-darken-2" class="mr-2">mdi-cards-variant</v-icon>
+            RUNE MECHANICS
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="runesDialogVisible = false"></v-btn>
+        </v-toolbar>
+        
+        <v-card-text class="pa-3 bg-grey-darken-4 d-flex flex-column gap-3" style="max-height: 80vh; overflow-y: auto;">
+          <!-- Runes Tracker -->
+          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
+            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center">
+              <v-icon start class="mr-2" size="small">mdi-counter</v-icon>
+              Runes Tracker
+            </div>
+            <div class="pa-2">
+              <CampaignRunes :campaign-id="campaignId" />
+            </div>
+          </div>
+          
+          <!-- Rune Cards -->
+          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
+            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center mb-1">
+              <v-icon start class="mr-2" size="small">mdi-cards-outline</v-icon>
+              Rune & Game State Cards
+            </div>
+            <div class="pa-2">
+              <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="monsterSelectorDialog.visible" max-width="500">
+      <v-card class="bg-grey-darken-4 rounded-xl border-gold">
+        <v-toolbar color="black" density="compact">
+          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
+            <v-icon start color="amber-accent-2">mdi-skull-outline</v-icon>
+            DRAW {{ monsterSelectorDialog.titleDisplay }}
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="monsterSelectorDialog.visible = false"></v-btn>
+        </v-toolbar>
+        <v-card-text class="pa-6 text-center">
+          <div class="text-subtitle-2 text-grey-lighten-1 mb-4">
+            Select the card you physically drew from the monster deck:
+          </div>
+          <div class="d-flex flex-wrap justify-center gap-4 py-2">
+            <div
+              v-for="option in monsterSelectorDialog.pool"
+              :key="option"
+              class="selector-monster-card"
+              @click="selectMonsterOption(option)"
+            >
+              <v-img
+                :src="getMonsterImageSrc(option)"
+                cover
+                class="rounded-lg selector-monster-img"
+                width="110"
+                height="165"
+              >
+                <template v-slot:placeholder>
+                  <div class="d-flex align-center justify-center fill-height bg-grey-darken-3">
+                    <v-progress-circular indeterminate color="white" size="20"></v-progress-circular>
+                  </div>
+                </template>
+              </v-img>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="tharmagarDialogVisible" fullscreen transition="dialog-bottom-transition">
       <v-card color="black" class="position-relative">
         <v-btn
@@ -695,6 +874,7 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore";
+import { useUserStore } from "@/store/UserStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
 
@@ -707,6 +887,8 @@ import KeywordView from "@/components/KeywordView.vue";
 import NextDoorQRScanner from "@/components/NextDoorQRScanner.vue";
 import InteractViewNew from "@/components/InteractViewNew.vue";
 
+import CampaignRunes from "@/components/CampaignRunes.vue";
+import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignRemove from "@/components/CampaignRemove.vue";
@@ -772,6 +954,7 @@ const emit = defineEmits<{
 const router = useRouter();
 const campaignStore = CampaignStore();
 const tutorialStore = useTutorialStore();
+const userStore = useUserStore();
 const heroDataRepository = new HeroDataRepository();
 
 const campaignBookRef = ref<any>(null);
@@ -800,6 +983,7 @@ const finishCampaignDialog = ref({ visible: false });
 const newBadgeDialog = ref({ visible: false, reward: null as any });
 const dashboardExitDialog = ref({ visible: false }); 
 const tharmagarDialogVisible = ref(false);
+const runesDialogVisible = ref(false);
 const snackbar = ref({ visible: false, text: "", color: "success" });
 const showMonstersPanel = ref(true);
 
@@ -820,6 +1004,7 @@ const forcedDoorInstruction = ref<string | null>(null);
 const allDoors = ref<Door[]>([]);
 const openedDoors = ref<Set<string>>(new Set());
 let pollingInterval: number | null = null;
+let lastManualActionTime = 0;
 
 const WING3_ORDER = [
     "FIRST SETUP",
@@ -858,11 +1043,19 @@ const currentLocationDisplay = computed(
     `${activeCampaignData.value.wing || "Unknown"} - ${activeCampaignData.value.door || "Setup"}`,
 );
 
+const isWing1Or2 = computed(() => {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
+});
+
 const isWing3Start = computed(() => {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     if (wing.includes("WING 3")) {
         return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
+    }
+    if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
+        return door === "FIRST SETUP";
     }
     return false;
 });
@@ -877,7 +1070,16 @@ const currentDoorData = computed(() => {
     return false;
   });
   
-  if (!sectionData) return null;
+  if (!sectionData) {
+    if (isWing1Or2.value) {
+      return {
+        title: currentDoor,
+        body: `You have arrived at ${currentDoor}. Use the Campaign Book to read the narrative and instructions.`,
+        instruction: `All rules, narrative texts, and setups for ${wing} are accessible by clicking the <strong>BOOKS</strong> button on the sidebar.`,
+      };
+    }
+    return null;
+  }
   
   let doorData = null;
   if (forcedDoorInstruction.value) {
@@ -931,6 +1133,162 @@ const currentDoorData = computed(() => {
   };
 });
 
+interface MonsterSlot {
+  type: string;
+  isRandom: boolean;
+  fixedValue?: string;
+  pool?: string[];
+}
+
+const selectedRandomMonsters = ref<Record<string, string>>({});
+
+const monsterSelectorDialog = ref({
+  visible: false,
+  titleDisplay: "",
+  typeDisplay: "",
+  pool: [] as string[],
+  slotIndex: -1,
+  doorName: ""
+});
+
+function getMonsterStorageKey(doorName: string, index: number) {
+  return `campaign_${props.campaignId}_door_${doorName.replace(/\s+/g, '_')}_slot_${index}`;
+}
+
+function getMonsterConfigForCurrentDoor(wing: string, doorName: string): MonsterSlot[] {
+  const isWing1 = wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 01");
+  const isWing2 = wing.includes("WING 2") || wing.includes("WING 02");
+  
+  if (isWing1) {
+    switch (doorName) {
+      case "FIRST SETUP":
+        return [
+          { type: "gm rookie", isRandom: true, pool: ["gm_rookie1", "gm_rookie2", "gm_rookie3"] },
+          { type: "wm rookie", isRandom: true, pool: ["wm_rookie1", "wm_rookie2"] }
+        ];
+      case "THE BARRICADED PATH":
+      case "THE BARRICADED PATH (TUTORIAL)":
+        return [
+          { type: "gm rookie", isRandom: true, pool: ["gm_rookie1", "gm_rookie2", "gm_rookie3"] },
+          { type: "wm rookie", isRandom: true, pool: ["wm_rookie1", "wm_rookie2"] }
+        ];
+      case "THE KEEP'S COURTYARD":
+      case "THE KEEP'S COURTYARD (TUTORIAL)":
+        return [
+          { type: "cm1", isRandom: false, fixedValue: "cm1" },
+          { type: "bm rookie", isRandom: true, pool: ["bm_rookie1", "bm_rookie2"] }
+        ];
+      case "THE GREAT HALL":
+      case "THE GREAT HALL (TUTORIAL)":
+        return [
+          { type: "gm fighter", isRandom: true, pool: ["gm_fighter1", "gm_fighter2", "gm_fighter3"] },
+          { type: "wm fighter", isRandom: true, pool: ["wm_fighter1", "wm_fighter2"] },
+          { type: "bm fighter", isRandom: true, pool: ["bm_fighter1", "bm_fighter2"] }
+        ];
+      default:
+        return [];
+    }
+  }
+
+  if (isWing2) {
+    switch (doorName) {
+      case "THE GREAT CISTERN":
+        return [
+          { type: "wm veteran", isRandom: true, pool: ["wm_veteran1", "wm_veteran2"] },
+          { type: "gm fighter", isRandom: true, pool: ["gm_fighter1", "gm_fighter2", "gm_fighter3"] }
+        ];
+      case "THE DUNGEONS":
+        return [
+          { type: "gm_veteran1", isRandom: false, fixedValue: "gm_veteran1" },
+          { type: "wm_veteran1", isRandom: false, fixedValue: "wm_veteran1" }
+        ];
+      case "THE ALCHEMY LAB":
+        return [
+          { type: "bm_veteran2", isRandom: false, fixedValue: "bm_veteran2" },
+          { type: "cm2", isRandom: false, fixedValue: "cm2" },
+          { type: "wm veteran", isRandom: true, pool: ["wm_veteran1", "wm_veteran2"] },
+          { type: "gm veteran", isRandom: true, pool: ["gm_veteran1", "gm_veteran2", "gm_veteran3"] }
+        ];
+      case "THERE AND BACK AGAIN":
+        return [
+          { type: "boss", isRandom: false, fixedValue: "boss" }
+        ];
+      default:
+        return [];
+    }
+  }
+
+  return [];
+}
+
+function loadMonsterSelections() {
+  const selections: Record<string, string> = {};
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const doorName = (activeCampaignData.value.door || "").toUpperCase();
+  
+  if (wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02")) {
+    const config = getMonsterConfigForCurrentDoor(wing, doorName);
+    config.forEach((monster, index) => {
+      if (monster.isRandom) {
+        const key = getMonsterStorageKey(doorName, index);
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          selections[key] = stored;
+        }
+      }
+    });
+  }
+  selectedRandomMonsters.value = selections;
+}
+
+function openMonsterSelectorForIndex(index: number) {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const doorName = (activeCampaignData.value.door || "").toUpperCase();
+  const config = getMonsterConfigForCurrentDoor(wing, doorName);
+  const slot = config[index];
+  if (slot && slot.isRandom && slot.pool) {
+    monsterSelectorDialog.value = {
+      visible: true,
+      titleDisplay: slot.type.toUpperCase(),
+      typeDisplay: slot.type,
+      pool: slot.pool,
+      slotIndex: index,
+      doorName: doorName
+    };
+  }
+}
+
+function selectMonsterOption(option: string) {
+  const slotIndex = monsterSelectorDialog.value.slotIndex;
+  const doorName = monsterSelectorDialog.value.doorName;
+  if (slotIndex >= 0 && doorName) {
+    const key = getMonsterStorageKey(doorName, slotIndex);
+    localStorage.setItem(key, option);
+    selectedRandomMonsters.value[key] = option;
+  }
+  monsterSelectorDialog.value.visible = false;
+}
+
+function handleMonsterClick(monster: string, index: number) {
+  if (monster.startsWith("PLACEHOLDER_")) {
+    openMonsterSelectorForIndex(index);
+  } else {
+    openMonsterGroupDialog();
+  }
+}
+
+function getPlaceholderType(monster: string) {
+  const parts = monster.split("_");
+  return parts[1] || "Monster";
+}
+
+function isSlotSelectable(index: number) {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const doorName = (activeCampaignData.value.door || "").toUpperCase();
+  const config = getMonsterConfigForCurrentDoor(wing, doorName);
+  return config[index]?.isRandom ?? false;
+}
+
 const currentMonsters = computed(() => {
   const location = (
     forcedDoorInstruction.value ||
@@ -975,6 +1333,21 @@ const currentMonsters = computed(() => {
     }
   }
 
+  if (wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02")) {
+    const config = getMonsterConfigForCurrentDoor(wing, location);
+    return config.map((slot, index) => {
+      if (slot.isRandom) {
+        const key = getMonsterStorageKey(location, index);
+        const selected = selectedRandomMonsters.value[key] || localStorage.getItem(key);
+        if (selected) {
+          return selected;
+        }
+        return `PLACEHOLDER_${slot.type}_${index}`;
+      }
+      return slot.fixedValue || slot.type;
+    });
+  }
+
   return [];
 });
 
@@ -982,7 +1355,16 @@ const currentBackgroundImage = computed(() => {
   const wing = (activeCampaignData.value.wing || '').toUpperCase();
   const door = (activeCampaignData.value.door || '').toUpperCase();
   if (!wing) return '';
-  let wingFolder = wing.includes('WING 3') ? 'wing3' : (wing.includes('WING 4') ? 'wing4' : '');
+  let wingFolder = '';
+  if (wing.includes('WING 3')) {
+    wingFolder = 'wing3';
+  } else if (wing.includes('WING 4')) {
+    wingFolder = 'wing4';
+  } else if (wing.includes('WING 1') || wing.includes('WING 01') || wing.includes('TUTORIAL')) {
+    wingFolder = 'wing1';
+  } else if (wing.includes('WING 2') || wing.includes('WING 02')) {
+    wingFolder = 'wing2';
+  }
   if (!wingFolder) return '';
   let doorFile = 'setup';
   if (wingFolder === 'wing4') {
@@ -999,6 +1381,40 @@ const currentBackgroundImage = computed(() => {
       }
       else if (door === 'LIBRARY' || door === 'LABORATORY') doorFile = 'fourth_door';
       else if (door === 'DRAGON BOSS') doorFile = 'fifth_door';
+  } else if (wingFolder === 'wing1') {
+    let idx = 0;
+    if (door.includes("BARRICADED")) idx = 1;
+    else if (door.includes("COURTYARD")) idx = 2;
+    else if (door.includes("ENTRY HALL")) idx = 3;
+    else if (door.includes("GREAT HALL")) idx = 4;
+    else if (door.includes("END GAME")) idx = 4;
+
+    const doorMap = [
+      "setup",
+      "first_door",
+      "second_door",
+      "third_door",
+      "fourth_door",
+    ];
+    doorFile = doorMap[idx] || "setup";
+  } else if (wingFolder === 'wing2') {
+    let idx = 0;
+    if (door.includes("GREAT CISTERN")) idx = 1;
+    else if (door.includes("DUNGEONS")) idx = 2;
+    else if (door.includes("ALCHEMY")) idx = 3;
+    else if (door.includes("BURIED ARMORY")) idx = 4;
+    else if (door.includes("THERE AND BACK AGAIN")) idx = 5;
+    else if (door.includes("END GAME")) idx = 5;
+
+    const doorMap = [
+      "setup",
+      "first_door",
+      "second_door",
+      "third_door",
+      "fourth_door",
+      "fifth_door",
+    ];
+    doorFile = doorMap[idx] || "setup";
   } else {
     const doorsList = [
       "FIRST SETUP",
@@ -1037,6 +1453,9 @@ const isBossBattle = computed(() => {
   const door = (activeCampaignData.value.door || "").toUpperCase();
   if (wing.includes("WING 3") && door === "MAIN HALL") return true;
   if (wing.includes("WING 4") && door === "DRAGON BOSS") return true;
+  if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && door.includes("THE GREAT HALL")) return true;
+  if ((wing.includes("WING 2") || wing.includes("WING 02")) && door === "THERE AND BACK AGAIN") return true;
+  if (door === "END GAME") return true;
   return false;
 });
 
@@ -1062,6 +1481,12 @@ const showInteractionsButton = computed(() => {
       "LIBRARY",
       "LABORATORY",
     ].includes(door);
+  if (wing.includes("WING 1") || wing.includes("TUTORIAL")) {
+    return door.includes("THE ENTRY HALL");
+  }
+  if (wing.includes("WING 2")) {
+    return door.includes("THE GREAT CISTERN") || door.includes("THE BURIED ARMORY") || door.includes("FIRST SETUP");
+  }
   return false;
 });
 
@@ -1208,6 +1633,9 @@ const fetchAllDoors = async () => {
 };
 
 const fetchOpenedDoors = async () => {
+  if (Date.now() - lastManualActionTime < 4000) {
+    return;
+  }
   try {
     const response = await axios.get("/rl_campaigns_doors/search", {
       params: { campaign_fk: parseInt(props.campaignId) },
@@ -1227,7 +1655,7 @@ const fetchOpenedDoors = async () => {
 
     if (doors.length > 0) {
       const sortedDoors = doors.sort((a: any, b: any) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
+        b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk
       );
       const latestDoor = sortedDoors[0];
       const wing = (activeCampaignData.value.wing || "").toUpperCase();
@@ -1248,20 +1676,21 @@ const fetchOpenedDoors = async () => {
           return;
       }
 
-      if (currentDoor !== incomingDoor) {
-         campaignStore.updateCampaignProperty(props.campaignId, "door", incomingDoor);
-         if (props.campaign) props.campaign.door = incomingDoor;
+      const isNewDoorOpened = previousSize > 0 && newOpenedDoors.size > previousSize;
+      if (isNewDoorOpened) {
+         if (currentDoor !== incomingDoor) {
+           campaignStore.updateCampaignProperty(props.campaignId, "door", incomingDoor);
+           if (props.campaign) props.campaign.door = incomingDoor;
+         }
          
          forcedDoorInstruction.value = incomingDoor;
          openNarrativeDialog();
 
-         if (newOpenedDoors.size > previousSize && previousSize > 0) {
-           snackbar.value = {
-             visible: true,
-             text: `Sync: Area updated to ${incomingDoor}`,
-             color: "info",
-           };
-         }
+         snackbar.value = {
+           visible: true,
+           text: `Sync: Area updated to ${incomingDoor}`,
+           color: "info",
+         };
       }
     }
   } catch (error) {
@@ -1340,6 +1769,12 @@ const syncEventScenario = async () => {
       wingToSet = "Wing 4";
     } else if (scenario.includes("WING 03") || scenario.includes("WING 3")) {
       wingToSet = "Wing 3";
+    } else if (scenario.includes("TUTORIAL")) {
+      wingToSet = "Wing 1 Tutorial";
+    } else if (scenario.includes("WING 02") || scenario.includes("WING 2")) {
+      wingToSet = "Wing 2 Advanced";
+    } else if (scenario.includes("WING 01") || scenario.includes("WING 1")) {
+      wingToSet = "Wing 1 Advanced";
     }
 
     if (wingToSet) {
@@ -1415,13 +1850,30 @@ function checkTutorialTrigger() {
     }
 }
 
+let isFirstLoad = true;
+
 watch(
-    () => [activeCampaignData.value.wing, activeCampaignData.value.door],
-    ([newWing, newDoor]) => {
-        if (!bookDialog.value.visible) {
-            bookContext.value = newWing as string;
+    () => activeCampaignData.value.wing,
+    (newWing) => {
+        if (newWing && !bookDialog.value.visible) {
+            bookContext.value = newWing;
         }
+    },
+    { immediate: true }
+);
+
+watch(
+    () => activeCampaignData.value.door,
+    (newDoor, oldDoor) => {
         checkTutorialTrigger();
+        loadMonsterSelections();
+
+        if (newDoor && newDoor.toUpperCase() === "END GAME") {
+            const isTransition = oldDoor && oldDoor.toUpperCase() !== "END GAME";
+            if (isTransition) {
+                confirmFinishCampaign();
+            }
+        }
     },
     { immediate: true }
 );
@@ -1508,37 +1960,64 @@ async function confirmEnterBossRoom() {
 
 async function confirmFinishCampaign() {
   finishCampaignDialog.value.visible = false;
-  let unlockedNewReward = false;
+  let showBadgeAnimation = false;
 
-  try {
-    const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
-    let rewardPk = null;
-    if (wingStr.includes("TUTORIAL") || wingStr.includes("WING 1 TUTORIAL")) rewardPk = 2;
-    else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2")) rewardPk = 3;
-    else if (wingStr.includes("WING 3")) rewardPk = 5;
-    else if (wingStr.includes("WING 4")) rewardPk = 6;
+  const wingStr = (activeCampaignData.value.wing || "").toUpperCase();
+  let rewardPk = null;
+  if (wingStr.includes("WING 1") || wingStr.includes("WING 01") || wingStr.includes("TUTORIAL")) {
+    rewardPk = 2;
+  } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2") || wingStr.includes("WING 02")) {
+    rewardPk = 3;
+  } else if (wingStr.includes("WING 3") || wingStr.includes("WING 03")) {
+    rewardPk = 5;
+  } else if (wingStr.includes("WING 4") || wingStr.includes("WING 04")) {
+    rewardPk = 6;
+  }
 
-    if (rewardPk && props.userStore.user?.users_pk) {
-      const { data } = await axios.get("/rl_users_rewards/list_rewards", {
-        params: { users_fk: props.userStore.user.users_pk }
-      });
-      const userRewards = data.rewards || [];
+  // Pre-configure client-side badge animation so it always runs if they finished a valid wing
+  if (rewardPk && REWARDS_DATA[rewardPk]) {
+    newBadgeDialog.value = {
+      visible: true,
+      reward: REWARDS_DATA[rewardPk]
+    };
+    showBadgeAnimation = true;
+  }
+
+  // Update campaign state to END GAME
+  campaignStore.updateCampaignProperty(props.campaignId, "door", "END GAME");
+  if (props.campaign) {
+    props.campaign.door = "END GAME";
+  }
+
+  // Persist the badge in the background, handling errors gracefully
+  if (rewardPk && userStore.user?.users_pk) {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      let userRewards = [];
+      try {
+        const { data } = await axios.get("/rl_users_rewards/list_rewards", {
+          params: { users_fk: userStore.user.users_pk },
+          headers
+        });
+        userRewards = data.rewards || [];
+      } catch (getErr: any) {
+        // If the backend returns 404 or fails, we assume the user has no rewards yet
+        console.warn("Could not fetch user rewards list, assuming empty list:", getErr);
+      }
+
       const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
 
       if (!hasReward) {
         await axios.post("/rl_users_rewards/cadastro", {
-          users_fk: props.userStore.user.users_pk,
+          users_fk: userStore.user.users_pk,
           rewards_fk: rewardPk
-        });
-        unlockedNewReward = true;
-        newBadgeDialog.value = {
-          visible: true,
-          reward: REWARDS_DATA[rewardPk]
-        };
+        }, { headers });
       }
+    } catch(e) {
+      console.warn("Could not persist end-of-campaign rewards to the backend:", e);
     }
-  } catch(e) {
-    console.warn("Could not handle end-of-campaign rewards", e);
   }
   
   if (savePutRef.value) savePutRef.value.save();
@@ -1549,7 +2028,7 @@ async function confirmFinishCampaign() {
     color: "success",
   };
   
-  if (!unlockedNewReward) {
+  if (!showBadgeAnimation) {
     router.push({ name: "Dashboard" });
   }
 }
@@ -1637,7 +2116,14 @@ function handleImageError() {
 
 function getMonsterImageSrc(m: string) {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  const folder = wing.includes("WING 4") ? "wing4" : "wing3";
+  let folder = "wing3";
+  if (wing.includes("WING 4")) {
+    folder = "wing4";
+  } else if (wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 01")) {
+    folder = "wing1";
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    folder = "wing2";
+  }
   try {
     return new URL(
       `../assets/campaign_monsters/${folder}/${m}.jpg`,
@@ -1779,6 +2265,46 @@ function handleManualAdvance() {
       saveWing4Path("CRYPTS");
       commitNextDoor("BOTH OPEN", "DRACONIC CHAPEL");
     } else if (currentDoor === "BOTH OPEN") commitNextDoor("LIBRARY");
+  } else if (wing.includes("TUTORIAL")) {
+    const list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME",
+    ];
+    const idx = list.indexOf(currentDoor);
+    if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
+    else
+      snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    const list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME",
+    ];
+    const idx = list.indexOf(currentDoor);
+    if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
+    else
+      snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    const list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME",
+    ];
+    const idx = list.indexOf(currentDoor);
+    if (idx >= 0 && idx < list.length - 1) commitNextDoor(list[idx + 1]);
+    else
+      snackbar.value = { visible: true, text: "End of Wing", color: "warning" };
   } else {
     const list = [
       "FIRST SETUP",
@@ -1796,18 +2322,123 @@ function handleManualAdvance() {
   }
 }
 
+function handlePreviousAction() {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
+  let list: string[] = [];
+
+  if (wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME",
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME",
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME",
+    ];
+  }
+
+  if (list.length > 0) {
+    const idx = list.indexOf(currentDoor);
+    if (idx > 0) {
+      commitNextDoor(list[idx - 1]);
+    } else {
+      snackbar.value = { visible: true, text: "Already at the First Setup", color: "warning" };
+    }
+  }
+}
+
+function handlePreviousActionInDialog() {
+  handlePreviousAction();
+  doorScannerDialog.value.visible = false;
+}
+
 function commitWing4Choice(choice: string) {
   wing4ChoiceDialog.value.visible = false;
   saveWing4Path(choice);
   commitNextDoor(choice);
 }
 
-function commitNextDoor(doorName: string, instructionOverride?: string) {
+async function commitNextDoor(doorName: string, instructionOverride?: string) {
+  lastManualActionTime = Date.now();
   campaignStore.updateCampaignProperty(props.campaignId, "door", doorName);
+  if (props.campaign) props.campaign.door = doorName;
   forcedDoorInstruction.value = instructionOverride || doorName;
   if (savePutRef.value) savePutRef.value.save();
-  setTimeout(() => openNarrativeDialog(), 500);
+
+  const doorObj = allDoors.value.find(
+    (d) => d.name.toUpperCase() === doorName.toUpperCase()
+  );
+  if (doorObj) {
+    try {
+      await axios.post("/rl_campaigns_doors/cadastro", {
+        doors_fk: doorObj.doors_pk,
+        campaign_fk: parseInt(props.campaignId),
+      });
+      if (doorObj.code) {
+        openedDoors.value.add(doorObj.code.toLowerCase());
+      }
+    } catch (error: any) {
+      if (error.response?.status !== 409) {
+        console.error("Error committing manual door transition to database:", error);
+      }
+    }
+  }
+
+  if (doorName.toUpperCase() !== "END GAME") {
+    setTimeout(() => openNarrativeDialog(), 500);
+  }
 }
+
+function manualSave() {
+  if (savePutRef.value) {
+    savePutRef.value.save();
+  }
+}
+
+watch(
+  () => activeCampaignData.value?.sequentialAdventureRunes,
+  (newVal, oldVal) => {
+    if (oldVal !== undefined && newVal !== oldVal) {
+      console.log("[ImmersiveView] Runes changed, saving immediately...");
+      if (savePutRef.value) {
+        savePutRef.value.save();
+      }
+    }
+  }
+);
+
+watch(
+  () => activeCampaignData.value?.runeCardIds,
+  (newVal, oldVal) => {
+    if (oldVal !== undefined && JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+      console.log("[ImmersiveView] Rune cards changed, saving immediately...");
+      if (savePutRef.value) {
+        savePutRef.value.save();
+      }
+    }
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped>
@@ -1987,6 +2618,14 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
 
 .bookmark-tab.blue-border-tab:hover {
   border-left-color: #1565c0;
+}
+
+.bookmark-tab.red-border-tab {
+  border-left-color: #d32f2f;
+}
+
+.bookmark-tab.red-border-tab:hover {
+  border-left-color: #f44336;
 }
 
 .text-label {
@@ -2523,5 +3162,65 @@ function commitNextDoor(doorName: string, instructionOverride?: string) {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 0.75rem !important;
+}
+
+.placeholder-card {
+  border: 2px dashed #ffab00 !important;
+  background: rgba(255, 171, 0, 0.08) !important;
+  box-shadow: inset 0 0 10px rgba(255, 171, 0, 0.2), 0 0 5px rgba(255, 171, 0, 0.1) !important;
+  animation: pulseBorder 1.5s infinite alternate ease-in-out;
+}
+.placeholder-card:hover {
+  border-color: #ffab00 !important;
+  background: rgba(255, 171, 0, 0.15) !important;
+  box-shadow: inset 0 0 15px rgba(255, 171, 0, 0.3), 0 0 10px rgba(255, 171, 0, 0.3) !important;
+}
+@keyframes pulseBorder {
+  0% {
+    border-color: rgba(255, 171, 0, 0.4);
+    box-shadow: inset 0 0 5px rgba(255, 171, 0, 0.1), 0 0 2px rgba(255, 171, 0, 0.05);
+  }
+  100% {
+    border-color: rgba(255, 171, 0, 1);
+    box-shadow: inset 0 0 15px rgba(255, 171, 0, 0.3), 0 0 8px rgba(255, 171, 0, 0.2);
+  }
+}
+.monster-placeholder-inner {
+  height: 100%;
+}
+.monster-group-placeholder-card {
+  width: 200px;
+  height: 280px;
+  background: rgba(255, 171, 0, 0.08);
+  border: 3px dashed #ffab00;
+  box-shadow: inset 0 0 15px rgba(255, 171, 0, 0.2), 0 0 8px rgba(255, 171, 0, 0.1);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: pulseBorder 1.5s infinite alternate ease-in-out;
+}
+.monster-group-placeholder-card:hover {
+  transform: scale(1.03);
+  border-color: #ffab00;
+  background: rgba(255, 171, 0, 0.15);
+  box-shadow: inset 0 0 20px rgba(255, 171, 0, 0.3), 0 0 15px rgba(255, 171, 0, 0.3);
+}
+.selector-monster-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  padding: 4px;
+}
+.selector-monster-card:hover {
+  transform: scale(1.08);
+  border-color: #ffb300;
+  box-shadow: 0 0 15px rgba(255, 179, 0, 0.6);
+}
+.border-gold {
+  border: 1px solid #ffb300 !important;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="pa-0 pt-14 pt-md-0">
+  <v-container fluid class="pa-0 pt-14 pt-md-16">
     <MainMenu v-if="!isHeroesRoute" />
     <router-view />
   </v-container>

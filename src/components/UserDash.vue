@@ -6,8 +6,7 @@
       height: 100dvh;
       max-height: 100dvh;
       overflow: hidden;
-      margin-top: -56px;
-      padding-top: 56px;
+      --v-layout-top: 0px;
       box-sizing: border-box;
     "
   >
@@ -24,7 +23,7 @@
       >
         <v-card
           color="transparent"
-          height="136"
+          height="166"
           class="card-overlay1 full-screen-card"
           flat
         ></v-card>
@@ -88,15 +87,17 @@
     <div
       class="flex-grow-1"
       :style="{
-        marginTop: display.xs ? '-130px' : '-120px',
-        overflowY: 'auto',
+        marginTop: display.xs ? '-95px' : '-85px',
+        overflow: 'hidden',
         minHeight: '0',
         zIndex: 1,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }"
     >
       <v-container
-        class="mx-auto px-4 fill-height align-start"
+        class="mx-auto px-4 fill-height align-stretch"
         :style="{ maxWidth: containerMaxWidth }"
       >
         <DashboardEvents style="width: 100%" />
@@ -537,7 +538,7 @@ onBeforeMount(async () => {
 }
 .full-screen-card {
   width: 100%;
-  height: 150px;
+  height: 180px;
   background-size: cover;
   background-position: center;
   display: flex;

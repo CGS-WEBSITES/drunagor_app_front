@@ -387,7 +387,7 @@ const submitForm = async () => {
 .retailer-registration {
     background: url("https://assets.drunagor.app/backgrounds/login-background.png");
     background-size: cover;
-    background-position: center;
+    background-position: top center;
 }
 
 .registration-card {
