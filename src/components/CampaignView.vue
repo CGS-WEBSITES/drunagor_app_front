@@ -286,39 +286,39 @@
                            <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold"
                              >Generating...</v-chip
                            >
-                           <v-btn
-                             icon
-                             variant="text"
-                             density="comfortable"
-                             color="success"
-                             class="ml-2"
-                             @click="handleSave"
-                           >
-                             <v-icon>mdi-content-save</v-icon>
-                             <v-tooltip activator="parent" location="top">Save Campaign</v-tooltip>
-                           </v-btn>
-                           <v-btn
-                             icon
-                             variant="text"
-                             density="comfortable"
-                             color="grey-lighten-1"
-                             class="ml-2"
-                             @click="openPlayerListDialog"
-                           >
-                             <v-icon>mdi-account-group</v-icon>
-                             <v-tooltip activator="parent" location="top">Player List</v-tooltip>
-                           </v-btn>
-                          <v-btn
-                            icon
-                            variant="text"
-                            density="comfortable"
-                            color="error"
-                            class="ml-2"
-                            @click="executeAction('remove')"
-                          >
-                            <v-icon>mdi-delete</v-icon>
-                            <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
-                          </v-btn>
+                           <v-spacer></v-spacer>
+                           <div class="d-flex align-center">
+                             <v-btn
+                               icon
+                               variant="text"
+                               color="success"
+                               class="mx-1"
+                               @click="handleSave"
+                             >
+                               <v-icon>mdi-content-save</v-icon>
+                               <v-tooltip activator="parent" location="top">Save Campaign</v-tooltip>
+                             </v-btn>
+                             <v-btn
+                               icon
+                               variant="text"
+                               color="grey-lighten-1"
+                               class="mx-1"
+                               @click="openPlayerListDialog"
+                             >
+                               <v-icon>mdi-account-group</v-icon>
+                               <v-tooltip activator="parent" location="top">Player List</v-tooltip>
+                             </v-btn>
+                             <v-btn
+                               icon
+                               variant="text"
+                               color="error"
+                               class="mx-1"
+                               @click="executeAction('remove')"
+                             >
+                               <v-icon>mdi-delete</v-icon>
+                               <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
+                             </v-btn>
+                           </div>
                          </div>
                       </v-col>
                     </v-row>
@@ -486,39 +486,39 @@
                          <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold"
                            >Generating...</v-chip
                          >
-                         <v-btn
-                           icon
-                           variant="text"
-                           density="comfortable"
-                           color="success"
-                           class="ml-2"
-                           @click="handleSave"
-                         >
-                           <v-icon>mdi-content-save</v-icon>
-                           <v-tooltip activator="parent" location="top">Save Campaign</v-tooltip>
-                         </v-btn>
-                         <v-btn
-                           icon
-                           variant="text"
-                           density="comfortable"
-                           color="grey-lighten-1"
-                           class="ml-2"
-                           @click="openPlayerListDialog"
-                         >
-                           <v-icon>mdi-account-group</v-icon>
-                           <v-tooltip activator="parent" location="top">Player List</v-tooltip>
-                         </v-btn>
-                          <v-btn
-                            icon
-                            variant="text"
-                            density="comfortable"
-                            color="error"
-                            class="ml-2"
-                            @click="executeAction('remove')"
-                          >
-                            <v-icon>mdi-delete</v-icon>
-                            <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
-                          </v-btn>
+                         <v-spacer></v-spacer>
+                         <div class="d-flex align-center">
+                           <v-btn
+                             icon
+                             variant="text"
+                             color="success"
+                             class="mx-1"
+                             @click="handleSave"
+                           >
+                             <v-icon>mdi-content-save</v-icon>
+                             <v-tooltip activator="parent" location="top">Save Campaign</v-tooltip>
+                           </v-btn>
+                           <v-btn
+                             icon
+                             variant="text"
+                             color="grey-lighten-1"
+                             class="mx-1"
+                             @click="openPlayerListDialog"
+                           >
+                             <v-icon>mdi-account-group</v-icon>
+                             <v-tooltip activator="parent" location="top">Player List</v-tooltip>
+                           </v-btn>
+                           <v-btn
+                             icon
+                             variant="text"
+                             color="error"
+                             class="mx-1"
+                             @click="executeAction('remove')"
+                           >
+                             <v-icon>mdi-delete</v-icon>
+                             <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
+                           </v-btn>
+                         </div>
                        </div>
                     </v-col>
                   </v-row>
