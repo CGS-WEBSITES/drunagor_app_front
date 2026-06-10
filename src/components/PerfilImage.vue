@@ -14,17 +14,20 @@
       </BaseAlert>
     </v-row>
 
-    <!-- Custom Badge Alert Dialog Overlay -->
-    <v-dialog
+    <!-- Custom Badge Alert Snackbar Overlay -->
+    <v-snackbar
       v-if="selectedBadgeAlert"
       v-model="selectedBadgeAlert.show"
-      max-width="450px"
-      transition="dialog-bottom-transition"
+      timeout="3000"
+      location="bottom center"
+      color="transparent"
+      elevation="0"
+      class="badge-alert-snackbar"
     >
       <v-card
         color="#151515"
-        class="pa-4 rounded-lg overflow-hidden"
-        style="border: 1px solid rgba(255, 255, 255, 0.1);"
+        class="pa-4 rounded-lg overflow-hidden w-100"
+        style="border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);"
       >
         <!-- Top alert status strip with color matching success/warning -->
         <div
@@ -74,19 +77,8 @@
             {{ selectedBadgeAlert.earnedDate }}
           </div>
         </v-card>
-
-        <v-card-actions class="justify-end pt-4 pb-0 px-0">
-          <v-btn
-            color="grey-lighten-1"
-            variant="text"
-            @click="selectedBadgeAlert.show = false"
-            class="font-weight-bold"
-          >
-            Close
-          </v-btn>
-        </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-snackbar>
 
     <!-- Save Changes Button -->
     <v-row no-gutters class="mb-6">
