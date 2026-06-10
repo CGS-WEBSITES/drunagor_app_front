@@ -15,10 +15,10 @@
                 <v-btn
                   v-if="isSequentialAdventure"
                   @click.stop="openSequentialStateEditor"
-                  variant="elevated"
-                  color="secondary"
-                  rounded
-                  class="action-btn manage-btn shepherd-btn-manage-resources"
+                  variant="flat"
+                  color="amber-darken-3"
+                  prepend-icon="mdi-shield-half-full"
+                  class="action-btn manage-btn shepherd-btn-manage-resources font-weight-black rounded-lg"
                   size="small"
                 >
                   {{ t("Manage Resources") }}
@@ -33,10 +33,10 @@
                       campaign.campaign == 'underkeep2')
                   "
                   @click.stop="openHeroEquipmentSkills"
-                  variant="elevated"
-                  color="primary"
-                  rounded
-                  class="action-btn equipment-btn ml-2 shepherd-btn-equipment-skills"
+                  variant="flat"
+                  color="blue-darken-3"
+                  prepend-icon="mdi-sword-cross"
+                  class="action-btn equipment-btn shepherd-btn-equipment-skills font-weight-black rounded-lg"
                   size="small"
                 >
                   {{ t("label.equipment-skills") }}
@@ -164,74 +164,70 @@ function openHeroEquipmentSkills() {
   margin-top: 10px;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
+  gap: 8px;
   margin-left: 15px;
 }
 
 .action-btn {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-  min-width: auto !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
   white-space: nowrap;
-  transition: all 0.2s ease;
-  flex: 0 0 auto;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .action-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
 }
 
 @media (max-width: 360px) {
   .action-buttons-container {
-    flex-direction: row;
-    justify-content: flex-start;
-    width: calc(100% - 8px);
-    gap: 4px;
+    gap: 6px;
+    margin-left: 8px;
   }
 
   .action-btn {
-    flex: 0 0 auto;
-    max-width: 85px;
     font-size: 0.65rem !important;
-    padding: 2px 4px !important;
-    height: 24px !important;
-    min-width: 60px !important;
+    padding: 2px 6px !important;
+    height: 28px !important;
   }
 }
 
 @media (min-width: 361px) and (max-width: 480px) {
   .action-btn {
     font-size: 0.7rem !important;
-    padding: 2px 6px !important;
-    height: 26px !important;
-    min-width: 80px !important;
+    padding: 4px 8px !important;
+    height: 30px !important;
   }
 }
 
 @media (min-width: 481px) and (max-width: 640px) {
   .action-btn {
     font-size: 0.75rem !important;
-    padding: 4px 8px !important;
-    height: 28px !important;
-    min-width: 90px !important;
+    padding: 4px 10px !important;
+    height: 32px !important;
   }
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
   .action-btn {
     font-size: 0.8rem !important;
-    padding: 4px 8px !important;
-    height: 30px !important;
-    min-width: 100px !important;
+    padding: 6px 12px !important;
+    height: 34px !important;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .action-btn {
     font-size: 0.85rem !important;
-    padding: 6px 12px !important;
-    height: 32px !important;
+    padding: 6px 14px !important;
+    height: 36px !important;
   }
 }
 

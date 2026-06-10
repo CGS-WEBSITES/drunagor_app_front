@@ -153,7 +153,7 @@
           <span>App Drunagor</span>
         </div>
 
-        <v-btn v-else icon @click="$router.back()" class="mr-2">
+        <v-btn v-else icon @click="handleBack" class="mr-2">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
 
@@ -341,6 +341,17 @@ const logOut = () => {
   userStore.clearUser();
   localStorage.removeItem("accessToken");
   router.push({ name: "Login" });
+};
+
+const handleBack = () => {
+  if (
+    route.name === "Campaign" || 
+    (route.path && route.path.includes("/campaign-tracker/campaign/"))
+  ) {
+    router.push({ name: "Campaign Overview" });
+  } else {
+    router.back();
+  }
 };
 
 const role = computed(() => userStore.user?.roles_fk || 2);

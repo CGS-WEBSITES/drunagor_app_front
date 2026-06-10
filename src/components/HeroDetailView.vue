@@ -1,11 +1,24 @@
 <template>
   <v-row no-gutters class="pt-6">
-    <v-col cols="12" class="d-flex justify-center pb-4">
+    <v-col cols="12" class="d-flex justify-center pb-4 ga-4">
+      <v-btn
+        variant="text"
+        color="grey-lighten-1"
+        @click="navigateBack"
+        class="text-none font-weight-bold"
+        prepend-icon="mdi-arrow-left"
+        size="large"
+      >
+        Back
+      </v-btn>
       <v-btn
         variant="elevated"
-        color="primary"
+        color="success"
         @click="saveAndGoBack"
         :disabled="!isLoaded"
+        size="large"
+        class="px-8 font-weight-black text-uppercase"
+        prepend-icon="mdi-content-save"
       >
         {{ t("Save Changes") }}
       </v-btn>
@@ -33,7 +46,7 @@
   </v-row>
 
   <v-row v-else no-gutters>
-    <v-col cols="12" class="d-flex align-center justify-center">
+    <v-col cols="12" class="d-flex align-center justify-center px-4 px-md-0">
       <v-card
         elevation="16"
         rounded
@@ -125,8 +138,18 @@
   </v-row>
 
   <v-row v-if="isLoaded" no-gutters class="pt-6">
-    <v-col cols="12" class="d-flex justify-center pb-4">
-      <v-btn variant="elevated" color="primary" @click="saveAndGoBack">
+    <v-col cols="12" class="d-flex justify-center pb-4 ga-4">
+      <v-btn
+        variant="text"
+        color="grey-lighten-1"
+        @click="navigateBack"
+        class="text-none font-weight-bold"
+        prepend-icon="mdi-arrow-left"
+        size="large"
+      >
+        Back
+      </v-btn>
+      <v-btn variant="elevated" color="success" @click="saveAndGoBack" size="large" class="px-8 font-weight-black text-uppercase" prepend-icon="mdi-content-save">
         {{ t("Save Changes") }}
       </v-btn>
     </v-col>

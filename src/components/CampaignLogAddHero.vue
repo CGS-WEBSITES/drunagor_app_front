@@ -21,8 +21,18 @@
         {{ t("label.add-hero") }}
       </v-card-title>
       <v-card-text>
+        <v-text-field
+          v-model="searchQuery"
+          label="Search Hero Name"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+          density="compact"
+          clearable
+          class="mb-3"
+          hide-details
+        />
         <v-list lines="one">
-          <v-list-item id="party-random-hero" @click="addRandomHeroToCampaign">
+          <v-list-item v-if="!searchQuery" id="party-random-hero" @click="addRandomHeroToCampaign">
             <v-img :src="RandomImage" />
           </v-list-item>
 
@@ -74,6 +84,7 @@ const userStore = useUserStore();
 const campaignStore = CampaignStore();
 
 const visible = ref(false);
+const searchQuery = ref("");
 const isLoading = ref(false);
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
@@ -121,11 +132,17 @@ const availableHeroes = computed(() => {
   }
 });
 
-const filteredHeroes = computed(() =>
-  availableHeroes.value.filter(
-    (hero: HeroData) => !campaignStore.hasHero(props.campaignId, hero.id),
-  ),
-);
+const filteredHeroes = computed(() => {
+  const query = searchQuery.value.toLowerCase().trim();
+  return availableHeroes.value.filter((hero: HeroData) => {
+    if (campaignStore.hasHero(props.campaignId, hero.id)) return false;
+    if (!query) return true;
+    return (
+      (hero.name || "").toLowerCase().includes(query) ||
+      (hero.id || "").toLowerCase().includes(query)
+    );
+  });
+});
 
 async function checkUserHasHero(): Promise<void> {
   checkingUserHero.value = true;
@@ -168,6 +185,7 @@ function openModal() {
     return;
   }
 
+  searchQuery.value = "";
   visible.value = true;
 }
 

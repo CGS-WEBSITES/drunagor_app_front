@@ -23,72 +23,130 @@
     </div>
     <HUB v-model="showHub" :my-events="myEvents" :user="userStore.user" />
 
-    <!-- Main Play Action Button (identical to dashboard styling) -->
-    <div class="d-flex justify-center mt-0 mb-4 pt-0">
-      <v-btn
-        color="playbutton"
-        variant="flat"
-        @click="openPlayOptions"
-        size="x-large"
-        rounded="lg"
-        class="font-weight-black play-campaigns-btn w-100 text-uppercase"
-        style="height: 58px; font-size: 1.35rem !important;"
-        prepend-icon="mdi-sword-cross"
-      >
-        PLAY
-      </v-btn>
-    </div>
-
-    <v-card class="mt-3 pa-3 elevation-0 d-flex flex-column ga-4">
-      
-      <div class="w-100">
-        <v-select
-          v-model="selectedBoxFilter"
-          :items="boxOptions"
-          label="Filter by Box"
-          variant="outlined"
-          density="compact"
-          hide-details
-          clearable
-          style="max-width: 720px;"
+    <!-- Play Action Buttons (Nights S1 / Legacy) -->
+    <v-row class="mt-0 mb-0 mx-0" no-gutters>
+      <v-col cols="12" sm="6" class="pa-1">
+        <v-btn
+          color="green-accent-3"
+          variant="flat"
+          @click="playDrunagorNights"
+          size="large"
+          rounded="lg"
+          class="font-weight-black w-100 text-uppercase text-grey-darken-4"
+          style="height: 54px; font-size: 1.15rem !important; border: 1px solid rgba(0,0,0,0.1);"
+          prepend-icon="mdi-qrcode-scan"
         >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props">
-              <template #prepend>
-                <div class="mr-3 bg-grey-darken-4" style="width: 90px; height: 40px; border-radius: 4px; overflow: hidden;">
-                  <v-img v-if="item.raw.value === 'core'" src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" cover class="w-100 h-100"></v-img>
-                  <v-img v-else-if="item.raw.value === 'apocalypse'" src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp" cover class="w-100 h-100"></v-img>
-                  <v-img v-else-if="item.raw.value === 'awakenings'" src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp" cover class="w-100 h-100"></v-img>
-                  <v-img v-else-if="item.raw.value === 'underkeep'" src="@/assets/underkeep.png" cover class="w-100 h-100"></v-img>
-                  <v-img v-else-if="item.raw.value === 'underkeep2'" src="@/assets/underkeep2.png" cover class="w-100 h-100"></v-img>
-                  <v-icon v-else class="w-100 h-100 d-flex align-center justify-center">mdi-filter-variant</v-icon>
-                </div>
-              </template>
-            </v-list-item>
-          </template>
-        </v-select>
-      </div>
+          PLAY NIGHTS
+        </v-btn>
+      </v-col>
+      <v-col cols="12" sm="6" class="pa-1">
+        <v-btn
+          color="amber-accent-2"
+          variant="flat"
+          @click="openLegacyOptions"
+          size="large"
+          rounded="lg"
+          class="font-weight-black w-100 text-uppercase text-grey-darken-4"
+          style="height: 54px; font-size: 1.15rem !important;"
+          prepend-icon="mdi-book-open-page-variant"
+        >
+          PLAY LEGACY
+        </v-btn>
+      </v-col>
+    </v-row>
 
-      <div class="d-flex flex-wrap align-center ga-4">
-        <v-checkbox
-          v-model="showOnlyFinished"
-          label="Only Finished"
-          color="red-darken-2"
-          hide-details
-          class="flex-grow-0"
-        ></v-checkbox>
+    <!-- Filters Toggle Button -->
+    <v-row class="mb-0 mx-0" no-gutters>
+      <v-col cols="12" class="pa-1">
+        <v-btn
+          variant="flat"
+          color="grey-darken-3"
+          @click="showFilters = !showFilters"
+          class="font-weight-black w-100 text-uppercase"
+          :style="{
+            height: '42px',
+            fontSize: '1rem !important',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderBottomLeftRadius: showFilters ? '0px !important' : '8px !important',
+            borderBottomRightRadius: showFilters ? '0px !important' : '8px !important',
+            borderTopLeftRadius: '8px !important',
+            borderTopRightRadius: '8px !important',
+            transition: 'border-radius 0.25s ease'
+          }"
+          :append-icon="showFilters ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+          prepend-icon="mdi-filter-variant"
+        >
+          Filters
+        </v-btn>
 
-        <v-select
-          v-model="sortOrder"
-          :items="[{title: 'Newest First', value: 'desc'}, {title: 'Oldest First', value: 'asc'}]"
-          label="Sort By"
-          variant="outlined"
-          density="compact"
-          hide-details
-          style="width: 160px; flex-grow: 0;"
-        ></v-select>
-      </div>
-    </v-card>
+        <!-- Collapsible Filters Card inside the same column to merge perfectly with the button -->
+        <v-expand-transition>
+          <v-card 
+            v-show="showFilters" 
+            class="elevation-0" 
+            style="
+              border: 1px solid rgba(255, 255, 255, 0.12) !important;
+              border-top: none !important;
+              border-top-left-radius: 0px !important;
+              border-top-right-radius: 0px !important;
+              border-bottom-left-radius: 8px !important;
+              border-bottom-right-radius: 8px !important;
+              background-color: #121212 !important;
+            "
+          >
+            <v-card-text class="pt-2 pb-3 px-4 filter-card-layout">
+              <div class="w-100">
+                <v-select
+                  v-model="selectedBoxFilter"
+                  :items="boxOptions"
+                  label="Filter by Box"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  clearable
+                  style="max-width: 720px;"
+                >
+                  <template #item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template #prepend>
+                        <div class="mr-3 bg-grey-darken-4" style="width: 90px; height: 40px; border-radius: 4px; overflow: hidden;">
+                          <v-img v-if="item.raw.value === 'core'" src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp" cover class="w-100 h-100"></v-img>
+                          <v-img v-else-if="item.raw.value === 'apocalypse'" src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp" cover class="w-100 h-100"></v-img>
+                          <v-img v-else-if="item.raw.value === 'awakenings'" src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp" cover class="w-100 h-100"></v-img>
+                          <v-img v-else-if="item.raw.value === 'underkeep'" src="@/assets/underkeep.png" cover class="w-100 h-100"></v-img>
+                          <v-img v-else-if="item.raw.value === 'underkeep2'" src="@/assets/underkeep2.png" cover class="w-100 h-100"></v-img>
+                          <v-icon v-else class="w-100 h-100 d-flex align-center justify-center">mdi-filter-variant</v-icon>
+                        </div>
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </div>
+
+              <div class="d-flex flex-wrap align-center ga-4">
+                <v-checkbox
+                  v-model="showOnlyFinished"
+                  label="Only Finished"
+                  color="red-darken-2"
+                  hide-details
+                  class="flex-grow-0"
+                ></v-checkbox>
+
+                <v-select
+                  v-model="sortOrder"
+                  :items="[{title: 'Newest First', value: 'desc'}, {title: 'Oldest First', value: 'asc'}]"
+                  label="Sort By"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  style="width: 160px; flex-grow: 0;"
+                ></v-select>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-expand-transition>
+      </v-col>
+    </v-row>
 
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
       <v-row v-if="loading" class="justify-center" no-gutters>
@@ -471,10 +529,16 @@ const showPlayDialog = ref(false);
 const activePlayTab = ref(0);
 const showHub = ref(false);
 const myEvents = ref<any[]>([]);
+const showFilters = ref(false);
 
 const openPlayOptions = () => {
   showPlayDialog.value = true;
   activePlayTab.value = 0;
+};
+
+const openLegacyOptions = () => {
+  showPlayDialog.value = true;
+  activePlayTab.value = 1;
 };
 
 const triggerNewCampaign = () => {
@@ -1103,6 +1167,11 @@ onBeforeMount(async () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.filter-card-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 @media (max-width: 600px) {
   .hero-standee-card {
