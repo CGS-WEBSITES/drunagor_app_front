@@ -254,7 +254,7 @@
               >
                  <v-card class="mb-4" variant="outlined" style="border: 1px solid rgba(255, 255, 255, 0.12); background-color: rgba(255, 255, 255, 0.02)">
                   <v-card-text class="pa-4">
-                    <v-row no-gutters class="mb-3">
+                    <v-row no-gutters class="mb-1">
                       <v-col cols="12">
                         <CampaignName
                           :campaign-id="campaignId"
@@ -265,7 +265,7 @@
                     </v-row>
                     <v-row align="center" no-gutters>
                       <v-col cols="12" class="d-flex align-center">
-                         <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin">
+                         <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin w-100">
                            <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1">CAMPAIGN ID:</span>
                            <v-tooltip location="top">
                              <template v-slot:activator="{ props }">
@@ -308,6 +308,17 @@
                              <v-icon>mdi-account-group</v-icon>
                              <v-tooltip activator="parent" location="top">Player List</v-tooltip>
                            </v-btn>
+                          <v-btn
+                            icon
+                            variant="text"
+                            density="comfortable"
+                            color="error"
+                            class="ml-2"
+                            @click="executeAction('remove')"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                            <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
+                          </v-btn>
                          </div>
                       </v-col>
                     </v-row>
@@ -430,19 +441,7 @@
                         </div>
                       </v-col>
                     </v-row>
-                    <div class="d-flex justify-center mt-6 mb-4">
-                      <v-btn
-                        color="error"
-                        variant="outlined"
-                        rounded="pill"
-                        size="small"
-                        prepend-icon="mdi-delete-outline"
-                        class="px-4"
-                        @click="executeAction('remove')"
-                      >
-                        Delete Campaign
-                      </v-btn>
-                    </div>
+                    
                 </div>
 
                 <div v-show="currentTab === 'book'">
@@ -456,7 +455,7 @@
 
               <template v-else>
                 <div>
-                  <v-row no-gutters class="mb-3">
+                  <v-row no-gutters class="mb-1">
                     <v-col cols="12">
                       <CampaignName
                         :campaign-id="campaignId"
@@ -466,7 +465,7 @@
                   </v-row>
                   <v-row no-gutters align="center" class="mb-3">
                     <v-col cols="12" class="d-flex align-center">
-                       <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin">
+                       <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin w-100">
                          <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1">CAMPAIGN ID:</span>
                          <v-tooltip location="top">
                            <template v-slot:activator="{ props }">
@@ -509,6 +508,17 @@
                            <v-icon>mdi-account-group</v-icon>
                            <v-tooltip activator="parent" location="top">Player List</v-tooltip>
                          </v-btn>
+                          <v-btn
+                            icon
+                            variant="text"
+                            density="comfortable"
+                            color="error"
+                            class="ml-2"
+                            @click="executeAction('remove')"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                            <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
+                          </v-btn>
                        </div>
                     </v-col>
                   </v-row>
@@ -641,19 +651,7 @@
                     </v-row>
                   </div>
 
-                  <div class="d-flex justify-center mt-8 mb-4">
-                    <v-btn
-                      color="red-darken-3"
-                      variant="elevated"
-                      rounded="lg"
-                      size="default"
-                      prepend-icon="mdi-delete"
-                      class="px-6 font-weight-black text-uppercase white--text"
-                      @click="executeAction('remove')"
-                    >
-                      Delete Campaign
-                    </v-btn>
-                  </div>
+                  
                 </div>
               </template>
             </v-col>
