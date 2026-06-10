@@ -266,7 +266,7 @@
                     <v-row align="center" no-gutters>
                       <v-col cols="12" class="d-flex align-center">
                          <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin w-100">
-                           <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1">CAMPAIGN ID:</span>
+                           <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1 text-no-wrap" style="flex-shrink: 0;">CAMPAIGN ID:</span>
                            <v-tooltip location="top">
                              <template v-slot:activator="{ props }">
                                <v-icon
@@ -466,7 +466,7 @@
                   <v-row no-gutters align="center" class="mb-3">
                     <v-col cols="12" class="d-flex align-center">
                        <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin w-100">
-                         <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1">CAMPAIGN ID:</span>
+                         <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1 text-no-wrap" style="flex-shrink: 0;">CAMPAIGN ID:</span>
                          <v-tooltip location="top">
                            <template v-slot:activator="{ props }">
                              <v-icon
