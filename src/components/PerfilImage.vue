@@ -14,6 +14,80 @@
       </BaseAlert>
     </v-row>
 
+    <!-- Custom Badge Alert Dialog Overlay -->
+    <v-dialog
+      v-if="selectedBadgeAlert"
+      v-model="selectedBadgeAlert.show"
+      max-width="450px"
+      transition="dialog-bottom-transition"
+    >
+      <v-card
+        color="#151515"
+        class="pa-4 rounded-lg overflow-hidden"
+        style="border: 1px solid rgba(255, 255, 255, 0.1);"
+      >
+        <!-- Top alert status strip with color matching success/warning -->
+        <div
+          class="pl-3 py-1 mb-3"
+          :style="{ borderLeft: selectedBadgeAlert.owned ? '4px solid #4caf50' : '4px solid #ff9800' }"
+        >
+          <div class="font-weight-bold text-subtitle-1 text-white">
+            {{ selectedBadgeAlert.owned ? 'You have the badge' : 'You do not have the badge' }}
+          </div>
+        </div>
+
+        <!-- Styled Badge Card (Exactly like outer profile widget) -->
+        <v-card
+          rounded="lg"
+          elevation="3"
+          class="py-2 px-0 d-flex align-center position-relative mt-2"
+          color="secundary"
+          style="border: 1px solid rgba(255, 255, 255, 0.05);"
+          :style="{ opacity: selectedBadgeAlert.owned ? 1 : 0.4, filter: selectedBadgeAlert.owned ? 'none' : 'grayscale(100%)' }"
+        >
+          <v-row class="align-center no-gutters w-100">
+            <v-col
+              cols="3"
+              class="d-flex align-center justify-center pl-3"
+            >
+              <v-img
+                :src="getBadgeImageUrl(selectedBadgeAlert.badge.picture_hash)"
+                alt="Reward Icon"
+                max-height="70"
+                class="rounded-lg"
+                contain
+              ></v-img>
+            </v-col>
+
+            <v-col cols="8" class="pl-2 d-flex flex-column justify-center">
+              <p class="font-weight-bold white--text ma-0">
+                {{ selectedBadgeAlert.badge.name }}
+              </p>
+              <p class="text-body-2 grey--text ma-0">
+                {{ selectedBadgeAlert.badge.description }}
+              </p>
+            </v-col>
+          </v-row>
+
+          <!-- Absolute Date Position on bottom-right -->
+          <div v-if="selectedBadgeAlert.owned && selectedBadgeAlert.earnedDate" class="date-position text-caption grey--text">
+            {{ selectedBadgeAlert.earnedDate }}
+          </div>
+        </v-card>
+
+        <v-card-actions class="justify-end pt-4 pb-0 px-0">
+          <v-btn
+            color="grey-lighten-1"
+            variant="text"
+            @click="selectedBadgeAlert.show = false"
+            class="font-weight-bold"
+          >
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- Save Changes Button -->
     <v-row no-gutters class="mb-6">
       <v-col cols="12">
@@ -49,7 +123,7 @@
               <v-divider></v-divider>
               <v-card-text class="pa-6">
                 <!-- Defaults Sub-section -->
-                <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-lighten-1 text-uppercase tracking-wider">Padrões</div>
+                <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-lighten-1 text-uppercase tracking-wider">Default</div>
                 <v-row class="mb-6">
                   <v-col
                     v-for="item in defaultAvatars"
@@ -94,12 +168,12 @@
                       <v-card
                         v-bind="props"
                         :elevation="isHovering ? 12 : 2"
-                        class="cursor-pointer avatar-card relative"
+                        class="cursor-pointer avatar-card position-relative"
                         :class="{
                           'selected-border': isAvatarSelected(item.hash),
                           'locked-item': !isUnlocked(item)
                         }"
-                        @click="isUnlocked(item) ? selectAvatar(item.hash) : showLockAlert(item)"
+                        @click="handleItemClick(item, true)"
                       >
                         <v-img
                           :src="`${assets}/Profile/${item.hash}?t=${userStore.cacheBuster}`"
@@ -116,19 +190,23 @@
                             <v-icon size="28" color="rgba(255, 255, 255, 0.9)">mdi-lock</v-icon>
                           </div>
                         </v-img>
+
+                        <!-- Badge Indicator Overlay Icon -->
+                        <div
+                          v-if="item.badgeId !== undefined"
+                          style="position: absolute; top: 4px; right: 4px; z-index: 2; background: rgba(0, 0, 0, 0.75); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.15);"
+                        >
+                          <v-img
+                            :src="getBadgeIconUrl(item.badgeId)"
+                            alt="Badge Icon"
+                            class="rounded-circle"
+                            cover
+                            max-width="22"
+                            max-height="22"
+                          />
+                        </div>
                       </v-card>
                     </v-hover>
-                    
-                    <!-- Unlock Criteria Explanation -->
-                    <div class="unlock-desc text-center mt-2 w-100">
-                      <span class="badge-tag d-block text-uppercase font-weight-black text-caption">{{ item.badgeName }}</span>
-                      <span 
-                        class="desc-text text-grey mt-05" 
-                        :class="item.badgeId === 1 ? 'early-adopter-text' : 'text-caption'"
-                      >
-                        {{ getRewardDescription(item) }}
-                      </span>
-                    </div>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -155,7 +233,7 @@
               <v-divider></v-divider>
               <v-card-text class="pa-6">
                 <!-- Defaults Sub-section -->
-                <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-lighten-1 text-uppercase tracking-wider">Padrões</div>
+                <div class="text-subtitle-2 font-weight-bold mb-4 text-grey-lighten-1 text-uppercase tracking-wider">Default</div>
                 <v-row class="mb-6">
                   <v-col
                     v-for="item in defaultBackgrounds"
@@ -200,12 +278,12 @@
                       <v-card
                         v-bind="props"
                         :elevation="isHovering ? 12 : 2"
-                        class="cursor-pointer bg-card w-100 relative"
+                        class="cursor-pointer bg-card w-100 position-relative"
                         :class="{
                           'selected-border': isBackgroundSelected(item.hash),
                           'locked-item': !isUnlocked(item)
                         }"
-                        @click="isUnlocked(item) ? selectBackground(item.hash) : showLockAlert(item)"
+                        @click="handleItemClick(item, false)"
                       >
                         <v-img
                           :src="`${assets}/Profile/${item.hash}?t=${userStore.cacheBuster}`"
@@ -222,19 +300,23 @@
                             <v-icon size="32" color="rgba(255, 255, 255, 0.9)">mdi-lock</v-icon>
                           </div>
                         </v-img>
+
+                        <!-- Badge Indicator Overlay Icon -->
+                        <div
+                          v-if="item.badgeId !== undefined"
+                          style="position: absolute; top: 4px; right: 4px; z-index: 2; background: rgba(0, 0, 0, 0.75); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; padding: 2px; border: 1px solid rgba(255, 255, 255, 0.15);"
+                        >
+                          <v-img
+                            :src="getBadgeIconUrl(item.badgeId)"
+                            alt="Badge Icon"
+                            class="rounded-circle"
+                            cover
+                            max-width="22"
+                            max-height="22"
+                          />
+                        </div>
                       </v-card>
                     </v-hover>
-
-                    <!-- Unlock Criteria Explanation -->
-                    <div class="unlock-desc text-center mt-2 px-2 w-100">
-                      <span class="badge-tag d-block text-uppercase font-weight-black text-caption">{{ item.badgeName }}</span>
-                      <span 
-                        class="desc-text text-grey mt-05"
-                        :class="item.badgeId === 1 ? 'early-adopter-text' : 'text-caption'"
-                      >
-                        {{ getRewardDescription(item) }}
-                      </span>
-                    </div>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -272,6 +354,104 @@ const alertText = ref("");
 const alertTitle = ref("");
 const alertType = ref<"success" | "error" | "warning" | "info">("info");
 
+const selectedBadgeAlert = ref<{
+  show: boolean;
+  owned: boolean;
+  badge: any;
+  earnedDate?: string;
+} | null>(null);
+
+const getBadgeImageUrl = (pictureHash: string | undefined) => {
+  if (!pictureHash) return "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png";
+  if (pictureHash.startsWith("http")) return pictureHash;
+  
+  let cleanHash = pictureHash;
+  if (cleanHash.includes("%26")) {
+    cleanHash = cleanHash.replace(/%26/g, "&");
+  }
+  if (cleanHash.includes("%20")) {
+    cleanHash = cleanHash.replace(/%20/g, " ");
+  }
+  
+  if (cleanHash.startsWith("/")) return `https://assets.drunagor.app${cleanHash}`;
+  return `https://assets.drunagor.app/${cleanHash}`;
+};
+
+const getBadgeIconUrl = (badgeId: number) => {
+  const found = allRewardsList.value.find((r: any) => r.rewards_pk === badgeId);
+  if (found && found.picture_hash) {
+    return getBadgeImageUrl(found.picture_hash);
+  }
+  // Fallbacks
+  if (badgeId === 1) return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
+  if (badgeId === 2) return getBadgeImageUrl("badges&achievements/Tutorial Complete.png");
+  if (badgeId === 3) return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
+  if (badgeId === 5) return getBadgeImageUrl("badges&achievements/Tutorial Complete.png");
+  if (badgeId === 6) return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
+  return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
+};
+
+const handleItemClick = (item: CustomizeOption, isAvatar: boolean) => {
+  if (item.badgeId === undefined) {
+    if (isAvatar) {
+      selectAvatar(item.hash);
+    } else {
+      selectBackground(item.hash);
+    }
+    selectedBadgeAlert.value = null;
+    return;
+  }
+
+  const badgeId = item.badgeId;
+  const owned = unlockedBadgeIds.value.has(badgeId);
+
+  // Find badge details
+  const badgeObjFromApi = allRewardsList.value.find((r: any) => r.rewards_pk === badgeId);
+  const badgeObj = {
+    rewards_pk: badgeId,
+    name: badgeObjFromApi?.name || item.badgeName || "Badge",
+    description: badgeObjFromApi?.description || getRewardDescription(item),
+    picture_hash: badgeObjFromApi?.picture_hash || (badgeId === 2 ? "badges&achievements/Tutorial Complete.png" : "badges&achievements/Season 1 Complete (4)-min.png")
+  };
+
+  if (owned) {
+    if (isAvatar) {
+      selectAvatar(item.hash);
+    } else {
+      selectBackground(item.hash);
+    }
+
+    // Find earned date
+    const userRewards = rewardsList.value.filter((r: any) => r.rewards_pk === badgeId);
+    let earnedDate = "";
+    if (userRewards.length > 0) {
+      const oldest = userRewards.reduce((prev: any, curr: any) => {
+        const prevDate = prev.date || prev.created_at || prev.date_conquest || new Date().toISOString();
+        const currDate = curr.date || curr.created_at || curr.date_conquest || new Date().toISOString();
+        return new Date(prevDate) < new Date(currDate) ? prev : curr;
+      });
+      const d = oldest.date || oldest.created_at || oldest.date_conquest;
+      earnedDate = new Date(d).toLocaleDateString("en-US");
+    } else {
+      earnedDate = new Date().toLocaleDateString("en-US");
+    }
+
+    selectedBadgeAlert.value = {
+      show: true,
+      owned: true,
+      badge: badgeObj,
+      earnedDate
+    };
+  } else {
+    selectedBadgeAlert.value = {
+      show: true,
+      owned: false,
+      badge: badgeObj
+    };
+  }
+  showAlert.value = false;
+};
+
 interface CustomizeOption {
   hash: string;
   name: string;
@@ -282,7 +462,7 @@ interface CustomizeOption {
 
 // Avatars
 const defaultAvatars: CustomizeOption[] = [
-  { hash: "user.png", name: "Padrão" },
+  { hash: "user.png", name: "Default" },
   { hash: "jaheen.png", name: "Jaheen" },
   { hash: "lich.png", name: "Lich" },
   { hash: "lorelai.png", name: "Lorelai" },
@@ -389,8 +569,8 @@ const setAlert = (
 const showLockAlert = (option: CustomizeOption) => {
   setAlert(
     "mdi-lock",
-    `Badge Requerida: ${option.badgeName}`,
-    getRewardDescription(option) || "Você precisa liberar esta Badge para obter este prêmio.",
+    `Required Badge: ${option.badgeName}`,
+    getRewardDescription(option) || "You need to unlock this Badge to obtain this reward.",
     "warning"
   );
 };
@@ -448,13 +628,13 @@ const saveAllChanges = async () => {
 
     userStore.cacheBuster = Date.now();
 
-    setAlert("mdi-check-circle", "Sucesso!", "Configurações de perfil salvas com sucesso!", "success");
+    setAlert("mdi-check-circle", "Success!", "Profile customization saved successfully!", "success");
   } catch (error: any) {
     console.error("Error saving customization changes:", error);
     setAlert(
       "mdi-alert-circle",
-      `Erro ${error.response?.status || ""}`,
-      error.response?.data?.message || "Ocorreu um erro ao salvar as alterações.",
+      `Error ${error.response?.status || ""}`,
+      error.response?.data?.message || "An error occurred while saving the changes.",
       "error",
     );
   } finally {
@@ -582,5 +762,11 @@ onUnmounted(() => {
 .save-all-btn:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
+}
+
+.date-position {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
 }
 </style>

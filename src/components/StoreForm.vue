@@ -48,76 +48,101 @@
         v-for="(store, index) in stores"
         :key="index"
         class="mb-4 store-card"
-        color="#151515"
-        style="border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; overflow: hidden"
+        color="secundary"
+        style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden"
       >
         <!-- Header -->
         <div
-          class="d-flex align-center justify-space-between px-4 py-4 cursor-pointer select-none card-header"
+          class="px-4 py-4 cursor-pointer select-none card-header"
           @click="store.isExpanded = !store.isExpanded"
-          style="background-color: #262626"
+          style="background-color: rgba(0, 0, 0, 0.2);"
         >
-          <div class="d-flex align-center">
-            <span class="font-weight-bold text-white text-subtitle-1 text-uppercase">
-              STORE {{ index + 1 }} {{ store.storename ? `- ${store.storename}` : '' }}
-            </span>
-            <v-chip
-              v-if="store.isNew"
-              color="success"
-              size="x-small"
-              class="ml-2 font-weight-bold"
-            >
-              NEW
-            </v-chip>
-            <v-chip
-              v-else-if="store.isDirty"
-              color="warning"
-              size="x-small"
-              class="ml-2 font-weight-bold"
-            >
-              EDITED
-            </v-chip>
-            
-            <v-tooltip location="top" v-if="store.stores_pk">
-              <template #activator="{ props }">
-                <v-icon
-                  v-bind="props"
-                  :color="store.verified ? 'green' : 'yellow'"
-                  size="20"
-                  class="ml-2"
-                >
-                  {{
-                    store.verified
-                      ? "mdi-check-decagram-outline"
-                      : "mdi-alert-octagram-outline"
-                  }}
-                </v-icon>
-              </template>
-              <span>
-                {{
-                  store.verified
-                    ? "Verified & eligible to host events"
-                    : "Under review (may take up to 3 business days)"
-                }}
-              </span>
-            </v-tooltip>
-          </div>
+          <v-row align="center" no-gutters>
+            <!-- Store Photo -->
+            <v-col cols="auto" class="mr-4">
+              <v-avatar size="64" rounded="lg" class="checkerboard-bg" style="border: 1px solid rgba(255, 255, 255, 0.1);">
+                <v-img
+                  :src="
+                    store.storeImage
+                      ? (store.storeImage.startsWith('http') ? store.storeImage : `https://assets.drunagor.app/${store.storeImage}`)
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
+                  "
+                  cover
+                />
+              </v-avatar>
+            </v-col>
 
-          <div class="d-flex align-center">
-            <v-btn
-              icon
-              variant="text"
-              color="red-lighten-1"
-              size="small"
-              class="mr-2"
-              @click.stop="markForDeletion(index)"
-            >
-              <v-icon size="20">mdi-delete-outline</v-icon>
-            </v-btn>
-            <v-icon color="white">
-              {{ store.isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
-            </v-icon>
-          </div>
+            <!-- Store Info -->
+            <v-col class="flex-grow-1 text-left" style="min-width: 0;">
+              <div class="d-flex align-center flex-wrap">
+                <span class="font-weight-bold text-white text-subtitle-1 text-uppercase text-truncate mr-2">
+                  {{ store.storename || 'Unnamed Store' }}
+                </span>
+                <v-chip
+                  v-if="store.isNew"
+                  color="success"
+                  size="x-small"
+                  class="font-weight-bold mr-1"
+                >
+                  NEW
+                </v-chip>
+                <v-chip
+                  v-else-if="store.isDirty"
+                  color="warning"
+                  size="x-small"
+                  class="font-weight-bold mr-1"
+                >
+                  EDITED
+                </v-chip>
+                
+                <v-tooltip location="top" v-if="store.stores_pk">
+                  <template #activator="{ props }">
+                    <v-icon
+                      v-bind="props"
+                      :color="store.verified ? 'green' : 'yellow'"
+                      size="20"
+                    >
+                      {{
+                        store.verified
+                          ? "mdi-check-decagram-outline"
+                          : "mdi-alert-octagram-outline"
+                      }}
+                    </v-icon>
+                  </template>
+                  <span>
+                    {{
+                      store.verified
+                        ? "Verified & eligible to host events"
+                        : "Under review (may take up to 3 business days)"
+                    }}
+                  </span>
+                </v-tooltip>
+              </div>
+              <p class="text-caption text-grey-lighten-1 mb-0 text-truncate">
+                {{ store.addressLine1 }}{{ store.complement ? ', ' + store.complement : '' }}
+              </p>
+              <p class="text-caption text-grey-lighten-1 mb-0 text-truncate">
+                {{ store.city }} - {{ store.state }}, {{ store.zipcode }}
+              </p>
+            </v-col>
+
+            <!-- Actions -->
+            <v-col cols="auto" class="d-flex align-center pl-2">
+              <v-btn
+                icon
+                variant="text"
+                color="red-lighten-1"
+                size="small"
+                class="mr-2"
+                @click.stop="markForDeletion(index)"
+              >
+                <v-icon size="20">mdi-delete-outline</v-icon>
+              </v-btn>
+              <v-icon color="white">
+                {{ store.isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+              </v-icon>
+            </v-col>
+          </v-row>
         </div>
 
         <v-divider></v-divider>
