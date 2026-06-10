@@ -219,12 +219,12 @@
             >
               <v-card
                 color="white"
-                max-height="120"
-                class="pt-0 pl-0 pb-0 event-card"
+                class="pt-0 pl-0 pb-0 event-card overflow-hidden"
+                style="height: 120px;"
                 @click="openManageDialog(event)"
               >
-                <v-row no-gutters>
-                  <v-col cols="auto" class="redbutton pt-13 pl-3">
+                <v-row no-gutters class="fill-height align-stretch flex-nowrap">
+                  <v-col cols="auto" class="redbutton d-flex align-center justify-center">
                     <v-btn
                       color="#AB2929"
                       icon
@@ -234,59 +234,62 @@
                       <v-icon>mdi-close</v-icon>
                     </v-btn>
                   </v-col>
-                  <v-col cols="8" class="pt-6 pr-3">
-                    <v-row no-gutters>
-                      <v-col cols="4" sm="2">
+                  
+                  <v-col class="d-flex align-center py-2 px-1" style="min-width: 0;">
+                    <v-row no-gutters align="center" class="w-100 flex-nowrap">
+                      <v-col cols="auto" class="d-flex justify-center flex-shrink-0">
                         <div
-                          class="text-center ml-2 pr-3"
+                          class="text-center"
                           style="width: 74px; color: black"
                         >
-                          <p class="pt-3 text-caption font-weight-bold">
+                          <p class="text-caption font-weight-bold mb-0">
                             {{ extractMonth(event.event_date, userTimezone) }}
                           </p>
                           <p
                             color="primary"
-                            class="cinzel-text text-h3 font-weight-bold"
+                            class="cinzel-text text-h3 font-weight-bold my-0"
+                            style="line-height: 1.1;"
                           >
                             {{ extractDay(event.event_date, userTimezone) }}
                           </p>
-                          <p class="text-caption font-weight-bold">
+                          <p class="text-caption font-weight-bold mb-0">
                             {{ extractTime(event.event_date, userTimezone) }}
                           </p>
                         </div>
                       </v-col>
 
-                      <v-col cols="8" sm="10" class="pt-2 pl-5">
-                        <h3 class="pb-1 text-truncate">
+                      <v-col class="pl-3 pr-2" style="min-width: 0;">
+                        <h3 class="pb-1 text-truncate" style="color: black;">
                           <v-icon class="pr-1" size="small" color="black"
                             >mdi-chess-rook</v-icon
                           >
                           {{ event.store_name }}
                         </h3>
 
-                        <p class="text-caption text-truncate">
-                          <v-icon color="red">mdi-map-marker</v-icon>
+                        <p class="text-caption text-truncate mb-1" style="color: #424242;">
+                          <v-icon color="red" class="mr-1" size="small">mdi-map-marker</v-icon>
                           {{ event.address }}
                         </p>
 
-                        <p class="text-caption" v-if="event.scenario">
-                          <v-icon color="red">mdi-sword-cross</v-icon>
+                        <p class="text-caption mb-0 text-truncate" style="color: #424242;" v-if="event.scenario">
+                          <v-icon color="red" class="mr-1" size="small">mdi-sword-cross</v-icon>
                           Scenario: {{ event.scenario }}
                         </p>
                       </v-col>
                     </v-row>
                   </v-col>
+                  
+                  <v-col cols="auto" class="editbutton d-flex align-center justify-center">
+                    <v-btn
+                      color="white"
+                      icon
+                      class="delete-btn"
+                      @click.stop="openEditDialog(event, true)"
+                    >
+                      <v-icon>mdi-pencil</v-icon>
+                    </v-btn>
+                  </v-col>
                 </v-row>
-                <v-col cols="auto" class="editbutton pt-13 pl-3">
-                  <v-btn
-                    color="white"
-                    icon
-                    class="delete-btn"
-                    @click.stop="openEditDialog(event, true)"
-                  >
-                    <v-icon>mdi mdi-pencil</v-icon>
-                  </v-btn>
-                </v-col>
               </v-card>
             </v-col>
           </v-row>
@@ -422,11 +425,15 @@
                 <v-select
                   v-model="newEvent.store"
                   :items="availableStores"
-                  label="STORE"
+                  label="SELECT YOUR STORE *"
                   variant="outlined"
                   prepend-inner-icon="mdi-store"
                   :loading="loading"
                   no-data-text="No stores found"
+                  persistent-hint
+                  hint="Choose the store hosting this event. Required."
+                  :rules="[(v) => !!v || 'Please select your store']"
+                  class="mb-2"
                 />
               </v-col>
 
@@ -439,8 +446,6 @@
                   label="SEASON"
                   variant="outlined"
                   prepend-inner-icon="mdi-flag-variant"
-                  disabled
-                  readonly
                 ></v-select>
               </v-col>
 
@@ -773,7 +778,7 @@ const createDefaultNewEvent = () => ({
   minute: "00",
   ampm: "AM",
   store: "",
-  season: LOCKED_RETAILER_SEASON_PK,
+  season: 2,
   scenario: null,
   address: "",
 });
@@ -824,6 +829,9 @@ const getSeasonInfo = (fk) => {
 };
 
 const getRetailWingLabel = (sceneryPk) => {
+  if (sceneryPk === 2) return "Wing 1 Tutorial";
+  if (sceneryPk === 3) return "Wing 1 Advanced";
+  if (sceneryPk === 4) return "Wing 2 Advanced";
   if (sceneryPk === 5) return "Wing 3";
   if (sceneryPk === 6) return "Wing 4";
   return "";
@@ -880,12 +888,40 @@ const userTimezone = computed(
   () => userStore.user?.timezone?.iana_name ?? "America/Chicago",
 );
 
-const retailerSeasonOptions = computed(() => {
-  const lockedSeason = seasons.value.find(
-    (season) => season.seasons_pk === LOCKED_RETAILER_SEASON_PK,
-  );
+const isBeforeJulyFirst2026 = () => {
+  return new Date() < new Date("2026-07-01T00:00:00");
+};
 
-  return [lockedSeason || FALLBACK_RETAILER_SEASON];
+const retailerSeasonOptions = computed(() => {
+  const allowedSg = seasons.value.filter(
+    (season) => season.seasons_pk === 2 || season.seasons_pk === 3,
+  );
+  const items = allowedSg.length === 0
+    ? [
+        { seasons_pk: 2, name: "Season 1" },
+        { seasons_pk: 3, name: "Season 2" }
+      ]
+    : allowedSg.map(s => ({ seasons_pk: s.seasons_pk, name: s.name }));
+
+  const beforeJuly1 = isBeforeJulyFirst2026();
+
+  return items.map(item => {
+    if (item.seasons_pk === 3) {
+      return {
+        ...item,
+        disabled: true,
+        props: { disabled: true }
+      };
+    }
+    if (item.seasons_pk === 2 && beforeJuly1) {
+      return {
+        ...item,
+        disabled: true,
+        props: { disabled: true }
+      };
+    }
+    return item;
+  });
 });
 
 const availableStores = computed(() => {
@@ -923,14 +959,20 @@ const sortedEvents = computed(() => {
 });
 
 const filteredScenarios = computed(() => {
-  if (newEvent.value.season !== LOCKED_RETAILER_SEASON_PK) return [];
-
-  return sceneries.value
-    .filter((scenario) =>
-      RETAILER_ALLOWED_SCENERIES.includes(scenario.sceneries_pk),
-    )
-    .sort(sortRetailScenarios)
-    .map(decorateScenario);
+  const currentSeason = newEvent.value.season;
+  if (currentSeason === 2) {
+    return sceneries.value
+      .filter((scenario) => [3, 4].includes(scenario.sceneries_pk))
+      .sort((a, b) => a.sceneries_pk - b.sceneries_pk)
+      .map(decorateScenario);
+  }
+  if (currentSeason === 3) {
+    return sceneries.value
+      .filter((scenario) => [5, 6].includes(scenario.sceneries_pk))
+      .sort((a, b) => a.sceneries_pk - b.sceneries_pk)
+      .map(decorateScenario);
+  }
+  return [];
 });
 
 const editableScenarios = computed(() => {
@@ -939,7 +981,7 @@ const editableScenarios = computed(() => {
 
   if (currentSeason === 2) {
     return sceneries.value
-      .filter((scenario) => [2, 3, 4].includes(scenario.sceneries_pk))
+      .filter((scenario) => [3, 4].includes(scenario.sceneries_pk))
       .map(decorateScenario);
   }
 
@@ -1019,7 +1061,9 @@ const getFormattedNewEventTime = () =>
   `${String(newEvent.value.hour || "").padStart(2, "0")}:${String(newEvent.value.minute || "00").padStart(2, "0")}`;
 
 const ensureRetailerSeasonLocked = () => {
-  newEvent.value.season = LOCKED_RETAILER_SEASON_PK;
+  if (!newEvent.value.season) {
+    newEvent.value.season = 2;
+  }
 };
 
 const resetCreateEventForm = () => {
@@ -1477,6 +1521,10 @@ const deleteEvent = (events_pk) => {
 };
 
 const openCreateEventDialog = () => {
+  if (isBeforeJulyFirst2026()) {
+    router.push({ name: "NightsCommunication" });
+    return;
+  }
   ensureRetailerSeasonLocked();
   createEventDialog.value = true;
 };
@@ -1776,6 +1824,8 @@ watch(
     let targetRewardPk = null;
     if (newScenarioPk === 5) targetRewardPk = 5;
     else if (newScenarioPk === 6) targetRewardPk = 6;
+    else if (newScenarioPk === 2 || newScenarioPk === 3) targetRewardPk = 2; // Wing 1 Tutorial / Wing 1 Advanced -> Tutorial Completed
+    else if (newScenarioPk === 4) targetRewardPk = 3; // Wing 2 Advanced -> Season 1 Completed
 
     if (targetRewardPk) {
       const rewardObject = allRewards.value.find(
@@ -1793,7 +1843,7 @@ watch(
   (newScenarioPk) => {
     const currentSeason =
       editableEvent.value.seasons_fk ?? selectedEvent.value?.seasons_fk;
-    if (currentSeason !== LOCKED_RETAILER_SEASON_PK) return;
+    if (currentSeason !== 2 && currentSeason !== LOCKED_RETAILER_SEASON_PK) return;
 
     if (!newScenarioPk) {
       editableEvent.value.rewards_pk = [];
@@ -1803,6 +1853,8 @@ watch(
     let targetRewardPk = null;
     if (newScenarioPk === 5) targetRewardPk = 5;
     else if (newScenarioPk === 6) targetRewardPk = 6;
+    else if (newScenarioPk === 2 || newScenarioPk === 3) targetRewardPk = 2; // Wing 1 Tutorial / Wing 1 Advanced -> Tutorial Completed
+    else if (newScenarioPk === 4) targetRewardPk = 3; // Wing 2 Advanced -> Season 1 Completed
 
     if (targetRewardPk) {
       editableEvent.value.rewards_pk = [targetRewardPk];
@@ -2074,16 +2126,12 @@ watch(
 
 .redbutton {
   background: #691d1d;
-  transform: translateY(px) translateX(-0px);
-  width: 80px;
-  height: 160px;
+  width: 60px;
 }
 
 .editbutton {
   background: gray;
-  transform: translateX(10px);
-  width: 80px;
-  height: 160px;
+  width: 60px;
 }
 
 .download-fab {

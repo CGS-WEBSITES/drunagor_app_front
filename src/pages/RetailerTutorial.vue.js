@@ -1,0 +1,1334 @@
+/// <reference types="../../node_modules/.vue-global-types/vue_3.5_0_0_0.d.ts" />
+import { ref } from "vue";
+// Import screenshots dynamically for Vite bundler
+import img1_1 from "@/assets/retailertutorial/01.01.png";
+import img1_2 from "@/assets/retailertutorial/01.02.png";
+import img1_3 from "@/assets/retailertutorial/01.03.png";
+import img2_1 from "@/assets/retailertutorial/02.01.png";
+import img2_2 from "@/assets/retailertutorial/02.02.png";
+import img2_3 from "@/assets/retailertutorial/02.03.png";
+import img3_1 from "@/assets/retailertutorial/03.01.png";
+import img3_2 from "@/assets/retailertutorial/03.02.png";
+import img3_3 from "@/assets/retailertutorial/03.03.png";
+import img4_1 from "@/assets/retailertutorial/04.01.png";
+import img4_2 from "@/assets/retailertutorial/04.02.png";
+import img4_3 from "@/assets/retailertutorial/04.03.png";
+import img5_1 from "@/assets/retailertutorial/05.01.png";
+import img5_2 from "@/assets/retailertutorial/05.02.png";
+const step1Images = [img1_1, img1_2, img1_3];
+const step2Images = [img2_1, img2_2, img2_3];
+const step3Images = [img3_1, img3_2, img3_3];
+const step4Images = [img4_1, img4_2, img4_3];
+const step5Images = [img5_1, img5_2];
+const showLightbox = ref(false);
+const activeImage = ref("");
+const openLightbox = (imgSrc) => {
+    activeImage.value = imgSrc;
+    showLightbox.value = true;
+};
+debugger; /* PartiallyEnd: #3632/scriptSetup.vue */
+const __VLS_ctx = {};
+let __VLS_components;
+let __VLS_directives;
+/** @type {__VLS_StyleScopedClasses['step-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['page-background']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['thumbnail-img']} */ ;
+/** @type {__VLS_StyleScopedClasses['back-button']} */ ;
+// CSS variable injection 
+// CSS variable injection end 
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "tutorial-page-wrapper" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "page-background" },
+});
+const __VLS_0 = {}.VContainer;
+/** @type {[typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, typeof __VLS_components.VContainer, typeof __VLS_components.vContainer, ]} */ ;
+// @ts-ignore
+const __VLS_1 = __VLS_asFunctionalComponent(__VLS_0, new __VLS_0({
+    maxWidth: "850",
+    ...{ class: "py-8 safe-area-padding tutorial-container px-4 px-sm-6" },
+}));
+const __VLS_2 = __VLS_1({
+    maxWidth: "850",
+    ...{ class: "py-8 safe-area-padding tutorial-container px-4 px-sm-6" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_1));
+__VLS_3.slots.default;
+const __VLS_4 = {}.VRow;
+/** @type {[typeof __VLS_components.VRow, typeof __VLS_components.vRow, typeof __VLS_components.VRow, typeof __VLS_components.vRow, ]} */ ;
+// @ts-ignore
+const __VLS_5 = __VLS_asFunctionalComponent(__VLS_4, new __VLS_4({
+    justify: "center",
+    ...{ class: "ma-0 w-100" },
+}));
+const __VLS_6 = __VLS_5({
+    justify: "center",
+    ...{ class: "ma-0 w-100" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_5));
+__VLS_7.slots.default;
+const __VLS_8 = {}.VCol;
+/** @type {[typeof __VLS_components.VCol, typeof __VLS_components.vCol, typeof __VLS_components.VCol, typeof __VLS_components.vCol, ]} */ ;
+// @ts-ignore
+const __VLS_9 = __VLS_asFunctionalComponent(__VLS_8, new __VLS_8({
+    cols: "12",
+    ...{ class: "text-center position-relative px-0 py-2" },
+    ...{ style: {} },
+}));
+const __VLS_10 = __VLS_9({
+    cols: "12",
+    ...{ class: "text-center position-relative px-0 py-2" },
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_9));
+__VLS_11.slots.default;
+const __VLS_12 = {}.VBtn;
+/** @type {[typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ]} */ ;
+// @ts-ignore
+const __VLS_13 = __VLS_asFunctionalComponent(__VLS_12, new __VLS_12({
+    ...{ 'onClick': {} },
+    icon: "mdi-arrow-left",
+    variant: "tonal",
+    color: "white",
+    ...{ class: "back-button position-absolute" },
+    ...{ style: {} },
+    title: "Back to Login",
+}));
+const __VLS_14 = __VLS_13({
+    ...{ 'onClick': {} },
+    icon: "mdi-arrow-left",
+    variant: "tonal",
+    color: "white",
+    ...{ class: "back-button position-absolute" },
+    ...{ style: {} },
+    title: "Back to Login",
+}, ...__VLS_functionalComponentArgsRest(__VLS_13));
+let __VLS_16;
+let __VLS_17;
+let __VLS_18;
+const __VLS_19 = {
+    onClick: (...[$event]) => {
+        __VLS_ctx.$router.push({ name: 'Login' });
+    }
+};
+var __VLS_15;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "mb-8 pt-12 pt-sm-2" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h1, __VLS_intrinsicElements.h1)({
+    ...{ class: "text-h4 text-sm-h3 font-weight-black text-white cinzel-text tutorial-title mt-1" },
+});
+const __VLS_20 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_21 = __VLS_asFunctionalComponent(__VLS_20, new __VLS_20({
+    ...{ class: "pa-3 pa-sm-8 rounded-xl main-tutorial-card text-left" },
+    color: "primary",
+    elevation: "16",
+}));
+const __VLS_22 = __VLS_21({
+    ...{ class: "pa-3 pa-sm-8 rounded-xl main-tutorial-card text-left" },
+    color: "primary",
+    elevation: "16",
+}, ...__VLS_functionalComponentArgsRest(__VLS_21));
+__VLS_23.slots.default;
+const __VLS_24 = {}.VCardText;
+/** @type {[typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, ]} */ ;
+// @ts-ignore
+const __VLS_25 = __VLS_asFunctionalComponent(__VLS_24, new __VLS_24({
+    ...{ class: "text-grey-lighten-2 text-body-1 px-1 px-sm-3" },
+}));
+const __VLS_26 = __VLS_25({
+    ...{ class: "text-grey-lighten-2 text-body-1 px-1 px-sm-3" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_25));
+__VLS_27.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "mb-8 font-weight-medium text-center text-sm-left text-body-1 text-grey-lighten-1" },
+});
+const __VLS_28 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_29 = __VLS_asFunctionalComponent(__VLS_28, new __VLS_28({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}));
+const __VLS_30 = __VLS_29({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_29));
+__VLS_31.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({
+    ...{ class: "text-h5 font-weight-bold text-white mb-3 d-flex align-center" },
+});
+const __VLS_32 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_33 = __VLS_asFunctionalComponent(__VLS_32, new __VLS_32({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}));
+const __VLS_34 = __VLS_33({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_33));
+__VLS_35.slots.default;
+var __VLS_35;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "mb-5 text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-white font-weight-bold" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex align-center justify-space-between mb-2 px-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-amber-accent-2 d-flex align-center swipe-hint" },
+});
+const __VLS_36 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_37 = __VLS_asFunctionalComponent(__VLS_36, new __VLS_36({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}));
+const __VLS_38 = __VLS_37({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_37));
+__VLS_39.slots.default;
+var __VLS_39;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container" },
+});
+for (const [img, idx] of __VLS_getVForSourceType((__VLS_ctx.step1Images))) {
+    const __VLS_40 = {}.VCard;
+    /** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+    // @ts-ignore
+    const __VLS_41 = __VLS_asFunctionalComponent(__VLS_40, new __VLS_40({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }));
+    const __VLS_42 = __VLS_41({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_41));
+    let __VLS_44;
+    let __VLS_45;
+    let __VLS_46;
+    const __VLS_47 = {
+        onClick: (...[$event]) => {
+            __VLS_ctx.openLightbox(img);
+        }
+    };
+    __VLS_43.slots.default;
+    const __VLS_48 = {}.VImg;
+    /** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+    // @ts-ignore
+    const __VLS_49 = __VLS_asFunctionalComponent(__VLS_48, new __VLS_48({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }));
+    const __VLS_50 = __VLS_49({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_49));
+    __VLS_51.slots.default;
+    {
+        const { placeholder: __VLS_thisSlot } = __VLS_51.slots;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "d-flex align-center justify-center fill-height bg-grey-darken-3" },
+        });
+        const __VLS_52 = {}.VProgressCircular;
+        /** @type {[typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, ]} */ ;
+        // @ts-ignore
+        const __VLS_53 = __VLS_asFunctionalComponent(__VLS_52, new __VLS_52({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }));
+        const __VLS_54 = __VLS_53({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_53));
+    }
+    var __VLS_51;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity" },
+    });
+    const __VLS_56 = {}.VIcon;
+    /** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+    // @ts-ignore
+    const __VLS_57 = __VLS_asFunctionalComponent(__VLS_56, new __VLS_56({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }));
+    const __VLS_58 = __VLS_57({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_57));
+    __VLS_59.slots.default;
+    var __VLS_59;
+    var __VLS_43;
+}
+var __VLS_31;
+const __VLS_60 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_61 = __VLS_asFunctionalComponent(__VLS_60, new __VLS_60({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}));
+const __VLS_62 = __VLS_61({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_61));
+__VLS_63.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({
+    ...{ class: "text-h5 font-weight-bold text-white mb-3 d-flex align-center" },
+});
+const __VLS_64 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_65 = __VLS_asFunctionalComponent(__VLS_64, new __VLS_64({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}));
+const __VLS_66 = __VLS_65({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_65));
+__VLS_67.slots.default;
+var __VLS_67;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "mb-5 text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex align-center justify-space-between mb-2 px-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-amber-accent-2 d-flex align-center swipe-hint" },
+});
+const __VLS_68 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_69 = __VLS_asFunctionalComponent(__VLS_68, new __VLS_68({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}));
+const __VLS_70 = __VLS_69({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_69));
+__VLS_71.slots.default;
+var __VLS_71;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container" },
+});
+for (const [img, idx] of __VLS_getVForSourceType((__VLS_ctx.step2Images))) {
+    const __VLS_72 = {}.VCard;
+    /** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+    // @ts-ignore
+    const __VLS_73 = __VLS_asFunctionalComponent(__VLS_72, new __VLS_72({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }));
+    const __VLS_74 = __VLS_73({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_73));
+    let __VLS_76;
+    let __VLS_77;
+    let __VLS_78;
+    const __VLS_79 = {
+        onClick: (...[$event]) => {
+            __VLS_ctx.openLightbox(img);
+        }
+    };
+    __VLS_75.slots.default;
+    const __VLS_80 = {}.VImg;
+    /** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+    // @ts-ignore
+    const __VLS_81 = __VLS_asFunctionalComponent(__VLS_80, new __VLS_80({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }));
+    const __VLS_82 = __VLS_81({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_81));
+    __VLS_83.slots.default;
+    {
+        const { placeholder: __VLS_thisSlot } = __VLS_83.slots;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "d-flex align-center justify-center fill-height bg-grey-darken-3" },
+        });
+        const __VLS_84 = {}.VProgressCircular;
+        /** @type {[typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, ]} */ ;
+        // @ts-ignore
+        const __VLS_85 = __VLS_asFunctionalComponent(__VLS_84, new __VLS_84({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }));
+        const __VLS_86 = __VLS_85({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_85));
+    }
+    var __VLS_83;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity" },
+    });
+    const __VLS_88 = {}.VIcon;
+    /** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+    // @ts-ignore
+    const __VLS_89 = __VLS_asFunctionalComponent(__VLS_88, new __VLS_88({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }));
+    const __VLS_90 = __VLS_89({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_89));
+    __VLS_91.slots.default;
+    var __VLS_91;
+    var __VLS_75;
+}
+var __VLS_63;
+const __VLS_92 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_93 = __VLS_asFunctionalComponent(__VLS_92, new __VLS_92({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}));
+const __VLS_94 = __VLS_93({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_93));
+__VLS_95.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({
+    ...{ class: "text-h5 font-weight-bold text-white mb-3 d-flex align-center" },
+});
+const __VLS_96 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_97 = __VLS_asFunctionalComponent(__VLS_96, new __VLS_96({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}));
+const __VLS_98 = __VLS_97({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_97));
+__VLS_99.slots.default;
+var __VLS_99;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "mb-5 text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex align-center justify-space-between mb-2 px-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-amber-accent-2 d-flex align-center swipe-hint" },
+});
+const __VLS_100 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_101 = __VLS_asFunctionalComponent(__VLS_100, new __VLS_100({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}));
+const __VLS_102 = __VLS_101({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_101));
+__VLS_103.slots.default;
+var __VLS_103;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container" },
+});
+for (const [img, idx] of __VLS_getVForSourceType((__VLS_ctx.step3Images))) {
+    const __VLS_104 = {}.VCard;
+    /** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+    // @ts-ignore
+    const __VLS_105 = __VLS_asFunctionalComponent(__VLS_104, new __VLS_104({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }));
+    const __VLS_106 = __VLS_105({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_105));
+    let __VLS_108;
+    let __VLS_109;
+    let __VLS_110;
+    const __VLS_111 = {
+        onClick: (...[$event]) => {
+            __VLS_ctx.openLightbox(img);
+        }
+    };
+    __VLS_107.slots.default;
+    const __VLS_112 = {}.VImg;
+    /** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+    // @ts-ignore
+    const __VLS_113 = __VLS_asFunctionalComponent(__VLS_112, new __VLS_112({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }));
+    const __VLS_114 = __VLS_113({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_113));
+    __VLS_115.slots.default;
+    {
+        const { placeholder: __VLS_thisSlot } = __VLS_115.slots;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "d-flex align-center justify-center fill-height bg-grey-darken-3" },
+        });
+        const __VLS_116 = {}.VProgressCircular;
+        /** @type {[typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, ]} */ ;
+        // @ts-ignore
+        const __VLS_117 = __VLS_asFunctionalComponent(__VLS_116, new __VLS_116({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }));
+        const __VLS_118 = __VLS_117({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_117));
+    }
+    var __VLS_115;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity" },
+    });
+    const __VLS_120 = {}.VIcon;
+    /** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+    // @ts-ignore
+    const __VLS_121 = __VLS_asFunctionalComponent(__VLS_120, new __VLS_120({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }));
+    const __VLS_122 = __VLS_121({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_121));
+    __VLS_123.slots.default;
+    var __VLS_123;
+    var __VLS_107;
+}
+var __VLS_95;
+const __VLS_124 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_125 = __VLS_asFunctionalComponent(__VLS_124, new __VLS_124({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}));
+const __VLS_126 = __VLS_125({
+    ...{ class: "mb-8 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_125));
+__VLS_127.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({
+    ...{ class: "text-h5 font-weight-bold text-white mb-3 d-flex align-center" },
+});
+const __VLS_128 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_129 = __VLS_asFunctionalComponent(__VLS_128, new __VLS_128({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}));
+const __VLS_130 = __VLS_129({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_129));
+__VLS_131.slots.default;
+var __VLS_131;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "mb-5 text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex align-center justify-space-between mb-2 px-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-amber-accent-2 d-flex align-center swipe-hint" },
+});
+const __VLS_132 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_133 = __VLS_asFunctionalComponent(__VLS_132, new __VLS_132({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}));
+const __VLS_134 = __VLS_133({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_133));
+__VLS_135.slots.default;
+var __VLS_135;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container" },
+});
+for (const [img, idx] of __VLS_getVForSourceType((__VLS_ctx.step4Images))) {
+    const __VLS_136 = {}.VCard;
+    /** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+    // @ts-ignore
+    const __VLS_137 = __VLS_asFunctionalComponent(__VLS_136, new __VLS_136({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }));
+    const __VLS_138 = __VLS_137({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_137));
+    let __VLS_140;
+    let __VLS_141;
+    let __VLS_142;
+    const __VLS_143 = {
+        onClick: (...[$event]) => {
+            __VLS_ctx.openLightbox(img);
+        }
+    };
+    __VLS_139.slots.default;
+    const __VLS_144 = {}.VImg;
+    /** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+    // @ts-ignore
+    const __VLS_145 = __VLS_asFunctionalComponent(__VLS_144, new __VLS_144({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }));
+    const __VLS_146 = __VLS_145({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_145));
+    __VLS_147.slots.default;
+    {
+        const { placeholder: __VLS_thisSlot } = __VLS_147.slots;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "d-flex align-center justify-center fill-height bg-grey-darken-3" },
+        });
+        const __VLS_148 = {}.VProgressCircular;
+        /** @type {[typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, ]} */ ;
+        // @ts-ignore
+        const __VLS_149 = __VLS_asFunctionalComponent(__VLS_148, new __VLS_148({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }));
+        const __VLS_150 = __VLS_149({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_149));
+    }
+    var __VLS_147;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity" },
+    });
+    const __VLS_152 = {}.VIcon;
+    /** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+    // @ts-ignore
+    const __VLS_153 = __VLS_asFunctionalComponent(__VLS_152, new __VLS_152({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }));
+    const __VLS_154 = __VLS_153({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_153));
+    __VLS_155.slots.default;
+    var __VLS_155;
+    var __VLS_139;
+}
+var __VLS_127;
+const __VLS_156 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_157 = __VLS_asFunctionalComponent(__VLS_156, new __VLS_156({
+    ...{ class: "mb-4 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}));
+const __VLS_158 = __VLS_157({
+    ...{ class: "mb-4 pa-5 pa-sm-6 step-card rounded-xl" },
+    flat: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_157));
+__VLS_159.slots.default;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.h2, __VLS_intrinsicElements.h2)({
+    ...{ class: "text-h5 font-weight-bold text-white mb-3 d-flex align-center" },
+});
+const __VLS_160 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_161 = __VLS_asFunctionalComponent(__VLS_160, new __VLS_160({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}));
+const __VLS_162 = __VLS_161({
+    color: "amber-accent-2",
+    ...{ class: "mr-3" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_161));
+__VLS_163.slots.default;
+var __VLS_163;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.p, __VLS_intrinsicElements.p)({
+    ...{ class: "mb-5 text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex align-center justify-space-between mb-2 px-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-grey-lighten-1" },
+});
+__VLS_asFunctionalElement(__VLS_intrinsicElements.span, __VLS_intrinsicElements.span)({
+    ...{ class: "text-caption text-amber-accent-2 d-flex align-center swipe-hint" },
+});
+const __VLS_164 = {}.VIcon;
+/** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+// @ts-ignore
+const __VLS_165 = __VLS_asFunctionalComponent(__VLS_164, new __VLS_164({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}));
+const __VLS_166 = __VLS_165({
+    size: "small",
+    ...{ class: "ml-1 animate-swipe" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_165));
+__VLS_167.slots.default;
+var __VLS_167;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container" },
+});
+for (const [img, idx] of __VLS_getVForSourceType((__VLS_ctx.step5Images))) {
+    const __VLS_168 = {}.VCard;
+    /** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+    // @ts-ignore
+    const __VLS_169 = __VLS_asFunctionalComponent(__VLS_168, new __VLS_168({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }));
+    const __VLS_170 = __VLS_169({
+        ...{ 'onClick': {} },
+        key: (idx),
+        flat: true,
+        ...{ class: "image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" },
+        width: "180",
+    }, ...__VLS_functionalComponentArgsRest(__VLS_169));
+    let __VLS_172;
+    let __VLS_173;
+    let __VLS_174;
+    const __VLS_175 = {
+        onClick: (...[$event]) => {
+            __VLS_ctx.openLightbox(img);
+        }
+    };
+    __VLS_171.slots.default;
+    const __VLS_176 = {}.VImg;
+    /** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+    // @ts-ignore
+    const __VLS_177 = __VLS_asFunctionalComponent(__VLS_176, new __VLS_176({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }));
+    const __VLS_178 = __VLS_177({
+        src: (img),
+        aspectRatio: "9/16",
+        contain: true,
+        ...{ class: "thumbnail-img" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_177));
+    __VLS_179.slots.default;
+    {
+        const { placeholder: __VLS_thisSlot } = __VLS_179.slots;
+        __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+            ...{ class: "d-flex align-center justify-center fill-height bg-grey-darken-3" },
+        });
+        const __VLS_180 = {}.VProgressCircular;
+        /** @type {[typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, typeof __VLS_components.VProgressCircular, typeof __VLS_components.vProgressCircular, ]} */ ;
+        // @ts-ignore
+        const __VLS_181 = __VLS_asFunctionalComponent(__VLS_180, new __VLS_180({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }));
+        const __VLS_182 = __VLS_181({
+            indeterminate: true,
+            color: "primary",
+            size: "24",
+        }, ...__VLS_functionalComponentArgsRest(__VLS_181));
+    }
+    var __VLS_179;
+    __VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+        ...{ class: "tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity" },
+    });
+    const __VLS_184 = {}.VIcon;
+    /** @type {[typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, typeof __VLS_components.VIcon, typeof __VLS_components.vIcon, ]} */ ;
+    // @ts-ignore
+    const __VLS_185 = __VLS_asFunctionalComponent(__VLS_184, new __VLS_184({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }));
+    const __VLS_186 = __VLS_185({
+        size: "x-small",
+        ...{ class: "mr-1" },
+    }, ...__VLS_functionalComponentArgsRest(__VLS_185));
+    __VLS_187.slots.default;
+    var __VLS_187;
+    var __VLS_171;
+}
+const __VLS_188 = {}.VAlert;
+/** @type {[typeof __VLS_components.VAlert, typeof __VLS_components.vAlert, typeof __VLS_components.VAlert, typeof __VLS_components.vAlert, ]} */ ;
+// @ts-ignore
+const __VLS_189 = __VLS_asFunctionalComponent(__VLS_188, new __VLS_188({
+    type: "info",
+    variant: "tonal",
+    border: "start",
+    color: "amber-accent-2",
+    ...{ class: "mt-4 text-body-2 text-left leading-relaxed" },
+}));
+const __VLS_190 = __VLS_189({
+    type: "info",
+    variant: "tonal",
+    border: "start",
+    color: "amber-accent-2",
+    ...{ class: "mt-4 text-body-2 text-left leading-relaxed" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_189));
+__VLS_191.slots.default;
+var __VLS_191;
+var __VLS_159;
+__VLS_asFunctionalElement(__VLS_intrinsicElements.div, __VLS_intrinsicElements.div)({
+    ...{ class: "d-flex justify-center mt-8" },
+});
+const __VLS_192 = {}.VBtn;
+/** @type {[typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ]} */ ;
+// @ts-ignore
+const __VLS_193 = __VLS_asFunctionalComponent(__VLS_192, new __VLS_192({
+    ...{ 'onClick': {} },
+    color: "amber-accent-2",
+    variant: "outlined",
+    rounded: "pill",
+    size: "large",
+    ...{ class: "font-weight-black text-white px-8 transition-swing" },
+    prependIcon: "mdi-login",
+    ...{ style: {} },
+}));
+const __VLS_194 = __VLS_193({
+    ...{ 'onClick': {} },
+    color: "amber-accent-2",
+    variant: "outlined",
+    rounded: "pill",
+    size: "large",
+    ...{ class: "font-weight-black text-white px-8 transition-swing" },
+    prependIcon: "mdi-login",
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_193));
+let __VLS_196;
+let __VLS_197;
+let __VLS_198;
+const __VLS_199 = {
+    onClick: (...[$event]) => {
+        __VLS_ctx.$router.push({ name: 'Login' });
+    }
+};
+__VLS_195.slots.default;
+var __VLS_195;
+var __VLS_27;
+var __VLS_23;
+var __VLS_11;
+var __VLS_7;
+const __VLS_200 = {}.VDialog;
+/** @type {[typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, typeof __VLS_components.VDialog, typeof __VLS_components.vDialog, ]} */ ;
+// @ts-ignore
+const __VLS_201 = __VLS_asFunctionalComponent(__VLS_200, new __VLS_200({
+    modelValue: (__VLS_ctx.showLightbox),
+    maxWidth: "500",
+    ...{ class: "lightbox-dialog" },
+    scrollable: true,
+}));
+const __VLS_202 = __VLS_201({
+    modelValue: (__VLS_ctx.showLightbox),
+    maxWidth: "500",
+    ...{ class: "lightbox-dialog" },
+    scrollable: true,
+}, ...__VLS_functionalComponentArgsRest(__VLS_201));
+__VLS_203.slots.default;
+const __VLS_204 = {}.VCard;
+/** @type {[typeof __VLS_components.VCard, typeof __VLS_components.vCard, typeof __VLS_components.VCard, typeof __VLS_components.vCard, ]} */ ;
+// @ts-ignore
+const __VLS_205 = __VLS_asFunctionalComponent(__VLS_204, new __VLS_204({
+    color: "grey-darken-4",
+    ...{ class: "position-relative overflow-hidden pa-1" },
+    rounded: "xl",
+}));
+const __VLS_206 = __VLS_205({
+    color: "grey-darken-4",
+    ...{ class: "position-relative overflow-hidden pa-1" },
+    rounded: "xl",
+}, ...__VLS_functionalComponentArgsRest(__VLS_205));
+__VLS_207.slots.default;
+const __VLS_208 = {}.VBtn;
+/** @type {[typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, typeof __VLS_components.VBtn, typeof __VLS_components.vBtn, ]} */ ;
+// @ts-ignore
+const __VLS_209 = __VLS_asFunctionalComponent(__VLS_208, new __VLS_208({
+    ...{ 'onClick': {} },
+    icon: "mdi-close",
+    variant: "flat",
+    color: "rgba(0,0,0,0.6)",
+    ...{ class: "lightbox-close-btn text-white" },
+}));
+const __VLS_210 = __VLS_209({
+    ...{ 'onClick': {} },
+    icon: "mdi-close",
+    variant: "flat",
+    color: "rgba(0,0,0,0.6)",
+    ...{ class: "lightbox-close-btn text-white" },
+}, ...__VLS_functionalComponentArgsRest(__VLS_209));
+let __VLS_212;
+let __VLS_213;
+let __VLS_214;
+const __VLS_215 = {
+    onClick: (...[$event]) => {
+        __VLS_ctx.showLightbox = false;
+    }
+};
+var __VLS_211;
+const __VLS_216 = {}.VCardText;
+/** @type {[typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, typeof __VLS_components.VCardText, typeof __VLS_components.vCardText, ]} */ ;
+// @ts-ignore
+const __VLS_217 = __VLS_asFunctionalComponent(__VLS_216, new __VLS_216({
+    ...{ class: "pa-2 d-flex align-center justify-center bg-black" },
+    ...{ style: {} },
+}));
+const __VLS_218 = __VLS_217({
+    ...{ class: "pa-2 d-flex align-center justify-center bg-black" },
+    ...{ style: {} },
+}, ...__VLS_functionalComponentArgsRest(__VLS_217));
+__VLS_219.slots.default;
+const __VLS_220 = {}.VImg;
+/** @type {[typeof __VLS_components.VImg, typeof __VLS_components.vImg, typeof __VLS_components.VImg, typeof __VLS_components.vImg, ]} */ ;
+// @ts-ignore
+const __VLS_221 = __VLS_asFunctionalComponent(__VLS_220, new __VLS_220({
+    src: (__VLS_ctx.activeImage),
+    width: "100%",
+    contain: true,
+    maxHeight: "82vh",
+}));
+const __VLS_222 = __VLS_221({
+    src: (__VLS_ctx.activeImage),
+    width: "100%",
+    contain: true,
+    maxHeight: "82vh",
+}, ...__VLS_functionalComponentArgsRest(__VLS_221));
+var __VLS_219;
+var __VLS_207;
+var __VLS_203;
+var __VLS_3;
+/** @type {__VLS_StyleScopedClasses['tutorial-page-wrapper']} */ ;
+/** @type {__VLS_StyleScopedClasses['page-background']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['safe-area-padding']} */ ;
+/** @type {__VLS_StyleScopedClasses['tutorial-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-sm-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['ma-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['w-100']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['position-relative']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['back-button']} */ ;
+/** @type {__VLS_StyleScopedClasses['position-absolute']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['pt-12']} */ ;
+/** @type {__VLS_StyleScopedClasses['pt-sm-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h4']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-sm-h3']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-black']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['cinzel-text']} */ ;
+/** @type {__VLS_StyleScopedClasses['tutorial-title']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-sm-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['main-tutorial-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-left']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-body-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-sm-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-medium']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-sm-left']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-body-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-sm-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['step-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h5']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-space-between']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-amber-accent-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['swipe-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['ml-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['animate-swipe']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['ga-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-x-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['pb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-nowrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-shrink-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-hidden']} */ ;
+/** @type {__VLS_StyleScopedClasses['thumbnail-img']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['fill-height']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-grey-darken-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['tap-zoom-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-black-opacity']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-sm-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['step-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h5']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-space-between']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-amber-accent-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['swipe-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['ml-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['animate-swipe']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['ga-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-x-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['pb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-nowrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-shrink-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-hidden']} */ ;
+/** @type {__VLS_StyleScopedClasses['thumbnail-img']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['fill-height']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-grey-darken-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['tap-zoom-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-black-opacity']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-sm-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['step-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h5']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-space-between']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-amber-accent-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['swipe-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['ml-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['animate-swipe']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['ga-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-x-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['pb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-nowrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-shrink-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-hidden']} */ ;
+/** @type {__VLS_StyleScopedClasses['thumbnail-img']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['fill-height']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-grey-darken-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['tap-zoom-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-black-opacity']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-sm-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['step-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h5']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-space-between']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-amber-accent-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['swipe-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['ml-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['animate-swipe']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['ga-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-x-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['pb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-nowrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-shrink-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-hidden']} */ ;
+/** @type {__VLS_StyleScopedClasses['thumbnail-img']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['fill-height']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-grey-darken-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['tap-zoom-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-black-opacity']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-sm-6']} */ ;
+/** @type {__VLS_StyleScopedClasses['step-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-xl']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-h5']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-bold']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-5']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-space-between']} */ ;
+/** @type {__VLS_StyleScopedClasses['mb-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-amber-accent-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['swipe-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['ml-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['animate-swipe']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['ga-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-x-auto']} */ ;
+/** @type {__VLS_StyleScopedClasses['pb-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-nowrap']} */ ;
+/** @type {__VLS_StyleScopedClasses['swiper-container']} */ ;
+/** @type {__VLS_StyleScopedClasses['image-thumbnail-card']} */ ;
+/** @type {__VLS_StyleScopedClasses['flex-shrink-0']} */ ;
+/** @type {__VLS_StyleScopedClasses['rounded-lg']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-hidden']} */ ;
+/** @type {__VLS_StyleScopedClasses['thumbnail-img']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['fill-height']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-grey-darken-3']} */ ;
+/** @type {__VLS_StyleScopedClasses['tap-zoom-hint']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['py-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-caption']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-grey-lighten-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-black-opacity']} */ ;
+/** @type {__VLS_StyleScopedClasses['mr-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-4']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-body-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-left']} */ ;
+/** @type {__VLS_StyleScopedClasses['leading-relaxed']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['mt-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['font-weight-black']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['px-8']} */ ;
+/** @type {__VLS_StyleScopedClasses['transition-swing']} */ ;
+/** @type {__VLS_StyleScopedClasses['lightbox-dialog']} */ ;
+/** @type {__VLS_StyleScopedClasses['position-relative']} */ ;
+/** @type {__VLS_StyleScopedClasses['overflow-hidden']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-1']} */ ;
+/** @type {__VLS_StyleScopedClasses['lightbox-close-btn']} */ ;
+/** @type {__VLS_StyleScopedClasses['text-white']} */ ;
+/** @type {__VLS_StyleScopedClasses['pa-2']} */ ;
+/** @type {__VLS_StyleScopedClasses['d-flex']} */ ;
+/** @type {__VLS_StyleScopedClasses['align-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['justify-center']} */ ;
+/** @type {__VLS_StyleScopedClasses['bg-black']} */ ;
+var __VLS_dollars;
+const __VLS_self = (await import('vue')).defineComponent({
+    setup() {
+        return {
+            step1Images: step1Images,
+            step2Images: step2Images,
+            step3Images: step3Images,
+            step4Images: step4Images,
+            step5Images: step5Images,
+            showLightbox: showLightbox,
+            activeImage: activeImage,
+            openLightbox: openLightbox,
+        };
+    },
+});
+export default (await import('vue')).defineComponent({
+    setup() {
+        return {};
+    },
+});
+; /* PartiallyEnd: #4569/main.vue */

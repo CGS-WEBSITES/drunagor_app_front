@@ -4,11 +4,12 @@
       rounded="lg"
       elevation="3"
       color="primary"
-      class="pl-1 pt-1 pr-1 pb-0"
+      class="pl-1 pt-1 pr-1 pb-0 clickable-badges-card"
+      @click="showAllBadges = true"
     >
       <v-card-title class="d-flex justify-space-between pb-0">
         <span
-          class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0"
+          class="text-uppercase font-weight-black text-bold text-h5 mb-4 pb-0 text-white"
           >BADGES</span
         >
       </v-card-title>
@@ -54,7 +55,7 @@
         </v-virtual-scroll>
       </div>
 
-      <div v-else class="text-center py-2">
+      <div v-else class="text-center py-6">
         <v-icon color="grey lighten-1" size="48"
           >mdi-emoticon-sad-outline</v-icon
         >
@@ -66,14 +67,24 @@
         </p>
       </div>
     </v-card>
+
+    <!-- Achievements Overlay Dialog -->
+    <AllBadgesDialog v-model="showAllBadges" :userId="userId" />
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import axios from "axios";
+import AllBadgesDialog from "@/components/dialogs/AllBadgesDialog.vue";
 
 const userRewards = ref([]);
+const showAllBadges = ref(false);
+
+const userId = computed(() => {
+  const userData = JSON.parse(localStorage.getItem("app_user") || "{}");
+  return userData?.users_pk || 0;
+});
 
 const fetchUserRewards = async () => {
   try {
@@ -94,7 +105,7 @@ const fetchUserRewards = async () => {
       date: new Date(reward.date).toLocaleDateString(),
     }));
   } catch (err) {
-    console.error("❌ Erro ao buscar rewards do usuário:", err);
+    console.error("❌ Error fetching user rewards:", err);
     userRewards.value = [];
   }
 };
@@ -109,5 +120,15 @@ onMounted(() => {
   position: absolute;
   bottom: 8px; /* Distância da borda inferior */
   right: 12px; /* Distância da borda direita */
+}
+
+.clickable-badges-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-badges-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 </style>

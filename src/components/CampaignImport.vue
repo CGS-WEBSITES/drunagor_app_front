@@ -112,6 +112,10 @@ function openModal() {
 function closeModal() {
   visible.value = false;
 }
+
+defineExpose({
+  openModal
+});
 </script>
 
 <style scoped></style>

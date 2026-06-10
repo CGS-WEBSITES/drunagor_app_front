@@ -84,7 +84,7 @@
                   class="mt-2"
                   variant="outlined"
                   block
-                  @click="activeTab = 1"
+                  @click="signupChoiceDialog = true"
                 >
                   SIGN UP
                 </v-btn>
@@ -234,11 +234,85 @@
     </v-row>
 
     <v-dialog v-model="termsDialog" max-width="500">
-      <terms-card />
+      <terms-card @close="termsDialog = false" />
     </v-dialog>
 
     <v-dialog v-model="privacyDialog" max-width="500">
       <privacy-card />
+    </v-dialog>
+
+    <!-- Signup Type Choice Dialog -->
+    <v-dialog v-model="signupChoiceDialog" max-width="580" transition="dialog-bottom-transition">
+      <v-card class="signup-dialog-card rounded-xl pa-6 text-center" color="primary">
+        <!-- Close Button -->
+        <v-btn
+          icon="mdi-close"
+          variant="text"
+          color="white"
+          class="position-absolute"
+          style="right: 12px; top: 12px; z-index: 10;"
+          @click="signupChoiceDialog = false"
+        ></v-btn>
+
+        <h3 class="text-h4 font-weight-black text-white cinzel-text mb-2 pt-2">
+          JOIN THE ADVENTURE
+        </h3>
+        <p class="text-body-2 text-grey-lighten-2 mb-6 px-4">
+          Choose your path to begin your descent into the Underkeep.
+        </p>
+
+        <v-row class="ma-0 ga-4 justify-center">
+          <!-- User Account Card -->
+          <v-col cols="12" sm="5" class="pa-0">
+            <v-card
+              class="choice-card h-100 pa-5 d-flex flex-column align-center justify-space-between rounded-xl cursor-pointer"
+              variant="flat"
+              @click="selectSignup('user')"
+            >
+              <div class="choice-icon-wrapper mb-4">
+                <v-icon size="48" color="amber-accent-2">mdi-sword-cross</v-icon>
+              </div>
+              <div class="flex-grow-1 d-flex flex-column justify-center mb-4">
+                <h4 class="text-h6 font-weight-black text-white mb-2 cinzel-text">User Account</h4>
+              </div>
+              <v-btn
+                color="amber-accent-2"
+                variant="outlined"
+                rounded="pill"
+                class="font-weight-bold text-white btn-choice"
+                block
+              >
+                Create Account
+              </v-btn>
+            </v-card>
+          </v-col>
+
+          <!-- Retailer Account Card -->
+          <v-col cols="12" sm="5" class="pa-0">
+            <v-card
+              class="choice-card h-100 pa-5 d-flex flex-column align-center justify-space-between rounded-xl cursor-pointer"
+              variant="flat"
+              @click="selectSignup('retailer')"
+            >
+              <div class="choice-icon-wrapper mb-4">
+                <v-icon size="48" color="amber-accent-2">mdi-store</v-icon>
+              </div>
+              <div class="flex-grow-1 d-flex flex-column justify-center mb-4">
+                <h4 class="text-h6 font-weight-black text-white mb-2 cinzel-text">Retailer Account</h4>
+              </div>
+              <v-btn
+                color="amber-accent-2"
+                variant="outlined"
+                rounded="pill"
+                class="font-weight-bold text-white btn-choice"
+                block
+              >
+                Create Account
+              </v-btn>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card>
     </v-dialog>
   </v-container>
 </template>
@@ -280,6 +354,16 @@ const showSignupPass = ref(false);
 const privacyDialog = ref(false);
 const isLoggingIn = ref(false);
 const isSigningUp = ref(false);
+const signupChoiceDialog = ref(false);
+
+const selectSignup = (type: "user" | "retailer") => {
+  signupChoiceDialog.value = false;
+  if (type === "user") {
+    activeTab.value = 1;
+  } else {
+    navigateTo("/retailer-registration");
+  }
+};
 
 const navigateTo = (route: string) => {
   router.push(route);
@@ -467,7 +551,7 @@ onBeforeMount(() => {
 .login-page {
   background-image: url("https://assets.drunagor.app/backgrounds/login-background.png");
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-repeat: no-repeat;
   min-height: 100vh;
 }
@@ -541,5 +625,55 @@ onBeforeMount(() => {
     gap: 6px;
     align-items: flex-start;
   }
+}
+
+.signup-dialog-card {
+  background: rgba(20, 20, 20, 0.9) !important;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+}
+
+.choice-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.choice-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 12px 24px rgba(255, 215, 0, 0.08) !important;
+}
+
+.choice-icon-wrapper {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.choice-card:hover .choice-icon-wrapper {
+  background: rgba(255, 215, 0, 0.05);
+  border-color: rgba(255, 215, 0, 0.2);
+  transform: scale(1.05);
+}
+
+.btn-choice {
+  border-width: 2px !important;
+  transition: all 0.3s ease;
+}
+
+.choice-card:hover .btn-choice {
+  background-color: rgb(255, 215, 0) !important;
+  color: black !important;
+  border-color: rgb(255, 215, 0) !important;
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.4);
 }
 </style>

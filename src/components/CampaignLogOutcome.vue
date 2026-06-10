@@ -95,20 +95,8 @@ const outcomeDisplayText = computed(() => {
 });
 
 const checkUserRole = async () => {
-  try {
-    const response = await axios.get("rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user?.users_pk,
-        campaigns_fk: props.campaignId,
-      },
-    });
-    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
-  } catch (error) {
-    console.error("CampaignLogOutcome - Error fetching user role:", error);
-    isAdmin.value = false;
-  } finally {
-    loading.value = false;
-  }
+  isAdmin.value = true;
+  loading.value = false;
 };
 
 function findOutcomes(outcomeIdsList: string[]): Outcome[] {

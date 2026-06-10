@@ -1,5 +1,5 @@
 <template>
-  <v-container max-width="680">
+  <v-container max-width="680" class="pt-0">
     <div v-if="loadingErrors.length > 0" class="mb-4">
       <BaseAlert
         v-for="(error, index) in loadingErrors"
@@ -16,28 +16,28 @@
       </BaseAlert>
     </div>
 
-    <v-card
-      color="primary"
-      class="d-none d-md-flex justify-center pa-3 elevation-0"
-    >
-      <v-card-actions>
-        <CampaignNew />
-        <CampaignImport />
-        <v-btn variant="elevated" rounded @click="onJoinCampaign">
-          Join Campaign
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+    <!-- Hidden helper component triggers -->
+    <div style="display: none;">
+      <CampaignNew ref="campaignNewRef" />
+      <CampaignImport ref="campaignImportRef" />
+    </div>
+    <HUB v-model="showHub" :my-events="myEvents" :user="userStore.user" />
 
-    <v-card class="d-md-none justify-center pa-3 elevation-0">
-      <v-card-actions class="d-flex justify-center flex-wrap ga-2">
-        <CampaignNew />
-        <CampaignImport />
-        <v-btn variant="elevated" rounded @click="onJoinCampaign">
-          Join Campaign
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+    <!-- Main Play Action Button (identical to dashboard styling) -->
+    <div class="d-flex justify-center mt-0 mb-4 pt-0">
+      <v-btn
+        color="playbutton"
+        variant="flat"
+        @click="openPlayOptions"
+        size="x-large"
+        rounded="lg"
+        class="font-weight-black play-campaigns-btn w-100 text-uppercase"
+        style="height: 58px; font-size: 1.35rem !important;"
+        prepend-icon="mdi-sword-cross"
+      >
+        PLAY
+      </v-btn>
+    </div>
 
     <v-card class="mt-3 pa-3 elevation-0 d-flex flex-column ga-4">
       
@@ -114,6 +114,7 @@
             elevation="16"
             width="100%"
             class="transition-swing"
+            style="overflow: hidden;"
             @click="goToCampaign(campaign)"
           >
             <v-img
@@ -158,7 +159,7 @@
                   {{ campaign.name || "Unnamed Campaign" }}
                 </span>
                 <v-chip
-                  v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]?.isFinished"
+                  v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.isFinished"
                   color="red-darken-4"
                   size="small"
                   variant="flat"
@@ -168,48 +169,72 @@
                 </v-chip>
               </div>
 
-              <div class="d-flex align-center text-subtitle-1 mt-0">
-                <span v-if="campaign.wing">{{ campaign.wing }}</span>
-                <span v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2 text-truncate">
+              <div class="d-flex align-center text-subtitle-1 mt-0 w-100">
+                <span v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</span>
+                <span v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2">
                   - Last Door: <span class="text-white font-weight-bold">{{ extraCampaignData[campaign.campaignId].lastDoorName }}</span>
+                </span>
+                <span v-if="isUnderkeep(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
+                  {{ calculateCompletionPercentage(campaign) }}%
                 </span>
               </div>
             </v-card-title>
 
-            <v-card-text v-if="campaign.campaign === 'underkeep2' && extraCampaignData[campaign.campaignId]">
-              <div class="text-caption text-grey-lighten-1 mb-2">PLAYERS</div>
-              <div class="d-flex flex-wrap gap-2">
-                <v-chip
-                  v-for="player in extraCampaignData[campaign.campaignId].players"
-                  :key="player.rl_campaigns_users_pk"
-                  class="bg-grey-darken-4 text-white font-weight-medium pl-1 pr-3"
-                  size="small"
-                >
-                  <v-avatar start class="mr-1">
-                    <v-img :src="getUserProfileImage(player.picture_hash)" cover></v-img>
-                  </v-avatar>
-                  {{ player.user_name }}
-                </v-chip>
-                <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
-              </div>
-            </v-card-text>
+            <v-progress-linear
+              v-if="isUnderkeep(campaign.campaign)"
+              :model-value="calculateCompletionPercentage(campaign)"
+              color="amber-accent-2"
+              height="3"
+              class="mb-0"
+            ></v-progress-linear>
 
-            <v-card-text v-else>
-              <v-row no-gutters>
-                <v-col
-                  v-for="hero in heroAvatars(campaign.campaignId)"
-                  :key="hero.heroId"
-                  cols="auto"
-                  class="d-flex"
-                >
-                  <v-avatar
-                    class="my-1 rounded-0 mx-1"
-                    :image="hero.images.avatar"
-                    :size="calculateAvatarSize(campaign.campaignId)"
-                  ></v-avatar>
-                </v-col>
-              </v-row>
-            </v-card-text>
+          <!-- Underkeep style: Players list -->
+          <div v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]" class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
+              <div
+                v-for="player in extraCampaignData[campaign.campaignId].players"
+                :key="player.rl_campaigns_users_pk"
+                class="d-flex flex-column align-center text-center player-standee-container"
+              >
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
+                    :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                  <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
+
+                  <!-- Player Name overlay at bottom -->
+                  <div class="player-name-overlay">
+                    <span class="player-name-text">{{ player.user_name }}</span>
+                  </div>
+                </div>
+              </div>
+              <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
+            </div>
+          </div>
+
+          <!-- Legacy style: Hero Avatars -->
+          <div v-else class="mt-1 px-3 pt-0 pb-0">
+            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
+              <div
+                v-for="hero in heroAvatars(campaign.campaignId)"
+                :key="hero.heroId"
+                class="d-flex flex-column align-center text-center player-standee-container"
+              >
+                <!-- Hero Standee Card (120x170 proportional) -->
+                <div class="hero-standee-card">
+                  <v-img
+                    :src="hero.images.avatar"
+                    cover
+                    class="w-100 h-100"
+                  ></v-img>
+                </div>
+              </div>
+            </div>
+          </div>
           </v-card>
         </v-col>
       </v-row>
@@ -259,6 +284,158 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Adventure Choice Dialog -->
+    <v-dialog v-model="showPlayDialog" max-width="500" scrollable>
+      <v-card color="grey-darken-4" rounded="xl" max-height="90vh" class="adventure-choice-card">
+        <v-card-title class="d-flex justify-space-between align-center px-4 pt-4 pb-2">
+          <span class="text-h5 font-weight-bold text-white">Choose your adventure</span>
+          <v-btn icon variant="text" @click="showPlayDialog = false" color="white">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="pa-0" style="overflow-y: auto;">
+          <v-window v-model="activePlayTab">
+            <!-- Window 1: Main Selection (Drunagor Nights S1 vs Legacy) -->
+            <v-window-item :value="0">
+              <!-- Drunagor Nights S1 (Underkeep) -->
+              <div class="pa-5 text-center">
+                <v-img 
+                  src="@/assets/underkeep.png" 
+                  height="140" 
+                  cover
+                  class="mb-4 rounded-xl elevation-4"
+                ></v-img>
+                
+                <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S1</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
+                  Scan the Lobby QR Code to join your party and dive into the Underkeep adventures.
+                </p>
+                
+                <v-btn 
+                  color="green-accent-3" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="x-large"
+                  block
+                  class="font-weight-black text-grey-darken-4"
+                  prepend-icon="mdi-qrcode-scan"
+                  @click="playDrunagorNights"
+                >
+                  Scan Lobby QR Code
+                </v-btn>
+              </div>
+
+              <v-divider class="mx-6 border-opacity-50" color="grey"></v-divider>
+
+              <!-- Legacy Campaigns Selector -->
+              <div class="pa-5 text-center">
+                <div class="legacy-cluster mb-6 mt-2">
+                  <div class="d-flex justify-center align-center ga-6 position-relative z-10">
+                    <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                    <v-img :src="AwakeningsLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                  </div>
+                  <div class="d-flex justify-center align-center mt-n6 position-relative z-20">
+                    <v-img :src="ApocalypseLogo" height="80" max-width="130" contain class="legacy-logo apoc-logo"></v-img>
+                  </div>
+                </div>
+                
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">Legacy Campaign Tracker</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
+                  Manage your classic campaigns from Age of Darkness.
+                </p>
+                
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="x-large"
+                  block
+                  class="font-weight-black text-grey-darken-4 text-uppercase"
+                  prepend-icon="mdi-book-open-page-variant"
+                  @click="activePlayTab = 1"
+                >
+                  Play Legacy Campaigns
+                </v-btn>
+              </div>
+            </v-window-item>
+
+            <!-- Window 2: Legacy Campaigns Submenu -->
+            <v-window-item :value="1">
+              <div class="pa-5 text-center">
+                <div class="d-flex align-center justify-start mb-4">
+                  <v-btn 
+                    variant="text" 
+                    color="grey-lighten-1" 
+                    density="comfortable" 
+                    @click="activePlayTab = 0"
+                    class="text-none"
+                  >
+                    <v-icon start>mdi-arrow-left</v-icon>
+                    Back to Choice
+                  </v-btn>
+                </div>
+
+                <div class="legacy-cluster mb-6 mt-2">
+                  <div class="d-flex justify-center align-center ga-6 position-relative z-10">
+                    <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                    <v-img :src="AwakeningsLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
+                  </div>
+                  <div class="d-flex justify-center align-center mt-n6 position-relative z-20">
+                    <v-img :src="ApocalypseLogo" height="80" max-width="130" contain class="legacy-logo apoc-logo"></v-img>
+                  </div>
+                </div>
+
+                <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-2">Legacy Campaigns Options</h3>
+                <p class="text-body-2 text-grey-lighten-1 mb-6">
+                  Select whether you want to start a brand new legacy campaign, load an existing campaign, or import a save token.
+                </p>
+
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="x-large"
+                  block
+                  class="font-weight-black text-grey-darken-4 mb-3"
+                  prepend-icon="mdi-plus"
+                  @click="triggerNewCampaign"
+                >
+                  New Campaign
+                </v-btn>
+
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="flat" 
+                  rounded="pill" 
+                  size="x-large"
+                  block
+                  class="font-weight-black text-grey-darken-4 mb-3"
+                  prepend-icon="mdi-account-plus"
+                  @click="handleJoinCampaign"
+                >
+                  Join Campaign
+                </v-btn>
+
+                <v-btn 
+                  color="amber-accent-2" 
+                  variant="outlined" 
+                  rounded="pill" 
+                  size="x-large"
+                  block
+                  class="font-weight-black mb-3"
+                  prepend-icon="mdi-import"
+                  @click="triggerImportCampaign"
+                >
+                  Import Campaign
+                </v-btn>
+              </div>
+            </v-window-item>
+          </v-window>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -268,6 +445,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify"; // Importação do useDisplay
 import CampaignNew from "@/components/CampaignNew.vue";
 import CampaignImport from "@/components/CampaignImport.vue";
+import HUB from "@/components/HUB.vue";
 import { CampaignStore } from "@/store/CampaignStore";
 import { useUserStore } from "@/store/UserStore";
 import type { HeroData } from "@/data/repository/HeroData";
@@ -275,6 +453,9 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { useToast } from "primevue/usetoast";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import axios from "axios";
+import CoreLogo from "@/assets/campaign/logo/core.webp";
+import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
+import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
 
 const router = useRouter();
 const route = useRoute();
@@ -282,6 +463,58 @@ const { mdAndUp } = useDisplay(); // Pegando a variável de breakpoint nativa do
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const toast = useToast();
+
+const campaignNewRef = ref<any>(null);
+const campaignImportRef = ref<any>(null);
+
+const showPlayDialog = ref(false);
+const activePlayTab = ref(0);
+const showHub = ref(false);
+const myEvents = ref<any[]>([]);
+
+const openPlayOptions = () => {
+  showPlayDialog.value = true;
+  activePlayTab.value = 0;
+};
+
+const triggerNewCampaign = () => {
+  showPlayDialog.value = false;
+  campaignNewRef.value?.openModal();
+};
+
+const triggerImportCampaign = () => {
+  showPlayDialog.value = false;
+  campaignImportRef.value?.openModal();
+};
+
+const handleJoinCampaign = () => {
+  showPlayDialog.value = false;
+  onJoinCampaign();
+};
+
+const openHub = async () => {
+  showHub.value = true;
+  if (userStore.user?.users_pk) {
+    try {
+      const response = await axios.get('/events/my_events/player', {
+        params: { player_fk: userStore.user.users_pk, past_events: false },
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` }
+      });
+      const now = new Date();
+      myEvents.value = (response.data.events || [])
+        .filter((e: any) => new Date(e.event_date) > now)
+        .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    } catch (e) {
+      console.error("Error fetching events for HUB:", e);
+      myEvents.value = [];
+    }
+  }
+};
+
+const playDrunagorNights = () => {
+  showPlayDialog.value = false;
+  openHub();
+};
 
 const loading = ref(true);
 const joiningCampaign = ref(false);
@@ -416,7 +649,7 @@ const loadExtraData = async (campaignId: string) => {
         let isFinished = false;
 
         if (doors.length > 0) {
-            doors.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            doors.sort((a: any, b: any) => b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk);
             const latest = doors[0];
             lastDoorName = latest.door_name;
             
@@ -432,6 +665,26 @@ const loadExtraData = async (campaignId: string) => {
             isFinished,
             players
         };
+
+        // Load heroes for each player in parallel using Promise.allSettled
+        await Promise.allSettled(
+          players.map(async (player: any) => {
+            if (player.playable_heroes_fk) {
+              try {
+                const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+                if (res.data?.hero_hash) {
+                  const jsonStr = atob(res.data.hero_hash);
+                  const heroObj = JSON.parse(jsonStr);
+                  heroObj.campaignId = campaignId;
+                  heroObj.playableHeroesPk = player.playable_heroes_fk;
+                  campaignStore.addOrUpdateHero(campaignId, heroObj);
+                }
+              } catch (err) {
+                console.warn(`[CampaignOverviewView] Failed to load hero ${player.playable_heroes_fk}:`, err);
+              }
+            }
+          })
+        );
     } catch (e) {
         console.error(`Error loading extra info for campaign ${campaignId}:`, e);
     }
@@ -442,36 +695,58 @@ const loadCampaigns = async () => {
   campaignStore.reset();
   loadingErrors.value = [];
 
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
+  }
+  if (!userStore.user?.users_pk) {
+    loading.value = false;
+    return;
+  }
+
   try {
     // Primeira requisição: sem season 2 (ou season 2 = false)
-    const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user!.users_pk,
-        show_season2: false,
-      },
-    });
+    try {
+      const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          show_season2: false,
+          _t: Date.now(),
+        },
+      });
 
-    for (const campaignData of campaignsResponse1.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
+      if (campaignsResponse1.data?.campaigns) {
+        for (const campaignData of campaignsResponse1.data.campaigns) {
+          await loadCampaignWithHeroes(campaignData);
+        }
+      }
+    } catch (err1) {
+      console.warn("Error loading Season 1 campaigns:", err1);
     }
 
     // Segunda requisição: com season 2 = true
-    const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
-      params: {
-        users_fk: userStore.user!.users_pk,
-        show_season2: true,
-      },
-    });
+    try {
+      const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          show_season2: true,
+          _t: Date.now(),
+        },
+      });
 
-    for (const campaignData of campaignsResponse2.data.campaigns) {
-      await loadCampaignWithHeroes(campaignData);
+      if (campaignsResponse2.data?.campaigns) {
+        for (const campaignData of campaignsResponse2.data.campaigns) {
+          await loadCampaignWithHeroes(campaignData);
+        }
+      }
+    } catch (err2) {
+      console.warn("Error loading Season 2 campaigns:", err2);
     }
 
     const storeCampaigns = campaignStore.findAll();
-    const underkeep2Campaigns = storeCampaigns.filter(c => c.campaign === 'underkeep2');
+    const underkeepCampaigns = storeCampaigns.filter(c => c.campaign === 'underkeep' || c.campaign === 'underkeep2');
     
     await Promise.allSettled(
-        underkeep2Campaigns.map(c => loadExtraData(c.campaignId))
+        underkeepCampaigns.map(c => loadExtraData(c.campaignId))
     );
 
   } catch (error) {
@@ -537,35 +812,48 @@ const confirmJoinCampaign = async () => {
   const campaignId = parsedCampaignFk.value;
 
   try {
+    // 1. Fetch the campaign info from server first to determine its box SKU
+    const campaignInfoRes = await axios.get(`/campaigns/${campaignId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+    });
+    
+    const campaignBox = campaignInfoRes.data?.box || BOX_ID;
+    const isSeason2 = campaignBox === 39;
+
+    // 2. Perform the cadastro with the correct skus_fk via Query Parameters
     await axios.post(
       "/rl_campaigns_users/cadastro",
+      null,
       {
-        users_fk: usersPk,
-        campaigns_fk: campaignId,
-        party_roles_fk: 2,
-        skus_fk: BOX_ID,
-      },
-      {
+        params: {
+          users_fk: usersPk,
+          campaigns_fk: Number(campaignId),
+          skus_fk: campaignBox,
+          active: true
+        },
         headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
       },
     );
 
+    // 3. Search with correct show_season2 setting
     const campaignResponse = await axios.get("/rl_campaigns_users/search", {
       params: {
         users_fk: usersPk,
         campaigns_fk: campaignId,
+        show_season2: isSeason2,
+        _t: Date.now(),
       },
       headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
     });
 
-    const campaignData = campaignResponse.data.campaigns[0];
+    const campaignData = campaignResponse.data?.campaigns?.[0];
 
     if (campaignData && campaignData.tracker_hash) {
       await loadCampaignWithHeroes(campaignData);
 
       router.push({
         path: `/campaign-tracker/campaign/${campaignId}`,
-        query: { sku: String(BOX_ID) },
+        query: { sku: String(campaignBox) },
       });
 
       toast.add({
@@ -581,16 +869,31 @@ const confirmJoinCampaign = async () => {
     let errorMessage = "Error joining campaign.";
     let severity = "error";
 
+    // Since we failed, check if the user is already part of it or conflicts
     if (
       err.response?.data?.message?.includes("already exists") ||
-      err.response?.data?.message?.includes("já existe")
+      err.response?.data?.message?.includes("já existe") ||
+      err.response?.status === 409
     ) {
       errorMessage = "You are already part of this campaign!";
       severity = "info";
 
+      // Attempt to retrieve campaign box to redirect correctly
+      let campaignBox = BOX_ID;
+      try {
+        const campaignInfoRes = await axios.get(`/campaigns/${campaignId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }
+        });
+        if (campaignInfoRes.data?.box) {
+          campaignBox = campaignInfoRes.data.box;
+        }
+      } catch (boxErr) {
+        console.warn("Could not determine campaign box on redirect fallback", boxErr);
+      }
+
       router.push({
         path: `/campaign-tracker/campaign/${campaignId}`,
-        query: { sku: String(BOX_ID) },
+        query: { sku: String(campaignBox) },
       });
     }
 
@@ -604,6 +907,103 @@ const confirmJoinCampaign = async () => {
     joinCampaignId.value = "";
     showJoinCampaignDialog.value = false;
   }
+};
+
+const heroRepo = new HeroDataRepository();
+
+const isUnderkeep = (campaignType: string) => {
+  return campaignType === 'underkeep' || campaignType === 'underkeep2';
+};
+
+const formatWingName = (wing: string | null) => {
+  if (!wing) return "";
+  return wing
+    .replace(/-\s*advanced/gi, "")
+    .replace(/advanced\s*-/gi, "")
+    .replace(/advanced/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const getPlayerHero = (campaignId: string, playableHeroFk: number | null) => {
+  if (!playableHeroFk) return null;
+  const hero = campaignStore.findHeroByPlayableHeroesPk(campaignId, playableHeroFk);
+  if (!hero) return null;
+  return heroRepo.find(hero.heroId) || null;
+};
+
+const calculateCompletionPercentage = (campaign: any): number => {
+  const wing = (campaign.wing || "").toUpperCase();
+  const currentDoor = (campaign.door || "").toUpperCase();
+  
+  let list: string[] = [];
+  if (wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 3") || wing.includes("WING 03")) {
+    list = [
+      "FIRST SETUP",
+      "DUNGEON FOYER",
+      "QUEEN'S HALL",
+      "THE FORGE",
+      "ARTISAN'S GALLERY",
+      "PROVING GROUNDS",
+      "MAIN HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 4") || wing.includes("WING 04")) {
+    list = [
+      "FIRST SETUP",
+      "DRACONIC CHAPEL",
+      "CRYPTS",
+      "BOTH OPEN",
+      "LIBRARY",
+      "LABORATORY",
+      "DRAGON BOSS",
+      "END GAME"
+    ];
+  }
+
+  if (list.length === 0) return 0;
+  
+  let idx = list.indexOf(currentDoor);
+  if (idx === -1) {
+    idx = list.findIndex(d => currentDoor.includes(d) || d.includes(currentDoor));
+  }
+  
+  if (idx === -1) {
+    if (currentDoor === "FIRST SETUP") idx = 0;
+    else if (currentDoor === "END GAME") idx = list.length - 1;
+    else idx = 0;
+  }
+  
+  const pct = Math.round((idx / (list.length - 1)) * 100);
+  return Math.min(100, Math.max(0, pct));
 };
 
 onBeforeMount(async () => {
@@ -623,5 +1023,107 @@ onBeforeMount(async () => {
   align-items: center;
   justify-content: center;
   z-index: 10;
+}
+
+.adventure-choice-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+.play-campaigns-btn {
+  box-shadow: 0 4px 15px rgba(var(--v-theme-playbutton), 0.3) !important;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out !important;
+}
+
+.play-campaigns-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(var(--v-theme-playbutton), 0.5) !important;
+}
+
+.legacy-cluster {
+  position: relative;
+  padding: 10px;
+}
+.legacy-logo {
+  filter: drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.7));
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.3s ease;
+  cursor: pointer;
+}
+.legacy-logo:hover {
+  transform: scale(1.1) translateY(-4px);
+  filter: drop-shadow(0px 12px 20px rgba(255, 213, 79, 0.4));
+  z-index: 30 !important;
+}
+.apoc-logo {
+  z-index: 20;
+}
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+
+.hero-standee-card {
+  width: 105px;
+  aspect-ratio: 120 / 170;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+}
+.player-standee-container {
+  width: 105px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.standees-list-container {
+  gap: 12px;
+}
+.player-name-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+  padding: 24px 4px 10px 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+.player-name-text {
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 600px) {
+  .hero-standee-card {
+    width: 82px;
+  }
+  .player-standee-container {
+    width: 82px;
+  }
+  .standees-list-container {
+    gap: 8px;
+  }
+}
+@media (max-width: 360px) {
+  .hero-standee-card {
+    width: 72px;
+  }
+  .player-standee-container {
+    width: 72px;
+  }
+  .standees-list-container {
+    gap: 6px;
+  }
 }
 </style>

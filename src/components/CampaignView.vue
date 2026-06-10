@@ -215,12 +215,21 @@
       </v-btn>
 
       <v-btn
-        value="player-list"
-        @click="handleBottomNavAction('player-list')"
+        value="qrcode"
+        @click="handleBottomNavAction('qrcode')"
         class="bottom-nav-btn"
       >
-        <v-icon>mdi-account-group</v-icon>
-        <span class="bottom-nav-label">Players</span>
+        <v-icon>mdi-qrcode-scan</v-icon>
+        <span class="bottom-nav-label">Interactions</span>
+      </v-btn>
+
+      <v-btn
+        value="keywords"
+        @click="handleBottomNavAction('keywords')"
+        class="bottom-nav-btn"
+      >
+        <v-icon>mdi-book-search-outline</v-icon>
+        <span class="bottom-nav-label">Keywords</span>
       </v-btn>
 
       <v-btn
@@ -230,15 +239,6 @@
       >
         <v-icon>mdi-comment-question-outline</v-icon>
         <span class="bottom-nav-label">Tharmagar</span>
-      </v-btn>
-
-      <v-btn
-        value="remove"
-        @click="handleBottomNavAction('remove')"
-        class="bottom-nav-btn"
-      >
-        <v-icon>mdi-delete-outline</v-icon>
-        <span class="bottom-nav-label">Remove</span>
       </v-btn>
     </v-bottom-navigation>
 
@@ -250,6 +250,55 @@
               <template
                 v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
               >
+                <v-card class="mb-4" variant="outlined" style="border: 1px solid rgba(255, 255, 255, 0.12); background-color: rgba(255, 255, 255, 0.02)">
+                  <v-card-text class="pa-4">
+                    <v-row align="center" no-gutters>
+                      <v-col cols="12" sm="8" class="pr-sm-4">
+                        <CampaignName
+                          :campaign-id="campaignId"
+                          :is-admin="isAdminUser"
+                          class="mb-0 shepherd-campaign-name"
+                        />
+                      </v-col>
+                      <v-col cols="12" sm="4" class="d-flex align-center justify-start justify-sm-end mt-3 mt-sm-0">
+                         <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin">
+                           <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1">CAMPAIGN ID:</span>
+                           <v-tooltip location="top">
+                             <template v-slot:activator="{ props }">
+                               <v-icon
+                                 v-bind="props"
+                                 size="small"
+                                 color="grey-lighten-1"
+                                 class="cursor-pointer mr-2"
+                               >
+                                 mdi-information-outline
+                               </v-icon>
+                             </template>
+                             <span>Use this code to invite your friends</span>
+                           </v-tooltip>
+                           <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold">{{
+                             partyCode
+                           }}</v-chip>
+                           <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold"
+                             >Generating...</v-chip
+                           >
+                           <v-btn
+                             icon
+                             variant="text"
+                             density="comfortable"
+                             color="grey-lighten-1"
+                             class="ml-2"
+                             @click="openPlayerListDialog"
+                           >
+                             <v-icon>mdi-account-group</v-icon>
+                             <v-tooltip activator="parent" location="top">Player List</v-tooltip>
+                           </v-btn>
+                         </div>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+
                 <v-tabs
                   v-model="currentTab"
                   density="compact"
@@ -274,61 +323,37 @@
                   </v-tab>
                 </v-tabs>
 
-                <v-window v-model="currentTab">
-                  <v-window-item value="normal">
-                    <v-card class="mb-3" color="primary">
-                      <v-card-text class="pa-2">
-                        <v-row align="center">
-                          <v-col class="pb-0" cols="12" sm="6">
-                            <CampaignName
-                              :campaign-id="campaignId"
-                              :is-admin="true"
-                              class="mb-0 shepherd-campaign-name"
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="6">
-                            <div
-                              class="d-flex justify-start justify-sm-end align-center mb-4"
-                            >
-                              <div class="mx-1 my-1 d-flex align-center">
-                                <div class="mr-3">
-                                  <div class="d-flex align-center">
-                                    <span
-                                      class="text-caption font-weight-bold mr-1"
-                                      >CAMPAIGN ID:</span
-                                    >
-                                    <v-tooltip location="top">
-                                      <template v-slot:activator="{ props }">
-                                        <v-icon
-                                          v-bind="props"
-                                          size="small"
-                                          color="info"
-                                          class="cursor-pointer"
-                                        >
-                                          mdi-information-outline
-                                        </v-icon>
-                                      </template>
-                                      <span
-                                        >Use this code to invite your
-                                        friends</span
-                                      >
-                                    </v-tooltip>
-                                  </div>
-                                </div>
-                                <v-chip v-if="partyCode" label size="large">{{
-                                  partyCode
-                                }}</v-chip>
-                                <v-chip v-else label size="large"
-                                  >Generating...</v-chip
-                                >
-                              </div>
-                            </div>
-                          </v-col>
-                        </v-row>
-                      </v-card-text>
-                    </v-card>
+                <div v-show="currentTab === 'normal'">
 
-                    <v-row class="my-3" no-gutters>
+                    <v-row no-gutters class="mt-3 px-2">
+                      <v-col cols="12" md="6" class="pr-md-2">
+                        <v-card color="primary" class="pa-4 mb-3">
+                          <v-card-title class="text-h6 pa-0 mb-4">
+                            Campaign Progress
+                          </v-card-title>
+                          <SelectDoor
+                            :campaign-id="campaignId"
+                            :campaign-type="campaign.campaign"
+                            class="mb-3 shepherd-select-door"
+                          />
+                          <CampaignRunes
+                            v-if="isSequentialAdventure"
+                            :campaign-id="campaignId"
+                            class="mb-0 shepherd-runes"
+                          />
+                        </v-card>
+                      </v-col>
+                      <v-col cols="12" md="6" class="pl-md-2">
+                        <CampaignRuneCards
+                          v-if="isSequentialAdventure"
+                          :campaign-id="campaignId"
+                          :campaign-type="campaign.campaign"
+                          class="mb-3 shepherd-rune-cards"
+                        />
+                      </v-col>
+                    </v-row>
+
+                    <v-row class="my-3 px-2" no-gutters>
                       <v-col cols="12">
                         <v-card
                           class="pa-2 shepherd-hero-actions"
@@ -352,48 +377,56 @@
                       </v-col>
                     </v-row>
 
-                    <v-row no-gutters>
-                      <v-col cols="12">
-                        <v-sheet
-                          rounded
-                          border="md"
-                          class="text-white pa-2 shepherd-heroes-list"
+                    <v-row class="px-2 mt-2" no-gutters>
+                      <v-col cols="12" class="shepherd-heroes-list">
+                        <div
+                          v-if="
+                            heroStore.findAllInCampaign(campaignId).length ===
+                            0
+                          "
+                          class="text-center pa-4 text-white"
                         >
-                          <div
-                            v-if="
-                              heroStore.findAllInCampaign(campaignId).length ===
-                              0
-                            "
-                            class="text-center pa-4"
-                          >
-                            No heroes added to this campaign yet.
-                          </div>
-                          <div
-                            v-for="hero in heroStore.findAllInCampaign(
-                              campaignId,
-                            )"
-                            :key="hero.heroId"
-                            class="mb-2"
-                          >
-                            <CampaignLog
-                              :campaign-id="campaignId"
-                              :hero-id="hero.heroId"
-                              :is-sequential-adventure="isSequentialAdventure"
-                              :class="`shepherd-hero-${hero.heroId}`"
-                            />
-                          </div>
-                        </v-sheet>
+                          No heroes added to this campaign yet.
+                        </div>
+                        <div
+                          v-else
+                          v-for="hero in heroStore.findAllInCampaign(
+                            campaignId,
+                          )"
+                          :key="hero.heroId"
+                          class="mb-4"
+                        >
+                          <CampaignLog
+                            :campaign-id="campaignId"
+                            :hero-id="hero.heroId"
+                            :is-sequential-adventure="isSequentialAdventure"
+                            :class="`shepherd-hero-${hero.heroId}`"
+                          />
+                        </div>
                       </v-col>
                     </v-row>
-                  </v-window-item>
+                    <div class="d-flex justify-center mt-6 mb-4">
+                      <v-btn
+                        color="error"
+                        variant="outlined"
+                        rounded="pill"
+                        size="small"
+                        prepend-icon="mdi-delete-outline"
+                        class="px-4"
+                        @click="executeAction('remove')"
+                      >
+                        Delete Campaign
+                      </v-btn>
+                    </div>
+                </div>
 
-                  <v-window-item value="book">
-                    <CampaignBook
-                      ref="campaignBookRef"
-                      :campaign-id="campaignId"
-                    />
-                  </v-window-item>
-                </v-window>
+                <div v-show="currentTab === 'book'">
+                  <CampaignBook
+                    ref="campaignBookRef"
+                    :campaign-wing="campaign?.wing || ''"
+                    :campaign-type="campaign?.campaign || ''"
+                  />
+                </div>
               </template>
 
               <template v-else>
@@ -402,7 +435,7 @@
                     <v-col cols="12" sm="8">
                       <CampaignName
                         :campaign-id="campaignId"
-                        :is-admin="true"
+                        :is-admin="isAdminUser"
                       />
                     </v-col>
                     <v-col cols="12" sm="4">
@@ -438,6 +471,17 @@
                           <v-chip v-else label size="large"
                             >Generating...</v-chip
                           >
+                          <v-btn
+                             icon
+                             variant="text"
+                             density="comfortable"
+                             color="grey-lighten-1"
+                             class="ml-2"
+                             @click="openPlayerListDialog"
+                           >
+                             <v-icon>mdi-account-group</v-icon>
+                             <v-tooltip activator="parent" location="top">Player List</v-tooltip>
+                           </v-btn>
                         </div>
                       </div>
                     </v-col>
@@ -526,6 +570,19 @@
                       </v-sheet>
                     </v-col>
                   </v-row>
+                  <div class="d-flex justify-center mt-6 mb-4">
+                    <v-btn
+                      color="error"
+                      variant="outlined"
+                      rounded="pill"
+                      size="small"
+                      prepend-icon="mdi-delete-outline"
+                      class="px-4"
+                      @click="executeAction('remove')"
+                    >
+                      Delete Campaign
+                    </v-btn>
+                  </div>
                 </div>
               </template>
             </v-col>
@@ -539,6 +596,7 @@
         ref="savePutRef"
         :campaign-id="campaignId"
         :is-admin="true"
+        @saving="onSaving"
         @success="onSaveSuccess"
         @fail="onSaveFail"
       />
@@ -572,6 +630,81 @@
         <TharmagarChat />
       </v-card>
     </v-dialog>
+
+    <!-- BADGE DIALOG FOR SEASON 1 WINGS -->
+    <v-dialog v-model="newBadgeDialog.visible" max-width="500" persistent transition="dialog-bottom-transition">
+      <v-card color="#1e1e1e" class="text-center d-flex flex-column align-center pa-6 rounded-lg" style="border: 2px solid #ffab00;">
+        <v-icon color="amber-accent-4" size="80" class="mb-4">mdi-star-four-points</v-icon>
+        <div class="text-h5 font-weight-black text-amber-accent-4 mb-4" style="text-shadow: 0 0 10px #ffab00;">
+          NEW BADGE UNLOCKED!
+        </div>
+
+        <v-card
+          v-if="newBadgeDialog.reward"
+          rounded="lg"
+          elevation="10"
+          width="100%"
+          class="py-3 px-2 mb-6"
+          color="secundary"
+          style="border: 1px solid rgba(255, 255, 255, 0.1);"
+        >
+          <v-row class="align-center">
+            <v-col cols="3" class="d-flex align-center justify-center pl-4">
+              <v-img
+                :src="`https://assets.drunagor.app/${newBadgeDialog.reward.picture_hash}`"
+                alt="Reward Icon"
+                max-height="80"
+                contain
+              ></v-img>
+            </v-col>
+
+            <v-col cols="9" class="pl-2 d-flex flex-column justify-center text-left">
+              <p class="font-weight-black text-h6 text-amber-accent-4 ma-0 pb-1" style="line-height: 1.2;">
+                {{ newBadgeDialog.reward.name }}
+              </p>
+              <p class="text-body-2 text-white ma-0 font-weight-medium">
+                {{ newBadgeDialog.reward.description }}
+              </p>
+            </v-col>
+          </v-row>
+        </v-card>
+        
+        <v-btn 
+          color="amber-accent-4" 
+          class="text-black font-weight-black px-8" 
+          rounded="pill" 
+          size="large"
+          @click="newBadgeDialog.visible = false"
+        >
+          GREAT!
+        </v-btn>
+      </v-card>
+    </v-dialog>
+
+    <!-- Small subtle Game-like Saving Indicator in the Corner -->
+    <div 
+      v-if="savingState !== 'idle'" 
+      class="saving-indicator-bubble d-flex align-center pa-2 px-3 rounded-pill"
+      :class="savingState"
+    >
+      <template v-if="savingState === 'saving'">
+        <v-progress-circular
+          indeterminate
+          size="16"
+          width="2"
+          class="mr-2 text-white"
+        ></v-progress-circular>
+        <span class="text-caption font-weight-bold text-white uppercase-tracking">Saving...</span>
+      </template>
+      <template v-else-if="savingState === 'saved'">
+        <v-icon size="16" color="green-lighten-2" class="mr-2">mdi-check-circle</v-icon>
+        <span class="text-caption font-weight-bold text-green-lighten-2 uppercase-tracking">Saved</span>
+      </template>
+      <template v-else-if="savingState === 'error'">
+        <v-icon size="16" color="red-lighten-2" class="mr-2">mdi-alert-circle</v-icon>
+        <span class="text-caption font-weight-bold text-red-lighten-2 uppercase-tracking">Save Error</span>
+      </template>
+    </div>
   </template>
 </template>
 
@@ -585,6 +718,7 @@ import {
   nextTick,
   onBeforeUnmount,
   computed,
+  inject,
 } from "vue";
 import { ref as vueRef } from "vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
@@ -594,11 +728,13 @@ import CampaignRemove from "@/components/CampaignRemove.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignName from "@/components/CampaignName.vue";
-import CampaignBook from "@/components/CampaignBook.vue";
+import CampaignBook from "@/components/CampaignBookNew.vue";
 import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
+import CampaignRunes from "@/components/CampaignRunes.vue";
+import SelectDoor from "@/components/SelectDoor.vue";
 import StoryRecord from "@/components/StoryRecord.vue";
 import StoryRecordLegacyTrail from "@/components/StoryRecordLegacyTrail.vue";
 import StoryRecordBackgroundAndTrait from "@/components/StoryRecordBackgroundAndTrait.vue";
@@ -618,11 +754,15 @@ const heroStore = HeroStore();
 const userStore = useUserStore();
 const router = useRouter();
 const route = useRoute();
+const axios: any = inject("axios");
 const { t } = useI18n();
 const campaignId = (route.params as { id: string }).id.toString();
 
 const isImmersiveMode = computed(() => {
-  return campaign.value && campaign.value.campaign === "underkeep2";
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === "underkeep2") return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
 });
 
 const playerListDialogVisible = ref(false);
@@ -630,6 +770,125 @@ const partyCode = ref<string | null>(null);
 const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 const currentTab = ref("normal");
+
+watch(currentTab, () => {
+  window.scrollTo({ top: 0, behavior: "instant" });
+  if (document.documentElement) document.documentElement.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+});
+
+const isAdminUser = ref(true);
+const isSyncingFromServer = ref(false);
+let pollingTimer: ReturnType<typeof setInterval> | null = null;
+let autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const checkUserRole = async () => {
+  isAdminUser.value = true;
+};
+
+const triggerAutoSave = () => {
+  if (!isAdminUser.value) return;
+  if (isSyncingFromServer.value) return;
+
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout);
+  }
+
+  autoSaveTimeout = setTimeout(async () => {
+    console.log("[CampaignView] Auto-saving campaign state...");
+    await handleSave();
+  }, 1500);
+};
+
+const startPollingForUpdates = () => {
+  if (pollingTimer) {
+    clearInterval(pollingTimer);
+  }
+
+  pollingTimer = setInterval(async () => {
+    try {
+      if (!userStore.user?.users_pk) {
+        userStore.restoreFromStorage();
+      }
+      if (!userStore.user?.users_pk) {
+        console.warn("[CampaignView] Polling skipped: users_pk is missing");
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const skuStr = urlParams.get('sku');
+      
+      let showSeason2 = false;
+      const existingCampaign = campaignStore.findOptional(campaignId);
+      if (existingCampaign) {
+        showSeason2 = existingCampaign.campaign === 'underkeep2';
+      } else if (skuStr) {
+        showSeason2 = Number(skuStr) === 39;
+      }
+
+      let response;
+      try {
+        response = await axios.get("/rl_campaigns_users/search", {
+          params: {
+            users_fk: userStore.user.users_pk,
+            campaigns_fk: campaignId,
+            show_season2: showSeason2
+          },
+        });
+      } catch (err) {
+        console.warn(`[CampaignView] Polling primary search failed (show_season2=${showSeason2}):`, err);
+      }
+
+      if (!response?.data?.campaigns?.length) {
+        try {
+          response = await axios.get("/rl_campaigns_users/search", {
+            params: {
+              users_fk: userStore.user.users_pk,
+              campaigns_fk: campaignId,
+              show_season2: !showSeason2
+            },
+          });
+        } catch (err) {
+          console.warn(`[CampaignView] Polling fallback search failed (show_season2=${!showSeason2}):`, err);
+        }
+      }
+
+      if (response?.data?.campaigns?.length > 0) {
+        const campaignData = response.data.campaigns[0];
+        if (campaignData.tracker_hash) {
+          const currentLocalHash = localStorage.getItem(`campaign_hash_${campaignId}`);
+          
+          if (campaignData.tracker_hash !== currentLocalHash) {
+            console.log("[CampaignView] New tracker hash detected! Reloading campaign in real-time...");
+            
+            isSyncingFromServer.value = true;
+            const loader = new CampaignLoadFromStorage();
+            await loader.loadCampaignComplete(campaignId);
+
+            const updatedCampaign = campaignStore.findOptional(campaignId);
+            if (updatedCampaign) {
+              campaign.value = updatedCampaign;
+            }
+            isSyncingFromServer.value = false;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[CampaignView] Error polling for campaign updates:", err);
+    }
+  }, 4000);
+};
+
+// Deep watch on campaign state for auto-saving modifications
+watch(
+  campaign,
+  (newVal) => {
+    if (newVal && !isSyncingFromServer.value) {
+      triggerAutoSave();
+    }
+  },
+  { deep: true }
+);
 const showLoadInstructions = ref(false);
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
@@ -641,6 +900,29 @@ const snackbarTimeout = ref(3000);
 const speedDialOpen = ref(true);
 const tharmagarDialogVisible = ref(false);
 const bottomNavValue = ref<string | null>(null);
+
+const savingState = ref<"idle" | "saving" | "saved" | "error">("idle");
+let savingStateTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const onSaving = () => {
+  savingState.value = "saving";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+};
+
+const REWARDS_DATA: Record<number, any> = {
+  2: {
+    name: "Tutorial Completed",
+    picture_hash: "badges%26achievements/Tutorial%20Complete.png",
+    description: "complete wing 1 tutorial"
+  },
+  3: {
+    name: "Season 1 Completed",
+    picture_hash: "badges%26achievements/Season%201%20Complete%20(4)-min.png",
+    description: "complete wing 2 advanced"
+  }
+};
+
+const newBadgeDialog = ref({ visible: false, reward: null as any });
 
 const savePutRef = vueRef<InstanceType<typeof CampaignSavePut>>();
 const campaignBookRef = vueRef<any>(null);
@@ -708,10 +990,6 @@ function setAlert(
   snackbarIconColor.value = colors.icon;
   snackbarTimeout.value = duration;
   snackbarVisible.value = true;
-
-  if (type === "success" && duration >= 1500) {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
 }
 
 function scrollToHeroSection() {
@@ -853,20 +1131,17 @@ const handleBottomNavAction = (action: string) => {
 const executeAction = (action: string) => {
   switch (action) {
     case "save":
-      if (
-        campaign.value &&
-        ["underkeep", "underkeep2"].includes(campaign.value.campaign)
-      ) {
-        startSaveTour();
-      } else {
-        handleSave();
-      }
+      // Bypassing Shepherd step-by-step tour as requested by user to save directly and instantly!
+      handleSave();
       break;
     case "load-instructions":
       startLoadTour();
       break;
     case "qrcode":
       handleQRCodeAction();
+      break;
+    case "keywords":
+      handleKeywordsAction();
       break;
     case "export":
       campaignExportRef.value?.export?.();
@@ -882,6 +1157,31 @@ const executeAction = (action: string) => {
       break;
   }
 };
+
+function handleKeywordsAction() {
+  if (
+    campaign.value &&
+    ["underkeep", "underkeep2"].includes(campaign.value.campaign)
+  ) {
+    currentTab.value = "book";
+
+    nextTick(() => {
+      if (
+        campaignBookRef.value &&
+        typeof campaignBookRef.value.navigateToKeywords === "function"
+      ) {
+        campaignBookRef.value.navigateToKeywords();
+      }
+    });
+  } else {
+    setAlert(
+      "mdi-information-outline",
+      "Info",
+      "Keywords are only available for Underkeep campaigns.",
+      "info",
+    );
+  }
+}
 
 async function handleSave() {
   if (!savePutRef.value) {
@@ -903,13 +1203,11 @@ async function handleSave() {
 }
 
 const onSaveSuccess = () => {
-  setAlert(
-    "mdi-check",
-    "Success",
-    "The campaign was saved successfully!",
-    "success",
-    4000,
-  );
+  savingState.value = "saved";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+  savingStateTimeout = setTimeout(() => {
+    savingState.value = "idle";
+  }, 2000);
 
   if (saveTourActive.value) {
     setTimeout(() => {
@@ -919,13 +1217,11 @@ const onSaveSuccess = () => {
 };
 
 const onSaveFail = () => {
-  setAlert(
-    "mdi-alert-circle",
-    "Error",
-    "The campaign could not be saved.",
-    "error",
-    4000,
-  );
+  savingState.value = "error";
+  if (savingStateTimeout) clearTimeout(savingStateTimeout);
+  savingStateTimeout = setTimeout(() => {
+    savingState.value = "idle";
+  }, 4000);
 };
 
 const onCampaignRemoved = () => {
@@ -975,6 +1271,15 @@ onBeforeUnmount(() => {
 
   destroySaveTour({ keepProgress: true });
   destroyLoadTour({ keepProgress: true });
+
+  if (pollingTimer) {
+    clearInterval(pollingTimer);
+    pollingTimer = null;
+  }
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = null;
+  }
 });
 
 onMounted(async () => {
@@ -989,7 +1294,10 @@ onMounted(async () => {
 
     if (!existingCampaign || heroCount === 0) {
       const loader = new CampaignLoadFromStorage();
-      await loader.loadCampaignComplete(campaignId);
+      const success = await loader.loadCampaignComplete(campaignId);
+      if (!success) {
+        throw new Error("loadCampaignComplete failed to find or load the campaign");
+      }
     } else {
       console.log(
         `[CampaignView] Campaign already in store with ${heroCount} heroes, skipping load`,
@@ -1013,6 +1321,7 @@ onMounted(async () => {
       campaign.value.isSequentialAdventure = true;
       campaign.value.sequentialAdventureRunes = 0;
     }
+    checkAndAwardSeason1Achievements();
   } else {
     setAlert(
       "mdi-alert-circle",
@@ -1025,6 +1334,9 @@ onMounted(async () => {
 
   // fetchRole removido. Acesso é total por padrão agora.
   generatePartyCode();
+
+  await checkUserRole();
+  startPollingForUpdates();
 
   const openInstructions = route.query.openInstructions;
   showLoadInstructions.value = openInstructions === "load";
@@ -1057,6 +1369,66 @@ onMounted(async () => {
     });
   }
 });
+
+const checkAndAwardSeason1Achievements = async () => {
+  if (!campaign.value || campaign.value.campaign !== "underkeep" || !userStore.user?.users_pk) return;
+  
+  try {
+    const token = localStorage.getItem("accessToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const { data: relationData } = await axios.get("/rl_campaigns_users/search", {
+      params: {
+        users_fk: userStore.user.users_pk,
+        campaigns_fk: campaignId,
+      },
+      headers
+    });
+    
+    if (relationData?.campaigns?.length > 0) {
+      const relation = relationData.campaigns[0];
+      if (relation.events_fk) {
+        const wingStr = (campaign.value.wing || "").toUpperCase();
+        let rewardPk = null;
+        if (wingStr.includes("WING 1") || wingStr.includes("WING 01") || wingStr.includes("TUTORIAL")) {
+          rewardPk = 2;
+        } else if (wingStr.includes("WING 2 ADVANCED") || wingStr.includes("WING 2") || wingStr.includes("WING 02")) {
+          rewardPk = 3;
+        }
+        
+        if (rewardPk) {
+          let userRewards = [];
+          try {
+            const { data: rewardData } = await axios.get("/rl_users_rewards/list_rewards", {
+              params: { users_fk: userStore.user.users_pk },
+              headers
+            });
+            userRewards = rewardData.rewards || [];
+          } catch (getErr: any) {
+            // If the backend returns 404 or fails, we assume the user has no rewards yet
+            console.warn("Could not fetch user rewards list, assuming empty list:", getErr);
+          }
+
+          const hasReward = userRewards.some((r: any) => r.rewards_pk === rewardPk);
+          
+          if (!hasReward) {
+            await axios.post("/rl_users_rewards/cadastro", {
+              users_fk: userStore.user.users_pk,
+              rewards_fk: rewardPk
+            }, { headers });
+            
+            newBadgeDialog.value = {
+              visible: true,
+              reward: REWARDS_DATA[rewardPk]
+            };
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error checking or awarding Season 1 achievements:", error);
+  }
+};
 </script>
 
 <style scoped>
@@ -1345,5 +1717,40 @@ onMounted(async () => {
 
 .player-view {
   pointer-events: none;
+}
+
+/* Subtle Game-like Saving Indicator styles */
+.saving-indicator-bubble {
+  position: fixed;
+  bottom: 85px; /* Above the bottom navigation bar on mobile */
+  left: 20px;   /* Bottom-left corner, out of the way of the bottom-right speed-dial */
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  transition: all 0.3s ease;
+  pointer-events: none; /* Let clicks pass through */
+}
+
+@media (min-width: 960px) {
+  .saving-indicator-bubble {
+    bottom: 24px; /* On desktop, place it lower */
+    left: 24px;
+  }
+}
+
+.saving-indicator-bubble.saved {
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.saving-indicator-bubble.error {
+  border-color: rgba(244, 67, 54, 0.3);
+}
+
+.uppercase-tracking {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem !important;
 }
 </style>

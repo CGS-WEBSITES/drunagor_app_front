@@ -22,6 +22,7 @@ declare module 'vue-router/auto-routes' {
     '/CampaignTracker': RouteRecordInfo<'/CampaignTracker', '/CampaignTracker', Record<never, never>, Record<never, never>>,
     '/Community': RouteRecordInfo<'/Community', '/Community', Record<never, never>, Record<never, never>>,
     '/Dashboard': RouteRecordInfo<'/Dashboard', '/Dashboard', Record<never, never>, Record<never, never>>,
+    '/DrunagorNightsCommunication': RouteRecordInfo<'/DrunagorNightsCommunication', '/DrunagorNightsCommunication', Record<never, never>, Record<never, never>>,
     '/Events': RouteRecordInfo<'/Events', '/Events', Record<never, never>, Record<never, never>>,
     '/Gama': RouteRecordInfo<'/Gama', '/Gama', Record<never, never>, Record<never, never>>,
     '/LandingPage': RouteRecordInfo<'/LandingPage', '/LandingPage', Record<never, never>, Record<never, never>>,
@@ -29,6 +30,7 @@ declare module 'vue-router/auto-routes' {
     '/Login': RouteRecordInfo<'/Login', '/Login', Record<never, never>, Record<never, never>>,
     '/Perfil': RouteRecordInfo<'/Perfil', '/Perfil', Record<never, never>, Record<never, never>>,
     '/RetailerRegistration': RouteRecordInfo<'/RetailerRegistration', '/RetailerRegistration', Record<never, never>, Record<never, never>>,
+    '/RetailerTutorial': RouteRecordInfo<'/RetailerTutorial', '/RetailerTutorial', Record<never, never>, Record<never, never>>,
     '/ShareEvent': RouteRecordInfo<'/ShareEvent', '/ShareEvent', Record<never, never>, Record<never, never>>,
     '/User': RouteRecordInfo<'/User', '/User', Record<never, never>, Record<never, never>>,
   }

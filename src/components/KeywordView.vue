@@ -60,8 +60,6 @@ import BaseListSearch from "@/components/BaseListSearch.vue";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
 import { useI18n } from "vue-i18n";
 
-const getImageUrl = (path: any) => new URL(`@/${path}`, import.meta.url).href;
-
 const { t } = useI18n();
 const route = useRoute();
 const keywordDataRepository = new KeywordDataRepository();

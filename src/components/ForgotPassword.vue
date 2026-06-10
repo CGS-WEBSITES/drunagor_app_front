@@ -76,7 +76,7 @@
     </v-row>
 
     <v-dialog v-model="termsDialog" max-width="500">
-      <terms-card />
+      <terms-card @close="termsDialog = false" />
     </v-dialog>
 
     <v-dialog v-model="privacyDialog" max-width="500">
@@ -171,7 +171,7 @@ const loginUser = async () => {
 .forgot-password-page {
   background-image: url("https://assets.drunagor.app/backgrounds/login-background.png");
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   background-repeat: no-repeat;
   min-height: 100vh;
 }

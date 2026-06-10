@@ -162,6 +162,7 @@ import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { SequentialAdventureState } from "@/store/Hero";
 import type { HeroData } from "@/data/repository/HeroData";
+import { CampaignStore } from "@/store/CampaignStore";
 import { useI18n } from "vue-i18n";
 import axios from "axios";
 
@@ -173,6 +174,7 @@ const props = defineProps<{
 
 const heroStore = HeroStore();
 const userStore = useUserStore();
+const campaignStore = CampaignStore();
 const router = useRouter();
 const { t } = useI18n();
 
@@ -201,14 +203,35 @@ sequentialAdventureState.value =
 
 const checkUserRole = async () => {
   try {
+    if (!userStore.user?.users_pk) {
+      userStore.restoreFromStorage();
+    }
+    if (!userStore.user?.users_pk) {
+      console.warn("[CampaignLogSequentialAdventure] checkUserRole skipped: users_pk is missing");
+      return;
+    }
+    const campaign = campaignStore.findOptional(props.campaignId);
+    const showSeason2 = campaign ? campaign.campaign === "underkeep2" : false;
+
     const response = await axios.get("rl_campaigns_users/search", {
       params: {
-        users_fk: userStore.user?.users_pk,
+        users_fk: userStore.user.users_pk,
         campaigns_fk: props.campaignId,
+        show_season2: showSeason2
       },
     });
+    const campaignRelation = response.data.campaigns?.[0];
 
-    isAdmin.value = response.data.campaigns[0]?.party_role === "Admin";
+    if (campaignRelation) {
+      const isPartyAdmin = campaignRelation.party_role === "Admin";
+
+      const activeHeroObj = heroStore.findInCampaignOptional(props.hero.id, props.campaignId);
+      const isHeroOwner = activeHeroObj && Number(activeHeroObj.playableHeroesPk) === Number(campaignRelation.playable_heroes_fk);
+
+      isAdmin.value = isPartyAdmin || isHeroOwner;
+    } else {
+      isAdmin.value = false;
+    }
   } catch (error) {
     console.error(
       "SequentialAdventureState - Error fetching user role:",

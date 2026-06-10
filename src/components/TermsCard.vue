@@ -4,7 +4,7 @@
       <p><strong>Effective Date:</strong> January 2nd 2025</p>
       <p>
         <strong>1. Acceptance of Terms</strong> By accessing or using the
-        Drunagor App (“App”), you agree to comply with these Terms & Conditions.
+        Drunagor App ("App"), you agree to comply with these Terms & Conditions.
         If you do not agree, please refrain from using the App.
       </p>
 
@@ -15,18 +15,18 @@
       </p>
 
       <p><strong>3. User Responsibilities</strong> You agree to:</p>
-      <ul class="ml-8"></ul>
-      <li>Provide accurate and truthful information during registration.</li>
-      <li>Use the App for its intended purposes.</li>
-
-      <li>
-        Not engage in prohibited activities, including hacking, transmitting
-        viruses, or using automated systems.
-      </li>
+      <ul class="ml-8">
+        <li>Provide accurate and truthful information during registration.</li>
+        <li>Use the App for its intended purposes.</li>
+        <li>
+          Not engage in prohibited activities, including hacking, transmitting
+          viruses, or using automated systems.
+        </li>
+      </ul>
       <p>
         <strong>4. Intellectual Property</strong> All content, including but not
-        limited to text, graphics, logos, and code, is the property of [Your
-        Company Name] and protected under intellectual property laws.
+        limited to text, graphics, logos, and code, is the property of CGS Group
+        Holding LLC and protected under intellectual property laws.
       </p>
       <p>
         <strong>5. Privacy</strong> Your use of the App is governed by our
@@ -35,8 +35,8 @@
       </p>
 
       <p>
-        <strong>6. Disclaimer of Warranties</strong> The App is provided “as-is”
-        and “as available.” We make no guarantees regarding its performance,
+        <strong>6. Disclaimer of Warranties</strong> The App is provided "as-is"
+        and "as available." We make no guarantees regarding its performance,
         reliability, or suitability for your purposes.
       </p>
 
@@ -64,7 +64,7 @@
 
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn text="Close Dialog" @click="termsDialog = false"></v-btn>
+      <v-btn text="Close Dialog" @click="$emit('close')"></v-btn>
     </v-card-actions>
   </v-card>
 </template>

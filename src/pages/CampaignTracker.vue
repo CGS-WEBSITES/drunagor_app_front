@@ -1,12 +1,5 @@
 <template>
-  <v-container fluid class="pa-0">
-    <v-row
-      v-if="!isCampaignRoute && !isHeroesRoute"
-      no-gutters
-      class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
-    >
-      COMPANION
-    </v-row>
+  <v-container fluid class="pa-0 pt-14 pt-md-16">
     <MainMenu v-if="!isHeroesRoute" />
     <router-view />
   </v-container>

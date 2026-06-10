@@ -1,18 +1,17 @@
 <template>
-  <v-container max-width="660">
+  <v-container max-width="660" class="pa-0">
     <v-card color="primary" class="my-4 pa-3 custom-card">
-      <v-card-title class="text-uppercase font-weight-bold">Variants</v-card-title>
+      <v-card-title class="text-uppercase font-weight-bold text-left mb-4">Variants</v-card-title>
       <v-card-text>
         <v-row class="variant-container">
           <v-col
             v-for="(variant, index) in variantStore.getAll()"
             :key="variant.id"
-            cols="12"
-            md="4"
-            class="d-flex justify-center"
+            cols="4"
+            class="d-flex justify-center px-1"
           >
             <v-btn
-              class="variant-button"
+              class="variant-button px-1"
               :class="{ active: variantSettings.includes(variant.id) }"
               @click="toggleVariant(variant.id)"
             >
@@ -44,31 +43,25 @@ configurationStore.enabledVariants.forEach((enabledVariant) => {
   variantSettings.value.push(enabledVariant);
 });
 
-watch(variantSettings, async (newSettings) => {
-  if (newSettings.length > 0) {
+watch(
+  variantSettings,
+  async (newSettings) => {
     configurationStore.$patch({ enabledVariants: newSettings });
-  } else {
-    toast.add({
-      severity: "error",
-      summary: "Error",
-      detail: t("configuration.error.atleast-one-selected"),
-      life: 3000,
-    });
-  }
-});
+  },
+  { deep: true }
+);
 
 const toggleVariant = (variantId: VariantId) => {
   if (variantSettings.value.includes(variantId)) {
     variantSettings.value = variantSettings.value.filter((id) => id !== variantId);
   } else {
-    variantSettings.value.push(variantId);
+    variantSettings.value = [...variantSettings.value, variantId];
   }
 };
 </script>
 
 <style scoped>
 .custom-card {
-  background-color: #2C2C2C;
   border-radius: 8px;
   padding: 12px;
 }
@@ -83,6 +76,7 @@ const toggleVariant = (variantId: VariantId) => {
   transition: background 0.2s ease-in-out;
   width: 100%;
   max-width: 220px;
+  font-size: clamp(0.6rem, 1.8vw, 0.85rem) !important;
 }
 
 /* Botão ativo */

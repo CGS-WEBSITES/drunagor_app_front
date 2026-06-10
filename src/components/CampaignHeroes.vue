@@ -1,27 +1,24 @@
 <template>
   <div class="campaign-heroes">
     <v-container fluid class="pa-0 mx-auto" style="max-width: 1024px">
-      
-      <v-row class="mb-4 pt-4 px-4" align="center" no-gutters>
-        <v-col cols="4" class="d-flex justify-start">
+      <v-row class="mb-6 pt-4 px-4" align="center" justify="space-between" no-gutters>
+        <v-col cols="auto" class="d-flex justify-start align-center">
            <v-btn
             variant="text"
             color="white"
-            prepend-icon="mdi-arrow-left"
+            icon="mdi-arrow-left"
             @click="router.back()"
-            class="d-none d-sm-flex" 
-          >
-            {{ t('label.back') || 'Back' }}
-          </v-btn>
+            class="d-none d-sm-flex mr-2" 
+          ></v-btn>
+          <h1 class="text-h5 font-weight-bold text-white mb-0" style="letter-spacing: 1px;">
+            {{ t('label.heroes') === 'label.heroes' ? 'My Heroes' : t('label.heroes') }}
+          </h1>
         </v-col>
 
-        <v-col cols="4" class="d-flex justify-center">
-        </v-col>
-
-        <v-col cols="4" class="d-flex justify-end">
-          <v-btn variant="elevated" rounded color="primary" @click="openAddHeroDialog">
+        <v-col cols="auto" class="d-flex justify-end">
+          <v-btn variant="elevated" color="primary" rounded @click="openAddHeroDialog" class="font-weight-bold text-none px-4">
             <v-icon start>mdi-plus</v-icon>
-            {{ t("label.add-hero") || "Add Hero" }}
+            {{ t("label.add-hero") === "label.add-hero" ? "Add Hero" : t("label.add-hero") }}
           </v-btn>
         </v-col>
       </v-row>
@@ -53,7 +50,7 @@
             <div
               v-for="hero in playableHeroStore.heroes"
               :key="hero.pk"
-              class="mb-2"
+              class="mb-4"
             >
               <StandaloneHeroLog
                 :playable-heroes-pk="hero.pk"
@@ -199,4 +196,5 @@ onMounted(async () => {
 .cinzel-text {
   font-family: "Cinzel", serif;
 }
+
 </style>

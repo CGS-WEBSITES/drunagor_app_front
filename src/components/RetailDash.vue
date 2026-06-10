@@ -87,14 +87,16 @@
       class="flex-grow-1"
       :style="{
         marginTop: display.xs ? '-130px' : '-120px',
-        overflowY: 'auto',
+        overflow: 'hidden',
         minHeight: '0',
         zIndex: 1,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }"
     >
       <v-container
-        class="mx-auto px-4 fill-height align-start"
+        class="mx-auto px-4 fill-height align-stretch"
         :style="{ maxWidth: containerMaxWidth }"
       >
         <RetailerDashboardEvents style="width: 100%" />
@@ -268,14 +270,17 @@ onBeforeMount(async () => {
   loadingErrors.value = [];
   loading.value = true;
 
-  if (!user) {
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
+  }
+  if (!userStore.user?.users_pk) {
     loading.value = false;
     return;
   }
 
   try {
     const res = await (axios as any).get("/rl_campaigns_users/search", {
-      params: { users_fk: user.users_pk },
+      params: { users_fk: userStore.user.users_pk },
     });
 
     res.data.campaigns.forEach((element: any) => {

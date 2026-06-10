@@ -38,8 +38,7 @@ export class CampaignLoadFromStorage {
 
   async loadCampaignComplete(campaignId: string): Promise<boolean> {
     try {
-      this.campaignStore.clearHeroes(campaignId);
-
+      // Wiping removed to prevent visual flashing. In-place updates and pruning are handled below.
       const campaignLoaded = await this.loadCampaignData(campaignId);
       const heroesLoaded = await this.loadCampaignHeroes(campaignId);
 
@@ -57,14 +56,54 @@ export class CampaignLoadFromStorage {
 
   private async loadCampaignData(campaignId: string): Promise<boolean> {
     try {
-      const response = await axios.get("/rl_campaigns_users/search", {
-        params: {
-          users_fk: this.userStore.user.users_pk,
-          campaigns_fk: campaignId,
-        },
-      });
+      if (!this.userStore.user?.users_pk) {
+        this.userStore.restoreFromStorage();
+      }
+      if (!this.userStore.user?.users_pk) {
+        console.error("[CampaignLoad] Cannot load campaign data: users_pk is missing");
+        return false;
+      }
 
-      if (response.data?.campaigns?.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const skuStr = urlParams.get('sku');
+      
+      let showSeason2 = false;
+      const existingCampaign = this.campaignStore.findOptional(campaignId);
+      if (existingCampaign) {
+        showSeason2 = existingCampaign.campaign === 'underkeep2';
+      } else if (skuStr) {
+        showSeason2 = Number(skuStr) === 39;
+      }
+
+      let response;
+      try {
+        response = await axios.get("/rl_campaigns_users/search", {
+          params: {
+            users_fk: this.userStore.user.users_pk,
+            campaigns_fk: campaignId,
+            show_season2: showSeason2
+          },
+        });
+      } catch (err) {
+        console.warn(`[CampaignLoad] Primary campaign search failed (show_season2=${showSeason2}):`, err);
+      }
+
+      if (!response?.data?.campaigns?.length) {
+        // Fallback: If campaign not found, try the other season setting
+        try {
+          response = await axios.get("/rl_campaigns_users/search", {
+            params: {
+              users_fk: this.userStore.user.users_pk,
+              campaigns_fk: campaignId,
+              show_season2: !showSeason2
+            },
+          });
+        } catch (err) {
+          console.error(`[CampaignLoad] Fallback campaign search failed (show_season2=${!showSeason2}):`, err);
+        }
+      }
+
+      if (response?.data?.campaigns?.length > 0) {
         const campaignData = response.data.campaigns[0] as CampaignRelationData;
 
         if (campaignData.tracker_hash) {
@@ -85,6 +124,9 @@ export class CampaignLoadFromStorage {
             } else {
               this.campaignStore.add(camp);
             }
+
+            const storageKey = `campaign_hash_${campaignId}`;
+            localStorage.setItem(storageKey, campaignData.tracker_hash);
 
             return true;
           }
@@ -118,9 +160,11 @@ export class CampaignLoadFromStorage {
 
       const players: PlayerData[] = playersResponse.data.Users;
       let loadedCount = 0;
+      const loadedHeroPks = new Set<number>();
 
       for (const player of players) {
         if (player.playable_heroes_fk) {
+          loadedHeroPks.add(player.playable_heroes_fk);
           try {
             const heroLoaded = await this.loadHeroByPk(
               player.playable_heroes_fk,
@@ -143,6 +187,15 @@ export class CampaignLoadFromStorage {
           console.log(`[CampaignLoad] Player ${player.user_name} has no hero`);
         }
       }
+
+      // Prune heroes from campaign store that are no longer in the player list
+      const currentHeroes = this.campaignStore.findAllHeroes(campaignId);
+      currentHeroes.forEach((ch) => {
+        if (ch.playableHeroesPk && !loadedHeroPks.has(ch.playableHeroesPk)) {
+          console.log(`[CampaignLoad] Pruning stale hero ${ch.heroId} from store`);
+          this.campaignStore.removeHero(campaignId, ch.heroId);
+        }
+      });
 
       return loadedCount > 0;
     } catch (error) {

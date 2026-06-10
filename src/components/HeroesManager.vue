@@ -1,9 +1,9 @@
 <template>
-  <v-main>
-    <v-container class="0">
+  <div class="heroes-manager-wrapper">
+    <v-container class="pa-0">
       <CampaignHeroes />
     </v-container>
-  </v-main>
+  </div>
 </template>
 
 <script setup lang="ts">

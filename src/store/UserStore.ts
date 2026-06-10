@@ -52,6 +52,10 @@ export const useUserStore = defineStore("user", () => {
     timezone: null,
   });
 
+  const editingPictureHash = ref<string | null>(null);
+  const editingBackgroundHash = ref<string | null>(null);
+  const cacheBuster = ref<number>(Date.now());
+
   const setUser = (newUser: User) => {
     user.value = {
       ...newUser,
@@ -96,5 +100,17 @@ export const useUserStore = defineStore("user", () => {
   const userIanaTimezone = () =>
     user.value.timezone?.iana_name ?? FALLBACK_TIMEZONE.iana_name;
 
-  return { user, setUser, restoreFromStorage, clearUser, userIanaTimezone };
+  // Run immediately upon initialization of the store to prevent race conditions during early component mount phases
+  restoreFromStorage();
+
+  return {
+    user,
+    setUser,
+    restoreFromStorage,
+    clearUser,
+    userIanaTimezone,
+    editingPictureHash,
+    editingBackgroundHash,
+    cacheBuster,
+  };
 });

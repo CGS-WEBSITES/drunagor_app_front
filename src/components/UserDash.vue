@@ -3,10 +3,11 @@
     style="
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      max-height: 100vh;
+      height: 100dvh;
+      max-height: 100dvh;
       overflow: hidden;
       --v-layout-top: 0px;
+      box-sizing: border-box;
     "
   >
     <v-row no-gutters class="justify-center align-center ml-0 flex-grow-0 flex-shrink-0 pt-md-0">
@@ -22,7 +23,7 @@
       >
         <v-card
           color="transparent"
-          height="136"
+          height="166"
           class="card-overlay1 full-screen-card"
           flat
         ></v-card>
@@ -60,7 +61,7 @@
               <div
                 class="pa-3 rounded-lg"
                 style="
-                  background-color: rgba(50, 50, 50, 0.7);
+                  background-color: rgba(var(--v-theme-surface), 0.7);
                   backdrop-filter: blur(5px);
                   cursor: pointer;
                   padding-left: 32px !important;
@@ -86,15 +87,17 @@
     <div
       class="flex-grow-1"
       :style="{
-        marginTop: display.xs ? '-130px' : '-120px',
-        overflowY: 'auto',
+        marginTop: display.xs ? '-95px' : '-85px',
+        overflow: 'hidden',
         minHeight: '0',
         zIndex: 1,
-        width: '100%'
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column'
       }"
     >
       <v-container
-        class="mx-auto px-4 fill-height align-start"
+        class="mx-auto px-4 fill-height align-stretch"
         :style="{ maxWidth: containerMaxWidth }"
       >
         <DashboardEvents style="width: 100%" />
@@ -133,7 +136,7 @@
             
             <v-col class="px-2 d-flex justify-center align-center">
               <v-btn
-                color="#118D8E"
+                color="playbutton"
                 variant="flat"
                 @click="openPlaySelection"
                 :size="display.xs ? 'large' : 'x-large'"
@@ -179,15 +182,15 @@
         <v-card-text class="pa-0" style="overflow-y: auto;">
           <div class="pa-5 text-center">
             <v-img 
-              src="@/assets/underkeep2.png" 
+              src="@/assets/underkeep.png" 
               height="140" 
               cover
               class="mb-4 rounded-xl elevation-4"
             ></v-img>
             
-            <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S2</h3>
+            <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S1</h3>
             <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
-              Scan the Lobby QR Code to join your party and dive into the new Underkeep adventures.
+              Scan the Lobby QR Code to join your party and dive into the Underkeep adventures.
             </p>
             
             <v-btn 
@@ -313,7 +316,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed, inject, onBeforeMount } from "vue";
-import { useDisplay } from "vuetify";
+import { useDisplay, useTheme } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -343,6 +346,32 @@ const showHub = ref(false);
 const myEvents = ref<any[]>([]);
 const showPlaySelectionDialog = ref(false);
 const showDrunagorSoonDialog = ref(false);
+const themeInstance = useTheme();
+const playButtonColor = computed(() => {
+  const tName = themeInstance.global.name.value;
+  switch (tName) {
+    case "CoreTheme":
+      return "#E2B13C";
+    case "ApocTheme":
+      return "#FB8C00";
+    case "NightsTheme":
+      return "#A3E635";
+    case "EarthTheme":
+      return "#10B981";
+    case "BlueTheme":
+      return "#F59E0B";
+    case "CrimsonTheme":
+      return "#FACC15";
+    case "VioletTheme":
+      return "#4ADE80";
+    case "RoseTheme":
+      return "#2DD4BF";
+    case "DarkTheme":
+    default:
+      return "#118D8E";
+  }
+});
+
 
 const containerMaxWidth = computed(() => {
   if (display.lgAndUp.value) return "1024px";
@@ -384,8 +413,9 @@ const openPlaySelection = () => {
 
 const playDrunagorNights = () => {
   showPlaySelectionDialog.value = false;
-  showDrunagorSoonDialog.value = true;
+  openHub();
 };
+
 
 const playLegacyCampaigns = () => {
   showPlaySelectionDialog.value = false;
@@ -397,13 +427,18 @@ onBeforeMount(async () => {
   heroStore.reset();
   loadingErrors.value = [];
   loading.value = true;
-  if (!user) {
+
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
+  }
+  if (!userStore.user?.users_pk) {
     loading.value = false;
     return;
   }
+
   try {
     const res = await (axios as any).get("/rl_campaigns_users/search", {
-      params: { users_fk: user.users_pk },
+      params: { users_fk: userStore.user.users_pk },
     });
     res.data.campaigns.forEach((element: any) => {
       try {
@@ -503,7 +538,7 @@ onBeforeMount(async () => {
 }
 .full-screen-card {
   width: 100%;
-  height: 150px;
+  height: 180px;
   background-size: cover;
   background-position: center;
   display: flex;

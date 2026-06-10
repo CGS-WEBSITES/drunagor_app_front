@@ -10,6 +10,7 @@ declare module 'vue' {
     AccountForm: typeof import('./components/AccountForm.vue')['default']
     AchievementsList: typeof import('./components/AchievementsList.vue')['default']
     AdOptions: typeof import('./components/AdOptions.vue')['default']
+    AllBadgesDialog: typeof import('./components/dialogs/AllBadgesDialog.vue')['default']
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     AssemblyGuide: typeof import('./components/AssemblyGuide.vue')['default']
     Badges: typeof import('./components/Badges.vue')['default']
@@ -109,6 +110,7 @@ declare module 'vue' {
     ProfilePicDialog: typeof import('./components/ProfilePicDialog.vue')['default']
     RandomizerQuickSelect: typeof import('./components/RandomizerQuickSelect.vue')['default']
     RandomizerView: typeof import('./components/RandomizerView.vue')['default']
+    RecentCampaignWidget: typeof import('./components/RecentCampaignWidget.vue')['default']
     RemovePlayersButton: typeof import('./components/RemovePlayersButton.vue')['default']
     RetailDash: typeof import('./components/RetailDash.vue')['default']
     RetailerBook: typeof import('./components/RetailerBook.vue')['default']
@@ -158,5 +160,6 @@ declare module 'vue' {
     TutorialPromptDialog: typeof import('./components/dialogs/TutorialPromptDialog.vue')['default']
     UserDash: typeof import('./components/UserDash.vue')['default']
     UserEvents: typeof import('./components/UserEvents.vue')['default']
+    UserLibraryWidget: typeof import('./components/UserLibraryWidget.vue')['default']
   }
 }

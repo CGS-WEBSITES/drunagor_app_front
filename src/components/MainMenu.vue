@@ -1,20 +1,7 @@
 <template>
-  <v-container v-if="isCampaignRoute" class="d-flex pa-4 justify-end">
-    <v-btn
-      class="mx-1 ml-md-6"
-      rounded
-      @click="goBack"
-      variant="elevated"
-      :size="isMobile ? 'small' : 'default'"
-    >
-      <v-icon class="mr-2" style="font-size: 24px">mdi-arrow-left</v-icon>
-      <span> Return to Campaign List </span>
-    </v-btn>
-  </v-container>
-
   <v-container 
     v-if="!isCampaignRoute && !isHeroesRoute" 
-    class="d-sm-none pa-4"
+    class="d-sm-none pa-4 safe-pwa-top"
   >
     <v-card
       color="primary"
@@ -71,7 +58,7 @@
         class="py-2"
         style="max-width: 800px"
       >
-        <template v-for="(button, i) in buttons" :key="button.value">
+        <template v-for="(button, i) in buttons" :key="i">
           <v-btn class="mx-1" rounded @click="navigateTo(button.route)">
             <template v-if="button.iconType === 'image'">
               <v-img
@@ -87,7 +74,7 @@
                 button.icon
               }}</v-icon>
             </template>
-            <span> {{ button.text }} </span>
+            <span> {{ $t(button.translationKey) }} </span>
           </v-btn>
         </template>
       </v-row>
@@ -100,6 +87,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter, useRoute } from "vue-router";
 import { useDisplay } from "vuetify"; // Import necessário para isMobile se não estiver global
+import { CampaignStore } from "@/store/CampaignStore";
 
 const { t, locale } = useI18n();
 const { mobile } = useDisplay(); // Adicionado para garantir que isMobile funcione
@@ -111,6 +99,21 @@ const isMobile = computed(() => mobile.value);
 
 const isCampaignRoute = computed(() => route.name === 'Campaign');
 
+const campaignStore = CampaignStore();
+const campaign = computed(() => {
+  if (route.name === 'Campaign' && route.params.id) {
+    return campaignStore.findOptional(String(route.params.id));
+  }
+  return null;
+});
+
+const isImmersiveMode = computed(() => {
+  if (!campaign.value) return false;
+  if (campaign.value.campaign === 'underkeep2') return true;
+  const wing = (campaign.value.wing || "").toUpperCase();
+  return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
+});
+
 // Nova lógica: Verifica se é a página de heróis pelo nome ou pelo path
 const isHeroesRoute = computed(() => 
   route.name === 'HeroesManager' || 
@@ -121,38 +124,40 @@ const navigateTo = (route: string) => {
   router.push(route);
 };
 
-const goBack = () => {
-  router.push({ name: 'Campaign Overview' });
-};
-
 const buttons = ref([
   {
     iconType: "image",
     icon: new URL("@/assets/randomiicon.png", import.meta.url).href,
     value: "Campaign Overview",
     route: "/campaign-tracker/randomizer",
-    text: "Randomize",
+    translationKey: "menu.random-monster",
   },
   {
     iconType: "mdi",
     icon: "mdi-sword",
     value: "Campaign Overview",
     route: "/campaign-tracker/",
-    text: "Campaign",
+    translationKey: "menu.campaign",
   },
   {
     iconType: "mdi",
     icon: "mdi-book-search-outline",
     value: "Keyword",
     route: "/campaign-tracker/keyword",
-    text: "Keywords",
+    translationKey: "menu.keyword",
   },
   {
     iconType: "mdi",
-    icon: "mdi-cog-outline",
+    icon: "mdi-package-variant-closed",
     value: "settings",
     route: "/campaign-tracker/configuration",
-    text: "Settings",
+    translationKey: "menu.settings",
   },
 ]);
 </script>
+
+<style scoped>
+.safe-pwa-top {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 16px) !important;
+}
+</style>
