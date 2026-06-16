@@ -389,6 +389,14 @@ const menuItems = computed(() => {
       to: { name: "Dashboard" },
       disabled: false,
     },
+    ...(role.value === 1 || role.value === 4 ? [
+      {
+        title: "Retailers & Stores",
+        icon: "mdi-storefront",
+        to: { name: "Dashboard", query: { tab: "retailers" } },
+        disabled: false,
+      }
+    ] : []),
     {
       title: "Events",
       icon: "mdi-calendar",

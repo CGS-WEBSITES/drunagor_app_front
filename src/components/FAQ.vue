@@ -1,73 +1,81 @@
 <template>
-  <div class="page-background pa-4 pa-md-8">
-    <v-container>
-      <v-row justify="center">
-        <v-col cols="12" md="11" lg="10">
-          <h2 class="text-h5 text-md-h4 font-weight-bold mb-6 mt-8 text-center">
-            Help Center
-          </h2>
+  <v-container class="py-4 py-md-8">
+    <v-row justify="center">
+      <v-col cols="12" md="11" lg="10">
+        <v-tabs
+          v-model="currentTab"
+          bg-color="primary"
+          class="mb-6"
+          align-tabs="center"
+          grow
+        >
+          <v-tab value="assembly">
+            <v-icon start>mdi-wrench</v-icon>
+            <span class="d-none d-sm-inline mr-1">Assembly Guide</span>
+          </v-tab>
+          <v-tab value="faq">
+            <v-icon start>mdi-frequently-asked-questions</v-icon>
+            <span class="d-none d-sm-inline mr-1">FAQ</span>
+          </v-tab>
+          <v-tab value="retailer">
+            <v-icon start>mdi-book-open-variant</v-icon>
+            <span class="d-none d-sm-inline mr-1">Retailer Book</span>
+          </v-tab>
+          <!-- Support Tab for Retailers -->
+          <v-tab v-if="user?.roles_fk === 3" value="support">
+            <v-icon start>mdi-help-circle</v-icon>
+            <span class="d-none d-sm-inline mr-1">Support (SAC)</span>
+          </v-tab>
+        </v-tabs>
 
-          <v-tabs
-            v-model="currentTab"
-            bg-color="primary"
-            class="mb-6"
-            align-tabs="center"
-            grow
-          >
-            <v-tab value="assembly">
-              <v-icon start>mdi-wrench</v-icon>
-              <span class="d-none d-sm-inline mr-1">Assembly Guide</span>
-            </v-tab>
-            <v-tab value="faq">
-              <v-icon start>mdi-frequently-asked-questions</v-icon>
-              <span class="d-none d-sm-inline mr-1">FAQ</span>
-            </v-tab>
-            <v-tab value="retailer">
-              <v-icon start>mdi-book-open-variant</v-icon>
-              <span class="d-none d-sm-inline mr-1">Retailer Book</span>
-            </v-tab>
-          </v-tabs>
+        <v-window v-model="currentTab">
+          <v-window-item value="assembly">
+            <AssemblyGuide />
+          </v-window-item>
 
-          <v-window v-model="currentTab">
-            <v-window-item value="assembly">
-              <AssemblyGuide />
-            </v-window-item>
+          <v-window-item value="faq">
+            <v-expansion-panels>
+              <v-expansion-panel
+                v-for="(item, i) in faqData"
+                :key="i"
+                elevation="2"
+              >
+                <v-expansion-panel-title expand-icon="mdi-chevron-down">
+                  <span class="font-weight-bold">Q: {{ item.question }}</span>
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <div class="answer-content" v-html="item.answer"></div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-window-item>
 
-            <v-window-item value="faq">
-              <v-expansion-panels>
-                <v-expansion-panel
-                  v-for="(item, i) in faqData"
-                  :key="i"
-                  elevation="2"
-                >
-                  <v-expansion-panel-title expand-icon="mdi-chevron-down">
-                    <span class="font-weight-bold">Q: {{ item.question }}</span>
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <div class="answer-content" v-html="item.answer"></div>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
-            </v-window-item>
+          <v-window-item value="retailer">
+            <CampaignBookNew />
+          </v-window-item>
 
-            <v-window-item value="retailer">
-              <CampaignBookNew />
-            </v-window-item>
-          </v-window>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+          <!-- Support Window Item for Retailers -->
+          <v-window-item v-if="user?.roles_fk === 3" value="support">
+            <SupportForm :embed="true" />
+          </v-window-item>
+        </v-window>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useDisplay } from "vuetify";
 import RetailerBook from "./RetailerBook.vue";
 import CampaignBookNew from "./CampaignBookNew.vue";
 import AssemblyGuide from "./AssemblyGuide.vue";
+import SupportForm from "./SupportForm.vue";
+import { useUserStore } from "@/store/UserStore";
 
 const { mobile } = useDisplay();
+const userStore = useUserStore();
+const user = computed(() => userStore.user);
 
 const currentTab = ref("assembly");
 
@@ -179,11 +187,6 @@ const faqData = ref([
 </script>
 
 <style scoped>
-.page-background {
-  background-color: #121212;
-  min-height: 100vh;
-}
-
 .answer-content {
   line-height: 1.7;
   text-align: justify;
@@ -208,4 +211,4 @@ const faqData = ref([
   line-height: 1.25rem;
   height: auto;
 }
-</style>
+</style>
