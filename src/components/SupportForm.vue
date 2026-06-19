@@ -1,5 +1,5 @@
 <template>
-  <v-col cols="12" class="d-flex justify-center pa-0">
+  <div class="d-flex justify-center w-100 pa-0">
     <v-container max-width="804" class="py-4">
       <v-card color="primary" elevation="2" rounded="lg">
         <!-- Header: Toggle only if NOT embedded -->
@@ -8,7 +8,7 @@
           :style="{ cursor: embed ? 'default' : 'pointer' }"
           @click="!embed && toggleForm()"
         >
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase cinzel-font">
+          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase">
             Support (SAC)
           </span>
           <v-icon v-if="!embed">
@@ -98,13 +98,15 @@
         </v-expand-transition>
       </v-card>
     </v-container>
-  </v-col>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { ref, computed, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useToast } from "primevue/usetoast";
+
+const axios: any = inject("axios");
 
 const props = defineProps({
   embed: {
@@ -115,7 +117,6 @@ const props = defineProps({
 
 const userStore = useUserStore();
 const toast = useToast();
-const axios: any = inject("axios");
 
 const isExpanded = ref(false);
 const formRef = ref<any>(null);
@@ -164,10 +165,21 @@ const resetForm = () => {
 const sendSupport = async () => {
   if (!isFormValid.value) return;
 
+  const email = targetEmail.value;
+  if (!email || rules.email(email) !== true) {
+    toast.add({
+      severity: "error",
+      summary: "Invalid Email",
+      detail: "The reply email address is invalid or missing.",
+      life: 5000,
+    });
+    return;
+  }
+
   loading.value = true;
   try {
     await axios.post("/support/send", {
-      user_email: targetEmail.value,
+      user_email: email,
       message: message.value,
       is_retailer: isRetailer.value,
     });
@@ -198,10 +210,6 @@ const sendSupport = async () => {
 </script>
 
 <style scoped>
-.cinzel-font {
-  font-family: "Cinzel", serif !important;
-}
-
 .opacity-70 {
   opacity: 0.7;
 }

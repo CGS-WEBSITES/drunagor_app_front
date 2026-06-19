@@ -2,7 +2,7 @@
   <v-container class="support-dashboard-container pa-4" fluid>
     <!-- Header -->
     <v-row class="mb-4">
-      <v-col cols="12" class="d-flex justify-space-between align-center">
+      <v-col cols="12" class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-4">
         <div>
           <h1 class="text-h4 font-weight-black cinzel-text text-uppercase text-white">Support & Analytics</h1>
           <p class="text-subtitle-2 text-grey-lighten-1">Real-time metrics and retailer administration</p>
@@ -585,10 +585,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, inject, watch } from "vue";
+import { ref, computed, onMounted, watch, inject } from "vue";
 import { useRoute } from "vue-router";
 
 const axios: any = inject("axios");
+
 const route = useRoute();
 
 const tab = ref(route.query.tab === "retailers" ? "retailers" : "stats");
@@ -730,6 +731,12 @@ export default {
 .support-dashboard-container {
   max-width: 1200px !important;
   margin: 0 auto;
+}
+
+@media (max-width: 959px) {
+  .support-dashboard-container {
+    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+  }
 }
 
 .cinzel-text {

@@ -1,9 +1,9 @@
 <template>
   <div>
     <!-- Renderiza o Dashboard correto com base em roles_fk -->
-    <UserDash v-if="user?.roles_fk === 2" />
+    <UserDash v-if="user?.roles_fk === 2 || user?.roles_fk === 1" />
     <RetailDash v-else-if="user?.roles_fk === 3" />
-    <SupportDash v-else-if="user?.roles_fk === 4 || user?.roles_fk === 1" />
+    <SupportDash v-else-if="user?.roles_fk === 4" />
     <p v-else>Loading dashboard...</p>
   </div>
 </template>
