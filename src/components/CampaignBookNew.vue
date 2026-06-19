@@ -266,13 +266,14 @@
                           class="body-text mt-3 mx-6"
                           :class="{ 'body-text-fullscreen': isFullscreen }"
                           v-html="item.body"
+                          @click="handleBodyClick"
                         ></div>
 
-                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0 mx-6 mb-6" flat>
+                        <v-card v-if="item.instruction" class="instruction-card mt-6 py-0 mx-6 mb-6" flat @click="handleBodyClick">
                           <v-card-text class="pa-4" v-html="item.instruction" />
                         </v-card>
 
-                        <v-card-text v-if="item.setup" v-html="item.setup" />
+                        <v-card-text v-if="item.setup" v-html="item.setup" @click="handleBodyClick" />
 
                         <div v-if="item.instruction" class="pt-5 px-16 text-center">
                           <v-img src="@/assets/Barra.png" max-height="20" contain />
@@ -302,7 +303,7 @@
                           <template v-for="(sec, sIdx) in chapter.sections" :key="sIdx">
                              <div :id="sec.id" class="mb-6">
                                 <h4 class="tutorial-section-title">{{ sec.title }}</h4>
-                                <div class="body-text-mechanics mt-2" v-html="sec.body"></div>
+                                <div class="body-text-mechanics mt-2" v-html="sec.body" @click="handleBodyClick"></div>
                              </div>
                              <div class="pt-5 px-16 text-center" v-if="sIdx < chapter.sections.length - 1">
                                 <v-img src="@/assets/Barra.png" max-height="20" contain />
@@ -361,6 +362,88 @@
       style="z-index: 100;"
       size="small"
     />
+
+    <!-- Image Lightbox Dialog -->
+    <v-dialog v-model="showLightbox" max-width="95%" width="1000px" class="lightbox-dialog" scrollable>
+      <v-card class="position-relative overflow-hidden pa-0" rounded="xl" style="background: rgba(18, 18, 18, 0.95) !important; backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+        <!-- Top Toolbar -->
+        <div class="d-flex align-center justify-space-between py-3 px-4 border-b border-opacity-10" style="background: rgba(0, 0, 0, 0.4);">
+          <div class="d-flex align-center">
+            <v-icon icon="mdi-magnify-plus-outline" class="mr-2 text-amber"></v-icon>
+            <span class="text-subtitle-1 font-cinzel font-weight-bold text-white tracking-wider">Image Zoom</span>
+          </div>
+          <div class="d-flex align-center">
+            <!-- Zoom controls -->
+            <v-btn
+              icon="mdi-minus"
+              variant="text"
+              color="white"
+              size="small"
+              :disabled="zoomLevel <= 1"
+              @click="zoomOut"
+              class="mr-1"
+            ></v-btn>
+            <span class="text-caption text-white font-weight-bold mx-2" style="min-width: 45px; text-align: center;">
+              {{ Math.round(zoomLevel * 100) }}%
+            </span>
+            <v-btn
+              icon="mdi-plus"
+              variant="text"
+              color="white"
+              size="small"
+              :disabled="zoomLevel >= 3"
+              @click="zoomIn"
+              class="mr-2"
+            ></v-btn>
+            <v-btn
+              icon="mdi-autorenew"
+              variant="text"
+              color="grey-lighten-1"
+              size="small"
+              :disabled="zoomLevel === 1"
+              @click="resetZoom"
+              class="mr-4"
+              title="Reset Zoom"
+            ></v-btn>
+            
+            <v-divider vertical class="mr-4 border-opacity-20"></v-divider>
+            
+            <!-- Close Button -->
+            <v-btn
+              icon="mdi-close"
+              variant="tonal"
+              color="grey-lighten-4"
+              size="small"
+              @click="closeLightbox"
+            ></v-btn>
+          </div>
+        </div>
+
+        <!-- Image Container -->
+        <v-card-text class="pa-0 d-flex align-center justify-center bg-black overflow-hidden" style="height: 70vh; min-height: 350px; position: relative;">
+          <div class="lightbox-image-wrapper">
+            <img 
+              :src="activeImage" 
+              class="lightbox-image"
+              :style="{
+                width: zoomLevel === 1 ? 'auto' : (100 * zoomLevel) + '%',
+                maxWidth: zoomLevel === 1 ? '100%' : 'none',
+                maxHeight: zoomLevel === 1 ? '100%' : 'none',
+                cursor: zoomLevel > 1 ? 'grab' : 'zoom-in'
+              }"
+              @click="zoomLevel === 1 ? zoomIn() : resetZoom()"
+              alt="Book Illustration"
+            />
+          </div>
+        </v-card-text>
+        
+        <!-- Helpful tip footer -->
+        <div class="text-center py-2 bg-grey-darken-4 text-caption text-grey-lighten-1 border-t border-opacity-10">
+          <v-icon icon="mdi-gesture-swipe" size="x-small" class="mr-1"></v-icon>
+          <span>Use the controls or click the image to zoom. Drag or swipe to scroll when zoomed.</span>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -431,6 +514,46 @@ const isFullscreen = ref(false);
 const scrollableContentRef = ref<HTMLElement | null>(null);
 const interactViewRef = ref<InstanceType<typeof InteractView> | null>(null);
 
+const showLightbox = ref(false);
+const activeImage = ref("");
+const zoomLevel = ref(1);
+
+function handleBodyClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  if (target && target.tagName === 'IMG') {
+    if (target.classList.contains('inline-icon')) {
+      return;
+    }
+    const src = target.getAttribute('src');
+    if (src && !src.includes('/icons/') && !src.endsWith('.svg')) {
+      activeImage.value = src;
+      zoomLevel.value = 1;
+      showLightbox.value = true;
+    }
+  }
+}
+
+function zoomIn() {
+  if (zoomLevel.value < 3) {
+    zoomLevel.value = parseFloat((zoomLevel.value + 0.5).toFixed(1));
+  }
+}
+
+function zoomOut() {
+  if (zoomLevel.value > 1) {
+    zoomLevel.value = parseFloat((zoomLevel.value - 0.5).toFixed(1));
+  }
+}
+
+function resetZoom() {
+  zoomLevel.value = 1;
+}
+
+function closeLightbox() {
+  showLightbox.value = false;
+  zoomLevel.value = 1;
+}
+
 const rawStartHere = startHereData as PageSection[];
 const rawStartHereS1 = startHereS1Data as PageSection[];
 const rawStoryBooks = bookPagesData as PageSection[];
@@ -451,6 +574,24 @@ const availableVolumes = computed<Volume[]>(() => {
       icon: 'mdi-school', 
       type: 'story', 
       data: isS1 ? rawStartHereS1 : rawStartHere 
+    });
+  } else if (!wingKey) {
+    // General Library view: show both Start Here books so users can access either Season 1 or Season 2 tutorials
+    vols.push({ 
+      id: 'start_here_s1', 
+      title: 'Start Here (S1)', 
+      subtitle: 'Tutorial', 
+      icon: 'mdi-school', 
+      type: 'story', 
+      data: rawStartHereS1 
+    });
+    vols.push({ 
+      id: 'start_here_s2', 
+      title: 'Start Here (S2)', 
+      subtitle: 'Tutorial', 
+      icon: 'mdi-school', 
+      type: 'story', 
+      data: rawStartHere 
     });
   }
 
@@ -720,6 +861,7 @@ const headerBannerStyle = computed(() => {
   
   if (
       (id === 'start_here' && !isS1) || 
+      id === 'start_here_s2' ||
       id === 'dragon' ||
       subtitle.includes("WING 3") || 
       subtitle.includes("WING 4") ||
@@ -1013,5 +1155,48 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
   vertical-align: middle !important;
   display: inline-block !important;
   margin: 0 4px !important;
+}
+
+/* Image zoom rules */
+.body-text :deep(img),
+.body-text-mechanics :deep(img),
+.instruction-card :deep(img) {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.body-text :deep(img):hover,
+.body-text-mechanics :deep(img):hover,
+.instruction-card :deep(img):hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Ensure inline-icons are not styled with pointer cursor or hover effects */
+.body-text :deep(img.inline-icon),
+.body-text-mechanics :deep(img.inline-icon),
+.instruction-card :deep(img.inline-icon) {
+  cursor: default !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.lightbox-image-wrapper {
+  overflow: auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+}
+
+.lightbox-image {
+  margin: auto;
+  height: auto;
+  object-fit: contain;
+  transition: width 0.2s ease-out, max-width 0.2s ease-out, max-height 0.2s ease-out;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 </style>
