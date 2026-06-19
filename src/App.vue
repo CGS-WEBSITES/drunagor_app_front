@@ -2,7 +2,7 @@
   <v-app :theme="theme">
     <Toast />
 
-    <v-row no-gutters v-if="display.mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode)">
+    <v-row no-gutters v-if="mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode)">
       <v-app-bar app min-height="50" color="secundary">
         <div
           @click="$router.push({ name: 'Dashboard' })"
@@ -20,42 +20,31 @@
           <span>App Drunagor</span>
         </div>
 
-        <v-spacer></v-spacer>
+        <template v-if="
+          [
+            'Home',
+            'Login',
+            'Gama',
+            'Community',
+            'RetailerRegistration',
+            'ForgotPassword',
+            'ShareEvent',
+            'RetailerTutorial',
+            'NightsCommunication',
+          ].includes(route.name)
+        ">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="WHITE"
+            large
+            @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
+          >
+            Sign up
+          </v-btn>
+        </template>
 
-        <v-menu open-on-hover offset-y>
-          <v-list>
-            <v-list-item @click="logout">
-              <v-list-item-icon>
-                <v-icon>mdi-logout</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>Log Out</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-
-        <v-btn
-          v-if="
-            [
-              'Home',
-              'Login',
-              'Gama',
-              'Community',
-              'RetailerRegistration',
-              'ForgotPassword',
-              'ShareEvent',
-              'RetailerTutorial',
-              'NightsCommunication',
-            ].includes(route.name)
-          "
-          color="WHITE"
-          large
-          @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
-        >
-          Sign up
-        </v-btn>
-
-        <div class="d-flex w-100 align-center justify-space-between" v-else>
-          <div class="d-flex justify-center w-100">
+        <div class="d-flex flex-grow-1 align-center justify-space-between" v-else>
+          <div class="d-flex justify-center flex-grow-1">
             <v-hover v-for="(item, index) in menuItems" :key="index">
               <template v-slot:default="{ isHovering, props }">
                 <v-btn
@@ -181,7 +170,7 @@
             : assets + '/Profile/user.png'
         "
         :title="user.user_name || 'User'"
-        :subtitle="role === 3 ? 'Retailer' : 'Player'"
+        :subtitle="role === 3 ? 'Retailer' : role === 4 ? 'Support' : role === 1 ? 'Admin' : 'Player'"
       >
       </v-list-item>
 
@@ -253,7 +242,7 @@
       </template>
     </v-navigation-drawer>
 
-    <router-view :style="contentStyle" :class="{ 'pt-10': display.mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode) }" />
+    <router-view :style="contentStyle" :class="{ 'pt-10': mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode) }" />
   </v-app>
 </template>
 
@@ -278,7 +267,7 @@ const tutorialStore = useTutorialStore();
 const campaignStore = CampaignStore();
 const user = computed(() => userStore.user);
 
-const display = ref(useDisplay());
+const { mdAndUp } = useDisplay();
 
 const router = useRouter();
 const route = useRoute();
@@ -349,6 +338,8 @@ const handleBack = () => {
     (route.path && route.path.includes("/campaign-tracker/campaign/"))
   ) {
     router.push({ name: "Campaign Overview" });
+  } else if (route.name === "SupportDashboard") {
+    router.push({ name: "Dashboard" });
   } else {
     router.back();
   }
@@ -391,9 +382,9 @@ const menuItems = computed(() => {
     },
     ...(role.value === 1 || role.value === 4 ? [
       {
-        title: "Retailers & Stores",
+        title: "Support & Analytics",
         icon: "mdi-storefront",
-        to: { name: "Dashboard", query: { tab: "retailers" } },
+        to: { name: "SupportDashboard" },
         disabled: false,
       }
     ] : []),
@@ -436,7 +427,7 @@ const contentStyle = computed(() => {
     route.name === "RetailerRegistration" ||
     route.name === "ForgotPassword"
   ) {
-    return display.value.mdAndUp
+    return mdAndUp.value
       ? {
           "background-image":
             "url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp')",
@@ -463,7 +454,7 @@ const contentStyle = computed(() => {
 
   const isImmersive = route.name === 'Campaign' && isImmersiveMode.value;
 
-  return display.value.mdAndUp
+  return mdAndUp.value
     ? {
         "background-image":
           "url(" + assets + "/backgrounds/backgrounds.png" + ")",
