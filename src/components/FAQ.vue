@@ -1,11 +1,11 @@
 <template>
-  <v-container class="py-4 py-md-8">
-    <v-row justify="center">
-      <v-col cols="12" md="11" lg="10">
+  <v-container class="py-4 py-md-8 faq-container" style="max-width: 960px;">
+    <v-row justify="center" no-gutters>
+      <v-col cols="12">
         <v-tabs
           v-model="currentTab"
           bg-color="primary"
-          class="mb-6"
+          class="mb-6 rounded-lg"
           align-tabs="center"
           grow
         >
@@ -21,8 +21,8 @@
             <v-icon start>mdi-book-open-variant</v-icon>
             <span class="d-none d-sm-inline mr-1">Retailer Book</span>
           </v-tab>
-          <!-- Support Tab for Retailers -->
-          <v-tab v-if="user?.roles_fk === 3" value="support">
+          <!-- Support Tab for Users & Retailers -->
+          <v-tab v-if="user?.roles_fk" value="support">
             <v-icon start>mdi-help-circle</v-icon>
             <span class="d-none d-sm-inline mr-1">Support (SAC)</span>
           </v-tab>
@@ -54,8 +54,8 @@
             <CampaignBookNew />
           </v-window-item>
 
-          <!-- Support Window Item for Retailers -->
-          <v-window-item v-if="user?.roles_fk === 3" value="support">
+          <!-- Support Window Item for Users & Retailers -->
+          <v-window-item v-if="user?.roles_fk" value="support">
             <SupportForm :embed="true" />
           </v-window-item>
         </v-window>
@@ -211,4 +211,11 @@ const faqData = ref([
   line-height: 1.25rem;
   height: auto;
 }
-</style>
+
+@media (max-width: 959px) {
+  .faq-container {
+    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+  }
+}
+</style>
+
