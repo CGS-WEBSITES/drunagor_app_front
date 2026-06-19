@@ -104,6 +104,13 @@ const router = createRouter({
     },
 
     {
+      path: "/support-dashboard",
+      name: "SupportDashboard",
+      component: () => import("@/components/SupportDash.vue"),
+      beforeEnter: requireAuth,
+    },
+
+    {
       path: "/socialhub",
       name: "SocialHub",
       component: () => import("@/components/SocialHub.vue"),
