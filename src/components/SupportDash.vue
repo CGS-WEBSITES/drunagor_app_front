@@ -368,11 +368,11 @@
           <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
             <!-- Search & Filters -->
             <v-row class="mb-4" align="center">
-              <v-col cols="12" sm="6" md="4">
+              <v-col cols="12" md="4">
                 <v-text-field
                   v-model="search"
                   prepend-inner-icon="mdi-magnify"
-                  label="Search lojistas..."
+                  label="Pesquisar lojistas..."
                   variant="solo-filled"
                   hide-details
                   color="warning"
@@ -382,11 +382,45 @@
                 <v-select
                   v-model="storeStatusFilter"
                   :items="storeStatusOptions"
-                  label="Store Status"
+                  label="Status da Loja"
                   variant="solo-filled"
                   hide-details
                   color="warning"
                 ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-select
+                  v-model="onboardingStatusFilter"
+                  :items="onboardingStatusOptions"
+                  label="Etapa de Onboarding"
+                  variant="solo-filled"
+                  hide-details
+                  color="warning"
+                ></v-select>
+              </v-col>
+            </v-row>
+            <v-row class="mb-4" align="center">
+              <v-col cols="12" sm="6" md="4">
+                <v-select
+                  v-model="lastActivityFilter"
+                  :items="lastActivityOptions"
+                  label="Última Atividade"
+                  variant="solo-filled"
+                  hide-details
+                  color="warning"
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="4"></v-col>
+              <v-col cols="12" sm="6" md="4" class="d-flex justify-sm-end">
+                <v-btn
+                  color="success"
+                  prepend-icon="mdi-export"
+                  @click="exportToCSV"
+                  class="font-weight-bold w-100"
+                  height="48"
+                >
+                  Exportar CSV
+                </v-btn>
               </v-col>
             </v-row>
 
@@ -395,8 +429,10 @@
               <thead>
                 <tr class="border-b">
                   <th class="text-left font-weight-black text-warning py-3 cinzel-text">Retailer (Account)</th>
-                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Associated Store</th>
-                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Store Status</th>
+                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Store / Country</th>
+                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Onboarding Status</th>
+                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Last Access</th>
+                  <th class="text-center font-weight-black text-warning py-3 cinzel-text">Events / Players</th>
                   <th class="text-center font-weight-black text-warning py-3 cinzel-text">Actions</th>
                 </tr>
               </thead>
@@ -404,26 +440,45 @@
                 <tr v-for="item in filteredRetailers" :key="item.users_pk" class="border-b hover-row">
                   <td class="py-3">
                     <div class="font-weight-bold text-white text-subtitle-1">{{ item.name }}</div>
-                    <div class="text-caption text-grey-lighten-2">Nickname: {{ item.user_name }}</div>
                     <div class="text-caption text-grey-lighten-2">{{ item.email }}</div>
+                    <div class="text-caption text-grey-lighten-2" v-if="item.phone">Tel: {{ item.phone }}</div>
                   </td>
                   <td class="py-3">
                     <div class="font-weight-medium text-white">{{ item.store_name }}</div>
-                    <div class="text-caption text-grey-lighten-2" v-if="item.store_site !== '-'">
-                      {{ item.store_site }}
+                    <div class="text-caption text-warning font-weight-bold">
+                      <v-icon start size="14">mdi-earth</v-icon> {{ item.country }}
                     </div>
                   </td>
                   <td class="py-3">
-                    <div v-if="item.stores_pk" class="d-flex flex-wrap gap-1">
-                      <v-chip size="small" :color="item.store_verified ? 'success' : 'warning'" class="mr-1 mb-1 font-weight-black">
-                        {{ item.store_verified ? 'Verified' : 'Unverified' }}
-                      </v-chip>
-                      <v-chip size="small" :color="item.store_active ? 'blue' : 'grey'" class="mb-1 font-weight-black">
-                        {{ item.store_active ? 'Active' : 'Inactive' }}
-                      </v-chip>
+                    <v-chip size="small" :color="getStatusColor(item.onboarding_status)" class="font-weight-black">
+                      {{ item.onboarding_status }}
+                    </v-chip>
+                  </td>
+                  <td class="py-3">
+                    <div class="d-flex align-center">
+                      <v-badge
+                        dot
+                        :color="getInactivityAlertColor(item.last_access)"
+                        inline
+                        class="mr-2"
+                        v-if="getInactivityDays(item.last_access) >= 3"
+                      ></v-badge>
+                      <div>
+                        <div class="font-weight-medium">{{ formatDate(item.last_access) }}</div>
+                        <div class="text-caption text-grey-lighten-1">
+                          {{ getInactivityDaysText(item.last_access) }}
+                        </div>
+                      </div>
                     </div>
-                    <div v-else>
-                      <v-chip size="small" color="red" class="font-weight-black">No Store Created</v-chip>
+                  </td>
+                  <td class="py-3 text-center">
+                    <div class="d-flex justify-center ga-1">
+                      <v-chip size="small" color="purple" variant="flat" class="font-weight-bold">
+                        {{ item.events_count }} events
+                      </v-chip>
+                      <v-chip size="small" color="blue" variant="flat" class="font-weight-bold">
+                        {{ item.players_count }} players
+                      </v-chip>
                     </div>
                   </td>
                   <td class="py-3 text-center">
@@ -431,16 +486,16 @@
                       color="warning"
                       variant="flat"
                       size="small"
-                      prepend-icon="mdi-eye"
+                      prepend-icon="mdi-cog"
                       class="font-weight-bold"
                       @click="showRetailerDetails(item)"
                     >
-                      View Info
+                      Manage
                     </v-btn>
                   </td>
                 </tr>
                 <tr v-if="filteredRetailers.length === 0">
-                  <td colspan="4" class="text-center py-8 text-grey-lighten-1">
+                  <td colspan="6" class="text-center py-8 text-grey-lighten-1">
                     No retailers match the current filters.
                   </td>
                 </tr>
@@ -493,6 +548,42 @@
                   <v-col cols="6">
                     <div class="text-caption text-grey-lighten-2">USER ID</div>
                     <div class="text-body-1">#{{ selectedRetailer.users_pk }}</div>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
+
+            <!-- Onboarding Management (Admin / Support editable fields) -->
+            <v-col cols="12" class="mb-4">
+              <v-card color="surface" rounded="lg" class="pa-4 border-warning border">
+                <div class="text-overline text-warning mb-3 font-weight-black cinzel-text">
+                  <v-icon start size="16">mdi-cog-outline</v-icon> MANAGE ONBOARDING
+                </div>
+                <v-row dense>
+                  <!-- Onboarding Status Select -->
+                  <v-col cols="12" sm="6" class="pb-2">
+                    <v-select
+                      v-model="editOnboardingStatus"
+                      :items="onboardingStatusOptions.slice(1)" 
+                      label="Onboarding Status"
+                      variant="outlined"
+                      density="compact"
+                      color="warning"
+                      hide-details
+                    ></v-select>
+                  </v-col>
+                  
+                  <!-- Phone Number input -->
+                  <v-col cols="12" sm="6" class="pb-2">
+                    <v-text-field
+                      v-model="editPhone"
+                      label="Phone / WhatsApp"
+                      variant="outlined"
+                      density="compact"
+                      color="warning"
+                      hide-details
+                      prepend-inner-icon="mdi-phone"
+                    ></v-text-field>
                   </v-col>
                 </v-row>
               </v-card>
@@ -574,9 +665,12 @@
           </v-row>
         </v-card-text>
 
-        <v-card-actions class="px-6 pb-4 pt-0 justify-end">
-          <v-btn color="warning" class="font-weight-bold px-4" @click="detailsDialog = false">
-            Close
+        <v-card-actions class="px-6 pb-4 pt-0 justify-end ga-2">
+          <v-btn color="grey" variant="text" class="font-weight-bold" @click="detailsDialog = false" :disabled="saving">
+            Cancel
+          </v-btn>
+          <v-btn color="warning" variant="flat" class="font-weight-bold px-4" @click="saveRetailerChanges" :loading="saving">
+            Save Changes
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -605,7 +699,9 @@ watch(
   }
 );
 const search = ref("");
-const storeStatusFilter = ref("All");
+const storeStatusFilter = ref("Todos");
+const onboardingStatusFilter = ref("Todos");
+const lastActivityFilter = ref("Todos");
 const loading = ref(false);
 const error = ref<string | null>(null);
 const dashboardData = ref<any>(null);
@@ -616,15 +712,98 @@ const selectedRetailer = ref<any>(null);
 const storeDetails = ref<any>(null);
 const loadingStoreDetails = ref(false);
 
+// Edit state
+const editOnboardingStatus = ref("");
+const editPhone = ref("");
+const saving = ref(false);
+
 const storeStatusOptions = [
-  "All",
-  "With Store",
-  "No Store",
-  "Verified Store",
-  "Unverified Store",
-  "Active Store",
-  "Inactive Store"
+  "Todos",
+  "Com Loja",
+  "Sem Loja",
+  "Loja Verificada",
+  "Loja Não Verificada",
+  "Loja Ativa",
+  "Loja Inativa"
 ];
+
+const onboardingStatusOptions = [
+  "Todos",
+  "Cadastro realizado",
+  "Loja criada",
+  "Primeiro contato realizado",
+  "Em onboarding",
+  "Evento planejado",
+  "Evento realizado",
+  "Loja ativa",
+  "Sem atividade",
+  "Necessita contato",
+  "Call agendada",
+  "Inativo"
+];
+
+const lastActivityOptions = [
+  "Todos",
+  "Ativo nas últimas 24h",
+  "Ativo nos últimos 7 dias",
+  "Ativo nos últimos 30 dias",
+  "Inativo há 3+ dias",
+  "Inativo há 7+ dias",
+  "Inativo há 14+ dias"
+];
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "Loja ativa":
+      return "success";
+    case "Evento realizado":
+      return "info";
+    case "Evento planejado":
+      return "primary";
+    case "Em onboarding":
+      return "warning";
+    case "Primeiro contato realizado":
+      return "teal";
+    case "Loja criada":
+      return "blue-lighten-2";
+    case "Cadastro realizado":
+      return "grey-lighten-1";
+    case "Sem atividade":
+      return "amber-darken-3";
+    case "Necessita contato":
+      return "red-lighten-1";
+    case "Call agendada":
+      return "deep-purple-accent-2";
+    case "Inativo":
+      return "red-darken-4";
+    default:
+      return "grey";
+  }
+};
+
+const getInactivityDays = (lastAccessStr: string) => {
+  if (!lastAccessStr || lastAccessStr === "None") return 0;
+  const lastAccess = new Date(lastAccessStr.replace(/-/g, "/").replace("T", " "));
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - lastAccess.getTime());
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+};
+
+const getInactivityAlertColor = (lastAccessStr: string) => {
+  const days = getInactivityDays(lastAccessStr);
+  if (days >= 14) return "red";
+  if (days >= 7) return "orange";
+  if (days >= 3) return "yellow-darken-2";
+  return "success";
+};
+
+const getInactivityDaysText = (lastAccessStr: string) => {
+  const days = getInactivityDays(lastAccessStr);
+  if (days <= 0) return "Active today";
+  if (days === 1) return "1 day inactive";
+  return `${days} days inactive`;
+};
 
 const fetchDashboardData = async () => {
   loading.value = true;
@@ -642,6 +821,8 @@ const fetchDashboardData = async () => {
 
 const showRetailerDetails = async (retailer: any) => {
   selectedRetailer.value = retailer;
+  editOnboardingStatus.value = retailer.onboarding_status || "Cadastro realizado";
+  editPhone.value = retailer.phone || "";
   storeDetails.value = null;
   detailsDialog.value = true;
 
@@ -666,6 +847,98 @@ const showRetailerDetails = async (retailer: any) => {
   }
 };
 
+const saveRetailerChanges = async () => {
+  if (!selectedRetailer.value) return;
+  saving.value = true;
+  try {
+    const payload = {
+      users_pk: selectedRetailer.value.users_pk,
+      onboarding_status: editOnboardingStatus.value,
+      phone: editPhone.value
+    };
+    
+    await axios.put("/users/alter", payload);
+    
+    // Update local values
+    selectedRetailer.value.onboarding_status = editOnboardingStatus.value;
+    selectedRetailer.value.phone = editPhone.value;
+    
+    // Update main dataset
+    const idx = dashboardData.value.retailers.findIndex(
+      (r: any) => r.users_pk === selectedRetailer.value.users_pk
+    );
+    if (idx !== -1) {
+      dashboardData.value.retailers[idx].onboarding_status = editOnboardingStatus.value;
+      dashboardData.value.retailers[idx].phone = editPhone.value;
+    }
+    
+    detailsDialog.value = false;
+  } catch (err: any) {
+    console.error("Error saving retailer details:", err);
+    alert(err.response?.data?.message || "Failed to update retailer details.");
+  } finally {
+    saving.value = false;
+  }
+};
+
+const exportToCSV = () => {
+  if (!filteredRetailers.value || filteredRetailers.value.length === 0) return;
+  
+  const headers = [
+    "Retailer ID",
+    "Name",
+    "Nickname",
+    "Email",
+    "Phone",
+    "Country",
+    "Join Date",
+    "Store Name",
+    "Store Website",
+    "Store Verified",
+    "Store Active",
+    "Onboarding Status",
+    "Last Access",
+    "Events Count",
+    "Players Count"
+  ];
+  
+  const csvRows = [headers.join(",")];
+  
+  for (const item of filteredRetailers.value) {
+    const values = [
+      item.users_pk,
+      `"${item.name.replace(/"/g, '""')}"`,
+      `"${item.user_name.replace(/"/g, '""')}"`,
+      `"${item.email.replace(/"/g, '""')}"`,
+      `"${(item.phone || "").replace(/"/g, '""')}"`,
+      `"${(item.country || "-").replace(/"/g, '""')}"`,
+      item.join_date,
+      `"${(item.store_name || "-").replace(/"/g, '""')}"`,
+      `"${(item.store_site || "-").replace(/"/g, '""')}"`,
+      item.store_verified ? "Yes" : "No",
+      item.store_active ? "Yes" : "No",
+      `"${item.onboarding_status}"`,
+      item.last_access,
+      item.events_count,
+      item.players_count
+    ];
+    csvRows.push(values.join(","));
+  }
+  
+  const csvString = "\uFEFF" + csvRows.join("\n");
+  const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  
+  const dateStr = new Date().toISOString().slice(0, 10);
+  link.setAttribute("download", `retailers_onboarding_${dateStr}.csv`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 const filteredRetailers = computed(() => {
   if (!dashboardData.value) return [];
   
@@ -685,15 +958,36 @@ const filteredRetailers = computed(() => {
   }
 
   // Store status filter
-  if (storeStatusFilter.value !== "All") {
+  if (storeStatusFilter.value !== "Todos") {
     result = result.filter((item: any) => {
       const hasStore = !!item.stores_pk;
-      if (storeStatusFilter.value === "With Store") return hasStore;
-      if (storeStatusFilter.value === "No Store") return !hasStore;
-      if (storeStatusFilter.value === "Verified Store") return hasStore && item.store_verified;
-      if (storeStatusFilter.value === "Unverified Store") return hasStore && !item.store_verified;
-      if (storeStatusFilter.value === "Active Store") return hasStore && item.store_active;
-      if (storeStatusFilter.value === "Inactive Store") return hasStore && !item.store_active;
+      if (storeStatusFilter.value === "Com Loja") return hasStore;
+      if (storeStatusFilter.value === "Sem Loja") return !hasStore;
+      if (storeStatusFilter.value === "Loja Verificada") return hasStore && item.store_verified;
+      if (storeStatusFilter.value === "Loja Não Verificada") return hasStore && !item.store_verified;
+      if (storeStatusFilter.value === "Loja Ativa") return hasStore && item.store_active;
+      if (storeStatusFilter.value === "Loja Inativa") return hasStore && !item.store_active;
+      return true;
+    });
+  }
+
+  // Onboarding status filter
+  if (onboardingStatusFilter.value !== "Todos") {
+    result = result.filter((item: any) => {
+      return item.onboarding_status === onboardingStatusFilter.value;
+    });
+  }
+
+  // Last activity filter
+  if (lastActivityFilter.value !== "Todos") {
+    result = result.filter((item: any) => {
+      const days = getInactivityDays(item.last_access);
+      if (lastActivityFilter.value === "Ativo nas últimas 24h") return days <= 1;
+      if (lastActivityFilter.value === "Ativo nos últimos 7 dias") return days <= 7;
+      if (lastActivityFilter.value === "Ativo nos últimos 30 dias") return days <= 30;
+      if (lastActivityFilter.value === "Inativo há 3+ dias") return days >= 3;
+      if (lastActivityFilter.value === "Inativo há 7+ dias") return days >= 7;
+      if (lastActivityFilter.value === "Inativo há 14+ dias") return days >= 14;
       return true;
     });
   }
@@ -704,7 +998,7 @@ const filteredRetailers = computed(() => {
 const formatDate = (dateStr: string) => {
   if (!dateStr || dateStr === "None") return "-";
   try {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr.replace(/-/g, "/").replace("T", " "));
     if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString("en-US", {
       year: "numeric",
@@ -729,8 +1023,9 @@ export default {
 
 <style scoped>
 .support-dashboard-container {
-  max-width: 1200px !important;
-  margin: 0 auto;
+  padding-top: 80px !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 @media (max-width: 959px) {
