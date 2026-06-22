@@ -201,7 +201,7 @@
                     </template>
                     <v-list-item-title class="font-weight-medium text-white">{{ country.country }}</v-list-item-title>
                     <template v-slot:append>
-                      <v-chip size="small" color="primary" class="font-weight-black">
+                      <v-chip size="small" class="font-weight-black" style="background-color: rgba(255, 255, 255, 0.1) !important; color: white !important;">
                         {{ country.count }} users
                       </v-chip>
                     </template>
@@ -320,7 +320,7 @@
                   <v-list-item v-for="item in dashboardData.sku_analysis.campaigns" :key="item.sku" class="hover-bg py-1">
                     <v-list-item-title class="font-weight-medium text-white">{{ item.sku }}</v-list-item-title>
                     <template v-slot:append>
-                      <v-chip size="small" color="primary" class="font-weight-black">{{ item.count }}</v-chip>
+                       <v-chip size="small" class="font-weight-black" style="background-color: rgba(255, 255, 255, 0.1) !important; color: white !important;">{{ item.count }}</v-chip>
                     </template>
                   </v-list-item>
                 </v-list>
@@ -368,7 +368,7 @@
           <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
             <!-- Search & Filters -->
             <v-row class="mb-4" align="center">
-              <v-col cols="12" md="4">
+              <v-col cols="12" md="3">
                 <v-text-field
                   v-model="search"
                   prepend-inner-icon="mdi-magnify"
@@ -378,7 +378,7 @@
                   color="warning"
                 ></v-text-field>
               </v-col>
-              <v-col cols="12" sm="6" md="4">
+              <v-col cols="12" sm="6" md="3">
                 <v-select
                   v-model="storeStatusFilter"
                   :items="storeStatusOptions"
@@ -388,11 +388,21 @@
                   color="warning"
                 ></v-select>
               </v-col>
-              <v-col cols="12" sm="6" md="4">
+              <v-col cols="12" sm="6" md="3">
                 <v-select
                   v-model="onboardingStatusFilter"
                   :items="onboardingStatusOptions"
                   label="Etapa de Onboarding"
+                  variant="solo-filled"
+                  hide-details
+                  color="warning"
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="3">
+                <v-select
+                  v-model="countryFilter"
+                  :items="countryOptions"
+                  label="Filtrar por País"
                   variant="solo-filled"
                   hide-details
                   color="warning"
@@ -410,7 +420,16 @@
                   color="warning"
                 ></v-select>
               </v-col>
-              <v-col cols="12" sm="6" md="4"></v-col>
+              <v-col cols="12" sm="6" md="4">
+                <v-select
+                  v-model="activityMetricsFilter"
+                  :items="activityMetricsOptions"
+                  label="Métricas (Eventos/Jogadores)"
+                  variant="solo-filled"
+                  hide-details
+                  color="warning"
+                ></v-select>
+              </v-col>
               <v-col cols="12" sm="6" md="4" class="d-flex justify-sm-end">
                 <v-btn
                   color="success"
@@ -835,6 +854,25 @@ const search = ref("");
 const storeStatusFilter = ref("Todos");
 const onboardingStatusFilter = ref("Todos");
 const lastActivityFilter = ref("Todos");
+const countryFilter = ref("Todos");
+const activityMetricsFilter = ref("Todos");
+
+const countryOptions = computed(() => {
+  if (!dashboardData.value || !dashboardData.value.retailers) return ["Todos"];
+  const list = dashboardData.value.retailers
+    .map((r: any) => r.country)
+    .filter((c: any) => c && c !== "-");
+  return ["Todos", ...new Set(list)].sort();
+});
+
+const activityMetricsOptions = [
+  "Todos",
+  "Com Eventos (1+)",
+  "Sem Eventos",
+  "Com Jogadores (1+)",
+  "Sem Jogadores"
+];
+
 const loading = ref(false);
 const error = ref<string | null>(null);
 const dashboardData = ref<any>(null);
@@ -1161,6 +1199,22 @@ const filteredRetailers = computed(() => {
       if (lastActivityFilter.value === "Inativo há 3+ dias") return days >= 3;
       if (lastActivityFilter.value === "Inativo há 7+ dias") return days >= 7;
       if (lastActivityFilter.value === "Inativo há 14+ dias") return days >= 14;
+      return true;
+    });
+  }
+
+  // Country filter
+  if (countryFilter.value !== "Todos") {
+    result = result.filter((item: any) => item.country === countryFilter.value);
+  }
+
+  // Activity metrics filter
+  if (activityMetricsFilter.value !== "Todos") {
+    result = result.filter((item: any) => {
+      if (activityMetricsFilter.value === "Com Eventos (1+)") return item.events_count > 0;
+      if (activityMetricsFilter.value === "Sem Eventos") return item.events_count === 0;
+      if (activityMetricsFilter.value === "Com Jogadores (1+)") return item.players_count > 0;
+      if (activityMetricsFilter.value === "Sem Jogadores") return item.players_count === 0;
       return true;
     });
   }
