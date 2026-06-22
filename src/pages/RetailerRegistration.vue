@@ -43,7 +43,7 @@
 
                                 <v-form ref="regForm">
                                     <v-row class="form-grid">
-                                        <v-col cols="12" sm="6">
+                                        <v-col cols="12">
                                             <v-text-field
                                                 v-model="signupUsername"
                                                 label="Username"
@@ -62,6 +62,19 @@
                                                 prepend-inner-icon="mdi-email"
                                                 type="email"
                                                 :rules="[rules.required, rules.email]"
+                                                color="secundary"
+                                                variant="outlined"
+                                                density="comfortable"
+                                                hide-details="auto"
+                                            />
+                                        </v-col>
+                                        <v-col cols="12" sm="6">
+                                            <v-text-field
+                                                v-model="signupConfirmEmail"
+                                                label="Confirm Email"
+                                                prepend-inner-icon="mdi-email-check"
+                                                type="email"
+                                                :rules="[rules.required, rules.email, rules.matchEmails]"
                                                 color="secundary"
                                                 variant="outlined"
                                                 density="comfortable"
@@ -169,6 +182,7 @@ const regForm = ref<VForm>();
 const router = useRouter();
 const signupUsername = ref<string>("");
 const signupEmail = ref<string>("");
+const signupConfirmEmail = ref<string>("");
 const signupPassword = ref<string>("");
 const signupConfirmPassword = ref<string>("");
 const storeAddress = ref<string>("");
@@ -195,6 +209,8 @@ const rules = {
     min: (value: string) => value.length >= 8 || "Min 8 characters",
     matchPasswords: (value: string) =>
         value === signupPassword.value || "The passwords must match",
+    matchEmails: (value: string) =>
+        value === signupEmail.value || "The emails must match",
 };
 
 const axios: any = inject("axios");
@@ -204,6 +220,7 @@ const trimValue = (value: string | null | undefined) => value?.trim?.() || "";
 const sanitizeRetailerRegistrationFields = () => {
     signupUsername.value = trimValue(signupUsername.value);
     signupEmail.value = trimValue(signupEmail.value);
+    signupConfirmEmail.value = trimValue(signupConfirmEmail.value);
     signupPassword.value = trimValue(signupPassword.value);
     signupConfirmPassword.value = trimValue(signupConfirmPassword.value);
     storeAddress.value = trimValue(storeAddress.value);

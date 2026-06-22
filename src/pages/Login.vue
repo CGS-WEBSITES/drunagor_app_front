@@ -115,8 +115,8 @@
                 </BaseAlert>
 
                 <v-form ref="regForm">
-                  <v-row>
-                    <v-col cols="12" sm="6">
+                  <v-row dense>
+                    <v-col cols="12">
                       <v-text-field
                         label="Username"
                         v-model="signupUsername"
@@ -128,6 +128,9 @@
                         hide-details="auto"
                       />
                     </v-col>
+                  </v-row>
+
+                  <v-row class="mt-2">
                     <v-col cols="12" sm="6">
                       <v-text-field
                         label="Email"
@@ -135,6 +138,19 @@
                         prepend-inner-icon="mdi-email"
                         type="email"
                         :rules="[rules.required, rules.email]"
+                        color="secundary"
+                        variant="outlined"
+                        density="comfortable"
+                        hide-details="auto"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                      <v-text-field
+                        label="Confirm Email"
+                        v-model="signupConfirmEmail"
+                        prepend-inner-icon="mdi-email-check"
+                        type="email"
+                        :rules="[rules.required, rules.email, rules.matchEmails]"
                         color="secundary"
                         variant="outlined"
                         density="comfortable"
@@ -339,6 +355,7 @@ const login = ref<string>("");
 const password = ref<string>("");
 const signupUsername = ref<string>("");
 const signupEmail = ref<string>("");
+const signupConfirmEmail = ref<string>("");
 const signupPassword = ref<string>("");
 const signupConfirmPassword = ref<string>("");
 const agreeTerms = ref<boolean>(false);
@@ -375,6 +392,8 @@ const rules = {
   min: (value: string) => value.length >= 8 || "Min 8 characters",
   matchPasswords: (value: string) =>
     value === signupPassword.value || "The passwords must match",
+  matchEmails: (value: string) =>
+    value === signupEmail.value || "The emails must match",
 };
 
 const axios: any = inject("axios");
@@ -386,6 +405,7 @@ const sanitizeAuthFields = () => {
   password.value = trimValue(password.value);
   signupUsername.value = trimValue(signupUsername.value);
   signupEmail.value = trimValue(signupEmail.value);
+  signupConfirmEmail.value = trimValue(signupConfirmEmail.value);
   signupPassword.value = trimValue(signupPassword.value);
   signupConfirmPassword.value = trimValue(signupConfirmPassword.value);
 };
