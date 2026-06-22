@@ -473,10 +473,24 @@
                   </td>
                   <td class="py-3 text-center">
                     <div class="d-flex justify-center ga-1">
-                      <v-chip size="small" color="purple" variant="flat" class="font-weight-bold">
+                      <v-chip
+                        size="small"
+                        color="purple"
+                        variant="flat"
+                        class="font-weight-bold"
+                        @click="showRetailerEventsList(item)"
+                        style="cursor: pointer;"
+                      >
                         {{ item.events_count }} events
                       </v-chip>
-                      <v-chip size="small" color="blue" variant="flat" class="font-weight-bold">
+                      <v-chip
+                        size="small"
+                        color="blue"
+                        variant="flat"
+                        class="font-weight-bold"
+                        @click="showRetailerPlayersList(item)"
+                        style="cursor: pointer;"
+                      >
                         {{ item.players_count }} players
                       </v-chip>
                     </div>
@@ -675,6 +689,125 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Retailer Events Dialog -->
+    <v-dialog v-model="eventsDialog" max-width="800" scrollable>
+      <v-card color="primary" class="text-white rounded-lg">
+        <v-card-title class="d-flex justify-space-between align-center border-b pb-3 mb-4 pt-4 px-6">
+          <span class="text-h5 font-weight-black cinzel-text text-warning text-uppercase">
+            Eventos da Loja: {{ eventsRetailerName }}
+          </span>
+          <v-btn icon @click="eventsDialog = false" variant="text" color="grey">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="px-6 pb-6 pt-0">
+          <div v-if="loadingEvents" class="d-flex flex-column justify-center align-center py-8">
+            <v-progress-circular indeterminate color="warning" size="48" class="mb-2"></v-progress-circular>
+            <span class="text-body-2 text-grey">Carregando eventos...</span>
+          </div>
+
+          <div v-else-if="retailerEvents.length === 0" class="text-center py-8 text-grey">
+            <v-icon size="48" class="mb-2" color="grey">mdi-calendar-remove</v-icon>
+            <div class="text-body-1 font-weight-bold">Nenhum evento ativo</div>
+            <p class="text-caption">Esta loja não possui eventos ativos criados.</p>
+          </div>
+
+          <v-table class="bg-transparent text-white" v-else>
+            <thead>
+              <tr class="border-b">
+                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Cenário</th>
+                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Data do Evento</th>
+                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Jogadores</th>
+                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="evt in retailerEvents" :key="evt.events_pk" class="border-b hover-row">
+                <td class="py-3 font-weight-bold">{{ evt.scenario }}</td>
+                <td class="py-3">{{ formatDate(evt.event_date) }}</td>
+                <td class="py-3 text-center">
+                  <v-chip size="small" color="blue" class="font-weight-black">
+                    {{ evt.players_count }} jogadores
+                  </v-chip>
+                </td>
+                <td class="py-3 text-center">
+                  <v-chip size="small" :color="evt.active ? 'success' : 'grey'" class="font-weight-black">
+                    {{ evt.active ? 'Ativo' : 'Inativo' }}
+                  </v-chip>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+
+        <v-card-actions class="px-6 pb-4 pt-0 justify-end">
+          <v-btn color="warning" variant="flat" class="font-weight-bold px-4" @click="eventsDialog = false">
+            Fechar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Retailer Players Dialog -->
+    <v-dialog v-model="playersDialog" max-width="800" scrollable>
+      <v-card color="primary" class="text-white rounded-lg">
+        <v-card-title class="d-flex justify-space-between align-center border-b pb-3 mb-4 pt-4 px-6">
+          <span class="text-h5 font-weight-black cinzel-text text-warning text-uppercase">
+            Jogadores Frequentes: {{ playersRetailerName }}
+          </span>
+          <v-btn icon @click="playersDialog = false" variant="text" color="grey">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="px-6 pb-6 pt-0">
+          <div v-if="loadingPlayers" class="d-flex flex-column justify-center align-center py-8">
+            <v-progress-circular indeterminate color="warning" size="48" class="mb-2"></v-progress-circular>
+            <span class="text-body-2 text-grey">Carregando jogadores...</span>
+          </div>
+
+          <div v-else-if="retailerPlayers.length === 0" class="text-center py-8 text-grey">
+            <v-icon size="48" class="mb-2" color="grey">mdi-account-off</v-icon>
+            <div class="text-body-1 font-weight-bold">Nenhum jogador frequente</div>
+            <p class="text-caption">Nenhum jogador participou de eventos nesta loja ainda.</p>
+          </div>
+
+          <v-table class="bg-transparent text-white" v-else>
+            <thead>
+              <tr class="border-b">
+                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Jogador</th>
+                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Email</th>
+                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Eventos Jogados</th>
+                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Última Visita</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="player in retailerPlayers" :key="player.users_pk" class="border-b hover-row">
+                <td class="py-3">
+                  <div class="font-weight-bold">{{ player.player_nick }}</div>
+                  <div class="text-caption text-grey" v-if="player.player_name">{{ player.player_name }}</div>
+                </td>
+                <td class="py-3 text-caption text-grey-lighten-2">{{ player.player_email }}</td>
+                <td class="py-3 text-center">
+                  <v-chip size="small" color="purple" class="font-weight-black">
+                    {{ player.checked_in_events_count }} eventos
+                  </v-chip>
+                </td>
+                <td class="py-3 text-center">{{ formatDate(player.last_interaction_date) }}</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card-text>
+
+        <v-card-actions class="px-6 pb-4 pt-0 justify-end">
+          <v-btn color="warning" variant="flat" class="font-weight-bold px-4" @click="playersDialog = false">
+            Fechar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -716,6 +849,16 @@ const loadingStoreDetails = ref(false);
 const editOnboardingStatus = ref("");
 const editPhone = ref("");
 const saving = ref(false);
+
+// Retailer Events and Players details
+const eventsDialog = ref(false);
+const playersDialog = ref(false);
+const retailerEvents = ref<any[]>([]);
+const retailerPlayers = ref<any[]>([]);
+const loadingEvents = ref(false);
+const loadingPlayers = ref(false);
+const eventsRetailerName = ref("");
+const playersRetailerName = ref("");
 
 const storeStatusOptions = [
   "Todos",
@@ -878,6 +1021,36 @@ const saveRetailerChanges = async () => {
     alert(err.response?.data?.message || "Failed to update retailer details.");
   } finally {
     saving.value = false;
+  }
+};
+
+const showRetailerEventsList = async (retailer: any) => {
+  eventsRetailerName.value = retailer.store_name !== "-" ? retailer.store_name : retailer.name;
+  retailerEvents.value = [];
+  loadingEvents.value = true;
+  eventsDialog.value = true;
+  try {
+    const response = await axios.get(`/analytics/retailer/${retailer.users_pk}/events`);
+    retailerEvents.value = response.data.events;
+  } catch (e) {
+    console.error("Error fetching retailer events:", e);
+  } finally {
+    loadingEvents.value = false;
+  }
+};
+
+const showRetailerPlayersList = async (retailer: any) => {
+  playersRetailerName.value = retailer.store_name !== "-" ? retailer.store_name : retailer.name;
+  retailerPlayers.value = [];
+  loadingPlayers.value = true;
+  playersDialog.value = true;
+  try {
+    const response = await axios.get(`/analytics/retailer/${retailer.users_pk}/players`);
+    retailerPlayers.value = response.data.players;
+  } catch (e) {
+    console.error("Error fetching retailer players:", e);
+  } finally {
+    loadingPlayers.value = false;
   }
 };
 
