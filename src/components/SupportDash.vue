@@ -44,24 +44,27 @@
 
     <!-- Dashboard Content -->
     <div v-else-if="dashboardData">
-      <!-- Tabs Navigation -->
-      <v-tabs
-        v-model="tab"
-        bg-color="transparent"
-        color="white"
-        align-tabs="center"
-        grow
-        class="mb-6"
-      >
-        <v-tab value="stats" class="text-h6 font-weight-bold cinzel-text">
-          <v-icon start>mdi-chart-bar</v-icon>
-          Statistics
-        </v-tab>
-        <v-tab value="retailers" class="text-h6 font-weight-bold cinzel-text">
-          <v-icon start>mdi-storefront-outline</v-icon>
-          Retailers ({{ dashboardData.retailers.length }})
-        </v-tab>
-      </v-tabs>
+      <!-- Tabs Navigation (Visible Premium Styled Control) -->
+      <div class="tabs-wrapper mb-6">
+        <v-tabs
+          v-model="tab"
+          bg-color="#181a21"
+          color="warning"
+          slider-color="warning"
+          align-tabs="center"
+          grow
+          height="60"
+        >
+          <v-tab value="stats" class="text-subtitle-1 font-weight-bold cinzel-text text-uppercase py-4">
+            <v-icon start size="22" color="warning">mdi-chart-bar</v-icon>
+            Statistics
+          </v-tab>
+          <v-tab value="retailers" class="text-subtitle-1 font-weight-bold cinzel-text text-uppercase py-4">
+            <v-icon start size="22" color="warning">mdi-storefront-outline</v-icon>
+            Retailers ({{ dashboardData.retailers.length }})
+          </v-tab>
+        </v-tabs>
+      </div>
 
       <!-- Windows -->
       <v-window v-model="tab">
@@ -115,9 +118,16 @@
               </v-card>
             </v-col>
 
-            <!-- Registered Retailers -->
+            <!-- Registered Retailers (Clickable to switch tab) -->
             <v-col cols="12" sm="6" md="3">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100 d-flex flex-column justify-space-between">
+              <v-card
+                color="primary"
+                elevation="2"
+                rounded="lg"
+                class="pa-4 h-100 d-flex flex-column justify-space-between hover-card-btn"
+                @click="tab = 'retailers'"
+                style="cursor: pointer;"
+              >
                 <div>
                   <div class="d-flex justify-space-between align-center mb-1">
                     <span class="text-overline text-grey-lighten-1">Retailers</span>
@@ -125,7 +135,9 @@
                   </div>
                   <div class="text-h3 font-weight-black text-white">{{ dashboardData.saude_geral.total_retailers }}</div>
                 </div>
-                <div class="text-caption text-grey-lighten-1 mt-2">Local stores & organizers</div>
+                <div class="text-caption text-warning font-weight-bold mt-2 d-flex align-center">
+                  Manage Retailers <v-icon end size="16">mdi-arrow-right</v-icon>
+                </div>
               </v-card>
             </v-col>
           </v-row>
@@ -962,8 +974,8 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const getInactivityDays = (lastAccessStr: string) => {
-  if (!lastAccessStr || lastAccessStr === "None") return 0;
+const getInactivityDays = (lastAccessStr: any) => {
+  if (!lastAccessStr || typeof lastAccessStr !== "string" || lastAccessStr === "None") return 0;
   const lastAccess = new Date(lastAccessStr.replace(/-/g, "/").replace("T", " "));
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - lastAccess.getTime());
@@ -1017,10 +1029,10 @@ const showRetailerDetails = async (retailer: any) => {
       console.error("Error fetching store details:", e);
       // Fallback to minimal info from dashboard
       storeDetails.value = {
-        name: retailer.store_name,
+        name: retailer.store_name || "",
         address: "-",
         zip_code: "-",
-        web_site: retailer.store_site !== "-" ? retailer.store_site : null,
+        web_site: (retailer.store_site && retailer.store_site !== "-") ? retailer.store_site : null,
       };
     } finally {
       loadingStoreDetails.value = false;
@@ -1063,7 +1075,7 @@ const saveRetailerChanges = async () => {
 };
 
 const showRetailerEventsList = async (retailer: any) => {
-  eventsRetailerName.value = retailer.store_name !== "-" ? retailer.store_name : retailer.name;
+  eventsRetailerName.value = (retailer.store_name && retailer.store_name !== "-") ? retailer.store_name : (retailer.name || "");
   retailerEvents.value = [];
   loadingEvents.value = true;
   eventsDialog.value = true;
@@ -1078,7 +1090,7 @@ const showRetailerEventsList = async (retailer: any) => {
 };
 
 const showRetailerPlayersList = async (retailer: any) => {
-  playersRetailerName.value = retailer.store_name !== "-" ? retailer.store_name : retailer.name;
+  playersRetailerName.value = (retailer.store_name && retailer.store_name !== "-") ? retailer.store_name : (retailer.name || "");
   retailerPlayers.value = [];
   loadingPlayers.value = true;
   playersDialog.value = true;
@@ -1118,9 +1130,9 @@ const exportToCSV = () => {
   for (const item of filteredRetailers.value) {
     const values = [
       item.users_pk,
-      `"${item.name.replace(/"/g, '""')}"`,
-      `"${item.user_name.replace(/"/g, '""')}"`,
-      `"${item.email.replace(/"/g, '""')}"`,
+      `"${(item.name || "").replace(/"/g, '""')}"`,
+      `"${(item.user_name || "").replace(/"/g, '""')}"`,
+      `"${(item.email || "").replace(/"/g, '""')}"`,
       `"${(item.phone || "").replace(/"/g, '""')}"`,
       `"${(item.country || "-").replace(/"/g, '""')}"`,
       item.join_date,
@@ -1128,7 +1140,7 @@ const exportToCSV = () => {
       `"${(item.store_site || "-").replace(/"/g, '""')}"`,
       item.store_verified ? "Yes" : "No",
       item.store_active ? "Yes" : "No",
-      `"${item.onboarding_status}"`,
+      `"${item.onboarding_status || ""}"`,
       item.last_access,
       item.events_count,
       item.players_count
@@ -1159,11 +1171,15 @@ const filteredRetailers = computed(() => {
   const searchLower = search.value.toLowerCase().trim();
   if (searchLower) {
     result = result.filter((item: any) => {
+      const name = (item.name || "").toLowerCase();
+      const userName = (item.user_name || "").toLowerCase();
+      const email = (item.email || "").toLowerCase();
+      const storeName = (item.store_name || "").toLowerCase();
       return (
-        item.name.toLowerCase().includes(searchLower) ||
-        item.user_name.toLowerCase().includes(searchLower) ||
-        item.email.toLowerCase().includes(searchLower) ||
-        item.store_name.toLowerCase().includes(searchLower)
+        name.includes(searchLower) ||
+        userName.includes(searchLower) ||
+        email.includes(searchLower) ||
+        storeName.includes(searchLower)
       );
     });
   }
@@ -1222,8 +1238,8 @@ const filteredRetailers = computed(() => {
   return result;
 });
 
-const formatDate = (dateStr: string) => {
-  if (!dateStr || dateStr === "None") return "-";
+const formatDate = (dateStr: any) => {
+  if (!dateStr || typeof dateStr !== "string" || dateStr === "None") return "-";
   try {
     const d = new Date(dateStr.replace(/-/g, "/").replace("T", " "));
     if (isNaN(d.getTime())) return dateStr;
@@ -1301,5 +1317,41 @@ export default {
 
 .gap-1 {
   gap: 4px;
+}
+
+/* Premium Visible Tabs Header */
+.tabs-wrapper {
+  background-color: #181a21;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.tabs-wrapper :deep(.v-btn) {
+  transition: all 0.25s ease;
+  letter-spacing: 1px !important;
+}
+
+.tabs-wrapper :deep(.v-tab--selected) {
+  background-color: rgba(251, 140, 0, 0.12) !important;
+  color: #FB8C00 !important;
+  font-weight: 900 !important;
+  border-bottom: 3px solid #FB8C00 !important;
+}
+
+.tabs-wrapper :deep(.v-tab:hover:not(.v-tab--selected)) {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  color: #fff !important;
+}
+
+/* Hover effect on clickable statistics cards */
+.hover-card-btn {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+.hover-card-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(251, 140, 0, 0.4) !important;
 }
 </style>
