@@ -70,6 +70,53 @@
       <v-window v-model="tab">
         <!-- TAB 1: STATISTICS -->
         <v-window-item value="stats">
+          <!-- Health Score Signal & Executive Warnings -->
+          <v-row class="mb-6">
+            <v-col cols="12">
+              <v-card color="#1f222b" class="pa-4" rounded="lg" elevation="2" style="border: 1px solid rgba(251, 140, 0, 0.4) !important;">
+                <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center ga-4">
+                  <div>
+                    <div class="d-flex align-center mb-1 ga-2">
+                      <span class="text-overline text-grey-lighten-2 cinzel-text font-weight-black">System Health Index</span>
+                      <v-chip color="warning" size="small" class="font-weight-black text-uppercase">Atenção</v-chip>
+                    </div>
+                    <h2 class="text-h5 font-weight-black text-white cinzel-text">EXECUTIVE HEALTH SCORE SIGNAL</h2>
+                    <p class="text-caption text-grey-lighten-1 mt-1">Overall index is governed by onboarding creation conversion, Organized Play (OP) activity, and active user retention.</p>
+                  </div>
+                  <div class="d-flex flex-wrap ga-3">
+                    <div class="bg-black-opacity rounded px-4 py-2 text-center" style="border: 1px solid rgba(255,255,255,0.06)">
+                      <div class="text-caption text-grey">ONBOARDING CONV.</div>
+                      <div class="text-h6 font-weight-bold text-red-accent-2">16.7%</div>
+                    </div>
+                    <div class="bg-black-opacity rounded px-4 py-2 text-center" style="border: 1px solid rgba(255,255,255,0.06)">
+                      <div class="text-caption text-grey">ACTIVE EVENTS (OP)</div>
+                      <div class="text-h6 font-weight-bold text-red-accent-2">1 Mesa</div>
+                    </div>
+                    <div class="bg-black-opacity rounded px-4 py-2 text-center" style="border: 1px solid rgba(255,255,255,0.06)">
+                      <div class="text-caption text-grey">7D RETENTION RATE</div>
+                      <div class="text-h6 font-weight-bold text-warning">1.6%</div>
+                    </div>
+                  </div>
+                </div>
+                <v-divider class="my-4 rgba-white-bd"></v-divider>
+                <div class="text-body-2 text-white">
+                  <div class="d-flex align-center mb-2">
+                    <v-icon color="red" size="18" class="mr-2">mdi-alert-octagon</v-icon>
+                    <span><strong>Critical Onboarding Bottleneck:</strong> Only 1 of 6 retailers registered in the last 30 days completed store creation. High drop-off rate (~83.3%).</span>
+                  </div>
+                  <div class="d-flex align-center mb-2">
+                    <v-icon color="red" size="18" class="mr-2">mdi-alert-outline</v-icon>
+                    <span><strong>Low OP Activity:</strong> Only 1 active event table is running across all verified retailers. Action required to stimulate local play.</span>
+                  </div>
+                  <div class="d-flex align-center">
+                    <v-icon color="warning" size="18" class="mr-2">mdi-trending-down</v-icon>
+                    <span><strong>Traffic Deceleration:</strong> Active user base dropped to 18 active users weekly (down from 826 during the campaign peak). Stabilization normal but retention needs monitoring.</span>
+                  </div>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+
           <!-- KPI Row -->
           <v-row class="mb-6">
             <!-- Total Users -->
@@ -138,6 +185,79 @@
                 <div class="text-caption text-warning font-weight-bold mt-2 d-flex align-center">
                   Manage Retailers <v-icon end size="16">mdi-arrow-right</v-icon>
                 </div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Weekly Comparative Table -->
+          <v-row class="mb-6">
+            <v-col cols="12">
+              <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
+                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
+                  <v-icon start color="warning">mdi-table-large</v-icon> WEEKLY COMPARATIVE TRACKING (SEASON 1 EVALUATION)
+                </v-card-title>
+                <v-table class="bg-transparent text-white w-100">
+                  <thead>
+                    <tr style="border-bottom: 2px solid rgba(255,255,255,0.12)">
+                      <th class="text-left font-weight-black text-warning cinzel-text">METRIC / KPI</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">BASELINE (JUNE 15)</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">CURRENT (JUNE 22)</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">WEEKLY DELTA</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">TARGET META S1</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="hover-row">
+                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-account-group</v-icon> Total Registered Users</td>
+                      <td class="text-center text-grey-lighten-2">1,175</td>
+                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.total_users }}</td>
+                      <td class="text-center text-success font-weight-bold">+15 (+1.3%)</td>
+                      <td class="text-center text-grey-lighten-2">1,500</td>
+                      <td class="text-center"><v-chip size="x-small" color="warning" class="font-weight-black">79% Met</v-chip></td>
+                    </tr>
+                    <tr class="hover-row">
+                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-run-fast</v-icon> Weekly Active Users (7d)</td>
+                      <td class="text-center text-grey-lighten-2">826</td>
+                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.ativos_7d }}</td>
+                      <td class="text-center text-red font-weight-bold">-808 (-97.8%)</td>
+                      <td class="text-center text-grey-lighten-2">200</td>
+                      <td class="text-center"><v-chip size="x-small" color="red" class="font-weight-black">Critical</v-chip></td>
+                    </tr>
+                    <tr class="hover-row">
+                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-calendar-check</v-icon> Monthly Active Users (30d)</td>
+                      <td class="text-center text-grey-lighten-2">900</td>
+                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.ativos_30d }}</td>
+                      <td class="text-center text-red font-weight-bold">-38 (-4.2%)</td>
+                      <td class="text-center text-grey-lighten-2">1,000</td>
+                      <td class="text-center"><v-chip size="x-small" color="warning" class="font-weight-black">86% Met</v-chip></td>
+                    </tr>
+                    <tr class="hover-row">
+                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-store</v-icon> Registered Retailers</td>
+                      <td class="text-center text-grey-lighten-2">48</td>
+                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.total_retailers }}</td>
+                      <td class="text-center text-success font-weight-bold">+1</td>
+                      <td class="text-center text-grey-lighten-2">75</td>
+                      <td class="text-center"><v-chip size="x-small" color="warning" class="font-weight-black">65% Met</v-chip></td>
+                    </tr>
+                    <tr class="hover-row">
+                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-map-marker-radius</v-icon> Active Event Tables</td>
+                      <td class="text-center text-grey-lighten-2">1</td>
+                      <td class="text-center font-weight-bold">1</td>
+                      <td class="text-center text-grey font-weight-bold">0 (0.0%)</td>
+                      <td class="text-center text-grey-lighten-2">20</td>
+                      <td class="text-center"><v-chip size="x-small" color="red" class="font-weight-black">5% Met</v-chip></td>
+                    </tr>
+                    <tr class="hover-row">
+                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-television-play</v-icon> Active Campaigns</td>
+                      <td class="text-center text-grey-lighten-2">1,074</td>
+                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.campanhas_ativas }}</td>
+                      <td class="text-center text-success font-weight-bold">+14 (+1.3%)</td>
+                      <td class="text-center text-grey-lighten-2">1,200</td>
+                      <td class="text-center"><v-chip size="x-small" color="success" class="font-weight-black">90% Met</v-chip></td>
+                    </tr>
+                  </tbody>
+                </v-table>
               </v-card>
             </v-col>
           </v-row>
@@ -370,6 +490,100 @@
                     </template>
                   </v-list-item>
                 </v-list>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Trend & Analytics Charts (9 Grid) -->
+          <v-row class="mt-6 mb-6">
+            <v-col cols="12">
+              <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
+                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
+                  <v-icon start color="warning">mdi-chart-areaspline</v-icon> PERFORMANCE TRENDS & ANALYTICS CHARTS
+                </v-card-title>
+                <v-row>
+                  <!-- Chart 1: Progress vs Meta -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">1. Progress vs Meta S1</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cGoals"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 2: User Growth Trend -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">2. Weekly User Growth</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cUsers"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 3: Active Users by Window -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">3. Activity Windows</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cWindows"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 4: Momentum (30d Active) -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">4. Activity Momentum (30d)</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cMom"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 5: Feature Adoption -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">5. Feature Adoption</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cFeat"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 6: Active Campaigns by SKU -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">6. Campaigns by SKU</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cSKUCamp"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 7: Owned by SKU -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">7. Owned by SKU (Top 7)</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cSKUOwn"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 8: Wishlist by SKU -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">8. Wishlist by SKU (Top 7)</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cSKUWish"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                  <!-- Chart 9: Geographic Distribution -->
+                  <v-col cols="12" md="4" class="py-2">
+                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">9. Geographic (Top 5)</div>
+                      <div style="position: relative; height: 220px; width: 100%;">
+                        <canvas ref="cGeog"></canvas>
+                      </div>
+                    </v-card>
+                  </v-col>
+                </v-row>
               </v-card>
             </v-col>
           </v-row>
@@ -843,8 +1057,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, watch, inject } from "vue";
+import { ref, computed, onMounted, watch, inject, nextTick } from "vue";
 import { useRoute } from "vue-router";
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 const axios: any = inject("axios");
 
@@ -1253,8 +1470,317 @@ const formatDate = (dateStr: any) => {
   }
 };
 
-onMounted(() => {
-  fetchDashboardData();
+// Chart Canvas Refs
+const cGoals = ref<HTMLCanvasElement | null>(null);
+const cUsers = ref<HTMLCanvasElement | null>(null);
+const cWindows = ref<HTMLCanvasElement | null>(null);
+const cMom = ref<HTMLCanvasElement | null>(null);
+const cFeat = ref<HTMLCanvasElement | null>(null);
+const cSKUCamp = ref<HTMLCanvasElement | null>(null);
+const cSKUOwn = ref<HTMLCanvasElement | null>(null);
+const cSKUWish = ref<HTMLCanvasElement | null>(null);
+const cGeog = ref<HTMLCanvasElement | null>(null);
+
+// Chart instances store
+const chartInstances = {
+  goals: null as Chart | null,
+  users: null as Chart | null,
+  windows: null as Chart | null,
+  mom: null as Chart | null,
+  feat: null as Chart | null,
+  skuCamp: null as Chart | null,
+  skuOwn: null as Chart | null,
+  skuWish: null as Chart | null,
+  geog: null as Chart | null
+};
+
+const initCharts = () => {
+  // Destroy existing charts to prevent canvas reuse issues
+  Object.keys(chartInstances).forEach((key) => {
+    const inst = (chartInstances as any)[key];
+    if (inst) {
+      inst.destroy();
+      (chartInstances as any)[key] = null;
+    }
+  });
+
+  if (!dashboardData.value) return;
+  const data = dashboardData.value;
+
+  // Chart 1: S1 Goals Progress
+  if (cGoals.value) {
+    chartInstances.goals = new Chart(cGoals.value, {
+      type: "bar",
+      data: {
+        labels: ["Users (1.5k)", "Retailers (75)", "Campaigns (1.2k)", "Events (20)"],
+        datasets: [{
+          label: "% of Goal Met",
+          data: [
+            Math.min(100, Math.round((data.saude_geral.total_users / 1500) * 100)),
+            Math.min(100, Math.round((data.saude_geral.total_retailers / 75) * 100)),
+            Math.min(100, Math.round((data.saude_geral.campanhas_ativas / 1200) * 100)),
+            Math.min(100, Math.round((1 / 20) * 100))
+          ],
+          backgroundColor: ["#e0b341", "#5b8fd6", "#5bbf6a", "#e0564b"],
+          borderWidth: 0,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.raw}% Completed`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
+          y: { min: 0, max: 100, ticks: { color: "#9a9488", callback: (val) => `${val}%` } }
+        }
+      }
+    });
+  }
+
+  // Chart 2: Weekly User Growth
+  if (cUsers.value) {
+    chartInstances.users = new Chart(cUsers.value, {
+      type: "line",
+      data: {
+        labels: ["Wk 1", "Wk 2", "Wk 3", "Wk 4 (June 15)", "Current (June 22)"],
+        datasets: [{
+          label: "Total Users",
+          data: [1005, 1032, 1048, 1175, data.saude_geral.total_users],
+          borderColor: "#e0b341",
+          backgroundColor: "rgba(224, 179, 65, 0.1)",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
+          y: { ticks: { color: "#9a9488" } }
+        }
+      }
+    });
+  }
+
+  // Chart 3: Active Users by Window
+  if (cWindows.value) {
+    chartInstances.windows = new Chart(cWindows.value, {
+      type: "bar",
+      data: {
+        labels: ["Active 7d", "Active 30d", "Active 12M"],
+        datasets: [{
+          data: [data.saude_geral.ativos_7d, data.saude_geral.ativos_30d, data.saude_geral.ativos_12m],
+          backgroundColor: ["#e0564b", "#e0b341", "#5bbf6a"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
+          y: { ticks: { color: "#9a9488" } }
+        }
+      }
+    });
+  }
+
+  // Chart 4: Activity Momentum (30d)
+  if (cMom.value) {
+    chartInstances.mom = new Chart(cMom.value, {
+      type: "doughnut",
+      data: {
+        labels: ["New Users (30d)", "New Campaigns (30d)"],
+        datasets: [{
+          data: [data.saude_geral.novos_usuarios_30d, data.saude_geral.campanhas_novas_30d],
+          backgroundColor: ["#5b8fd6", "#4fb8b0"],
+          borderWidth: 1,
+          borderColor: "#1f222b"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { color: "#f4f1ea", boxWidth: 12 } }
+        }
+      }
+    });
+  }
+
+  // Chart 5: Feature Adoption
+  if (cFeat.value) {
+    chartInstances.feat = new Chart(cFeat.value, {
+      type: "bar",
+      data: {
+        labels: ["Library", "Custom Heroes", "Social", "Events"],
+        datasets: [{
+          data: [
+            data.feature_usage.library_users,
+            data.feature_usage.heroes_creators,
+            data.feature_usage.friends_interacted,
+            data.feature_usage.events_participants
+          ],
+          backgroundColor: ["#5b8fd6", "#e0b341", "#a98ad6", "#4fb8b0"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
+          y: { ticks: { color: "#9a9488" } }
+        }
+      }
+    });
+  }
+
+  // Chart 6: Active Campaigns by SKU
+  if (cSKUCamp.value) {
+    const list = data.sku_analysis.campaigns || [];
+    chartInstances.skuCamp = new Chart(cSKUCamp.value, {
+      type: "bar",
+      data: {
+        labels: list.map((i: any) => i.sku),
+        datasets: [{
+          data: list.map((i: any) => i.count),
+          backgroundColor: "#5b8fd6",
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#9a9488" } },
+          y: { grid: { display: false }, ticks: { color: "#9a9488" } }
+        }
+      }
+    });
+  }
+
+  // Chart 7: Owned by SKU
+  if (cSKUOwn.value) {
+    const list = (data.sku_analysis.owned || []).slice(0, 7);
+    chartInstances.skuOwn = new Chart(cSKUOwn.value, {
+      type: "bar",
+      data: {
+        labels: list.map((i: any) => i.sku),
+        datasets: [{
+          data: list.map((i: any) => i.count),
+          backgroundColor: "#5bbf6a",
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#9a9488" } },
+          y: { grid: { display: false }, ticks: { color: "#9a9488" } }
+        }
+      }
+    });
+  }
+
+  // Chart 8: Wishlist by SKU
+  if (cSKUWish.value) {
+    const list = (data.sku_analysis.wishlist || []).slice(0, 7);
+    chartInstances.skuWish = new Chart(cSKUWish.value, {
+      type: "bar",
+      data: {
+        labels: list.map((i: any) => i.sku),
+        datasets: [{
+          data: list.map((i: any) => i.count),
+          backgroundColor: "#e0b341",
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: "#9a9488" } },
+          y: { grid: { display: false }, ticks: { color: "#9a9488" } }
+        }
+      }
+    });
+  }
+
+  // Chart 9: Geographic (Top 5)
+  if (cGeog.value) {
+    const list = (data.saude_geral.countries || []).slice(0, 5);
+    chartInstances.geog = new Chart(cGeog.value, {
+      type: "pie",
+      data: {
+        labels: list.map((i: any) => i.country),
+        datasets: [{
+          data: list.map((i: any) => i.count),
+          backgroundColor: ["#e0b341", "#5b8fd6", "#5bbf6a", "#e0564b", "#a98ad6"],
+          borderWidth: 1,
+          borderColor: "#1f222b"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { color: "#f4f1ea", boxWidth: 12 } }
+        }
+      }
+    });
+  }
+};
+
+// Render charts on tab change or dashboard data updates
+watch(
+  () => tab.value,
+  (newTab) => {
+    if (newTab === "stats") {
+      nextTick(() => {
+        setTimeout(initCharts, 50);
+      });
+    }
+  }
+);
+
+watch(
+  () => dashboardData.value,
+  (newData) => {
+    if (newData && tab.value === "stats") {
+      nextTick(() => {
+        setTimeout(initCharts, 50);
+      });
+    }
+  }
+);
+
+onMounted(async () => {
+  await fetchDashboardData();
+  if (dashboardData.value && tab.value === "stats") {
+    nextTick(() => {
+      setTimeout(initCharts, 100);
+    });
+  }
 });
 </script>
 
@@ -1353,5 +1879,9 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
   border: 1px solid rgba(251, 140, 0, 0.4) !important;
+}
+
+.rgba-white-bd {
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 </style>
