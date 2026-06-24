@@ -1065,6 +1065,8 @@ const currentDoorData = computed(() => {
   const currentDoor = (activeCampaignData.value.door || "").toUpperCase();
   
   const sectionData = doorInstructionsData.find((s: any) => {
+    if (wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 01")) return s.section === "WING 1 - DOORS";
+    if (wing.includes("WING 2") || wing.includes("WING 02")) return s.section === "WING 2 - DOORS";
     if (wing.includes("WING 3")) return s.section === "WING 3 - DOORS";
     if (wing.includes("WING 4")) return s.section === "WING 4 - DOORS";
     return false;
