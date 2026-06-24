@@ -12,7 +12,7 @@
         class="py-2"
         style="max-width: 800px"
       >
-        <template v-if="user?.roles_fk === 2">
+        <template v-if="user?.roles_fk === 2 || user?.roles_fk === 1 || user?.roles_fk === 4">
           <template
             v-for="(button, i) in usermobilebuttons"
             :key="button.value"
@@ -70,7 +70,7 @@
         class="py-2"
         style="max-width: 800px"
       >
-        <template v-if="user?.roles_fk === 2">
+        <template v-if="user?.roles_fk === 2 || user?.roles_fk === 1 || user?.roles_fk === 4">
           <template v-for="(button, index) in userbuttons" :key="index">
             <v-btn class="mx-1" rounded @click="navigateTo(button.route)">
               <v-icon style="font-size: 24px">{{ button.icon }}</v-icon>

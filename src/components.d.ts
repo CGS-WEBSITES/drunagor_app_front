@@ -154,6 +154,8 @@ declare module 'vue' {
     StoryRecordOutcome: typeof import('./components/StoryRecordOutcome.vue')['default']
     StoryRecordStatus: typeof import('./components/StoryRecordStatus.vue')['default']
     StoryRecordUnfolding: typeof import('./components/StoryRecordUnfolding.vue')['default']
+    SupportDash: typeof import('./components/SupportDash.vue')['default']
+    SupportForm: typeof import('./components/SupportForm.vue')['default']
     SwappableImage: typeof import('./components/SwappableImage.vue')['default']
     TermsCard: typeof import('./components/TermsCard.vue')['default']
     TharmagarChat: typeof import('./components/TharmagarChat.vue')['default']
