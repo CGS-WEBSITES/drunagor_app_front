@@ -344,14 +344,8 @@ import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { extractMonth, extractDay, extractTime } from "@/utils/dateHelpers";
-const apiUrl = inject("apiUrl", "");
-const isTestingEnv = computed(() => {
-  return apiUrl.includes("/test/") || apiUrl.includes("localhost") || apiUrl.includes("127.0.0.1");
-});
-
 const isBeforeJulyFirst2026 = () => {
-  if (isTestingEnv.value) return false;
-  return new Date() < new Date("2026-07-01T00:00:00");
+  return false;
 };
 
 const router = useRouter();

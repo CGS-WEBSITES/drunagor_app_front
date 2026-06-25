@@ -765,10 +765,6 @@ const router = useRouter();
 const route = useRoute();
 const tutorialStore = useTutorialStore();
 const axios = inject("axios");
-const apiUrl = inject("apiUrl", "");
-const isTestingEnv = computed(() => {
-  return apiUrl.includes("/test/") || apiUrl.includes("localhost") || apiUrl.includes("127.0.0.1");
-});
 const LOCKED_RETAILER_SEASON_PK = 3;
 const RETAILER_ALLOWED_SCENERIES = [5, 6];
 const FALLBACK_RETAILER_SEASON = {
@@ -893,43 +889,19 @@ const userTimezone = computed(
 );
 
 const isBeforeJulyFirst2026 = () => {
-  if (isTestingEnv.value) return false;
-  return new Date() < new Date("2026-07-01T00:00:00");
+  return false;
 };
 
 const retailerSeasonOptions = computed(() => {
   const allowedSg = seasons.value.filter(
     (season) => season.seasons_pk === 2 || season.seasons_pk === 3,
   );
-  const items = allowedSg.length === 0
+  return allowedSg.length === 0
     ? [
         { seasons_pk: 2, name: "Season 1" },
         { seasons_pk: 3, name: "Season 2" }
       ]
     : allowedSg.map(s => ({ seasons_pk: s.seasons_pk, name: s.name }));
-
-  const beforeJuly1 = isBeforeJulyFirst2026();
-
-  return items.map(item => {
-    if (isTestingEnv.value) {
-      return item;
-    }
-    if (item.seasons_pk === 3) {
-      return {
-        ...item,
-        disabled: true,
-        props: { disabled: true }
-      };
-    }
-    if (item.seasons_pk === 2 && beforeJuly1) {
-      return {
-        ...item,
-        disabled: true,
-        props: { disabled: true }
-      };
-    }
-    return item;
-  });
 });
 
 const availableStores = computed(() => {
