@@ -1754,8 +1754,7 @@ const fetchOpenedDoors = async () => {
          const isTargetWing = wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("WING 2") || wing.includes("WING 02") || wing.includes("WING 3") || wing.includes("TUTORIAL");
 
          if (wasFirstSetup && isTargetWing) {
-           openNarrativeDialog();
-           openStartHerePage("OPENING A DOOR");
+           openingDoorDialogVisible.value = true;
          } else {
            openNarrativeDialog();
          }
