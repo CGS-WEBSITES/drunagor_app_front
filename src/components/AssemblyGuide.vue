@@ -39,13 +39,12 @@
         :class="isMobile ? 'pa-3' : 'pa-4 pa-md-6'"
         color="grey-darken-4"
       >
-        <p
+        <div
           :class="isMobile ? 'text-body-2' : 'text-body-1'"
-          class="text-justify mb-0"
-          style="white-space: pre-line;"
-        >
-          {{ currentStepData.instruction }}
-        </p>
+          class="text-justify mb-0 html-instruction"
+          v-html="currentStepData.instruction"
+          @click="handleInstructionClick"
+        ></div>
       </v-sheet>
 
       <v-sheet class="navigation-bar pa-3 pa-sm-4" color="grey-darken-3">
@@ -170,7 +169,7 @@
         >
           <img
             ref="zoomImage"
-            :src="currentStepData.image"
+            :src="zoomImageUrl || currentStepData.image"
             :alt="`Assembly step ${currentStep + 1}`"
             class="zoom-image"
             :style="zoomImageStyle"
@@ -250,6 +249,7 @@ const { mobile } = useDisplay();
 
 const currentStep = ref(0);
 const zoomDialog = ref(false);
+const zoomImageUrl = ref("");
 const zoomLevel = ref(1);
 const zoomPosition = ref({ x: 0, y: 0 });
 const showZoomHint = ref(true);
@@ -309,13 +309,21 @@ const scrollToTop = () => {
   }
 };
 
-const openZoomDialog = () => {
+const openZoomDialog = (url = null) => {
+  zoomImageUrl.value = typeof url === 'string' ? url : currentStepData.value.image;
   zoomDialog.value = true;
   resetZoom();
   showZoomHint.value = true;
   setTimeout(() => {
     showZoomHint.value = false;
   }, 3000);
+};
+
+const handleInstructionClick = (event) => {
+  const target = event.target;
+  if (target.tagName === 'IMG') {
+    openZoomDialog(target.src);
+  }
 };
 
 const closeZoomDialog = () => {
@@ -452,6 +460,7 @@ const handleKeyPress = (event) => {
 
 watch(currentStep, () => {
   if (zoomDialog.value) {
+    zoomImageUrl.value = currentStepData.value.image;
     resetZoom();
   }
 });
@@ -512,6 +521,34 @@ onUnmounted(() => {
 .instruction-box {
   min-height: 60px;
   border-top: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.instruction-box :deep(img) {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 16px auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  cursor: zoom-in;
+  transition: transform 0.2s ease;
+}
+
+.instruction-box :deep(img):hover {
+  transform: scale(1.02);
+}
+
+.instruction-box :deep(p) {
+  margin-bottom: 12px;
+}
+
+.instruction-box :deep(ul) {
+  margin-left: 20px;
+  margin-bottom: 12px;
+}
+
+.instruction-box :deep(li) {
+  margin-bottom: 6px;
 }
 
 .navigation-bar {
@@ -635,5 +672,13 @@ onUnmounted(() => {
   .zoom-hint-container {
     margin-top: 12px;
   }
-  }
-  </style>
+}
+
+.html-instruction,
+.html-instruction :deep(p),
+.html-instruction :deep(li) {
+  font-family: "EB Garamond", serif !important;
+  font-size: 1.15rem !important;
+  line-height: 1.6 !important;
+}
+</style>

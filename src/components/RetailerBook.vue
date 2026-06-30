@@ -1552,7 +1552,7 @@ onBeforeUnmount(() => {
 }
 
 .body-text div[style*="color: Black"] {
-  text-indent: 0em !important;
+  text-indent: 2emem !important;
 }
 
 .setup-placeholder {
