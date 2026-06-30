@@ -182,30 +182,103 @@
         <v-card-text class="pa-0" style="overflow-y: auto;">
           <!-- Return to Recent Campaign Option -->
           <div v-if="recentCampaign" class="pa-5 text-center">
-            <v-img 
-              :src="getCampaignBanner(recentCampaign.campaign)" 
-              height="140" 
-              cover
-              class="mb-4 rounded-xl elevation-4"
-            ></v-img>
+            <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-4">Return to Recent Campaign</h3>
             
-            <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">{{ recentCampaign.name }}</h3>
-            <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
-              {{ formatCampaignDescription(recentCampaign) }}
-            </p>
-            
-            <v-btn 
-              color="amber-accent-2" 
-              variant="flat" 
-              rounded="pill" 
-              size="x-large"
-              block
-              class="font-weight-black text-grey-darken-4"
+            <v-card
+              color="secundary"
+              elevation="16"
+              width="100%"
+              class="mx-auto cursor-pointer transition-swing rounded-xl text-left"
+              style="overflow: hidden; max-width: 440px;"
               @click="resumeRecentCampaign"
             >
-              <v-icon left class="mr-2">mdi-play</v-icon>
-              Return to Campaign
-            </v-btn>
+              <!-- Banner Image -->
+              <v-img
+                :src="getCampaignBanner(recentCampaign.campaign)"
+                height="120"
+                cover
+              ></v-img>
+
+              <v-card-title class="d-flex flex-column text-uppercase pb-1 px-3 pt-2">
+                <div class="d-flex justify-space-between align-center w-100">
+                  <span class="text-h6 font-weight-bold mb-0 text-truncate text-white" style="font-size: 1.15rem !important; letter-spacing: 0.5px;">
+                    {{ recentCampaign.name }}
+                  </span>
+                  <v-chip
+                    v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.isFinished"
+                    color="red-darken-4"
+                    size="x-small"
+                    variant="flat"
+                    class="font-weight-bold ml-2"
+                  >
+                    FINISHED
+                  </v-chip>
+                </div>
+
+                <div class="d-flex align-center text-subtitle-2 mt-0 text-grey-lighten-1 w-100" style="font-size: 0.75rem !important;">
+                  <span v-if="recentCampaign.wing">{{ formatWingName(recentCampaign.wing) }}</span>
+                  <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.door" class="ml-2">
+                    - Door: <span class="text-white font-weight-bold">{{ recentCampaign.door }}</span>
+                  </span>
+                  <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold">
+                    {{ calculateCompletionPercentage(recentCampaign) }}%
+                  </span>
+                </div>
+              </v-card-title>
+
+              <v-progress-linear
+                v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)"
+                :model-value="calculateCompletionPercentage(recentCampaign)"
+                color="amber-accent-2"
+                height="3"
+                class="mb-0"
+              ></v-progress-linear>
+
+              <!-- Players list (Compact standees) -->
+              <div v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="mt-1 px-3 pt-0 pb-3">
+                <div class="d-flex flex-wrap align-center standees-list-container-compact">
+                  <div
+                    v-for="player in recentPlayers"
+                    :key="player.rl_campaigns_users_pk"
+                    class="player-standee-container-compact"
+                  >
+                    <div class="hero-standee-card-compact">
+                      <v-img
+                        v-slot:default
+                        v-if="getPlayerHeroAvatar(player)"
+                        :src="getPlayerHeroAvatar(player)"
+                        cover
+                        class="w-100 h-100"
+                      ></v-img>
+                      <v-icon v-else size="small" color="grey" class="ma-auto">mdi-help</v-icon>
+                      <div class="player-name-overlay-compact">
+                        <span class="player-name-text-compact">{{ player.user_name }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span v-if="recentPlayers.length === 0" class="text-caption text-grey font-italic pb-2">No players synced yet.</span>
+                </div>
+              </div>
+
+              <!-- Legacy style: Hero Avatars -->
+              <div v-else class="mt-1 px-3 pt-0 pb-3">
+                <div class="d-flex flex-wrap align-center standees-list-container-compact">
+                  <div
+                    v-for="hero in getLegacyHeroes(recentCampaign)"
+                    :key="hero.heroId"
+                    class="player-standee-container-compact"
+                  >
+                    <div class="hero-standee-card-compact">
+                      <v-img
+                        :src="hero.images.avatar"
+                        cover
+                        class="w-100 h-100"
+                      ></v-img>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-card>
           </div>
 
           <v-divider v-if="recentCampaign" class="mx-6 border-opacity-50" color="grey"></v-divider>
@@ -455,6 +528,22 @@ const playLegacyCampaigns = () => {
 };
 
 const recentCampaign = ref<any | null>(null);
+const recentPlayers = ref<any[]>([]);
+
+const getPlayerHeroAvatar = (player: any) => {
+  if (!player.resolvedHero) return null;
+  const heroId = player.resolvedHero.heroId || player.resolvedHero.id;
+  if (!heroId) return null;
+  const staticData = heroDataRepository.find(heroId);
+  return staticData ? staticData.images.avatar : null;
+};
+
+const getLegacyHeroes = (campaign: any) => {
+  if (!campaign || !campaign.heroes) return [];
+  return campaign.heroes
+    .map((h: any) => heroDataRepository.find(h.heroId))
+    .filter((h: any) => !!h);
+};
 
 const getCampaignBanner = (campType: string) => {
   if (campType === 'core') return "https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp";
@@ -658,18 +747,48 @@ const loadRecentCampaign = async () => {
       };
     }
 
+    recentPlayers.value = [];
     if (["underkeep", "underkeep2"].includes(campaignDataParsed.campaign)) {
       try {
-        const doorsRes = await axios.get("/rl_campaigns_doors/search", {
-          params: { campaign_fk: campaignDataParsed.campaignId },
-        });
+        const [doorsRes, playersRes] = await Promise.all([
+          axios.get("/rl_campaigns_doors/search", {
+            params: { campaign_fk: campaignDataParsed.campaignId },
+          }),
+          axios.get("/rl_campaigns_users/list_players", {
+            params: { campaigns_fk: campaignDataParsed.campaignId },
+          }),
+        ]);
+
         const doors = doorsRes.data?.campaign_doors || [];
         if (doors.length > 0) {
           doors.sort((a: any, b: any) => b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk);
           campaignDataParsed.door = doors[0].door_name;
+          if (doors[0].doors_fk === 7 || doors[0].doors_fk === 12 || doors[0].door_name === "END GAME") {
+            campaignDataParsed.isFinished = true;
+          }
         }
+
+        recentPlayers.value = playersRes.data?.Users || [];
+
+        // Fetch hero info for each player
+        await Promise.allSettled(
+          recentPlayers.value.map(async (player: any) => {
+            if (player.playable_heroes_fk) {
+              try {
+                const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+                if (res.data?.hero_hash) {
+                  const jsonStr = atob(res.data.hero_hash);
+                  const heroObj = JSON.parse(jsonStr);
+                  player.resolvedHero = heroObj;
+                }
+              } catch (err) {
+                console.warn("Failed to load hero for recent player:", err);
+              }
+            }
+          })
+        );
       } catch (doorErr) {
-        console.warn("Failed fetching latest door for recent campaign:", doorErr);
+        console.warn("Failed fetching latest door/players for recent campaign:", doorErr);
       }
     }
 
@@ -811,5 +930,51 @@ onBeforeMount(async () => {
 body {
   font-family: "Poppins", sans-serif !important;
   overflow: hidden;
+}
+.standees-list-container-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.player-standee-container-compact {
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.hero-standee-card-compact {
+  width: 60px;
+  aspect-ratio: 120 / 170;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
+}
+.player-name-overlay-compact {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+  padding: 12px 2px 4px 2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}
+.player-name-text-compact {
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
