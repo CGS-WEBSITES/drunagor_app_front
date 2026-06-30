@@ -235,48 +235,44 @@
                 class="mb-0"
               ></v-progress-linear>
 
-              <!-- Players list (Compact standees) -->
-              <div v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="mt-1 px-3 pt-0 pb-3">
-                <div class="d-flex flex-wrap align-center standees-list-container-compact">
-                  <div
+              <!-- Players list (Compact Chips) -->
+              <div v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="mt-2 px-3 pt-0 pb-3">
+                <div class="d-flex flex-wrap align-center ga-1">
+                  <v-chip
                     v-for="player in recentPlayers"
                     :key="player.rl_campaigns_users_pk"
-                    class="player-standee-container-compact"
+                    color="grey-darken-3"
+                    variant="flat"
+                    size="small"
+                    class="text-white font-weight-bold pl-1"
+                    style="height: 24px;"
                   >
-                    <div class="hero-standee-card-compact">
-                      <v-img
-                        v-slot:default
-                        v-if="getPlayerHeroAvatar(player)"
-                        :src="getPlayerHeroAvatar(player)"
-                        cover
-                        class="w-100 h-100"
-                      ></v-img>
-                      <v-icon v-else size="small" color="grey" class="ma-auto">mdi-help</v-icon>
-                      <div class="player-name-overlay-compact">
-                        <span class="player-name-text-compact">{{ player.user_name }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <span v-if="recentPlayers.length === 0" class="text-caption text-grey font-italic pb-2">No players synced yet.</span>
+                    <v-avatar start size="18" class="mr-1">
+                      <v-img :src="getPlayerHeroAvatar(player) || 'https://assets.drunagor.app/Profile/user.png'"></v-img>
+                    </v-avatar>
+                    <span style="font-size: 0.7rem; text-transform: none;">{{ player.user_name }}</span>
+                  </v-chip>
+                  <span v-if="recentPlayers.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
                 </div>
               </div>
 
               <!-- Legacy style: Hero Avatars -->
-              <div v-else class="mt-1 px-3 pt-0 pb-3">
-                <div class="d-flex flex-wrap align-center standees-list-container-compact">
-                  <div
+              <div v-else class="mt-2 px-3 pt-0 pb-3">
+                <div class="d-flex flex-wrap align-center ga-1">
+                  <v-chip
                     v-for="hero in getLegacyHeroes(recentCampaign)"
                     :key="hero.heroId"
-                    class="player-standee-container-compact"
+                    color="grey-darken-3"
+                    variant="flat"
+                    size="small"
+                    class="text-white font-weight-bold pl-1"
+                    style="height: 24px;"
                   >
-                    <div class="hero-standee-card-compact">
-                      <v-img
-                        :src="hero.images.avatar"
-                        cover
-                        class="w-100 h-100"
-                      ></v-img>
-                    </div>
-                  </div>
+                    <v-avatar start size="18" class="mr-1">
+                      <v-img :src="hero.images.avatar"></v-img>
+                    </v-avatar>
+                    <span style="font-size: 0.7rem; text-transform: none;">{{ hero.name }}</span>
+                  </v-chip>
                 </div>
               </div>
             </v-card>
@@ -931,51 +927,5 @@ onBeforeMount(async () => {
 body {
   font-family: "Poppins", sans-serif !important;
   overflow: hidden;
-}
-.standees-list-container-compact {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.player-standee-container-compact {
-  width: 42px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-.hero-standee-card-compact {
-  width: 42px;
-  aspect-ratio: 120 / 170;
-  border-radius: 0;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%);
-}
-.player-name-overlay-compact {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
-  padding: 6px 1px 2px 1px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2;
-}
-.player-name-text-compact {
-  color: white;
-  font-size: 0.46rem;
-  font-weight: 800;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  text-align: center;
-  width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 </style>
