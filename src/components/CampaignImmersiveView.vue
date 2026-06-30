@@ -340,7 +340,7 @@
                 "
                 @click.stop="handleNextAction"
               >
-                <v-icon size="large" color="white">{{ nextButtonIcon }}</v-icon>
+                <v-icon size="large" color="black">{{ nextButtonIcon }}</v-icon>
               </div>
             </template>
           </v-tooltip>
@@ -842,6 +842,45 @@
       </v-card>
     </v-dialog>
 
+    <!-- Opening a Door Dialog -->
+    <v-dialog v-model="openingDoorDialogVisible" max-width="850" scrollable persistent>
+      <v-card class="book-style-card rounded-xl overflow-hidden">
+        <v-toolbar color="#10594f" density="compact" class="px-2">
+          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">OPENING A DOOR</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="closeOpeningDoorDialog"></v-btn>
+        </v-toolbar>
+        
+        <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">
+          <v-container fluid>
+            <v-row justify="center">
+              <v-col cols="12">
+                <div v-html="openingDoorContent" class="opening-door-text instruction-box" @click="handleBodyClick"></div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions class="justify-center py-4" style="background-color: #eee8e0">
+          <v-btn color="brown-darken-3" variant="flat" size="large" class="px-6 font-weight-bold" @click="closeOpeningDoorDialog">CONTINUE <v-icon end>mdi-arrow-right</v-icon></v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Image Zoom Lightbox Dialog -->
+    <v-dialog v-model="zoomDialog.visible" max-width="90vw" scrollable>
+      <v-card color="black" class="pa-2 position-relative d-flex align-center justify-center">
+        <v-btn
+          icon="mdi-close"
+          variant="flat"
+          color="rgba(255,255,255,0.2)"
+          class="text-white"
+          style="position: absolute; top: 16px; right: 16px; z-index: 100"
+          @click="zoomDialog.visible = false"
+        ></v-btn>
+        <v-img :src="zoomDialog.image" max-height="85vh" contain class="rounded-lg"></v-img>
+      </v-card>
+    </v-dialog>
+
     <!-- Small subtle Game-like Saving Indicator in the Corner -->
     <div 
       v-if="savingState !== 'idle'" 
@@ -880,6 +919,7 @@ import axios from "axios";
 
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import bookPagesData from "@/data/book/bookPages.json";
+import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
 
 import CampaignBookNew from "@/components/CampaignBookNew.vue";
@@ -973,6 +1013,28 @@ const keywordsDialog = ref({ visible: false });
 const doorScannerDialog = ref({ visible: false });
 const narrativeDialogVisible = ref(false);
 const instructionsDialogVisible = ref(false);
+const openingDoorDialogVisible = ref(false);
+const zoomDialog = ref({ visible: false, image: "" });
+
+const openingDoorContent = computed(() => {
+  const page = startHereS1Data[0]?.content?.find(p => p.id === 'start.14');
+  return page ? page.body : '';
+});
+
+function closeOpeningDoorDialog() {
+  openingDoorDialogVisible.value = false;
+  openNarrativeDialog();
+}
+
+function handleBodyClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  if (target && target.tagName === 'IMG') {
+    const src = target.getAttribute('src');
+    if (src) {
+      zoomDialog.value = { visible: true, image: src };
+    }
+  }
+}
 const interactionsDialog = ref({ visible: false });
 const leaveDialog = ref({ visible: false, onConfirm: () => {} });
 const wing4ChoiceDialog = ref({ visible: false });
@@ -1680,13 +1742,23 @@ const fetchOpenedDoors = async () => {
 
       const isNewDoorOpened = previousSize > 0 && newOpenedDoors.size > previousSize;
       if (isNewDoorOpened) {
+         const wasFirstSetup = currentDoor === "FIRST SETUP";
          if (currentDoor !== incomingDoor) {
            campaignStore.updateCampaignProperty(props.campaignId, "door", incomingDoor);
            if (props.campaign) props.campaign.door = incomingDoor;
          }
          
          forcedDoorInstruction.value = incomingDoor;
-         openNarrativeDialog();
+
+         const wing = (activeCampaignData.value.wing || "").toUpperCase();
+         const isTargetWing = wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("WING 2") || wing.includes("WING 02") || wing.includes("WING 3") || wing.includes("TUTORIAL");
+
+         if (wasFirstSetup && isTargetWing) {
+           openNarrativeDialog();
+           openStartHerePage("OPENING A DOOR");
+         } else {
+           openNarrativeDialog();
+         }
 
          snackbar.value = {
            visible: true,
@@ -1820,6 +1892,18 @@ function openStartHere() {
     bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
 }
 
+function openStartHerePage(target: string) {
+    bookContext.value = "START HERE";
+    bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
+    nextTick(() => {
+        setTimeout(() => {
+            if (campaignBookRef.value) {
+                campaignBookRef.value.openSceneByTarget(target);
+            }
+        }, 150);
+    });
+}
+
 function acceptTutorial() {
     if (tutorialPromptDialog.value.dontShowAgain) {
         tutorialStore.setStartHerePreference(true); 
@@ -1844,7 +1928,8 @@ function checkTutorialTrigger() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
     const door = (activeCampaignData.value.door || '').toUpperCase();
     
-    if (tutorialStore.shouldShowStartHere && wing.includes("WING 3") && door === "FIRST SETUP") {
+    const isTargetWing = wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL");
+    if (tutorialStore.shouldShowStartHere && isTargetWing && door === "FIRST SETUP") {
         if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
             tutorialPromptDialog.value.visible = true;
             sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
@@ -2381,6 +2466,7 @@ function commitWing4Choice(choice: string) {
 }
 
 async function commitNextDoor(doorName: string, instructionOverride?: string) {
+  const previousDoor = activeCampaignData.value.door;
   lastManualActionTime = Date.now();
   campaignStore.updateCampaignProperty(props.campaignId, "door", doorName);
   if (props.campaign) props.campaign.door = doorName;
@@ -2407,7 +2493,17 @@ async function commitNextDoor(doorName: string, instructionOverride?: string) {
   }
 
   if (doorName.toUpperCase() !== "END GAME") {
-    setTimeout(() => openNarrativeDialog(), 500);
+    const wing = (activeCampaignData.value.wing || "").toUpperCase();
+    const isTargetWing = wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("WING 2") || wing.includes("WING 02") || wing.includes("WING 3") || wing.includes("TUTORIAL");
+    const isFirstDoor = previousDoor && previousDoor.toUpperCase() === "FIRST SETUP";
+
+    if (isFirstDoor && isTargetWing) {
+      setTimeout(() => {
+        openingDoorDialogVisible.value = true;
+      }, 500);
+    } else {
+      setTimeout(() => openNarrativeDialog(), 500);
+    }
   }
 }
 
@@ -2823,8 +2919,8 @@ watch(
 }
 
 .primary-tab {
-  background: linear-gradient(135deg, #b71c1c 0%, #880e4f 100%) !important;
-  border: 1px solid #ff5252;
+  background: linear-gradient(135deg, #ffab00 0%, #ffd740 100%) !important;
+  border: 1px solid #ffb300;
 }
 
 .tab-icon-img {
@@ -3224,5 +3320,30 @@ watch(
 }
 .border-gold {
   border: 1px solid #ffb300 !important;
+}
+
+.opening-door-text {
+  font-family: "EB Garamond", serif !important;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #212121 !important;
+}
+
+.opening-door-text :deep(p) {
+  margin-bottom: 1.2rem;
+  color: #212121 !important;
+}
+
+.opening-door-text :deep(img) {
+  cursor: pointer;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
+}
+
+.opening-door-text :deep(img):hover {
+  transform: scale(1.01);
 }
 </style>
