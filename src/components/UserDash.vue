@@ -181,8 +181,8 @@
         
         <v-card-text class="pa-0" style="overflow-y: auto;">
           <!-- Return to Recent Campaign Option -->
-          <div v-if="recentCampaign" class="pa-5 text-center">
-            <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-4">Return to Recent Campaign</h3>
+          <div v-if="recentCampaign" class="px-5 pt-3 pb-2 text-center">
+            <h3 class="text-h6 font-weight-bold text-amber-accent-2 mb-2">Return to Recent Campaign</h3>
             
             <v-card
               color="secundary"
@@ -195,13 +195,13 @@
               <!-- Banner Image -->
               <v-img
                 :src="getCampaignBanner(recentCampaign.campaign)"
-                height="120"
+                height="80"
                 cover
               ></v-img>
 
-              <v-card-title class="d-flex flex-column text-uppercase pb-1 px-3 pt-2">
+              <v-card-title class="d-flex flex-column text-uppercase pb-1 px-3 pt-1">
                 <div class="d-flex justify-space-between align-center w-100">
-                  <span class="text-h6 font-weight-bold mb-0 text-truncate text-white" style="font-size: 1.15rem !important; letter-spacing: 0.5px;">
+                  <span class="text-h6 font-weight-bold mb-0 text-truncate text-white" style="font-size: 0.95rem !important; letter-spacing: 0.5px;">
                     {{ recentCampaign.name }}
                   </span>
                   <v-chip
@@ -210,12 +210,13 @@
                     size="x-small"
                     variant="flat"
                     class="font-weight-bold ml-2"
+                    style="height: 16px; font-size: 0.55rem;"
                   >
                     FINISHED
                   </v-chip>
                 </div>
 
-                <div class="d-flex align-center text-subtitle-2 mt-0 text-grey-lighten-1 w-100" style="font-size: 0.75rem !important;">
+                <div class="d-flex align-center text-subtitle-2 mt-0 text-grey-lighten-1 w-100" style="font-size: 0.7rem !important;">
                   <span v-if="recentCampaign.wing">{{ formatWingName(recentCampaign.wing) }}</span>
                   <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.door" class="ml-2">
                     - Door: <span class="text-white font-weight-bold">{{ recentCampaign.door }}</span>
@@ -934,16 +935,16 @@ body {
 .standees-list-container-compact {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 }
 .player-standee-container-compact {
-  width: 60px;
+  width: 42px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 .hero-standee-card-compact {
-  width: 60px;
+  width: 42px;
   aspect-ratio: 120 / 170;
   border-radius: 0;
   overflow: hidden;
@@ -960,7 +961,7 @@ body {
   left: 0;
   right: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
-  padding: 12px 2px 4px 2px;
+  padding: 6px 1px 2px 1px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -968,7 +969,7 @@ body {
 }
 .player-name-text-compact {
   color: white;
-  font-size: 0.55rem;
+  font-size: 0.46rem;
   font-weight: 800;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   text-align: center;
