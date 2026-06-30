@@ -180,6 +180,14 @@
         </v-card-title>
         
         <v-card-text class="pa-0" style="overflow-y: auto;">
+          <!-- Return to Recent Campaign Option -->
+          <div v-show="hasRecentCampaign" class="pa-5 text-center">
+            <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-3">Return to Recent Campaign</h3>
+            <RecentCampaignWidget :userId="user.users_pk" compact @loaded="handleRecentCampaignLoaded" />
+          </div>
+
+          <v-divider v-show="hasRecentCampaign" class="mx-6 border-opacity-50" color="grey"></v-divider>
+
           <div class="pa-5 text-center">
             <v-img 
               src="@/assets/underkeep.png" 
@@ -325,6 +333,7 @@ import { HeroStore } from "@/store/HeroStore";
 import axios from "axios";
 import DashboardEvents from "@/components/DashboardEvents.vue";
 import HUB from "@/components/HUB.vue";
+import RecentCampaignWidget from "@/components/RecentCampaignWidget.vue";
 
 import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
@@ -346,6 +355,10 @@ const showHub = ref(false);
 const myEvents = ref<any[]>([]);
 const showPlaySelectionDialog = ref(false);
 const showDrunagorSoonDialog = ref(false);
+const hasRecentCampaign = ref(false);
+const handleRecentCampaignLoaded = (camp: any) => {
+  hasRecentCampaign.value = !!camp;
+};
 const themeInstance = useTheme();
 const playButtonColor = computed(() => {
   const tName = themeInstance.global.name.value;
