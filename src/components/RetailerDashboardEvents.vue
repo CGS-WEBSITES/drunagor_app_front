@@ -239,6 +239,20 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="6">
+                  <v-text-field
+                    label="State"
+                    variant="outlined"
+                    v-model="newStore.state"
+                    :rules="[(v) => !!v || 'Required']"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <v-row dense>
+                <v-col cols="12" md="6">
                   <v-autocomplete
                     v-model="newStore.country"
                     :items="countriesList"
@@ -252,17 +266,42 @@
                     class="mb-4"
                   ></v-autocomplete>
                 </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="Zip Code"
+                    variant="outlined"
+                    v-model="newStore.zipcode"
+                    :rules="[(v) => !!v || 'Required']"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-text-field>
+                </v-col>
               </v-row>
 
-              <v-text-field
-                label="Zip Code"
-                variant="outlined"
-                v-model="newStore.zipcode"
-                :rules="[(v) => !!v || 'Required']"
-                color="#118D8E"
-                density="comfortable"
-                class="mb-4"
-              ></v-text-field>
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="Website (Optional)"
+                    variant="outlined"
+                    v-model="newStore.site"
+                    placeholder="https://example.com"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    label="Phone Number (Optional)"
+                    variant="outlined"
+                    v-model="newStore.phone"
+                    color="#118D8E"
+                    density="comfortable"
+                    class="mb-4"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
 
               <v-file-input
                 label="Store Image (Optional)"
@@ -375,6 +414,7 @@ const newStore = ref({
   streetNumber: "",
   city: "",
   state: "",
+  phone: "",
 });
 const tutorialStore = useTutorialStore();
 const showTutorialPrompt = ref(false);
@@ -391,6 +431,7 @@ const sanitizeStoreForm = () => {
   newStore.value.streetNumber = trimValue(newStore.value.streetNumber);
   newStore.value.city = trimValue(newStore.value.city);
   newStore.value.state = trimValue(newStore.value.state);
+  newStore.value.phone = trimValue(newStore.value.phone);
 };
 
 const userTimezone = computed(() => userStore.userIanaTimezone());
@@ -531,6 +572,7 @@ const saveNewStore = async () => {
     address: fullAddress,
     picture_hash: store.storeImage || null,
     merchant_id: store.MerchantID || null,
+    phone: store.phone || null,
   };
 
   try {

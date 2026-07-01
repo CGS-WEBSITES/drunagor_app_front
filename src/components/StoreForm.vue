@@ -896,6 +896,7 @@ const saveAllChanges = async () => {
           address: fullAddress,
           picture_hash: store.storeImage || null,
           merchant_id: store.MerchantID || null,
+          phone: store.phone || null,
         };
 
         const response = await axios.post("/stores/cadastro", payload, {
@@ -923,6 +924,7 @@ const saveAllChanges = async () => {
           address: fullAddress,
           picture_hash: store.storeImage || null,
           merchant_id: store.MerchantID || null,
+          phone: store.phone || null,
         };
 
         await axios.put(`/stores/alter`, payload, {
