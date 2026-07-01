@@ -28,6 +28,30 @@
               Welcome to the Drunagor Retailer Tutorial. Below is a step-by-step guide to help you set up your store account, schedule events, and manage game tables.
             </p>
 
+            <!-- YouTube Video Embed -->
+            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
+              <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
+                <v-icon color="amber-accent-2" class="mr-3">mdi-youtube</v-icon>
+                Box Assembly & Organization Video Guide
+              </h2>
+              <p class="mb-4 text-grey-lighten-1 text-body-2">
+                Watch this official video guide to learn how to organize your components and assemble the game box to play Drunagor Nights.
+              </p>
+              <div class="video-container rounded-lg overflow-hidden border-2-amber">
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src="https://www.youtube.com/embed/6qccXQmwRiM?playsinline=1&rel=0"
+                  title="How to organize your box to play Drunagor Nights"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                  class="youtube-iframe"
+                ></iframe>
+              </div>
+            </v-card>
+
             <!-- Step 1 -->
             <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
               <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
@@ -467,6 +491,33 @@ const openLightbox = (imgSrc: string) => {
 
 .lightbox-dialog {
   z-index: 9999 !important;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  background: #000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.youtube-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.border-2-amber {
+  border: 2px solid rgba(255, 179, 0, 0.3) !important;
+  transition: border-color 0.3s ease;
+}
+
+.border-2-amber:hover {
+  border-color: rgba(255, 179, 0, 0.6) !important;
 }
 
 </style>
