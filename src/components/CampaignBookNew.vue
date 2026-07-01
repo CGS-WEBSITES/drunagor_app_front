@@ -1105,7 +1105,7 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 .content-block { background-color: #fff; border-bottom: 1px solid #eee; padding-bottom: 24px; margin-bottom: 0; }
 .content-block:last-child { border-bottom: none; }
 
-.body-text :deep(p), .body-text-mechanics p { 
+.body-text :deep(p), .body-text-mechanics :deep(p) { 
   font-family: "EB Garamond", serif; 
   font-size: 1.15rem; 
   line-height: 1.6; 
@@ -1113,7 +1113,7 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
   color: #212121 !important; 
   margin-bottom: 1.2rem; 
 }
-.body-text-mechanics li { font-family: "EB Garamond", serif; font-size: 1.1rem; color: #212121; margin-bottom: 8px; }
+.body-text-mechanics :deep(li) { font-family: "EB Garamond", serif; font-size: 1.1rem; color: #212121; margin-bottom: 8px; }
 
 .instruction-card { background: #e4e4e4 !important; border: 2px solid #212121 !important; color: #1a120f !important; box-shadow: 3px 3px 0px #212121; margin: 1rem 16px; }
 

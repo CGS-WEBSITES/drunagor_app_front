@@ -1,5 +1,5 @@
 <template>
-  <v-container class="py-4 py-md-8 faq-container" style="max-width: 960px;">
+  <v-container class="py-4 py-md-8 faq-container" style="max-width: 1400px; width: 100%;">
     <v-row justify="center" no-gutters>
       <v-col cols="12">
         <v-tabs
@@ -210,6 +210,10 @@ const faqData = ref([
   white-space: normal;
   line-height: 1.25rem;
   height: auto;
+}
+
+.faq-container {
+  padding-top: 96px !important;
 }
 
 @media (max-width: 959px) {

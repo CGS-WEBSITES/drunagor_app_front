@@ -1,5 +1,138 @@
 <template>
-  <v-container v-if="loading || campaign" max-width="800" class="pa-4 pt-0 pb-0">
+  <div v-if="compact">
+    <div v-if="loading" class="d-flex justify-center align-center py-6">
+      <v-progress-circular indeterminate color="white" size="30"></v-progress-circular>
+    </div>
+    <div v-else-if="campaign" class="px-0">
+      <v-card
+        color="secundary"
+        elevation="16"
+        width="100%"
+        class="d-flex flex-column cursor-pointer transition-swing"
+        style="overflow: hidden;"
+        @click="goToCampaign"
+      >
+        <!-- Banner Image -->
+        <v-img
+          v-if="campaign.campaign === 'core'"
+          src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
+          max-height="160"
+          cover
+        ></v-img>
+
+        <v-img
+          v-slot:default
+          v-else-if="campaign.campaign === 'apocalypse'"
+          src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
+          max-height="160"
+          cover
+        ></v-img>
+
+        <v-img
+          v-else-if="campaign.campaign === 'awakenings'"
+          src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
+          max-height="160"
+          cover
+        ></v-img>
+
+        <v-img
+          v-else-if="campaign.campaign === 'underkeep'"
+          src="@/assets/underkeep.png"
+          max-height="160"
+          cover
+        ></v-img>
+
+        <v-img
+          v-else-if="campaign.campaign === 'underkeep2'"
+          src="@/assets/underkeep2.png"
+          max-height="160"
+          cover
+        ></v-img>
+
+        <!-- Campaign Header/Title -->
+        <v-card-title class="d-flex flex-column text-uppercase pb-1">
+          <div class="d-flex justify-space-between align-center w-100">
+            <span class="text-h6 font-weight-bold mb-0 text-truncate text-white" style="font-size: 1.1rem !important;">
+              {{ campaign.name || "Unnamed Campaign" }}
+            </span>
+            <v-chip
+              v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && isFinished"
+              color="red-darken-4"
+              size="x-small"
+              variant="flat"
+              class="font-weight-bold ml-2"
+            >
+              FINISHED
+            </v-chip>
+          </div>
+
+          <div class="d-flex align-center text-subtitle-2 mt-0 text-grey-lighten-1" style="font-size: 0.8rem !important;">
+            <span v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</span>
+            <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && lastDoorName" class="ml-2">
+              - Door: <span class="text-white font-weight-bold">{{ lastDoorName }}</span>
+            </span>
+            <span v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold">
+              {{ calculateCompletionPercentage(campaign) }}%
+            </span>
+          </div>
+        </v-card-title>
+
+        <v-progress-linear
+          v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
+          :model-value="calculateCompletionPercentage(campaign)"
+          color="amber-accent-2"
+          height="3"
+          class="mb-0"
+        ></v-progress-linear>
+
+        <!-- Underkeep style: Players list -->
+        <div v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)" class="mt-1 px-3 pt-0 pb-3">
+          <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
+            <div
+              v-for="player in players"
+              :key="player.rl_campaigns_users_pk"
+              class="d-flex flex-column align-center text-center player-standee-container"
+            >
+              <div class="hero-standee-card">
+                <v-img
+                  v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
+                  :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
+                  cover
+                  class="w-100 h-100"
+                ></v-img>
+                <v-icon v-else size="small" color="grey" class="ma-auto">mdi-help</v-icon>
+                <div class="player-name-overlay">
+                  <span class="player-name-text">{{ player.user_name }}</span>
+                </div>
+              </div>
+            </div>
+            <span v-if="players.length === 0" class="text-caption text-grey font-italic pb-2">No players synced yet.</span>
+          </div>
+        </div>
+
+        <!-- Legacy style: Hero Avatars -->
+        <div v-else class="mt-1 px-3 pt-0 pb-3">
+          <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
+            <div
+              v-for="hero in heroAvatars"
+              :key="hero.heroId"
+              class="d-flex flex-column align-center text-center player-standee-container"
+            >
+              <div class="hero-standee-card">
+                <v-img
+                  :src="hero.images.avatar"
+                  cover
+                  class="w-100 h-100"
+                ></v-img>
+              </div>
+            </div>
+          </div>
+        </div>
+      </v-card>
+    </div>
+  </div>
+
+  <v-container v-else-if="loading || campaign" max-width="800" class="pa-4 pt-0 pb-0">
     <v-card rounded="lg" elevation="3" color="primary" class="pl-1 pt-1 pr-1 pb-5">
       <v-card-title class="d-flex justify-space-between pb-0 px-3">
         <span class="text-uppercase font-weight-black text-bold text-h5 mb-2 pb-0 text-white">
@@ -16,8 +149,9 @@
           color="secundary"
           elevation="16"
           width="100%"
-          class="d-flex flex-column"
+          class="d-flex flex-column cursor-pointer transition-swing"
           style="overflow: hidden;"
+          @click="goToCampaign"
         >
           <!-- Banner Image -->
           <v-img
@@ -173,7 +307,13 @@ const props = defineProps({
     type: [String, Number],
     required: true,
   },
+  compact: {
+    type: Boolean,
+    default: false,
+  }
 });
+
+const emit = defineEmits(["loaded"]);
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -372,6 +512,7 @@ const loadMostRecentCampaign = async () => {
     console.error("Error loading most recent campaign:", err);
   } finally {
     loading.value = false;
+    emit("loaded", campaign.value);
   }
 };
 

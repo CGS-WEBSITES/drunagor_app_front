@@ -3,7 +3,7 @@
     <Toast />
 
     <v-row no-gutters v-if="mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode)">
-      <v-app-bar app min-height="50" color="secundary">
+      <v-app-bar app height="64" color="secundary">
         <div
           @click="$router.push({ name: 'Dashboard' })"
           style="cursor: pointer"

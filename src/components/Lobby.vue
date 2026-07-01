@@ -627,7 +627,7 @@ const checkAndRecoverActiveCampaign = async (myPlayerStatus: number) => {
             const allCampaigns = searchRes.data.campaigns || [];
             
             const activeCampaigns = allCampaigns
-                .filter((c: any) => c.active === true || c.active === 1 || c.active === 'true')
+                .filter((c: any) => c.active === true || c.active === 1 || c.active === 'true' || c.active === '1')
                 .sort((a: any, b: any) => b.campaigns_fk - a.campaigns_fk);
 
             if (activeCampaigns.length > 0) {
@@ -665,7 +665,8 @@ const fetchTablePlayers = async () => {
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
         
         if (me) {
-            await checkAndRecoverActiveCampaign(me.event_status_fk);
+            const myStatus = me.event_status_fk ?? me.status ?? me.status_fk ?? (me.event_status === 'Joined the Quest' ? PLAYING_STATUS_ID : null);
+            await checkAndRecoverActiveCampaign(myStatus);
         }
 
         const newSlots = [
@@ -773,8 +774,9 @@ const joinTable = async () => {
         });
         const players = tableRes.data.players || [];
         const me = players.find((p: any) => p.users_pk === userStore.user.users_pk);
+        const myStatus = me ? (me.event_status_fk ?? me.status ?? me.status_fk ?? (me.event_status === 'Joined the Quest' ? PLAYING_STATUS_ID : null)) : null;
 
-        if (me && me.event_status_fk === PLAYING_STATUS_ID) {
+        if (me && myStatus === PLAYING_STATUS_ID) {
             return;
         }
 

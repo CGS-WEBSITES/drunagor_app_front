@@ -180,6 +180,106 @@
         </v-card-title>
         
         <v-card-text class="pa-0" style="overflow-y: auto;">
+          <!-- Return to Recent Campaign Option -->
+          <div v-if="recentCampaign" class="px-5 pt-3 pb-2 text-center">
+            <h3 class="text-h6 font-weight-bold text-amber-accent-2 mb-2">Return to Recent Campaign</h3>
+            
+            <v-card
+              color="secundary"
+              elevation="16"
+              width="100%"
+              class="mx-auto cursor-pointer transition-swing rounded-xl text-left"
+              style="overflow: hidden; max-width: 440px;"
+              @click="resumeRecentCampaign"
+            >
+              <!-- Banner Image -->
+              <v-img
+                :src="getCampaignBanner(recentCampaign.campaign)"
+                height="80"
+                cover
+              ></v-img>
+
+              <v-card-title class="d-flex flex-column text-uppercase pb-1 px-3 pt-1">
+                <div class="d-flex justify-space-between align-center w-100">
+                  <span class="text-h6 font-weight-bold mb-0 text-truncate text-white" style="font-size: 0.95rem !important; letter-spacing: 0.5px;">
+                    {{ recentCampaign.name }}
+                  </span>
+                  <v-chip
+                    v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.isFinished"
+                    color="red-darken-4"
+                    size="x-small"
+                    variant="flat"
+                    class="font-weight-bold ml-2"
+                    style="height: 16px; font-size: 0.55rem;"
+                  >
+                    FINISHED
+                  </v-chip>
+                </div>
+
+                <div class="d-flex align-center text-subtitle-2 mt-0 text-grey-lighten-1 w-100" style="font-size: 0.7rem !important;">
+                  <span v-if="recentCampaign.wing">{{ formatWingName(recentCampaign.wing) }}</span>
+                  <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.door" class="ml-2">
+                    - Door: <span class="text-white font-weight-bold">{{ recentCampaign.door }}</span>
+                  </span>
+                  <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold">
+                    {{ calculateCompletionPercentage(recentCampaign) }}%
+                  </span>
+                </div>
+              </v-card-title>
+
+              <v-progress-linear
+                v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)"
+                :model-value="calculateCompletionPercentage(recentCampaign)"
+                color="amber-accent-2"
+                height="3"
+                class="mb-0"
+              ></v-progress-linear>
+
+              <!-- Players list (Compact Chips) -->
+              <div v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="mt-2 px-3 pt-0 pb-3">
+                <div class="d-flex flex-wrap align-center ga-1">
+                  <v-chip
+                    v-for="player in recentPlayers"
+                    :key="player.rl_campaigns_users_pk"
+                    color="grey-darken-3"
+                    variant="flat"
+                    size="small"
+                    class="text-white font-weight-bold pl-1"
+                    style="height: 24px;"
+                  >
+                    <v-avatar start size="18" class="mr-1">
+                      <v-img :src="getPlayerHeroAvatar(player) || 'https://assets.drunagor.app/Profile/user.png'"></v-img>
+                    </v-avatar>
+                    <span style="font-size: 0.7rem; text-transform: none;">{{ player.user_name }}</span>
+                  </v-chip>
+                  <span v-if="recentPlayers.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
+                </div>
+              </div>
+
+              <!-- Legacy style: Hero Avatars -->
+              <div v-else class="mt-2 px-3 pt-0 pb-3">
+                <div class="d-flex flex-wrap align-center ga-1">
+                  <v-chip
+                    v-for="hero in getLegacyHeroes(recentCampaign)"
+                    :key="hero.heroId"
+                    color="grey-darken-3"
+                    variant="flat"
+                    size="small"
+                    class="text-white font-weight-bold pl-1"
+                    style="height: 24px;"
+                  >
+                    <v-avatar start size="18" class="mr-1">
+                      <v-img :src="hero.images.avatar"></v-img>
+                    </v-avatar>
+                    <span style="font-size: 0.7rem; text-transform: none;">{{ hero.name }}</span>
+                  </v-chip>
+                </div>
+              </div>
+            </v-card>
+          </div>
+
+          <v-divider v-if="recentCampaign" class="mx-6 border-opacity-50" color="grey"></v-divider>
+
           <div class="pa-5 text-center">
             <v-img 
               src="@/assets/underkeep.png" 
@@ -325,10 +425,12 @@ import { HeroStore } from "@/store/HeroStore";
 import axios from "axios";
 import DashboardEvents from "@/components/DashboardEvents.vue";
 import HUB from "@/components/HUB.vue";
+import RecentCampaignWidget from "@/components/RecentCampaignWidget.vue";
 
 import CoreLogo from "@/assets/campaign/logo/core.webp";
 import ApocalypseLogo from "@/assets/campaign/logo/apocalypse.webp";
 import AwakeningsLogo from "@/assets/campaign/logo/awakenings.webp";
+import UnderkeepBanner from "@/assets/underkeep.png";
 import Underkeep2Banner from "@/assets/underkeep2.png";
 
 const router = useRouter();
@@ -422,6 +524,277 @@ const playLegacyCampaigns = () => {
   router.push({ path: "/campaign-tracker/" });
 };
 
+const recentCampaign = ref<any | null>(null);
+const recentPlayers = ref<any[]>([]);
+
+const getPlayerHeroAvatar = (player: any) => {
+  if (!player.resolvedHero) return null;
+  const heroId = player.resolvedHero.heroId || player.resolvedHero.id;
+  if (!heroId) return null;
+  const staticData = heroDataRepository.find(heroId);
+  return staticData ? staticData.images.avatar : null;
+};
+
+const getLegacyHeroes = (campaign: any) => {
+  if (!campaign || !campaign.heroes) return [];
+  return campaign.heroes
+    .map((h: any) => heroDataRepository.find(h.heroId))
+    .filter((h: any) => !!h);
+};
+
+const getCampaignBanner = (campType: string) => {
+  if (campType === 'core') return "https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp";
+  if (campType === 'apocalypse') return "https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp";
+  if (campType === 'awakenings') return "https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp";
+  if (campType === 'underkeep2') return Underkeep2Banner;
+  return UnderkeepBanner;
+};
+
+const calculateCompletionPercentage = (campaign: any): number => {
+  const wing = (campaign.wing || "").toUpperCase();
+  const currentDoor = (campaign.door || "").toUpperCase();
+  
+  let list: string[] = [];
+  if (wing.includes("TUTORIAL")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH (TUTORIAL)",
+      "THE KEEP'S COURTYARD (TUTORIAL)",
+      "THE ENTRY HALL (TUTORIAL)",
+      "THE GREAT HALL (TUTORIAL)",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 1") || wing.includes("WING 01")) {
+    list = [
+      "FIRST SETUP",
+      "THE BARRICADED PATH",
+      "THE KEEP'S COURTYARD",
+      "THE ENTRY HALL",
+      "THE GREAT HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 2") || wing.includes("WING 02")) {
+    list = [
+      "FIRST SETUP",
+      "THE GREAT CISTERN",
+      "THE DUNGEONS",
+      "THE ALCHEMY LAB",
+      "THE BURIED ARMORY",
+      "THERE AND BACK AGAIN",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 3") || wing.includes("WING 03")) {
+    list = [
+      "FIRST SETUP",
+      "DUNGEON FOYER",
+      "QUEEN'S HALL",
+      "THE FORGE",
+      "ARTISAN'S GALLERY",
+      "PROVING GROUNDS",
+      "MAIN HALL",
+      "END GAME"
+    ];
+  } else if (wing.includes("WING 4") || wing.includes("WING 04")) {
+    list = [
+      "FIRST SETUP",
+      "DRACONIC CHAPEL",
+      "CRYPTS",
+      "BOTH OPEN",
+      "LIBRARY",
+      "LABORATORY",
+      "DRAGON BOSS",
+      "END GAME"
+    ];
+  }
+
+  if (list.length === 0) return 0;
+  
+  let idx = list.indexOf(currentDoor);
+  if (idx === -1) {
+    idx = list.findIndex(d => currentDoor.includes(d) || d.includes(currentDoor));
+  }
+  
+  if (idx === -1) {
+    if (currentDoor === "FIRST SETUP") idx = 0;
+    else if (currentDoor === "END GAME") idx = list.length - 1;
+    else idx = 0;
+  }
+  
+  const pct = Math.round((idx / (list.length - 1)) * 100);
+  return Math.min(100, Math.max(0, pct));
+};
+
+const formatWingName = (wing: string | null) => {
+  if (!wing) return "";
+  return wing
+    .replace(/-\s*advanced/gi, "")
+    .replace(/advanced\s*-/gi, "")
+    .replace(/advanced/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const formatCampaignDescription = (campaign: any) => {
+  const parts = [];
+  if (campaign.wing) {
+    parts.push(formatWingName(campaign.wing));
+  }
+  if (campaign.door) {
+    parts.push(`Door: ${campaign.door}`);
+  }
+  if (["underkeep", "underkeep2"].includes(campaign.campaign)) {
+    const pct = calculateCompletionPercentage(campaign);
+    parts.push(`${pct}% Complete`);
+  }
+  return parts.join(" • ");
+};
+
+const resumeRecentCampaign = () => {
+  if (!recentCampaign.value) return;
+  showPlaySelectionDialog.value = false;
+  router.push({ name: "Campaign", params: { id: recentCampaign.value.campaignId } });
+};
+
+const loadRecentCampaign = async () => {
+  if (!userStore.user?.users_pk) return;
+  try {
+    let legacyCampaigns = [];
+    try {
+      const resLegacy = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          show_season2: false,
+          _t: Date.now()
+        },
+      });
+      legacyCampaigns = resLegacy.data?.campaigns || [];
+    } catch (err1) {
+      console.warn("Failed fetching legacy campaigns:", err1);
+    }
+
+    let s2Campaigns = [];
+    try {
+      const resS2 = await axios.get("/rl_campaigns_users/search", {
+        params: {
+          users_fk: userStore.user.users_pk,
+          show_season2: true,
+          _t: Date.now()
+        },
+      });
+      s2Campaigns = resS2.data?.campaigns || [];
+    } catch (err2) {
+      console.warn("Failed fetching S2 campaigns:", err2);
+    }
+
+    const allCampaignsRaw = [
+      ...legacyCampaigns,
+      ...s2Campaigns,
+    ];
+
+    if (allCampaignsRaw.length === 0) {
+      recentCampaign.value = null;
+      return;
+    }
+
+    const campaignsWithDates = allCampaignsRaw.map((c: any) => {
+      let mtime = 0;
+      let parsedHash: any = null;
+
+      if (c.tracker_hash) {
+        try {
+          parsedHash = JSON.parse(atob(c.tracker_hash));
+          if (parsedHash.savedAt) {
+            mtime = new Date(parsedHash.savedAt).getTime();
+          }
+        } catch (e) {}
+      }
+
+      if (c.start_date) {
+        const startTime = new Date(c.start_date).getTime();
+        if (startTime > mtime) {
+          mtime = startTime;
+        }
+      }
+
+      return {
+        raw: c,
+        mtime,
+        parsedHash,
+      };
+    });
+
+    campaignsWithDates.sort((a, b) => b.mtime - a.mtime);
+
+    const mostRecent = campaignsWithDates[0];
+    const rawCamp = mostRecent.raw;
+    const parsed = mostRecent.parsedHash;
+
+    let campaignDataParsed: any = null;
+    if (parsed && parsed.campaignData) {
+      campaignDataParsed = parsed.campaignData;
+      campaignDataParsed.campaignId = String(rawCamp.campaigns_fk);
+      campaignDataParsed.name = rawCamp.party_name || campaignDataParsed.name || "Unnamed Campaign";
+    } else {
+      campaignDataParsed = {
+        campaignId: String(rawCamp.campaigns_fk),
+        name: rawCamp.party_name || "Unnamed Campaign",
+        campaign: rawCamp.box === 38 ? "underkeep" : rawCamp.box === 39 ? "underkeep2" : "core",
+        wing: "",
+        door: ""
+      };
+    }
+
+    recentPlayers.value = [];
+    if (["underkeep", "underkeep2"].includes(campaignDataParsed.campaign)) {
+      try {
+        const [doorsRes, playersRes] = await Promise.all([
+          axios.get("/rl_campaigns_doors/search", {
+            params: { campaign_fk: campaignDataParsed.campaignId },
+          }),
+          axios.get("/rl_campaigns_users/list_players", {
+            params: { campaigns_fk: campaignDataParsed.campaignId },
+          }),
+        ]);
+
+        const doors = doorsRes.data?.campaign_doors || [];
+        if (doors.length > 0) {
+          doors.sort((a: any, b: any) => b.rl_campaigns_doors_pk - a.rl_campaigns_doors_pk);
+          campaignDataParsed.door = doors[0].door_name;
+          if (doors[0].doors_fk === 7 || doors[0].doors_fk === 12 || doors[0].door_name === "END GAME") {
+            campaignDataParsed.isFinished = true;
+          }
+        }
+
+        recentPlayers.value = playersRes.data?.Users || [];
+
+        // Fetch hero info for each player
+        await Promise.allSettled(
+          recentPlayers.value.map(async (player: any) => {
+            if (player.playable_heroes_fk) {
+              try {
+                const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+                if (res.data?.hero_hash) {
+                  const jsonStr = atob(res.data.hero_hash);
+                  const heroObj = JSON.parse(jsonStr);
+                  player.resolvedHero = heroObj;
+                }
+              } catch (err) {
+                console.warn("Failed to load hero for recent player:", err);
+              }
+            }
+          })
+        );
+      } catch (doorErr) {
+        console.warn("Failed fetching latest door/players for recent campaign:", doorErr);
+      }
+    }
+
+    recentCampaign.value = campaignDataParsed;
+  } catch (err) {
+    console.error("Error loading recent campaign:", err);
+  }
+};
+
 onBeforeMount(async () => {
   campaignStore.reset();
   heroStore.reset();
@@ -435,6 +808,9 @@ onBeforeMount(async () => {
     loading.value = false;
     return;
   }
+
+  // Pre-load the recent campaign so it is instant inside the play dialog
+  loadRecentCampaign();
 
   try {
     const res = await (axios as any).get("/rl_campaigns_users/search", {
