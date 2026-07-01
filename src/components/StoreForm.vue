@@ -888,14 +888,14 @@ const saveAllChanges = async () => {
 
       if (store.isNew) {
         const payload = {
-          web_site: store.site,
+          web_site: store.site || null,
           name: store.storename,
           zip_code: store.zipcode,
           countries_fk: store.country,
           users_fk: userStore.user?.users_pk,
           address: fullAddress,
-          picture_hash: store.storeImage,
-          merchant_id: store.MerchantID,
+          picture_hash: store.storeImage || null,
+          merchant_id: store.MerchantID || null,
         };
 
         const response = await axios.post("/stores/cadastro", payload, {
@@ -916,13 +916,13 @@ const saveAllChanges = async () => {
         const payload = {
           stores_pk: store.stores_pk,
           name: store.storename,
-          web_site: store.site,
+          web_site: store.site || null,
           zip_code: store.zipcode,
           countries_fk: store.country,
           users_fk: userStore.user?.users_pk,
           address: fullAddress,
-          picture_hash: store.storeImage,
-          merchant_id: store.MerchantID,
+          picture_hash: store.storeImage || null,
+          merchant_id: store.MerchantID || null,
         };
 
         await axios.put(`/stores/alter`, payload, {

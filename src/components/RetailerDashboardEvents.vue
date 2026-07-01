@@ -523,14 +523,14 @@ const saveNewStore = async () => {
   const fullAddress = `${store.streetNumber}, ${store.address}, ${store.complement}, ${store.city}, ${store.state}, ${countryName}`;
 
   const payload = {
-    web_site: store.site,
+    web_site: store.site || null,
     name: store.storename,
     zip_code: store.zipcode,
     countries_fk: store.country,
     users_fk: userStore.user?.users_pk,
     address: fullAddress,
-    picture_hash: store.storeImage,
-    merchant_id: store.MerchantID,
+    picture_hash: store.storeImage || null,
+    merchant_id: store.MerchantID || null,
   };
 
   try {
@@ -554,7 +554,8 @@ const saveNewStore = async () => {
     showStoreSuccess.value = true;
   } catch (error) {
     console.error("Error creating store:", error);
-    alert("Failed to create store. Please try again.");
+    const errMsg = error.response?.data?.message || error.response?.data?.error || error.message || "Unknown error";
+    alert(`Failed to create store: ${errMsg}`);
   } finally {
     creatingStore.value = false;
   }
