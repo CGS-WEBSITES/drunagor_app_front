@@ -461,13 +461,14 @@ const goToEventsPageAndCreate = async () => {
       createStoreDialog.value = true;
     }
   } catch (error) {
-    if (error.response && error.response.status === 404) {
+    console.error("Error checking stores:", error);
+    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+      alert("Session expired. Please log in again.");
+      router.push({ path: "/" });
+    } else {
       fetchCountries();
       showStoreSuccess.value = false;
       createStoreDialog.value = true;
-    } else {
-      console.error("Error checking stores:", error);
-      alert("Unable to verify store status.");
     }
   }
 };
