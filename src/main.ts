@@ -24,7 +24,7 @@ import "@/components/Composable/shepherd-theme.css";
 
 const app = createApp(App);
 
-registerPlugins(app, "test");
+registerPlugins(app, "prod");
 
 app.mount("#app");
 
