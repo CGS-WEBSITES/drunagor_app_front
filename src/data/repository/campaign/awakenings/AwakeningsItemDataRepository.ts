@@ -645,6 +645,55 @@ export class AwakeningsItemDataRepository implements ItemDataRepository {
       weaponTypes: ["Ranged"],
       translation_key: "weapon.awakenings.war-bow",
     } as WeaponItemData,
+    {
+      id: "blooded-sword",
+      itemType: "Weapon",
+      cardType: "Starting Gear",
+      weaponTypes: ["Light"],
+      translation_key: "weapon.core.blooded-sword",
+    } as WeaponItemData,
+    {
+      id: "cloth-armor",
+      itemType: "Armor",
+      cardType: "Starting Gear",
+      armorTypes: ["Cloth"],
+      translation_key: "armor.core.cloth-armor",
+    } as ArmorItemData,
+    {
+      id: "elvish-bow",
+      itemType: "Weapon",
+      cardType: "Starting Gear",
+      weaponTypes: ["Ranged"],
+      translation_key: "weapon.core.elvish-bow",
+    } as WeaponItemData,
+    {
+      id: "jagged-blade-axe",
+      itemType: "Weapon",
+      cardType: "Starting Gear",
+      weaponTypes: ["Heavy"],
+      translation_key: "weapon.core.jagged-blade-axe",
+    } as WeaponItemData,
+    {
+      id: "leather-armor",
+      itemType: "Armor",
+      cardType: "Starting Gear",
+      armorTypes: ["Leather"],
+      translation_key: "armor.core.leather-armor",
+    } as ArmorItemData,
+    {
+      id: "plate-armor",
+      itemType: "Armor",
+      cardType: "Starting Gear",
+      armorTypes: ["Plate"],
+      translation_key: "armor.core.plate-armor",
+    } as ArmorItemData,
+    {
+      id: "wooden-staff",
+      itemType: "Weapon",
+      cardType: "Starting Gear",
+      weaponTypes: ["Implement"],
+      translation_key: "weapon.core.wooden-staff",
+    } as WeaponItemData,
   ];
 
   find(cardId: string): ItemData | undefined {
