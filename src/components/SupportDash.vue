@@ -7,16 +7,33 @@
           <h1 class="text-h4 font-weight-black cinzel-text text-uppercase text-white">Support & Analytics</h1>
           <p class="text-subtitle-2 text-grey-lighten-1">Real-time metrics and retailer administration</p>
         </div>
-        <v-btn
-          color="primary"
-          variant="outlined"
-          prepend-icon="mdi-refresh"
-          @click="fetchDashboardData"
-          :loading="loading"
-          class="font-weight-bold"
-        >
-          Refresh Data
-        </v-btn>
+        <div class="d-flex flex-column flex-sm-row align-start align-sm-center ga-3 w-100 w-sm-auto">
+          <v-select
+            v-model="selectedWeek"
+            :items="weekOptions"
+            item-title="label"
+            item-value="value"
+            label="Selecione a Semana"
+            variant="solo-filled"
+            density="compact"
+            color="warning"
+            bg-color="#181a21"
+            hide-details
+            style="width: 280px; max-width: 100%;"
+            @update:model-value="onWeekChange"
+          ></v-select>
+          <v-btn
+            color="primary"
+            variant="outlined"
+            prepend-icon="mdi-refresh"
+            @click="fetchDashboardData"
+            :loading="loading"
+            class="font-weight-bold"
+            height="44"
+          >
+            Refresh Data
+          </v-btn>
+        </div>
       </v-col>
     </v-row>
 
@@ -200,61 +217,97 @@
                   <thead>
                     <tr style="border-bottom: 2px solid rgba(255,255,255,0.12)">
                       <th class="text-left font-weight-black text-warning cinzel-text">METRIC / KPI</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">BASELINE (JUNE 15)</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">CURRENT (JUNE 22)</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">BASELINE ({{ getPreviousWeekLabelByValue(selectedWeek) }})</th>
+                      <th class="text-center font-weight-black text-warning cinzel-text">CURRENT ({{ getWeekLabelByValue(selectedWeek) }})</th>
                       <th class="text-center font-weight-black text-warning cinzel-text">WEEKLY DELTA</th>
                       <th class="text-center font-weight-black text-warning cinzel-text">TARGET META S1</th>
                       <th class="text-center font-weight-black text-warning cinzel-text">STATUS</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="hover-row">
+                    <tr class="hover-row" v-if="dashboardData.baseline">
                       <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-account-group</v-icon> Total Registered Users</td>
-                      <td class="text-center text-grey-lighten-2">1,175</td>
+                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.total_users }}</td>
                       <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.total_users }}</td>
-                      <td class="text-center text-success font-weight-bold">+15 (+1.3%)</td>
+                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.total_users, dashboardData.baseline.total_users)">
+                        {{ formatDelta(dashboardData.saude_geral.total_users, dashboardData.baseline.total_users) }}
+                      </td>
                       <td class="text-center text-grey-lighten-2">1,500</td>
-                      <td class="text-center"><v-chip size="x-small" color="warning" class="font-weight-black">79% Met</v-chip></td>
+                      <td class="text-center">
+                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.total_users, 1500)" class="font-weight-black">
+                          {{ formatPercentageMet(dashboardData.saude_geral.total_users, 1500) }}
+                        </v-chip>
+                      </td>
                     </tr>
-                    <tr class="hover-row">
+                    <tr class="hover-row" v-if="dashboardData.baseline">
                       <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-run-fast</v-icon> Weekly Active Users (7d)</td>
-                      <td class="text-center text-grey-lighten-2">826</td>
+                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.ativos_7d }}</td>
                       <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.ativos_7d }}</td>
-                      <td class="text-center text-red font-weight-bold">-808 (-97.8%)</td>
+                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.ativos_7d, dashboardData.baseline.ativos_7d)">
+                        {{ formatDelta(dashboardData.saude_geral.ativos_7d, dashboardData.baseline.ativos_7d) }}
+                      </td>
                       <td class="text-center text-grey-lighten-2">200</td>
-                      <td class="text-center"><v-chip size="x-small" color="red" class="font-weight-black">Critical</v-chip></td>
+                      <td class="text-center">
+                        <v-chip size="x-small" :color="dashboardData.saude_geral.ativos_7d < 20 ? 'red' : getStatusChipColor(dashboardData.saude_geral.ativos_7d, 200)" class="font-weight-black">
+                          {{ dashboardData.saude_geral.ativos_7d < 20 ? 'Critical' : formatPercentageMet(dashboardData.saude_geral.ativos_7d, 200) }}
+                        </v-chip>
+                      </td>
                     </tr>
-                    <tr class="hover-row">
+                    <tr class="hover-row" v-if="dashboardData.baseline">
                       <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-calendar-check</v-icon> Monthly Active Users (30d)</td>
-                      <td class="text-center text-grey-lighten-2">900</td>
+                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.ativos_30d }}</td>
                       <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.ativos_30d }}</td>
-                      <td class="text-center text-red font-weight-bold">-38 (-4.2%)</td>
+                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.ativos_30d, dashboardData.baseline.ativos_30d)">
+                        {{ formatDelta(dashboardData.saude_geral.ativos_30d, dashboardData.baseline.ativos_30d) }}
+                      </td>
                       <td class="text-center text-grey-lighten-2">1,000</td>
-                      <td class="text-center"><v-chip size="x-small" color="warning" class="font-weight-black">86% Met</v-chip></td>
+                      <td class="text-center">
+                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.ativos_30d, 1000)" class="font-weight-black">
+                          {{ formatPercentageMet(dashboardData.saude_geral.ativos_30d, 1000) }}
+                        </v-chip>
+                      </td>
                     </tr>
-                    <tr class="hover-row">
+                    <tr class="hover-row" v-if="dashboardData.baseline">
                       <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-store</v-icon> Registered Retailers</td>
-                      <td class="text-center text-grey-lighten-2">48</td>
+                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.total_retailers }}</td>
                       <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.total_retailers }}</td>
-                      <td class="text-center text-success font-weight-bold">+1</td>
+                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.total_retailers, dashboardData.baseline.total_retailers)">
+                        {{ formatDelta(dashboardData.saude_geral.total_retailers, dashboardData.baseline.total_retailers) }}
+                      </td>
                       <td class="text-center text-grey-lighten-2">75</td>
-                      <td class="text-center"><v-chip size="x-small" color="warning" class="font-weight-black">65% Met</v-chip></td>
+                      <td class="text-center">
+                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.total_retailers, 75)" class="font-weight-black">
+                          {{ formatPercentageMet(dashboardData.saude_geral.total_retailers, 75) }}
+                        </v-chip>
+                      </td>
                     </tr>
-                    <tr class="hover-row">
+                    <tr class="hover-row" v-if="dashboardData.baseline">
                       <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-map-marker-radius</v-icon> Active Event Tables</td>
-                      <td class="text-center text-grey-lighten-2">1</td>
-                      <td class="text-center font-weight-bold">1</td>
-                      <td class="text-center text-grey font-weight-bold">0 (0.0%)</td>
+                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.events_tables }}</td>
+                      <td class="text-center font-weight-bold">{{ dashboardData.feature_usage.events_tables }}</td>
+                      <td class="text-center" :class="getDeltaColor(dashboardData.feature_usage.events_tables, dashboardData.baseline.events_tables)">
+                        {{ formatDelta(dashboardData.feature_usage.events_tables, dashboardData.baseline.events_tables) }}
+                      </td>
                       <td class="text-center text-grey-lighten-2">20</td>
-                      <td class="text-center"><v-chip size="x-small" color="red" class="font-weight-black">5% Met</v-chip></td>
+                      <td class="text-center">
+                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.feature_usage.events_tables, 20)" class="font-weight-black">
+                          {{ formatPercentageMet(dashboardData.feature_usage.events_tables, 20) }}
+                        </v-chip>
+                      </td>
                     </tr>
-                    <tr class="hover-row">
+                    <tr class="hover-row" v-if="dashboardData.baseline">
                       <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-television-play</v-icon> Active Campaigns</td>
-                      <td class="text-center text-grey-lighten-2">1,074</td>
+                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.campanhas_ativas }}</td>
                       <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.campanhas_ativas }}</td>
-                      <td class="text-center text-success font-weight-bold">+14 (+1.3%)</td>
+                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.campanhas_ativas, dashboardData.baseline.campanhas_ativas)">
+                        {{ formatDelta(dashboardData.saude_geral.campanhas_ativas, dashboardData.baseline.campanhas_ativas) }}
+                      </td>
                       <td class="text-center text-grey-lighten-2">1,200</td>
-                      <td class="text-center"><v-chip size="x-small" color="success" class="font-weight-black">90% Met</v-chip></td>
+                      <td class="text-center">
+                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.campanhas_ativas, 1200)" class="font-weight-black">
+                          {{ formatPercentageMet(dashboardData.saude_geral.campanhas_ativas, 1200) }}
+                        </v-chip>
+                      </td>
                     </tr>
                   </tbody>
                 </v-table>
@@ -1162,6 +1215,91 @@ const lastActivityOptions = [
   "Inativo há 14+ dias"
 ];
 
+// Week filter options
+const weekOptions = ref<any[]>([]);
+const selectedWeek = ref<string>("");
+
+const generateWeeks = () => {
+  const options = [];
+  // Start date: Monday, June 8, 2026
+  let currentStart = new Date("2026-06-08T00:00:00");
+  const today = new Date();
+  
+  let weekNum = 1;
+  while (currentStart <= today) {
+    const currentEnd = new Date(currentStart);
+    currentEnd.setDate(currentStart.getDate() + 6);
+    
+    // Format YYYY-MM-DD for API parameter (Sunday end date)
+    const formattedEnd = currentEnd.toISOString().slice(0, 10);
+    
+    const startStr = currentStart.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+    const endStr = currentEnd.toLocaleDateString("en-US", { month: "short", day: "2-digit" });
+    
+    options.unshift({
+      label: `Week ${weekNum}: ${startStr} - ${endStr}`,
+      value: formattedEnd
+    });
+    
+    currentStart = new Date(currentStart);
+    currentStart.setDate(currentStart.getDate() + 7);
+    weekNum++;
+  }
+  
+  weekOptions.value = options;
+  if (options.length > 0) {
+    selectedWeek.value = options[0].value;
+  }
+};
+
+const getWeekLabelByValue = (val: string) => {
+  const opt = weekOptions.value.find((o) => o.value === val);
+  return opt ? opt.label.split(": ")[1] : "Current Week";
+};
+
+const getPreviousWeekLabelByValue = (val: string) => {
+  const idx = weekOptions.value.findIndex((o) => o.value === val);
+  if (idx !== -1 && idx + 1 < weekOptions.value.length) {
+    return weekOptions.value[idx + 1].label.split(": ")[1];
+  }
+  return "Previous Week";
+};
+
+const formatDelta = (current: number, baseline: number) => {
+  const diff = current - baseline;
+  const sign = diff >= 0 ? "+" : "";
+  let pct = 0;
+  if (baseline > 0) {
+    pct = (diff / baseline) * 100;
+  } else if (diff > 0) {
+    pct = 100;
+  }
+  return `${sign}${diff} (${sign}${pct.toFixed(1)}%)`;
+};
+
+const getDeltaColor = (current: number, baseline: number, invert = false) => {
+  const diff = current - baseline;
+  if (diff === 0) return "text-grey text-center";
+  if (diff > 0) return invert ? "text-red font-weight-bold text-center" : "text-success font-weight-bold text-center";
+  return invert ? "text-success font-weight-bold text-center" : "text-red font-weight-bold text-center";
+};
+
+const formatPercentageMet = (current: number, target: number) => {
+  const pct = Math.round((current / target) * 100);
+  return `${Math.min(100, pct)}% Met`;
+};
+
+const getStatusChipColor = (current: number, target: number) => {
+  const pct = (current / target) * 100;
+  if (pct >= 90) return "success";
+  if (pct >= 50) return "warning";
+  return "red";
+};
+
+const onWeekChange = async () => {
+  await fetchDashboardData();
+};
+
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Loja ativa":
@@ -1219,7 +1357,11 @@ const fetchDashboardData = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const response = await axios.get("/analytics/dashboard");
+    const params: any = {};
+    if (selectedWeek.value) {
+      params.end_date = selectedWeek.value;
+    }
+    const response = await axios.get("/analytics/dashboard", { params });
     dashboardData.value = response.data;
   } catch (err: any) {
     console.error("Error fetching analytics data:", err);
@@ -1519,7 +1661,7 @@ const initCharts = () => {
             Math.min(100, Math.round((data.saude_geral.total_users / 1500) * 100)),
             Math.min(100, Math.round((data.saude_geral.total_retailers / 75) * 100)),
             Math.min(100, Math.round((data.saude_geral.campanhas_ativas / 1200) * 100)),
-            Math.min(100, Math.round((1 / 20) * 100))
+            Math.min(100, Math.round((data.feature_usage.events_tables / 20) * 100))
           ],
           backgroundColor: ["#e0b341", "#5b8fd6", "#5bbf6a", "#e0564b"],
           borderWidth: 0,
@@ -1550,10 +1692,10 @@ const initCharts = () => {
     chartInstances.users = new Chart(cUsers.value, {
       type: "line",
       data: {
-        labels: ["Wk 1", "Wk 2", "Wk 3", "Wk 4 (June 15)", "Current (June 22)"],
+        labels: data.user_growth_trend.labels,
         datasets: [{
           label: "Total Users",
-          data: [1005, 1032, 1048, 1175, data.saude_geral.total_users],
+          data: data.user_growth_trend.data,
           borderColor: "#e0b341",
           backgroundColor: "rgba(224, 179, 65, 0.1)",
           fill: true,
@@ -1775,6 +1917,7 @@ watch(
 );
 
 onMounted(async () => {
+  generateWeeks();
   await fetchDashboardData();
   if (dashboardData.value && tab.value === "stats") {
     nextTick(() => {
