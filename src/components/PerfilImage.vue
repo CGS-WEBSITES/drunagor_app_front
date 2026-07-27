@@ -522,6 +522,13 @@ const rewardBackgrounds: CustomizeOption[] = [
     badgeName: "Season 2 Completed",
     lockReason: "Secured the void portal, vanquished the dragon, and completed the second saga.",
   },
+  {
+    hash: "bg-arca.png",
+    name: "Aftermath GenCon2026 Tester BG",
+    badgeId: 7,
+    badgeName: "Aftermath GenCon2026 Tester",
+    lockReason: "Completed the Chronicles of Drunagor: Aftermath Playtest at Gen Con 2026.",
+  },
 ];
 
 const isUnlocked = (option: CustomizeOption) => {
