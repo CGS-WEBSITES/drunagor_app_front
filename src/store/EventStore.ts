@@ -32,6 +32,50 @@ export interface EventCreation {
   active: boolean | null;
 }
 
+export interface PlaytestSlot {
+  slot_number: number;
+  player_name: string;
+  email?: string;
+  phone?: string;
+  is_master: boolean;
+  users_fk?: number | null;
+  checked_in?: boolean;
+  playtest_bookings_pk?: number;
+}
+
+export interface PlaytestTable {
+  id: string;
+  table_number: number;
+  time: string;
+  description?: string;
+  slots: PlaytestSlot[];
+  waitlist?: PlaytestSlot[];
+  started?: boolean;
+}
+
+export interface PlaytestDaySchedule {
+  date: string;
+  display_date: string;
+  tables: PlaytestTable[];
+}
+
+export interface PlaytestGhostEvent {
+  events_pk: string | number;
+  is_ghost: boolean;
+  is_playtest: boolean;
+  store_name: string;
+  address: string;
+  scenario: string;
+  event_date: string;
+  end_date: string;
+  seats_number: number;
+  available_seats: number;
+  seasons_fk?: number;
+  picture_hash?: string;
+  description?: string;
+  days: PlaytestDaySchedule[];
+}
+
 export const useEventStore = defineStore("event", () => {
   const events = ref<EventDisplay[]>([]);
 

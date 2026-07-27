@@ -104,6 +104,29 @@ const availableBackgrounds = ref<Background[]>([
   { hash: "profile-bg-warriors-transparent.png" },
 ]);
 
+const checkUnlockedRewards = async () => {
+  if (!UserStore.user?.users_pk) return;
+  try {
+    const response = await axios.get("/rl_users_rewards/list_rewards", {
+      params: { users_fk: UserStore.user.users_pk },
+    });
+    const rewards = response.data.rewards || [];
+    const hasPlaytesterReward = rewards.some((r: any) => r.name === "Aftermath GenCon2026 Tester");
+    
+    availableBackgrounds.value = [
+      { hash: "profile-bg-corelich-transparent.png" },
+      { hash: "profile-bg-corewar-transparent.png" },
+      { hash: "profile-bg-warriors-transparent.png" },
+    ];
+    
+    if (hasPlaytesterReward) {
+      availableBackgrounds.value.push({ hash: "bg-arca.png" });
+    }
+  } catch (err) {
+    console.error("Error checking unlocked rewards in ProfileBackgroundDialog:", err);
+  }
+};
+
 const setAlert = (
   icon: string,
   title: string,
@@ -163,7 +186,9 @@ const selectAndSaveBackground = async (backgroundHash: string) => {
 };
 
 watch(dialogIsActive, (isActive) => {
-  if (!isActive) {
+  if (isActive) {
+    checkUnlockedRewards();
+  } else {
     showAlert.value = false;
   }
 });

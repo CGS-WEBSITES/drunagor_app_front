@@ -107,8 +107,21 @@ const availablePictures = ref<Picture[]>([
   { hash: "vorn.png" },
 ]);
 
+const checkUnlockedRewards = async () => {
+  availablePictures.value = [
+    { hash: "user.png" },
+    { hash: "jaheen.png" },
+    { hash: "lich.png" },
+    { hash: "lorelai.png" },
+    { hash: "maya.png" },
+    { hash: "vorn.png" },
+  ];
+};
+
 watch(dialogIsActive, (isActive) => {
-  if (!isActive) {
+  if (isActive) {
+    checkUnlockedRewards();
+  } else {
     showAlert.value = false;
   }
 });
