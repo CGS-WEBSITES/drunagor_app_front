@@ -67,6 +67,8 @@ export const useRagStore = defineStore("rag", {
       originalQuestion: null as string | null,
       originalAnswer: null as string | null,
     },
+    wantToSaveChat: false,
+    savedSessions: [] as any[],
   }),
 
   actions: {
@@ -222,6 +224,45 @@ export const useRagStore = defineStore("rag", {
       this.loading = false;
       this.streaming = false;
       this.retryCount = 0;
+
+      if (this.wantToSaveChat && this.messages.length > 0) {
+        this.saveSession();
+      }
+    },
+
+    toggleSaveChat() {
+      this.wantToSaveChat = !this.wantToSaveChat;
+      if (this.wantToSaveChat) {
+        this.saveSession();
+      }
+    },
+
+    saveSession() {
+      this.wantToSaveChat = true;
+      if (this.messages.length === 0) return;
+      const firstUserMsg = this.messages.find((m: any) => m.role === "user");
+      if (!firstUserMsg) return;
+
+      const existingIdx = this.savedSessions.findIndex(
+        (s: any) => s.sessionId === this.sessionId
+      );
+      const sessionData = {
+        sessionId: this.sessionId,
+        messages: JSON.parse(JSON.stringify(this.messages)),
+        preview:
+          firstUserMsg.content.slice(0, 60) +
+          (firstUserMsg.content.length > 60 ? "…" : ""),
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+
+      if (existingIdx !== -1) {
+        this.savedSessions[existingIdx] = sessionData;
+      } else {
+        this.savedSessions.unshift(sessionData);
+      }
     },
 
     async sendSatisfaction(msg: any, satisfied: boolean) {
@@ -312,11 +353,15 @@ export const useRagStore = defineStore("rag", {
     },
 
     newChat() {
+      if (this.wantToSaveChat && this.messages.length > 0) {
+        this.saveSession();
+      }
       this.sessionId = generateSessionId();
       this.messages = [];
       this.lastResponse = null;
       this.retryCount = 0;
       this.detectedLanguage = null;
+      this.wantToSaveChat = false;
       this.refinement = {
         active: false,
         round: 0,

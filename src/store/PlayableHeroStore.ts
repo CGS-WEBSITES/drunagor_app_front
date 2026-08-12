@@ -130,6 +130,15 @@ export const usePlayableHeroStore = defineStore("playableHero", () => {
 
     heroes.value.push(heroView);
 
+    try {
+      await axios.post("/rl_users_rewards/cadastro", {
+        users_fk: usersPk,
+        rewards_fk: 8,
+      });
+    } catch (grantErr) {
+      // Non-critical if already unlocked or endpoint responds with duplicate
+    }
+
     return heroView;
   }
 

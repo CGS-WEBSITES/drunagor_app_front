@@ -89,7 +89,7 @@ export class CampaignLoadFromStorage {
       }
 
       if (!response?.data?.campaigns?.length) {
-        // Fallback: If campaign not found, try the other season setting
+        // Fallback 1: Try opposite season setting
         try {
           response = await axios.get("/rl_campaigns_users/search", {
             params: {
@@ -100,6 +100,31 @@ export class CampaignLoadFromStorage {
           });
         } catch (err) {
           console.error(`[CampaignLoad] Fallback campaign search failed (show_season2=${!showSeason2}):`, err);
+        }
+      }
+
+      if (!response?.data?.campaigns?.length && this.userStore.user?.users_pk) {
+        // Fallback 2: Auto-register player relationship for direct URL/share link access
+        try {
+          const infoRes = await axios.get(`/campaigns/${campaignId}`);
+          const boxId = infoRes.data?.box || 38;
+          await axios.post("/rl_campaigns_users/cadastro", null, {
+            params: {
+              users_fk: this.userStore.user.users_pk,
+              campaigns_fk: Number(campaignId),
+              skus_fk: boxId,
+              active: true,
+            },
+          });
+          response = await axios.get("/rl_campaigns_users/search", {
+            params: {
+              users_fk: this.userStore.user.users_pk,
+              campaigns_fk: campaignId,
+              show_season2: boxId === 39,
+            },
+          });
+        } catch (autoErr) {
+          console.warn("[CampaignLoad] Auto-registration of campaign relationship failed:", autoErr);
         }
       }
 

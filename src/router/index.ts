@@ -72,6 +72,11 @@ const router = createRouter({
       component: () => import("@/pages/Events.vue"),
     },
     {
+      path: "/playtest-agenda",
+      name: "PlaytestAgenda",
+      component: () => import("@/pages/PlaytestAgenda.vue"),
+    },
+    {
       path: "/user/:id",
       name: "User",
       component: () => import("@/pages/User.vue"),
@@ -166,7 +171,7 @@ const router = createRouter({
         },
         {
           path: "/campaign-tracker/party",
-          redirect: "/campaign-tracker/campaign",
+          redirect: "/campaign-tracker/",
         },
         {
           path: "/campaign-tracker/campaign/:id",
@@ -267,17 +272,6 @@ const router = createRouter({
           name: "stores",
           component: () =>
             import("@/components/StoreSettings.vue"),
-          beforeEnter(to, from, next) {
-            if (isSignedIn()) {
-              next()
-              return
-            }
-          },
-        },
-        {
-          path: "/profile/store-settings",
-          name: "logout",
-          component: () => import("@/components/StoreSettings.vue"),
           beforeEnter: requireAuth,
         },
       ],

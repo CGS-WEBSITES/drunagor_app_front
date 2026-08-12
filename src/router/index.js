@@ -62,6 +62,11 @@ const router = createRouter({
             component: () => import("@/pages/Events.vue"),
         },
         {
+            path: "/playtest-agenda",
+            name: "PlaytestAgenda",
+            component: () => import("@/pages/PlaytestAgenda.vue"),
+        },
+        {
             path: "/user/:id",
             name: "User",
             component: () => import("@/pages/User.vue"),
