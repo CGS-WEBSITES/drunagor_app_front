@@ -758,6 +758,7 @@ import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import DashboardEvents from "@/components/DashboardEvents.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
+import genconLogo from "@/assets/cgsblue.png";
 import {
   extractMonth,
   extractDay,
@@ -843,6 +844,11 @@ const showJoinCampaignDialog = ref(false);
 const joinCampaignId = ref("");
 const joinCampaignLoading = ref(false);
 const eventRefreshInterval = ref(null);
+const showPlaytestDialog = ref(false);
+
+const isGenConActive = computed(() => {
+  return new Date() <= new Date("2026-08-31T23:59:59Z");
+});
 
 const BOX_ID = 38;
 

@@ -8,7 +8,8 @@
         color="secundary"
         elevation="16"
         width="100%"
-        class="d-flex flex-column cursor-pointer transition-swing"
+        class="d-flex flex-column"
+        :class="{ 'cursor-pointer transition-swing': isOwner }"
         style="overflow: hidden;"
         @click="goToCampaign"
       >
@@ -149,7 +150,8 @@
           color="secundary"
           elevation="16"
           width="100%"
-          class="d-flex flex-column cursor-pointer transition-swing"
+          class="d-flex flex-column"
+        :class="{ 'cursor-pointer transition-swing': isOwner }"
           style="overflow: hidden;"
           @click="goToCampaign"
         >
@@ -619,7 +621,7 @@ const calculateAvatarSize = computed(() => {
 
 // Go to campaign details
 const goToCampaign = () => {
-  if (!campaign.value) return;
+  if (!campaign.value || !isOwner.value) return;
   router.push({ name: "Campaign", params: { id: campaign.value.campaignId } });
 };
 

@@ -20,7 +20,7 @@
             <v-card v-for="game in ownedGames" :key="game.id" class="ma-2 d-flex flex-column cursor-pointer profile-game-card flex-shrink-0" width="138" color="secundary" elevation="2" rounded="lg" @click="goToLink(game.link)">
               <div :style="{ backgroundColor: game.color || '#1A1A1A' }" style="height: 120px; position: relative;" class="d-flex align-center justify-center">
                  <div style="position: absolute; top:0; left:0; right:0; bottom:0; opacity: 0.2; background-size: cover; background-position: center;" :style="{ backgroundImage: `url(${game.cardbg})` }"></div>
-                 <v-img :src="game.image || require('@/assets/defalt-box.png')" max-height="100" contain style="z-index: 1;"></v-img>
+                 <v-img :src="game.image || defaultBox" max-height="100" contain style="z-index: 1;"></v-img>
               </div>
               <v-card-text class="pa-3 d-flex flex-column justify-center" style="min-height: 50px;">
                 <span class="font-weight-bold text-white text-body-2" style="line-height: 1.2;">{{ game.name }}</span>
@@ -51,7 +51,7 @@
             <v-card v-for="game in wishlistGames" :key="game.id" class="ma-2 d-flex flex-column cursor-pointer profile-game-card flex-shrink-0" width="138" color="secundary" elevation="2" rounded="lg" @click="goToLink(game.link)">
               <div :style="{ backgroundColor: game.color || '#1A1A1A' }" style="height: 120px; position: relative;" class="d-flex align-center justify-center">
                  <div style="position: absolute; top:0; left:0; right:0; bottom:0; opacity: 0.2; background-size: cover; background-position: center;" :style="{ backgroundImage: `url(${game.cardbg})` }"></div>
-                 <v-img :src="game.image || require('@/assets/defalt-box.png')" max-height="100" contain style="z-index: 1;"></v-img>
+                 <v-img :src="game.image || defaultBox" max-height="100" contain style="z-index: 1;"></v-img>
               </div>
               <v-card-text class="pa-3 d-flex flex-column justify-center" style="min-height: 50px;">
                 <span class="font-weight-bold text-white text-body-2" style="line-height: 1.2;">{{ game.name }}</span>
@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, inject, computed } from 'vue';
 import { useUserStore } from "@/store/UserStore";
+import defaultBox from "@/assets/Corebox.png";
 
 const props = defineProps({
   userId: {

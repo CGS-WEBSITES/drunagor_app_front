@@ -104,6 +104,130 @@
       </v-container>
     </div>
 
+    <!-- Quick Log Session Dialog -->
+    <v-dialog v-model="showQuickLogDialog" max-width="480">
+      <v-card color="#1e222d" class="text-white rounded-lg pa-4">
+        <v-card-title class="d-flex justify-space-between align-center px-0 pb-2">
+          <div class="d-flex align-center ga-2">
+            <v-icon color="amber-accent-2">mdi-flash</v-icon>
+            <span class="text-h6 font-weight-bold">Quick Log Session</span>
+          </div>
+          <v-btn icon variant="text" color="grey" @click="showQuickLogDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="px-0 py-2">
+          <p class="text-caption text-grey-lighten-1 mb-3">
+            Quickly log your game session for <strong>{{ recentCampaign?.name }}</strong> to update party progress and claim achievements!
+          </p>
+
+          <div class="mb-4">
+            <label class="text-caption font-weight-bold text-amber-accent-2 d-block mb-1">SESSION OUTCOME</label>
+            <v-btn-toggle v-model="quickLogOutcome" color="amber-accent-2" mandatory class="w-100">
+              <v-btn value="victory" class="flex-grow-1 font-weight-bold">
+                <v-icon start color="green">mdi-trophy</v-icon> Victory
+              </v-btn>
+              <v-btn value="defeat" class="flex-grow-1 font-weight-bold">
+                <v-icon start color="red">mdi-skull</v-icon> Defeat
+              </v-btn>
+              <v-btn value="in_progress" class="flex-grow-1 font-weight-bold">
+                <v-icon start color="blue">mdi-progress-clock</v-icon> In Progress
+              </v-btn>
+            </v-btn-toggle>
+          </div>
+
+          <v-text-field
+            v-model="quickLogDoorName"
+            label="Door / Chapter Completed"
+            placeholder="e.g., Door 3 - The Entry Hall"
+            variant="outlined"
+            density="compact"
+            color="amber-accent-2"
+            class="mb-3"
+          ></v-text-field>
+
+          <v-textarea
+            v-model="quickLogNotes"
+            label="Session Notes (Optional)"
+            placeholder="e.g. Defeated the boss after an epic battle!"
+            variant="outlined"
+            density="compact"
+            rows="2"
+            color="amber-accent-2"
+            hide-details
+          ></v-textarea>
+        </v-card-text>
+
+        <v-card-actions class="px-0 pt-3 justify-end ga-2">
+          <v-btn color="grey" variant="text" @click="showQuickLogDialog = false" :disabled="savingQuickLog">
+            Cancel
+          </v-btn>
+          <v-btn
+            color="amber-accent-2"
+            variant="flat"
+            class="font-weight-black text-grey-darken-4 px-4"
+            @click="submitQuickLog"
+            :loading="savingQuickLog"
+          >
+            Save Session Log
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Share Party / QR Code Dialog -->
+    <v-dialog v-model="showSharePartyDialog" max-width="420">
+      <v-card color="#1e222d" class="text-white rounded-lg pa-4 text-center">
+        <v-card-title class="d-flex justify-space-between align-center px-0 pb-2">
+          <span class="text-h6 font-weight-bold">Share Party Invite</span>
+          <v-btn icon variant="text" color="grey" @click="showSharePartyDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text class="px-0 py-3">
+          <p class="text-body-2 text-grey-lighten-1 mb-4">
+            Invite players to join <strong>{{ recentCampaign?.name }}</strong>!
+          </p>
+
+          <div class="pa-4 bg-white rounded-lg d-inline-block mb-4">
+            <img
+              :src="`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(partyInviteUrl)}`"
+              alt="Party QR Code"
+              width="180"
+              height="180"
+            />
+          </div>
+
+          <v-text-field
+            :model-value="partyInviteUrl"
+            readonly
+            variant="outlined"
+            density="compact"
+            color="amber-accent-2"
+            append-inner-icon="mdi-content-copy"
+            @click:append-inner="copyPartyLink"
+            hide-details
+          ></v-text-field>
+        </v-card-text>
+
+        <v-card-actions class="px-0 pt-2 justify-center">
+          <v-btn color="amber-accent-2" variant="flat" block class="font-weight-black text-grey-darken-4" @click="copyPartyLink">
+            <v-icon start>mdi-content-copy</v-icon> {{ copyPartyBtnText }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Success Snackbar -->
+    <v-snackbar v-model="showQuickLogSnackbar" timeout="3500" color="success" location="bottom center">
+      <div class="d-flex align-center ga-2 font-weight-bold">
+        <v-icon>mdi-check-circle</v-icon>
+        <span>{{ quickLogSnackbarMessage }}</span>
+      </div>
+    </v-snackbar>
+
     <div class="pa-2 pa-sm-4 flex-grow-0 flex-shrink-0">
       <v-container
         style="padding: 0; width: 100%"
@@ -526,6 +650,82 @@ const playLegacyCampaigns = () => {
 
 const recentCampaign = ref<any | null>(null);
 const recentPlayers = ref<any[]>([]);
+
+const showQuickLogDialog = ref(false);
+const savingQuickLog = ref(false);
+const quickLogOutcome = ref("victory");
+const quickLogDoorName = ref("");
+const quickLogNotes = ref("");
+
+const showSharePartyDialog = ref(false);
+const copyPartyBtnText = ref("Copy Party Link");
+const showQuickLogSnackbar = ref(false);
+const quickLogSnackbarMessage = ref("");
+
+const partyInviteUrl = computed(() => {
+  if (!recentCampaign.value) return window.location.origin;
+  return `${window.location.origin}/campaign-tracker/${recentCampaign.value.campaignId}`;
+});
+
+const openQuickLog = () => {
+  if (recentCampaign.value) {
+    quickLogDoorName.value = recentCampaign.value.door || "";
+  }
+  showQuickLogDialog.value = true;
+};
+
+const openShareParty = () => {
+  copyPartyBtnText.value = "Copy Party Link";
+  showSharePartyDialog.value = true;
+};
+
+const copyPartyLink = () => {
+  navigator.clipboard.writeText(partyInviteUrl.value);
+  copyPartyBtnText.value = "Copied!";
+  setTimeout(() => {
+    copyPartyBtnText.value = "Copy Party Link";
+  }, 2000);
+};
+
+const submitQuickLog = async () => {
+  if (!recentCampaign.value || savingQuickLog.value) return;
+  savingQuickLog.value = true;
+
+  try {
+    const campaignId = recentCampaign.value.campaignId;
+    const doorName = quickLogDoorName.value || "Door Cleared";
+
+    if (["underkeep", "underkeep2"].includes(recentCampaign.value.campaign)) {
+      try {
+        await (axios as any).post("/rl_campaigns_doors/cadastro", {
+          campaign_fk: campaignId,
+          door_name: doorName,
+          notes: quickLogNotes.value,
+          date: new Date().toISOString()
+        });
+      } catch (e) {}
+    }
+
+    if (userStore.user?.users_pk) {
+      try {
+        await (axios as any).post("/rl_users_rewards/cadastro", {
+          users_fk: userStore.user.users_pk,
+          rewards_fk: 9
+        });
+      } catch (e) {}
+    }
+
+    quickLogSnackbarMessage.value = "Session Logged Successfully! Achievement Unlocked!";
+    showQuickLogSnackbar.value = true;
+    showQuickLogDialog.value = false;
+
+    await loadRecentCampaign();
+  } catch (err) {
+    console.error("Error submitting quick log:", err);
+  } finally {
+    savingQuickLog.value = false;
+  }
+};
 
 const getPlayerHeroAvatar = (player: any) => {
   if (!player.resolvedHero) return null;

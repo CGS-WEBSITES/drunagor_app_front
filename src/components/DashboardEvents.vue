@@ -23,14 +23,71 @@
           <v-progress-circular indeterminate color="primary" />
         </div>
         <div v-else class="d-flex flex-column flex-grow-1">
-          <div v-if="upcomingEventsPreviewSliced.length > 0">
+          <div v-if="upcomingEventsPreviewSliced.length > 0 || recentCampaign">
             <v-row dense class="mx-n1">
+              <!-- Recent Campaign Card (Image 1 style: Heroes for Core/Apoc/Awak, Players for Underkeep) -->
+              <v-col
+                v-if="recentCampaign"
+                cols="12"
+                md="6"
+                class="px-1 py-1"
+              >
+                <v-card
+                  color="#1a1d24"
+                  elevation="6"
+                  class="cursor-pointer transition-swing rounded-lg overflow-hidden h-100 d-flex flex-column justify-space-between event-card"
+                  style="border: 1px solid rgba(255, 255, 255, 0.15); min-height: 96px;"
+                  @click="resumeRecentCampaign"
+                >
+                  <!-- Full-width Campaign Banner -->
+                  <v-img
+                    :src="getCampaignBanner(recentCampaign.campaign)"
+                    height="64"
+                    cover
+                    class="w-100"
+                  ></v-img>
+
+                  <!-- Bottom Bar: Party Name + Heroes (or Players if Underkeep) -->
+                  <div class="py-2 px-3 bg-grey-darken-4 text-white font-weight-bold text-subtitle-2 d-flex align-center justify-space-between flex-wrap" style="letter-spacing: 0.5px; height: 38px;">
+                    <span class="text-truncate mr-2 font-weight-bold text-subtitle-2" style="max-width: 170px;">
+                      {{ recentCampaign.name }}
+                    </span>
+
+                    <!-- Core / Apocalypse / Awakenings: Show HEROES -->
+                    <div v-if="!isUnderkeep && recentCampaignHeroes.length > 0" class="d-flex align-center gap-1">
+                      <v-avatar
+                        v-for="(hero, idx) in recentCampaignHeroes.slice(0, 4)"
+                        :key="idx"
+                        size="24"
+                        style="border: 1px solid rgba(255, 255, 255, 0.3);"
+                      >
+                        <v-img :src="hero.images.avatar" cover />
+                      </v-avatar>
+                    </div>
+
+                    <!-- Underkeep: Show PLAYERS -->
+                    <div v-else-if="isUnderkeep && recentCampaignPlayers.length > 0" class="d-flex align-center gap-1">
+                      <v-avatar
+                        v-for="(player, idx) in recentCampaignPlayers.slice(0, 4)"
+                        :key="idx"
+                        size="24"
+                        color="grey-darken-3"
+                        style="border: 1px solid rgba(255, 255, 255, 0.3);"
+                      >
+                        <v-img v-if="player.avatar" :src="player.avatar" cover />
+                        <span v-else class="text-caption font-weight-bold">{{ (player.name || 'P')[0].toUpperCase() }}</span>
+                      </v-avatar>
+                    </div>
+                  </div>
+                </v-card>
+              </v-col>
+
               <v-col
                 cols="12"
                 md="6"
                 v-for="event in upcomingEventsPreviewSliced"
                 :key="event.events_pk"
-                class="px-1"
+                class="px-1 py-1"
               >
                 <v-card
                   color="terciary"
@@ -90,13 +147,20 @@
                         {{ event.address }}
                       </p>
                       <p
-                        class="text-caption text-truncate"
+                        class="text-caption text-truncate mb-0"
                         style="line-height: 1.2"
                       >
                         <v-icon color="red" size="small"
                           >mdi-sword-cross</v-icon
                         >
                         {{ event.scenario }}
+                      </p>
+                      <p class="text-caption text-truncate mb-0" v-if="event.rewards?.length" style="line-height: 1.2">
+                        <v-icon color="red" size="small">mdi-star-circle</v-icon>
+                        Rewards:
+                        <span v-for="(reward, i) in event.rewards" :key="i" class="d-inline-flex align-center ml-1">
+                          <img :src="reward.image" height="14" width="14" style="object-fit: contain;" />
+                        </span>
                       </p>
                     </v-col>
                   </v-row>
@@ -568,6 +632,7 @@ import { useRouter } from "vue-router";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
+import genconLogo from "@/assets/cgsblue.png";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -600,6 +665,9 @@ const showQuitSuccessAlert = ref(false);
 const showQuitErrorAlert = ref(false);
 const quitErrorMessage = ref("");
 const showCampaignDialog = ref(false);
+const showPlaytestDialog = ref(false);
+
+const isGenConActive = computed(() => false);
 
 import {
   extractMonth,
@@ -620,10 +688,16 @@ const filterAndSortUpcoming = (eventList: any[]) => {
     );
 };
 
-const upcomingEventsPreview = computed(() =>
-  filterAndSortUpcoming(allEvents.value),
-);
-const myEventsPreview = computed(() => filterAndSortUpcoming(myEvents.value));
+const upcomingEventsPreview = computed(() => {
+  if (!allEvents.value || allEvents.value.length === 0) return [];
+  const filtered = filterAndSortUpcoming(allEvents.value);
+  return filtered.length > 0 ? filtered : allEvents.value;
+});
+const myEventsPreview = computed(() => {
+  if (!myEvents.value || myEvents.value.length === 0) return [];
+  const filtered = filterAndSortUpcoming(myEvents.value);
+  return filtered.length > 0 ? filtered : myEvents.value;
+});
 
 const itemsLimit = computed(() => {
   if (display.xs.value) return 4;
@@ -687,28 +761,72 @@ const getSeasonInfo = (fk: number) => {
 
 const fetchAllEvents = async () => {
   try {
+    const params: any = { past_events: "false" };
+    if (playerFk.value) params.player_fk = playerFk.value;
     const response = await axios.get("/events/list_events/", {
-      params: { player_fk: playerFk.value, past_events: false },
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    allEvents.value = response.data.events || [];
-  } catch {
+    const eventsData = response.data.events || [];
+    const eventsWithRewards = await Promise.all(
+      eventsData.map(async (event: any) => {
+        try {
+          const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+          });
+          return {
+            ...event,
+            rewards: (rewardsRes.data.rewards || []).map((r: any) => ({
+              ...r,
+              image: `https://assets.drunagor.app/${r.picture_hash}`,
+            })),
+          };
+        } catch (e) {
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+    allEvents.value = eventsWithRewards;
+  } catch (err) {
+    console.error("Error in fetchAllEvents:", err);
     allEvents.value = [];
   }
 };
 
 const fetchMyEvents = async () => {
   try {
+    const params: any = { past_events: "false" };
+    if (playerFk.value) params.player_fk = playerFk.value;
     const response = await axios.get("/events/my_events/player", {
-      params: { player_fk: playerFk.value, past_events: false },
+      params,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     });
-    myEvents.value = response.data.events || [];
-  } catch {
+    const eventsData = response.data.events || [];
+    const eventsWithRewards = await Promise.all(
+      eventsData.map(async (event: any) => {
+        try {
+          const rewardsRes = await axios.get("/rl_events_rewards/list_rewards", {
+            params: { events_fk: event.events_pk },
+          });
+          return {
+            ...event,
+            rewards: (rewardsRes.data.rewards || []).map((r: any) => ({
+              ...r,
+              image: `https://assets.drunagor.app/${r.picture_hash}`,
+            })),
+          };
+        } catch (e) {
+          return { ...event, rewards: [] };
+        }
+      })
+    );
+    myEvents.value = eventsWithRewards;
+  } catch (err) {
+    console.error("Error in fetchMyEvents:", err);
     myEvents.value = [];
   }
 };
@@ -885,15 +1003,184 @@ watch(activeTab, (val) => {
   }
 });
 
-onMounted(async () => {
-  const rawUser = localStorage.getItem("app_user");
-  playerFk.value = rawUser ? JSON.parse(rawUser).users_pk : null;
-  if (!playerFk.value) {
-    loading.value = false;
-    return;
+import UnderkeepBanner from "@/assets/underkeep.png";
+import Underkeep2Banner from "@/assets/underkeep2.png";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+
+const heroRepo = new HeroDataRepository();
+const recentCampaign = ref<any | null>(null);
+const recentCampaignHeroes = ref<any[]>([]);
+const recentCampaignPlayers = ref<any[]>([]);
+
+const isUnderkeep = computed(() => {
+  if (!recentCampaign.value) return false;
+  const camp = (recentCampaign.value.campaign || "").toLowerCase();
+  return camp === "underkeep" || camp === "underkeep2";
+});
+
+const getCampaignBanner = (campType: string) => {
+  if (campType === 'core') return "https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp";
+  if (campType === 'apocalypse') return "https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp";
+  if (campType === 'awakenings') return "https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp";
+  if (campType === 'underkeep2') return Underkeep2Banner;
+  return UnderkeepBanner;
+};
+
+const resumeRecentCampaign = () => {
+  if (!recentCampaign.value) return;
+  router.push({ name: "Campaign", params: { id: recentCampaign.value.campaignId } });
+};
+
+const loadRecentCampaign = async () => {
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
   }
-  await Promise.all([fetchAllEvents(), fetchMyEvents()]);
+  let userId: number | string | null = userStore.user?.users_pk;
+  if (!userId) {
+    const pkStr = localStorage.getItem("users_pk");
+    if (pkStr) userId = Number(pkStr);
+  }
+  if (!userId) {
+    const rawUser = localStorage.getItem("app_user");
+    if (rawUser) {
+      try {
+        userId = JSON.parse(rawUser).users_pk;
+      } catch (e) {}
+    }
+  }
+
+  if (!userId) return;
+
+  try {
+    let legacyCampaigns: any[] = [];
+    try {
+      const resLegacy = await axios.get("/rl_campaigns_users/search", {
+        params: { users_fk: userId, show_season2: false, _t: Date.now() },
+      });
+      legacyCampaigns = resLegacy.data?.campaigns || [];
+    } catch (e) {}
+
+    let s2Campaigns: any[] = [];
+    try {
+      const resS2 = await axios.get("/rl_campaigns_users/search", {
+        params: { users_fk: userId, show_season2: true, _t: Date.now() },
+      });
+      s2Campaigns = resS2.data?.campaigns || [];
+    } catch (e) {}
+
+    const allCampaignsRaw = [...legacyCampaigns, ...s2Campaigns];
+    if (allCampaignsRaw.length === 0) {
+      recentCampaign.value = null;
+      recentCampaignHeroes.value = [];
+      recentCampaignPlayers.value = [];
+      return;
+    }
+
+    const campaignsWithDates = allCampaignsRaw.map((c: any) => {
+      let mtime = 0;
+      let parsedHash: any = null;
+      if (c.tracker_hash) {
+        try {
+          parsedHash = JSON.parse(atob(c.tracker_hash));
+          if (parsedHash.savedAt) mtime = new Date(parsedHash.savedAt).getTime();
+        } catch (e) {}
+      }
+      if (c.start_date) {
+        const startTime = new Date(c.start_date).getTime();
+        if (startTime > mtime) mtime = startTime;
+      }
+      return { raw: c, mtime, parsedHash };
+    });
+
+    campaignsWithDates.sort((a, b) => b.mtime - a.mtime);
+    const mostRecent = campaignsWithDates[0];
+    const rawCamp = mostRecent.raw;
+    const parsed = mostRecent.parsedHash;
+
+    if (parsed && parsed.campaignData) {
+      const campData = parsed.campaignData;
+      campData.campaignId = String(rawCamp.campaigns_fk);
+      campData.name = rawCamp.party_name || campData.name || "Unnamed Campaign";
+      recentCampaign.value = campData;
+    } else {
+      recentCampaign.value = {
+        campaignId: String(rawCamp.campaigns_fk),
+        name: rawCamp.party_name || "Unnamed Campaign",
+        campaign: rawCamp.box === 38 ? "underkeep" : rawCamp.box === 39 ? "underkeep2" : "core"
+      };
+    }
+
+    if (isUnderkeep.value) {
+      // Fetch PLAYERS for Underkeep
+      try {
+        const resP = await axios.get("/rl_campaigns_users/search", {
+          params: { campaigns_fk: rawCamp.campaigns_fk },
+        });
+        const playerList = resP.data?.Users || resP.data?.campaigns || [];
+        recentCampaignPlayers.value = playerList.map((p: any) => ({
+          name: p.user_name || p.name || "Player",
+          avatar: p.avatar_url || p.profile_image || null,
+        }));
+      } catch (e) {}
+    } else {
+      // Resolve HEROES for Core / Apocalypse / Awakenings
+      let avatars: any[] = [];
+      if (recentCampaign.value?.heroes && Array.isArray(recentCampaign.value.heroes)) {
+        avatars = recentCampaign.value.heroes
+          .map((h: any) => heroRepo.find(h.heroId || h.id || h.playable_heroes_fk))
+          .filter((h: any) => !!h && h.images?.avatar);
+      }
+
+      if (avatars.length === 0 && rawCamp.campaigns_fk) {
+        try {
+          const resPlayers = await axios.get("/rl_campaigns_users/search_players", {
+            params: { campaigns_fk: rawCamp.campaigns_fk },
+          });
+          const playerList = resPlayers.data?.players || [];
+          avatars = playerList
+            .map((p: any) => heroRepo.find(p.playable_heroes_fk || p.hero_fk || p.heroId))
+            .filter((h: any) => !!h && h.images?.avatar);
+        } catch (e) {}
+      }
+
+      recentCampaignHeroes.value = avatars;
+    }
+  } catch (err) {
+    console.error("Error loading recent campaign in DashboardEvents:", err);
+  }
+};
+
+const initDashboardData = async () => {
+  if (!userStore.user?.users_pk) {
+    userStore.restoreFromStorage();
+  }
+  let pk: any = userStore.user?.users_pk;
+  if (!pk) pk = localStorage.getItem("users_pk");
+  if (!pk) {
+    const raw = localStorage.getItem("app_user");
+    if (raw) {
+      try { pk = JSON.parse(raw).users_pk; } catch (e) {}
+    }
+  }
+  playerFk.value = pk ? String(pk) : null;
+
+  loading.value = true;
+  await Promise.all([fetchAllEvents(), fetchMyEvents(), loadRecentCampaign()]);
   loading.value = false;
+};
+
+watch(
+  () => userStore.user?.users_pk,
+  (newPk) => {
+    if (newPk) {
+      initDashboardData();
+    }
+  },
+  { immediate: true }
+);
+
+onMounted(async () => {
+  await initDashboardData();
 });
 </script>
 

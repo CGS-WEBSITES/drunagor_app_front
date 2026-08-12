@@ -231,6 +231,10 @@ async function newCampaign(
 
     try {
       await addRelationship(usersPk, campaignPk, selectedSku.skus_pk);
+      await axios.post("/rl_users_rewards/cadastro", {
+        users_fk: usersPk,
+        rewards_fk: 9,
+      });
     } catch (relationshipError: any) {
       campaignStore.remove(campaignPk);
 

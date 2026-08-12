@@ -519,8 +519,8 @@ import { ref, computed, inject, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import type { PlaytestDaySchedule, PlaytestTable, PlaytestSlot } from "@/store/EventStore";
-import newsletterBanner from "@/assets/Newsletter.png";
-import genconLogo from "@/assets/gencon.png";
+import newsletterBanner from "@/assets/events.jpg";
+import genconLogo from "@/assets/cgsblue.png";
 
 const router = useRouter();
 const userStore = useUserStore();

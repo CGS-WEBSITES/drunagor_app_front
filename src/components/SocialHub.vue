@@ -229,7 +229,15 @@ const fetchUsers = async () => {
 
 const acceptFriend = async (item) => {
   processingRequest.value = item.friends_pk;
-  try { await axios.put(`${apiUrl}/friends/accept/${item.friends_pk}`); await fetchFriendsData(); }
+  try {
+    await axios.put(`${apiUrl}/friends/accept/${item.friends_pk}`);
+    await fetchFriendsData();
+    if (userId) {
+      try {
+        await axios.post(`${apiUrl}/rl_users_rewards/cadastro`, { users_fk: userId, rewards_fk: 10 });
+      } catch (e) {}
+    }
+  }
   finally { processingRequest.value = null; }
 };
 

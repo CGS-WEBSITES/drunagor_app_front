@@ -112,6 +112,7 @@ const checkUnlockedRewards = async () => {
     });
     const rewards = response.data.rewards || [];
     const hasPlaytesterReward = rewards.some((r: any) => r.name === "Aftermath GenCon2026 Tester");
+    const hasCampaignReward = rewards.some((r: any) => r.rewards_pk === 9 || r.name === "First Campaign Started");
     
     availableBackgrounds.value = [
       { hash: "profile-bg-corelich-transparent.png" },
@@ -121,6 +122,9 @@ const checkUnlockedRewards = async () => {
     
     if (hasPlaytesterReward) {
       availableBackgrounds.value.push({ hash: "bg-arca.png" });
+    }
+    if (hasCampaignReward) {
+      availableBackgrounds.value.push({ hash: "EarlyBackNew.png" });
     }
   } catch (err) {
     console.error("Error checking unlocked rewards in ProfileBackgroundDialog:", err);

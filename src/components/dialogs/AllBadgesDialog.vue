@@ -159,6 +159,10 @@ const badgeUnlocks: Record<number, { avatars: any[]; backgrounds: any[] }> = {
     avatars: [{ hash: "DragonS2.png", name: "Dragon S2" }],
     backgrounds: [{ hash: "Season2Background.png", name: "Season 2 BG" }],
   },
+  7: {
+    avatars: [],
+    backgrounds: [{ hash: "bg-arca.png", name: "Aftermath GenCon BG" }],
+  },
 };
 
 // Deduplicate user rewards, keeping the oldest achievement date for each unique rewards_pk
@@ -219,7 +223,8 @@ const fetchData = async () => {
 
     // Fetch all achievements
     const allRewardsRes = await axiosInstance.get("/rewards/search", { headers });
-    allRewards.value = allRewardsRes.data.rewards || [];
+    const fetched = allRewardsRes.data.rewards || [];
+    allRewards.value = fetched.filter((r: any) => r.active === 1 || r.active === true);
 
     // Fetch this user's unlocked achievements
     const userRewardsRes = await axiosInstance.get("/rl_users_rewards/list_rewards", {

@@ -12,7 +12,7 @@
         :style="{ backgroundColor: product.color, width: '36.6%', height: '100%' }"
       >
         <v-img
-          :src="product.image || require('@/assets/defalt-box.png')"
+          :src="product.image || defaultBox"
           contain
           alt="Product Image"
           style="box-shadow: none; width: 100%; height: 100%;"
@@ -60,7 +60,7 @@
         :style="{ backgroundColor: product.color }"
       >
         <v-img
-          :src="product.image || require('@/assets/defalt-box.png')"
+          :src="product.image || defaultBox"
           class="rounded"
           max-height="150px"
           contain
@@ -97,6 +97,8 @@
 </template>
 
 <script>
+import defaultBox from "@/assets/Corebox.png";
+
 export default {
   props: {
     product: {
@@ -106,6 +108,7 @@ export default {
   },
   data() {
     return {
+      defaultBox,
       isMobile: false,
     };
   },

@@ -11,7 +11,7 @@
       >
         <!-- Imagem da Caixa -->
         <v-img
-          :src="product.image || require('@/assets/default-box.png')"
+          :src="product.image || defaultBox"
           class="rounded"
           :height="isMobile ? '100px' : '150px'"
           width="100%"
@@ -51,12 +51,19 @@
 </template>
 
 <script>
+import defaultBox from "@/assets/Corebox.png";
+
 export default {
   props: {
     product: {
       type: Object,
       required: true,
     },
+  },
+  data() {
+    return {
+      defaultBox,
+    };
   },
   computed: {
     isMobile() {
