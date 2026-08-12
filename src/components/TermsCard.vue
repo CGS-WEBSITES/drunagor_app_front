@@ -60,6 +60,11 @@
         <strong>10. Contact</strong> For inquiries, email:
         customerservice@wearecgs.com
       </p>
+      <p>
+        <strong>11. Marketing Communications</strong> I agree to receive marketing
+        emails from Creative Games Studio (CGS), including news, updates, special
+        offers, and information about our games and upcoming projects.
+      </p>
     </v-card-text>
 
     <v-card-actions>

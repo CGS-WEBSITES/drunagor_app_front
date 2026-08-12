@@ -209,19 +209,6 @@
                     </p>
                   </div>
 
-                  <div class="terms-box mt-2">
-                    <div class="terms-check">
-                      <v-checkbox
-                        v-model="agreeMarketing"
-                        color="green"
-                        hide-details
-                      />
-                    </div>
-                    <p class="terms-copy mb-0">
-                      I agree to receive marketing emails from Creative Games Studio (CGS), including news, updates, special offers, and information about our games and upcoming projects.
-                    </p>
-                  </div>
-
                   <p
                     class="auth-link auth-link-retailer text-center mt-4 mb-0"
                     @click="navigateTo('/retailer-registration')"
@@ -550,7 +537,7 @@ const submitForm = async () => {
       active: true,
       verified: false,
       agreement: true,
-      marketing_emails: agreeMarketing.value,
+      marketing_emails: agreeTerms.value,
     });
 
     setAllert(
