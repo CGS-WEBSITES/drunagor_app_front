@@ -23,8 +23,11 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: "http://localhost:5173/drunagor-helper/",
+    /* Base URL to use in actions like `await page.goto('/')`.
+       vite.config.mts does not set `base`, so the app is served from the root.
+       127.0.0.1 and not localhost: on Windows localhost resolves to ::1 first,
+       but vite listens on IPv4, so the readiness probe never succeeds. */
+    baseURL: "http://127.0.0.1:5173/",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -68,11 +71,17 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: process.env.CI ? "vite preview --port 5173" : "vite dev",
-    port: 5173,
-    reuseExistingServer: !process.env.CI,
-    timeout: 5 * 1000,
-  },
+  /* Run your local dev server before starting the tests.
+     PW_NO_SERVER skips it, for suites that don't touch the browser
+     (see the `test:locales` script). */
+  webServer: process.env.PW_NO_SERVER
+    ? undefined
+    : {
+        command: process.env.CI
+          ? "vite preview --port 5173 --host 127.0.0.1"
+          : "vite dev --port 5173 --host 127.0.0.1",
+        url: "http://127.0.0.1:5173/",
+        reuseExistingServer: !process.env.CI,
+        timeout: 120 * 1000,
+      },
 });

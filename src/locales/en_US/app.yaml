@@ -90,6 +90,11 @@ label:
   shield: Shield
   back: Back
   success: Success
+  error: Error
+  class-abilities: Class Abilities
+  lifepoints: Life Points
+  heroes: My Heroes
+  select-card: Select Card
 text:
   input-token: Input your token here
   reset-state: This will reset all statuses and sequential adventure states from this campaign. Are you sure?
@@ -115,6 +120,10 @@ text:
   campaign-removed: Campaign removed
   campaign-removed-player: Remove Player
   share-campaign: Invite Player
+  no-outcomes: No outcomes selected
+  campaign-deleted-success: Campaign deleted successfully.
+  error-removing-campaign: Error removing campaign.
+  no-status: No status applied
 monster:
   wermuggdir: Wermuggdir
   abomination: Abomination
@@ -202,3 +211,8 @@ variant:
   standard: Standard
   alternate: Alternate
   complex: Complex (A / B)
+error:
+  user-not-logged: You must be signed in to create a campaign.
+  sku-not-found: No {type} product was found in your collection.
+  campaign-already-exists: You already have a campaign for this product.
+  campaign-creation-failed: The campaign could not be created. Please try again.

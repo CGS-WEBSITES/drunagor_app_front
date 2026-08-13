@@ -24,7 +24,7 @@ export async function loadLanguage(language: string) {
   let messages = await import(`@/locales/${language}/app.yaml`);
 
   if (messages.default === null) {
-    messages = await import("@/locales/en_US/keywords.yaml");
+    messages = await import("@/locales/en_US/app.yaml");
   }
 
   let keywords = await import(`@/locales/${language}/keywords.yaml`);
