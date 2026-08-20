@@ -471,10 +471,6 @@ const contentStyle = computed(() => {
       };
 });
 
-const openPopup = (url: string) => {
-  window.open(url, "_blank", "width=800,height=600,scrollbars=yes");
-};
-
 onMounted(() => {
   userStore.restoreFromStorage();
   tutorialStore.loadPreferences();

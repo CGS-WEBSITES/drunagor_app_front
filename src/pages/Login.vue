@@ -540,6 +540,24 @@ const submitForm = async () => {
       marketing_emails: agreeTerms.value,
     });
 
+    const newUserId = response.data?.user?.users_pk;
+    const userCountryFk = response.data?.user?.countries_fk;
+    const now = new Date();
+    const campaignStart = new Date("2026-08-11T00:00:00Z");
+    const campaignEnd = new Date("2026-09-10T23:59:59Z");
+    const isCampaignPeriod = now >= campaignStart && now <= campaignEnd;
+
+    if (newUserId && isCampaignPeriod && (userCountryFk === 46 || !userCountryFk)) {
+      try {
+        await axios.post("/rl_users_rewards/cadastro", {
+          users_fk: newUserId,
+          rewards_fk: 11,
+        });
+      } catch (e) {
+        console.warn("Could not award Brazil Campaign badge on signup:", e);
+      }
+    }
+
     setAllert(
       "mdi-check",
       response.status.toString(),

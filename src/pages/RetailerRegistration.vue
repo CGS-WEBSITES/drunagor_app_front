@@ -377,6 +377,24 @@ const submitForm = async () => {
             google_id: locationCoordinates,
         });
 
+        const newUserId = signupResponse.data?.user?.users_pk;
+        const userCountryFk = signupResponse.data?.user?.countries_fk;
+        const now = new Date();
+        const campaignStart = new Date("2026-08-11T00:00:00Z");
+        const campaignEnd = new Date("2026-09-10T23:59:59Z");
+        const isCampaignPeriod = now >= campaignStart && now <= campaignEnd;
+
+        if (newUserId && isCampaignPeriod && (userCountryFk === 46 || !userCountryFk)) {
+            try {
+                await axios.post("/rl_users_rewards/cadastro", {
+                    users_fk: newUserId,
+                    rewards_fk: 11,
+                });
+            } catch (e) {
+                console.warn("Could not award Brazil Campaign badge to retailer on signup:", e);
+            }
+        }
+
         await completeRetailerLogin(signupEmail.value, signupConfirmPassword.value);
 
         setAllert(

@@ -380,6 +380,7 @@ const getBadgeIconUrl = (badgeId: number) => {
   if (badgeId === 3) return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
   if (badgeId === 5) return getBadgeImageUrl("badges&achievements/Tutorial Complete.png");
   if (badgeId === 6) return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
+  if (badgeId === 11) return getBadgeImageUrl("Profile/BRAZIL_BADGE.png");
   return getBadgeImageUrl("badges&achievements/Season 1 Complete (4)-min.png");
 };
 
@@ -498,6 +499,13 @@ const rewardAvatars: CustomizeOption[] = [
     badgeName: "Season 2 Completed",
     lockReason: "Secured the void portal, vanquished the dragon, and completed the second saga.",
   },
+  {
+    hash: "capy.png",
+    name: "Capy",
+    badgeId: 11,
+    badgeName: "Vanguard of Brazil",
+    lockReason: "Exclusive to the brave adventurers who created their account during the official Brazil campaign.",
+  },
 ];
 
 // Backgrounds (No Season 1 Completed extra background)
@@ -528,6 +536,13 @@ const rewardBackgrounds: CustomizeOption[] = [
     badgeId: 7,
     badgeName: "Aftermath GenCon2026 Tester",
     lockReason: "Completed the Chronicles of Drunagor: Aftermath Playtest at Gen Con 2026.",
+  },
+  {
+    hash: "brasil_bg.png",
+    name: "Brazil BG",
+    badgeId: 11,
+    badgeName: "Vanguard of Brazil",
+    lockReason: "Exclusive to the brave adventurers who created their account during the official Brazil campaign.",
   },
 ];
 
