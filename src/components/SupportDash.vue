@@ -735,7 +735,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="item in filteredRetailers" :key="item.users_pk" class="border-b hover-row">
+                <tr v-for="item in filteredRetailers" :key="item.stores_pk ? ('store-' + item.stores_pk) : ('user-' + item.users_pk)" class="border-b hover-row">
                   <td class="py-3">
                     <div class="d-flex align-center flex-wrap ga-1">
                       <span class="font-weight-bold text-white text-subtitle-1">{{ item.name }}</span>
