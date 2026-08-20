@@ -737,7 +737,16 @@
               <tbody>
                 <tr v-for="item in filteredRetailers" :key="item.users_pk" class="border-b hover-row">
                   <td class="py-3">
-                    <div class="font-weight-bold text-white text-subtitle-1">{{ item.name }}</div>
+                    <div class="d-flex align-center flex-wrap ga-1">
+                      <span class="font-weight-bold text-white text-subtitle-1">{{ item.name }}</span>
+                      <v-chip
+                        size="x-small"
+                        :color="item.verified !== false ? 'success' : 'red-darken-2'"
+                        class="font-weight-black text-uppercase"
+                      >
+                        {{ item.verified !== false ? 'Validated' : 'Not Validated' }}
+                      </v-chip>
+                    </div>
                     <div class="text-caption text-grey-lighten-2">{{ item.email }}</div>
                     <div class="text-caption text-grey-lighten-2" v-if="item.phone">Tel: {{ item.phone }}</div>
                   </td>
@@ -832,6 +841,40 @@
 
         <v-card-text class="px-6 pb-6 pt-0">
           <v-row dense>
+            <!-- Account Validation Banner (Prominent Action for Fake/Not Validated Accounts) -->
+            <v-col cols="12" class="mb-4">
+              <v-card
+                :color="selectedRetailer.verified !== false ? 'rgba(76, 175, 80, 0.12)' : 'rgba(244, 67, 54, 0.12)'"
+                rounded="lg"
+                class="pa-4 d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-3"
+                :style="selectedRetailer.verified !== false ? 'border: 1px solid rgba(76, 175, 80, 0.5) !important;' : 'border: 1px solid rgba(244, 67, 54, 0.5) !important;'"
+              >
+                <div>
+                  <div class="d-flex align-center ga-2 mb-1">
+                    <v-icon :color="selectedRetailer.verified !== false ? 'success' : 'red'">
+                      {{ selectedRetailer.verified !== false ? 'mdi-check-decagram' : 'mdi-alert-decagram' }}
+                    </v-icon>
+                    <span class="font-weight-black text-subtitle-1 cinzel-text" :class="selectedRetailer.verified !== false ? 'text-success' : 'text-red'">
+                      {{ selectedRetailer.verified !== false ? 'VALIDATED RETAILER' : 'NOT VALIDATED / FAKE STORE' }}
+                    </span>
+                  </div>
+                  <p class="text-caption text-grey-lighten-1 mb-0">
+                    {{ selectedRetailer.verified !== false ? 'This account is verified as a legitimate lojista.' : 'This account is flagged as not validated / fake lojista and can be filtered out.' }}
+                  </p>
+                </div>
+                <v-btn
+                  :color="selectedRetailer.verified !== false ? 'red-darken-2' : 'success'"
+                  variant="flat"
+                  class="font-weight-bold shrink-0"
+                  :loading="savingValidation"
+                  @click="toggleValidationStatus(!selectedRetailer.verified)"
+                >
+                  <v-icon start>{{ selectedRetailer.verified !== false ? 'mdi-account-cancel' : 'mdi-account-check' }}</v-icon>
+                  {{ selectedRetailer.verified !== false ? 'INVALIDATE ACCOUNT' : 'VALIDATE ACCOUNT' }}
+                </v-btn>
+              </v-card>
+            </v-col>
+
             <!-- Account Details Card -->
             <v-col cols="12" class="mb-4">
               <v-card color="surface" rounded="lg" class="pa-4">
@@ -1169,6 +1212,34 @@ const loadingStoreDetails = ref(false);
 const editOnboardingStatus = ref("");
 const editPhone = ref("");
 const saving = ref(false);
+const savingValidation = ref(false);
+
+const toggleValidationStatus = async (newVerifiedState: boolean) => {
+  if (!selectedRetailer.value) return;
+  savingValidation.value = true;
+  try {
+    await axios.put("/users/alter", {
+      users_pk: selectedRetailer.value.users_pk,
+      verified: newVerifiedState
+    });
+
+    selectedRetailer.value.verified = newVerifiedState;
+    selectedRetailer.value.store_verified = newVerifiedState;
+
+    const idx = dashboardData.value.retailers.findIndex(
+      (r: any) => r.users_pk === selectedRetailer.value.users_pk
+    );
+    if (idx !== -1) {
+      dashboardData.value.retailers[idx].verified = newVerifiedState;
+      dashboardData.value.retailers[idx].store_verified = newVerifiedState;
+    }
+  } catch (err: any) {
+    console.error("Error toggling validation status:", err);
+    alert(err.response?.data?.message || "Failed to update validation status.");
+  } finally {
+    savingValidation.value = false;
+  }
+};
 
 // Retailer Events and Players details
 const eventsDialog = ref(false);
@@ -1182,6 +1253,8 @@ const playersRetailerName = ref("");
 
 const storeStatusOptions = [
   "Todos",
+  "Apenas Validadas",
+  "Não Validadas / Fakes",
   "Com Loja",
   "Sem Loja",
   "Loja Verificada",
@@ -1547,6 +1620,8 @@ const filteredRetailers = computed(() => {
   if (storeStatusFilter.value !== "Todos") {
     result = result.filter((item: any) => {
       const hasStore = !!item.stores_pk;
+      if (storeStatusFilter.value === "Apenas Validadas") return item.verified !== false;
+      if (storeStatusFilter.value === "Não Validadas / Fakes") return item.verified === false;
       if (storeStatusFilter.value === "Com Loja") return hasStore;
       if (storeStatusFilter.value === "Sem Loja") return !hasStore;
       if (storeStatusFilter.value === "Loja Verificada") return hasStore && item.store_verified;
