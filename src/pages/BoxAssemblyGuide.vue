@@ -31,7 +31,7 @@
 
         <!-- ================= STEP 1 ================= -->
         <div class="step-section mb-4">
-          <!-- Step Banner Header (Natural width inside card with side padding) -->
+          <!-- Step Banner Header -->
           <div 
             class="step-banner rounded-lg d-flex align-center cursor-pointer"
             :class="{ 'banner-open': openSteps[1] }"
@@ -45,7 +45,7 @@
 
           <!-- Expandable Content for Step 1 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[1]" class="step-open-container pt-4 pb-4 px-4 mb-4">
+            <div v-show="openSteps[1]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
               <p class="intro-p text-white mb-5">
                 Open the <strong class="text-white font-weight-bold">Core Box</strong> and let’s sort through the components.
               </p>
@@ -59,7 +59,7 @@
                   <div 
                     v-for="item in step1SetAsideItems" 
                     :key="item.id"
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked(item.id) }"
                     @click="handleItemClick(item)"
                   >
@@ -82,7 +82,7 @@
                   <div 
                     v-for="item in step1SeparateItems" 
                     :key="item.id"
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked(item.id) }"
                     @click="handleItemClick(item)"
                   >
@@ -108,7 +108,7 @@
                   <div 
                     v-for="item in step1OrganizeItems" 
                     :key="item.id"
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked(item.id) }"
                     @click="handleItemClick(item)"
                   >
@@ -119,8 +119,8 @@
                     ></div>
                     <div class="row-label text-white flex-grow-1">
                       <span v-html="item.label"></span>
-                      <div v-if="item.details" class="sub-bullets pl-3 mt-1.5">
-                        <div v-for="(detail, dIdx) in item.details" :key="dIdx" class="d-flex align-start mb-1">
+                      <div v-if="item.details" class="sub-bullets pl-3 mt-2">
+                        <div v-for="(detail, dIdx) in item.details" :key="dIdx" class="d-flex align-start mb-1.5">
                           <span class="mr-2">•</span>
                           <span v-html="detail"></span>
                         </div>
@@ -149,7 +149,7 @@
 
           <!-- Expandable Content for Step 2 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[2]" class="step-open-container pt-4 pb-4 px-4 mb-4">
+            <div v-show="openSteps[2]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
               <p class="intro-p text-white mb-5">
                 Open the <strong class="text-white font-weight-bold">Organized Play Kit</strong> and combine its contents with the components we have already prepared.
               </p>
@@ -181,7 +181,7 @@
                   <div 
                     v-for="item in step2SeparateItems" 
                     :key="item.id"
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked(item.id) }"
                     @click="handleItemClick(item)"
                   >
@@ -223,7 +223,7 @@
                 </p>
                 
                 <div 
-                  class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                  class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                   :class="{ 'row-checked': isChecked('step2_2_pet_cards') }"
                   @click="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
                 >
@@ -265,9 +265,9 @@
                   Sort the cards into separate piles by category: <strong class="text-white font-weight-bold">Heroes, Enemies, and Adventures</strong>.
                 </p>
 
-                <!-- Table Matching Image 3 -->
-                <div class="cards-table-container mb-4 overflow-x-auto">
-                  <v-table theme="dark" class="mini-cards-table rounded-lg">
+                <!-- Table Responsive Container (scrollable on narrow screens to prevent text cut off) -->
+                <div class="cards-table-wrapper mb-4 overflow-x-auto">
+                  <v-table theme="dark" class="mini-cards-table rounded-lg" style="min-width: 520px;">
                     <thead>
                       <tr>
                         <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase">
@@ -373,7 +373,7 @@
                   <div 
                     v-for="item in step2PackItems" 
                     :key="item.id"
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked(item.id) }"
                     @click="handleItemClick(item)"
                   >
@@ -406,7 +406,7 @@
 
           <!-- Expandable Content for Step 3 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[3]" class="step-open-container pt-4 pb-4 px-4 mb-4">
+            <div v-show="openSteps[3]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
               <p class="intro-p text-white mb-5">
                 Open the add-on box and <strong class="text-white font-weight-bold">Set Aside</strong> the plastic wraps containing the <strong class="text-white font-weight-bold">Map Tiles</strong>.
               </p>
@@ -437,7 +437,7 @@
                 
                 <div class="checklist-items">
                   <div 
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked('step3_1_dungeon_trays') }"
                     @click="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png', title: '5 Dungeon Trays Vertically Positioned' })"
                   >
@@ -470,7 +470,7 @@
                   </div>
 
                   <div 
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked('step3_1_gift_cards') }"
                     @click="toggleCheck('step3_1_gift_cards')"
                   >
@@ -485,7 +485,7 @@
                   </div>
 
                   <div 
-                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked('step3_1_close_box') }"
                     @click="toggleCheck('step3_1_close_box')"
                   >
@@ -518,23 +518,23 @@
             </h2>
           </div>
 
-          <!-- Expandable Content for Step 4 with Grey Background -->
+          <!-- Expandable Content for Step 4 matching input_file_0.png -->
           <v-expand-transition>
-            <div v-show="openSteps[4]" class="step-open-container pt-4 pb-4 px-4 mb-4">
-              <p class="intro-p text-white font-weight-medium mb-3">
+            <div v-show="openSteps[4]" class="step-open-container pt-4 pb-4 px-4 px-sm-5 mb-4">
+              <p class="intro-p text-white mb-4">
                 That’s it! Your <strong class="text-white font-weight-bold">Core Box</strong> is now fully optimized and ready for <strong class="text-white font-weight-bold">Drunagor Nights</strong>.
               </p>
 
-              <p class="intro-p text-white mb-3">
-                Take all the components you <strong class="text-white font-weight-bold">set aside</strong> during the previous steps and place them inside the now-empty <strong class="text-white font-weight-bold">Organized Play Kit box</strong>.
+              <p class="intro-p text-white mb-4">
+                Take all the components you <strong class="text-white font-weight-bold">set aside</strong> during the previous steps and place them inside the now-empty <strong class="text-white font-weight-bold">Organized Play Kit box.</strong>
               </p>
 
               <p class="intro-p text-white mb-5">
                 Store that box somewhere safe, as you may want to use the original Heroes or some of those components again in the future.
               </p>
 
-              <div class="text-center py-2">
-                <span class="text-h6 font-weight-black text-amber-accent-2 cinzel-text">
+              <div class="py-1">
+                <span class="step4-enjoy-text font-weight-bold text-white">
                   Enjoy the game!
                 </span>
               </div>
@@ -858,6 +858,8 @@ const step2PackItems = [
   width: 100%;
   overflow-x: hidden;
   min-height: 100vh;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 300;
 }
 
 .page-background {
@@ -890,14 +892,15 @@ const step2PackItems = [
 
 .main-header-title {
   font-family: 'Poppins', sans-serif !important;
-  font-size: 2rem;
+  font-size: 1.8rem;
   line-height: 1.1;
   letter-spacing: 0.5px;
+  font-weight: 800;
 }
 
 @media (min-width: 600px) {
   .main-header-title {
-    font-size: 2.6rem;
+    font-size: 2.5rem;
   }
 }
 
@@ -906,6 +909,7 @@ const step2PackItems = [
   color: rgba(255, 255, 255, 0.45) !important;
   max-width: 520px;
   line-height: 1.35;
+  font-weight: 300;
 }
 
 /* Single Main Box Card */
@@ -915,7 +919,7 @@ const step2PackItems = [
   box-shadow: 0 12px 36px rgba(0,0,0,0.6) !important;
 }
 
-/* Step Banner Header (Natural width inside card with side padding) */
+/* Step Banner Header */
 .step-banner {
   background: #181818;
   border-radius: 12px;
@@ -933,9 +937,9 @@ const step2PackItems = [
   border-bottom-right-radius: 0px !important;
 }
 
-/* Step Open Grey Background Container */
+/* Step Open Grey Background Container matching input_file_0.png */
 .step-open-container {
-  background: #343434 !important; /* Grey step background when open */
+  background: #343434 !important;
   width: 100%;
   border-bottom-left-radius: 12px !important;
   border-bottom-right-radius: 12px !important;
@@ -976,28 +980,26 @@ const step2PackItems = [
   background: #5D3C76 !important;
 }
 
-/* Single-line step titles */
+/* Single-line step titles with responsive clamp to prevent mobile truncation */
 .single-line-title {
   font-family: 'Poppins', sans-serif !important;
-  font-size: 0.88rem !important;
+  font-size: clamp(0.72rem, 3.1vw, 0.95rem) !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-}
-
-@media (min-width: 600px) {
-  .single-line-title {
-    font-size: 0.95rem !important;
-  }
+  font-weight: 600 !important;
 }
 
 .substep-heading {
-  font-size: 0.92rem !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
 }
 
 .intro-p {
-  font-size: 0.85rem !important;
+  font-size: 0.84rem !important;
   color: #ffffff !important;
+  font-weight: 300 !important;
+  line-height: 1.45;
 }
 
 /* Custom crisp white square checkbox */
@@ -1008,8 +1010,8 @@ const step2PackItems = [
   min-height: 15px;
   background-color: #ffffff;
   border-radius: 3px;
-  margin-right: 10px;
-  margin-top: 2px;
+  margin-right: 12px;
+  margin-top: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1035,18 +1037,22 @@ const step2PackItems = [
 .row-label {
   font-size: 0.82rem !important;
   color: #ffffff !important;
-  line-height: 1.4;
+  line-height: 1.45;
+  font-weight: 300 !important;
 }
 
+/* Checklist rows with larger vertical touch padding to prevent accidental clicks */
 .checklist-row {
   transition: opacity 0.2s ease, background 0.15s ease;
-  border-radius: 4px;
-  padding-left: 2px;
-  padding-right: 2px;
+  border-radius: 6px;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
 
 .checklist-row:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .row-checked {
@@ -1059,22 +1065,36 @@ const step2PackItems = [
 
 .note-text {
   font-size: 0.78rem !important;
+  font-weight: 300 !important;
 }
 
 .sub-bullets {
   font-size: 0.78rem;
   color: #dddddd;
+  font-weight: 300 !important;
 }
 
-/* Table matching Image 2/3 */
+/* Step 4 Enjoy text matching input_file_0.png */
+.step4-enjoy-text {
+  font-size: 0.95rem;
+  font-weight: 700 !important;
+}
+
+/* Table matching input_file_2.png */
+.cards-table-wrapper {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
 .border-col-right {
   border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .style-table-text {
-  font-size: 0.78rem !important;
+  font-size: 0.76rem !important;
   line-height: 1.3;
   color: #ffffff !important;
+  font-weight: 300 !important;
 }
 
 .mini-cards-table {
@@ -1083,6 +1103,7 @@ const step2PackItems = [
 
 .mini-cards-table th {
   border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  font-weight: 600 !important;
 }
 
 .table-cell-custom {
