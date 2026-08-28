@@ -21,7 +21,7 @@
         </h1>
       </div>
 
-      <!-- Single Main Card Container (Matching Image 0/1/2) -->
+      <!-- Single Main Card Container -->
       <v-card class="main-box-card rounded-xl pa-4 pa-sm-6 text-left elevation-16 overflow-hidden">
         
         <!-- Subtitle Text (INSIDE Card at the Top) -->
@@ -30,10 +30,11 @@
         </p>
 
         <!-- ================= STEP 1 ================= -->
-        <div class="step-section mb-6">
-          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+        <div class="step-section mb-4">
+          <!-- 100% Horizontal Width Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            :class="{ 'banner-open': openSteps[1] }"
             @click="toggleStep(1)"
           >
             <span class="step-badge badge-step-1">STEP 1</span>
@@ -42,9 +43,9 @@
             </h2>
           </div>
 
-          <!-- Expandable Content for Step 1 -->
+          <!-- Expandable Content for Step 1 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[1]" class="step-content-body pt-2 pb-4 px-1">
+            <div v-show="openSteps[1]" class="step-open-container pt-4 pb-4 px-4 mb-4">
               <p class="intro-p text-white mb-5">
                 Open the <strong class="text-white font-weight-bold">Core Box</strong> and let’s sort through the components.
               </p>
@@ -133,10 +134,11 @@
         </div>
 
         <!-- ================= STEP 2 ================= -->
-        <div class="step-section mb-6">
-          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+        <div class="step-section mb-4">
+          <!-- 100% Horizontal Width Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            :class="{ 'banner-open': openSteps[2] }"
             @click="toggleStep(2)"
           >
             <span class="step-badge badge-step-2">STEP 2</span>
@@ -145,9 +147,9 @@
             </h2>
           </div>
 
-          <!-- Expandable Content for Step 2 -->
+          <!-- Expandable Content for Step 2 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[2]" class="step-content-body pt-2 pb-4 px-1">
+            <div v-show="openSteps[2]" class="step-open-container pt-4 pb-4 px-4 mb-4">
               <p class="intro-p text-white mb-5">
                 Open the <strong class="text-white font-weight-bold">Organized Play Kit</strong> and combine its contents with the components we have already prepared.
               </p>
@@ -263,29 +265,29 @@
                   Sort the cards into separate piles by category: <strong class="text-white font-weight-bold">Heroes, Enemies, and Adventures</strong>.
                 </p>
 
-                <!-- Table Matching Image 3 (Vertically centered text with checkbox underneath) -->
+                <!-- Table Matching Image 3 -->
                 <div class="cards-table-container mb-4 overflow-x-auto">
-                  <v-table theme="dark" class="mini-cards-table rounded-lg border-subtle">
+                  <v-table theme="dark" class="mini-cards-table rounded-lg">
                     <thead>
                       <tr>
-                        <th class="text-center text-caption font-weight-bold text-grey-lighten-2 bg-grey-darken-4 py-2 border-col-right">
+                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase">
                           HERO COMPONENTS
                         </th>
-                        <th class="text-center text-caption font-weight-bold text-grey-lighten-2 bg-grey-darken-4 py-2 border-col-right">
+                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase">
                           ENEMY COMPONENTS
                         </th>
-                        <th class="text-center text-caption font-weight-bold text-grey-lighten-2 bg-grey-darken-4 py-2">
+                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 text-uppercase">
                           ADVENTURE COMPONENTS
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="rowIndex in maxCardRows" :key="rowIndex">
+                      <tr v-for="rowIndex in maxCardRows" :key="rowIndex" class="table-row-custom">
                         <!-- Hero -->
-                        <td class="table-cell-custom pa-2 align-top width-33 border-col-right text-center">
+                        <td class="table-cell-custom pa-3 align-top width-33 border-col-right text-center">
                           <div 
                             v-if="heroCards[rowIndex - 1]" 
-                            class="cell-check-item d-flex flex-column align-center justify-center pa-2 rounded cursor-pointer fill-height"
+                            class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
                             :class="{ 'cell-checked': isChecked(heroCards[rowIndex - 1].id) }"
                             @click="toggleCheck(heroCards[rowIndex - 1].id)"
                           >
@@ -299,10 +301,10 @@
                         </td>
 
                         <!-- Enemy -->
-                        <td class="table-cell-custom pa-2 align-top width-33 border-col-right text-center">
+                        <td class="table-cell-custom pa-3 align-top width-33 border-col-right text-center">
                           <div 
                             v-if="enemyCards[rowIndex - 1]" 
-                            class="cell-check-item d-flex flex-column align-center justify-center pa-2 rounded cursor-pointer fill-height"
+                            class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
                             :class="{ 'cell-checked': isChecked(enemyCards[rowIndex - 1].id) }"
                             @click="toggleCheck(enemyCards[rowIndex - 1].id)"
                           >
@@ -316,10 +318,10 @@
                         </td>
 
                         <!-- Adventure -->
-                        <td class="table-cell-custom pa-2 align-top width-33 text-center">
+                        <td class="table-cell-custom pa-3 align-top width-33 text-center">
                           <div 
                             v-if="adventureCards[rowIndex - 1]" 
-                            class="cell-check-item d-flex flex-column align-center justify-center pa-2 rounded cursor-pointer fill-height"
+                            class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
                             :class="{ 'cell-checked': isChecked(adventureCards[rowIndex - 1].id) }"
                             @click="toggleCheck(adventureCards[rowIndex - 1].id)"
                           >
@@ -389,10 +391,11 @@
         </div>
 
         <!-- ================= STEP 3 ================= -->
-        <div class="step-section mb-6">
-          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+        <div class="step-section mb-4">
+          <!-- 100% Horizontal Width Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            :class="{ 'banner-open': openSteps[3] }"
             @click="toggleStep(3)"
           >
             <span class="step-badge badge-step-3">STEP 3</span>
@@ -401,9 +404,9 @@
             </h2>
           </div>
 
-          <!-- Expandable Content for Step 3 -->
+          <!-- Expandable Content for Step 3 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[3]" class="step-content-body pt-2 pb-4 px-1">
+            <div v-show="openSteps[3]" class="step-open-container pt-4 pb-4 px-4 mb-4">
               <p class="intro-p text-white mb-5">
                 Open the add-on box and <strong class="text-white font-weight-bold">Set Aside</strong> the plastic wraps containing the <strong class="text-white font-weight-bold">Map Tiles</strong>.
               </p>
@@ -503,9 +506,10 @@
 
         <!-- ================= STEP 4 ================= -->
         <div class="step-section mb-4">
-          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+          <!-- 100% Horizontal Width Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            :class="{ 'banner-open': openSteps[4] }"
             @click="toggleStep(4)"
           >
             <span class="step-badge badge-step-4">STEP 4</span>
@@ -514,9 +518,9 @@
             </h2>
           </div>
 
-          <!-- Expandable Content for Step 4 -->
+          <!-- Expandable Content for Step 4 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[4]" class="step-content-body pt-2 pb-4 px-1">
+            <div v-show="openSteps[4]" class="step-open-container pt-4 pb-4 px-4 mb-4">
               <p class="intro-p text-white font-weight-medium mb-3">
                 That’s it! Your <strong class="text-white font-weight-bold">Core Box</strong> is now fully optimized and ready for <strong class="text-white font-weight-bold">Drunagor Nights</strong>.
               </p>
@@ -911,7 +915,7 @@ const step2PackItems = [
   box-shadow: 0 12px 36px rgba(0,0,0,0.6) !important;
 }
 
-/* 100% Horizontal Width Step Banner Header (Spans full width across card container) */
+/* 100% Horizontal Width Step Banner Header */
 .full-width-banner {
   background: #181818;
   width: calc(100% + 32px) !important;
@@ -933,13 +937,42 @@ const step2PackItems = [
   background: #202020;
 }
 
+.banner-open {
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+/* Step Open Grey Background Container matching Image 3 */
+.step-open-container {
+  background: #343434 !important; /* Grey step background when open */
+  width: calc(100% + 32px) !important;
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: none;
+}
+
+@media (min-width: 600px) {
+  .step-open-container {
+    width: calc(100% + 48px) !important;
+    margin-left: -24px !important;
+    margin-right: -24px !important;
+  }
+}
+
+/* Exact Hex Colors for Step Badges */
 .step-badge {
   color: #ffffff;
   font-weight: 800;
   font-size: 0.8rem;
   padding: 10px 16px;
   letter-spacing: 0.5px;
-  border-radius: 0 !important;
+  border-top-left-radius: 12px !important;
+  border-bottom-left-radius: 0px !important;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -947,19 +980,19 @@ const step2PackItems = [
 }
 
 .badge-step-1 {
-  background: #00b8d4;
+  background: #108788 !important; /* Step 1 Hex */
 }
 
 .badge-step-2 {
-  background: #00c853;
+  background: #0BB574 !important; /* Step 2 Hex */
 }
 
 .badge-step-3 {
-  background: #ff9800;
+  background: #BCA341 !important; /* Step 3 Hex */
 }
 
 .badge-step-4 {
-  background: #ab47bc;
+  background: #5D3C76 !important; /* Step 4 Hex */
 }
 
 /* Single-line step titles */
@@ -1052,27 +1085,27 @@ const step2PackItems = [
   color: #dddddd;
 }
 
-/* Table matching Image 3 */
+/* Table matching Image 2/3 */
 .border-col-right {
-  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .style-table-text {
-  font-size: 0.75rem !important;
-  line-height: 1.25;
+  font-size: 0.78rem !important;
+  line-height: 1.3;
   color: #ffffff !important;
 }
 
 .mini-cards-table {
-  background: rgba(0, 0, 0, 0.4) !important;
+  background: #363636 !important; /* Table background matching Image 2 */
 }
 
 .mini-cards-table th {
-  border-bottom: 2px solid rgba(0, 229, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .table-cell-custom {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .width-33 {
@@ -1080,13 +1113,12 @@ const step2PackItems = [
 }
 
 .cell-check-item {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: transparent;
   transition: all 0.2s ease;
 }
 
 .cell-check-item:hover {
-  background: rgba(0, 229, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .cell-checked {
