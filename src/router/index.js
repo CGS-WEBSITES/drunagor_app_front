@@ -32,6 +32,11 @@ const router = createRouter({
             component: () => import("@/pages/RetailerTutorial.vue"),
         },
         {
+            path: "/box-assembly-guide",
+            name: "BoxAssemblyGuide",
+            component: () => import("@/pages/BoxAssemblyGuide.vue"),
+        },
+        {
             path: "/assembly-tutorial",
             name: "AssemblyTutorial",
             component: () => import("@/pages/AssemblyTutorial.vue"),

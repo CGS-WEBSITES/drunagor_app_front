@@ -30,6 +30,7 @@
             'ForgotPassword',
             'ShareEvent',
             'RetailerTutorial',
+            'BoxAssemblyGuide',
             'NightsCommunication',
           ].includes(route.name)
         ">
@@ -295,6 +296,7 @@ const showMobileAppBar = computed(() => {
     route.name !== 'Community' &&
     route.name !== 'Lobby' &&
     route.name !== 'RetailerTutorial' &&
+    route.name !== 'BoxAssemblyGuide' &&
     route.name !== 'NightsCommunication' &&
     (route.name !== 'Campaign' || !isImmersiveMode.value)
   );
