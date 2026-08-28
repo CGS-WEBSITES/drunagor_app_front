@@ -31,9 +31,9 @@
 
         <!-- ================= STEP 1 ================= -->
         <div class="step-section mb-4">
-          <!-- 100% Horizontal Width Step Banner Header -->
+          <!-- Step Banner Header (Natural width inside card with side padding) -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            class="step-banner rounded-lg d-flex align-center cursor-pointer"
             :class="{ 'banner-open': openSteps[1] }"
             @click="toggleStep(1)"
           >
@@ -135,9 +135,9 @@
 
         <!-- ================= STEP 2 ================= -->
         <div class="step-section mb-4">
-          <!-- 100% Horizontal Width Step Banner Header -->
+          <!-- Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            class="step-banner rounded-lg d-flex align-center cursor-pointer"
             :class="{ 'banner-open': openSteps[2] }"
             @click="toggleStep(2)"
           >
@@ -392,9 +392,9 @@
 
         <!-- ================= STEP 3 ================= -->
         <div class="step-section mb-4">
-          <!-- 100% Horizontal Width Step Banner Header -->
+          <!-- Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            class="step-banner rounded-lg d-flex align-center cursor-pointer"
             :class="{ 'banner-open': openSteps[3] }"
             @click="toggleStep(3)"
           >
@@ -506,9 +506,9 @@
 
         <!-- ================= STEP 4 ================= -->
         <div class="step-section mb-4">
-          <!-- 100% Horizontal Width Step Banner Header -->
+          <!-- Step Banner Header -->
           <div 
-            class="step-banner full-width-banner d-flex align-center cursor-pointer"
+            class="step-banner rounded-lg d-flex align-center cursor-pointer"
             :class="{ 'banner-open': openSteps[4] }"
             @click="toggleStep(4)"
           >
@@ -807,7 +807,7 @@ const step2SeparateItems = [
   }
 ];
 
-// Mini Cards Table Data (Matching Image 3)
+// Mini Cards Table Data (Matching Image 2/3)
 const heroCards = [
   { id: 'step2_3_h1', label: '5x Hero Initiative Cards (1 per Hero)' },
   { id: 'step2_3_h2', label: '20x Hero Skill Cards (4 per Hero)' },
@@ -915,51 +915,32 @@ const step2PackItems = [
   box-shadow: 0 12px 36px rgba(0,0,0,0.6) !important;
 }
 
-/* 100% Horizontal Width Step Banner Header */
-.full-width-banner {
+/* Step Banner Header (Natural width inside card with side padding) */
+.step-banner {
   background: #181818;
-  width: calc(100% + 32px) !important;
-  margin-left: -16px !important;
-  margin-right: -16px !important;
-  border-radius: 0 !important;
+  border-radius: 12px;
+  width: 100%;
+  overflow: hidden;
   transition: background 0.2s ease;
 }
 
-@media (min-width: 600px) {
-  .full-width-banner {
-    width: calc(100% + 48px) !important;
-    margin-left: -24px !important;
-    margin-right: -24px !important;
-  }
-}
-
-.full-width-banner:hover {
+.step-banner:hover {
   background: #202020;
 }
 
 .banner-open {
-  border-top-left-radius: 12px !important;
-  border-top-right-radius: 12px !important;
+  border-bottom-left-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
 }
 
-/* Step Open Grey Background Container matching Image 3 */
+/* Step Open Grey Background Container */
 .step-open-container {
   background: #343434 !important; /* Grey step background when open */
-  width: calc(100% + 32px) !important;
-  margin-left: -16px !important;
-  margin-right: -16px !important;
+  width: 100%;
   border-bottom-left-radius: 12px !important;
   border-bottom-right-radius: 12px !important;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-top: none;
-}
-
-@media (min-width: 600px) {
-  .step-open-container {
-    width: calc(100% + 48px) !important;
-    margin-left: -24px !important;
-    margin-right: -24px !important;
-  }
 }
 
 /* Exact Hex Colors for Step Badges */
@@ -980,19 +961,19 @@ const step2PackItems = [
 }
 
 .badge-step-1 {
-  background: #108788 !important; /* Step 1 Hex */
+  background: #108788 !important;
 }
 
 .badge-step-2 {
-  background: #0BB574 !important; /* Step 2 Hex */
+  background: #0BB574 !important;
 }
 
 .badge-step-3 {
-  background: #BCA341 !important; /* Step 3 Hex */
+  background: #BCA341 !important;
 }
 
 .badge-step-4 {
-  background: #5D3C76 !important; /* Step 4 Hex */
+  background: #5D3C76 !important;
 }
 
 /* Single-line step titles */
@@ -1097,7 +1078,7 @@ const step2PackItems = [
 }
 
 .mini-cards-table {
-  background: #363636 !important; /* Table background matching Image 2 */
+  background: #363636 !important;
 }
 
 .mini-cards-table th {
@@ -1166,7 +1147,7 @@ const step2PackItems = [
 }
 
 .mark-done-btn {
-  background-color: #00c853 !important; /* Vivid Emerald green */
+  background-color: #00c853 !important;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
