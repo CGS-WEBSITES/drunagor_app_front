@@ -1,0 +1,1154 @@
+<template>
+  <div class="box-assembly-page-wrapper">
+    <div class="page-background"></div>
+    <v-container max-width="750" class="py-4 safe-area-padding guide-container px-2 px-sm-4">
+      
+      <!-- Back Button - Top Left -->
+      <v-btn
+        icon="mdi-arrow-left"
+        variant="tonal"
+        color="white"
+        @click="router.push({ name: 'RetailerTutorial' })"
+        class="back-button position-absolute"
+        style="left: 16px; top: 16px;"
+        title="Back to Retailer Guide"
+      ></v-btn>
+
+      <!-- Main Header Title (Outside Card) -->
+      <div class="text-center mt-2 mb-4">
+        <h1 class="main-header-title text-white font-weight-black text-center text-uppercase">
+          BOX ASSEMBLY<br />& OGANIZATION
+        </h1>
+      </div>
+
+      <!-- Single Main Card Container (Matching Image 0/1/2) -->
+      <v-card class="main-box-card rounded-xl pa-4 pa-sm-6 text-left elevation-16 overflow-hidden">
+        
+        <!-- Subtitle Text (INSIDE Card at the Top) -->
+        <p class="subtitle-text text-center font-style-italic mb-6 mx-auto">
+          Navigate through this page to learn how to organize your components and assemble your game box for Drunagor Nights.
+        </p>
+
+        <!-- ================= STEP 1 ================= -->
+        <div class="step-section mb-6">
+          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+          <div 
+            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            @click="toggleStep(1)"
+          >
+            <span class="step-badge badge-step-1">STEP 1</span>
+            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
+              The “Age of Darkness” Core Box
+            </h2>
+          </div>
+
+          <!-- Expandable Content for Step 1 -->
+          <v-expand-transition>
+            <div v-show="openSteps[1]" class="step-content-body pt-2 pb-4 px-1">
+              <p class="intro-p text-white mb-5">
+                Open the <strong class="text-white font-weight-bold">Core Box</strong> and let’s sort through the components.
+              </p>
+
+              <!-- 1.1 -->
+              <div class="substep-block mb-5">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  1.1 – What you should <strong class="text-white font-weight-black">SET ASIDE</strong> (we won’t be using these):
+                </h3>
+                <div class="checklist-items">
+                  <div 
+                    v-for="item in step1SetAsideItems" 
+                    :key="item.id"
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked(item.id) }"
+                    @click="handleItemClick(item)"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked(item.id) }"
+                      @click.stop="handleItemClick(item)"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 1.2 -->
+              <div class="substep-block mb-5">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  1.2 – What you should <strong class="text-white font-weight-black">SEPARATE</strong> (keep nearby):
+                </h3>
+                <div class="checklist-items">
+                  <div 
+                    v-for="item in step1SeparateItems" 
+                    :key="item.id"
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked(item.id) }"
+                    @click="handleItemClick(item)"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked(item.id) }"
+                      @click.stop="handleItemClick(item)"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
+                  </div>
+                </div>
+                <p class="note-text text-grey-lighten-1 mt-2 pl-7">
+                  Note: The Large Miniatures Tray is located at the bottom of the box.
+                </p>
+              </div>
+
+              <!-- 1.3 -->
+              <div class="substep-block">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  1.3 – Organizing the Core Box:
+                </h3>
+                <div class="checklist-items">
+                  <div 
+                    v-for="item in step1OrganizeItems" 
+                    :key="item.id"
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked(item.id) }"
+                    @click="handleItemClick(item)"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked(item.id) }"
+                      @click.stop="handleItemClick(item)"
+                    ></div>
+                    <div class="row-label text-white flex-grow-1">
+                      <span v-html="item.label"></span>
+                      <div v-if="item.details" class="sub-bullets pl-3 mt-1.5">
+                        <div v-for="(detail, dIdx) in item.details" :key="dIdx" class="d-flex align-start mb-1">
+                          <span class="mr-2">•</span>
+                          <span v-html="detail"></span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
+
+        <!-- ================= STEP 2 ================= -->
+        <div class="step-section mb-6">
+          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+          <div 
+            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            @click="toggleStep(2)"
+          >
+            <span class="step-badge badge-step-2">STEP 2</span>
+            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
+              The Organized Play Kit
+            </h2>
+          </div>
+
+          <!-- Expandable Content for Step 2 -->
+          <v-expand-transition>
+            <div v-show="openSteps[2]" class="step-content-body pt-2 pb-4 px-1">
+              <p class="intro-p text-white mb-5">
+                Open the <strong class="text-white font-weight-bold">Organized Play Kit</strong> and combine its contents with the components we have already prepared.
+              </p>
+
+              <!-- Kit Box Image -->
+              <div class="text-center my-5">
+                <v-img
+                  src="https://assets.drunagor.app/retailertutorial/op_kit_box.png"
+                  alt="Organized Play Kit Box"
+                  max-width="280"
+                  class="mx-auto rounded-lg shadow-elevation-8 cursor-pointer border-glow"
+                  @click="openModal({ id: 'op_kit_box', title: 'Organized Play Kit', image: 'https://assets.drunagor.app/retailertutorial/op_kit_box.png' })"
+                >
+                  <template v-slot:error>
+                    <div class="box-preview-fallback rounded-lg pa-5 text-center mx-auto border-glow" style="max-width: 280px;">
+                      <v-icon size="40" color="cyan-accent-3" class="mb-1">mdi-package-variant</v-icon>
+                      <div class="text-caption font-weight-bold text-white">Organized Play Kit Box</div>
+                    </div>
+                  </template>
+                </v-img>
+              </div>
+
+              <!-- 2.1 -->
+              <div class="substep-block mb-5">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  2.1 – What to separate:
+                </h3>
+                <div class="checklist-items">
+                  <div 
+                    v-for="item in step2SeparateItems" 
+                    :key="item.id"
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked(item.id) }"
+                    @click="handleItemClick(item)"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked(item.id) }"
+                      @click.stop="handleItemClick(item)"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
+                  </div>
+                </div>
+
+                <!-- Gift Cards Image -->
+                <div class="text-center my-4">
+                  <v-img
+                    src="https://assets.drunagor.app/retailertutorial/gift_cards_fan.png"
+                    alt="Gift Item Cards"
+                    max-width="400"
+                    class="mx-auto rounded-lg cursor-pointer border-subtle"
+                    @click="openModal({ id: 'step2_1_gift_cards', title: 'Gift Item Cards (80x)', image: 'https://assets.drunagor.app/retailertutorial/gift_cards_fan.png' })"
+                  >
+                    <template v-slot:error>
+                      <div class="cards-preview-fallback rounded-lg pa-4 text-center mx-auto border-subtle" style="max-width: 400px;">
+                        <v-icon size="32" color="amber-accent-2" class="mb-1">mdi-cards</v-icon>
+                        <div class="text-caption text-grey-lighten-1">Gift Item Cards (80x)</div>
+                      </div>
+                    </template>
+                  </v-img>
+                </div>
+              </div>
+
+              <!-- 2.2 -->
+              <div class="substep-block mb-5">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  2.2 – Rescue the Pet Cards <span class="text-amber-accent-2 text-caption font-weight-bold ml-1">(Special Step!)</span>
+                </h3>
+                <p class="intro-p text-white mb-3">
+                  Go back to the pile of components you <strong class="text-white font-weight-bold">set aside</strong> from the Core Box, open the appropriate card pack, and <strong class="text-white font-weight-bold">retrieve Maya’s 2 Pet Cards</strong> (<strong class="text-white font-weight-bold">Wolf and Eagle</strong>). Add them to the components that will be used.
+                </p>
+                
+                <div 
+                  class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                  :class="{ 'row-checked': isChecked('step2_2_pet_cards') }"
+                  @click="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
+                >
+                  <div 
+                    class="custom-checkbox flex-shrink-0" 
+                    :class="{ 'checked': isChecked('step2_2_pet_cards') }"
+                    @click.stop="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
+                  ></div>
+                  <span class="row-label text-white flex-grow-1">
+                    Retrieve Maya's 2 Pet Cards (Wolf and Eagle) and add to active components.
+                  </span>
+                </div>
+
+                <!-- Pet Cards Image -->
+                <div class="text-center my-3">
+                  <v-img
+                    src="https://assets.drunagor.app/retailertutorial/maya_pet_cards.png"
+                    alt="Maya's Pet Cards - Wolf and Eagle"
+                    max-width="380"
+                    class="mx-auto rounded-lg cursor-pointer border-subtle"
+                    @click="openModal({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
+                  >
+                    <template v-slot:error>
+                      <div class="pet-preview-fallback rounded-lg pa-4 text-center mx-auto border-subtle d-flex justify-center ga-4" style="max-width: 380px;">
+                        <div class="text-caption text-grey-lighten-1"><v-icon size="small" color="cyan-accent-3">mdi-owl</v-icon> Eagle Pet Card</div>
+                        <div class="text-caption text-grey-lighten-1"><v-icon size="small" color="cyan-accent-3">mdi-dog</v-icon> Wolf Pet Card</div>
+                      </div>
+                    </template>
+                  </v-img>
+                </div>
+              </div>
+
+              <!-- 2.3 Organizing Kit's Mini USA Cards -->
+              <div class="substep-block mb-5">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  2.3 – Organizing the Kit’s Mini USA Cards:
+                </h3>
+                <p class="intro-p text-white mb-3">
+                  Sort the cards into separate piles by category: <strong class="text-white font-weight-bold">Heroes, Enemies, and Adventures</strong>.
+                </p>
+
+                <!-- Table Matching Image 3 (Vertically centered text with checkbox underneath) -->
+                <div class="cards-table-container mb-4 overflow-x-auto">
+                  <v-table theme="dark" class="mini-cards-table rounded-lg border-subtle">
+                    <thead>
+                      <tr>
+                        <th class="text-center text-caption font-weight-bold text-grey-lighten-2 bg-grey-darken-4 py-2 border-col-right">
+                          HERO COMPONENTS
+                        </th>
+                        <th class="text-center text-caption font-weight-bold text-grey-lighten-2 bg-grey-darken-4 py-2 border-col-right">
+                          ENEMY COMPONENTS
+                        </th>
+                        <th class="text-center text-caption font-weight-bold text-grey-lighten-2 bg-grey-darken-4 py-2">
+                          ADVENTURE COMPONENTS
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="rowIndex in maxCardRows" :key="rowIndex">
+                        <!-- Hero -->
+                        <td class="table-cell-custom pa-2 align-top width-33 border-col-right text-center">
+                          <div 
+                            v-if="heroCards[rowIndex - 1]" 
+                            class="cell-check-item d-flex flex-column align-center justify-center pa-2 rounded cursor-pointer fill-height"
+                            :class="{ 'cell-checked': isChecked(heroCards[rowIndex - 1].id) }"
+                            @click="toggleCheck(heroCards[rowIndex - 1].id)"
+                          >
+                            <span class="text-caption text-white style-table-text mb-2 text-center">{{ heroCards[rowIndex - 1].label }}</span>
+                            <div 
+                              class="custom-checkbox flex-shrink-0 ma-0" 
+                              :class="{ 'checked': isChecked(heroCards[rowIndex - 1].id) }"
+                              @click.stop="toggleCheck(heroCards[rowIndex - 1].id)"
+                            ></div>
+                          </div>
+                        </td>
+
+                        <!-- Enemy -->
+                        <td class="table-cell-custom pa-2 align-top width-33 border-col-right text-center">
+                          <div 
+                            v-if="enemyCards[rowIndex - 1]" 
+                            class="cell-check-item d-flex flex-column align-center justify-center pa-2 rounded cursor-pointer fill-height"
+                            :class="{ 'cell-checked': isChecked(enemyCards[rowIndex - 1].id) }"
+                            @click="toggleCheck(enemyCards[rowIndex - 1].id)"
+                          >
+                            <span class="text-caption text-white style-table-text mb-2 text-center">{{ enemyCards[rowIndex - 1].label }}</span>
+                            <div 
+                              class="custom-checkbox flex-shrink-0 ma-0" 
+                              :class="{ 'checked': isChecked(enemyCards[rowIndex - 1].id) }"
+                              @click.stop="toggleCheck(enemyCards[rowIndex - 1].id)"
+                            ></div>
+                          </div>
+                        </td>
+
+                        <!-- Adventure -->
+                        <td class="table-cell-custom pa-2 align-top width-33 text-center">
+                          <div 
+                            v-if="adventureCards[rowIndex - 1]" 
+                            class="cell-check-item d-flex flex-column align-center justify-center pa-2 rounded cursor-pointer fill-height"
+                            :class="{ 'cell-checked': isChecked(adventureCards[rowIndex - 1].id) }"
+                            @click="toggleCheck(adventureCards[rowIndex - 1].id)"
+                          >
+                            <span class="text-caption text-white style-table-text mb-2 text-center">{{ adventureCards[rowIndex - 1].label }}</span>
+                            <div 
+                              class="custom-checkbox flex-shrink-0 ma-0" 
+                              :class="{ 'checked': isChecked(adventureCards[rowIndex - 1].id) }"
+                              @click.stop="toggleCheck(adventureCards[rowIndex - 1].id)"
+                            ></div>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </div>
+
+                <p class="intro-p text-white mb-3">
+                  Place each of these <strong class="text-white font-weight-bold">3 categories</strong> into one of the <strong class="text-white font-weight-bold">3 Save Game Boxes</strong> that are still empty.
+                </p>
+
+                <!-- 3 Save Game Boxes Image -->
+                <div class="text-center my-4">
+                  <v-img
+                    src="https://assets.drunagor.app/retailertutorial/save_boxes_layout.png"
+                    alt="3 Save Game Boxes Layout"
+                    max-width="400"
+                    class="mx-auto rounded-lg cursor-pointer border-subtle"
+                    @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: 'https://assets.drunagor.app/retailertutorial/save_boxes_layout.png' })"
+                  >
+                    <template v-slot:error>
+                      <div class="save-boxes-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
+                        <v-icon size="36" color="cyan-accent-3" class="mb-1">mdi-archive-outline</v-icon>
+                        <div class="text-caption text-grey-lighten-1">Place categories into the 3 empty Save Game Boxes</div>
+                      </div>
+                    </template>
+                  </v-img>
+                </div>
+              </div>
+
+              <!-- 2.4 -->
+              <div class="substep-block">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  2.4 – Packing Everything Back into the Core Box
+                </h3>
+                <p class="intro-p text-white mb-3">
+                  Now, return the following components to the <strong class="text-white font-weight-bold">Core Box</strong>:
+                </p>
+                <div class="checklist-items">
+                  <div 
+                    v-for="item in step2PackItems" 
+                    :key="item.id"
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked(item.id) }"
+                    @click="handleItemClick(item)"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked(item.id) }"
+                      @click.stop="handleItemClick(item)"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
+
+        <!-- ================= STEP 3 ================= -->
+        <div class="step-section mb-6">
+          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+          <div 
+            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            @click="toggleStep(3)"
+          >
+            <span class="step-badge badge-step-3">STEP 3</span>
+            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
+              The “Build Your Own Dungeon” Add-On
+            </h2>
+          </div>
+
+          <!-- Expandable Content for Step 3 -->
+          <v-expand-transition>
+            <div v-show="openSteps[3]" class="step-content-body pt-2 pb-4 px-1">
+              <p class="intro-p text-white mb-5">
+                Open the add-on box and <strong class="text-white font-weight-bold">Set Aside</strong> the plastic wraps containing the <strong class="text-white font-weight-bold">Map Tiles</strong>.
+              </p>
+
+              <!-- BYOD Box Image -->
+              <div class="text-center my-5">
+                <v-img
+                  src="https://assets.drunagor.app/retailertutorial/byod_box.png"
+                  alt="Build Your Own Dungeon Add-On Box"
+                  max-width="280"
+                  class="mx-auto rounded-lg cursor-pointer border-glow shadow-elevation-8"
+                  @click="openModal({ id: 'byod_box', title: 'Build Your Own Dungeon Add-On', image: 'https://assets.drunagor.app/retailertutorial/byod_box.png' })"
+                >
+                  <template v-slot:error>
+                    <div class="byod-fallback rounded-lg pa-5 text-center mx-auto border-glow" style="max-width: 280px;">
+                      <v-icon size="40" color="amber-accent-2" class="mb-1">mdi-castle</v-icon>
+                      <div class="text-caption font-weight-bold text-white">Build Your Own Dungeon Add-On</div>
+                    </div>
+                  </template>
+                </v-img>
+              </div>
+
+              <!-- 3.1 -->
+              <div class="substep-block">
+                <h3 class="substep-heading font-weight-bold text-white mb-2">
+                  3.1 – What to do:
+                </h3>
+                
+                <div class="checklist-items">
+                  <div 
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked('step3_1_dungeon_trays') }"
+                    @click="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png', title: '5 Dungeon Trays Vertically Positioned' })"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked('step3_1_dungeon_trays') }"
+                      @click.stop="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png', title: '5 Dungeon Trays Vertically Positioned' })"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1">
+                      <strong class="text-white font-weight-bold">Pack into the Core Box:</strong> Take the <strong class="text-white font-weight-bold">5 new Dungeon Trays</strong> and place them inside the Core Box. Position them <strong class="text-white font-weight-bold">vertically</strong> so they fit.
+                    </span>
+                  </div>
+
+                  <!-- Dungeon Trays Vertical Placement Image -->
+                  <div class="text-center my-3">
+                    <v-img
+                      src="https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png"
+                      alt="5 New Dungeon Trays Positioned Vertically"
+                      max-width="400"
+                      class="mx-auto rounded-lg cursor-pointer border-subtle"
+                      @click="openModal({ id: 'step3_1_dungeon_trays', title: '5 Dungeon Trays Vertically Positioned', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png' })"
+                    >
+                      <template v-slot:error>
+                        <div class="trays-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
+                          <v-icon size="36" color="cyan-accent-3" class="mb-1">mdi-view-grid-plus</v-icon>
+                          <div class="text-caption text-grey-lighten-1">Position 5 Dungeon Trays vertically inside the box</div>
+                        </div>
+                      </template>
+                    </v-img>
+                  </div>
+
+                  <div 
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked('step3_1_gift_cards') }"
+                    @click="toggleCheck('step3_1_gift_cards')"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked('step3_1_gift_cards') }"
+                      @click.stop="toggleCheck('step3_1_gift_cards')"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1">
+                      Place the stack of <strong class="text-white font-weight-bold">Gift Cards</strong> inside the Core Box as well.
+                    </span>
+                  </div>
+
+                  <div 
+                    class="checklist-row d-flex align-start py-1.5 cursor-pointer"
+                    :class="{ 'row-checked': isChecked('step3_1_close_box') }"
+                    @click="toggleCheck('step3_1_close_box')"
+                  >
+                    <div 
+                      class="custom-checkbox flex-shrink-0" 
+                      :class="{ 'checked': isChecked('step3_1_close_box') }"
+                      @click.stop="toggleCheck('step3_1_close_box')"
+                    ></div>
+                    <span class="row-label text-white flex-grow-1">
+                      Put the lid on and <strong class="text-white font-weight-bold">close the Core Box!</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
+
+        <!-- ================= STEP 4 ================= -->
+        <div class="step-section mb-4">
+          <!-- 100% Horizontal Width Step Banner Header (No chevron icon, Single-line title) -->
+          <div 
+            class="step-banner full-width-banner d-flex align-center cursor-pointer mb-3"
+            @click="toggleStep(4)"
+          >
+            <span class="step-badge badge-step-4">STEP 4</span>
+            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
+              Clean-Up and You’re Done!
+            </h2>
+          </div>
+
+          <!-- Expandable Content for Step 4 -->
+          <v-expand-transition>
+            <div v-show="openSteps[4]" class="step-content-body pt-2 pb-4 px-1">
+              <p class="intro-p text-white font-weight-medium mb-3">
+                That’s it! Your <strong class="text-white font-weight-bold">Core Box</strong> is now fully optimized and ready for <strong class="text-white font-weight-bold">Drunagor Nights</strong>.
+              </p>
+
+              <p class="intro-p text-white mb-3">
+                Take all the components you <strong class="text-white font-weight-bold">set aside</strong> during the previous steps and place them inside the now-empty <strong class="text-white font-weight-bold">Organized Play Kit box</strong>.
+              </p>
+
+              <p class="intro-p text-white mb-5">
+                Store that box somewhere safe, as you may want to use the original Heroes or some of those components again in the future.
+              </p>
+
+              <div class="text-center py-2">
+                <span class="text-h6 font-weight-black text-amber-accent-2 cinzel-text">
+                  Enjoy the game!
+                </span>
+              </div>
+            </div>
+          </v-expand-transition>
+        </div>
+
+        <!-- Bottom Back Button -->
+        <div class="d-flex justify-center mt-6">
+          <v-btn
+            color="amber-accent-2"
+            variant="outlined"
+            rounded="pill"
+            size="medium"
+            class="font-weight-black text-white px-6 transition-swing"
+            prepend-icon="mdi-arrow-left"
+            @click="router.push({ name: 'RetailerTutorial' })"
+            style="border-width: 2px;"
+          >
+            Back to Retailer Guide
+          </v-btn>
+        </div>
+
+      </v-card>
+    </v-container>
+
+    <!-- Inspection Item Modal -->
+    <v-dialog v-model="modalOpen" max-width="500" scrollable class="item-detail-dialog">
+      <v-card color="grey-darken-4" class="rounded-xl overflow-hidden pa-0 modal-card" elevation="24">
+        <!-- Dialog Title Bar -->
+        <div class="pa-4 bg-grey-darken-4 d-flex justify-space-between align-center border-bottom-subtle">
+          <span class="text-subtitle-1 font-weight-bold text-white cinzel-text">
+            {{ activeModalItem.title || 'Item Inspection' }}
+          </span>
+          <v-btn
+            icon="mdi-close"
+            variant="text"
+            color="white"
+            size="small"
+            @click="modalOpen = false"
+          ></v-btn>
+        </div>
+
+        <!-- Image Content Container -->
+        <v-card-text class="pa-4 bg-black d-flex flex-column align-center justify-center" style="min-height: 260px;">
+          <v-img
+            v-if="activeModalItem.image"
+            :src="activeModalItem.image"
+            width="100%"
+            contain
+            max-height="55vh"
+            class="rounded-lg"
+          >
+            <template v-slot:placeholder>
+              <div class="d-flex align-center justify-center fill-height bg-grey-darken-4 rounded-lg">
+                <v-progress-circular indeterminate color="cyan-accent-3" size="32"></v-progress-circular>
+              </div>
+            </template>
+            <template v-slot:error>
+              <div class="d-flex flex-column align-center justify-center pa-8 bg-grey-darken-4 text-center rounded-lg w-100 fill-height">
+                <v-icon size="48" color="amber-accent-2" class="mb-3">mdi-book-open-page-variant</v-icon>
+                <div class="text-subtitle-2 font-weight-bold text-white mb-1">{{ activeModalItem.title }}</div>
+                <div class="text-caption text-grey-lighten-1">Illustration component preview</div>
+              </div>
+            </template>
+          </v-img>
+          
+          <div v-else class="py-6 text-center">
+            <v-icon size="40" color="amber-accent-2" class="mb-2">mdi-information-outline</v-icon>
+            <div class="text-body-2 text-white font-weight-medium mb-1">{{ activeModalItem.title }}</div>
+          </div>
+        </v-card-text>
+
+        <!-- Action Button Bar -->
+        <v-card-actions class="pa-4 bg-grey-darken-4 border-top-subtle">
+          <v-btn
+            block
+            size="large"
+            color="emerald"
+            variant="flat"
+            rounded="lg"
+            class="font-weight-black text-white py-3 mark-done-btn"
+            @click="toggleActiveModalCheck"
+          >
+            <v-icon start size="medium" class="mr-2">
+              {{ activeModalIsChecked ? 'mdi-check-circle' : 'mdi-check-circle-outline' }}
+            </v-icon>
+            {{ activeModalIsChecked ? 'Checked as Done' : 'Mark as Done' }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const STORAGE_KEY = 'drunagor_box_assembly_checks';
+
+// Reactive map storing checked states by item ID
+const checkedItems = ref<Record<string, boolean>>({});
+
+// Collapsible steps state (All steps come CLOSED by default as requested!)
+const openSteps = ref<Record<number, boolean>>({
+  1: false,
+  2: false,
+  3: false,
+  4: false,
+});
+
+// Toggle collapsible step open/close
+const toggleStep = (stepNumber: number) => {
+  openSteps.value[stepNumber] = !openSteps.value[stepNumber];
+};
+
+// Modal state
+const modalOpen = ref(false);
+const activeModalItem = ref<{ id?: string; title?: string; image?: string }>({});
+
+// Helper: Check if item is checked
+const isChecked = (id: string): boolean => {
+  return !!checkedItems.value[id];
+};
+
+// Helper: Toggle item check state and persist
+const toggleCheck = (id: string) => {
+  if (!id) return;
+  checkedItems.value[id] = !checkedItems.value[id];
+  saveToLocalStorage();
+};
+
+// Handle clicking on an item line:
+// If item has an image/detail modal, open the modal dialog!
+// Otherwise, directly toggle the check state.
+const handleItemClick = (item: { id: string; label?: string; title?: string; image?: string }) => {
+  if (item.image) {
+    openModal(item);
+  } else {
+    toggleCheck(item.id);
+  }
+};
+
+// Save to LocalStorage
+const saveToLocalStorage = () => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedItems.value));
+  } catch (e) {
+    console.error('Failed to save box assembly state to localStorage:', e);
+  }
+};
+
+// Load from LocalStorage
+const loadFromLocalStorage = () => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (data) {
+      checkedItems.value = JSON.parse(data);
+    }
+  } catch (e) {
+    console.error('Failed to load box assembly state from localStorage:', e);
+  }
+};
+
+// Open detail modal
+const openModal = (item: { id?: string; label?: string; title?: string; image?: string }) => {
+  activeModalItem.value = {
+    id: item.id,
+    title: item.title || (item.label ? item.label.replace(/<[^>]*>/g, '') : ''),
+    image: item.image,
+  };
+  modalOpen.value = true;
+};
+
+// Computed for modal action button state
+const activeModalIsChecked = computed(() => {
+  if (!activeModalItem.value.id) return false;
+  return isChecked(activeModalItem.value.id);
+});
+
+// Toggle check from inside modal
+const toggleActiveModalCheck = () => {
+  if (activeModalItem.value.id) {
+    toggleCheck(activeModalItem.value.id);
+  }
+  modalOpen.value = false;
+};
+
+onMounted(() => {
+  loadFromLocalStorage();
+});
+
+// Item Definitions
+const step1SetAsideItems = [
+  {
+    id: 'step1_1_adventure_books',
+    label: 'The <strong class="text-white font-weight-bold">Adventure Book</strong> and <strong class="text-white font-weight-bold">Interaction Book</strong>.',
+    image: 'https://assets.drunagor.app/retailertutorial/adventure_and_interaction_books.png',
+    title: 'The Adventure Book and Interaction Book'
+  },
+  {
+    id: 'step1_1_campaign_log',
+    label: 'The <strong class="text-white font-weight-bold">Campaign Log</strong>.'
+  },
+  {
+    id: 'step1_1_start_here',
+    label: 'The <strong class="text-white font-weight-bold">“Start Here” Booklet</strong>.'
+  },
+  {
+    id: 'step1_1_doors',
+    label: 'The plastic wrap containing the <strong class="text-white font-weight-bold">Doors</strong>.'
+  },
+  {
+    id: 'step1_1_hero_boards',
+    label: 'All original <strong class="text-white font-weight-bold">Hero Boards</strong> from the Core Box.'
+  },
+  {
+    id: 'step1_1_mini_cards',
+    label: 'The packs of <strong class="text-white font-weight-bold">Mini American Cards</strong> found inside the <strong class="text-white font-weight-bold">Save Game Boxes</strong>. Empty the boxes, but <strong class="text-white font-weight-bold">keep them nearby!</strong>'
+  }
+];
+
+const step1SeparateItems = [
+  { id: 'step1_2_rulebook', label: '<strong class="text-white font-weight-bold">Rulebook</strong>.' },
+  { id: 'step1_2_map_tiles', label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.' },
+  { id: 'step1_2_velvet_bag', label: '<strong class="text-white font-weight-bold">Velvet Bag</strong>.' },
+  { id: 'step1_2_punchboards', label: 'All <strong class="text-white font-weight-bold">Punchboards</strong>.' },
+  { id: 'step1_2_save_boxes', label: 'The <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (1 with the colored bases still inside and the other 5 now empty).' },
+  { id: 'step1_2_monster_boards', label: 'The <strong class="text-white font-weight-bold">2 Monster Status Boards</strong>.' },
+  { id: 'step1_2_trays', label: '<strong class="text-white font-weight-bold">All trays:</strong> Darkness Tiles, Tokens, Small Miniatures, and Dungeon Tiles.' },
+  { id: 'step1_2_cubes_bag', label: 'The bag containing the <strong class="text-white font-weight-bold">colored cubes</strong>.' }
+];
+
+const step1OrganizeItems = [
+  {
+    id: 'step1_3_trays_order',
+    label: '<strong class="text-white font-weight-bold">Trays:</strong> Return the <strong class="text-white font-weight-bold">Small Miniatures Tray</strong> and the <strong class="text-white font-weight-bold">Dungeon Trays</strong> to the box. (Order: <strong class="text-white font-weight-bold">Tray 1</strong> on the bottom, <strong class="text-white font-weight-bold">Tray 2</strong> in the middle, and <strong class="text-white font-weight-bold">Tray 3</strong> on top.)'
+  },
+  {
+    id: 'step1_3_cubes_sort',
+    label: '<strong class="text-white font-weight-bold">Colored Cubes:</strong> Sort them into the empty <strong class="text-white font-weight-bold">Save Game Boxes</strong>.',
+    details: [
+      '<strong class="text-white font-weight-bold">Box A:</strong> Place the <strong class="text-white font-weight-bold">Yellow and Red Cubes</strong> in one compartment, and the <strong class="text-white font-weight-bold">Green and Blue Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">two dice</strong> in the narrow space between the compartments.',
+      '<strong class="text-white font-weight-bold">Box B:</strong> Place the <strong class="text-white font-weight-bold">Black Cubes</strong> in one compartment and the <strong class="text-white font-weight-bold">White Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">Purple and Pink Cubes</strong> in the narrow space between the compartments.'
+    ]
+  },
+  {
+    id: 'step1_3_cardboard',
+    label: '<strong class="text-white font-weight-bold">Cardboard Components (Punchboards):</strong> Punch out all components.',
+    details: [
+      '<strong class="text-white font-weight-bold">Darkness Tiles:</strong> Place them in the <strong class="text-white font-weight-bold">Darkness Tile Tray</strong>, then return the tray to the box.',
+      '<strong class="text-white font-weight-bold">Runes:</strong> Place them inside the <strong class="text-white font-weight-bold">Velvet Bag</strong>.',
+      '<strong class="text-white font-weight-bold">Tokens:</strong> Place them in the <strong class="text-white font-weight-bold">Token Tray</strong>. Any tokens that do not fit should go into the plastic bag that held the cubes and be <strong class="text-white font-weight-bold">set aside</strong>. Return the tray to the box.',
+      '<strong class="text-white font-weight-bold">Initiative Track and Bridges:</strong> <strong class="text-white font-weight-bold">Keep them nearby.</strong>'
+    ]
+  }
+];
+
+const step2SeparateItems = [
+  { id: 'step2_1_hero_boards', label: '<strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.' },
+  { id: 'step2_1_map_tiles', label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.' },
+  { 
+    id: 'step2_1_gift_cards', 
+    label: '<strong class="text-white font-weight-bold">Gift Item Cards (80x):</strong> Set them aside and, if possible, assemble the Gift Packs with one of each Gift card in them.',
+    image: 'https://assets.drunagor.app/retailertutorial/gift_cards_fan.png',
+    title: 'Gift Item Cards (80x)'
+  }
+];
+
+// Mini Cards Table Data (Matching Image 3)
+const heroCards = [
+  { id: 'step2_3_h1', label: '5x Hero Initiative Cards (1 per Hero)' },
+  { id: 'step2_3_h2', label: '20x Hero Skill Cards (4 per Hero)' },
+  { id: 'step2_3_h3', label: '20x Class Skill Cards (4 per Class)' },
+  { id: 'step2_3_h4', label: '10x Themed Starting Equipment Cards (2 per Hero)' },
+  { id: 'step2_3_h5', label: '10x Party Role Cards (2 per Role)' }
+];
+
+const enemyCards = [
+  { id: 'step2_3_e1', label: '28x Monster Cards (White, Gray, and Black)' },
+  { id: 'step2_3_e2', label: '3x Commander Cards' },
+  { id: 'step2_3_e3', label: '1x Boss Card' },
+  { id: 'step2_3_e4', label: '1x Minion Card' },
+  { id: 'step2_3_e5', label: '10x Commander Attack Cards' },
+  { id: 'step2_3_e6', label: '8x Boss Attack Cards' }
+];
+
+const adventureCards = [
+  { id: 'step2_3_a1', label: '22x Adventure Item Cards' },
+  { id: 'step2_3_a2', label: '18x Chest Cards' },
+  { id: 'step2_3_a3', label: '3x Tutorial Trigger Cards' },
+  { id: 'step2_3_a4', label: '2x Scene Trigger Cards' },
+  { id: 'step2_3_a5', label: '2x Rune Cards' },
+  { id: 'step2_3_a6', label: '2x Game Mechanic Cards' },
+  { id: 'step2_3_a7', label: '1x End of Round Trigger Card' },
+  { id: 'step2_3_a8', label: '1x Game Status Check Card' }
+];
+
+const maxCardRows = Math.max(heroCards.length, enemyCards.length, adventureCards.length);
+
+const step2PackItems = [
+  { id: 'step2_4_save_boxes', label: 'All <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (now fully packed).' },
+  { id: 'step2_4_velvet_bag', label: 'The <strong class="text-white font-weight-bold">Velvet Bag</strong> containing the Runes.' },
+  { id: 'step2_4_initiative', label: 'The <strong class="text-white font-weight-bold">Initiative Track</strong> and <strong class="text-white font-weight-bold">Bridges</strong>.' },
+  { id: 'step2_4_map_tiles', label: 'All <strong class="text-white font-weight-bold">Map Tiles</strong> (combining those from the Kit with those from the Core Box).' },
+  { id: 'step2_4_hero_boards', label: 'The <strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.' },
+  { id: 'step2_4_rulebook', label: 'The <strong class="text-white font-weight-bold">Rulebook</strong>.' }
+];
+</script>
+
+<style scoped>
+.safe-area-padding {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 20px) !important;
+}
+
+.box-assembly-page-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+.page-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(20, 20, 20, 0.98) 0%, rgba(20, 20, 20, 0.85) 25%, rgba(20, 20, 20, 0) 65%),
+    url('https://assets.drunagor.app/backgrounds/mblogin-background.png');
+  background-size: cover, cover;
+  background-position: top center, top center;
+  background-repeat: no-repeat, no-repeat;
+}
+
+@media (min-width: 960px) {
+  .page-background {
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(20, 20, 20, 0.98) 0%, rgba(20, 20, 20, 0.85) 25%, rgba(20, 20, 20, 0) 65%),
+      url('https://s3.us-east-2.amazonaws.com/assets.drunagor.app/backgrounds/bg-login.webp');
+  }
+}
+
+.guide-container {
+  position: relative;
+  z-index: 1;
+}
+
+.main-header-title {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 2rem;
+  line-height: 1.1;
+  letter-spacing: 0.5px;
+}
+
+@media (min-width: 600px) {
+  .main-header-title {
+    font-size: 2.6rem;
+  }
+}
+
+.subtitle-text {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45) !important;
+  max-width: 520px;
+  line-height: 1.35;
+}
+
+/* Single Main Box Card */
+.main-box-card {
+  background: #232323 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.6) !important;
+}
+
+/* 100% Horizontal Width Step Banner Header (Spans full width across card container) */
+.full-width-banner {
+  background: #181818;
+  width: calc(100% + 32px) !important;
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+  border-radius: 0 !important;
+  transition: background 0.2s ease;
+}
+
+@media (min-width: 600px) {
+  .full-width-banner {
+    width: calc(100% + 48px) !important;
+    margin-left: -24px !important;
+    margin-right: -24px !important;
+  }
+}
+
+.full-width-banner:hover {
+  background: #202020;
+}
+
+.step-badge {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 10px 16px;
+  letter-spacing: 0.5px;
+  border-radius: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.badge-step-1 {
+  background: #00b8d4;
+}
+
+.badge-step-2 {
+  background: #00c853;
+}
+
+.badge-step-3 {
+  background: #ff9800;
+}
+
+.badge-step-4 {
+  background: #ab47bc;
+}
+
+/* Single-line step titles */
+.single-line-title {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 0.88rem !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+@media (min-width: 600px) {
+  .single-line-title {
+    font-size: 0.95rem !important;
+  }
+}
+
+.substep-heading {
+  font-size: 0.92rem !important;
+}
+
+.intro-p {
+  font-size: 0.85rem !important;
+  color: #ffffff !important;
+}
+
+/* Custom crisp white square checkbox */
+.custom-checkbox {
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  background-color: #ffffff;
+  border-radius: 3px;
+  margin-right: 10px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.custom-checkbox.checked {
+  background-color: #00c853;
+}
+
+.custom-checkbox.checked::after {
+  content: '';
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.row-label {
+  font-size: 0.82rem !important;
+  color: #ffffff !important;
+  line-height: 1.4;
+}
+
+.checklist-row {
+  transition: opacity 0.2s ease, background 0.15s ease;
+  border-radius: 4px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.checklist-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.row-checked {
+  opacity: 0.45;
+}
+
+.row-checked .row-label {
+  text-decoration: line-through;
+}
+
+.note-text {
+  font-size: 0.78rem !important;
+}
+
+.sub-bullets {
+  font-size: 0.78rem;
+  color: #dddddd;
+}
+
+/* Table matching Image 3 */
+.border-col-right {
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.style-table-text {
+  font-size: 0.75rem !important;
+  line-height: 1.25;
+  color: #ffffff !important;
+}
+
+.mini-cards-table {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.mini-cards-table th {
+  border-bottom: 2px solid rgba(0, 229, 255, 0.3) !important;
+}
+
+.table-cell-custom {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.width-33 {
+  width: 33.33%;
+}
+
+.cell-check-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.2s ease;
+}
+
+.cell-check-item:hover {
+  background: rgba(0, 229, 255, 0.1);
+}
+
+.cell-checked {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.border-glow {
+  border: 2px solid rgba(0, 229, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.border-glow:hover {
+  border-color: rgba(0, 229, 255, 0.8);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+  transform: scale(1.02);
+}
+
+.border-subtle {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.border-subtle:hover {
+  border-color: rgba(255, 215, 0, 0.4);
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.08) !important;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  z-index: 5;
+}
+
+.back-button:hover {
+  transform: translateX(-4px);
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.border-bottom-subtle {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.border-top-subtle {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mark-done-btn {
+  background-color: #00c853 !important; /* Vivid Emerald green */
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.mark-done-btn:hover {
+  background-color: #00e676 !important;
+  transform: translateY(-2px);
+}
+
+.box-preview-fallback,
+.cards-preview-fallback,
+.pet-preview-fallback,
+.save-boxes-fallback,
+.byod-fallback,
+.trays-fallback {
+  background: rgba(0, 0, 0, 0.4);
+}
+</style>
