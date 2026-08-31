@@ -265,18 +265,18 @@
                   Sort the cards into separate piles by category: <strong class="text-white font-weight-bold">Heroes, Enemies, and Adventures</strong>.
                 </p>
 
-                <!-- Table Responsive Container (scrollable on narrow screens to prevent text cut off) -->
-                <div class="cards-table-wrapper mb-4 overflow-x-auto">
-                  <v-table theme="dark" class="mini-cards-table rounded-lg" style="min-width: 520px;">
+                <!-- Table Matching Image 3 (Scrollable with 3rd column peek and visible scrollbar) -->
+                <div class="cards-table-wrapper mb-2 overflow-x-auto">
+                  <v-table theme="dark" class="mini-cards-table rounded-lg" style="min-width: 680px;">
                     <thead>
                       <tr>
-                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase">
+                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase" style="width: 226px; min-width: 226px;">
                           HERO COMPONENTS
                         </th>
-                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase">
+                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase" style="width: 226px; min-width: 226px;">
                           ENEMY COMPONENTS
                         </th>
-                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 text-uppercase">
+                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 text-uppercase" style="width: 228px; min-width: 228px;">
                           ADVENTURE COMPONENTS
                         </th>
                       </tr>
@@ -284,7 +284,7 @@
                     <tbody>
                       <tr v-for="rowIndex in maxCardRows" :key="rowIndex" class="table-row-custom">
                         <!-- Hero -->
-                        <td class="table-cell-custom pa-3 align-top width-33 border-col-right text-center">
+                        <td class="table-cell-custom pa-3 align-top border-col-right text-center" style="width: 226px; min-width: 226px;">
                           <div 
                             v-if="heroCards[rowIndex - 1]" 
                             class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
@@ -301,7 +301,7 @@
                         </td>
 
                         <!-- Enemy -->
-                        <td class="table-cell-custom pa-3 align-top width-33 border-col-right text-center">
+                        <td class="table-cell-custom pa-3 align-top border-col-right text-center" style="width: 226px; min-width: 226px;">
                           <div 
                             v-if="enemyCards[rowIndex - 1]" 
                             class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
@@ -318,7 +318,7 @@
                         </td>
 
                         <!-- Adventure -->
-                        <td class="table-cell-custom pa-3 align-top width-33 text-center">
+                        <td class="table-cell-custom pa-3 align-top text-center" style="width: 228px; min-width: 228px;">
                           <div 
                             v-if="adventureCards[rowIndex - 1]" 
                             class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
@@ -336,6 +336,12 @@
                       </tr>
                     </tbody>
                   </v-table>
+                </div>
+
+                <!-- Scroll Indicator Cue for Mobile -->
+                <div class="d-flex align-center justify-center ga-1.5 mt-1 mb-4 text-caption text-grey-lighten-1 font-weight-medium d-sm-none">
+                  <v-icon size="small" color="cyan-accent-3">mdi-arrow-left-right</v-icon>
+                  <span>Scroll sideways to view ADVENTURE COMPONENTS</span>
                 </div>
 
                 <p class="intro-p text-white mb-3">
@@ -606,9 +612,9 @@
           <v-btn
             block
             size="large"
-            :color="activeModalIsChecked ? '#0bb574' : '#4e4e4e'"
             variant="flat"
-            class="font-weight-bold text-white py-3 mark-done-btn rounded-0"
+            class="font-weight-bold text-white py-3 rounded-0"
+            :class="activeModalIsChecked ? 'mark-done-btn' : 'not-done-btn'"
             style="height: 52px;"
             @click="toggleActiveModalCheckOnly"
           >
@@ -1088,7 +1094,28 @@ const step2PackItems = [
 /* Table matching input_file_2.png */
 .cards-table-wrapper {
   max-width: 100%;
+  overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+}
+
+.cards-table-wrapper::-webkit-scrollbar {
+  height: 6px !important;
+  display: block !important;
+}
+
+.cards-table-wrapper::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.cards-table-wrapper::-webkit-scrollbar-thumb {
+  background: #00b8d4;
+  border-radius: 4px;
+}
+
+.cards-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #00e5ff;
 }
 
 .border-col-right {
@@ -1174,12 +1201,20 @@ const step2PackItems = [
 
 .mark-done-btn {
   background-color: #00c853 !important;
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: background-color 0.2s ease;
 }
 
 .mark-done-btn:hover {
   background-color: #00e676 !important;
-  transform: translateY(-2px);
+}
+
+.not-done-btn {
+  background-color: #4a4a4a !important;
+  transition: background-color 0.2s ease;
+}
+
+.not-done-btn:hover {
+  background-color: #555555 !important;
 }
 
 .box-preview-fallback,
