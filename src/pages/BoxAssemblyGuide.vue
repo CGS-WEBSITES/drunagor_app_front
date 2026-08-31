@@ -164,11 +164,11 @@
                   :src="getImg('Drunagor Nights Box.png')"
                   alt="Organized Play Kit Box"
                   max-width="280"
-                  class="mx-auto rounded-lg shadow-elevation-8 cursor-pointer border-glow"
+                  class="mx-auto rounded-lg shadow-elevation-8 cursor-pointer"
                   @click="openModal({ id: 'op_kit_box', title: 'Organized Play Kit', image: getImg('Drunagor Nights Box.png') })"
                 >
                   <template v-slot:error>
-                    <div class="box-preview-fallback rounded-lg pa-5 text-center mx-auto border-glow" style="max-width: 280px;">
+                    <div class="box-preview-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 280px;">
                       <v-icon size="40" color="cyan-accent-3" class="mb-1">mdi-package-variant</v-icon>
                       <div class="text-caption font-weight-bold text-white">Organized Play Kit Box</div>
                     </div>
@@ -204,11 +204,11 @@
                     :src="getImg('GIFT CARDS.png')"
                     alt="Gift Item Cards"
                     max-width="400"
-                    class="mx-auto rounded-lg cursor-pointer border-subtle"
+                    class="mx-auto rounded-lg cursor-pointer"
                     @click="openModal({ id: 'step2_1_gift_cards', title: 'Gift Item Cards (80x)', image: getImg('GIFT CARDS.png') })"
                   >
                     <template v-slot:error>
-                      <div class="cards-preview-fallback rounded-lg pa-4 text-center mx-auto border-subtle" style="max-width: 400px;">
+                      <div class="cards-preview-fallback rounded-lg pa-4 text-center mx-auto" style="max-width: 400px;">
                         <v-icon size="32" color="amber-accent-2" class="mb-1">mdi-cards</v-icon>
                         <div class="text-caption text-grey-lighten-1">Gift Item Cards (80x)</div>
                       </div>
@@ -247,11 +247,11 @@
                     :src="getImg('Pets Maya.png')"
                     alt="Maya's Pet Cards - Wolf and Eagle"
                     max-width="380"
-                    class="mx-auto rounded-lg cursor-pointer border-subtle"
+                    class="mx-auto rounded-lg cursor-pointer"
                     @click="openModal({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
                   >
                     <template v-slot:error>
-                      <div class="pet-preview-fallback rounded-lg pa-4 text-center mx-auto border-subtle d-flex justify-center ga-4" style="max-width: 380px;">
+                      <div class="pet-preview-fallback rounded-lg pa-4 text-center mx-auto d-flex justify-center ga-4" style="max-width: 380px;">
                         <div class="text-caption text-grey-lighten-1"><v-icon size="small" color="cyan-accent-3">mdi-owl</v-icon> Eagle Pet Card</div>
                         <div class="text-caption text-grey-lighten-1"><v-icon size="small" color="cyan-accent-3">mdi-dog</v-icon> Wolf Pet Card</div>
                       </div>
@@ -358,11 +358,11 @@
                     :src="getImg('Hero_Enemy_Adventure components.png')"
                     alt="3 Save Game Boxes Layout"
                     max-width="400"
-                    class="mx-auto rounded-lg cursor-pointer border-subtle"
+                    class="mx-auto rounded-lg cursor-pointer"
                     @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: getImg('Hero_Enemy_Adventure components.png') })"
                   >
                     <template v-slot:error>
-                      <div class="save-boxes-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
+                      <div class="save-boxes-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 400px;">
                         <v-icon size="36" color="cyan-accent-3" class="mb-1">mdi-archive-outline</v-icon>
                         <div class="text-caption text-grey-lighten-1">Place categories into the 3 empty Save Game Boxes</div>
                       </div>
@@ -427,11 +427,11 @@
                   :src="getImg('Build Your Own Dungeon.png')"
                   alt="Build Your Own Dungeon Add-On Box"
                   max-width="280"
-                  class="mx-auto rounded-lg cursor-pointer border-glow shadow-elevation-8"
+                  class="mx-auto rounded-lg cursor-pointer shadow-elevation-8"
                   @click="openModal({ id: 'byod_box', title: 'Build Your Own Dungeon Add-On', image: getImg('Build Your Own Dungeon.png') })"
                 >
                   <template v-slot:error>
-                    <div class="byod-fallback rounded-lg pa-5 text-center mx-auto border-glow" style="max-width: 280px;">
+                    <div class="byod-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 280px;">
                       <v-icon size="40" color="amber-accent-2" class="mb-1">mdi-castle</v-icon>
                       <div class="text-caption font-weight-bold text-white">Build Your Own Dungeon Add-On</div>
                     </div>
@@ -467,11 +467,11 @@
                       :src="getImg('5 New Trays.png')"
                       alt="5 New Dungeon Trays Positioned Vertically"
                       max-width="400"
-                      class="mx-auto rounded-lg cursor-pointer border-subtle"
+                      class="mx-auto rounded-lg cursor-pointer"
                       @click="openModal({ id: 'step3_1_dungeon_trays', title: '5 Dungeon Trays Vertically Positioned', image: getImg('5 New Trays.png') })"
                     >
                       <template v-slot:error>
-                        <div class="trays-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
+                        <div class="trays-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 400px;">
                           <v-icon size="36" color="cyan-accent-3" class="mb-1">mdi-view-grid-plus</v-icon>
                           <div class="text-caption text-grey-lighten-1">Position 5 Dungeon Trays vertically inside the box</div>
                         </div>
@@ -640,7 +640,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const STORAGE_KEY = 'drunagor_box_assembly_checks';
-const BASE_IMG_URL = '/retailertutorial/box-assembly-guide/';
+const BASE_IMG_URL = 'https://assets.drunagor.app/retailertutorial/box-assembly-guide/';
 
 // Helper to construct exact image URL with space encoding
 const getImg = (filename: string) => {

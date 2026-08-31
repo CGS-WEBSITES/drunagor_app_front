@@ -29,7 +29,11 @@
             </p>
 
             <!-- Box Assembly & Organization Guide Card -->
-            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
+            <v-card 
+              class="mb-8 pa-5 pa-sm-6 step-card rounded-xl cursor-pointer hover-card" 
+              flat
+              @click="router.push({ name: 'BoxAssemblyGuide' })"
+            >
               <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
                 <v-icon color="amber-accent-2" class="mr-3">mdi-package-variant-closed</v-icon>
                 Box Assembly & Organization Guide
@@ -43,11 +47,12 @@
                   variant="flat"
                   rounded="pill"
                   size="large"
-                  class="font-weight-black text-black px-6"
+                  class="font-weight-black text-black px-6 text-none text-uppercase"
                   append-icon="mdi-arrow-right"
-                  @click="router.push({ name: 'BoxAssemblyGuide' })"
+                  @click.stop="router.push({ name: 'BoxAssemblyGuide' })"
+                  style="white-space: normal; height: auto; padding-top: 12px; padding-bottom: 12px; line-height: 1.3;"
                 >
-                  Box Assembly & Organization Guide
+                  ASSEMBLY & ORGANIZATION GUIDE
                 </v-btn>
               </div>
             </v-card>
