@@ -161,11 +161,11 @@
               <!-- Kit Box Image -->
               <div class="text-center my-5">
                 <v-img
-                  src="https://assets.drunagor.app/retailertutorial/op_kit_box.png"
+                  :src="getImg('Drunagor Nights Box.png')"
                   alt="Organized Play Kit Box"
                   max-width="280"
                   class="mx-auto rounded-lg shadow-elevation-8 cursor-pointer border-glow"
-                  @click="openModal({ id: 'op_kit_box', title: 'Organized Play Kit', image: 'https://assets.drunagor.app/retailertutorial/op_kit_box.png' })"
+                  @click="openModal({ id: 'op_kit_box', title: 'Organized Play Kit', image: getImg('Drunagor Nights Box.png') })"
                 >
                   <template v-slot:error>
                     <div class="box-preview-fallback rounded-lg pa-5 text-center mx-auto border-glow" style="max-width: 280px;">
@@ -201,7 +201,7 @@
                 <!-- Gift Cards Image -->
                 <div class="text-center my-4">
                   <v-img
-                    src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/GIFT%20CARDS.png"
+                    :src="getImg('GIFT CARDS.png')"
                     alt="Gift Item Cards"
                     max-width="400"
                     class="mx-auto rounded-lg cursor-pointer border-subtle"
@@ -244,7 +244,7 @@
                 <!-- Pet Cards Image -->
                 <div class="text-center my-3">
                   <v-img
-                    src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/Pets%20Maya.png"
+                    :src="getImg('Pets Maya.png')"
                     alt="Maya's Pet Cards - Wolf and Eagle"
                     max-width="380"
                     class="mx-auto rounded-lg cursor-pointer border-subtle"
@@ -355,11 +355,11 @@
                 <!-- 3 Save Game Boxes Image -->
                 <div class="text-center my-4">
                   <v-img
-                    src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/The%206%20Save%20Game%20Boxes.png"
+                    :src="getImg('Hero_Enemy_Adventure components.png')"
                     alt="3 Save Game Boxes Layout"
                     max-width="400"
                     class="mx-auto rounded-lg cursor-pointer border-subtle"
-                    @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: getImg('The 6 Save Game Boxes.png') })"
+                    @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: getImg('Hero_Enemy_Adventure components.png') })"
                   >
                     <template v-slot:error>
                       <div class="save-boxes-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
@@ -424,7 +424,7 @@
               <!-- BYOD Box Image -->
               <div class="text-center my-5">
                 <v-img
-                  src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/Build%20Your%20Own%20Dungeon.png"
+                  :src="getImg('Build Your Own Dungeon.png')"
                   alt="Build Your Own Dungeon Add-On Box"
                   max-width="280"
                   class="mx-auto rounded-lg cursor-pointer border-glow shadow-elevation-8"
@@ -464,7 +464,7 @@
                   <!-- Dungeon Trays Vertical Placement Image -->
                   <div class="text-center my-3">
                     <v-img
-                      src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/5%20New%20Trays.png"
+                      :src="getImg('5 New Trays.png')"
                       alt="5 New Dungeon Trays Positioned Vertically"
                       max-width="400"
                       class="mx-auto rounded-lg cursor-pointer border-subtle"
@@ -640,10 +640,13 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const STORAGE_KEY = 'drunagor_box_assembly_checks';
-const BASE_IMG_URL = 'https://assets.drunagor.app/retailertutorial/box-assembly-guide/';
+const BASE_IMG_URL = '/retailertutorial/box-assembly-guide/';
 
 // Helper to construct exact image URL with space encoding
-const getImg = (filename: string) => `${BASE_IMG_URL}${encodeURIComponent(filename)}`;
+const getImg = (filename: string) => {
+  if (!filename) return '';
+  return `${BASE_IMG_URL}${encodeURIComponent(filename)}`;
+};
 
 // Reactive map storing checked states by item ID
 const checkedItems = ref<Record<string, boolean>>({});
