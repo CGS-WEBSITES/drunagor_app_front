@@ -640,13 +640,12 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const STORAGE_KEY = 'drunagor_box_assembly_checks';
-const S3_BASE_URL = 'https://assets.drunagor.app/retailertutorial/box-assembly-guide/';
-const LOCAL_BASE_URL = '/retailertutorial/box-assembly-guide/';
+const BASE_IMG_URL = 'https://assets.drunagor.app/retaitlertutorial/box-assembly-guide/';
 
-// Primary image path (bundled static assets serve reliably if S3 permissions return 403)
+// Helper to construct exact image URL with space encoding
 const getImg = (filename: string) => {
   if (!filename) return '';
-  return `${LOCAL_BASE_URL}${encodeURIComponent(filename)}`;
+  return `${BASE_IMG_URL}${encodeURIComponent(filename)}`;
 };
 
 // Reactive map storing checked states by item ID
