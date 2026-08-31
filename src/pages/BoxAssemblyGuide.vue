@@ -562,30 +562,23 @@
     </v-container>
 
     <!-- Inspection Item Modal -->
-    <v-dialog v-model="modalOpen" max-width="500" scrollable class="item-detail-dialog">
-      <v-card color="grey-darken-4" class="rounded-xl overflow-hidden pa-0 modal-card" elevation="24">
-        <!-- Dialog Title Bar -->
-        <div class="pa-4 bg-grey-darken-4 d-flex justify-space-between align-center border-bottom-subtle">
-          <span class="text-subtitle-1 font-weight-bold text-white cinzel-text">
+    <v-dialog v-model="modalOpen" max-width="460" scrollable class="item-detail-dialog">
+      <v-card color="#232323" class="rounded-xl overflow-hidden pa-0 modal-card" elevation="24">
+        <!-- Dialog Title Bar Centered -->
+        <div class="pa-4 pt-5 text-center">
+          <h3 class="text-subtitle-1 font-weight-bold text-white pa-0 ma-0">
             {{ activeModalItem.title || 'Item Inspection' }}
-          </span>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            color="white"
-            size="small"
-            @click="modalOpen = false"
-          ></v-btn>
+          </h3>
         </div>
 
         <!-- Image Content Container -->
-        <v-card-text class="pa-4 bg-black d-flex flex-column align-center justify-center" style="min-height: 260px;">
+        <v-card-text class="pa-4 d-flex flex-column align-center justify-center" style="min-height: 240px;">
           <v-img
             v-if="activeModalItem.image"
             :src="activeModalItem.image"
             width="100%"
             contain
-            max-height="55vh"
+            max-height="50vh"
             class="rounded-lg"
           >
             <template v-slot:placeholder>
@@ -608,23 +601,23 @@
           </div>
         </v-card-text>
 
-        <!-- Action Button Bar -->
-        <v-card-actions class="pa-4 bg-grey-darken-4 border-top-subtle">
+        <!-- Action Button Bar matching input_file_0.png -->
+        <div class="pa-0 ma-0">
           <v-btn
             block
             size="large"
-            color="emerald"
+            :color="activeModalIsChecked ? '#0bb574' : '#4e4e4e'"
             variant="flat"
-            rounded="lg"
-            class="font-weight-black text-white py-3 mark-done-btn"
-            @click="toggleActiveModalCheck"
+            class="font-weight-bold text-white py-3 mark-done-btn rounded-0"
+            style="height: 52px;"
+            @click="toggleActiveModalCheckOnly"
           >
             <v-icon start size="medium" class="mr-2">
-              {{ activeModalIsChecked ? 'mdi-check-circle' : 'mdi-check-circle-outline' }}
+              {{ activeModalIsChecked ? 'mdi-checkbox-marked' : 'mdi-checkbox-blank-outline' }}
             </v-icon>
-            {{ activeModalIsChecked ? 'Checked as Done' : 'Mark as Done' }}
+            {{ activeModalIsChecked ? 'Checked as Done' : 'Not Done' }}
           </v-btn>
-        </v-card-actions>
+        </div>
       </v-card>
     </v-dialog>
   </div>
@@ -718,12 +711,11 @@ const activeModalIsChecked = computed(() => {
   return isChecked(activeModalItem.value.id);
 });
 
-// Toggle check from inside modal
-const toggleActiveModalCheck = () => {
+// Toggle check from inside modal (stays open for user feedback until clicking outside)
+const toggleActiveModalCheckOnly = () => {
   if (activeModalItem.value.id) {
     toggleCheck(activeModalItem.value.id);
   }
-  modalOpen.value = false;
 };
 
 onMounted(() => {
