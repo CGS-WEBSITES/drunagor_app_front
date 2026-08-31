@@ -41,12 +41,12 @@
               <p class="mb-5 text-grey-lighten-1 text-body-2">
                 Follow our interactive step-by-step checklist to learn how to organize your components and assemble the game box for Drunagor Nights.
               </p>
-              <div class="d-flex justify-start w-100">
+              <div class="d-flex justify-center w-100">
                 <v-btn
                   color="amber-accent-2"
                   variant="flat"
                   rounded="pill"
-                  class="font-weight-black text-black text-none text-uppercase assembly-guide-btn"
+                  class="font-weight-black text-black text-none text-uppercase assembly-guide-btn mx-auto"
                   @click.stop="router.push({ name: 'BoxAssemblyGuide' })"
                 >
                   <span class="btn-label-text">ASSEMBLY & ORGANIZATION GUIDE</span>
