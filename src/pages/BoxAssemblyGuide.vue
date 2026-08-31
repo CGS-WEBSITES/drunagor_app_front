@@ -120,9 +120,13 @@
                     <div class="row-label text-white flex-grow-1">
                       <span v-html="item.label"></span>
                       <div v-if="item.details" class="sub-bullets pl-3 mt-2">
-                        <div v-for="(detail, dIdx) in item.details" :key="dIdx" class="d-flex align-start mb-1.5">
-                          <span class="mr-2">•</span>
-                          <span v-html="detail"></span>
+                        <div v-for="(detail, dIdx) in item.details" :key="dIdx" class="d-flex align-start mb-1.5 cursor-pointer" @click.stop="handleItemClick(detail)">
+                          <div 
+                            class="custom-checkbox flex-shrink-0 mr-2" 
+                            :class="{ 'checked': isChecked(detail.id) }"
+                            @click.stop="handleItemClick(detail)"
+                          ></div>
+                          <span v-html="detail.label"></span>
                         </div>
                       </div>
                     </div>
@@ -197,11 +201,11 @@
                 <!-- Gift Cards Image -->
                 <div class="text-center my-4">
                   <v-img
-                    src="https://assets.drunagor.app/retailertutorial/gift_cards_fan.png"
+                    src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/GIFT%20CARDS.png"
                     alt="Gift Item Cards"
                     max-width="400"
                     class="mx-auto rounded-lg cursor-pointer border-subtle"
-                    @click="openModal({ id: 'step2_1_gift_cards', title: 'Gift Item Cards (80x)', image: 'https://assets.drunagor.app/retailertutorial/gift_cards_fan.png' })"
+                    @click="openModal({ id: 'step2_1_gift_cards', title: 'Gift Item Cards (80x)', image: getImg('GIFT CARDS.png') })"
                   >
                     <template v-slot:error>
                       <div class="cards-preview-fallback rounded-lg pa-4 text-center mx-auto border-subtle" style="max-width: 400px;">
@@ -225,12 +229,12 @@
                 <div 
                   class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                   :class="{ 'row-checked': isChecked('step2_2_pet_cards') }"
-                  @click="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
+                  @click="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
                 >
                   <div 
                     class="custom-checkbox flex-shrink-0" 
                     :class="{ 'checked': isChecked('step2_2_pet_cards') }"
-                    @click.stop="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
+                    @click.stop="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
                   ></div>
                   <span class="row-label text-white flex-grow-1">
                     Retrieve Maya's 2 Pet Cards (Wolf and Eagle) and add to active components.
@@ -240,11 +244,11 @@
                 <!-- Pet Cards Image -->
                 <div class="text-center my-3">
                   <v-img
-                    src="https://assets.drunagor.app/retailertutorial/maya_pet_cards.png"
+                    src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/Pets%20Maya.png"
                     alt="Maya's Pet Cards - Wolf and Eagle"
                     max-width="380"
                     class="mx-auto rounded-lg cursor-pointer border-subtle"
-                    @click="openModal({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: 'https://assets.drunagor.app/retailertutorial/maya_pet_cards.png' })"
+                    @click="openModal({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
                   >
                     <template v-slot:error>
                       <div class="pet-preview-fallback rounded-lg pa-4 text-center mx-auto border-subtle d-flex justify-center ga-4" style="max-width: 380px;">
@@ -289,13 +293,13 @@
                             v-if="heroCards[rowIndex - 1]" 
                             class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
                             :class="{ 'cell-checked': isChecked(heroCards[rowIndex - 1].id) }"
-                            @click="toggleCheck(heroCards[rowIndex - 1].id)"
+                            @click="handleItemClick(heroCards[rowIndex - 1])"
                           >
                             <span class="text-caption text-white style-table-text mb-2 text-center">{{ heroCards[rowIndex - 1].label }}</span>
                             <div 
                               class="custom-checkbox flex-shrink-0 ma-0" 
                               :class="{ 'checked': isChecked(heroCards[rowIndex - 1].id) }"
-                              @click.stop="toggleCheck(heroCards[rowIndex - 1].id)"
+                              @click.stop="handleItemClick(heroCards[rowIndex - 1])"
                             ></div>
                           </div>
                         </td>
@@ -306,13 +310,13 @@
                             v-if="enemyCards[rowIndex - 1]" 
                             class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
                             :class="{ 'cell-checked': isChecked(enemyCards[rowIndex - 1].id) }"
-                            @click="toggleCheck(enemyCards[rowIndex - 1].id)"
+                            @click="handleItemClick(enemyCards[rowIndex - 1])"
                           >
                             <span class="text-caption text-white style-table-text mb-2 text-center">{{ enemyCards[rowIndex - 1].label }}</span>
                             <div 
                               class="custom-checkbox flex-shrink-0 ma-0" 
                               :class="{ 'checked': isChecked(enemyCards[rowIndex - 1].id) }"
-                              @click.stop="toggleCheck(enemyCards[rowIndex - 1].id)"
+                              @click.stop="handleItemClick(enemyCards[rowIndex - 1])"
                             ></div>
                           </div>
                         </td>
@@ -323,13 +327,13 @@
                             v-if="adventureCards[rowIndex - 1]" 
                             class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
                             :class="{ 'cell-checked': isChecked(adventureCards[rowIndex - 1].id) }"
-                            @click="toggleCheck(adventureCards[rowIndex - 1].id)"
+                            @click="handleItemClick(adventureCards[rowIndex - 1])"
                           >
                             <span class="text-caption text-white style-table-text mb-2 text-center">{{ adventureCards[rowIndex - 1].label }}</span>
                             <div 
                               class="custom-checkbox flex-shrink-0 ma-0" 
                               :class="{ 'checked': isChecked(adventureCards[rowIndex - 1].id) }"
-                              @click.stop="toggleCheck(adventureCards[rowIndex - 1].id)"
+                              @click.stop="handleItemClick(adventureCards[rowIndex - 1])"
                             ></div>
                           </div>
                         </td>
@@ -351,11 +355,11 @@
                 <!-- 3 Save Game Boxes Image -->
                 <div class="text-center my-4">
                   <v-img
-                    src="https://assets.drunagor.app/retailertutorial/save_boxes_layout.png"
+                    src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/The%206%20Save%20Game%20Boxes.png"
                     alt="3 Save Game Boxes Layout"
                     max-width="400"
                     class="mx-auto rounded-lg cursor-pointer border-subtle"
-                    @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: 'https://assets.drunagor.app/retailertutorial/save_boxes_layout.png' })"
+                    @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: getImg('The 6 Save Game Boxes.png') })"
                   >
                     <template v-slot:error>
                       <div class="save-boxes-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
@@ -420,11 +424,11 @@
               <!-- BYOD Box Image -->
               <div class="text-center my-5">
                 <v-img
-                  src="https://assets.drunagor.app/retailertutorial/byod_box.png"
+                  src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/Build%20Your%20Own%20Dungeon.png"
                   alt="Build Your Own Dungeon Add-On Box"
                   max-width="280"
                   class="mx-auto rounded-lg cursor-pointer border-glow shadow-elevation-8"
-                  @click="openModal({ id: 'byod_box', title: 'Build Your Own Dungeon Add-On', image: 'https://assets.drunagor.app/retailertutorial/byod_box.png' })"
+                  @click="openModal({ id: 'byod_box', title: 'Build Your Own Dungeon Add-On', image: getImg('Build Your Own Dungeon.png') })"
                 >
                   <template v-slot:error>
                     <div class="byod-fallback rounded-lg pa-5 text-center mx-auto border-glow" style="max-width: 280px;">
@@ -445,12 +449,12 @@
                   <div 
                     class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked('step3_1_dungeon_trays') }"
-                    @click="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png', title: '5 Dungeon Trays Vertically Positioned' })"
+                    @click="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: getImg('5 New Trays.png'), title: '5 Dungeon Trays Vertically Positioned' })"
                   >
                     <div 
                       class="custom-checkbox flex-shrink-0" 
                       :class="{ 'checked': isChecked('step3_1_dungeon_trays') }"
-                      @click.stop="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png', title: '5 Dungeon Trays Vertically Positioned' })"
+                      @click.stop="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: getImg('5 New Trays.png'), title: '5 Dungeon Trays Vertically Positioned' })"
                     ></div>
                     <span class="row-label text-white flex-grow-1">
                       <strong class="text-white font-weight-bold">Pack into the Core Box:</strong> Take the <strong class="text-white font-weight-bold">5 new Dungeon Trays</strong> and place them inside the Core Box. Position them <strong class="text-white font-weight-bold">vertically</strong> so they fit.
@@ -460,11 +464,11 @@
                   <!-- Dungeon Trays Vertical Placement Image -->
                   <div class="text-center my-3">
                     <v-img
-                      src="https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png"
+                      src="https://assets.drunagor.app/retailertutorial/box-assembly-guide/5%20New%20Trays.png"
                       alt="5 New Dungeon Trays Positioned Vertically"
                       max-width="400"
                       class="mx-auto rounded-lg cursor-pointer border-subtle"
-                      @click="openModal({ id: 'step3_1_dungeon_trays', title: '5 Dungeon Trays Vertically Positioned', image: 'https://assets.drunagor.app/retailertutorial/dungeon_trays_vertical.png' })"
+                      @click="openModal({ id: 'step3_1_dungeon_trays', title: '5 Dungeon Trays Vertically Positioned', image: getImg('5 New Trays.png') })"
                     >
                       <template v-slot:error>
                         <div class="trays-fallback rounded-lg pa-5 text-center mx-auto border-subtle" style="max-width: 400px;">
@@ -478,12 +482,12 @@
                   <div 
                     class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked('step3_1_gift_cards') }"
-                    @click="toggleCheck('step3_1_gift_cards')"
+                    @click="handleItemClick({ id: 'step3_1_gift_cards', title: 'Gift Item Cards', image: getImg('GIFT CARDS.png') })"
                   >
                     <div 
                       class="custom-checkbox flex-shrink-0" 
                       :class="{ 'checked': isChecked('step3_1_gift_cards') }"
-                      @click.stop="toggleCheck('step3_1_gift_cards')"
+                      @click.stop="handleItemClick({ id: 'step3_1_gift_cards', title: 'Gift Item Cards', image: getImg('GIFT CARDS.png') })"
                     ></div>
                     <span class="row-label text-white flex-grow-1">
                       Place the stack of <strong class="text-white font-weight-bold">Gift Cards</strong> inside the Core Box as well.
@@ -493,12 +497,12 @@
                   <div 
                     class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
                     :class="{ 'row-checked': isChecked('step3_1_close_box') }"
-                    @click="toggleCheck('step3_1_close_box')"
+                    @click="handleItemClick({ id: 'step3_1_close_box', title: 'Core Box Fully Closed', image: getImg('Drunagor Nights Box.png') })"
                   >
                     <div 
                       class="custom-checkbox flex-shrink-0" 
                       :class="{ 'checked': isChecked('step3_1_close_box') }"
-                      @click.stop="toggleCheck('step3_1_close_box')"
+                      @click.stop="handleItemClick({ id: 'step3_1_close_box', title: 'Core Box Fully Closed', image: getImg('Drunagor Nights Box.png') })"
                     ></div>
                     <span class="row-label text-white flex-grow-1">
                       Put the lid on and <strong class="text-white font-weight-bold">close the Core Box!</strong>
@@ -636,6 +640,10 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const STORAGE_KEY = 'drunagor_box_assembly_checks';
+const BASE_IMG_URL = 'https://assets.drunagor.app/retailertutorial/box-assembly-guide/';
+
+// Helper to construct exact image URL with space encoding
+const getImg = (filename: string) => `${BASE_IMG_URL}${encodeURIComponent(filename)}`;
 
 // Reactive map storing checked states by item ID
 const checkedItems = ref<Record<string, boolean>>({});
@@ -728,121 +736,247 @@ onMounted(() => {
   loadFromLocalStorage();
 });
 
-// Item Definitions
+// Item Definitions with exact S3 image URLs from user folder mapping
 const step1SetAsideItems = [
   {
     id: 'step1_1_adventure_books',
     label: 'The <strong class="text-white font-weight-bold">Adventure Book</strong> and <strong class="text-white font-weight-bold">Interaction Book</strong>.',
-    image: 'https://assets.drunagor.app/retailertutorial/adventure_and_interaction_books.png',
+    image: getImg('Adventure Book and Interaction Book.png'),
     title: 'The Adventure Book and Interaction Book'
   },
   {
     id: 'step1_1_campaign_log',
-    label: 'The <strong class="text-white font-weight-bold">Campaign Log</strong>.'
+    label: 'The <strong class="text-white font-weight-bold">Campaign Log</strong>.',
+    image: getImg('Campaign log pad.png'),
+    title: 'Campaign Log'
   },
   {
     id: 'step1_1_start_here',
-    label: 'The <strong class="text-white font-weight-bold">“Start Here” Booklet</strong>.'
+    label: 'The <strong class="text-white font-weight-bold">“Start Here” Booklet</strong>.',
+    image: getImg('Start Here.png'),
+    title: 'The “Start Here” Booklet'
   },
   {
     id: 'step1_1_doors',
-    label: 'The plastic wrap containing the <strong class="text-white font-weight-bold">Doors</strong>.'
+    label: 'The plastic wrap containing the <strong class="text-white font-weight-bold">Doors</strong>.',
+    image: getImg('Doors Pack.png'),
+    title: 'Doors Pack'
   },
   {
     id: 'step1_1_hero_boards',
-    label: 'All original <strong class="text-white font-weight-bold">Hero Boards</strong> from the Core Box.'
+    label: 'All original <strong class="text-white font-weight-bold">Hero Boards</strong> from the Core Box.',
+    image: getImg('PLAYERBOARDS_CORE.png'),
+    title: 'Hero Boards'
   },
   {
     id: 'step1_1_mini_cards',
-    label: 'The packs of <strong class="text-white font-weight-bold">Mini American Cards</strong> found inside the <strong class="text-white font-weight-bold">Save Game Boxes</strong>. Empty the boxes, but <strong class="text-white font-weight-bold">keep them nearby!</strong>'
+    label: 'The packs of <strong class="text-white font-weight-bold">Mini American Cards</strong> found inside the <strong class="text-white font-weight-bold">Save Game Boxes</strong>. Empty the boxes, but <strong class="text-white font-weight-bold">keep them nearby!</strong>',
+    image: getImg('Save Game Box Empty.png'),
+    title: 'Save Game Box'
   }
 ];
 
 const step1SeparateItems = [
-  { id: 'step1_2_rulebook', label: '<strong class="text-white font-weight-bold">Rulebook</strong>.' },
-  { id: 'step1_2_map_tiles', label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.' },
-  { id: 'step1_2_velvet_bag', label: '<strong class="text-white font-weight-bold">Velvet Bag</strong>.' },
-  { id: 'step1_2_punchboards', label: 'All <strong class="text-white font-weight-bold">Punchboards</strong>.' },
-  { id: 'step1_2_save_boxes', label: 'The <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (1 with the colored bases still inside and the other 5 now empty).' },
-  { id: 'step1_2_monster_boards', label: 'The <strong class="text-white font-weight-bold">2 Monster Status Boards</strong>.' },
-  { id: 'step1_2_trays', label: '<strong class="text-white font-weight-bold">All trays:</strong> Darkness Tiles, Tokens, Small Miniatures, and Dungeon Tiles.' },
-  { id: 'step1_2_cubes_bag', label: 'The bag containing the <strong class="text-white font-weight-bold">colored cubes</strong>.' }
+  {
+    id: 'step1_2_rulebook',
+    label: '<strong class="text-white font-weight-bold">Rulebook</strong>.',
+    image: getImg('Rulebook.png'),
+    title: 'Rulebook'
+  },
+  {
+    id: 'step1_2_map_tiles',
+    label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.',
+    image: getImg('Map Tiles CORE.png'),
+    title: 'Map Tiles'
+  },
+  {
+    id: 'step1_2_velvet_bag',
+    label: '<strong class="text-white font-weight-bold">Velvet Bag</strong>.',
+    image: getImg('Velvet BAG.png'),
+    title: 'Velvet Bag'
+  },
+  {
+    id: 'step1_2_punchboards',
+    label: 'All <strong class="text-white font-weight-bold">Punchboards</strong>.',
+    image: getImg('Punchboards.png'),
+    title: 'Punchboards'
+  },
+  {
+    id: 'step1_2_save_boxes',
+    label: 'The <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (1 with the colored bases still inside and the other 5 now empty).',
+    image: getImg('Snap Box.png'),
+    title: 'Save Game Boxes'
+  },
+  {
+    id: 'step1_2_monster_boards',
+    label: 'The <strong class="text-white font-weight-bold">2 Monster Status Boards</strong>.',
+    image: getImg('Monster Status Boards.png'),
+    title: 'Monster Status Boards'
+  },
+  {
+    id: 'step1_2_trays',
+    label: '<strong class="text-white font-weight-bold">All trays:</strong> Darkness Tiles, Tokens, Small Miniatures, and Dungeon Tiles.',
+    image: getImg('Small Miniature Tray.png'),
+    title: 'All Trays'
+  },
+  {
+    id: 'step1_2_cubes_bag',
+    label: 'The bag containing the <strong class="text-white font-weight-bold">colored cubes</strong>.',
+    image: getImg('Colored Cubes.png'),
+    title: 'Colored Cubes'
+  }
 ];
 
 const step1OrganizeItems = [
   {
     id: 'step1_3_trays_order',
-    label: '<strong class="text-white font-weight-bold">Trays:</strong> Return the <strong class="text-white font-weight-bold">Small Miniatures Tray</strong> and the <strong class="text-white font-weight-bold">Dungeon Trays</strong> to the box. (Order: <strong class="text-white font-weight-bold">Tray 1</strong> on the bottom, <strong class="text-white font-weight-bold">Tray 2</strong> in the middle, and <strong class="text-white font-weight-bold">Tray 3</strong> on top.)'
+    label: '<strong class="text-white font-weight-bold">Trays:</strong> Return the <strong class="text-white font-weight-bold">Small Miniatures Tray</strong> and the <strong class="text-white font-weight-bold">Dungeon Trays</strong> to the box. (Order: <strong class="text-white font-weight-bold">Tray 1</strong> on the bottom, <strong class="text-white font-weight-bold">Tray 2</strong> in the middle, and <strong class="text-white font-weight-bold">Tray 3</strong> on top.)',
+    image: getImg('Dungeon Trayz.png'),
+    title: 'Dungeon Trays & Small Miniature Tray'
   },
   {
     id: 'step1_3_cubes_sort',
     label: '<strong class="text-white font-weight-bold">Colored Cubes:</strong> Sort them into the empty <strong class="text-white font-weight-bold">Save Game Boxes</strong>.',
+    image: getImg('Colored Cubes.png'),
+    title: 'Colored Cubes Sorting',
     details: [
-      '<strong class="text-white font-weight-bold">Box A:</strong> Place the <strong class="text-white font-weight-bold">Yellow and Red Cubes</strong> in one compartment, and the <strong class="text-white font-weight-bold">Green and Blue Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">two dice</strong> in the narrow space between the compartments.',
-      '<strong class="text-white font-weight-bold">Box B:</strong> Place the <strong class="text-white font-weight-bold">Black Cubes</strong> in one compartment and the <strong class="text-white font-weight-bold">White Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">Purple and Pink Cubes</strong> in the narrow space between the compartments.'
+      {
+        id: 'step1_3_box_a',
+        label: '<strong class="text-white font-weight-bold">Box A:</strong> Place the <strong class="text-white font-weight-bold">Yellow and Red Cubes</strong> in one compartment, and the <strong class="text-white font-weight-bold">Green and Blue Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">two dice</strong> in the narrow space between the compartments.',
+        image: getImg('CUBE Tray 1.png'),
+        title: 'BOX A - Cubes & Dice'
+      },
+      {
+        id: 'step1_3_box_b',
+        label: '<strong class="text-white font-weight-bold">Box B:</strong> Place the <strong class="text-white font-weight-bold">Black Cubes</strong> in one compartment and the <strong class="text-white font-weight-bold">White Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">Purple and Pink Cubes</strong> in the narrow space between the compartments.',
+        image: getImg('CUBE Tray 2.png'),
+        title: 'BOX B - Cubes'
+      }
     ]
   },
   {
     id: 'step1_3_cardboard',
     label: '<strong class="text-white font-weight-bold">Cardboard Components (Punchboards):</strong> Punch out all components.',
+    image: getImg('Punchboards.png'),
+    title: 'Cardboard Components',
     details: [
-      '<strong class="text-white font-weight-bold">Darkness Tiles:</strong> Place them in the <strong class="text-white font-weight-bold">Darkness Tile Tray</strong>, then return the tray to the box.',
-      '<strong class="text-white font-weight-bold">Runes:</strong> Place them inside the <strong class="text-white font-weight-bold">Velvet Bag</strong>.',
-      '<strong class="text-white font-weight-bold">Tokens:</strong> Place them in the <strong class="text-white font-weight-bold">Token Tray</strong>. Any tokens that do not fit should go into the plastic bag that held the cubes and be <strong class="text-white font-weight-bold">set aside</strong>. Return the tray to the box.',
-      '<strong class="text-white font-weight-bold">Initiative Track and Bridges:</strong> <strong class="text-white font-weight-bold">Keep them nearby.</strong>'
+      {
+        id: 'step1_3_darkness_tray',
+        label: '<strong class="text-white font-weight-bold">Darkness Tiles:</strong> Place them in the <strong class="text-white font-weight-bold">Darkness Tile Tray</strong>, then return the tray to the box.',
+        image: getImg('Darkness Tray Fullfiled.png'),
+        title: 'Darkness Tray'
+      },
+      {
+        id: 'step1_3_runes',
+        label: '<strong class="text-white font-weight-bold">Runes:</strong> Place them inside the <strong class="text-white font-weight-bold">Velvet Bag</strong>.',
+        image: getImg('Rune Bag.png'),
+        title: 'Rune Bag'
+      },
+      {
+        id: 'step1_3_tokens',
+        label: '<strong class="text-white font-weight-bold">Tokens:</strong> Place them in the <strong class="text-white font-weight-bold">Token Tray</strong>. Any tokens that do not fit should go into the plastic bag that held the cubes and be <strong class="text-white font-weight-bold">set aside</strong>. Return the tray to the box.',
+        image: getImg('Tokens Tray Fullfiled.png'),
+        title: 'Token Tray'
+      },
+      {
+        id: 'step1_3_initiative',
+        label: '<strong class="text-white font-weight-bold">Initiative Track and Bridges:</strong> <strong class="text-white font-weight-bold">Keep them nearby.</strong>',
+        image: getImg('Initiative Bridge.png'),
+        title: 'Initiative Track and Bridges'
+      }
     ]
   }
 ];
 
 const step2SeparateItems = [
-  { id: 'step2_1_hero_boards', label: '<strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.' },
-  { id: 'step2_1_map_tiles', label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.' },
+  {
+    id: 'step2_1_hero_boards',
+    label: '<strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.',
+    image: getImg('PLAYERBOARDS_DNS1.png'),
+    title: 'Hero Boards (Kit)'
+  },
+  {
+    id: 'step2_1_map_tiles',
+    label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.',
+    image: getImg('Map Tiles DNS1.png'),
+    title: 'Map Tiles (Kit)'
+  },
   { 
     id: 'step2_1_gift_cards', 
     label: '<strong class="text-white font-weight-bold">Gift Item Cards (80x):</strong> Set them aside and, if possible, assemble the Gift Packs with one of each Gift card in them.',
-    image: 'https://assets.drunagor.app/retailertutorial/gift_cards_fan.png',
+    image: getImg('GIFT CARDS.png'),
     title: 'Gift Item Cards (80x)'
   }
 ];
 
-// Mini Cards Table Data (Matching Image 2/3)
+// Mini Cards Table Data
 const heroCards = [
-  { id: 'step2_3_h1', label: '5x Hero Initiative Cards (1 per Hero)' },
-  { id: 'step2_3_h2', label: '20x Hero Skill Cards (4 per Hero)' },
-  { id: 'step2_3_h3', label: '20x Class Skill Cards (4 per Class)' },
-  { id: 'step2_3_h4', label: '10x Themed Starting Equipment Cards (2 per Hero)' },
-  { id: 'step2_3_h5', label: '10x Party Role Cards (2 per Role)' }
+  { id: 'step2_3_h1', label: '5x Hero Initiative Cards (1 per Hero)', image: getImg('Hero Initiative Cards DNS1.png'), title: 'Hero Initiative Cards' },
+  { id: 'step2_3_h2', label: '20x Hero Skill Cards (4 per Hero)', image: getImg('Hero Skills Cards DNS1.png'), title: 'Hero Skill Cards' },
+  { id: 'step2_3_h3', label: '20x Class Skill Cards (4 per Class)', image: getImg('Class Skill Cards DNS1.png'), title: 'Class Skill Cards' },
+  { id: 'step2_3_h4', label: '10x Themed Starting Equipment Cards (2 per Hero)', image: getImg('Hero Starting Gear Cards DNS1.png'), title: 'Hero Starting Gear Cards' },
+  { id: 'step2_3_h5', label: '10x Party Role Cards (2 per Role)', image: getImg('Dungeon Role Cards DNS1.png'), title: 'Dungeon Role Cards' }
 ];
 
 const enemyCards = [
-  { id: 'step2_3_e1', label: '28x Monster Cards (White, Gray, and Black)' },
-  { id: 'step2_3_e2', label: '3x Commander Cards' },
-  { id: 'step2_3_e3', label: '1x Boss Card' },
-  { id: 'step2_3_e4', label: '1x Minion Card' },
-  { id: 'step2_3_e5', label: '10x Commander Attack Cards' },
-  { id: 'step2_3_e6', label: '8x Boss Attack Cards' }
+  { id: 'step2_3_e1', label: '28x Monster Cards (White, Gray, and Black)', image: getImg('Monsters Cards DNS1.png'), title: 'Monster Cards' },
+  { id: 'step2_3_e2', label: '3x Commander Cards', image: getImg('Commanders Cards DNS1.png'), title: 'Commander Cards' },
+  { id: 'step2_3_e3', label: '1x Boss Card', image: getImg('Boss Cards DNS1.png'), title: 'Boss Card' },
+  { id: 'step2_3_e4', label: '1x Minion Card', image: getImg('Minions Cards DNS1.png'), title: 'Minion Card' },
+  { id: 'step2_3_e5', label: '10x Commander Attack Cards', image: getImg('Commander Attack Cards DNS1.png'), title: 'Commander Attack Cards' },
+  { id: 'step2_3_e6', label: '8x Boss Attack Cards', image: getImg('Boss Attack Cards DNS1.png'), title: 'Boss Attack Cards' }
 ];
 
 const adventureCards = [
-  { id: 'step2_3_a1', label: '22x Adventure Item Cards' },
-  { id: 'step2_3_a2', label: '18x Chest Cards' },
-  { id: 'step2_3_a3', label: '3x Tutorial Trigger Cards' },
-  { id: 'step2_3_a4', label: '2x Scene Trigger Cards' },
-  { id: 'step2_3_a5', label: '2x Rune Cards' },
-  { id: 'step2_3_a6', label: '2x Game Mechanic Cards' },
-  { id: 'step2_3_a7', label: '1x End of Round Trigger Card' },
-  { id: 'step2_3_a8', label: '1x Game Status Check Card' }
+  { id: 'step2_3_a1', label: '22x Adventure Item Cards', image: getImg('Adventure Cards DNS1.png'), title: 'Adventure Item Cards' },
+  { id: 'step2_3_a2', label: '18x Chest Cards', image: getImg('Chest Cards DNS1.png'), title: 'Chest Item Cards' },
+  { id: 'step2_3_a3', label: '3x Tutorial Trigger Cards', image: getImg('Tutorial Trigger Cards DNS1.png'), title: 'Tutorial Trigger Cards' },
+  { id: 'step2_3_a4', label: '2x Scene Trigger Cards', image: getImg('Scene Trigger Cards DNS1.png'), title: 'Scene Trigger Cards' },
+  { id: 'step2_3_a5', label: '2x Rune Cards', image: getImg('Rune Cards DNS1.png'), title: 'Rune Cards' },
+  { id: 'step2_3_a6', label: '2x Game Mechanic Cards', image: getImg('Game Mechenics Cards DNS1.png'), title: 'Game Mechanic Cards' },
+  { id: 'step2_3_a7', label: '1x End of Round Trigger Card', image: getImg('End of Round Trigger Cards DNS1.png'), title: 'End of Round Trigger Cards' },
+  { id: 'step2_3_a8', label: '1x Game Status Check Card', image: getImg('Game State Check-up Cards DNS1.png'), title: 'Game State Check-up Cards' }
 ];
 
 const maxCardRows = Math.max(heroCards.length, enemyCards.length, adventureCards.length);
 
 const step2PackItems = [
-  { id: 'step2_4_save_boxes', label: 'All <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (now fully packed).' },
-  { id: 'step2_4_velvet_bag', label: 'The <strong class="text-white font-weight-bold">Velvet Bag</strong> containing the Runes.' },
-  { id: 'step2_4_initiative', label: 'The <strong class="text-white font-weight-bold">Initiative Track</strong> and <strong class="text-white font-weight-bold">Bridges</strong>.' },
-  { id: 'step2_4_map_tiles', label: 'All <strong class="text-white font-weight-bold">Map Tiles</strong> (combining those from the Kit with those from the Core Box).' },
-  { id: 'step2_4_hero_boards', label: 'The <strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.' },
-  { id: 'step2_4_rulebook', label: 'The <strong class="text-white font-weight-bold">Rulebook</strong>.' }
+  {
+    id: 'step2_4_save_boxes',
+    label: 'All <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (now fully packed).',
+    image: getImg('The 6 Save Game Boxes.png'),
+    title: 'The 6 Save Game Boxes'
+  },
+  {
+    id: 'step2_4_velvet_bag',
+    label: 'The <strong class="text-white font-weight-bold">Velvet Bag</strong> containing the Runes.',
+    image: getImg('Rune Bag.png'),
+    title: 'Rune Bag'
+  },
+  {
+    id: 'step2_4_initiative',
+    label: 'The <strong class="text-white font-weight-bold">Initiative Track</strong> and <strong class="text-white font-weight-bold">Bridges</strong>.',
+    image: getImg('Initiative Bridge.png'),
+    title: 'Initiative Track and Bridges'
+  },
+  {
+    id: 'step2_4_map_tiles',
+    label: 'All <strong class="text-white font-weight-bold">Map Tiles</strong> (combining those from the Kit with those from the Core Box).',
+    image: getImg('Map Tiles DNS1.png'),
+    title: 'All Map Tiles'
+  },
+  {
+    id: 'step2_4_hero_boards',
+    label: 'The <strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.',
+    image: getImg('PLAYERBOARDS_DNS1.png'),
+    title: 'Hero Boards'
+  },
+  {
+    id: 'step2_4_rulebook',
+    label: 'The <strong class="text-white font-weight-bold">Rulebook</strong>.',
+    image: getImg('Rulebook.png'),
+    title: 'Rulebook'
+  }
 ];
 </script>
 
