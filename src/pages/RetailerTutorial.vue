@@ -41,18 +41,16 @@
               <p class="mb-5 text-grey-lighten-1 text-body-2">
                 Follow our interactive step-by-step checklist to learn how to organize your components and assemble the game box for Drunagor Nights.
               </p>
-              <div class="d-flex justify-start">
+              <div class="d-flex justify-start w-100">
                 <v-btn
                   color="amber-accent-2"
                   variant="flat"
                   rounded="pill"
-                  size="large"
-                  class="font-weight-black text-black px-6 text-none text-uppercase"
-                  append-icon="mdi-arrow-right"
+                  class="font-weight-black text-black text-none text-uppercase assembly-guide-btn"
                   @click.stop="router.push({ name: 'BoxAssemblyGuide' })"
-                  style="white-space: normal; height: auto; padding-top: 12px; padding-bottom: 12px; line-height: 1.3;"
                 >
-                  ASSEMBLY & ORGANIZATION GUIDE
+                  <span class="btn-label-text">ASSEMBLY & ORGANIZATION GUIDE</span>
+                  <v-icon end size="small" class="ml-2 flex-shrink-0">mdi-arrow-right</v-icon>
                 </v-btn>
               </div>
             </v-card>
@@ -526,6 +524,30 @@ const openLightbox = (imgSrc: string) => {
 
 .border-2-amber:hover {
   border-color: rgba(255, 179, 0, 0.6) !important;
+}
+
+.assembly-guide-btn {
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 46px !important;
+  padding: 10px 20px !important;
+  box-sizing: border-box !important;
+}
+
+.assembly-guide-btn :deep(.v-btn__content) {
+  white-space: normal !important;
+  text-align: center !important;
+  line-height: 1.25 !important;
+  font-size: clamp(0.75rem, 2.8vw, 0.92rem) !important;
+  letter-spacing: 0.5px !important;
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+}
+
+.btn-label-text {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
 }
 
 </style>
