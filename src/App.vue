@@ -2,7 +2,7 @@
   <v-app :theme="theme">
     <Toast />
 
-    <v-row no-gutters v-if="mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode)">
+    <v-row no-gutters v-if="mdAndUp && showDesktopAppBar">
       <v-app-bar app height="64" color="secundary">
         <div
           @click="$router.push({ name: 'Dashboard' })"
@@ -243,7 +243,7 @@
       </template>
     </v-navigation-drawer>
 
-    <router-view :style="contentStyle" :class="{ 'pt-10': mdAndUp && (route.name !== 'Campaign' || !isImmersiveMode) }" />
+    <router-view :style="contentStyle" :class="{ 'pt-10': mdAndUp && showDesktopAppBar }" />
   </v-app>
 </template>
 
@@ -298,6 +298,13 @@ const showMobileAppBar = computed(() => {
     route.name !== 'RetailerTutorial' &&
     route.name !== 'BoxAssemblyGuide' &&
     route.name !== 'NightsCommunication' &&
+    (route.name !== 'Campaign' || !isImmersiveMode.value)
+  );
+});
+
+const showDesktopAppBar = computed(() => {
+  return (
+    route.name !== 'BoxAssemblyGuide' &&
     (route.name !== 'Campaign' || !isImmersiveMode.value)
   );
 });
