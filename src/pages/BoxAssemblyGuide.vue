@@ -951,8 +951,8 @@ const step2PackItems = [
 .step-badge {
   color: #ffffff;
   font-weight: 800;
-  font-size: 0.8rem;
-  padding: 10px 16px;
+  font-size: 0.95rem;
+  padding: 11px 20px;
   letter-spacing: 0.5px;
   border-top-left-radius: 12px !important;
   border-bottom-left-radius: 0px !important;
@@ -962,6 +962,13 @@ const step2PackItems = [
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+@media (min-width: 600px) {
+  .step-badge {
+    font-size: 1.05rem;
+    padding: 12px 24px;
+  }
 }
 
 .badge-step-1 {
@@ -983,11 +990,17 @@ const step2PackItems = [
 /* Single-line step titles with responsive clamp to prevent mobile truncation */
 .single-line-title {
   font-family: 'Poppins', sans-serif !important;
-  font-size: clamp(0.72rem, 3.1vw, 0.95rem) !important;
+  font-size: clamp(0.92rem, 3.5vw, 1.25rem) !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
+}
+
+@media (min-width: 600px) {
+  .single-line-title {
+    font-size: 1.25rem !important;
+  }
 }
 
 .substep-heading {
