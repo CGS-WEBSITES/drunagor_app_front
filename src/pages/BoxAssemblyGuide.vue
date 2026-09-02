@@ -32,7 +32,7 @@
             target="_blank"
             rel="noopener noreferrer"
             class="pdf-guide-link"
-          >click here<v-icon size="x-small" color="amber-accent-2" class="ml-0.5">mdi-open-in-new</v-icon></a>.
+          >click here<v-icon size="x-small" style="color: #BCA341;" class="ml-0.5">mdi-open-in-new</v-icon></a>.
         </p>
 
         <!-- ================= STEP 1 ================= -->
@@ -1054,18 +1054,18 @@ const step2PackItems = [
 }
 
 .pdf-guide-link {
-  color: #ffd700 !important;
+  color: #BCA341 !important;
   font-weight: 600;
   text-decoration: underline !important;
   transition: color 0.2s ease, text-shadow 0.2s ease;
-  display: inline-inline-flex;
+  display: inline-flex;
   align-items: center;
   margin-left: 3px;
 }
 
 .pdf-guide-link:hover {
-  color: #ffe57f !important;
-  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+  color: #d8bd4f !important;
+  text-shadow: 0 0 8px rgba(188, 163, 65, 0.4);
 }
 
 /* Single Main Box Card */
