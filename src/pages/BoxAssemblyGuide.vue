@@ -26,7 +26,13 @@
         
         <!-- Subtitle Text (INSIDE Card at the Top) -->
         <p class="subtitle-text text-center font-style-italic mb-6 mx-auto">
-          Navigate through this page to learn how to organize your components and assemble your game box for Drunagor Nights.
+          Navigate through this page to learn how to organize your components and assemble your game box for Drunagor Nights. If you prefer to follow a PDF guide,
+          <a
+            href="https://s3.us-east-2.amazonaws.com/assets.drunagor.app/retaitlertutorial/box-assembly-guide/RETAILER+MANUAL+-+OP+KIT+preparation.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="pdf-guide-link"
+          >click here<v-icon size="x-small" color="amber-accent-2" class="ml-0.5">mdi-open-in-new</v-icon></a>.
         </p>
 
         <!-- ================= STEP 1 ================= -->
@@ -1042,9 +1048,24 @@ const step2PackItems = [
 .subtitle-text {
   font-size: 0.78rem;
   color: rgba(255, 255, 255, 0.45) !important;
-  max-width: 520px;
-  line-height: 1.35;
+  max-width: 560px;
+  line-height: 1.45;
   font-weight: 300;
+}
+
+.pdf-guide-link {
+  color: #ffd700 !important;
+  font-weight: 600;
+  text-decoration: underline !important;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+  display: inline-inline-flex;
+  align-items: center;
+  margin-left: 3px;
+}
+
+.pdf-guide-link:hover {
+  color: #ffe57f !important;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
 }
 
 /* Single Main Box Card */
