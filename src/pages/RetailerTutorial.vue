@@ -9,7 +9,7 @@
           icon="mdi-arrow-left"
           variant="tonal"
           color="white"
-          @click="$router.push({ name: 'Login' })"
+          @click="router.push({ name: 'Login' })"
           class="back-button position-absolute"
           style="left: 16px; top: 8px;"
           title="Back to Login"
@@ -28,27 +28,30 @@
               Welcome to the Drunagor Retailer Tutorial. Below is a step-by-step guide to help you set up your store account, schedule events, and manage game tables.
             </p>
 
-            <!-- YouTube Video Embed -->
-            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
+            <!-- Box Assembly & Organization Guide Card -->
+            <v-card 
+              class="mb-8 pa-5 pa-sm-6 step-card rounded-xl cursor-pointer hover-card" 
+              flat
+              @click="router.push({ name: 'BoxAssemblyGuide' })"
+            >
               <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
-                <v-icon color="amber-accent-2" class="mr-3">mdi-youtube</v-icon>
-                Box Assembly & Organization Video Guide
+                <v-icon color="amber-accent-2" class="mr-3">mdi-package-variant-closed</v-icon>
+                Box Assembly & Organization Guide
               </h2>
-              <p class="mb-4 text-grey-lighten-1 text-body-2">
-                Watch this official video guide to learn how to organize your components and assemble the game box to play Drunagor Nights.
+              <p class="mb-5 text-grey-lighten-1 text-body-2">
+                Follow our interactive step-by-step checklist to learn how to organize your components and assemble the game box for Drunagor Nights.
               </p>
-              <div class="video-container rounded-lg overflow-hidden border-2-amber">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src="https://www.youtube.com/embed/6qccXQmwRiM?playsinline=1&rel=0"
-                  title="How to organize your box to play Drunagor Nights"
-                  frameborder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerpolicy="strict-origin-when-cross-origin"
-                  allowfullscreen
-                  class="youtube-iframe"
-                ></iframe>
+              <div class="d-flex justify-center w-100">
+                <v-btn
+                  color="amber-accent-2"
+                  variant="flat"
+                  rounded="pill"
+                  class="font-weight-black text-black text-none text-uppercase assembly-guide-btn mx-auto"
+                  @click.stop="router.push({ name: 'BoxAssemblyGuide' })"
+                >
+                  <span class="btn-label-text">ASSEMBLY & ORGANIZATION GUIDE</span>
+                  <v-icon end size="small" class="ml-2 flex-shrink-0">mdi-arrow-right</v-icon>
+                </v-btn>
               </div>
             </v-card>
 
@@ -275,7 +278,7 @@
                 size="large"
                 class="font-weight-black text-white px-8 transition-swing"
                 prepend-icon="mdi-login"
-                @click="$router.push({ name: 'Login' })"
+                @click="router.push({ name: 'Login' })"
                 style="border-width: 2px;"
               >
                 Go to login
@@ -307,6 +310,9 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 // Import screenshots dynamically for Vite bundler
 import img1_1 from "@/assets/retailertutorial/01.01.png";
@@ -518,6 +524,30 @@ const openLightbox = (imgSrc: string) => {
 
 .border-2-amber:hover {
   border-color: rgba(255, 179, 0, 0.6) !important;
+}
+
+.assembly-guide-btn {
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 46px !important;
+  padding: 10px 20px !important;
+  box-sizing: border-box !important;
+}
+
+.assembly-guide-btn :deep(.v-btn__content) {
+  white-space: normal !important;
+  text-align: center !important;
+  line-height: 1.25 !important;
+  font-size: clamp(0.75rem, 2.8vw, 0.92rem) !important;
+  letter-spacing: 0.5px !important;
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+}
+
+.btn-label-text {
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
 }
 
 </style>
