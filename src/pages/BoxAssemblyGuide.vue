@@ -114,26 +114,41 @@
                   <div 
                     v-for="item in step1OrganizeItems" 
                     :key="item.id"
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked(item.id) }"
-                    @click="handleItemClick(item)"
+                    class="mb-1"
                   >
+                    <!-- Main parent row -->
                     <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked(item.id) }"
-                      @click.stop="handleItemClick(item)"
-                    ></div>
-                    <div class="row-label text-white flex-grow-1">
-                      <span v-html="item.label"></span>
-                      <div v-if="item.details" class="sub-bullets pl-3 mt-2">
-                        <div v-for="(detail, dIdx) in item.details" :key="dIdx" class="d-flex align-start mb-1.5 cursor-pointer" @click.stop="handleItemClick(detail)">
-                          <div 
-                            class="custom-checkbox flex-shrink-0 mr-2" 
-                            :class="{ 'checked': isChecked(detail.id) }"
-                            @click.stop="handleItemClick(detail)"
-                          ></div>
-                          <span v-html="detail.label"></span>
-                        </div>
+                      class="checklist-row d-flex align-start py-2 cursor-pointer"
+                      :class="{ 'row-checked': !item.details && isChecked(item.id) }"
+                    >
+                      <div 
+                        class="custom-checkbox flex-shrink-0" 
+                        :class="{ 'checked': isParentChecked(item) }"
+                        @click.stop="toggleParentCheck(item)"
+                      ></div>
+                      <span 
+                        class="row-label text-white flex-grow-1" 
+                        :class="{ 'text-decoration-line-through opacity-50': isParentChecked(item) }"
+                        @click="handleItemClick(item)" 
+                        v-html="item.label"
+                      ></span>
+                    </div>
+
+                    <!-- Sub-bullets: independent individual rows so hover and selection are separate -->
+                    <div v-if="item.details" class="sub-bullets pl-5 pl-sm-6 mt-0.5">
+                      <div 
+                        v-for="(detail, dIdx) in item.details" 
+                        :key="dIdx" 
+                        class="checklist-row d-flex align-start py-1.5 cursor-pointer mb-1"
+                        :class="{ 'row-checked': isChecked(detail.id) }"
+                        @click.stop="handleItemClick(detail)"
+                      >
+                        <div 
+                          class="custom-checkbox flex-shrink-0 mr-2" 
+                          :class="{ 'checked': isChecked(detail.id) }"
+                          @click.stop="toggleCheck(detail.id)"
+                        ></div>
+                        <span class="row-label text-white flex-grow-1" v-html="detail.label"></span>
                       </div>
                     </div>
                   </div>
@@ -580,40 +595,79 @@
     <!-- Inspection Item Modal -->
     <v-dialog v-model="modalOpen" max-width="460" scrollable class="item-detail-dialog">
       <v-card color="#232323" class="rounded-xl overflow-hidden pa-0 modal-card" elevation="24">
-        <!-- Dialog Title Bar Centered -->
+        <!-- Dialog Title Bar Centered with Counter if multiple images -->
         <div class="pa-4 pt-5 text-center">
           <h3 class="text-subtitle-1 font-weight-bold text-white pa-0 ma-0">
             {{ activeModalItem.title || 'Item Inspection' }}
           </h3>
+          <div v-if="activeModalImages.length > 1" class="text-caption text-grey-lighten-1 mt-0.5">
+            {{ modalCurrentIndex + 1 }} / {{ activeModalImages.length }}
+          </div>
         </div>
 
-        <!-- Image Content Container -->
-        <v-card-text class="pa-4 d-flex flex-column align-center justify-center" style="min-height: 240px;">
-          <v-img
-            v-if="activeModalItem.image"
-            :src="activeModalItem.image"
-            width="100%"
-            contain
-            max-height="50vh"
-            class="rounded-lg"
-          >
-            <template v-slot:placeholder>
-              <div class="d-flex align-center justify-center fill-height bg-grey-darken-4 rounded-lg">
-                <v-progress-circular indeterminate color="cyan-accent-3" size="32"></v-progress-circular>
-              </div>
-            </template>
-            <template v-slot:error>
-              <div class="d-flex flex-column align-center justify-center pa-8 bg-grey-darken-4 text-center rounded-lg w-100 fill-height">
-                <v-icon size="48" color="amber-accent-2" class="mb-3">mdi-book-open-page-variant</v-icon>
-                <div class="text-subtitle-2 font-weight-bold text-white mb-1">{{ activeModalItem.title }}</div>
-                <div class="text-caption text-grey-lighten-1">Illustration component preview</div>
-              </div>
-            </template>
-          </v-img>
+        <!-- Image Content Container with side navigation arrows -->
+        <v-card-text class="pa-2 px-3 d-flex flex-column align-center justify-center position-relative" style="min-height: 250px;">
+          <div v-if="activeModalItem.image" class="w-100 position-relative d-flex align-center justify-center">
+            <!-- Left Chevron Arrow -->
+            <v-btn
+              v-if="activeModalImages.length > 1"
+              icon="mdi-chevron-left"
+              variant="flat"
+              size="small"
+              class="modal-nav-arrow position-absolute"
+              style="left: 6px; z-index: 10;"
+              @click.stop="prevModalImage"
+              aria-label="Previous Image"
+            ></v-btn>
+
+            <v-img
+              :src="activeModalItem.image"
+              width="100%"
+              contain
+              max-height="50vh"
+              class="rounded-lg"
+            >
+              <template v-slot:placeholder>
+                <div class="d-flex align-center justify-center fill-height bg-grey-darken-4 rounded-lg">
+                  <v-progress-circular indeterminate color="cyan-accent-3" size="32"></v-progress-circular>
+                </div>
+              </template>
+              <template v-slot:error>
+                <div class="d-flex flex-column align-center justify-center pa-8 bg-grey-darken-4 text-center rounded-lg w-100 fill-height">
+                  <v-icon size="48" color="amber-accent-2" class="mb-3">mdi-book-open-page-variant</v-icon>
+                  <div class="text-subtitle-2 font-weight-bold text-white mb-1">{{ activeModalItem.title }}</div>
+                  <div class="text-caption text-grey-lighten-1">Illustration component preview</div>
+                </div>
+              </template>
+            </v-img>
+
+            <!-- Right Chevron Arrow -->
+            <v-btn
+              v-if="activeModalImages.length > 1"
+              icon="mdi-chevron-right"
+              variant="flat"
+              size="small"
+              class="modal-nav-arrow position-absolute"
+              style="right: 6px; z-index: 10;"
+              @click.stop="nextModalImage"
+              aria-label="Next Image"
+            ></v-btn>
+          </div>
           
           <div v-else class="py-6 text-center">
             <v-icon size="40" color="amber-accent-2" class="mb-2">mdi-information-outline</v-icon>
             <div class="text-body-2 text-white font-weight-medium mb-1">{{ activeModalItem.title }}</div>
+          </div>
+
+          <!-- Indicator dots if multiple images -->
+          <div v-if="activeModalImages.length > 1" class="d-flex justify-center align-center pt-3 pb-1 ga-2">
+            <span
+              v-for="(_, idx) in activeModalImages"
+              :key="idx"
+              class="modal-dot cursor-pointer"
+              :class="{ 'dot-active': idx === modalCurrentIndex }"
+              @click.stop="setModalImageIndex(idx)"
+            ></span>
           </div>
         </v-card-text>
 
@@ -673,10 +727,24 @@ const toggleStep = (stepNumber: number) => {
 // Modal state
 const modalOpen = ref(false);
 const activeModalItem = ref<{ id?: string; title?: string; image?: string }>({});
+interface ModalImage {
+  title: string;
+  image: string;
+}
+const activeModalImages = ref<ModalImage[]>([]);
+const modalCurrentIndex = ref(0);
 
 // Helper: Check if item is checked
 const isChecked = (id: string): boolean => {
   return !!checkedItems.value[id];
+};
+
+// Check if a parent item with sub-bullets is complete (all children checked)
+const isParentChecked = (item: { id: string; details?: { id: string }[] }): boolean => {
+  if (item.details && item.details.length > 0) {
+    return item.details.every(d => !!checkedItems.value[d.id]);
+  }
+  return !!checkedItems.value[item.id];
 };
 
 // Helper: Toggle item check state and persist
@@ -686,13 +754,28 @@ const toggleCheck = (id: string) => {
   saveToLocalStorage();
 };
 
-// Handle clicking on an item line:
-// If item has an image/detail modal, open the modal dialog!
-// Otherwise, directly toggle the check state.
-const handleItemClick = (item: { id: string; label?: string; title?: string; image?: string }) => {
-  if (item.image) {
-    openModal(item);
+// Toggle all sub-items when clicking parent checkbox
+const toggleParentCheck = (item: { id: string; details?: { id: string }[] }) => {
+  if (item.details && item.details.length > 0) {
+    const allChecked = item.details.every(d => !!checkedItems.value[d.id]);
+    const targetState = !allChecked;
+    item.details.forEach(d => {
+      checkedItems.value[d.id] = targetState;
+    });
+    checkedItems.value[item.id] = targetState;
   } else {
+    toggleCheck(item.id);
+  }
+  saveToLocalStorage();
+};
+
+// Handle clicking on an item line:
+// If item has an image/images modal, open the modal dialog!
+// Otherwise, directly toggle the check state.
+const handleItemClick = (item: { id?: string; label?: string; title?: string; image?: string; images?: ModalImage[] }) => {
+  if ((item.images && item.images.length > 0) || item.image) {
+    openModal(item);
+  } else if (item.id) {
     toggleCheck(item.id);
   }
 };
@@ -718,26 +801,87 @@ const loadFromLocalStorage = () => {
   }
 };
 
-// Open detail modal
-const openModal = (item: { id?: string; label?: string; title?: string; image?: string }) => {
+// Open detail modal supporting multiple images / carousel
+const openModal = (item: {
+  id?: string;
+  label?: string;
+  title?: string;
+  image?: string;
+  images?: ModalImage[];
+}) => {
+  const fallbackTitle = item.title || (item.label ? item.label.replace(/<[^>]*>/g, '') : '');
+
+  if (item.images && item.images.length > 0) {
+    activeModalImages.value = item.images.map(img => ({
+      image: img.image,
+      title: img.title || fallbackTitle
+    }));
+  } else if (item.image) {
+    activeModalImages.value = [{
+      image: item.image,
+      title: fallbackTitle
+    }];
+  } else {
+    activeModalImages.value = [];
+  }
+
+  modalCurrentIndex.value = 0;
+  const currentImg = activeModalImages.value[0];
   activeModalItem.value = {
     id: item.id,
-    title: item.title || (item.label ? item.label.replace(/<[^>]*>/g, '') : ''),
-    image: item.image,
+    title: currentImg?.title || fallbackTitle,
+    image: currentImg?.image || item.image,
   };
   modalOpen.value = true;
+};
+
+// Carousel navigation functions
+const nextModalImage = () => {
+  if (activeModalImages.value.length <= 1) return;
+  modalCurrentIndex.value = (modalCurrentIndex.value + 1) % activeModalImages.value.length;
+  updateModalDisplay();
+};
+
+const prevModalImage = () => {
+  if (activeModalImages.value.length <= 1) return;
+  modalCurrentIndex.value = (modalCurrentIndex.value - 1 + activeModalImages.value.length) % activeModalImages.value.length;
+  updateModalDisplay();
+};
+
+const setModalImageIndex = (index: number) => {
+  if (index >= 0 && index < activeModalImages.value.length) {
+    modalCurrentIndex.value = index;
+    updateModalDisplay();
+  }
+};
+
+const updateModalDisplay = () => {
+  const current = activeModalImages.value[modalCurrentIndex.value];
+  if (current) {
+    activeModalItem.value.title = current.title;
+    activeModalItem.value.image = current.image;
+  }
 };
 
 // Computed for modal action button state
 const activeModalIsChecked = computed(() => {
   if (!activeModalItem.value.id) return false;
+  const parentWithDetails = step1OrganizeItems.find(i => i.id === activeModalItem.value.id && i.details);
+  if (parentWithDetails) {
+    return isParentChecked(parentWithDetails);
+  }
   return isChecked(activeModalItem.value.id);
 });
 
 // Toggle check from inside modal (stays open for user feedback until clicking outside)
 const toggleActiveModalCheckOnly = () => {
   if (activeModalItem.value.id) {
-    toggleCheck(activeModalItem.value.id);
+    const parentWithDetails = step1OrganizeItems.find(i => i.id === activeModalItem.value.id && i.details);
+    if (parentWithDetails) {
+      toggleParentCheck(parentWithDetails);
+    } else {
+      toggleCheck(activeModalItem.value.id);
+    }
   }
 };
 
@@ -825,8 +969,14 @@ const step1SeparateItems = [
   {
     id: 'step1_2_trays',
     label: '<strong class="text-white font-weight-bold">All trays:</strong> Darkness Tiles, Tokens, Small Miniatures, and Dungeon Tiles.',
-    image: getImg('Small Miniature Tray.png'),
-    title: 'All Trays'
+    image: getImg('Darkness Tray Empty.png'),
+    title: 'All Trays',
+    images: [
+      { title: 'Darkness Tray Empty', image: getImg('Darkness Tray Empty.png') },
+      { title: 'Token Tray Empty', image: getImg('Tokens Tray Empty.png') },
+      { title: 'Small Miniature Tray', image: getImg('Small Miniature Tray.png') },
+      { title: 'Dungeon Trayz', image: getImg('Dungeon Trayz.png') }
+    ]
   },
   {
     id: 'step1_2_cubes_bag',
@@ -841,7 +991,11 @@ const step1OrganizeItems = [
     id: 'step1_3_trays_order',
     label: '<strong class="text-white font-weight-bold">Trays:</strong> Return the <strong class="text-white font-weight-bold">Small Miniatures Tray</strong> and the <strong class="text-white font-weight-bold">Dungeon Trays</strong> to the box. (Order: <strong class="text-white font-weight-bold">Tray 1</strong> on the bottom, <strong class="text-white font-weight-bold">Tray 2</strong> in the middle, and <strong class="text-white font-weight-bold">Tray 3</strong> on top.)',
     image: getImg('Dungeon Trayz.png'),
-    title: 'Dungeon Trays & Small Miniature Tray'
+    title: 'Dungeon Trays & Small Miniature Tray',
+    images: [
+      { title: 'Small Miniature Tray', image: getImg('Small Miniature Tray.png') },
+      { title: 'Dungeon Trayz', image: getImg('Dungeon Trayz.png') }
+    ]
   },
   {
     id: 'step1_3_cubes_sort',
@@ -1160,8 +1314,16 @@ const step2PackItems = [
 }
 
 .substep-heading {
-  font-size: 0.9rem !important;
-  font-weight: 600 !important;
+  font-size: 1.06rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px;
+  line-height: 1.4;
+}
+
+@media (min-width: 600px) {
+  .substep-heading {
+    font-size: 1.18rem !important;
+  }
 }
 
 .intro-p {
@@ -1169,6 +1331,37 @@ const step2PackItems = [
   color: #ffffff !important;
   font-weight: 300 !important;
   line-height: 1.45;
+}
+
+/* Modal Carousel Navigation Chevrons and Dots */
+.modal-nav-arrow {
+  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.65) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff !important;
+  transition: all 0.2s ease;
+  width: 38px !important;
+  height: 38px !important;
+}
+
+.modal-nav-arrow:hover {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: scale(1.12);
+}
+
+.modal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.modal-dot.dot-active {
+  width: 22px;
+  border-radius: 4px;
+  background: #00c853;
 }
 
 /* Custom crisp white square checkbox */
