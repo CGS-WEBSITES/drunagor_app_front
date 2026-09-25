@@ -393,27 +393,31 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="tutorialPromptDialog.visible" max-width="400" persistent>
+    <v-dialog v-model="tutorialPromptDialog.visible" max-width="900" :fullscreen="smAndDown" scrollable persistent>
         <v-card class="bg-grey-darken-4 border-xl border-amber-accent-4 rounded-lg elevation-20">
             <v-card-title class="text-center text-uppercase font-weight-bold pt-6 text-h5 text-amber-accent-2" style="font-family: 'Cinzel', serif;">
-                <v-icon start icon="mdi-school" class="mr-2"></v-icon> Tutorial Available
+                <v-icon start icon="mdi-map" class="mr-2"></v-icon> First Setup
             </v-card-title>
-            <v-card-text class="py-4 px-6 text-body-1">
-                <p class="text-center">Welcome to <strong>Drunagor Nights</strong>.</p>
-                <p class="mt-2 text-center text-grey-lighten-1">Would you like to open the <strong>"Start Here"</strong> guide to learn the basics and setup your heroes?</p>
-                
+            <p class="text-center text-body-2 text-grey-lighten-1 px-6 mb-2">
+                Welcome to <strong>Drunagor Nights</strong>. Assemble the First Room, then follow the
+                <strong>"Start Here"</strong> guide to play your first turns.
+            </p>
+            <v-card-text class="pa-2 pa-sm-4">
+                <AssemblyGuide
+                  :steps="firstSetupSteps"
+                  finish-label="Continue to Start Here"
+                  @finish="acceptTutorial"
+                />
+            </v-card-text>
+            <v-card-actions class="justify-space-between px-6 pb-4">
                 <v-checkbox
                   v-model="tutorialPromptDialog.dontShowAgain"
-                  label="Don't ask me again"
+                  label="Don't show again"
                   color="amber-accent-4"
                   density="compact"
-                  class="mt-4"
                   hide-details
                 ></v-checkbox>
-            </v-card-text>
-            <v-card-actions class="justify-center pb-6 gap-4">
-                <v-btn color="grey" variant="text" @click="declineTutorial">Maybe Later</v-btn>
-                <v-btn color="amber-accent-4" variant="flat" class="text-black font-weight-bold px-6" @click="acceptTutorial">Read Now</v-btn>
+                <v-btn color="grey" variant="text" @click="declineTutorial">Skip</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -913,6 +917,9 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore";
+import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import { firstSetupSteps } from "@/data/assembly/firstSetup";
+import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
@@ -994,6 +1001,7 @@ const emit = defineEmits<{
 const router = useRouter();
 const campaignStore = CampaignStore();
 const tutorialStore = useTutorialStore();
+const { smAndDown } = useDisplay();
 const userStore = useUserStore();
 const heroDataRepository = new HeroDataRepository();
 
