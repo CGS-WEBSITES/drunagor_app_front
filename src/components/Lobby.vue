@@ -165,13 +165,21 @@
                   <div v-if="myHeroes.length === 0" class="text-center text-grey py-4">
                       No available heroes found (or all taken).
                   </div>
-                  <div 
-                    v-for="hero in myHeroes" 
-                    :key="hero.pk" 
+                  <div
+                    v-for="hero in myHeroes"
+                    :key="hero.pk"
                     class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative my-1"
-                    @click="selectHero(hero)"
+                    :class="{ 'hero-selection-card--expanded': expandedHeroKey === `mine-${hero.pk}` }"
+                    @click="toggleHeroDetails(`mine-${hero.pk}`)"
                   >
                       <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover></v-img>
+                      <v-expand-transition>
+                          <HeroSummaryPanel
+                            v-if="expandedHeroKey === `mine-${hero.pk}`"
+                            :hero-name="hero.name"
+                            @confirm="selectHero(hero)"
+                          />
+                      </v-expand-transition>
                   </div>
                   <v-btn block variant="outlined" color="grey-lighten-1" class="mt-4 border-dashed py-6" @click="heroDialogTab = 'new'">
                       <v-icon start>mdi-plus-circle-outline</v-icon> Create New Hero
@@ -183,8 +191,21 @@
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
               </div>
               <template v-else>
-                  <div v-for="heroData in availableHeroesToCreate" :key="heroData.id" class="hero-selection-card rounded-lg elevation-6 overflow-hidden" @click="createNewHero(heroData.id)">
+                  <div
+                    v-for="heroData in availableHeroesToCreate"
+                    :key="heroData.id"
+                    class="hero-selection-card rounded-lg elevation-6 overflow-hidden"
+                    :class="{ 'hero-selection-card--expanded': expandedHeroKey === `new-${heroData.id}` }"
+                    @click="toggleHeroDetails(`new-${heroData.id}`)"
+                  >
                       <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52" cover></v-img>
+                      <v-expand-transition>
+                          <HeroSummaryPanel
+                            v-if="expandedHeroKey === `new-${heroData.id}`"
+                            :hero-name="heroData.name"
+                            @confirm="createNewHero(heroData.id)"
+                          />
+                      </v-expand-transition>
                   </div>
               </template>
               <v-btn block variant="text" color="white" class="mt-2" @click="heroDialogTab = 'mine'">
@@ -349,6 +370,7 @@ import { usePlayableHeroStore } from '@/store/PlayableHeroStore';
 import { CampaignStore } from '@/store/CampaignStore';
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { Campaign } from "@/store/Campaign";
+import HeroSummaryPanel from "@/components/HeroSummaryPanel.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -396,6 +418,12 @@ const lobbySlots = ref<any[]>([
 
 const heroDialog = ref(false);
 const heroDialogTab = ref<'mine'|'new'>('mine');
+// Card whose details are open in the hero dialog ("mine-<pk>" or "new-<heroId>").
+const expandedHeroKey = ref<string | null>(null);
+
+const toggleHeroDetails = (key: string) => {
+    expandedHeroKey.value = expandedHeroKey.value === key ? null : key;
+};
 const loadingHeroes = ref(false);
 const showCampaignDialog = ref(false);
 const tutorialChoiceDialog = ref(false);
@@ -1174,6 +1202,7 @@ const goToCampaign = () => {
 const openHeroSelection = async () => {
     heroDialog.value = true;
     heroDialogTab.value = 'mine';
+    expandedHeroKey.value = null;
     loadingHeroes.value = true;
     if (!playableHeroStore.loaded && userStore.user?.users_pk) {
         await playableHeroStore.fetchHeroes(userStore.user.users_pk);
@@ -1258,6 +1287,8 @@ onBeforeUnmount(() => {
 @media (max-width: 959px) { .responsive-container { max-width: 100%; width: 100%; } }
 .hero-selection-card { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border: 1px solid rgba(255,255,255,0.2); }
 .hero-selection-card:active { transform: scale(0.98); }
+.hero-selection-card--expanded { border-color: rgba(255, 193, 7, 0.7); }
+.hero-selection-card--expanded:active { transform: none; }
 .border-dashed { border: 2px dashed rgba(255,255,255,0.2) !important; }
 .player-slot-card { border-color: rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; overflow: hidden; }
 .player-slot-card:active { transform: scale(0.96); }

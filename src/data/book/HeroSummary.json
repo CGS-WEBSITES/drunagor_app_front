@@ -1,0 +1,58 @@
+{
+  "Vorn": {
+    "role": "Defender",
+    "bark": "Protects allies and holds the frontline.",
+    "playstyle": "Vorn protects the Party by standing between his allies and danger. He can gain Shield, prevent damage, and keep enemies focused on him.",
+    "abilities": [
+      "Gains Shield to absorb incoming damage",
+      "Prevents damage for himself and his allies",
+      "Keeps enemies focused on him",
+      "Defender Role: +4 maximum Health"
+    ],
+    "skills": ["Knee-Breaker (Melee)", "Strong Block (Ranged)", "Barrel Roll (Agility)"]
+  },
+  "Lorelai": {
+    "role": "Controller",
+    "bark": "Moves enemies and creates openings.",
+    "playstyle": "Lorelai controls the battlefield by moving enemies, disrupting their plans, and creating openings for the Party.",
+    "abilities": [
+      "Moves enemies around the board",
+      "Disrupts enemy plans",
+      "Creates openings for the Party"
+    ],
+    "skills": ["Displace (Agility)", "Topple Down (Wisdom)", "Epiphany (Wisdom)"]
+  },
+  "Jaheen": {
+    "role": "Support",
+    "bark": "Heals, protects, and removes harmful effects.",
+    "playstyle": "Jaheen keeps the Party standing by healing allies, protecting them from harm, and helping the group recover from dangerous effects.",
+    "abilities": [
+      "Heals allies",
+      "Protects allies from harm",
+      "Cleanses harmful effects from the Party"
+    ],
+    "skills": ["Heavy Blow (Melee)", "Purifying Ray (Ranged)", "Shielding Faith (Agility)"]
+  },
+  "Maya": {
+    "role": "Striker",
+    "bark": "Focuses on damage and priority targets.",
+    "playstyle": "Maya is the Party's main damage dealer, focusing on precise attacks and taking down key enemies before they can threaten the group.",
+    "abilities": [
+      "Deals the highest damage in the Party",
+      "Makes precise attacks",
+      "Takes down key enemies first"
+    ],
+    "skills": ["Strengthening Shot (Ranged)", "Double Shot (Ranged)", "Stalk the Prey (Agility)"]
+  },
+  "Elros": {
+    "role": "Leader",
+    "bark": "Coordinates the Party and enhances his allies.",
+    "playstyle": "Elros leads the Party by coordinating his allies, allowing them to act beyond their turns and fight as a unified force.",
+    "abilities": [
+      "Coordinates the Party",
+      "Lets allies act beyond their turns",
+      "Enhances his allies"
+    ],
+    "skills": []
+  }
+}
