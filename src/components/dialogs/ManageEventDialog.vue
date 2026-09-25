@@ -33,7 +33,7 @@
           <v-icon start>mdi-table-chair</v-icon> Tables
         </v-tab>
         <v-tab value="setup">
-          <v-icon start>mdi-map</v-icon> First Setup
+          <v-icon start>mdi-table-furniture</v-icon> Table Assembly
         </v-tab>
         <v-tab value="players">
           <v-icon start>mdi-account-group</v-icon> Players
@@ -300,53 +300,18 @@
           </v-window-item>
 
           <v-window-item value="setup">
-            <div class="setup-guide-container">
+            <div class="table-assembly-container">
               <div class="mb-4 text-center">
                 <h3 class="text-h6 font-weight-bold mb-2">
-                  <v-icon color="primary" class="mr-2">mdi-map</v-icon>
-                  First Setup - {{ event?.scenario }}
+                  <v-icon color="primary" class="mr-2">mdi-table-furniture</v-icon>
+                  Table Assembly
                 </h3>
-                <p class="text-body-2 mb-4">
-                  Setting up the gaming table using the map below before your
-                  players arrive is highly recommended. It ensures a quick and
-                  smooth start to the adventure. Tap or click on the map to zoom and view full setup details
+                <p class="text-body-2">
+                  Prepare the table before each Drunagor Night. Heroes and the
+                  First Setup are handled by the players in the app.
                 </p>
-                <div class="d-flex justify-center mb-4">
-                  <v-btn
-                    color="amber-accent-2"
-                    variant="tonal"
-                    rounded="pill"
-                    class="font-weight-bold text-white px-6"
-                    prepend-icon="mdi-help-circle-outline"
-                    @click="showTutorialPrompt = true"
-                  >
-                    Show Tutorial
-                  </v-btn>
-                </div>
               </div>
-
-              <v-card
-                v-if="event?.scenario"
-                class="setup-preview-card mb-4"
-                elevation="4"
-                @click="openSetupDialog"
-              >
-                <InitialSetupViewer :scenario="event.scenario" preview-mode />
-
-                <div class="click-to-enlarge-hint">
-                  <v-icon color="white" size="small"
-                    >mdi-magnify-plus-outline</v-icon
-                  >
-                  <span class="ml-1">Tap / Click to Zoom</span>
-                </div>
-              </v-card>
-
-              <v-alert v-else type="info" variant="tonal" class="text-center">
-                <v-icon size="48" class="mb-2">mdi-map-marker-off</v-icon>
-                <div class="text-body-1">
-                  No setup map available for this scenario
-                </div>
-              </v-alert>
+              <AssemblyGuide :steps="tableAssemblySteps" />
             </div>
           </v-window-item>
 
@@ -622,89 +587,6 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="setupDialog" max-width="1400" :fullscreen="smAndDown">
-      <v-card color="surface">
-        <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center pa-4 ga-2">
-          <span class="text-h6 text-truncate w-100" style="max-width: 100%;">
-            <v-icon class="mr-2">mdi-map</v-icon>
-            First Setup - {{ event?.scenario }}
-          </span>
-
-          <div class="d-flex align-center gap-2 w-100 justify-space-between justify-sm-end flex-wrap">
-            <div class="d-flex align-center gap-2">
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="zoomOut"
-                :disabled="zoomLevel <= 1"
-              >
-                <v-icon>mdi-magnify-minus</v-icon>
-              </v-btn>
-
-              <v-chip size="small" variant="flat">
-                {{ Math.round(zoomLevel * 100) }}%
-              </v-chip>
-
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="zoomIn"
-                :disabled="zoomLevel >= 3"
-              >
-                <v-icon>mdi-magnify-plus</v-icon>
-              </v-btn>
-
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="resetZoom"
-                v-if="zoomLevel !== 1"
-              >
-                <v-icon>mdi-restore</v-icon>
-              </v-btn>
-            </div>
-
-            <div class="d-flex align-center">
-              <v-divider vertical class="mx-2" />
-              <v-btn icon variant="text" @click="setupDialog = false">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </div>
-          </div>
-        </v-card-title>
-
-        <v-card-text class="pa-0 setup-dialog-content">
-          <div
-            ref="imageContainer"
-            class="image-zoom-container"
-            @wheel.prevent="handleWheel"
-            @mousedown="startPan"
-            @mousemove="handlePan"
-            @mouseup="endPan"
-            @mouseleave="endPan"
-            @touchstart="handleTouchStart"
-            @touchmove="handleTouchMove"
-            @touchend="handleTouchEnd"
-          >
-            <InitialSetupViewer
-              v-if="event?.scenario && setupDialog"
-              :scenario="event.scenario"
-              :style="{
-                transform: `translate(${panX}px, ${panY}px) scale(${zoomLevel})`,
-                transformOrigin: 'center center',
-                transition: isZooming ? 'none' : 'transform 0.1s ease-out',
-                cursor:
-                  zoomLevel > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default',
-              }"
-            />
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-
     <v-dialog v-model="createTableDialog" max-width="400">
       <v-card color="surface">
         <v-card-title>Create New Table</v-card-title>
@@ -780,7 +662,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <TutorialPromptDialog v-model="showTutorialPrompt" start-with-guide />
   </v-dialog>
 </template>
 
@@ -790,12 +671,12 @@ import { useDisplay } from "vuetify";
 import { jsPDF } from "jspdf";
 import QrcodeVue from "qrcode-vue3";
 import QRCode from "qrcode";
-import InitialSetupViewer from "@/components/InitialSetupViewer.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
 import { formatEventDate } from "@/utils/dateHelpers";
-import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
+import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import { tableAssemblySteps } from "@/data/assembly/tableAssembly";
 
 const { smAndDown } = useDisplay();
 
@@ -837,23 +718,6 @@ const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
 const startInTables = ref(false);
-
-const setupDialog = ref(false);
-const showTutorialPrompt = ref(false);
-
-const zoomLevel = ref(1);
-const panX = ref(0);
-const panY = ref(0);
-const isPanning = ref(false);
-const isZooming = ref(false);
-const lastPanX = ref(0);
-const lastPanY = ref(0);
-const startX = ref(0);
-const startY = ref(0);
-const imageContainer = ref(null);
-
-let initialDistance = 0;
-let initialZoom = 1;
 
 const qrTutorial = ref({
   active: false,
@@ -912,121 +776,6 @@ const openInGoogleMaps = () => {
 };
 
 const closeDialog = () => emit("update:modelValue", false);
-
-const openSetupDialog = () => {
-  setupDialog.value = true;
-  resetZoom();
-};
-
-const zoomIn = () => {
-  if (zoomLevel.value < 3) {
-    zoomLevel.value = Math.min(3, zoomLevel.value + 0.25);
-  }
-};
-
-const zoomOut = () => {
-  if (zoomLevel.value > 1) {
-    zoomLevel.value = Math.max(1, zoomLevel.value - 0.25);
-    if (zoomLevel.value === 1) {
-      panX.value = 0;
-      panY.value = 0;
-    }
-  }
-};
-
-const resetZoom = () => {
-  zoomLevel.value = 1;
-  panX.value = 0;
-  panY.value = 0;
-};
-
-const handleWheel = (event) => {
-  isZooming.value = true;
-  const delta = event.deltaY > 0 ? -0.1 : 0.1;
-  zoomLevel.value = Math.max(1, Math.min(3, zoomLevel.value + delta));
-
-  if (zoomLevel.value === 1) {
-    panX.value = 0;
-    panY.value = 0;
-  }
-
-  setTimeout(() => {
-    isZooming.value = false;
-  }, 100);
-};
-
-const startPan = (event) => {
-  if (zoomLevel.value > 1) {
-    isPanning.value = true;
-    startX.value = event.clientX - panX.value;
-    startY.value = event.clientY - panY.value;
-  }
-};
-
-const handlePan = (event) => {
-  if (isPanning.value && zoomLevel.value > 1) {
-    panX.value = event.clientX - startX.value;
-    panY.value = event.clientY - startY.value;
-  }
-};
-
-const endPan = () => {
-  isPanning.value = false;
-};
-
-const getDistance = (touch1, touch2) => {
-  const dx = touch1.clientX - touch2.clientX;
-  const dy = touch1.clientY - touch2.clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-};
-
-const handleTouchStart = (event) => {
-  if (event.touches.length === 2) {
-    initialDistance = getDistance(event.touches[0], event.touches[1]);
-    initialZoom = zoomLevel.value;
-    isZooming.value = true;
-  } else if (event.touches.length === 1 && zoomLevel.value > 1) {
-    isPanning.value = true;
-    const touch = event.touches[0];
-    startX.value = touch.clientX - panX.value;
-    startY.value = touch.clientY - panY.value;
-  }
-};
-
-const handleTouchMove = (event) => {
-  if (event.touches.length === 2 || (event.touches.length === 1 && zoomLevel.value > 1)) {
-    event.preventDefault();
-  }
-
-  if (event.touches.length === 2 && initialDistance > 0) {
-    const currentDistance = getDistance(event.touches[0], event.touches[1]);
-    const scale = currentDistance / initialDistance;
-    zoomLevel.value = Math.max(1, Math.min(3, initialZoom * scale));
-
-    if (zoomLevel.value === 1) {
-      panX.value = 0;
-      panY.value = 0;
-    }
-  } else if (
-    event.touches.length === 1 &&
-    isPanning.value &&
-    zoomLevel.value > 1
-  ) {
-    const touch = event.touches[0];
-    panX.value = touch.clientX - startX.value;
-    panY.value = touch.clientY - startY.value;
-  }
-};
-
-const handleTouchEnd = (event) => {
-  if (event.touches.length < 2) {
-    initialDistance = 0;
-    isZooming.value = false;
-  }
-  if (event.touches.length === 0) {
-    isPanning.value = false;
-  }
-};
 
 const fetchTablesForEvent = async (eventFk) => {
   loadingTables.value = true;
@@ -1503,61 +1252,9 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
-.setup-guide-container {
-  max-width: 1200px;
+.table-assembly-container {
+  max-width: 900px;
   margin: 0 auto;
-}
-
-.setup-preview-card {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-}
-
-.setup-preview-card:hover {
-  transform: translateY(-4px);
-}
-
-.click-to-enlarge-hint {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  background-color: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  pointer-events: none;
-  z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.setup-dialog-content {
-  overflow: hidden;
-  max-height: 80vh;
-}
-
-.image-zoom-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.image-zoom-container > * {
-  max-width: 100%;
-  max-height: 80vh;
 }
 
 .gap-2 {
