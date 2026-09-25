@@ -216,6 +216,12 @@
       </v-card>
     </v-dialog>
 
+    <HeroPreparationDialog
+      v-model="heroPreparationDialog"
+      :hero-name="preparedHeroName"
+      :season="heroPreparationSeason"
+    />
+
     <v-dialog v-model="showCampaignDialog" max-width="340">
       <v-card color="#1e1e1e" class="rounded-lg pa-2">
          <v-card-title class="text-white d-flex justify-space-between align-center">
@@ -371,6 +377,7 @@ import { CampaignStore } from '@/store/CampaignStore';
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { Campaign } from "@/store/Campaign";
 import HeroSummaryPanel from "@/components/HeroSummaryPanel.vue";
+import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -424,6 +431,10 @@ const expandedHeroKey = ref<string | null>(null);
 const toggleHeroDetails = (key: string) => {
     expandedHeroKey.value = expandedHeroKey.value === key ? null : key;
 };
+
+// Act 3: once a hero is confirmed, the player gathers that hero's components.
+const heroPreparationDialog = ref(false);
+const preparedHeroName = ref('');
 const loadingHeroes = ref(false);
 const showCampaignDialog = ref(false);
 const tutorialChoiceDialog = ref(false);
@@ -464,6 +475,10 @@ const currentSku = computed(() => {
     if (currentEventSeasonFk.value === null) return 39;
     return currentEventSeasonFk.value === 2 ? 38 : 39;
 });
+
+const heroPreparationSeason = computed<'s1' | 's2'>(() =>
+    currentEventSeasonFk.value === 2 ? 's1' : 's2'
+);
 
 const currentCampaignType = computed(() => {
     if (currentEventSeasonFk.value === null) return 'underkeep2';
@@ -838,6 +853,8 @@ const selectHero = async (hero: any) => {
     const mySlotIndex = lobbySlots.value.findIndex(s => s.player && s.player.users_fk === userStore.user.users_pk);
     if (mySlotIndex !== -1) lobbySlots.value[mySlotIndex].hero = hero;
     heroDialog.value = false;
+    preparedHeroName.value = hero.name;
+    heroPreparationDialog.value = true;
 
     const usersPk = userStore.user.users_pk;
 
