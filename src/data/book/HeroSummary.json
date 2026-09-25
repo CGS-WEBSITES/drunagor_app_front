@@ -6,21 +6,29 @@
     "abilities": [
       "Gains Shield to absorb incoming damage",
       "Prevents damage for himself and his allies",
-      "Keeps enemies focused on him",
-      "Defender Role: +4 maximum Health"
+      "Keeps enemies focused on him"
     ],
-    "skills": ["Knee-Breaker (Melee)", "Strong Block (Ranged)", "Barrel Roll (Agility)"]
+    "build": [
+      "Dungeon Role: 2 Defender cards",
+      "Defender Passive: +4 maximum Health (16 total)",
+      "Recommended Gift: Bulwark Shield, another way to Prevent damage for yourself or a teammate"
+    ],
+    "skills": ["Hammer Throw", "Guarding Blow", "Parry"]
   },
   "Lorelai": {
     "role": "Controller",
     "bark": "Moves enemies and creates openings.",
     "playstyle": "Lorelai controls the battlefield by moving enemies, disrupting their plans, and creating openings for the Party.",
     "abilities": [
-      "Moves enemies around the board",
+      "Moves enemies around the battlefield",
       "Disrupts enemy plans",
       "Creates openings for the Party"
     ],
-    "skills": ["Displace (Agility)", "Topple Down (Wisdom)", "Epiphany (Wisdom)"]
+    "build": [
+      "Dungeon Role: 2 Controller cards",
+      "Recommended Gift: Bauble of Power, an incremental damage bonus for your magic Skills"
+    ],
+    "skills": []
   },
   "Jaheen": {
     "role": "Support",
@@ -29,29 +37,41 @@
     "abilities": [
       "Heals allies",
       "Protects allies from harm",
-      "Cleanses harmful effects from the Party"
+      "Helps the group recover from dangerous effects"
     ],
-    "skills": ["Heavy Blow (Melee)", "Purifying Ray (Ranged)", "Shielding Faith (Agility)"]
+    "build": [
+      "Dungeon Role: 2 Support cards",
+      "Recommended Gift: Heroic Heart, improves your Cleanse effects"
+    ],
+    "skills": ["Intervention"]
   },
   "Maya": {
     "role": "Striker",
     "bark": "Focuses on damage and priority targets.",
     "playstyle": "Maya is the Party's main damage dealer, focusing on precise attacks and taking down key enemies before they can threaten the group.",
     "abilities": [
-      "Deals the highest damage in the Party",
+      "Main damage dealer of the Party",
       "Makes precise attacks",
-      "Takes down key enemies first"
+      "Takes down key enemies before they threaten the group"
     ],
-    "skills": ["Strengthening Shot (Ranged)", "Double Shot (Ranged)", "Stalk the Prey (Agility)"]
+    "build": [
+      "Dungeon Role: 2 Striker cards",
+      "Recommended Gift: Weakening Dagger, some protection and another chance to trigger Best Friends"
+    ],
+    "skills": ["Best Friends (Passive)"]
   },
   "Elros": {
     "role": "Leader",
     "bark": "Coordinates the Party and enhances his allies.",
     "playstyle": "Elros leads the Party by coordinating his allies, allowing them to act beyond their turns and fight as a unified force.",
     "abilities": [
-      "Coordinates the Party",
+      "Coordinates his allies",
       "Lets allies act beyond their turns",
-      "Enhances his allies"
+      "Makes the Party fight as a unified force"
+    ],
+    "build": [
+      "Dungeon Role: 2 Leader cards",
+      "Recommended Gift: Boots of Haste, reach advantageous positions or make an extra attack"
     ],
     "skills": []
   }

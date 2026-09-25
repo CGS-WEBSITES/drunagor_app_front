@@ -15,8 +15,16 @@
         <li v-for="ability in summary.abilities" :key="ability">{{ ability }}</li>
       </ul>
 
+      <div class="text-caption text-amber-accent-4 font-weight-bold text-uppercase mb-1">Starting build</div>
+      <ul class="summary-list text-body-2 text-grey-lighten-2 mb-1">
+        <li v-for="item in summary.build" :key="item">{{ item }}</li>
+      </ul>
+      <p class="text-caption text-grey mb-3">
+        Hero Skills and Class Abilities unlock as you progress during the Adventure.
+      </p>
+
       <template v-if="summary.skills.length">
-        <div class="text-caption text-amber-accent-4 font-weight-bold text-uppercase mb-1">Hero Skills</div>
+        <div class="text-caption text-amber-accent-4 font-weight-bold text-uppercase mb-1">Key skills</div>
         <div class="d-flex flex-wrap ga-1 mb-3">
           <v-chip v-for="skill in summary.skills" :key="skill" size="small" variant="outlined" color="grey-lighten-1">
             {{ skill }}
@@ -40,6 +48,7 @@ type HeroSummary = {
   bark: string;
   playstyle: string;
   abilities: string[];
+  build: string[];
   skills: string[];
 };
 
