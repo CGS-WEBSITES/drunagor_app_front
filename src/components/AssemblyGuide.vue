@@ -6,7 +6,14 @@
         :class="isMobile ? 'pa-2' : 'pa-4'"
         color="black"
       >
-        <div class="image-wrapper" @click="openZoomDialog">
+        <div
+          v-if="!currentStepData.image"
+          class="image-placeholder d-flex flex-column align-center justify-center text-center rounded"
+        >
+          <v-icon size="48" color="grey-darken-1">mdi-image-outline</v-icon>
+          <span class="text-caption text-grey mt-2">Image coming soon</span>
+        </div>
+        <div v-else class="image-wrapper" @click="openZoomDialog">
           <v-img
             :src="currentStepData.image"
             :alt="`Assembly step ${currentStep + 1}`"
@@ -39,6 +46,9 @@
         :class="isMobile ? 'pa-3' : 'pa-4 pa-md-6'"
         color="grey-darken-4"
       >
+        <h3 v-if="currentStepData.title" class="step-title text-h6 font-weight-bold mb-2">
+          {{ currentStepData.title }}
+        </h3>
         <div
           :class="isMobile ? 'text-body-2' : 'text-body-1'"
           class="text-justify mb-0 html-instruction"
@@ -70,11 +80,22 @@
             </v-btn>
 
             <span class="text-body-2 font-weight-medium">
-              {{ currentStep + 1 }} / {{ assemblySteps.length }}
+              {{ currentStep + 1 }} / {{ steps.length }}
             </span>
 
             <v-btn
-              :disabled="currentStep === assemblySteps.length - 1"
+              v-if="showFinish"
+              color="success"
+              variant="elevated"
+              size="small"
+              @click="emit('finish')"
+            >
+              {{ finishLabel }}
+              <v-icon end size="small">mdi-check</v-icon>
+            </v-btn>
+            <v-btn
+              v-else
+              :disabled="isLastStep"
               color="primary"
               variant="elevated"
               size="small"
@@ -104,7 +125,7 @@
             <v-col cols="auto" class="text-center">
               <div class="d-flex flex-column align-center">
                 <span class="text-body-1 font-weight-medium mb-1">
-                  Step {{ currentStep + 1 }} of {{ assemblySteps.length }}
+                  Step {{ currentStep + 1 }} of {{ steps.length }}
                 </span>
                 <v-progress-linear
                   :model-value="progressPercentage"
@@ -118,7 +139,18 @@
 
             <v-col cols="auto">
               <v-btn
-                :disabled="currentStep === assemblySteps.length - 1"
+                v-if="showFinish"
+                color="success"
+                variant="elevated"
+                size="large"
+                @click="emit('finish')"
+              >
+                {{ finishLabel }}
+                <v-icon end>mdi-check</v-icon>
+              </v-btn>
+              <v-btn
+                v-else
+                :disabled="isLastStep"
                 color="primary"
                 variant="elevated"
                 size="large"
@@ -145,7 +177,7 @@
         class="d-flex justify-space-between align-center pa-2 pa-sm-3 zoom-header"
       >
         <span class="text-body-2 text-grey-lighten-1">
-          Step {{ currentStep + 1 }} / {{ assemblySteps.length }}
+          Step {{ currentStep + 1 }} / {{ steps.length }}
         </span>
         <v-btn
           icon
@@ -226,7 +258,7 @@
         <v-spacer></v-spacer>
 
         <v-btn
-          :disabled="currentStep === assemblySteps.length - 1"
+          :disabled="currentStep === steps.length - 1"
           color="primary"
           variant="tonal"
           size="small"
@@ -245,6 +277,14 @@ import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { assemblySteps } from "@/data/assembly/assembly";
 
+const props = defineProps({
+  steps: { type: Array, default: () => assemblySteps },
+  // When set, the last step shows this button instead of a disabled Next.
+  finishLabel: { type: String, default: "" },
+});
+
+const emit = defineEmits(["finish"]);
+
 const { mobile } = useDisplay();
 
 const currentStep = ref(0);
@@ -262,10 +302,13 @@ const dragStart = ref({ x: 0, y: 0 });
 
 const isMobile = computed(() => mobile.value);
 
-const currentStepData = computed(() => assemblySteps[currentStep.value]);
+const currentStepData = computed(() => props.steps[currentStep.value]);
+
+const isLastStep = computed(() => currentStep.value === props.steps.length - 1);
+const showFinish = computed(() => isLastStep.value && !!props.finishLabel);
 
 const progressPercentage = computed(
-  () => ((currentStep.value + 1) / assemblySteps.length) * 100,
+  () => ((currentStep.value + 1) / props.steps.length) * 100,
 );
 
 const zoomImageStyle = computed(() => ({
@@ -275,7 +318,7 @@ const zoomImageStyle = computed(() => ({
 }));
 
 const nextStep = () => {
-  if (currentStep.value < assemblySteps.length - 1) {
+  if (currentStep.value < props.steps.length - 1) {
     currentStep.value++;
     scrollToTop();
   }
@@ -289,7 +332,7 @@ const previousStep = () => {
 };
 
 const nextStepInZoom = () => {
-  if (currentStep.value < assemblySteps.length - 1) {
+  if (currentStep.value < props.steps.length - 1) {
     currentStep.value++;
     resetZoom();
   }
@@ -483,6 +526,15 @@ onUnmounted(() => {
 
 .image-container {
   position: relative;
+}
+
+.image-placeholder {
+  min-height: 220px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+.step-title {
+  color: #bca341;
 }
 
 .image-wrapper {
