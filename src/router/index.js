@@ -11,6 +11,16 @@ function requireAuth(to, from, next) {
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+        // Dev-only page to preview onboarding screens without creating events.
+        ...(import.meta.env.DEV
+            ? [
+                {
+                    path: "/dev-preview",
+                    name: "DevPreview",
+                    component: () => import("@/dev/DevPreview.vue"),
+                },
+            ]
+            : []),
         {
             path: "/landing-page",
             name: "Home",
