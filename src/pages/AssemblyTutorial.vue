@@ -7,13 +7,13 @@
           <!-- Centered Header -->
           <div class="mb-8">
             <h1 class="text-h4 text-sm-h3 font-weight-black text-white cinzel-text page-title mt-1">
-              ASSEMBLY GUIDE
+              TABLE ASSEMBLY
             </h1>
           </div>
 
           <!-- Retailer Logged In: Show Assembly Guide -->
           <v-card v-slot:default v-if="isRetailer" class="pa-0 rounded-xl main-card text-left" color="primary" elevation="16">
-            <AssemblyGuide />
+            <AssemblyGuide :steps="tableAssemblySteps" />
           </v-card>
 
           <!-- Not Logged In or Not a Retailer: Show Restrict Message -->
@@ -23,7 +23,7 @@
               Retailer Access Required
             </h2>
             <p class="mb-8 text-grey-lighten-2 text-body-1 mx-auto" style="max-width: 600px; line-height: 1.6;">
-              This step-by-step assembly guide is designed specifically for store owners and event organizers. 
+              This step-by-step table assembly guide is designed specifically for store owners and event organizers. 
               To access this guide, you must be logged in as a registered <span class="text-amber-accent-2 font-weight-bold">Retailer</span>.
             </p>
 
@@ -67,6 +67,7 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import { tableAssemblySteps } from "@/data/assembly/tableAssembly";
 
 const router = useRouter();
 const userStore = useUserStore();
