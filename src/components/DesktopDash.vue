@@ -45,6 +45,7 @@
 
       <!-- More shortcuts -->
       <section class="dash-section">
+        <h2 class="dash-section__title">QUICK ACCESS</h2>
         <div class="dash-shortcuts">
           <router-link v-for="item in shortcuts" :key="item.title" :to="item.to" class="dash-shortcut">
             <img :src="item.image" alt="" />
