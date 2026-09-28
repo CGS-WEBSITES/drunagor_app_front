@@ -3,25 +3,11 @@
     <div class="desktop-dash__container">
       <!-- Profile header -->
       <header class="dash-header">
-        <img :src="avatarUrl" alt="" class="dash-header__avatar" />
+        <router-link to="/profile/home" class="dash-header__avatar" title="My Profile">
+          <img :src="avatarUrl" alt="" />
+        </router-link>
         <h1 class="dash-header__name">{{ userStore.user.user_name || "Drunagor User" }}</h1>
       </header>
-
-      <v-autocomplete
-        v-model="searchTarget"
-        :items="searchItems"
-        item-title="title"
-        item-value="id"
-        placeholder="Search in DRUNAGOR APP"
-        prepend-inner-icon="mdi-magnify"
-        density="compact"
-        variant="solo-filled"
-        flat
-        hide-details
-        hide-no-data
-        class="dash-search"
-        @update:model-value="goToSearchTarget"
-      />
 
       <!-- Main shortcuts -->
       <div class="dash-cards">
@@ -32,37 +18,39 @@
 
       <!-- Events -->
       <section class="dash-section">
-        <div class="dash-section__head">
-          <h2>EVENTS</h2>
-          <router-link :to="'/events'" class="dash-section__link">See all</router-link>
-        </div>
-        <div class="dash-events">
-          <div v-for="column in eventColumns" :key="column.title" class="dash-events__column">
-            <h3>{{ column.title }}</h3>
-            <div v-if="loadingEvents" class="d-flex justify-center py-6">
-              <v-progress-circular indeterminate size="28" />
-            </div>
-            <template v-else-if="column.events.length">
-              <EventListCard
-                v-for="event in column.events"
-                :key="event.events_pk"
-                :event="event"
-                :timezone="timezone"
-                class="mb-2"
-                @open="router.push('/events')"
-              />
-            </template>
-            <p v-else class="dash-empty">{{ column.empty }}</p>
+        <router-link to="/events" class="dash-section__title">EVENTS <v-icon size="18">mdi-chevron-right</v-icon></router-link>
+        <div class="dash-panel">
+          <div v-if="loadingEvents" class="d-flex justify-center py-6">
+            <v-progress-circular indeterminate size="28" />
           </div>
+          <div v-else-if="events.length" class="dash-events">
+            <EventListCard
+              v-for="event in events"
+              :key="event.events_pk"
+              :event="event"
+              :timezone="timezone"
+              @open="router.push('/events')"
+            />
+          </div>
+          <p v-else class="dash-empty">No upcoming events.</p>
+        </div>
+      </section>
+
+      <!-- More shortcuts -->
+      <section class="dash-section">
+        <div class="dash-shortcuts">
+          <router-link v-for="item in shortcuts" :key="item.title" :to="item.to" class="dash-shortcut">
+            <img :src="item.image" alt="" />
+            <span><v-icon size="20" class="mr-2">{{ item.icon }}</v-icon>{{ item.title }}</span>
+          </router-link>
         </div>
       </section>
 
       <!-- Recent campaigns -->
       <section class="dash-section">
-        <div class="dash-section__head">
-          <h2>RECENT CAMPAIGNS</h2>
-          <router-link :to="'/campaign-tracker/'" class="dash-section__link">See all</router-link>
-        </div>
+        <router-link to="/campaign-tracker/" class="dash-section__title">
+          RECENT CAMPAIGNS <v-icon size="18">mdi-chevron-right</v-icon>
+        </router-link>
         <div v-if="loadingCampaigns" class="d-flex justify-center py-6">
           <v-progress-circular indeterminate size="28" />
         </div>
@@ -72,26 +60,39 @@
               <img :src="campaign.image" alt="" class="dash-campaign__img" />
               <div class="dash-campaign__info">
                 <strong class="text-truncate">{{ campaign.name }}</strong>
-                <span class="text-truncate">{{ campaign.subtitle }}</span>
-                <span class="dash-campaign__box">{{ campaign.boxLabel }}</span>
+                <span class="text-truncate">{{ campaign.game }}</span>
+                <span class="dash-campaign__box text-truncate">{{ campaign.detail }}</span>
+
+                <div class="dash-campaign__party">
+                  <div class="dash-campaign__members">
+                    <template v-if="campaign.isUnderkeep">
+                      <div v-for="player in campaign.players" :key="player.name" class="dash-member" :title="player.name">
+                        <img v-if="player.avatar" :src="player.avatar" alt="" />
+                        <v-icon v-else size="16">mdi-account</v-icon>
+                        <span>{{ player.name }}</span>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <div v-for="hero in campaign.heroes" :key="hero.id" class="dash-member dash-member--hero" :title="hero.name">
+                        <img :src="hero.avatar" alt="" />
+                      </div>
+                    </template>
+                  </div>
+                  <span v-if="campaign.isUnderkeep" class="dash-campaign__progress">{{ campaign.progress }}%</span>
+                </div>
+                <v-progress-linear
+                  v-if="campaign.isUnderkeep"
+                  :model-value="campaign.progress"
+                  color="accent"
+                  height="3"
+                  rounded
+                  class="mt-1"
+                />
               </div>
             </div>
           </v-slide-group-item>
         </v-slide-group>
-        <p v-else class="dash-empty">
-          No campaigns yet. Start one from the
-          <router-link :to="'/campaign-tracker/'">Companion</router-link>.
-        </p>
-      </section>
-
-      <!-- More shortcuts -->
-      <section class="dash-section">
-        <div class="dash-tiles">
-          <router-link v-for="tile in tiles" :key="tile.title" :to="tile.to" class="dash-tile">
-            <img :src="tile.image" alt="" />
-            <span><v-icon size="20" class="mr-2">{{ tile.icon }}</v-icon>{{ tile.title }}</span>
-          </router-link>
-        </div>
+        <p v-else class="dash-empty">No campaigns yet. Start one from the Companion.</p>
       </section>
     </div>
   </div>
@@ -101,6 +102,8 @@
 import { computed, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { calculateCompletionPercentage } from "@/utils/campaignProgress";
 import EventListCard from "@/components/EventListCard.vue";
 import underkeepImage from "@/assets/underkeep.png";
 import underkeep2Image from "@/assets/underkeep2.png";
@@ -110,6 +113,7 @@ const ASSETS = "https://assets.drunagor.app";
 const router = useRouter();
 const userStore = useUserStore();
 const axios: any = inject("axios");
+const heroRepository = new HeroDataRepository();
 
 const timezone = computed(() => userStore.user?.timezone?.iana_name ?? "America/Chicago");
 const avatarUrl = computed(() =>
@@ -117,67 +121,71 @@ const avatarUrl = computed(() =>
     ? `${ASSETS}/Profile/${userStore.user.picture_hash}`
     : `${ASSETS}/Profile/user.png`,
 );
+const isRetailer = computed(() => userStore.user?.roles_fk === 3);
 
-const mainCards = [
+const mainCards = computed(() => [
   { title: "Companion", image: `${ASSETS}/Dashboard/btn-companion.png`, to: "/campaign-tracker/" },
-  { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" },
+  isRetailer.value
+    ? { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" }
+    : { title: "Library", image: `${ASSETS}/Dashboard/btn-library3.png`, to: "/library" },
   { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
   { title: "Events", image: `${ASSETS}/Dashboard/btn-events3.png`, to: "/events" },
-];
-
-const tiles = [
-  { title: "FRIENDS", icon: "mdi-account-group", image: `${ASSETS}/Library/bg-heropack.png`, to: "/socialhub" },
-  { title: "MY HEROES", icon: "mdi-shield-account", image: `${ASSETS}/Library/bg-corebox.png`, to: "/campaign-tracker/heroes" },
-  { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", image: `${ASSETS}/Dashboard/btn-CB-desk.png`, to: "/community-builds" },
-  { title: "SETTINGS", icon: "mdi-cog", image: `${ASSETS}/Library/bg-shadowworld.png`, to: "/profile/settings" },
-];
-
-// Quick navigation from the search box.
-const searchItems = [
-  ...mainCards.map((card) => ({ id: card.title, title: card.title, to: card.to })),
-  ...tiles.map((tile) => ({ id: tile.title, title: tile.title.replace(/\b\w+/g, (w) => w[0] + w.slice(1).toLowerCase()), to: tile.to })),
-  { id: "Library", title: "Library", to: "/library" },
-  { id: "Campaigns", title: "Campaigns", to: "/campaign-tracker/" },
-];
-const searchTarget = ref<string | null>(null);
-const goToSearchTarget = (id: string | null) => {
-  const item = searchItems.find((entry) => entry.id === id);
-  if (item) router.push(item.to);
-};
-
-// Events: upcoming events and the ones the player joined.
-const nextEvents = ref<any[]>([]);
-const joinedEvents = ref<any[]>([]);
-const loadingEvents = ref(true);
-const eventColumns = computed(() => [
-  { title: "NEXT", events: nextEvents.value, empty: "No upcoming events." },
-  { title: "COUNT ME IN", events: joinedEvents.value, empty: "You have not joined any event yet." },
 ]);
 
-const byDate = (a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
+const shortcuts = [
+  { title: "FRIENDS", icon: "mdi-account-group", image: `${ASSETS}/Dashboard/btn-apoc.png`, to: "/socialhub" },
+  { title: "MY HEROES", icon: "mdi-shield-account", image: `${ASSETS}/Dashboard/btn-heropack.png`, to: "/campaign-tracker/heroes" },
+  { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", image: `${ASSETS}/Dashboard/btn-spoils.png`, to: "/community-builds" },
+  { title: "SETTINGS", icon: "mdi-cog", image: `${ASSETS}/Dashboard/btn-horseman.png`, to: "/profile/settings" },
+];
+
+// Next upcoming events.
+const events = ref<any[]>([]);
+const loadingEvents = ref(true);
 
 const loadEvents = async () => {
-  const playerFk = userStore.user?.users_pk;
-  const [next, joined] = await Promise.allSettled([
-    axios.get("/events/list_events/", { params: { player_fk: playerFk, past_events: "false" } }),
-    axios.get("/events/my_events/player", { params: { player_fk: playerFk, past_events: "false", limit: 30, offset: 0 } }),
-  ]);
-  if (next.status === "fulfilled") nextEvents.value = (next.value.data.events || []).sort(byDate).slice(0, 3);
-  if (joined.status === "fulfilled") joinedEvents.value = (joined.value.data.events || []).sort(byDate).slice(0, 3);
-  loadingEvents.value = false;
+  try {
+    const { data } = await axios.get("/events/list_events/", {
+      params: { player_fk: userStore.user?.users_pk, past_events: "false" },
+    });
+    events.value = (data.events || [])
+      .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+      .slice(0, 4);
+  } catch (error) {
+    console.error("[DesktopDash] Failed to load events", error);
+  } finally {
+    loadingEvents.value = false;
+  }
 };
 
 // Recent campaigns from both seasons, most recently saved first.
-type CampaignCard = { id: string; name: string; subtitle: string; boxLabel: string; image: string };
+type Member = { name: string; avatar: string | null };
+type HeroAvatar = { id: string; name: string; avatar: string };
+type CampaignCard = {
+  id: string;
+  name: string;
+  game: string;
+  detail: string;
+  image: string;
+  isUnderkeep: boolean;
+  progress: number;
+  heroes: HeroAvatar[];
+  players: Member[];
+};
 const campaigns = ref<CampaignCard[]>([]);
 const loadingCampaigns = ref(true);
 
-const CAMPAIGN_BOXES: Record<string, { label: string; image: string }> = {
-  core: { label: "CORE", image: `${ASSETS}/CampaignTracker/CoreCompanion.webp` },
-  apocalypse: { label: "APOCALYPSE", image: `${ASSETS}/CampaignTracker/ApocCompanion.webp` },
-  awakenings: { label: "AWAKENINGS", image: `${ASSETS}/CampaignTracker/AwakComapanion.webp` },
-  underkeep: { label: "UNDERKEEP", image: underkeepImage },
-  underkeep2: { label: "UNDERKEEP 2", image: underkeep2Image },
+const BOXES: Record<string, { label: string; game: string; image: string }> = {
+  core: { label: "CORE BOX", game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/CoreCompanion.webp` },
+  apocalypse: { label: "APOCALYPSE", game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/ApocCompanion.webp` },
+  awakenings: { label: "AWAKENINGS", game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/AwakComapanion.webp` },
+  underkeep: { label: "UNDERKEEP", game: "Drunagor Nights · Season 1", image: underkeepImage },
+  underkeep2: { label: "UNDERKEEP 2", game: "Drunagor Nights · Season 2", image: underkeep2Image },
+};
+
+const heroAvatar = (heroId: string): HeroAvatar | null => {
+  const hero = heroRepository.find(heroId);
+  return hero ? { id: hero.id, name: hero.name, avatar: hero.images.avatar } : null;
 };
 
 const toCampaignCard = (raw: any) => {
@@ -189,21 +197,51 @@ const toCampaignCard = (raw: any) => {
   }
   const data = parsed?.campaignData ?? {};
   const type = data.campaign || (raw.box === 38 ? "underkeep" : raw.box === 39 ? "underkeep2" : "core");
-  const box = CAMPAIGN_BOXES[type] ?? CAMPAIGN_BOXES.core;
+  const box = BOXES[type] ?? BOXES.core;
+  const isUnderkeep = type === "underkeep" || type === "underkeep2";
   const savedAt = Math.max(
     parsed?.savedAt ? new Date(parsed.savedAt).getTime() : 0,
     raw.start_date ? new Date(raw.start_date).getTime() : 0,
   );
-  return {
-    savedAt,
-    card: {
-      id: String(raw.campaigns_fk),
-      name: raw.party_name || data.name || "Unnamed Campaign",
-      subtitle: [data.wing, data.door].filter(Boolean).join(" · "),
-      boxLabel: box.label,
-      image: box.image,
-    },
+  const card: CampaignCard = {
+    id: String(raw.campaigns_fk),
+    name: raw.party_name || data.name || "Unnamed Campaign",
+    game: box.game,
+    detail: isUnderkeep ? [data.wing, data.door].filter(Boolean).join(" · ") || box.label : box.label,
+    image: box.image,
+    isUnderkeep,
+    progress: isUnderkeep ? calculateCompletionPercentage(data) : 0,
+    heroes: (parsed?.heroes || [])
+      .map((hero: any) => heroAvatar(hero.heroId))
+      .filter((hero: HeroAvatar | null): hero is HeroAvatar => !!hero),
+    players: [],
   };
+  return { savedAt, card };
+};
+
+// Underkeep campaigns list their players with the hero each one plays.
+const loadPlayers = async (card: CampaignCard) => {
+  try {
+    const { data } = await axios.get("/rl_campaigns_users/list_players", { params: { campaigns_fk: card.id } });
+    const players = data.Users || [];
+    card.players = await Promise.all(
+      players.map(async (player: any): Promise<Member> => {
+        let avatar: string | null = null;
+        if (player.playable_heroes_fk) {
+          try {
+            const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+            const heroId = JSON.parse(atob(res.data.hero_hash)).heroId;
+            avatar = heroAvatar(heroId)?.avatar ?? null;
+          } catch {
+            avatar = null;
+          }
+        }
+        return { name: player.user_name, avatar };
+      }),
+    );
+  } catch (error) {
+    console.warn(`[DesktopDash] Failed to load players for campaign ${card.id}`, error);
+  }
 };
 
 const loadCampaigns = async () => {
@@ -224,6 +262,8 @@ const loadCampaigns = async () => {
     .slice(0, 10)
     .map((entry) => entry.card);
   loadingCampaigns.value = false;
+
+  await Promise.allSettled(campaigns.value.filter((card) => card.isUnderkeep).map(loadPlayers));
 };
 
 onMounted(() => {
@@ -234,49 +274,61 @@ onMounted(() => {
 
 <style scoped>
 .desktop-dash {
-  padding: 72px 16px 48px;
+  padding: 112px 16px 48px;
   font-family: "Poppins", sans-serif;
-  color: #fff;
+  color: rgb(var(--v-theme-on-surface));
 }
 .desktop-dash__container {
   max-width: 960px;
   margin: 0 auto;
-  background: rgba(20, 20, 20, 0.92);
   padding: 0 16px 24px;
+  background: rgba(var(--v-theme-surface), 0.92);
+  border-radius: 16px;
 }
 .dash-header {
   display: flex;
   align-items: center;
   gap: 24px;
   height: 88px;
-  margin: 0 -16px 16px;
+  margin: 0 -16px 20px;
   padding: 0 32px;
-  background: #2f2f2f;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 16px 16px 0 0;
 }
 .dash-header__avatar {
+  display: block;
+  flex: 0 0 128px;
   width: 128px;
   height: 128px;
-  margin-top: -40px;
-  object-fit: cover;
-  background: #000;
+  margin-top: -48px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgb(var(--v-theme-background));
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+  transition: transform 0.2s ease;
+}
+.dash-header__avatar:hover {
+  transform: translateY(-2px);
+}
+.dash-header__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .dash-header__name {
   font-size: 1.4rem;
   font-weight: 700;
   text-transform: uppercase;
 }
-.dash-search {
-  margin-bottom: 16px;
-}
 .dash-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 12px;
 }
 .dash-card {
   display: block;
   aspect-ratio: 944 / 1420;
+  border-radius: 12px;
   overflow: hidden;
 }
 .dash-card img {
@@ -291,64 +343,107 @@ onMounted(() => {
 .dash-section {
   margin-top: 28px;
 }
-.dash-section__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+.dash-section__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   margin-bottom: 10px;
-}
-.dash-section__head h2 {
   font-size: 1.1rem;
   font-weight: 700;
+  color: inherit;
+  text-decoration: none;
 }
-.dash-section__link {
-  font-size: 0.8rem;
-  color: #bdbdbd;
+.dash-section__title:hover {
+  opacity: 0.8;
+}
+.dash-panel {
+  padding: 12px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
 }
 .dash-events {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-.dash-events__column {
-  background: #2f2f2f;
-  padding: 12px;
-}
-.dash-events__column h3 {
-  font-size: 0.9rem;
-  font-weight: 700;
-  margin-bottom: 8px;
+  gap: 10px;
 }
 /* Compact event cards: the Events page stretches them to fill its grid. */
-.dash-events__column :deep(.event-list-card) {
+.dash-events :deep(.event-list-card) {
   height: auto;
   min-height: 84px;
 }
-.dash-events__column :deep(.event-list-card__day) {
+.dash-events :deep(.event-list-card__day) {
   font-size: 1.8rem;
 }
 .dash-empty {
-  font-size: 0.85rem;
-  color: #9e9e9e;
+  margin: 0;
   padding: 12px 0;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+.dash-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+/* Strip buttons (476x54 art) with the label on top. */
+.dash-shortcut {
+  position: relative;
+  display: flex;
+  align-items: center;
+  aspect-ratio: 476 / 54;
+  min-height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  color: rgb(var(--v-theme-on-surface));
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.dash-shortcut img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.2s ease;
+}
+.dash-shortcut:hover {
+  transform: translateY(-2px);
+}
+.dash-shortcut:hover img {
+  filter: brightness(1.25);
+}
+.dash-shortcut span {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 .dash-campaign {
-  width: 300px;
+  width: 290px;
   margin-right: 12px;
-  background: #2f2f2f;
-  cursor: pointer;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
   overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.dash-campaign:hover {
+  transform: translateY(-2px);
 }
 .dash-campaign__img {
+  display: block;
   width: 100%;
-  height: 140px;
+  height: 130px;
   object-fit: cover;
-  border-bottom: 3px solid #bca341;
+  border-bottom: 3px solid rgb(var(--v-theme-accent));
 }
 .dash-campaign__info {
   display: flex;
   flex-direction: column;
-  padding: 8px 12px 10px;
+  padding: 8px 12px 12px;
   font-size: 0.8rem;
   line-height: 1.35;
 }
@@ -359,39 +454,44 @@ onMounted(() => {
   font-weight: 700;
   text-transform: uppercase;
 }
-.dash-tiles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.dash-tile {
-  position: relative;
+.dash-campaign__party {
   display: flex;
   align-items: center;
-  height: 64px;
+  gap: 8px;
+  min-height: 30px;
+  margin-top: 8px;
+}
+.dash-campaign__members {
+  display: flex;
+  flex: 1;
+  gap: 4px;
+  min-width: 0;
   overflow: hidden;
-  color: #fff;
-  text-decoration: none;
 }
-.dash-tile img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
-  filter: brightness(0.55);
-  transition: filter 0.2s ease;
-}
-.dash-tile:hover img {
-  filter: brightness(0.8);
-}
-.dash-tile span {
-  position: relative;
+.dash-member {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  padding-left: 16px;
+  gap: 4px;
+  padding-right: 8px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+.dash-member--hero {
+  padding-right: 0;
+}
+.dash-member img,
+.dash-member .v-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: top;
+}
+.dash-campaign__progress {
   font-weight: 700;
-  font-size: 0.95rem;
+  color: rgb(var(--v-theme-accent));
 }
 </style>
