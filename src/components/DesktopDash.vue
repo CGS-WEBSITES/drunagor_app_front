@@ -25,16 +25,19 @@
           </div>
           <div v-else class="dash-events">
             <EventListCard
-              v-for="event in events"
+              v-for="event in visibleEvents"
               :key="event.events_pk"
               :event="event"
               :timezone="timezone"
               @open="router.push('/events')"
             />
-            <!-- Placeholder card that always leads to the full events list. -->
+            <!-- Blurred next event behind a link to the full events list. -->
             <router-link to="/events" class="dash-more-events">
-              <v-icon size="26">mdi-calendar-search</v-icon>
-              <span>{{ events.length ? "See more events" : "No upcoming events yet. See all events" }}</span>
+              <EventListCard :event="teaserEvent" :timezone="timezone" class="dash-more-events__teaser" aria-hidden="true" />
+              <span class="dash-more-events__label">
+                <v-icon size="22" class="mr-2">mdi-calendar-search</v-icon>
+                {{ events.length ? "See more events" : "See all events" }}
+              </span>
             </router-link>
           </div>
         </div>
@@ -154,8 +157,22 @@ const shortcuts = [
   { title: "SETTINGS", icon: "mdi-cog", image: `${ASSETS}/Dashboard/btn-horseman.png`, to: "/profile/settings" },
 ];
 
-// Next upcoming events.
+// Next upcoming events: up to three rows of two, the last slot being the
+// "See more events" card over a blurred preview of the following event.
+const MAX_EVENTS = 5;
 const events = ref<any[]>([]);
+const visibleEvents = computed(() => events.value.slice(0, MAX_EVENTS));
+const teaserEvent = computed(
+  () =>
+    events.value[MAX_EVENTS] ??
+    events.value[0] ?? {
+      store_name: "Drunagor Nights",
+      address: "Find a store near you",
+      scenario: "Next adventure",
+      event_date: new Date().toISOString(),
+      seasons_fk: 2,
+    },
+);
 const loadingEvents = ref(true);
 
 const loadEvents = async () => {
@@ -165,7 +182,7 @@ const loadEvents = async () => {
     });
     events.value = (data.events || [])
       .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-      .slice(0, 3);
+      .slice(0, MAX_EVENTS + 1);
   } catch (error) {
     console.error("[DesktopDash] Failed to load events", error);
   } finally {
@@ -400,22 +417,31 @@ onMounted(() => {
   font-size: 1.8rem;
 }
 .dash-more-events {
+  position: relative;
+  display: block;
+  min-height: 84px;
+  border-radius: 6px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+.dash-more-events__teaser {
+  filter: blur(3px);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.dash-more-events__label {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 84px;
-  border: 2px dashed rgba(var(--v-theme-on-surface), 0.3);
-  border-radius: 6px;
-  color: inherit;
   font-weight: 700;
-  text-decoration: none;
-  opacity: 0.8;
-  transition: opacity 0.2s ease, border-color 0.2s ease;
+  background: rgba(var(--v-theme-background), 0.45);
 }
-.dash-more-events:hover {
-  opacity: 1;
-  border-color: rgba(var(--v-theme-on-surface), 0.6);
+.dash-more-events:hover .dash-more-events__teaser {
+  opacity: 0.75;
 }
 .dash-empty {
   margin: 0;
@@ -467,7 +493,6 @@ onMounted(() => {
 /* Edge-to-edge carousel: bleeds over the container padding. */
 .dash-carousel {
   position: relative;
-  margin: 0 -16px;
 }
 .dash-carousel__track {
   display: flex;
@@ -481,7 +506,7 @@ onMounted(() => {
 }
 .dash-carousel__arrow {
   position: absolute;
-  top: 70px;
+  top: 65px;
   z-index: 2;
   display: flex;
   align-items: center;
@@ -500,7 +525,7 @@ onMounted(() => {
   right: 8px;
 }
 .dash-campaign {
-  flex: 0 0 44%;
+  flex: 0 0 300px;
   scroll-snap-align: start;
   background: rgb(var(--v-theme-primary));
   border-radius: 12px;
@@ -514,14 +539,14 @@ onMounted(() => {
 .dash-campaign__img {
   display: block;
   width: 100%;
-  height: 150px;
+  height: 130px;
   object-fit: cover;
   border-bottom: 3px solid rgb(var(--v-theme-accent));
 }
 .dash-campaign__info {
   display: flex;
   flex-direction: column;
-  padding: 8px 12px 12px;
+  padding: 6px 12px 10px;
   font-size: 0.8rem;
   line-height: 1.35;
 }
@@ -536,8 +561,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 30px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 .dash-campaign__members {
   display: flex;
@@ -562,8 +586,8 @@ onMounted(() => {
 }
 .dash-member img,
 .dash-member .v-icon {
-  width: 26px;
-  height: 26px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   object-fit: cover;
   object-position: top;
