@@ -1696,15 +1696,41 @@ watch(
   padding: 16px 12px;
 }
 @media (max-width: 959px) {
+  /* The mobile app bar overlays the page, so leave room for it. */
   .events-title {
-    padding: 24px 0 16px;
+    padding: calc(84px + env(safe-area-inset-top, 0px)) 0 16px;
+    font-size: 2.75rem !important;
+    line-height: 1.1;
   }
   .events-sort {
-    justify-content: center;
-    padding: 6px 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px;
   }
   .events-sort__group {
-    gap: 12px;
+    gap: 6px;
+  }
+  .events-sort__label {
+    flex: 0 0 64px;
+    justify-self: auto;
+    padding: 0;
+    border: 0;
+    font-size: 0.72rem;
+  }
+  .events-sort__item {
+    flex: 1;
+    justify-self: auto;
+    padding: 6px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    text-align: center;
+  }
+  .events-sort__item.active {
+    background: #fff;
+    border-color: #fff;
+    color: #000;
   }
   .events-grid {
     grid-template-columns: minmax(0, 1fr);
