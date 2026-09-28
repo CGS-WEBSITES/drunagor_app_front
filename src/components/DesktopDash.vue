@@ -147,8 +147,8 @@ const mainCards = computed(() => [
   isRetailer.value
     ? { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" }
     : { title: "Library", image: `${ASSETS}/Dashboard/btn-library3.png`, to: "/library" },
-  { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
   { title: "Events", image: `${ASSETS}/Dashboard/btn-events3.png`, to: "/events" },
+  { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
 ]);
 
 const shortcuts = [
