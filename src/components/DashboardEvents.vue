@@ -1,19 +1,20 @@
 <template>
   <v-card color="primary" class="fill-height d-flex flex-column w-100">
+    <!-- flex-shrink-0: a long list must not squash the tabs. -->
     <v-tabs
       v-model="activeTab"
       bg-color="background"
       grow
-      class="flex-grow-0 mb-3"
+      class="flex-grow-0 flex-shrink-0"
     >
       <v-tab value="upcoming">Events</v-tab>
       <v-tab value="myevents">My Events</v-tab>
     </v-tabs>
 
-    <div class="flex-grow-1 mt-2 content-scroll" style="overflow-y: auto">
+    <div class="flex-grow-1 content-scroll" style="overflow-y: auto">
       <div
         v-if="activeTab === 'upcoming'"
-        class="px-2 py-3 fill-height d-flex flex-column"
+        class="px-2 pt-2 pb-3 fill-height d-flex flex-column"
       >
         <div
           v-if="loading"
@@ -188,7 +189,7 @@
         </div>
       </div>
 
-      <div v-else class="px-2 py-3 fill-height d-flex flex-column">
+      <div v-else class="px-2 pt-2 pb-3 fill-height d-flex flex-column">
         <div
           v-if="loading"
           class="d-flex justify-center align-center"
