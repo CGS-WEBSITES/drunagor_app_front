@@ -1,22 +1,32 @@
-// Dev-only override of the API environment ("prod" or "test"), so a local
-// server can talk to the test backend without editing main.ts.
+// Dev-only choice of API environment. A local dev server talks to the test
+// backend by default and only uses prod when explicitly switched to it from
+// /dev-preview. Builds ignore this and keep the env passed in main.ts.
 const KEY = "dev_api_env";
+const SESSION_KEY = "dev_session_env";
 
 export type ApiEnv = "prod" | "test";
 
-export const resolveApiEnv = (fallback: string): string => {
-  if (!import.meta.env.DEV) return fallback;
+const clearSession = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("app_user");
+};
+
+export const resolveApiEnv = (buildEnv: string): string => {
+  if (!import.meta.env.DEV) return buildEnv;
   try {
-    return localStorage.getItem(KEY) || fallback;
+    const env = localStorage.getItem(KEY) || "test";
+    // Sessions belong to one backend: drop one saved against the other API.
+    if (localStorage.getItem(SESSION_KEY) !== env) {
+      clearSession();
+      localStorage.setItem(SESSION_KEY, env);
+    }
+    return env;
   } catch {
-    return fallback;
+    return "test";
   }
 };
 
-// Sessions are per backend, so switching logs out and reloads the app.
 export const switchApiEnv = (env: ApiEnv) => {
   localStorage.setItem(KEY, env);
-  localStorage.removeItem("accessToken");
-  localStorage.removeItem("app_user");
   window.location.reload();
 };

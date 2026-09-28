@@ -25,7 +25,7 @@ import "@/components/Composable/shepherd-theme.css";
 
 const app = createApp(App);
 
-// In dev mode the /dev-preview page can switch this to "test".
+// Builds use this env. A local dev server uses the test API by default (see apiEnv).
 registerPlugins(app, resolveApiEnv("prod"));
 
 app.mount("#app");
