@@ -7,7 +7,7 @@
     :fullscreen="smAndDown"
     persistent
   >
-    <v-card color="surface" class="d-flex flex-column" style="height: 100%; max-height: 100%;">
+    <v-card color="surface" class="manage-event-card d-flex flex-column">
       <div v-if="dialogLoading" class="dialog-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>
@@ -1252,6 +1252,18 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
+/* Fixed height so switching tabs does not resize the dialog. Vuetify sizes
+   dialog cards through flex-basis, read from --v-card-height. */
+.manage-event-card {
+  --v-card-height: min(85vh, 780px);
+  height: min(85vh, 780px);
+}
+
+.v-dialog--fullscreen .manage-event-card {
+  --v-card-height: 100%;
+  height: 100%;
+}
+
 .table-assembly-container {
   max-width: 900px;
   margin: 0 auto;
