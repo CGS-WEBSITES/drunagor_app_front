@@ -141,10 +141,7 @@
               @open="openManageDialog(event)"
             >
               <template #status>
-                <div class="events-card-actions">
-                  <v-btn icon="mdi-pencil" size="x-small" variant="flat" color="grey-darken-3" title="Edit event" @click.stop="openEditDialog(event, true)" />
-                  <v-btn icon="mdi-delete" size="x-small" variant="flat" color="error" title="Delete event" @click.stop="deleteEvent(event.events_pk)" />
-                </div>
+                <span class="events-manage-hint">Manage <v-icon size="16">mdi-chevron-right</v-icon></span>
               </template>
             </EventListCard>
           </div>
@@ -582,7 +579,9 @@
     ref="manageDialogRef"
     v-model="manageDialog"
     :event="selectedEvent"
+    editable
     @refresh="handleRefresh"
+    @edit="editFromManage"
   />
 
   <TutorialPromptDialog
@@ -1424,6 +1423,12 @@ const openCreateEventDialog = () => {
   createEventDialog.value = true;
 };
 
+// "Edit event" in Manage Event: close it and open the edit form.
+const editFromManage = (event) => {
+  manageDialog.value = false;
+  openEditDialog(event, true);
+};
+
 const openEditDialog = (event, editable = false) => {
   const parsed = parseApiDate(event.event_date);
   const hours24 = parsed ? parsed.getHours() : 0;
@@ -1811,9 +1816,28 @@ watch(
 .events-tabs__item {
   font-size: 1rem;
 }
-.events-tabs__item.active,
 .events-sort__item.active {
   border-bottom-color: #fff;
+}
+/* Selected tab is light (theme "terciary"); the other one is dimmed. */
+.events-tabs {
+  padding: 0;
+}
+.events-tabs__item {
+  justify-self: stretch;
+  align-self: stretch;
+  padding: 12px 4px;
+  border-bottom: 0;
+  opacity: 0.45;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.events-tabs__item:hover {
+  opacity: 0.7;
+}
+.events-tabs__item.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
 }
 .events-sort__clear {
   display: flex;
@@ -1880,9 +1904,12 @@ watch(
   justify-content: flex-end;
   padding: 16px 12px 0;
 }
-.events-card-actions {
+.events-manage-hint {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 .page-loading-overlay {
   position: fixed;
