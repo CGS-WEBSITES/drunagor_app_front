@@ -13,6 +13,15 @@
           <h3 class="prep-title">{{ heroSection.title }}</h3>
           <div class="prep-body" v-html="heroSection.body"></div>
         </div>
+        <div v-if="gift" class="prep-page mb-3">
+          <h3 class="prep-title">TAKE YOUR GIFT EQUIPMENT</h3>
+          <div class="prep-body">
+            <p>Ask the Store Owner for the shared <strong>Gift Equipment Pack</strong>. Choose 1 Gift Equipment card from it and equip it to the matching slot on your Hero Board.</p>
+            <p>Check your Hero’s Proficiency at the bottom of the Hero Board before equipping a card.</p>
+            <p>Recommended for {{ heroName }}: <strong>{{ gift.name }}</strong>. {{ gift.description }}</p>
+            <p>The Gift Equipment card you use during the Adventure is your reward for playing, and you can keep it after the event, while supplies last.</p>
+          </div>
+        </div>
         <div v-if="generalSection" class="prep-page">
           <h3 class="prep-title">{{ generalSection.title }}</h3>
           <div class="prep-body" v-html="generalSection.body"></div>
@@ -31,6 +40,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import heroPreparation from "@/data/book/HeroPreparation.json";
+import heroSummaries from "@/data/book/HeroSummary.json";
+import type { HeroSummary } from "@/components/HeroSummaryPanel.vue";
 
 type Section = { id?: string; title: string; body: string };
 type SeasonPreparation = { general: Section; heroes: Record<string, Section> };
@@ -41,6 +52,10 @@ const model = defineModel<boolean>({ default: false });
 const data = heroPreparation as Record<"s1" | "s2", SeasonPreparation>;
 
 const generalSection = computed(() => data[props.season].general);
+
+const gift = computed(
+  () => (heroSummaries as Record<string, HeroSummary>)[props.heroName]?.gift,
+);
 
 // Season 2 has no page for every hero (e.g. Elros), so fall back to Season 1.
 const heroSection = computed(
