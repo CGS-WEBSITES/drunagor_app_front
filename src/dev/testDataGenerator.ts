@@ -108,7 +108,11 @@ export class TestDataGenerator {
   }
 
   private async ensureStore(): Promise<{ storesPk: number; name: string }> {
-    const { data } = await this.api.get("stores/list", { params: { users_fk: this.usersPk } });
+    // The API answers 404 (not an empty list) when the user has no store yet.
+    const { data } = await this.api.get("stores/list", {
+      params: { users_fk: this.usersPk },
+      validateStatus: (status) => status === 200 || status === 404,
+    });
     const existing = (data.stores || []).find((store: any) => store.active);
     if (existing) {
       if (!existing.verified) await this.api.get(`stores/${existing.stores_pk}/verify`);
@@ -121,7 +125,7 @@ export class TestDataGenerator {
       ...TESTER_STORE,
       countries_fk: countriesFk,
       users_fk: this.usersPk,
-      verified: true,
+      verified: "true", // the API parses this field as a boolean string
     });
     const storesPk = created.store?.stores_pk || created.stores_pk;
     await this.api.get(`stores/${storesPk}/verify`);
