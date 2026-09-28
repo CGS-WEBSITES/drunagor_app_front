@@ -13,32 +13,16 @@
           </div>
         </header>
 
-        <!-- Main call to action: hosting events -->
-        <section class="host-banner">
-          <div class="host-banner__text">
-            <h2>Host a Drunagor Night</h2>
-            <p>Create an event, set up the tables and let players join from their phones.</p>
-            <div class="host-banner__stats">
-              <span><strong>{{ upcomingEvents.length }}</strong> upcoming events</span>
-              <span><strong>{{ totalTables }}</strong> tables</span>
-              <span><strong>{{ totalPlayers }}</strong> players seated</span>
-            </div>
-          </div>
-          <div class="host-banner__actions">
-            <v-btn color="accent" size="x-large" class="font-weight-bold" prepend-icon="mdi-plus-thick" :loading="creating" @click="createEvent">
-              Create event
-            </v-btn>
-            <v-btn variant="outlined" prepend-icon="mdi-table-furniture" to="/assembly-tutorial">
-              Table Assembly guide
-            </v-btn>
-          </div>
-        </section>
-
         <!-- Main shortcuts -->
         <div class="dash-cards">
-          <router-link v-for="card in mainCards" :key="card.title" :to="card.to" class="dash-card">
-            <img :src="card.image" :alt="card.title" />
-          </router-link>
+          <template v-for="card in mainCards" :key="card.title">
+            <button v-if="card.host" class="dash-card dash-card--host" :disabled="creating" @click="createEvent">
+              <img :src="hostEventArt" :alt="card.title" />
+            </button>
+            <router-link v-else :to="card.to ?? '/'" class="dash-card">
+              <img :src="card.image" :alt="card.title" />
+            </router-link>
+          </template>
         </div>
 
         <!-- The retailer's next events -->
@@ -47,6 +31,27 @@
             YOUR NEXT EVENTS <v-icon size="18">mdi-chevron-right</v-icon>
           </router-link>
           <div class="dash-panel">
+            <!-- Main call to action: hosting events -->
+            <section class="host-banner">
+              <div class="host-banner__text">
+                <h2>Host a Drunagor Night</h2>
+                <p>Create an event, set up the tables and let players join from their phones.</p>
+                <div class="host-banner__stats">
+                  <span><strong>{{ upcomingEvents.length }}</strong> upcoming events</span>
+                  <span><strong>{{ totalTables }}</strong> tables</span>
+                  <span><strong>{{ totalPlayers }}</strong> players seated</span>
+                </div>
+              </div>
+              <div class="host-banner__actions">
+                <v-btn color="accent" size="x-large" class="font-weight-bold" prepend-icon="mdi-plus-thick" :loading="creating" @click="createEvent">
+                  Create event
+                </v-btn>
+                <v-btn variant="outlined" prepend-icon="mdi-table-furniture" to="/assembly-tutorial">
+                  Table Assembly guide
+                </v-btn>
+              </div>
+            </section>
+
             <div v-if="loadingEvents" class="d-flex justify-center py-6">
               <v-progress-circular indeterminate size="28" />
             </div>
@@ -101,6 +106,7 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import { extractDay, extractMonth, extractTime } from "@/utils/dateHelpers";
+import hostEventArt from "@/assets/btn-host.png";
 
 const ASSETS = "https://assets.drunagor.app";
 
@@ -113,9 +119,10 @@ const avatarUrl = computed(() =>
   userStore.user?.picture_hash ? `${ASSETS}/Profile/${userStore.user.picture_hash}` : `${ASSETS}/Profile/user.png`,
 );
 
-const mainCards = [
+type MainCard = { title: string; image?: string; to?: string; host?: boolean };
+const mainCards: MainCard[] = [
   { title: "Events", image: `${ASSETS}/Dashboard/btn-events3.png`, to: "/events" },
-  { title: "Campaign Manager", image: `${ASSETS}/Dashboard/btn-campaignmanager.png`, to: "/campaign-tracker/" },
+  { title: "Host a Drunagor Night", host: true },
   { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" },
   { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
 ];
@@ -245,7 +252,8 @@ onMounted(loadEvents);
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
+  color: rgb(var(--v-theme-on-surface));
   padding: 24px;
   background:
     linear-gradient(100deg, rgba(var(--v-theme-accent), 0.28) 0%, rgba(var(--v-theme-primary), 0.9) 60%),
@@ -301,6 +309,10 @@ onMounted(loadEvents);
 .dash-card:hover img {
   transform: scale(1.05);
 }
+.dash-card--host {
+  position: relative;
+  padding: 0;
+}
 .dash-section {
   margin-top: 28px;
 }
@@ -314,13 +326,15 @@ onMounted(loadEvents);
   font-weight: 700;
   text-decoration: none;
 }
+/* Light panel so the events stand out from the dark page. */
 .dash-panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  background: rgb(var(--v-theme-primary));
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
+  color: #141414;
 }
 .event-row {
   display: grid;
@@ -328,14 +342,14 @@ onMounted(loadEvents);
   align-items: center;
   gap: 16px;
   padding: 10px 14px;
-  background: rgba(var(--v-theme-background), 0.55);
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 10px;
   color: inherit;
   text-align: left;
   transition: background 0.2s ease;
 }
 .event-row:hover {
-  background: rgb(var(--v-theme-secondary));
+  background: rgba(0, 0, 0, 0.12);
 }
 .event-row__date {
   display: flex;
@@ -369,7 +383,7 @@ onMounted(loadEvents);
 .event-row__manage {
   display: flex;
   align-items: center;
-  color: rgb(var(--v-theme-accent));
+  color: rgb(var(--v-theme-primary));
   font-size: 0.85rem;
   font-weight: 700;
 }
@@ -408,6 +422,11 @@ onMounted(loadEvents);
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: brightness(0.55);
+  transition: filter 0.2s ease;
+}
+.dash-shortcut:hover img {
+  filter: brightness(0.75);
 }
 .dash-shortcut:hover {
   transform: translateY(-2px);
