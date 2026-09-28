@@ -58,32 +58,32 @@
       v-else-if="showMobileAppBar"
     >
       <v-app-bar app min-height="56" elevation="4" class="safe-pwa-top-bar top-bar--mobile">
-        <div
-          v-if="route.name === 'Dashboard'"
-          @click="$router.push({ name: 'Dashboard' })"
-          style="cursor: pointer"
-          class="d-flex align-center pl-4"
-        >
-          <v-img
-            src="@/assets/darknessl.png"
-            height="30"
-            width="30"
-            alt="Drunagor Icon"
-            contain
-            class="mr-2"
-          ></v-img>
-          <span>App Drunagor</span>
+        <div class="top-bar__inner top-bar__inner--mobile">
+          <v-btn v-if="route.name !== 'Dashboard'" icon variant="text" size="small" title="Back" @click="handleBack">
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn>
+          <div class="top-bar__brand" @click="$router.push({ name: 'Dashboard' })">
+            <v-img src="@/assets/darknessl.png" height="22" width="22" alt="" contain />
+            <span>DRUNAGOR APP</span>
+          </div>
+
+          <v-spacer />
+
+          <v-btn icon variant="text" size="small" title="My Profile" @click="router.push('/profile/home')">
+            <v-avatar size="28">
+              <v-img
+                :src="
+                  user.picture_hash
+                    ? assets + '/Profile/' + user.picture_hash
+                    : assets + '/Profile/user.png'
+                "
+              />
+            </v-avatar>
+          </v-btn>
+          <v-btn icon variant="text" size="small" title="Menu" @click="drawer = !drawer">
+            <v-icon size="26">mdi-menu</v-icon>
+          </v-btn>
         </div>
-
-        <v-btn v-else icon @click="handleBack" class="mr-2">
-          <v-icon>mdi-arrow-left</v-icon>
-        </v-btn>
-
-        <v-spacer></v-spacer>
-
-        <v-btn icon @click="drawer = !drawer" class="mr-2">
-          <v-icon>mdi-menu</v-icon>
-        </v-btn>
       </v-app-bar>
     </v-row>
 
@@ -474,7 +474,11 @@ onBeforeMount(() => {
 }
 .top-bar--mobile {
   background: rgb(var(--v-theme-background)) !important;
+  border-top: 3px solid rgb(var(--v-theme-primary));
   border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+.top-bar__inner--mobile {
+  padding: 0 4px 0 8px;
 }
 .top-bar .v-toolbar__content {
   justify-content: center;
