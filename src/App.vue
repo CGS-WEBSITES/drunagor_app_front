@@ -176,6 +176,10 @@
       </template>
     </v-navigation-drawer>
 
+    <!-- Fixed page background: covers the viewport instead of tiling, so no
+         seams show on long pages (background-attachment: fixed fails on iOS). -->
+    <div v-if="usesAppBackground" class="app-background" :style="{ backgroundImage: `url(${assets}/backgrounds/backgrounds.png)` }" />
+
     <router-view :style="contentStyle" :class="{ 'pt-5': mdAndUp && showDesktopAppBar }" />
   </v-app>
 </template>
@@ -409,22 +413,25 @@ const contentStyle = computed(() => {
 
   const isImmersive = route.name === 'Campaign' && isImmersiveMode.value;
 
+  // The page background itself is the fixed .app-background layer.
   return mdAndUp.value
     ? {
-        "background-image":
-          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-        "background-repeat": "repeat",
+        position: "relative",
+        "z-index": 1,
         "padding-top": isImmersive ? "0px" : "65px",
         "min-height": "100vh",
       }
     : {
-        "background-image":
-          "url(" + assets + "/backgrounds/backgrounds.png" + ")",
-        "background-repeat": "repeat-y",
+        position: "relative",
+        "z-index": 1,
         "padding-top": "env(safe-area-inset-top, 0px)",
         "min-height": "100vh",
       };
 });
+
+const usesAppBackground = computed(
+  () => !["Login", "RetailerRegistration", "ForgotPassword"].includes(String(route.name)),
+);
 
 onMounted(() => {
   userStore.restoreFromStorage();
@@ -450,6 +457,15 @@ onBeforeMount(() => {
   width: 100%;
 }
 
+.app-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
 .top-bar {
   background: #050505 !important;
   border-top: 3px solid #3b1740;
