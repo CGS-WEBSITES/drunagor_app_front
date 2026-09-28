@@ -3,10 +3,10 @@
     <Toast />
 
     <v-row no-gutters v-if="mdAndUp && showDesktopAppBar">
-      <v-app-bar app height="64" flat class="top-bar">
+      <v-app-bar app height="44" flat class="top-bar">
         <div class="top-bar__inner">
           <div class="top-bar__brand" @click="$router.push({ name: 'Dashboard' })">
-            <v-img src="@/assets/darknessl.png" height="28" width="28" alt="" contain />
+            <v-img src="@/assets/darknessl.png" height="22" width="22" alt="" contain />
             <span>DRUNAGOR APP</span>
           </div>
 
@@ -16,6 +16,7 @@
             v-if="isPublicRoute"
             color="white"
             variant="outlined"
+            size="small"
             @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
           >
             Sign up
@@ -24,8 +25,8 @@
           <template v-else>
             <v-menu location="bottom end" offset="8">
               <template v-slot:activator="{ props }">
-                <v-btn v-bind="props" icon variant="text" title="Profile">
-                  <v-avatar size="34">
+                <v-btn v-bind="props" icon variant="text" size="small" title="Profile">
+                  <v-avatar size="28">
                     <v-img
                       :src="
                         user.picture_hash
@@ -44,8 +45,8 @@
               </v-list>
             </v-menu>
 
-            <v-btn icon variant="text" title="Menu" @click="drawer = !drawer">
-              <v-icon size="30">mdi-menu</v-icon>
+            <v-btn icon variant="text" size="small" title="Menu" @click="drawer = !drawer">
+              <v-icon size="26">mdi-menu</v-icon>
             </v-btn>
           </template>
         </div>
@@ -174,7 +175,7 @@
       </template>
     </v-navigation-drawer>
 
-    <router-view :style="contentStyle" :class="{ 'pt-10': mdAndUp && showDesktopAppBar }" />
+    <router-view :style="contentStyle" :class="{ 'pt-5': mdAndUp && showDesktopAppBar }" />
   </v-app>
 </template>
 
@@ -471,7 +472,7 @@ onBeforeMount(() => {
   cursor: pointer;
   font-family: "Poppins", sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.9rem;
   letter-spacing: 0.5px;
   color: #fff;
 }
