@@ -1679,9 +1679,28 @@ watch(
 .events-tabs__item {
   font-size: 1rem;
 }
-.events-tabs__item.active,
 .events-sort__item.active {
   border-bottom-color: #fff;
+}
+/* Selected tab is light (theme "terciary"); the other one is dimmed. */
+.events-tabs {
+  padding: 0;
+}
+.events-tabs__item {
+  justify-self: stretch;
+  align-self: stretch;
+  padding: 12px 4px;
+  border-bottom: 0;
+  opacity: 0.45;
+  transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.events-tabs__item:hover {
+  opacity: 0.7;
+}
+.events-tabs__item.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
 }
 .events-sort__clear {
   display: flex;
