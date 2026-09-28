@@ -93,6 +93,7 @@ declare module 'vue' {
     ItemCardSelectCategorized: typeof import('./components/ItemCardSelectCategorized.vue')['default']
     ItemDialog: typeof import('./components/ItemDialog.vue')['default']
     KeywordView: typeof import('./components/KeywordView.vue')['default']
+    LanguageFlag: typeof import('./components/Library/LanguageFlag.vue')['default']
     LibraryBoxCard: typeof import('./components/Library/LibraryBoxCard.vue')['default']
     LibraryBoxDetail: typeof import('./components/Library/LibraryBoxDetail.vue')['default']
     LibraryDownloadsDialog: typeof import('./components/Library/LibraryDownloadsDialog.vue')['default']

@@ -20,7 +20,8 @@
             :class="{ active: language === lang }"
             @click="language = lang"
           >
-            {{ LANGUAGE_LABELS[lang] }}
+            <LanguageFlag :language="lang" :label="LANGUAGE_LABELS[lang]" />
+            <span>{{ LANGUAGE_LABELS[lang] }}</span>
           </button>
         </div>
 
@@ -53,6 +54,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import LanguageFlag from "@/components/Library/LanguageFlag.vue";
 import { boxDownloads, LANGUAGE_LABELS, type DownloadFile, type LanguageCode } from "@/data/library";
 
 const props = defineProps<{ boxName: string }>();
@@ -116,7 +118,11 @@ const groups = computed(() => {
   border-radius: 10px;
 }
 .downloads__tab {
+  display: flex;
   flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 8px 4px;
   border-radius: 8px;
   font-size: 0.8rem;
