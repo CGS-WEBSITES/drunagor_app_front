@@ -44,14 +44,14 @@ const REWARDS = [
   { name: "Drunagor APP Badges", description: "Check in at the event and get an exclusive event badge to show in your profile.", picture_hash: "badges%26achievements/Tutorial%20Complete.png" },
 ];
 
-const campaignHash = (campaign: string, wing: string, door: string, daysAgo: number) =>
-  btoa(JSON.stringify({ campaignData: { campaign, wing, door }, savedAt: inDays(-daysAgo, 20) }));
+const campaignHash = (campaign: string, wing: string, door: string, daysAgo: number, heroes: string[] = []) =>
+  btoa(JSON.stringify({ campaignData: { campaign, wing, door }, heroes: heroes.map((heroId) => ({ heroId })), savedAt: inDays(-daysAgo, 20) }));
 
 const DASH_CAMPAIGNS = [
-  { campaigns_fk: 900101, party_name: "Creative Games Studio Party", box: 1, tracker_hash: campaignHash("apocalypse", "", "", 1) },
+  { campaigns_fk: 900101, party_name: "Creative Games Studio Party", box: 1, tracker_hash: campaignHash("apocalypse", "", "", 1, ["vorn", "maya", "jaheen"]) },
   { campaigns_fk: 900102, party_name: "Friday Night Heroes", box: 38, tracker_hash: campaignHash("underkeep", "Wing 1 Tutorial", "DUNGEON FOYER", 3) },
   { campaigns_fk: 900103, party_name: "The Dawnbreakers", box: 39, tracker_hash: campaignHash("underkeep2", "Wing 3", "FIRST SETUP", 6) },
-  { campaigns_fk: 900104, party_name: "Old Guard", box: 1, tracker_hash: campaignHash("core", "", "", 20) },
+  { campaigns_fk: 900104, party_name: "Old Guard", box: 1, tracker_hash: campaignHash("core", "", "", 20, ["elros", "lorelai"]) },
 ];
 
 type State = {
@@ -161,7 +161,15 @@ const routes: Route[] = [
   // Campaigns
   // Dashboard campaigns; searches scoped to an event (Lobby) get none.
   ["get", /^rl_campaigns_users\/search$/, (config) => ({ campaigns: config.params?.events_fk ? [] : DASH_CAMPAIGNS })],
-  ["get", /^rl_campaigns_users\/list_players$/, () => ({ Users: [] })],
+  ["get", /^rl_campaigns_users\/list_players$/, (config) => ({
+    Users: config.params?.campaigns_fk
+      ? [
+          { user_name: "You", playable_heroes_fk: 101 },
+          { user_name: "Ana", playable_heroes_fk: 501 },
+          { user_name: "Bruno", playable_heroes_fk: null },
+        ]
+      : [],
+  })],
   ["get", /^campaigns\/\d+$/, () => ({})],
   ["get", /^doors\/search$/, () => ({ doors: [] })],
   ["get", /^rl_campaigns_doors\/search$/, () => ({ campaign_doors: [] })],
