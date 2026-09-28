@@ -477,23 +477,16 @@ onBeforeMount(() => {
   letter-spacing: 0.5px;
   color: #fff;
 }
-/* On desktop the side menu opens as a panel under the top bar, lined up
-   with the hamburger button instead of the window edge. */
+/* On desktop the side menu stays a full-height side drawer, but reaches
+   from the window edge to the hamburger button (40px wide, 16px inside the
+   1080px content width), never narrower than its default 280px. */
 @media (min-width: 960px) {
   .app-drawer.v-navigation-drawer {
-    right: max(16px, calc((100% - 1080px) / 2 + 16px)) !important;
-    top: 48px !important;
-    height: auto !important;
-    max-height: calc(100vh - 64px);
-    transform: none !important;
-    border-radius: 0 0 8px 8px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-    transition: opacity 0.18s ease, visibility 0.18s ease !important;
+    width: max(280px, calc((100% - 1080px) / 2 + 56px)) !important;
   }
+  /* Vuetify hides it by its default 280px width; hide by the real width. */
   .app-drawer.v-navigation-drawer:not(.v-navigation-drawer--active) {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
+    transform: translateX(110%) !important;
   }
 }
 .safe-pwa-top-bar {
