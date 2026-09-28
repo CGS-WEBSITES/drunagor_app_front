@@ -44,6 +44,16 @@ const REWARDS = [
   { name: "Drunagor APP Badges", description: "Check in at the event and get an exclusive event badge to show in your profile.", picture_hash: "badges%26achievements/Tutorial%20Complete.png" },
 ];
 
+const campaignHash = (campaign: string, wing: string, door: string, daysAgo: number) =>
+  btoa(JSON.stringify({ campaignData: { campaign, wing, door }, savedAt: inDays(-daysAgo, 20) }));
+
+const DASH_CAMPAIGNS = [
+  { campaigns_fk: 900101, party_name: "Creative Games Studio Party", box: 1, tracker_hash: campaignHash("apocalypse", "", "", 1) },
+  { campaigns_fk: 900102, party_name: "Friday Night Heroes", box: 38, tracker_hash: campaignHash("underkeep", "Wing 1 Tutorial", "DUNGEON FOYER", 3) },
+  { campaigns_fk: 900103, party_name: "The Dawnbreakers", box: 39, tracker_hash: campaignHash("underkeep2", "Wing 3", "FIRST SETUP", 6) },
+  { campaigns_fk: 900104, party_name: "Old Guard", box: 1, tracker_hash: campaignHash("core", "", "", 20) },
+];
+
 type State = {
   nextHeroPk: number;
   myHeroes: { playable_heroes_pk: number; hero_hash: string; creation_date: string }[];
@@ -149,7 +159,8 @@ const routes: Route[] = [
   }],
 
   // Campaigns
-  ["get", /^rl_campaigns_users\/search$/, () => ({ campaigns: [] })],
+  // Dashboard campaigns; searches scoped to an event (Lobby) get none.
+  ["get", /^rl_campaigns_users\/search$/, (config) => ({ campaigns: config.params?.events_fk ? [] : DASH_CAMPAIGNS })],
   ["get", /^rl_campaigns_users\/list_players$/, () => ({ Users: [] })],
   ["get", /^campaigns\/\d+$/, () => ({})],
   ["get", /^doors\/search$/, () => ({ doors: [] })],
