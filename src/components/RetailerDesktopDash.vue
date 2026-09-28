@@ -25,60 +25,39 @@
           </template>
         </div>
 
-        <!-- The retailer's next events -->
+        <!-- The retailer's next events: click one to manage it. -->
         <section class="dash-section">
           <router-link to="/events" class="dash-section__title">
             YOUR NEXT EVENTS <v-icon size="18">mdi-chevron-right</v-icon>
           </router-link>
           <div class="dash-panel">
-            <!-- Main call to action: hosting events -->
-            <section class="host-banner">
-              <div class="host-banner__text">
-                <h2>Host a Drunagor Night</h2>
-                <p>Create an event, set up the tables and let players join from their phones.</p>
-                <div class="host-banner__stats">
-                  <span><strong>{{ upcomingEvents.length }}</strong> upcoming events</span>
-                  <span><strong>{{ totalTables }}</strong> tables</span>
-                  <span><strong>{{ totalPlayers }}</strong> players seated</span>
-                </div>
-              </div>
-              <div class="host-banner__actions">
-                <v-btn color="accent" size="x-large" class="font-weight-bold" prepend-icon="mdi-plus-thick" :loading="creating" @click="createEvent">
-                  Create event
-                </v-btn>
-                <v-btn variant="outlined" prepend-icon="mdi-table-furniture" to="/assembly-tutorial">
-                  Table Assembly guide
-                </v-btn>
-              </div>
-            </section>
-
             <div v-if="loadingEvents" class="d-flex justify-center py-6">
               <v-progress-circular indeterminate size="28" />
             </div>
-            <template v-else-if="upcomingEvents.length">
-              <button v-for="event in upcomingEvents.slice(0, 5)" :key="event.events_pk" class="event-row" @click="openEvent(event)">
-                <div class="event-row__date">
-                  <span>{{ extractMonth(event.event_date, timezone) }}</span>
-                  <strong>{{ extractDay(event.event_date, timezone) }}</strong>
-                  <span>{{ extractTime(event.event_date, timezone) }}</span>
-                </div>
-                <div class="event-row__info">
-                  <strong class="text-truncate">{{ event.store_name }}</strong>
-                  <span class="text-truncate"><v-icon size="15">mdi-sword-cross</v-icon> {{ event.scenario }}</span>
-                </div>
-                <div class="event-row__tables">
-                  <template v-if="tableStats[event.events_pk]">
-                    <span><v-icon size="16">mdi-table-chair</v-icon> {{ tableStats[event.events_pk].tables }} tables</span>
-                    <span><v-icon size="16">mdi-account-group</v-icon> {{ tableStats[event.events_pk].players }}/{{ tableStats[event.events_pk].seats }} players</span>
-                  </template>
-                </div>
-                <span class="event-row__manage">Manage <v-icon size="18">mdi-chevron-right</v-icon></span>
-              </button>
-            </template>
-            <div v-else class="dash-empty">
-              <v-icon size="36">mdi-calendar-plus</v-icon>
-              <p>No upcoming events. Create your first Drunagor Night.</p>
-              <v-btn color="accent" prepend-icon="mdi-plus-thick" @click="createEvent">Create event</v-btn>
+            <div v-else-if="upcomingEvents.length" class="dash-events">
+              <EventListCard
+                v-for="event in upcomingEvents.slice(0, 6)"
+                :key="event.events_pk"
+                :event="event"
+                :timezone="timezone"
+                @open="openEvent(event)"
+              >
+                <template #status>
+                  <span class="dash-manage-hint">
+                    <template v-if="tableStats[event.events_pk]">
+                      {{ tableStats[event.events_pk].players }}/{{ tableStats[event.events_pk].seats }} players ·
+                    </template>
+                    Manage <v-icon size="16">mdi-chevron-right</v-icon>
+                  </span>
+                </template>
+              </EventListCard>
+            </div>
+            <p v-else class="dash-empty">No upcoming events yet.</p>
+
+            <div class="dash-create">
+              <v-btn color="accent" size="large" class="font-weight-bold" prepend-icon="mdi-plus-thick" :loading="creating" @click="createEvent">
+                Create event
+              </v-btn>
             </div>
           </div>
         </section>
@@ -105,7 +84,7 @@ import { computed, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
-import { extractDay, extractMonth, extractTime } from "@/utils/dateHelpers";
+import EventListCard from "@/components/EventListCard.vue";
 import hostEventArt from "@/assets/btn-host.png";
 
 const ASSETS = "https://assets.drunagor.app";
@@ -139,8 +118,6 @@ const upcomingEvents = ref<any[]>([]);
 const loadingEvents = ref(true);
 const tableStats = ref<Record<number, { tables: number; players: number; seats: number }>>({});
 
-const totalTables = computed(() => Object.values(tableStats.value).reduce((sum, stat) => sum + stat.tables, 0));
-const totalPlayers = computed(() => Object.values(tableStats.value).reduce((sum, stat) => sum + stat.players, 0));
 
 const loadTableStats = async (eventPk: number) => {
   try {
@@ -247,48 +224,6 @@ onMounted(loadEvents);
   opacity: 0.75;
   text-transform: uppercase;
 }
-.host-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 4px;
-  color: rgb(var(--v-theme-on-surface));
-  padding: 24px;
-  background:
-    linear-gradient(100deg, rgba(var(--v-theme-accent), 0.28) 0%, rgba(var(--v-theme-primary), 0.9) 60%),
-    url("https://assets.drunagor.app/Dashboard/btn-events3.png") right 35% / 55% auto no-repeat,
-    rgb(var(--v-theme-primary));
-  border: 1px solid rgba(var(--v-theme-accent), 0.5);
-  border-radius: 12px;
-}
-.host-banner h2 {
-  font-size: 1.6rem;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-.host-banner p {
-  margin: 4px 0 12px;
-  font-size: 0.9rem;
-  opacity: 0.85;
-}
-.host-banner__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.host-banner__stats span {
-  padding: 4px 12px;
-  background: rgba(var(--v-theme-background), 0.6);
-  border-radius: 999px;
-  font-size: 0.8rem;
-}
-.host-banner__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex-shrink: 0;
-}
 .dash-cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -326,66 +261,32 @@ onMounted(loadEvents);
   font-weight: 700;
   text-decoration: none;
 }
-/* Light panel so the events stand out from the dark page. */
 .dash-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgb(var(--v-theme-primary));
   border-radius: 12px;
-  color: #141414;
 }
-.event-row {
+.dash-events {
   display: grid;
-  grid-template-columns: 64px 1fr auto auto;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.06);
-  border-radius: 10px;
-  color: inherit;
-  text-align: left;
-  transition: background 0.2s ease;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
-.event-row:hover {
-  background: rgba(0, 0, 0, 0.12);
+/* Compact event cards: the Events page stretches them to fill its grid. */
+.dash-events :deep(.event-list-card) {
+  height: auto;
+  min-height: 96px;
 }
-.event-row__date {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1.1;
-}
-.event-row__date span {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-.event-row__date strong {
-  font-size: 1.7rem;
-}
-.event-row__info {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-.event-row__info span,
-.event-row__tables {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-.event-row__tables {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.event-row__manage {
+.dash-manage-hint {
   display: flex;
   align-items: center;
   color: rgb(var(--v-theme-primary));
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 700;
+}
+.dash-create {
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
 }
 .dash-empty {
   display: flex;
