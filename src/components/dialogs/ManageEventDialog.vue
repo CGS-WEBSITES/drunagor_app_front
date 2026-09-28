@@ -35,14 +35,19 @@
         <v-tab value="setup">
           <v-icon start>mdi-table-furniture</v-icon> Table Assembly
         </v-tab>
-        <v-tab value="players">
-          <v-icon start>mdi-account-group</v-icon> Players
-        </v-tab>
       </v-tabs>
 
       <v-card-text class="flex-grow-1 overflow-y-auto pt-0">
         <v-window v-model="activeTab">
           <v-window-item value="details">
+            <div class="event-actions">
+              <v-btn v-if="editable" variant="tonal" prepend-icon="mdi-pencil" @click="emit('edit', event)">
+                Edit event
+              </v-btn>
+              <v-btn variant="flat" color="error" prepend-icon="mdi-delete" @click="deleteConfirm = true">
+                Delete event
+              </v-btn>
+            </div>
             <v-card-text class="pt-0">
               <p>
                 <v-icon>mdi-seat</v-icon> Available Seats:
@@ -297,25 +302,8 @@
                 </v-card>
               </v-col>
             </v-row>
-          </v-window-item>
-
-          <v-window-item value="setup">
-            <div class="table-assembly-container">
-              <div class="mb-4 text-center">
-                <h3 class="text-h6 font-weight-bold mb-2">
-                  <v-icon color="primary" class="mr-2">mdi-table-furniture</v-icon>
-                  Table Assembly
-                </h3>
-                <p class="text-body-2">
-                  Prepare the table before each Drunagor Night. Heroes and the
-                  First Setup are handled by the players in the app.
-                </p>
-              </div>
-              <AssemblyGuide :steps="tableAssemblySteps" />
-            </div>
-          </v-window-item>
-
-          <v-window-item value="players">
+            <!-- Players are managed together with the tables. -->
+            <v-divider class="my-6" />
             <v-row>
               <v-col cols="12" class="d-flex align-end flex-column">
                 <p class="pb-3 font-weight-bold">
@@ -470,6 +458,23 @@
               </v-col>
             </v-row>
           </v-window-item>
+
+          <v-window-item value="setup">
+            <div class="table-assembly-container">
+              <div class="mb-4 text-center">
+                <h3 class="text-h6 font-weight-bold mb-2">
+                  <v-icon color="primary" class="mr-2">mdi-table-furniture</v-icon>
+                  Table Assembly
+                </h3>
+                <p class="text-body-2">
+                  Prepare the table before each Drunagor Night. Heroes and the
+                  First Setup are handled by the players in the app.
+                </p>
+              </div>
+              <AssemblyGuide :steps="tableAssemblySteps" />
+            </div>
+          </v-window-item>
+
         </v-window>
       </v-card-text>
     </v-card>
@@ -587,6 +592,21 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="deleteConfirm" max-width="420">
+      <v-card>
+        <v-card-title class="text-h6">Delete this event?</v-card-title>
+        <v-card-text>
+          {{ event?.store_name }} · {{ formatEventDate(event?.event_date, userTimezone) }}.
+          Players will no longer see it. This cannot be undone.
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" :disabled="deleting" @click="deleteConfirm = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" :loading="deleting" @click="deleteEvent">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="createTableDialog" max-width="400">
       <v-card color="surface">
         <v-card-title>Create New Table</v-card-title>
@@ -685,9 +705,11 @@ const userStore = useUserStore();
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
   event: { type: Object, default: null },
+  // Shows "Edit event": the parent owns the edit form and handles @edit.
+  editable: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["update:modelValue", "refresh"]);
+const emit = defineEmits(["update:modelValue", "refresh", "edit", "deleted"]);
 const axios = inject("axios");
 
 const activeTab = ref("details");
@@ -776,6 +798,26 @@ const openInGoogleMaps = () => {
 };
 
 const closeDialog = () => emit("update:modelValue", false);
+
+const deleteConfirm = ref(false);
+const deleting = ref(false);
+
+const deleteEvent = async () => {
+  if (!props.event?.events_pk) return;
+  deleting.value = true;
+  try {
+    await axios.delete(`/events/${props.event.events_pk}/delete/`);
+    deleteConfirm.value = false;
+    emit("deleted", props.event);
+    emit("refresh");
+    closeDialog();
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    alert(error.response?.data?.message || "Failed to delete the event");
+  } finally {
+    deleting.value = false;
+  }
+};
 
 const fetchTablesForEvent = async (eventFk) => {
   loadingTables.value = true;
@@ -1252,6 +1294,12 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
+.event-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 16px 8px;
+}
 /* Fixed height so switching tabs does not resize the dialog. Vuetify sizes
    dialog cards through flex-basis, read from --v-card-height. */
 .manage-event-card {
