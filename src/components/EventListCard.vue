@@ -75,9 +75,9 @@ const seasonFlag = computed(() => {
 .event-list-card__flag {
   position: absolute;
   top: 0;
-  right: 0;
-  width: 48px;
-  height: 48px;
+  right: 8px;
+  width: 34px;
+  height: auto;
 }
 .event-list-card__date {
   display: flex;
