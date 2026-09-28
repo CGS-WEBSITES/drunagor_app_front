@@ -25,7 +25,7 @@ const router = createRouter({
     ...(import.meta.env.DEV
       ? [
           {
-            path: "/dev-preview",
+            path: "/dev-preview/:screen?/:id?",
             name: "DevPreview",
             component: () => import("@/dev/DevPreview.vue"),
           },

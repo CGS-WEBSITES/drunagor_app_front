@@ -1,0 +1,166 @@
+// Dev-only fake API for /dev-preview. While enabled, every request made
+// through the shared axios instance is answered locally, so previews never
+// reach (or write to) the real backend.
+import axios, { type AxiosAdapter, type InternalAxiosRequestConfig } from "axios";
+
+export const DEV_USER_PK = 900001;
+export const DEV_EVENT_PK = 900001;
+export const DEV_TABLE_PK = 1;
+export const DEV_CAMPAIGN_ID = "900001";
+
+const encodeHero = (heroId: string) => btoa(JSON.stringify({ heroId }));
+
+export const DEV_EVENT = {
+  events_pk: DEV_EVENT_PK,
+  store_name: "Dev Preview Store",
+  scenario: "Wing 1 Tutorial",
+  seasons_fk: 2,
+  event_date: new Date(Date.now() + 86400000).toISOString(),
+  address: "123 Dungeon Street",
+  seats_number: 8,
+  latitude: null,
+  longitude: null,
+  picture_hash: null,
+};
+
+type State = {
+  nextHeroPk: number;
+  myHeroes: { playable_heroes_pk: number; hero_hash: string; creation_date: string }[];
+  myHeroPk: number | null;
+};
+
+let state: State;
+
+const resetState = () => {
+  state = {
+    nextHeroPk: 200,
+    // Heroes the fake player already owns ("Choose your Hero" tab).
+    myHeroes: [
+      { playable_heroes_pk: 101, hero_hash: encodeHero("vorn"), creation_date: "2026-09-01" },
+      { playable_heroes_pk: 102, hero_hash: encodeHero("maya"), creation_date: "2026-09-01" },
+    ],
+    myHeroPk: null,
+  };
+};
+
+// Other players sitting at the preview table.
+const OTHER_PLAYERS = [
+  { users_pk: 900002, user_name: "Ana", picture_hash: null, playable_heroes_fk: 501, event_status: "Granted Passage" },
+  { users_pk: 900003, user_name: "Bruno", picture_hash: null, playable_heroes_fk: null, event_status: "Granted Passage" },
+];
+const OTHER_HEROES: Record<number, string> = { 501: "lorelai" };
+
+const tablePlayers = () => [
+  {
+    users_pk: DEV_USER_PK,
+    user_name: "You",
+    picture_hash: null,
+    playable_heroes_fk: state.myHeroPk,
+    event_status: "Granted Passage",
+    status_date: DEV_EVENT.event_date,
+  },
+  ...OTHER_PLAYERS,
+];
+
+type Route = [method: string, path: RegExp, handler: (config: InternalAxiosRequestConfig, match: RegExpMatchArray) => unknown];
+
+const body = (config: InternalAxiosRequestConfig) => {
+  if (!config.data) return {};
+  try {
+    return typeof config.data === "string" ? JSON.parse(config.data) : config.data;
+  } catch {
+    return {};
+  }
+};
+
+const routes: Route[] = [
+  // Events
+  ["get", /^events\/search$/, () => ({ events: [DEV_EVENT] })],
+  ["get", /^events\/\d+$/, () => DEV_EVENT],
+  ["get", /^event_status\/search$/, () => ({
+    event_status: [
+      { event_status_pk: 1, name: "Granted Passage" },
+      { event_status_pk: 2, name: "Turned Away" },
+      { event_status_pk: 4, name: "Joined the Quest" },
+    ],
+  })],
+  ["get", /^event_tables\/list\/\d+$/, () => ({
+    tables: [
+      { event_tables_pk: DEV_TABLE_PK, table_number: 1, max_players: 4, players_count: 3, available_seats: 1, is_full: false },
+      { event_tables_pk: 2, table_number: 2, max_players: 4, players_count: 0, available_seats: 4, is_full: false },
+    ],
+  })],
+  ["get", /^rl_events_users\/table_players\/\d+\/(\d+)$/, (_c, m) => ({
+    players: Number(m[1]) === DEV_TABLE_PK ? tablePlayers() : [],
+  })],
+  ["get", /^rl_events_users\/table_players$/, () => ({ players: tablePlayers() })],
+  ["get", /^rl_events_users\/list_players$/, () => ({ players: tablePlayers(), last_page: 1 })],
+  ["get", /^rl_events_users\/check-duplicate$/, () => ({ exists: false })],
+  ["post", /^rl_events_users\/cadastro$/, (config) => {
+    const heroPk = config.params?.playable_heroes_fk ?? body(config).playable_heroes_fk;
+    if (heroPk !== undefined) state.myHeroPk = heroPk ? Number(heroPk) : null;
+    return { message: "ok" };
+  }],
+  ["get", /^rl_events_rewards\/list_rewards$/, () => ({ rewards: [] })],
+
+  // Heroes
+  ["get", /^playable_heroes\/search$/, () => ({ playable_heroes: state.myHeroes })],
+  ["get", /^playable_heroes\/(\d+)$/, (_c, m) => {
+    const pk = Number(m[1]);
+    const mine = state.myHeroes.find((h) => h.playable_heroes_pk === pk);
+    if (mine) return mine;
+    return { playable_heroes_pk: pk, hero_hash: encodeHero(OTHER_HEROES[pk] ?? "vorn") };
+  }],
+  ["post", /^playable_heroes\/cadastro$/, (config) => {
+    const hero = {
+      playable_heroes_pk: state.nextHeroPk++,
+      hero_hash: body(config).hero_hash,
+      creation_date: new Date().toISOString(),
+    };
+    state.myHeroes.push(hero);
+    return { playable_hero: hero };
+  }],
+
+  // Campaigns
+  ["get", /^rl_campaigns_users\/search$/, () => ({ campaigns: [] })],
+  ["get", /^rl_campaigns_users\/list_players$/, () => ({ Users: [] })],
+  ["get", /^campaigns\/\d+$/, () => ({})],
+  ["get", /^doors\/search$/, () => ({ doors: [] })],
+  ["get", /^rl_campaigns_doors\/search$/, () => ({ campaign_doors: [] })],
+  ["get", /^rl_users_rewards\/list_rewards$/, () => ({ rewards: [] })],
+];
+
+const mockAdapter: AxiosAdapter = async (config) => {
+  const method = (config.method || "get").toLowerCase();
+  const path = (config.url || "").replace(/^https?:\/\/[^/]+/, "").replace(/^\/+|\/+$/g, "").split("?")[0];
+
+  let data: unknown = { message: "ok" };
+  const route = routes.find(([m, re]) => m === method && re.test(path));
+  if (route) {
+    data = route[2](config, path.match(route[1])!);
+  } else if (method === "get") {
+    console.warn(`[mock api] unhandled GET /${path}`, config.params ?? "");
+    data = {};
+  }
+
+  // Small delay so loading states are visible, like the real API.
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  return { data: JSON.parse(JSON.stringify(data)), status: 200, statusText: "OK", headers: {}, config };
+};
+
+let enabled = false;
+let originalAdapter: InternalAxiosRequestConfig["adapter"];
+
+export const enableMockApi = () => {
+  if (enabled) return;
+  resetState();
+  originalAdapter = axios.defaults.adapter;
+  axios.defaults.adapter = mockAdapter;
+  enabled = true;
+};
+
+export const disableMockApi = () => {
+  if (!enabled) return;
+  axios.defaults.adapter = originalAdapter;
+  enabled = false;
+};
