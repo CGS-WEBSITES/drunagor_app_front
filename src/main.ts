@@ -6,6 +6,7 @@
 
 // Plugins
 import { registerPlugins } from "@/plugins";
+import { resolveApiEnv } from "@/dev/apiEnv";
 
 // Components
 import App from "./App.vue";
@@ -24,7 +25,8 @@ import "@/components/Composable/shepherd-theme.css";
 
 const app = createApp(App);
 
-registerPlugins(app, "prod");
+// In dev mode the /dev-preview page can switch this to "test".
+registerPlugins(app, resolveApiEnv("prod"));
 
 app.mount("#app");
 
