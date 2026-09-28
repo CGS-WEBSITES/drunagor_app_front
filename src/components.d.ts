@@ -70,6 +70,7 @@ declare module 'vue' {
     DialogLoadCampaing: typeof import('./components/dialogs/DialogLoadCampaing.vue')['default']
     DialogSaveCampaign: typeof import('./components/dialogs/DialogSaveCampaign.vue')['default']
     ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
+    EventListCard: typeof import('./components/EventListCard.vue')['default']
     FAQ: typeof import('./components/FAQ.vue')['default']
     FavoriteCampaignCard: typeof import('./components/FavoriteCampaignCard.vue')['default']
     Filters: typeof import('./components/Filters.vue')['default']

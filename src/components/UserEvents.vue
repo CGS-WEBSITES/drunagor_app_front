@@ -10,270 +10,134 @@
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto pt-0 d-flex flex-column" style="min-height: calc(100vh - 180px);">
-    <v-card class="pb-12 flex-grow-1" color="primary">
-      <v-row no-gutters>
-        <v-col cols="12">
-          <v-tabs
-            class="EventsTabs mb-3"
-            v-model="activeTab"
-            fixed-tabs
-            align-tabs="center"
-            color="white"
-          >
-            <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
-            <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
-          </v-tabs>
-        </v-col>
-      </v-row>
-
-      <v-row class="mb-4" align="center">
-        <v-col cols="12" sm="6" class="d-flex align-center">
-          <span class="ml-2">Upcoming</span>
-          <v-switch
-            v-model="showPast"
-            hide-details
-            color="secundary"
-            class="mx-4"
-          ></v-switch>
-          <span>All</span>
-        </v-col>
-      </v-row>
+    <v-card class="events-panel pb-8 flex-grow-1">
+      <nav class="events-tabs">
+        <button
+          v-for="tab in viewTabs"
+          :key="tab.value"
+          class="events-tabs__item"
+          :class="{ active: viewTab === tab.value }"
+          @click="viewTab = tab.value"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
+      <div class="events-sort">
+        <button class="events-sort__clear" title="Reset sorting" @click="setSort('date')">
+          <v-icon size="18">mdi-close-circle</v-icon> Sort by:
+        </button>
+        <button
+          v-for="option in sortOptions"
+          :key="option.value"
+          class="events-sort__item"
+          :class="{ active: sortBy === option.value }"
+          @click="setSort(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      </div>
 
       <div v-if="activeTab === 1">
         <div v-if="loading" class="d-flex justify-center my-8">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row v-if="events.length > 0">
-            <v-col
-              v-for="(event, index) in sortedEvents"
-              :key="index"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
-            >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openDialog(event)"
-              >
-                <v-img
-                  v-if="getSeasonInfo(event.seasons_fk).flag"
-                  :src="getSeasonInfo(event.seasons_fk).flag"
-                  class="season-flag"
-                />
-                <v-row no-gutters align="center">
-                  <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
-                      <p class="pt-3 text-caption font-weight-bold">
-                        {{ extractMonth(event.event_date, userTimezone) }}
-                      </p>
-                      <p class="cinzel-text text-h3 font-weight-bold">
-                        {{ extractDay(event.event_date, userTimezone) }}
-                      </p>
-                      <p class="text-caption font-weight-bold">
-                        {{ extractTime(event.event_date, userTimezone) }}
-                      </p>
-                    </div>
-                  </v-col>
-                  <v-col cols="8" sm="10" class="pt-2">
-                    <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
-                      {{ event.store_name }}
-                    </h3>
-                    <p class="text-caption text-truncate">
-                      <v-icon color="red">mdi-map-marker</v-icon>
-                      {{ event.address }}
-                    </p>
-                    <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon>
-                      {{ event.scenario }}
-                    </p>
-                    <p class="text-caption ml-3" v-if="event.rewards?.length">
-                      <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red"
-                          >mdi-star-circle</v-icon
-                        >
-                        Rewards:
-                        <v-col
-                          v-for="(reward, i) in event.rewards"
-                          :key="i"
-                          cols="auto"
-                        >
-                          <v-img
-                            :src="reward.image"
-                            height="20"
-                            width="20"
-                            contain
-                            class="reward-icon"
-                          />
-                        </v-col>
-                      </v-row>
-                    </p>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row v-else>
-            <v-col>No events match the selected filters.</v-col>
-          </v-row>
+          <div v-if="events.length > 0" class="events-grid">
+            <EventListCard
+              v-for="event in sortedEvents"
+              :key="event.events_pk"
+              :event="event"
+              :timezone="userTimezone"
+              @open="openDialog(event)"
+            />
+          </div>
+          <p v-else class="text-center text-grey py-8">No events match the selected filters.</p>
         </div>
 
-        <v-dialog v-model="dialog" max-width="600" min-height="431">
-          <v-card color="surface" style="position: relative">
+        <v-dialog v-model="dialog" max-width="560" scrollable>
+          <v-card class="event-detail" color="#2b2b2b">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                size="80"
-                width="7"
-                color="primary"
-              />
+              <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
-            <v-card-actions class="d-flex justify-left">
-              <v-btn color="red" @click="dialog = false">X</v-btn>
-            </v-card-actions>
 
             <v-dialog v-model="showDialog" width="400">
-              <v-card style="position: relative">
-                <div v-if="loading" class="dialog-overlay">
-                  <v-progress-circular
-                    indeterminate
-                    size="80"
-                    width="7"
-                    color="primary"
-                  />
-                </div>
+              <v-card>
                 <v-card-title class="text-h6">Share Event</v-card-title>
                 <v-card-text>
-                  <v-text-field
-                    v-model="sharedLink"
-                    label="Event Link"
-                    readonly
-                    density="compact"
-                    hide-details
-                  />
+                  <v-text-field v-model="sharedLink" label="Event Link" readonly density="compact" hide-details />
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn
-                    color="success"
-                    size="small"
-                    @click="copyLink(sharedLink)"
-                  >
-                    Copy Link
-                  </v-btn>
-                  <v-btn color="grey" size="small" @click="showDialog = false">
-                    Close
-                  </v-btn>
+                  <v-btn color="success" size="small" @click="copyLink(sharedLink)">Copy Link</v-btn>
+                  <v-btn color="grey" size="small" @click="showDialog = false">Close</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
 
-            <v-card-text>
-              <v-btn
-                block
-                color="blue"
-                size="small"
-                variant="flat"
-                class="mt-2"
-                @click="shareEvent(selectedEvent?.events_pk)"
-              >
-                <v-icon start>mdi-share-variant</v-icon>
-                Share Event
+            <div class="event-detail__header">
+              <h2 class="event-detail__title">{{ selectedEvent?.store_name }}</h2>
+              <v-btn icon variant="text" size="small" class="event-detail__close" @click="dialog = false">
+                <v-icon>mdi-close</v-icon>
               </v-btn>
-              <p>
-                <v-icon>mdi-seat</v-icon> Available Seats:
-                {{ selectedEvent?.seats_number }}
-              </p>
-              <p>
-                <v-icon>mdi-sword-cross</v-icon> Scenario:
-                {{ selectedEvent?.scenario }}
-              </p>
-              <p v-if="getSeasonInfo(selectedEvent?.seasons_fk).name">
-                <v-icon>mdi-shield-sun</v-icon> Season:
-                {{ getSeasonInfo(selectedEvent.seasons_fk).name }}
-              </p>
-              <p class="text-end scheduled-box">
-                Scheduled for:
-                {{ formatEventDate(selectedEvent?.event_date, userTimezone) }}
-              </p>
-            </v-card-text>
+            </div>
 
-            <v-card
-              color="primary"
-              min-height="130px"
-              class="mr-4 event-card"
-              @click="openInGoogleMaps()"
-            >
-              <v-row no-gutters>
-                <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedEvent?.picture_hash
-                        ? `https://assets.drunagor.app/${selectedEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
-                </v-col>
-                <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedEvent?.store_name }}
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedEvent?.address }}
-                  </p>
-                </v-col>
-              </v-row>
-            </v-card>
+            <v-card-text class="pt-0">
+              <p class="event-detail__info">
+                <v-icon size="16" class="mr-1">mdi-sword-cross</v-icon>{{ selectedEvent?.scenario }}
+              </p>
+              <p v-if="getSeasonInfo(selectedEvent?.seasons_fk).name" class="event-detail__info">
+                <v-icon size="16" class="mr-1">mdi-shield-sun</v-icon>{{ getSeasonInfo(selectedEvent.seasons_fk).name }}
+              </p>
+              <p class="event-detail__info">
+                <v-icon size="16" class="mr-1">mdi-seat</v-icon>Available seats: {{ selectedEvent?.seats_number }}
+              </p>
 
-            <v-card color="primary" class="mr-4 mt-4 event-card">
-              <v-responsive
-                style="width: 100%; height: 200px"
-                aspect-ratio="16/9"
-              >
-                <iframe
-                  v-if="selectedEvent?.latitude"
+              <div class="d-flex justify-end my-3">
+                <span class="event-detail__scheduled">
+                  <strong>SCHEDULED FOR:</strong>
+                  {{ formatEventDate(selectedEvent?.event_date, userTimezone) }}
+                </span>
+              </div>
+
+              <div class="event-detail__store" @click="openInGoogleMaps()">
+                <img
                   :src="
-                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                    `&z=15&output=embed`
+                    selectedEvent?.picture_hash
+                      ? `https://assets.drunagor.app/${selectedEvent.picture_hash}`
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                   "
-                  frameborder="0"
-                  style="border: 0; width: 100%; height: 100%"
-                  allowfullscreen
-                  loading="lazy"
+                  alt=""
+                  class="event-detail__store-img"
                 />
-              </v-responsive>
-            </v-card>
+                <div style="min-width: 0">
+                  <h3 class="event-detail__store-name">{{ selectedEvent?.store_name }}</h3>
+                  <p class="event-detail__store-address">
+                    <v-icon size="16" color="red">mdi-map-marker</v-icon>{{ selectedEvent?.address }}
+                  </p>
+                </div>
+              </div>
 
-            <v-card-text v-if="eventRewards.length">
-              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-for="(reward, index) in eventRewards"
-                :key="index"
-                class="align-center my-2"
-              >
-                <v-col cols="3" md="2">
-                  <v-avatar size="60">
-                    <v-img
-                      :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                    />
+              <div v-if="selectedEvent?.latitude" class="event-detail__map">
+                <iframe
+                  :src="`https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}&z=15&output=embed`"
+                  title="Store location"
+                  loading="lazy"
+                  allowfullscreen
+                />
+              </div>
+
+              <template v-if="eventRewards.length">
+                <h3 class="event-detail__section">REWARDS:</h3>
+                <div v-for="(reward, index) in eventRewards" :key="index" class="event-detail__reward">
+                  <v-avatar size="72">
+                    <v-img :src="`https://assets.drunagor.app/${reward.picture_hash}`" />
                   </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                  <p class="text-body-2">{{ reward.description }}</p>
-                </v-col>
-              </v-row>
+                  <div>
+                    <h4 class="event-detail__reward-name">{{ reward.name }}</h4>
+                    <p class="event-detail__reward-text">{{ reward.description }}</p>
+                  </div>
+                </div>
+              </template>
 
               <BaseAlert
                 v-model="showAlert"
@@ -287,18 +151,14 @@
               </BaseAlert>
             </v-card-text>
 
-            <v-row class="mt-2 ml-0">
-              <v-col cols="12" class="mb-2">
-                <v-btn
-                  block
-                  color="#539041"
-                  class="rounded-0"
-                  @click="joinEvent"
-                >
-                  Count me in
-                </v-btn>
-              </v-col>
-            </v-row>
+            <div class="event-detail__actions">
+              <button class="event-detail__action event-detail__action--share" @click="shareEvent(selectedEvent?.events_pk)">
+                <v-icon start size="18">mdi-share-variant</v-icon> Share event
+              </button>
+              <button class="event-detail__action event-detail__action--join" @click="joinEvent">
+                Count me in
+              </button>
+            </div>
           </v-card>
         </v-dialog>
       </div>
@@ -308,103 +168,26 @@
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row v-if="myEvents.length > 0">
-            <v-col
-              v-for="(evt, idx) in myEvents"
+          <div v-if="myEvents.length > 0" class="events-grid">
+            <EventListCard
+              v-for="evt in sortedMyEvents"
               :key="evt.events_pk"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
+              :event="evt"
+              :timezone="userTimezone"
+              @open="openMyEventsDialog(evt)"
             >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openMyEventsDialog(evt)"
-              >
-                <v-img
-                  v-if="getSeasonInfo(evt.seasons_fk).flag"
-                  :src="getSeasonInfo(evt.seasons_fk).flag"
-                  class="season-flag"
-                />
-                <div class="status-icon-container">
-                  <v-tooltip
-                    :text="getEventStatusInfo(evt.status).tooltip"
-                    location="top"
-                  >
-                    <template #activator="{ props }">
-                      <v-icon
-                        v-bind="props"
-                        :color="getEventStatusInfo(evt.status).color"
-                        size="large"
-                      >
-                        {{ getEventStatusInfo(evt.status).icon }}
-                      </v-icon>
-                    </template>
-                  </v-tooltip>
-                </div>
-                <v-row no-gutters align="center">
-                  <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
-                      <p class="pt-3 text-caption font-weight-bold">
-                        {{ extractMonth(evt.event_date, userTimezone) }}
-                      </p>
-                      <p class="cinzel-text text-h3 font-weight-bold">
-                        {{ extractDay(evt.event_date, userTimezone) }}
-                      </p>
-                      <p class="text-caption font-weight-bold">
-                        {{ extractTime(evt.event_date, userTimezone) }}
-                      </p>
-                    </div>
-                  </v-col>
-                  <v-col cols="8" sm="10" class="pt-2 pr-10">
-                    <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
-                      {{ evt.store_name }}
-                    </h3>
-                    <p class="text-caption text-truncate">
-                      <v-icon color="red">mdi-map-marker</v-icon>
-                      {{ evt.address }}
-                    </p>
-                    <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon>
-                      {{ evt.scenario }}
-                    </p>
-                    <p class="text-caption ml-3" v-if="evt.rewards?.length">
-                      <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red"
-                          >mdi-star-circle</v-icon
-                        >
-                        Rewards:
-                        <v-col
-                          v-for="(reward, i) in evt.rewards"
-                          :key="i"
-                          cols="auto"
-                        >
-                          <v-img
-                            :src="reward.image"
-                            height="20"
-                            width="20"
-                            contain
-                            class="reward-icon"
-                          />
-                        </v-col>
-                      </v-row>
-                    </p>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row v-else>
-            <v-col class="text-center"
-              >No events match the selected filters.</v-col
-            >
-          </v-row>
+              <template #status>
+                <v-tooltip :text="getEventStatusInfo(evt.status).tooltip" location="top">
+                  <template #activator="{ props }">
+                    <v-icon v-bind="props" :color="getEventStatusInfo(evt.status).color" size="large">
+                      {{ getEventStatusInfo(evt.status).icon }}
+                    </v-icon>
+                  </template>
+                </v-tooltip>
+              </template>
+            </EventListCard>
+          </div>
+          <p v-else class="text-center text-grey py-8">No events match the selected filters.</p>
         </div>
 
         <v-dialog v-model="myDialog" max-width="700" min-height="500">
@@ -756,6 +539,7 @@ import { Campaign } from "@/store/Campaign";
 import { useDebounceFn } from "@vueuse/core";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
 import DashboardEvents from "@/components/DashboardEvents.vue";
+import EventListCard from "@/components/EventListCard.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import genconLogo from "@/assets/cgsblue.png";
@@ -875,12 +659,68 @@ const userTimezone = computed(
 const user = computed(() => userStore.user);
 const boxSku = computed(() => route.query.sku || "");
 
-const sortedEvents = computed(() => {
-  if (sortBy.value === "date") {
-    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
-  return events.value;
+// "I'M IN" lists the player's events; "NEXT" and "ALL" list every event,
+// upcoming only or including past ones.
+const viewTabs = [
+  { value: "in", label: "I'M IN" },
+  { value: "next", label: "NEXT" },
+  { value: "all", label: "ALL" },
+];
+const viewTab = computed({
+  get: () => (activeTab.value === 2 ? "in" : showPast.value ? "all" : "next"),
+  set: (value) => {
+    activeTab.value = value === "in" ? 2 : 1;
+    showPast.value = value === "all";
+  },
 });
+
+const sortOptions = [
+  { value: "location", label: "LOCATION" },
+  { value: "date", label: "DATE" },
+  { value: "store", label: "STORE" },
+];
+const userCoords = ref(null);
+
+const setSort = (value) => {
+  sortBy.value = value;
+  if (value === "location" && !userCoords.value && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userCoords.value = { lat: position.coords.latitude, lng: position.coords.longitude };
+      },
+      () => {
+        // Permission denied: location sorting falls back to the address.
+      },
+    );
+  }
+};
+
+const distanceKm = (event) => {
+  if (!userCoords.value || event.latitude == null || event.longitude == null) return Infinity;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(event.latitude - userCoords.value.lat);
+  const dLng = toRad(event.longitude - userCoords.value.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(userCoords.value.lat)) * Math.cos(toRad(event.latitude)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+const sortEvents = (list) => {
+  const sorted = [...list];
+  if (sortBy.value === "store") {
+    return sorted.sort((a, b) => (a.store_name || "").localeCompare(b.store_name || ""));
+  }
+  if (sortBy.value === "location") {
+    return userCoords.value
+      ? sorted.sort((a, b) => distanceKm(a) - distanceKm(b))
+      : sorted.sort((a, b) => (a.address || "").localeCompare(b.address || ""));
+  }
+  return sorted.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+};
+
+const sortedEvents = computed(() => sortEvents(events.value));
+const sortedMyEvents = computed(() => sortEvents(myEvents.value));
 
 const pageSize = 5;
 const totalPages = computed(() => Math.ceil(players.value.length / pageSize));
@@ -1700,6 +1540,181 @@ watch(
 </script>
 
 <style scoped>
+.event-detail {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+}
+.event-detail__header {
+  position: relative;
+  padding: 20px 56px 8px;
+  text-align: center;
+}
+.event-detail__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.event-detail__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.event-detail__info {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  margin: 0 0 2px;
+}
+.event-detail__scheduled {
+  background: #fff;
+  color: #000;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+.event-detail__store {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #fff;
+  color: #000;
+  border-radius: 6px 6px 0 0;
+  padding: 8px;
+  cursor: pointer;
+}
+.event-detail__store-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex: 0 0 96px;
+}
+.event-detail__store-name {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.event-detail__store-address {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.8rem;
+  margin: 0;
+}
+.event-detail__map {
+  height: 180px;
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+}
+.event-detail__map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.event-detail__section {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 20px 0 8px;
+}
+.event-detail__reward {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.event-detail__reward-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.event-detail__reward-text {
+  font-size: 0.8rem;
+  margin: 0;
+}
+.event-detail__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex-shrink: 0;
+}
+.event-detail__action {
+  height: 56px;
+  font-family: "Poppins", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+}
+.event-detail__action--share {
+  background: #b0905e;
+}
+.event-detail__action--join {
+  background: #5fae54;
+}
+.events-panel {
+  background: #0d0d0d !important;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+.events-tabs,
+.events-sort {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+}
+.events-tabs {
+  grid-template-columns: repeat(3, 1fr);
+  background: #4a4a4a;
+  min-height: 44px;
+}
+.events-sort {
+  background: #2b2b2b;
+  min-height: 36px;
+  font-size: 0.8rem;
+}
+.events-tabs__item,
+.events-sort__item,
+.events-sort__clear {
+  justify-self: center;
+  padding: 6px 4px 2px;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.events-tabs__item {
+  font-size: 1rem;
+}
+.events-tabs__item.active,
+.events-sort__item.active {
+  border-bottom-color: #fff;
+}
+.events-sort__clear {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+}
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px 12px;
+}
+@media (max-width: 959px) {
+  .events-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .events-tabs__item {
+    font-size: 0.85rem;
+  }
+  .events-sort {
+    font-size: 0.7rem;
+  }
+}
+
 .list-container {
   min-height: 400px;
 }
