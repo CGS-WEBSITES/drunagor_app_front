@@ -67,6 +67,7 @@ declare module 'vue' {
     ConfigurationView: typeof import('./components/ConfigurationView.vue')['default']
     DashboardEvents: typeof import('./components/DashboardEvents.vue')['default']
     DebugInteractions: typeof import('./components/DebugInteractions.vue')['default']
+    DesktopDash: typeof import('./components/DesktopDash.vue')['default']
     DialogLoadCampaing: typeof import('./components/dialogs/DialogLoadCampaing.vue')['default']
     DialogSaveCampaign: typeof import('./components/dialogs/DialogSaveCampaign.vue')['default']
     ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
