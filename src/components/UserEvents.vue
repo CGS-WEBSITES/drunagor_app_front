@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
-        class="cinzel-text font-weight-black pt-4 pb-2 justify-center text-center text-h2"
+        class="cinzel-text font-weight-black events-title justify-center text-center text-h2"
       >
         EVENTS
       </h1>
@@ -23,18 +23,32 @@
         </button>
       </nav>
       <div class="events-sort">
-        <button class="events-sort__clear" title="Reset sorting" @click="setSort('date')">
-          <v-icon size="18">mdi-close-circle</v-icon> Sort by:
-        </button>
-        <button
-          v-for="option in sortOptions"
-          :key="option.value"
-          class="events-sort__item"
-          :class="{ active: sortBy === option.value }"
-          @click="setSort(option.value)"
-        >
-          {{ option.label }}
-        </button>
+        <div class="events-sort__group">
+          <span class="events-sort__label">Show:</span>
+          <button
+            v-for="option in periodOptions"
+            :key="option.label"
+            class="events-sort__item"
+            :class="{ active: showPast === option.value }"
+            @click="showPast = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+        <div class="events-sort__group">
+          <button class="events-sort__label events-sort__clear" title="Reset sorting" @click="setSort('date')">
+            <v-icon size="16">mdi-close-circle</v-icon> Sort by:
+          </button>
+          <button
+            v-for="option in sortOptions"
+            :key="option.value"
+            class="events-sort__item"
+            :class="{ active: sortBy === option.value }"
+            @click="setSort(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
       </div>
 
       <div v-if="activeTab === 1">
@@ -659,20 +673,22 @@ const userTimezone = computed(
 const user = computed(() => userStore.user);
 const boxSku = computed(() => route.query.sku || "");
 
-// "I'M IN" lists the player's events; "NEXT" and "ALL" list every event,
-// upcoming only or including past ones.
+// "My Events" lists the events the player joined; "All Events" lists every
+// event. "Show" picks upcoming events only or past ones too, for either tab.
 const viewTabs = [
-  { value: "in", label: "I'M IN" },
-  { value: "next", label: "NEXT" },
-  { value: "all", label: "ALL" },
+  { value: "mine", label: "MY EVENTS" },
+  { value: "all", label: "ALL EVENTS" },
 ];
 const viewTab = computed({
-  get: () => (activeTab.value === 2 ? "in" : showPast.value ? "all" : "next"),
+  get: () => (activeTab.value === 2 ? "mine" : "all"),
   set: (value) => {
-    activeTab.value = value === "in" ? 2 : 1;
-    showPast.value = value === "all";
+    activeTab.value = value === "mine" ? 2 : 1;
   },
 });
+const periodOptions = [
+  { value: false, label: "UPCOMING" },
+  { value: true, label: "ALL" },
+];
 
 const sortOptions = [
   { value: "location", label: "LOCATION" },
@@ -1645,7 +1661,7 @@ watch(
   color: #fff;
 }
 .event-detail__action--share {
-  background: #b0905e;
+  background: #1e88e5;
 }
 .event-detail__action--join {
   background: #5fae54;
@@ -1655,10 +1671,12 @@ watch(
   border-radius: 8px 8px 0 0;
   overflow: hidden;
 }
+.events-title {
+  padding: 48px 0 24px;
+}
 .events-tabs,
 .events-sort {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
   align-items: center;
   font-family: "Poppins", sans-serif;
   font-weight: 700;
@@ -1666,14 +1684,27 @@ watch(
   color: #fff;
 }
 .events-tabs {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   background: #4a4a4a;
   min-height: 44px;
 }
 .events-sort {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding: 4px 16px;
   background: #2b2b2b;
   min-height: 36px;
   font-size: 0.8rem;
+}
+.events-sort__group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.events-sort__label {
+  text-transform: none;
 }
 .events-tabs__item,
 .events-sort__item,
@@ -1704,6 +1735,16 @@ watch(
   padding: 16px 12px;
 }
 @media (max-width: 959px) {
+  .events-title {
+    padding: 24px 0 16px;
+  }
+  .events-sort {
+    justify-content: center;
+    padding: 6px 8px;
+  }
+  .events-sort__group {
+    gap: 12px;
+  }
   .events-grid {
     grid-template-columns: minmax(0, 1fr);
   }
