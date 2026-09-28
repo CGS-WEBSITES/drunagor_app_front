@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="model" :fullscreen="smAndDown" max-width="960" scrollable>
+  <v-dialog v-model="model" max-width="960" scrollable>
     <v-card v-if="product" class="box-detail" color="surface">
       <div class="box-detail__layout">
         <!-- Desktop side panel: box, collection actions and files -->
@@ -78,7 +78,6 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useDisplay } from "vuetify";
 import LibraryDownloadsDialog from "@/components/Library/LibraryDownloadsDialog.vue";
 import { boxContents, COMPONENT_TYPES, doorLabel } from "@/data/library";
 
@@ -96,7 +95,6 @@ const props = defineProps<{ product: LibraryProduct | null }>();
 const emit = defineEmits<{ (e: "toggle-wishlist"): void; (e: "toggle-owned"): void }>();
 const model = defineModel<boolean>({ default: false });
 
-const { smAndDown } = useDisplay();
 const downloadsOpen = ref(false);
 
 // Some SKU colors come from the API without the leading '#'.
@@ -121,12 +119,17 @@ const summary = computed(() =>
 </script>
 
 <style scoped>
+/* Fixed height so every box opens at the same size. */
 .box-detail {
+  --v-card-height: min(88vh, 720px);
+  height: min(88vh, 720px);
+  border-radius: 12px !important;
   font-family: "Poppins", sans-serif;
   color: rgb(var(--v-theme-on-surface));
 }
 .box-detail__layout {
   display: grid;
+  flex: 1;
   grid-template-columns: 260px 1fr;
   min-height: 0;
   overflow: hidden;
@@ -184,7 +187,7 @@ const summary = computed(() =>
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-height: min(88vh, 760px);
+  min-height: 0;
   overflow-y: auto;
   background: rgb(var(--v-theme-background));
 }
@@ -272,19 +275,16 @@ const summary = computed(() =>
   .box-detail__side {
     display: none;
   }
-  .box-detail__main {
-    max-height: none;
-  }
   .box-detail__header {
-    min-height: 300px;
+    min-height: 260px;
   }
   .box-detail__header-box {
     position: absolute;
     left: 50%;
     bottom: 12px;
     display: block;
-    width: 62%;
-    max-width: 280px;
+    width: 50%;
+    max-width: 200px;
     transform: translateX(-50%);
   }
   .box-detail__files--mobile {

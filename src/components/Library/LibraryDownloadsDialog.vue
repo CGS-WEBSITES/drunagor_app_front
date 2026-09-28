@@ -24,7 +24,7 @@
           </button>
         </div>
 
-        <v-card-text class="pt-2">
+        <v-card-text class="pt-2 downloads__list">
           <section v-for="group in groups" :key="group.category" class="mb-4">
             <h3 class="downloads__category">{{ group.category }}</h3>
             <a
@@ -86,7 +86,10 @@ const groups = computed(() => {
 </script>
 
 <style scoped>
+/* Fixed height so switching languages does not resize the dialog. */
 .downloads {
+  --v-card-height: min(560px, 80vh);
+  height: min(560px, 80vh);
   font-family: "Poppins", sans-serif;
 }
 .downloads__header {
@@ -145,6 +148,10 @@ const groups = computed(() => {
 }
 .downloads__file:hover {
   background: rgb(var(--v-theme-secondary));
+}
+.downloads__list {
+  flex: 1;
+  overflow-y: auto;
 }
 .downloads__empty {
   opacity: 0.7;

@@ -1,4 +1,6 @@
 <template>
+  <!-- The app adds its own padding to a page root, so pad an inner wrapper. -->
+  <div>
   <div class="library-page">
     <h1 class="library-page__title cinzel-text">LIBRARY</h1>
 
@@ -41,6 +43,7 @@
       @toggle-wishlist="selectedProduct && toggleWishlist(selectedProduct.id)"
       @toggle-owned="selectedProduct && toggleOwned(selectedProduct.id)"
     />
+  </div>
   </div>
 </template>
 
@@ -286,7 +289,7 @@ onBeforeMount(fetchProducts);
 .library-page {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 96px 16px 48px;
+  padding: 76px 16px 48px;
   font-family: "Poppins", sans-serif;
   color: rgb(var(--v-theme-on-surface));
 }
@@ -302,16 +305,17 @@ onBeforeMount(fetchProducts);
   gap: 16px;
   align-items: start;
 }
+/* Keep the boxes panel the same size whatever the filters return. */
+.library-page__boxes {
+  min-height: calc(100vh - 230px);
+}
 .library-page__filters,
 .library-page__boxes {
   padding: 16px;
   background: rgb(var(--v-theme-primary));
   border-radius: 12px;
 }
-.library-page__filters {
-  position: sticky;
-  top: 72px;
-}
+
 .library-page__filters-title {
   margin-bottom: 12px;
   font-size: 1.1rem;
@@ -336,7 +340,10 @@ onBeforeMount(fetchProducts);
 
 @media (max-width: 959px) {
   .library-page {
-    padding: calc(76px + env(safe-area-inset-top, 0px)) 12px 32px;
+    padding: 76px 12px 32px;
+  }
+  .library-page__boxes {
+    min-height: 60vh;
   }
   .library-page__title {
     font-size: 2.6rem;
