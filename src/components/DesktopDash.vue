@@ -426,8 +426,8 @@ onMounted(() => {
   text-decoration: none;
 }
 .dash-more-events__teaser {
-  filter: blur(3px);
-  opacity: 0.55;
+  filter: blur(1.2px);
+  opacity: 0.8;
   pointer-events: none;
   transition: opacity 0.2s ease;
 }
@@ -438,10 +438,11 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  background: rgba(var(--v-theme-background), 0.45);
+  background: rgba(var(--v-theme-background), 0.3);
+  text-shadow: 0 1px 4px rgba(var(--v-theme-background), 0.9);
 }
 .dash-more-events:hover .dash-more-events__teaser {
-  opacity: 0.75;
+  opacity: 0.95;
 }
 .dash-empty {
   margin: 0;
@@ -493,6 +494,7 @@ onMounted(() => {
 /* Edge-to-edge carousel: bleeds over the container padding. */
 .dash-carousel {
   position: relative;
+  container-type: inline-size;
 }
 .dash-carousel__track {
   display: flex;
@@ -504,28 +506,33 @@ onMounted(() => {
 .dash-carousel__track::-webkit-scrollbar {
   display: none;
 }
+/* Centered on the card art: card width / 3 (art ratio) / 2. */
 .dash-carousel__arrow {
   position: absolute;
-  top: 65px;
+  top: calc((100cqw - 24px) / 2.2 / 6);
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: rgba(var(--v-theme-background), 0.85);
   color: rgb(var(--v-theme-on-surface));
   transform: translateY(-50%);
 }
+.dash-carousel__arrow .v-icon {
+  font-size: 18px;
+}
 .dash-carousel__arrow--prev {
-  left: 8px;
+  left: 4px;
 }
 .dash-carousel__arrow--next {
-  right: 8px;
+  right: 4px;
 }
+/* Two cards and a peek of the third. */
 .dash-campaign {
-  flex: 0 0 300px;
+  flex: 0 0 calc((100% - 24px) / 2.2);
   scroll-snap-align: start;
   background: rgb(var(--v-theme-primary));
   border-radius: 12px;
@@ -536,10 +543,11 @@ onMounted(() => {
 .dash-campaign:hover {
   transform: translateY(-2px);
 }
+/* Campaign art is 3:1, so it shows whole at this ratio. */
 .dash-campaign__img {
   display: block;
   width: 100%;
-  height: 130px;
+  aspect-ratio: 3 / 1;
   object-fit: cover;
   border-bottom: 3px solid rgb(var(--v-theme-accent));
 }
