@@ -1,78 +1,62 @@
 {
   "Vorn": {
-    "role": "Defender",
-    "bark": "Protects allies and holds the frontline.",
-    "playstyle": "Vorn protects the Party by standing between his allies and danger. He can gain Shield, prevent damage, and keep enemies focused on him.",
-    "abilities": [
-      "Gains Shield to absorb incoming damage",
-      "Prevents damage for himself and his allies",
-      "Keeps enemies focused on him"
+    "bark": "Stands between his allies and danger.",
+    "playstyle": [
+      "Draws enemy attacks and keeps foes focused on him",
+      "Gains Shield tokens that absorb damage before it hits",
+      "Prevents damage for himself and nearby allies"
     ],
-    "build": [
-      "Dungeon Role: 2 Defender cards",
-      "Defender Passive: +4 maximum Health (16 total)",
-      "Recommended Gift: Bulwark Shield, another way to Prevent damage for yourself or a teammate"
-    ],
-    "skills": ["Hammer Throw", "Guarding Blow", "Parry"]
+    "gift": {
+      "name": "Bulwark Shield",
+      "description": "Another way to Prevent damage for yourself or a teammate."
+    }
   },
   "Lorelai": {
-    "role": "Controller",
-    "bark": "Moves enemies and creates openings.",
-    "playstyle": "Lorelai controls the battlefield by moving enemies, disrupting their plans, and creating openings for the Party.",
-    "abilities": [
-      "Moves enemies around the battlefield",
-      "Disrupts enemy plans",
-      "Creates openings for the Party"
+    "bark": "Bends the battlefield to the Party's will.",
+    "playstyle": [
+      "Moves enemies out of position with her magic",
+      "Disrupts enemy plans before they can strike",
+      "Creates openings so her allies can attack safely"
     ],
-    "build": [
-      "Dungeon Role: 2 Controller cards",
-      "Recommended Gift: Bauble of Power, an incremental damage bonus for your magic Skills"
-    ],
-    "skills": []
+    "gift": {
+      "name": "Bauble of Power",
+      "description": "Gives your magic Skills an incremental damage bonus."
+    }
   },
   "Jaheen": {
-    "role": "Support",
-    "bark": "Heals, protects, and removes harmful effects.",
-    "playstyle": "Jaheen keeps the Party standing by healing allies, protecting them from harm, and helping the group recover from dangerous effects.",
-    "abilities": [
-      "Heals allies",
-      "Protects allies from harm",
-      "Helps the group recover from dangerous effects"
+    "bark": "Keeps the Party standing.",
+    "playstyle": [
+      "Heals allies after they take damage",
+      "Reacts to attacks to prevent damage to his allies",
+      "Cleanses harmful effects, like Curse Cubes, from the Party"
     ],
-    "build": [
-      "Dungeon Role: 2 Support cards",
-      "Recommended Gift: Heroic Heart, improves your Cleanse effects"
-    ],
-    "skills": ["Intervention"]
+    "gift": {
+      "name": "Heroic Heart",
+      "description": "Improves your Cleanse effects."
+    }
   },
   "Maya": {
-    "role": "Striker",
-    "bark": "Focuses on damage and priority targets.",
-    "playstyle": "Maya is the Party's main damage dealer, focusing on precise attacks and taking down key enemies before they can threaten the group.",
-    "abilities": [
-      "Main damage dealer of the Party",
-      "Makes precise attacks",
-      "Takes down key enemies before they threaten the group"
+    "bark": "The Party's main damage dealer.",
+    "playstyle": [
+      "Deals the most damage in the Party",
+      "Focuses on priority targets and takes them down fast",
+      "Relies on precise attacks instead of holding the frontline"
     ],
-    "build": [
-      "Dungeon Role: 2 Striker cards",
-      "Recommended Gift: Weakening Dagger, some protection and another chance to trigger Best Friends"
-    ],
-    "skills": ["Best Friends (Passive)"]
+    "gift": {
+      "name": "Weakening Dagger",
+      "description": "Some protection and another chance to trigger Best Friends."
+    }
   },
   "Elros": {
-    "role": "Leader",
-    "bark": "Coordinates the Party and enhances his allies.",
-    "playstyle": "Elros leads the Party by coordinating his allies, allowing them to act beyond their turns and fight as a unified force.",
-    "abilities": [
-      "Coordinates his allies",
-      "Lets allies act beyond their turns",
-      "Makes the Party fight as a unified force"
+    "bark": "Leads the Party as a unified force.",
+    "playstyle": [
+      "Coordinates the Party's actions each round",
+      "Lets allies act beyond their own turns",
+      "Enhances his allies instead of fighting alone"
     ],
-    "build": [
-      "Dungeon Role: 2 Leader cards",
-      "Recommended Gift: Boots of Haste, reach advantageous positions or make an extra attack"
-    ],
-    "skills": []
+    "gift": {
+      "name": "Boots of Haste",
+      "description": "Reach advantageous positions or make an extra attack."
+    }
   }
 }

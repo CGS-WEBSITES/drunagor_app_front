@@ -169,7 +169,6 @@
                     v-for="hero in myHeroes"
                     :key="hero.pk"
                     class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative my-1"
-                    :class="{ 'hero-selection-card--expanded': expandedHeroKey === `mine-${hero.pk}` }"
                     @click="toggleHeroDetails(`mine-${hero.pk}`)"
                   >
                       <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover></v-img>
@@ -195,7 +194,6 @@
                     v-for="heroData in availableHeroesToCreate"
                     :key="heroData.id"
                     class="hero-selection-card rounded-lg elevation-6 overflow-hidden"
-                    :class="{ 'hero-selection-card--expanded': expandedHeroKey === `new-${heroData.id}` }"
                     @click="toggleHeroDetails(`new-${heroData.id}`)"
                   >
                       <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52" cover></v-img>
@@ -1304,8 +1302,6 @@ onBeforeUnmount(() => {
 @media (max-width: 959px) { .responsive-container { max-width: 100%; width: 100%; } }
 .hero-selection-card { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border: 1px solid rgba(255,255,255,0.2); }
 .hero-selection-card:active { transform: scale(0.98); }
-.hero-selection-card--expanded { border-color: rgba(255, 193, 7, 0.7); }
-.hero-selection-card--expanded:active { transform: none; }
 .border-dashed { border: 2px dashed rgba(255,255,255,0.2) !important; }
 .player-slot-card { border-color: rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; overflow: hidden; }
 .player-slot-card:active { transform: scale(0.96); }
