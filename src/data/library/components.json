@@ -1,0 +1,1224 @@
+{
+  "Apocalypse": {
+    "source": "Components_List_Apocalypse_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 2,
+      "Flyer": 1,
+      "Scorepad": 1,
+      "Cards": 226,
+      "Doors": 29,
+      "Maps": 28,
+      "Playerboards": 2,
+      "Punchboards": 7,
+      "Miniatures": 19,
+      "Trays": 4,
+      "Dice, Cubes & More": 12
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [
+      "Death Horsewoman",
+      "Famine Horseman",
+      "Plague Horseman",
+      "War Horseman"
+    ],
+    "whiteMonsters": [
+      "Shadow Witch",
+      "Skeleton Knight"
+    ],
+    "grayMonsters": [
+      "Faceless Conjurer",
+      "Hellish Flayer"
+    ],
+    "blackMonsters": [
+      "Dream Titan"
+    ],
+    "monsters": [],
+    "commanders": [
+      "Hero Lorennor",
+      "Hero Uldannor",
+      "Radoslaw Radek",
+      "The Black Prince",
+      "The Fallen Maiden",
+      "The Grand Betrayer",
+      "The Undead King",
+      "Underworld Flayer"
+    ],
+    "companions": [],
+    "pets": [],
+    "doors": [
+      {
+        "door": 1,
+        "name": "The Maiden Fair",
+        "chapter": 1,
+        "chapterName": "A Friendly Visit"
+      },
+      {
+        "door": 2,
+        "name": "Loose Ends",
+        "chapter": 1,
+        "chapterName": "A Friendly Visit"
+      },
+      {
+        "door": 3,
+        "name": "The Wharf Square",
+        "chapter": 1,
+        "chapterName": "A Friendly Visit"
+      },
+      {
+        "door": 1,
+        "name": "Sewer Atrium",
+        "chapter": 2,
+        "chapterName": "The Elder’s Way"
+      },
+      {
+        "door": 2,
+        "name": "Beggar’s Shrine",
+        "chapter": 2,
+        "chapterName": "The Elder’s Way"
+      },
+      {
+        "door": 3,
+        "name": "The Workshop’s Cellar",
+        "chapter": 2,
+        "chapterName": "The Elder’s Way"
+      },
+      {
+        "door": 1,
+        "name": "The Gallows Square",
+        "chapter": 3,
+        "chapterName": "The Old Way"
+      },
+      {
+        "door": 2,
+        "name": "The Gate",
+        "chapter": 3,
+        "chapterName": "The Old Way"
+      },
+      {
+        "door": 3,
+        "name": "Back Alley Tavern",
+        "chapter": 3,
+        "chapterName": "The Old Way"
+      },
+      {
+        "door": 4,
+        "name": "The Gate",
+        "chapter": 3,
+        "chapterName": "The Old Way"
+      },
+      {
+        "door": 1,
+        "name": "Main Hall",
+        "chapter": 4,
+        "chapterName": "The Workshop of Wornders"
+      },
+      {
+        "door": 2,
+        "name": "Inner Workshop",
+        "chapter": 4,
+        "chapterName": "The Workshop of Wornders"
+      },
+      {
+        "door": 3,
+        "name": "Ship’s Bow",
+        "chapter": 4,
+        "chapterName": "The Workshop of Wornders"
+      },
+      {
+        "door": 4,
+        "name": "Ship’s Stern",
+        "chapter": 4,
+        "chapterName": "The Workshop of Wornders"
+      },
+      {
+        "door": 1,
+        "name": "Escape Route",
+        "chapter": 7,
+        "chapterName": "The Fall"
+      },
+      {
+        "door": 2,
+        "name": "The Memory Hall",
+        "chapter": 7,
+        "chapterName": "The Fall"
+      },
+      {
+        "door": 3,
+        "name": "The Mage’s Sanctum",
+        "chapter": 7,
+        "chapterName": "The Fall"
+      },
+      {
+        "door": 4,
+        "name": "Warrior’s Rest",
+        "chapter": 7,
+        "chapterName": "The Fall"
+      },
+      {
+        "door": 1,
+        "name": "The Fortress of Hate",
+        "chapter": 8,
+        "chapterName": "Raiding the Rider’s Home"
+      },
+      {
+        "door": 2,
+        "name": "The Dusky Hall",
+        "chapter": 8,
+        "chapterName": "Raiding the Rider’s Home"
+      },
+      {
+        "door": 3,
+        "name": "The Twisted Armory",
+        "chapter": 8,
+        "chapterName": "Raiding the Rider’s Home"
+      },
+      {
+        "door": 1,
+        "name": "Village Outskirts",
+        "chapter": 10,
+        "chapterName": "Spoiled Surprise"
+      },
+      {
+        "door": 2,
+        "name": "Riverbank Streets",
+        "chapter": 10,
+        "chapterName": "Spoiled Surprise"
+      },
+      {
+        "door": 3,
+        "name": "The Fort Square",
+        "chapter": 10,
+        "chapterName": "Spoiled Surprise"
+      },
+      {
+        "door": 4,
+        "name": "Dramatic Entrance",
+        "chapter": 10,
+        "chapterName": "Spoiled Surprise"
+      },
+      {
+        "door": 1,
+        "name": "Changing Dungeon",
+        "chapter": 11,
+        "chapterName": "The Hungry Fortress"
+      },
+      {
+        "door": 2,
+        "name": "Galleries of Ostentation",
+        "chapter": 11,
+        "chapterName": "The Hungry Fortress"
+      },
+      {
+        "door": 3,
+        "name": "The Foul Feast",
+        "chapter": 11,
+        "chapterName": "The Hungry Fortress"
+      },
+      {
+        "door": 4,
+        "name": "The Final Ascent",
+        "chapter": 11,
+        "chapterName": "The Hungry Fortress"
+      }
+    ]
+  },
+  "Awakenings": {
+    "source": "Components_List_Awakenings_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 1,
+      "Story Record": 1,
+      "Cards": 274,
+      "Dungeon Roles": 5,
+      "Doors": 14,
+      "Maps": 23,
+      "Playerboards": 8,
+      "Status Board": 1,
+      "Punchboards": 1,
+      "Miniatures": 37,
+      "Trays": 4
+    },
+    "heroes": [
+      "Andreas",
+      "Catharina",
+      "Nyx",
+      "Vacren"
+    ],
+    "heroClasses": [],
+    "epicItems": [
+      "Ominous Spearhead"
+    ],
+    "bosses": [],
+    "whiteMonsters": [
+      "Gorgoness Witch",
+      "Gremlin Horde",
+      "Grim Doctor",
+      "Nagian Hunter"
+    ],
+    "grayMonsters": [
+      "Fell Asteris",
+      "Gorgon Hexer",
+      "Hellspawn Brute",
+      "Night Stalker"
+    ],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [
+      "Maya, the Hunter",
+      "Soul Harvester"
+    ],
+    "companions": [],
+    "pets": [],
+    "doors": [
+      {
+        "door": 1,
+        "name": "Time to Move",
+        "chapter": 1,
+        "chapterName": "Untimely Holidays"
+      },
+      {
+        "door": 1,
+        "name": "The Alley",
+        "chapter": 2,
+        "chapterName": "The Swarm"
+      },
+      {
+        "door": 1,
+        "name": "An Escape Route",
+        "chapter": 3,
+        "chapterName": "Run"
+      },
+      {
+        "door": 2,
+        "name": "Let’s Go Over There",
+        "chapter": 3,
+        "chapterName": "Run"
+      },
+      {
+        "door": 3,
+        "name": "To the Pier",
+        "chapter": 3,
+        "chapterName": "Run"
+      },
+      {
+        "door": 4,
+        "name": "All on Board!",
+        "chapter": 3,
+        "chapterName": "Run"
+      },
+      {
+        "door": 1,
+        "name": "Messy Shipwreck",
+        "chapter": 5,
+        "chapterName": "Tempest Island"
+      },
+      {
+        "door": 2,
+        "name": "Inside the Wreckage",
+        "chapter": 5,
+        "chapterName": "Tempest Island"
+      },
+      {
+        "door": 3,
+        "name": "Hidden Cave",
+        "chapter": 5,
+        "chapterName": "Tempest Island"
+      },
+      {
+        "door": 4,
+        "name": "Corrupted Shipwreck",
+        "chapter": 5,
+        "chapterName": "Tempest Island"
+      },
+      {
+        "door": 1,
+        "name": "The Relics Room",
+        "chapter": 6,
+        "chapterName": "The Sunken Temple"
+      },
+      {
+        "door": 2,
+        "name": "Into the Deep",
+        "chapter": 6,
+        "chapterName": "The Sunken Temple"
+      },
+      {
+        "door": 3,
+        "name": "The Crumbling Chambers",
+        "chapter": 6,
+        "chapterName": "The Sunken Temple"
+      },
+      {
+        "door": 1,
+        "name": "Rotten Basement",
+        "chapter": 8,
+        "chapterName": "No Regrets"
+      }
+    ]
+  },
+  "Companions & Fornitures": {
+    "source": "Components_List_Companions_&_Furniture_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Miniatures": 32,
+      "Trays": 1
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [
+      "Amsterd",
+      "Carmilla",
+      "Daviggo",
+      "Khadija"
+    ],
+    "pets": [
+      "Draugr",
+      "Drumm",
+      "Jokull",
+      "Monroe",
+      "Neva"
+    ],
+    "doors": []
+  },
+  "Fallen Sisters": {
+    "source": "Components_List_Fallen_Sisters_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Cards": 11,
+      "Miniatures": 1,
+      "Trays": 1
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [
+      "Fallen Sisters"
+    ],
+    "whiteMonsters": [],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": []
+  },
+  "Hero Pack": {
+    "source": "Components_List_Hero_Pack_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Cards": 60,
+      "Playerboards Deluxe": 4,
+      "Playerboards": 4,
+      "Classboards": 4,
+      "Punchboards": 1,
+      "Miniatures": 8,
+      "Trays": 1
+    },
+    "heroes": [
+      "Azriel",
+      "Brihitte",
+      "Diana",
+      "Drixx",
+      "Garamond",
+      "Gramosh",
+      "Mordred",
+      "Sahara",
+      "Siff"
+    ],
+    "heroClasses": [
+      "Necromancer",
+      "Shaman",
+      "Swordmage",
+      "Warlord"
+    ],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [
+      "Hakkon Undead Warrior",
+      "Neva the Cloud Panther"
+    ],
+    "doors": []
+  },
+  "Lorien": {
+    "source": "Components_List_Lorien_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Cards": 5,
+      "Playerboards": 1,
+      "Miniatures": 1,
+      "Trays": 1
+    },
+    "heroes": [
+      "Lorien"
+    ],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": []
+  },
+  "Four Horseman": {
+    "source": "Component_List_Riders_of_Apocalyse_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Miniatures": 4,
+      "Trays": 1
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [
+      "Death Horsewoman",
+      "Famine Horseman",
+      "Plague Horseman",
+      "War Horseman"
+    ],
+    "whiteMonsters": [],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": []
+  },
+  "Corebox": {
+    "source": "Components_List_Corebox_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 4,
+      "Cards": 313,
+      "Doors": 48,
+      "Maps": 32,
+      "Playerboards": 7,
+      "Punchboards": 6,
+      "Scorepad": 1,
+      "Miniatures": 32,
+      "Trays": 15,
+      "Dice, Cubes & More": 244
+    },
+    "heroes": [
+      "Elros",
+      "Jaheen",
+      "Lorelai",
+      "Maya",
+      "Vorn"
+    ],
+    "heroClasses": [
+      "Assassin",
+      "Cleric",
+      "Mage",
+      "Ranger",
+      "Warrior"
+    ],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [
+      "Shadow Cultist",
+      "Skeleton Archer"
+    ],
+    "grayMonsters": [
+      "Executioner",
+      "Rotten Flesh",
+      "Shadow Vampire"
+    ],
+    "blackMonsters": [
+      "Abomination",
+      "Shadow Knight"
+    ],
+    "monsters": [
+      "Dark Vampire"
+    ],
+    "commanders": [
+      "Commander Bane",
+      "The Guardian",
+      "Warlock Lasse"
+    ],
+    "companions": [
+      "Captain Conner",
+      "Elros",
+      "Jaheen",
+      "Janina",
+      "Jim Volin",
+      "Lorelai",
+      "Neil Mesick",
+      "Oliver Twist",
+      "Ronald Keinz",
+      "Simon Kiblisch",
+      "Tharmagar"
+    ],
+    "pets": [
+      "Bronx the Bear",
+      "Dewey & Guss the Dogs",
+      "Drumm Baby Dragon",
+      "Jinx the Eagle",
+      "Jokull Ice Spirit",
+      "Luma the Wolf",
+      "Monroe the Dog"
+    ],
+    "doors": [
+      {
+        "door": 1,
+        "name": "The Cabin in the Forest",
+        "chapter": 1,
+        "chapterName": "A Cry for Help"
+      },
+      {
+        "door": 1,
+        "name": "The Old Armory",
+        "chapter": 2,
+        "chapterName": "Blackriver’s Missing"
+      },
+      {
+        "door": 2,
+        "name": "The Storage Room",
+        "chapter": 2,
+        "chapterName": "Blackriver’s Missing"
+      },
+      {
+        "door": 3,
+        "name": "The Ritual Chamber",
+        "chapter": 2,
+        "chapterName": "Blackriver’s Missing"
+      },
+      {
+        "door": 1,
+        "name": "Vagabond’s Heaven",
+        "chapter": 3,
+        "chapterName": "The Jewel of the Free People"
+      },
+      {
+        "door": 2,
+        "name": "The Bewitched Warehouse",
+        "chapter": 3,
+        "chapterName": "The Jewel of the Free People"
+      },
+      {
+        "door": 1,
+        "name": "Crossing the District",
+        "chapter": 4,
+        "chapterName": "The Raid of Ignispyra"
+      },
+      {
+        "door": 2,
+        "name": "The Sanctum Square",
+        "chapter": 4,
+        "chapterName": "The Raid of Ignispyra"
+      },
+      {
+        "door": 3,
+        "name": "The Sanctum Entrance",
+        "chapter": 4,
+        "chapterName": "The Raid of Ignispyra"
+      },
+      {
+        "door": 1,
+        "name": "The Great Hall",
+        "chapter": 5,
+        "chapterName": "The Sanctum of the Ancients"
+      },
+      {
+        "door": 2,
+        "name": "The Chamber of Fear",
+        "chapter": 5,
+        "chapterName": "The Sanctum of the Ancients"
+      },
+      {
+        "door": 0,
+        "name": "A Promising Room",
+        "chapter": 6,
+        "chapterName": "The Draconian Dungeons"
+      },
+      {
+        "door": 1,
+        "name": "Backtracking",
+        "chapter": 7,
+        "chapterName": "The Galleries Under the Mountain"
+      },
+      {
+        "door": 2,
+        "name": "Overrun Antechambers",
+        "chapter": 7,
+        "chapterName": "The Galleries Under the Mountain"
+      },
+      {
+        "door": 3,
+        "name": "An Empty Throne",
+        "chapter": 7,
+        "chapterName": "The Galleries Under the Mountain"
+      },
+      {
+        "door": 1,
+        "name": "The Hidden Passageway",
+        "chapter": 8,
+        "chapterName": "The Dwarven King’s Manor"
+      },
+      {
+        "door": 2,
+        "name": "The Forsaken Shrine",
+        "chapter": 8,
+        "chapterName": "The Dwarven King’s Manor"
+      },
+      {
+        "door": 3,
+        "name": "The Falling Bridge",
+        "chapter": 8,
+        "chapterName": "The Dwarven King’s Manor"
+      },
+      {
+        "door": 1,
+        "name": "The Backyard",
+        "chapter": 9,
+        "chapterName": "The Battle for Hezechia"
+      },
+      {
+        "door": 2,
+        "name": "The Basement",
+        "chapter": 9,
+        "chapterName": "The Battle for Hezechia"
+      },
+      {
+        "door": 1,
+        "name": "Mesick’s Wind",
+        "chapter": 10,
+        "chapterName": "The Journey to Nowhere"
+      },
+      {
+        "door": 2,
+        "name": "Lost Crypts",
+        "chapter": 10,
+        "chapterName": "The Journey to Nowhere"
+      },
+      {
+        "door": 3,
+        "name": "The Counselor’s Chamber",
+        "chapter": 10,
+        "chapterName": "The Journey to Nowhere"
+      },
+      {
+        "door": 1,
+        "name": "The Scond Haunting",
+        "chapter": 11,
+        "chapterName": "The Haunting"
+      },
+      {
+        "door": 2,
+        "name": "The Third Haunting",
+        "chapter": 11,
+        "chapterName": "The Haunting"
+      },
+      {
+        "door": 3,
+        "name": "The Last Haunting",
+        "chapter": 11,
+        "chapterName": "The Haunting"
+      },
+      {
+        "door": 0,
+        "name": "Morlokin’s Workshop",
+        "chapter": 12,
+        "chapterName": "The Closure"
+      },
+      {
+        "door": 0,
+        "name": "The Struggle",
+        "chapter": 12,
+        "chapterName": "The Closure"
+      },
+      {
+        "door": 0,
+        "name": "Hospital Stay",
+        "chapter": 12,
+        "chapterName": "The Closure"
+      },
+      {
+        "door": 0,
+        "name": "The Lost Seer",
+        "chapter": 12,
+        "chapterName": "The Closure"
+      },
+      {
+        "door": 1,
+        "name": "Wuthering Heights",
+        "chapter": 13,
+        "chapterName": "The Ugly Truth"
+      },
+      {
+        "door": 2,
+        "name": "The Reveler’s Lair",
+        "chapter": 13,
+        "chapterName": "The Ugly Truth"
+      },
+      {
+        "door": 3,
+        "name": "Narang’erel’s Shrine",
+        "chapter": 13,
+        "chapterName": "The Ugly Truth"
+      },
+      {
+        "door": 1,
+        "name": "The Entrance",
+        "chapter": 14,
+        "chapterName": "The Omekka Pass"
+      },
+      {
+        "door": 2,
+        "name": "The Great Hall",
+        "chapter": 14,
+        "chapterName": "The Omekka Pass"
+      },
+      {
+        "door": 3,
+        "name": "The Back Entrance",
+        "chapter": 14,
+        "chapterName": "The Omekka Pass"
+      },
+      {
+        "door": 1,
+        "name": "Out of the Gridiron, Into the Dark",
+        "chapter": 15,
+        "chapterName": "The Beginning of the End"
+      },
+      {
+        "door": 2,
+        "name": "Chambers of Pain",
+        "chapter": 15,
+        "chapterName": "The Beginning of the End"
+      },
+      {
+        "door": 3,
+        "name": "Sewer Hub",
+        "chapter": 15,
+        "chapterName": "The Beginning of the End"
+      },
+      {
+        "door": 1,
+        "name": "The Backdoor",
+        "chapter": 16,
+        "chapterName": "The Royal Crypt"
+      },
+      {
+        "door": 2,
+        "name": "The Hidden Crypts",
+        "chapter": 16,
+        "chapterName": "The Royal Crypt"
+      },
+      {
+        "door": 3,
+        "name": "The Corpseless Tomb",
+        "chapter": 16,
+        "chapterName": "The Royal Crypt"
+      },
+      {
+        "door": 4,
+        "name": "The Phylactery Box",
+        "chapter": 16,
+        "chapterName": "The Royal Crypt"
+      },
+      {
+        "door": 1,
+        "name": "The Memory Halls",
+        "chapter": 17,
+        "chapterName": "The Fallen Hero"
+      },
+      {
+        "door": 2,
+        "name": "The Royal Crypts",
+        "chapter": 17,
+        "chapterName": "The Fallen Hero"
+      }
+    ]
+  },
+  "Desert of Hellscar": {
+    "source": "Components_List_Desert_Of_Hellscar_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 1,
+      "Cards": 29,
+      "Doors": 2,
+      "Maps": 8,
+      "Playerboards": 3,
+      "Miniatures": 10,
+      "Trays": 2
+    },
+    "heroes": [
+      "Katarina",
+      "Tork"
+    ],
+    "heroClasses": [
+      "Barbarian"
+    ],
+    "epicItems": [
+      "Dragonbone Wand",
+      "Frozen Tears of Alagast",
+      "Staff of Gravity",
+      "Weapon of the Ancients",
+      "Wormscale Breastplate"
+    ],
+    "bosses": [
+      "Wermunggdir"
+    ],
+    "whiteMonsters": [],
+    "grayMonsters": [
+      "Wurm Offspring"
+    ],
+    "blackMonsters": [],
+    "monsters": [
+      "Corrupted Worm"
+    ],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": [
+      {
+        "door": 1,
+        "name": "Ancient Sanctuary Courtyard",
+        "chapter": 1,
+        "chapterName": "The Charge of Several Peoples"
+      },
+      {
+        "door": 1,
+        "name": "The Bridge of Darkness",
+        "chapter": 3,
+        "chapterName": "The Lair of Darkness"
+      }
+    ]
+  },
+  "Lordwrath": {
+    "source": "Components_List_Lordwrath_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Cards": 9,
+      "Playerboards": 1,
+      "Miniatures": 1,
+      "Trays": 1
+    },
+    "heroes": [
+      "Lordwrath"
+    ],
+    "heroClasses": [
+      "Shadow Knight"
+    ],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": []
+  },
+  "Ruin of Luccanor": {
+    "source": "Components_List_Luccanor_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 1,
+      "Cards": 8,
+      "Doors": 3,
+      "Maps": 9,
+      "Miniatures": 8,
+      "Trays": 1
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [
+      "Ravager"
+    ],
+    "grayMonsters": [
+      "Lady Claw"
+    ],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": [
+      {
+        "door": 1,
+        "name": "Harbor Residents",
+        "chapter": 1,
+        "chapterName": "Chaos at the Docks"
+      },
+      {
+        "door": 1,
+        "name": "Cannon Room",
+        "chapter": 2,
+        "chapterName": "The Ruin of Luccanor"
+      },
+      {
+        "door": 2,
+        "name": "Hidden Treasure Room",
+        "chapter": 2,
+        "chapterName": "The Ruin of Luccanor"
+      }
+    ]
+  },
+  "Monster Pack": {
+    "source": "Components_List_Monster_Pack_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Cards": 19,
+      "Miniatures": 9,
+      "Trays": 1
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [
+      "Scout of Darkness"
+    ],
+    "grayMonsters": [
+      "Death Messenger"
+    ],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [
+      "Demon Lord"
+    ],
+    "companions": [],
+    "pets": [],
+    "doors": []
+  },
+  "Spoils of War": {
+    "source": "Components_List_Spoils_Of_War_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 1,
+      "Cards": 94,
+      "Dungeon Roles": 5,
+      "Playerboards Deluxe": 23,
+      "Playerboards": 12,
+      "Classboards": 12,
+      "Miniatures": 26,
+      "Trays": 3
+    },
+    "heroes": [
+      "Arkhanos",
+      "Barak",
+      "Devron",
+      "Duncan",
+      "Flavian",
+      "Kellam",
+      "Pietro",
+      "Savran",
+      "Shadow",
+      "Sskar",
+      "Sun",
+      "Willow"
+    ],
+    "heroClasses": [
+      "Assassin",
+      "Barbarian",
+      "Bard",
+      "Cleric",
+      "Druid",
+      "Mage",
+      "Monk",
+      "Paladin",
+      "Ranger",
+      "Shadow Knight",
+      "Sorcerer",
+      "Warrior"
+    ],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [
+      "Shadow Mistress",
+      "Walking Horror"
+    ],
+    "grayMonsters": [
+      "Bone Reaper"
+    ],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [
+      "Thern",
+      "Twins"
+    ],
+    "companions": [],
+    "pets": [],
+    "doors": []
+  },
+  "Shadow World": {
+    "source": "Components_List_The_Shadow_World_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 1,
+      "Cards": 8,
+      "Doors": 5,
+      "Maps": 9,
+      "Miniatures": 8,
+      "Trays": 1
+    },
+    "heroes": [],
+    "heroClasses": [],
+    "epicItems": [],
+    "bosses": [],
+    "whiteMonsters": [
+      "Shadow Pain"
+    ],
+    "grayMonsters": [
+      "Shadow Guardian"
+    ],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": [
+      {
+        "door": 1,
+        "name": "The Swamp of Darkness",
+        "chapter": 1,
+        "chapterName": "Diving Into the Shadows"
+      },
+      {
+        "door": 4,
+        "name": "Corrupted Memories",
+        "chapter": 1,
+        "chapterName": "Echoes of Memory"
+      },
+      {
+        "door": 1,
+        "name": "Forgotten Memories",
+        "chapter": 2,
+        "chapterName": "Echoes of Memory"
+      },
+      {
+        "door": 2,
+        "name": "Dark Forests",
+        "chapter": 2,
+        "chapterName": "Echoes of Memory"
+      },
+      {
+        "door": 3,
+        "name": "Crystal Palace",
+        "chapter": 2,
+        "chapterName": "Echoes of Memory"
+      }
+    ]
+  },
+  "Rise of The Undead Dragon": {
+    "source": "Components_List_Undead_Dragon_compressed.pdf",
+    "summary": {
+      "Box": 1,
+      "Books": 1,
+      "Cards": 28,
+      "Doors": 9,
+      "Maps": 7,
+      "Playerboards": 3,
+      "Miniatures": 10,
+      "Trays": 2
+    },
+    "heroes": [
+      "Drasek",
+      "Jade"
+    ],
+    "heroClasses": [
+      "Paladin"
+    ],
+    "epicItems": [
+      "Bane of Shadows",
+      "Dark Piercer",
+      "Dragon Eye of Memory",
+      "Dragonclaw Shield",
+      "Moonlight Dagger"
+    ],
+    "bosses": [
+      "Aral’hezec"
+    ],
+    "whiteMonsters": [
+      "Corrupted Farmer"
+    ],
+    "grayMonsters": [],
+    "blackMonsters": [],
+    "monsters": [],
+    "commanders": [],
+    "companions": [],
+    "pets": [],
+    "doors": [
+      {
+        "door": 1,
+        "name": "Crashing the Party",
+        "chapter": 1,
+        "chapterName": "The Cursed Farm"
+      },
+      {
+        "door": 2,
+        "name": "The Basement",
+        "chapter": 1,
+        "chapterName": "The Cursed Farm"
+      },
+      {
+        "door": 1,
+        "name": "The Entrance to the Citadel",
+        "chapter": 2,
+        "chapterName": "The Citadel of Ashes"
+      },
+      {
+        "door": 2,
+        "name": "The Inner Courtyard",
+        "chapter": 2,
+        "chapterName": "The Citadel of Ashes"
+      },
+      {
+        "door": 3,
+        "name": "The Ancient Throne Room",
+        "chapter": 2,
+        "chapterName": "The Citadel of Ashes"
+      },
+      {
+        "door": 1,
+        "name": "The Temple of Flames",
+        "chapter": 3,
+        "chapterName": "Fire and Rock"
+      },
+      {
+        "door": 2,
+        "name": "The Ascending Paths",
+        "chapter": 3,
+        "chapterName": "Fire and Rock"
+      },
+      {
+        "door": 3,
+        "name": "The Room of Memories",
+        "chapter": 3,
+        "chapterName": "Fire and Rock"
+      },
+      {
+        "door": 4,
+        "name": "The Final Encounter",
+        "chapter": 3,
+        "chapterName": "Fire and Rock"
+      }
+    ]
+  }
+}

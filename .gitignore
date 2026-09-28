@@ -39,3 +39,6 @@ src/typed-router.d.ts
 *.zip
 
 deploy.sh
+# Component list source PDFs (large). Data is extracted to src/data/library by scripts/library.
+src/assets/1.2_Compressed_versions/
+src/assets/1.5_Compressed_versions/
