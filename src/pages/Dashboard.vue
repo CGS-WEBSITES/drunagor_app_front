@@ -6,7 +6,11 @@
       <DesktopDash v-if="mdAndUp" />
       <UserDash v-else />
     </template>
-    <RetailDash v-else-if="user?.roles_fk === 3" />
+    <template v-else-if="user?.roles_fk === 3">
+      <!-- Retailers on PC get an event-management dashboard. -->
+      <RetailerDesktopDash v-if="mdAndUp" />
+      <RetailDash v-else />
+    </template>
     <SupportDash v-else-if="user?.roles_fk === 4" />
     <p v-else>Loading dashboard...</p>
   </div>
@@ -19,6 +23,7 @@ import { useUserStore } from "@/store/UserStore";
 import UserDash from "@/components/UserDash.vue";
 import DesktopDash from "@/components/DesktopDash.vue";
 import RetailDash from "@/components/RetailDash.vue";
+import RetailerDesktopDash from "@/components/RetailerDesktopDash.vue";
 import SupportDash from "@/components/SupportDash.vue";
 
 // Obtém o usuário da store
