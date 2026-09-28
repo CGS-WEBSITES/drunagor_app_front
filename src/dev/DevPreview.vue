@@ -12,10 +12,15 @@
 
     <!-- Hub -->
     <v-container v-if="!current" max-width="960" class="py-8">
-      <h1 class="text-h5 font-weight-bold mb-1">Dev Preview</h1>
+      <div class="d-flex align-center ga-2 mb-1">
+        <h1 class="text-h5 font-weight-bold">Dev Preview</h1>
+        <v-spacer />
+        <v-chip size="small" :color="appEnv === 'test' ? 'green' : 'red'" variant="flat">App API: {{ appEnv }}</v-chip>
+      </div>
       <p class="text-body-2 text-grey mb-6">
-        Real screens running on a fake API and a fake user. Nothing here reaches the backend,
-        and your real session, heroes and campaigns are restored when you leave. Dev mode only.
+        Real screens running on a fake API and a fake user: previews never reach the backend, and your real
+        session, heroes and campaigns are restored when you leave. Only the Test tools write data, and only
+        to the test database. Dev mode only.
       </p>
 
       <section v-for="group in groups" :key="group.title" class="mb-8">
@@ -77,6 +82,9 @@
     </v-container>
 
     <AssemblyTutorial v-else-if="screen === 'assembly-tutorial'" />
+
+    <!-- Test tools -->
+    <DevTestData v-else-if="screen === 'test-data'" />
   </div>
 </template>
 
@@ -90,6 +98,8 @@ import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vu
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import AssemblyTutorial from "@/pages/AssemblyTutorial.vue";
 import DevGameplay from "@/dev/DevGameplay.vue";
+import DevTestData from "@/dev/DevTestData.vue";
+import { resolveApiEnv } from "@/dev/apiEnv";
 import { tableAssemblySteps } from "@/data/assembly/tableAssembly";
 import { firstSetupSteps } from "@/data/assembly/firstSetup";
 import { DEV_EVENT, DEV_EVENT_PK, DEV_TABLE_PK } from "@/dev/mockApi";
@@ -127,7 +137,15 @@ const groups: { title: string; items: Screen[] }[] = [
   },
 ];
 
+groups.push({
+  title: "Test tools",
+  items: [
+    { id: "test-data", title: "Test Data Generator", icon: "mdi-database-plus", role: "retailer", description: "Create real events and tables in the TEST database as the retailer tester, pick the wing, and open the lobbies to play." },
+  ],
+});
+
 const allScreens = groups.flatMap((group) => group.items);
+const appEnv = resolveApiEnv("prod");
 const HERO_NAMES = ["Vorn", "Lorelai", "Jaheen", "Maya", "Elros"];
 
 const route = useRoute();
