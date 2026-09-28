@@ -170,6 +170,7 @@ const routes: Route[] = [
         ]
       : [],
   })],
+  ["get", /^rl_campaigns_users\/search_players$/, () => ({ Users: [] })],
   ["get", /^campaigns\/\d+$/, () => ({})],
   ["get", /^doors\/search$/, () => ({ doors: [] })],
   ["get", /^rl_campaigns_doors\/search$/, () => ({ campaign_doors: [] })],
