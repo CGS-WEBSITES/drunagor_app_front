@@ -57,7 +57,7 @@
       no-gutters
       v-else-if="showMobileAppBar"
     >
-      <v-app-bar app min-height="56" color="secundary" elevation="4" class="safe-pwa-top-bar">
+      <v-app-bar app min-height="56" elevation="4" class="safe-pwa-top-bar top-bar--mobile">
         <div
           v-if="route.name === 'Dashboard'"
           @click="$router.push({ name: 'Dashboard' })"
@@ -466,10 +466,15 @@ onBeforeMount(() => {
   background-repeat: no-repeat;
   pointer-events: none;
 }
+/* Top bars follow the active theme. */
 .top-bar {
-  background: #050505 !important;
-  border-top: 3px solid #3b1740;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgb(var(--v-theme-background)) !important;
+  border-top: 3px solid rgb(var(--v-theme-primary));
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+.top-bar--mobile {
+  background: rgb(var(--v-theme-background)) !important;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }
 .top-bar .v-toolbar__content {
   justify-content: center;
