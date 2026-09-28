@@ -58,7 +58,7 @@
       v-else-if="showMobileAppBar"
     >
       <v-app-bar app min-height="56" elevation="4" class="safe-pwa-top-bar top-bar--mobile">
-        <!-- Dashboard: centered brand. Other pages: just a back button. -->
+        <!-- Dashboard: brand on the left. Other pages: just a back button. -->
         <div class="top-bar__inner top-bar__inner--mobile">
           <v-btn v-if="route.name !== 'Dashboard'" icon variant="text" title="Back" @click="handleBack">
             <v-icon size="26">mdi-arrow-left</v-icon>
@@ -476,9 +476,7 @@ onBeforeMount(() => {
   padding: 0 4px;
 }
 .top-bar__brand--mobile {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  padding-left: 8px;
   font-size: 1.1rem;
 }
 /* On mobile the side menu covers the full height, top bar included. */
