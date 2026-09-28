@@ -92,6 +92,7 @@
       temporary
       location="right"
       width="280"
+      class="app-drawer"
     >
       <v-list-item
         class="pa-4"
@@ -475,6 +476,25 @@ onBeforeMount(() => {
   font-size: 0.9rem;
   letter-spacing: 0.5px;
   color: #fff;
+}
+/* On desktop the side menu opens as a panel under the top bar, lined up
+   with the hamburger button instead of the window edge. */
+@media (min-width: 960px) {
+  .app-drawer.v-navigation-drawer {
+    right: max(16px, calc((100% - 1080px) / 2 + 16px)) !important;
+    top: 48px !important;
+    height: auto !important;
+    max-height: calc(100vh - 64px);
+    transform: none !important;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.18s ease, visibility 0.18s ease !important;
+  }
+  .app-drawer.v-navigation-drawer:not(.v-navigation-drawer--active) {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 .safe-pwa-top-bar {
   padding-top: env(safe-area-inset-top, 0px) !important;
