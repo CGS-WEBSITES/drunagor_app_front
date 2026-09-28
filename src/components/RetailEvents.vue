@@ -2,7 +2,7 @@
   <v-row justify="center">
     <v-col cols="12" class="text-center">
       <h1
-        class="cinzel-text font-weight-black pt-15 pb-4 justify-center text-center text-h2"
+        class="cinzel-text font-weight-black events-title justify-center text-center text-h2"
       >
         EVENTS
       </h1>
@@ -10,7 +10,7 @@
   </v-row>
 
   <v-col cols="12" md="10" class="mx-auto">
-    <v-card class="pb-12" min-height="500px" color="#151515">
+    <v-card class="events-panel pb-8" min-height="500px">
       <div v-if="openingManageDialog" class="page-loading-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>
@@ -63,126 +63,62 @@
         </v-card>
       </v-dialog>
 
-      <v-row no-gutters>
-        <v-col cols="12">
-          <v-tabs
-            class="EventsTabs mb-3"
-            v-model="activeTab"
-            fixed-tabs
-            align-tabs="center"
-            color="white"
+      <nav class="events-tabs">
+        <button
+          v-for="tab in viewTabs"
+          :key="tab.value"
+          class="events-tabs__item"
+          :class="{ active: viewTab === tab.value }"
+          @click="viewTab = tab.value"
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
+      <div class="events-sort">
+        <div class="events-sort__group">
+          <span class="events-sort__label">Show:</span>
+          <button
+            v-for="option in periodOptions"
+            :key="option.label"
+            class="events-sort__item"
+            :class="{ active: showPast === option.value }"
+            @click="showPast = option.value"
           >
-            <v-tab class="text-h5" :value="1">ALL EVENTS</v-tab>
-            <v-tab class="text-h5" :value="2">MY EVENTS</v-tab>
-          </v-tabs>
-        </v-col>
-      </v-row>
+            {{ option.label }}
+          </button>
+        </div>
+        <div class="events-sort__group">
+          <button class="events-sort__label events-sort__clear" title="Reset sorting" @click="setSort('date')">
+            <v-icon size="16">mdi-close-circle</v-icon> Sort by:
+          </button>
+          <button
+            v-for="option in sortOptions"
+            :key="option.value"
+            class="events-sort__item"
+            :class="{ active: sortBy === option.value }"
+            @click="setSort(option.value)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
 
-      <v-row class="mb-4" align="center">
-        <v-col cols="12" sm="6" class="d-flex align-center">
-          <span class="ml-2">Upcoming</span>
-          <v-switch
-            v-model="showPast"
-            hide-details
-            color="secundary"
-            class="mx-4"
-          ></v-switch>
-          <span>All</span>
-        </v-col>
-      </v-row>
 
       <div v-if="activeTab === 1">
         <div v-if="loading" class="loading-overlay">
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row v-if="events.length > 0">
-            <v-col
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
-              v-for="(event, index) in sortedEvents"
-              :key="index"
-            >
-              <v-card
-                color="terciary"
-                class="pt-0 event-card"
-                @click="openDialog(event)"
-              >
-                <v-img
-                  v-if="getSeasonInfo(event.seasons_fk).flag"
-                  :src="getSeasonInfo(event.seasons_fk).flag"
-                  class="season-flag"
-                />
-                <v-row no-gutters>
-                  <v-col cols="4" sm="2">
-                    <div
-                      class="text-center ml-3"
-                      style="width: 70px; color: black"
-                    >
-                      <p class="pt-3 text-caption font-weight-bold">
-                        {{ extractMonth(event.event_date, userTimezone) }}
-                      </p>
-                      <p
-                        color="primary"
-                        class="cinzel-text text-h3 font-weight-bold"
-                      >
-                        {{ extractDay(event.event_date, userTimezone) }}
-                      </p>
-                      <p class="text-caption font-weight-bold">
-                        {{ extractTime(event.event_date, userTimezone) }}
-                      </p>
-                    </div>
-                  </v-col>
-                  <v-col cols="8" sm="10" class="pt-2">
-                    <h3 class="pb-1">
-                      <v-icon class="pr-1" size="small" color="black"
-                        >mdi-chess-rook</v-icon
-                      >
-                      {{ event.store_name }}
-                    </h3>
-                    <p class="text-caption text-truncate">
-                      <v-icon color="red">mdi-map-marker</v-icon>
-                      {{ event.address }}
-                    </p>
-                    <p class="text-caption">
-                      <v-icon color="red">mdi-sword-cross</v-icon> Scenario:
-                      {{ event.scenario }}
-                    </p>
-                    <p
-                      class="text-caption ml-3"
-                      v-if="event.rewards && event.rewards.length"
-                    >
-                      <v-row class="d-flex align-center rewards-container">
-                        <v-icon class="mr-1" color="red"
-                          >mdi-star-circle</v-icon
-                        >
-                        Rewards:
-                        <v-col
-                          cols="auto"
-                          v-for="(reward, index) in event.rewards"
-                          :key="index"
-                        >
-                          <v-img
-                            :src="reward.image"
-                            height="20"
-                            width="20"
-                            contain
-                            class="reward-icon"
-                          ></v-img>
-                        </v-col>
-                      </v-row>
-                    </p>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row v-else>
-            <v-col class="text-center">
-              No events match the selected filters.
-            </v-col>
-          </v-row>
+          <div v-if="events.length > 0" class="events-grid">
+            <EventListCard
+              v-for="event in sortedEvents"
+              :key="event.events_pk"
+              :event="event"
+              :timezone="userTimezone"
+              @open="openDialog(event)"
+            />
+          </div>
+          <p v-else class="text-center text-grey py-8">No events match the selected filters.</p>
         </div>
       </div>
 
@@ -191,108 +127,28 @@
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <v-row class="CreateNew align-center bg-gray text-white">
-            <v-col cols="2"></v-col>
-            <v-col cols="3">
-              <v-btn
-                variant="text"
-                class="sort-btn"
-                @click="openCreateEventDialog"
-              >
-                <v-icon>mdi-plus-box-outline</v-icon>
-                Create New
-              </v-btn>
-            </v-col>
-          </v-row>
-          <v-row v-if="userCreatedEvents.length === 0">
-            <v-col class="text-center">
-              No events match the selected filters.
-            </v-col>
-          </v-row>
-          <v-row v-else>
-            <v-col
-              v-for="(event, index) in userCreatedEvents"
+          <div class="events-create">
+            <v-btn color="accent" size="large" class="font-weight-bold" prepend-icon="mdi-plus-thick" @click="openCreateEventDialog">
+              Create event
+            </v-btn>
+          </div>
+          <div v-if="userCreatedEvents.length" class="events-grid">
+            <EventListCard
+              v-for="event in sortedMyEvents"
               :key="event.events_pk"
-              class="py-2 pl-1 pr-1"
-              cols="12"
-              md="6"
+              :event="event"
+              :timezone="userTimezone"
+              @open="openManageDialog(event)"
             >
-              <v-card
-                color="white"
-                class="pt-0 pl-0 pb-0 event-card overflow-hidden"
-                style="height: 120px;"
-                @click="openManageDialog(event)"
-              >
-                <v-row no-gutters class="fill-height align-stretch flex-nowrap">
-                  <v-col cols="auto" class="redbutton d-flex align-center justify-center">
-                    <v-btn
-                      color="#AB2929"
-                      icon
-                      class="delete-btn"
-                      @click.stop="deleteEvent(event.events_pk)"
-                    >
-                      <v-icon>mdi-close</v-icon>
-                    </v-btn>
-                  </v-col>
-                  
-                  <v-col class="d-flex align-center py-2 px-1" style="min-width: 0;">
-                    <v-row no-gutters align="center" class="w-100 flex-nowrap">
-                      <v-col cols="auto" class="d-flex justify-center flex-shrink-0">
-                        <div
-                          class="text-center"
-                          style="width: 74px; color: black"
-                        >
-                          <p class="text-caption font-weight-bold mb-0">
-                            {{ extractMonth(event.event_date, userTimezone) }}
-                          </p>
-                          <p
-                            color="primary"
-                            class="cinzel-text text-h3 font-weight-bold my-0"
-                            style="line-height: 1.1;"
-                          >
-                            {{ extractDay(event.event_date, userTimezone) }}
-                          </p>
-                          <p class="text-caption font-weight-bold mb-0">
-                            {{ extractTime(event.event_date, userTimezone) }}
-                          </p>
-                        </div>
-                      </v-col>
-
-                      <v-col class="pl-3 pr-2" style="min-width: 0;">
-                        <h3 class="pb-1 text-truncate" style="color: black;">
-                          <v-icon class="pr-1" size="small" color="black"
-                            >mdi-chess-rook</v-icon
-                          >
-                          {{ event.store_name }}
-                        </h3>
-
-                        <p class="text-caption text-truncate mb-1" style="color: #424242;">
-                          <v-icon color="red" class="mr-1" size="small">mdi-map-marker</v-icon>
-                          {{ event.address }}
-                        </p>
-
-                        <p class="text-caption mb-0 text-truncate" style="color: #424242;" v-if="event.scenario">
-                          <v-icon color="red" class="mr-1" size="small">mdi-sword-cross</v-icon>
-                          Scenario: {{ event.scenario }}
-                        </p>
-                      </v-col>
-                    </v-row>
-                  </v-col>
-                  
-                  <v-col cols="auto" class="editbutton d-flex align-center justify-center">
-                    <v-btn
-                      color="white"
-                      icon
-                      class="delete-btn"
-                      @click.stop="openEditDialog(event, true)"
-                    >
-                      <v-icon>mdi-pencil</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
+              <template #status>
+                <div class="events-card-actions">
+                  <v-btn icon="mdi-pencil" size="x-small" variant="flat" color="grey-darken-3" title="Edit event" @click.stop="openEditDialog(event, true)" />
+                  <v-btn icon="mdi-delete" size="x-small" variant="flat" color="error" title="Delete event" @click.stop="deleteEvent(event.events_pk)" />
+                </div>
+              </template>
+            </EventListCard>
+          </div>
+          <p v-else class="text-center text-grey py-8">No events match the selected filters.</p>
         </div>
       </div>
 
@@ -750,6 +606,7 @@ import { useRouter, useRoute } from "vue-router";
 import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
+import EventListCard from "@/components/EventListCard.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import {
@@ -931,12 +788,70 @@ const executeTurnAway = () => {
   }
 };
 
-const sortedEvents = computed(() => {
-  if (sortBy.value === "date") {
-    return events.value.sort((a, b) => new Date(a.date) - new Date(b.date));
-  }
-  return events.value;
+// "My Events" lists the events this retailer created; "All Events" lists every
+// event. "Show" picks upcoming events only or past ones too, for either tab.
+const viewTabs = [
+  { value: "mine", label: "MY EVENTS" },
+  { value: "all", label: "ALL EVENTS" },
+];
+const viewTab = computed({
+  get: () => (activeTab.value === 2 ? "mine" : "all"),
+  set: (value) => {
+    activeTab.value = value === "mine" ? 2 : 1;
+  },
 });
+const periodOptions = [
+  { value: false, label: "UPCOMING" },
+  { value: true, label: "ALL" },
+];
+
+const sortOptions = [
+  { value: "location", label: "LOCATION" },
+  { value: "date", label: "DATE" },
+  { value: "store", label: "STORE" },
+];
+const userCoords = ref(null);
+
+const setSort = (value) => {
+  sortBy.value = value;
+  if (value === "location" && !userCoords.value && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userCoords.value = { lat: position.coords.latitude, lng: position.coords.longitude };
+      },
+      () => {
+        // Permission denied: location sorting falls back to the address.
+      },
+    );
+  }
+};
+
+const distanceKm = (event) => {
+  if (!userCoords.value || event.latitude == null || event.longitude == null) return Infinity;
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(event.latitude - userCoords.value.lat);
+  const dLng = toRad(event.longitude - userCoords.value.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(userCoords.value.lat)) * Math.cos(toRad(event.latitude)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+const sortEvents = (list) => {
+  const sorted = [...list];
+  if (sortBy.value === "store") {
+    return sorted.sort((a, b) => (a.store_name || "").localeCompare(b.store_name || ""));
+  }
+  if (sortBy.value === "location") {
+    return userCoords.value
+      ? sorted.sort((a, b) => distanceKm(a) - distanceKm(b))
+      : sorted.sort((a, b) => (a.address || "").localeCompare(b.address || ""));
+  }
+  return sorted.sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+};
+
+const sortedEvents = computed(() => sortEvents(events.value));
+const sortedMyEvents = computed(() => sortEvents(userCreatedEvents.value));
 
 const filteredScenarios = computed(() => {
   const currentSeason = newEvent.value.season;
@@ -1844,6 +1759,131 @@ watch(
 </script>
 
 <style scoped>
+.events-panel {
+  background: #0d0d0d !important;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
+}
+.events-title {
+  padding: 48px 0 24px;
+}
+.events-tabs,
+.events-sort {
+  display: grid;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+}
+.events-tabs {
+  grid-template-columns: repeat(2, 1fr);
+  background: #4a4a4a;
+  min-height: 44px;
+}
+.events-sort {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding: 4px 16px;
+  background: #2b2b2b;
+  min-height: 36px;
+  font-size: 0.8rem;
+}
+.events-sort__group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.events-sort__label {
+  text-transform: none;
+}
+.events-tabs__item,
+.events-sort__item,
+.events-sort__clear {
+  justify-self: center;
+  padding: 6px 4px 2px;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.events-tabs__item {
+  font-size: 1rem;
+}
+.events-tabs__item.active,
+.events-sort__item.active {
+  border-bottom-color: #fff;
+}
+.events-sort__clear {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: none;
+}
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px 12px;
+}
+@media (max-width: 959px) {
+  /* The mobile app bar overlays the page, so leave room for it. */
+  .events-title {
+    padding: calc(84px + env(safe-area-inset-top, 0px)) 0 16px;
+    font-size: 2.75rem !important;
+    line-height: 1.1;
+  }
+  .events-sort {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .events-sort__group {
+    gap: 6px;
+  }
+  .events-sort__label {
+    flex: 0 0 64px;
+    justify-self: auto;
+    padding: 0;
+    border: 0;
+    font-size: 0.72rem;
+  }
+  .events-sort__item {
+    flex: 1;
+    justify-self: auto;
+    padding: 6px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    text-align: center;
+  }
+  .events-sort__item.active {
+    background: #fff;
+    border-color: #fff;
+    color: #000;
+  }
+  .events-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .events-tabs__item {
+    font-size: 0.85rem;
+  }
+  .events-sort {
+    font-size: 0.7rem;
+  }
+}
+
+.events-create {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 12px 0;
+}
+.events-card-actions {
+  display: flex;
+  gap: 4px;
+}
 .page-loading-overlay {
   position: fixed;
   top: 0;
