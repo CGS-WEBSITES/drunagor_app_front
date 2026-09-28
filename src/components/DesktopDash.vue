@@ -23,7 +23,7 @@
           <div v-if="loadingEvents" class="d-flex justify-center py-6">
             <v-progress-circular indeterminate size="28" />
           </div>
-          <div v-else-if="events.length" class="dash-events">
+          <div v-else class="dash-events">
             <EventListCard
               v-for="event in events"
               :key="event.events_pk"
@@ -31,8 +31,12 @@
               :timezone="timezone"
               @open="router.push('/events')"
             />
+            <!-- Placeholder card that always leads to the full events list. -->
+            <router-link to="/events" class="dash-more-events">
+              <v-icon size="26">mdi-calendar-search</v-icon>
+              <span>{{ events.length ? "See more events" : "No upcoming events yet. See all events" }}</span>
+            </router-link>
           </div>
-          <p v-else class="dash-empty">No upcoming events.</p>
         </div>
       </section>
 
@@ -54,14 +58,22 @@
         <div v-if="loadingCampaigns" class="d-flex justify-center py-6">
           <v-progress-circular indeterminate size="28" />
         </div>
-        <v-slide-group v-else-if="campaigns.length" show-arrows class="dash-campaigns">
-          <v-slide-group-item v-for="campaign in campaigns" :key="campaign.id">
-            <div class="dash-campaign" @click="router.push(`/campaign-tracker/campaign/${campaign.id}`)">
+        <div v-else-if="campaigns.length" class="dash-carousel">
+          <button class="dash-carousel__arrow dash-carousel__arrow--prev" aria-label="Previous campaigns" @click="scrollCampaigns(-1)">
+            <v-icon>mdi-chevron-left</v-icon>
+          </button>
+          <div ref="campaignTrack" class="dash-carousel__track">
+            <div
+              v-for="campaign in campaigns"
+              :key="campaign.id"
+              class="dash-campaign"
+              @click="router.push(`/campaign-tracker/campaign/${campaign.id}`)"
+            >
               <img :src="campaign.image" alt="" class="dash-campaign__img" />
               <div class="dash-campaign__info">
                 <strong class="text-truncate">{{ campaign.name }}</strong>
                 <span class="text-truncate">{{ campaign.game }}</span>
-                <span class="dash-campaign__box text-truncate">{{ campaign.detail }}</span>
+                <span v-if="campaign.detail" class="dash-campaign__box text-truncate">{{ campaign.detail }}</span>
 
                 <div class="dash-campaign__party">
                   <div class="dash-campaign__members">
@@ -90,8 +102,11 @@
                 />
               </div>
             </div>
-          </v-slide-group-item>
-        </v-slide-group>
+          </div>
+          <button class="dash-carousel__arrow dash-carousel__arrow--next" aria-label="Next campaigns" @click="scrollCampaigns(1)">
+            <v-icon>mdi-chevron-right</v-icon>
+          </button>
+        </div>
         <p v-else class="dash-empty">No campaigns yet. Start one from the Companion.</p>
       </section>
     </div>
@@ -150,7 +165,7 @@ const loadEvents = async () => {
     });
     events.value = (data.events || [])
       .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-      .slice(0, 4);
+      .slice(0, 3);
   } catch (error) {
     console.error("[DesktopDash] Failed to load events", error);
   } finally {
@@ -173,14 +188,24 @@ type CampaignCard = {
   players: Member[];
 };
 const campaigns = ref<CampaignCard[]>([]);
+const campaignTrack = ref<HTMLElement | null>(null);
+
+// Scroll the carousel by one card.
+const scrollCampaigns = (direction: 1 | -1) => {
+  const track = campaignTrack.value;
+  const card = track?.querySelector<HTMLElement>(".dash-campaign");
+  if (!track || !card) return;
+  track.scrollBy({ left: direction * (card.offsetWidth + 12), behavior: "smooth" });
+};
 const loadingCampaigns = ref(true);
 
-const BOXES: Record<string, { label: string; game: string; image: string }> = {
-  core: { label: "CORE BOX", game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/CoreCompanion.webp` },
-  apocalypse: { label: "APOCALYPSE", game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/ApocCompanion.webp` },
-  awakenings: { label: "AWAKENINGS", game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/AwakComapanion.webp` },
-  underkeep: { label: "UNDERKEEP", game: "Drunagor Nights · Season 1", image: underkeepImage },
-  underkeep2: { label: "UNDERKEEP 2", game: "Drunagor Nights · Season 2", image: underkeep2Image },
+// Expansions are named after the game; the core box and Drunagor Nights are not.
+const BOXES: Record<string, { game: string; image: string }> = {
+  core: { game: "CoD: Age of Darkness", image: `${ASSETS}/CampaignTracker/CoreCompanion.webp` },
+  apocalypse: { game: "CoD: Age of Darkness · Apocalypse", image: `${ASSETS}/CampaignTracker/ApocCompanion.webp` },
+  awakenings: { game: "CoD: Age of Darkness · Awakenings", image: `${ASSETS}/CampaignTracker/AwakComapanion.webp` },
+  underkeep: { game: "Drunagor Nights · Season 1", image: underkeepImage },
+  underkeep2: { game: "Drunagor Nights · Season 2", image: underkeep2Image },
 };
 
 const heroAvatar = (heroId: string): HeroAvatar | null => {
@@ -207,7 +232,7 @@ const toCampaignCard = (raw: any) => {
     id: String(raw.campaigns_fk),
     name: raw.party_name || data.name || "Unnamed Campaign",
     game: box.game,
-    detail: isUnderkeep ? [data.wing, data.door].filter(Boolean).join(" · ") || box.label : box.label,
+    detail: isUnderkeep ? [data.wing, data.door].filter(Boolean).join(" · ") : "",
     image: box.image,
     isUnderkeep,
     progress: isUnderkeep ? calculateCompletionPercentage(data) : 0,
@@ -374,6 +399,24 @@ onMounted(() => {
 .dash-events :deep(.event-list-card__day) {
   font-size: 1.8rem;
 }
+.dash-more-events {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 84px;
+  border: 2px dashed rgba(var(--v-theme-on-surface), 0.3);
+  border-radius: 6px;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.dash-more-events:hover {
+  opacity: 1;
+  border-color: rgba(var(--v-theme-on-surface), 0.6);
+}
 .dash-empty {
   margin: 0;
   padding: 12px 0;
@@ -421,9 +464,44 @@ onMounted(() => {
   font-weight: 700;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
+/* Edge-to-edge carousel: bleeds over the container padding. */
+.dash-carousel {
+  position: relative;
+  margin: 0 -16px;
+}
+.dash-carousel__track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.dash-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+.dash-carousel__arrow {
+  position: absolute;
+  top: 70px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-background), 0.85);
+  color: rgb(var(--v-theme-on-surface));
+  transform: translateY(-50%);
+}
+.dash-carousel__arrow--prev {
+  left: 8px;
+}
+.dash-carousel__arrow--next {
+  right: 8px;
+}
 .dash-campaign {
-  width: 290px;
-  margin-right: 12px;
+  flex: 0 0 44%;
+  scroll-snap-align: start;
   background: rgb(var(--v-theme-primary));
   border-radius: 12px;
   overflow: hidden;
@@ -436,7 +514,7 @@ onMounted(() => {
 .dash-campaign__img {
   display: block;
   width: 100%;
-  height: 130px;
+  height: 150px;
   object-fit: cover;
   border-bottom: 3px solid rgb(var(--v-theme-accent));
 }
