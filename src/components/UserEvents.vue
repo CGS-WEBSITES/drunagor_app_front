@@ -204,166 +204,114 @@
           <p v-else class="text-center text-grey py-8">No events match the selected filters.</p>
         </div>
 
-        <v-dialog v-model="myDialog" max-width="700" min-height="500">
-          <v-card color="surface" class="pa-6" style="position: relative">
+        <v-dialog v-model="myDialog" max-width="560" scrollable>
+          <v-card class="event-detail" color="#2b2b2b">
             <div v-if="loading" class="dialog-overlay">
-              <v-progress-circular
-                indeterminate
-                size="80"
-                width="7"
-                color="primary"
-              />
+              <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
-            <div class="d-flex align-center justify-space-between pl-8">
-              <v-card-title class="text-h6 font-weight-bold pa-0">
-                {{ selectedMyEvent?.store_name }}
-              </v-card-title>
-              <v-icon
-                color="red"
-                @click="myDialog = false"
-                class="mr-2"
-                style="cursor: pointer"
-              >
-                mdi-close
-              </v-icon>
+
+            <div class="event-detail__header">
+              <h2 class="event-detail__title">{{ selectedMyEvent?.store_name }}</h2>
+              <v-btn icon variant="text" size="small" class="event-detail__close" @click="myDialog = false">
+                <v-icon>mdi-close</v-icon>
+              </v-btn>
             </div>
-            <div class="mt-1 pl-6" style="display: inline-block">
-              <p class="text-caption scheduled-box ma-0">
-                Scheduled for:
-                {{ formatEventDate(selectedMyEvent?.event_date, userTimezone) }}
+
+            <v-card-text class="pt-0">
+              <p class="event-detail__info">
+                <v-icon size="16" class="mr-1">mdi-sword-cross</v-icon>{{ selectedMyEvent?.scenario }}
               </p>
-            </div>
-            <v-row align="center" justify="space-between">
-              <v-col cols="12" md="6" class="text-center pt-8"> </v-col>
-              <v-col cols="12" class="text-center px-5">
-                <v-row>
-                  <v-col
-                    cols="12"
-                    class="d-flex align-center justify-center mb-2"
-                  >
-                    <p class="text-subtitle-2 font-weight-medium my-0 mr-2">
-                      Status: {{ selectedMyEvent?.status }}
-                    </p>
-                    <v-btn
-                      icon="mdi-refresh"
-                      variant="text"
-                      size="small"
-                      :loading="isRefreshingStatus"
-                      :disabled="isRefreshingStatus"
-                      @click="refreshEventStatus()"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6" class="py-0">
-                    <v-btn
-                      class="mb-4"
-                      block
-                      color="green"
-                      @click="showCampaignDialog = true"
-                      :disabled="
-                        !currentPlayer ||
-                        currentPlayer.event_status !== 'Joined the Quest'
-                      "
-                    >
-                      Join Campaign
-                    </v-btn>
-                  </v-col>
-                  <v-col cols="12" md="6" class="py-0">
-                    <v-btn class="mb-8" block color="red" @click="quitEvent()"
-                      >Quit Event</v-btn
-                    >
-                  </v-col>
-                </v-row>
-                <BaseAlert
-                  v-model="showQuitSuccessAlert"
-                  type="success"
-                  title="Success"
-                  class="mb-4"
-                  variant="tonal"
-                  closable
-                >
-                  You have successfully left the event. It will no longer appear
-                  in your list.
-                </BaseAlert>
-                <BaseAlert
-                  v-model="showQuitErrorAlert"
-                  type="error"
-                  title="Failed to Leave Event"
-                  class="mb-4"
-                  variant="tonal"
-                  closable
-                >
-                  {{ quitErrorMessage }}
-                </BaseAlert>
-              </v-col>
-            </v-row>
-            <v-card
-              color="primary"
-              min-height="130px"
-              class="mr-4 event-card"
-              @click="openInGoogleMaps()"
-            >
-              <v-row no-gutters>
-                <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      selectedMyEvent?.picture_hash
-                        ? `https://assets.drunagor.app/${selectedMyEvent.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
+              <p v-if="getSeasonInfo(selectedMyEvent?.seasons_fk).name" class="event-detail__info">
+                <v-icon size="16" class="mr-1">mdi-shield-sun</v-icon>{{ getSeasonInfo(selectedMyEvent.seasons_fk).name }}
+              </p>
+
+              <div class="d-flex flex-wrap align-center justify-space-between ga-2 my-3">
+                <span class="event-detail__status">
+                  <v-icon size="18" :color="getEventStatusInfo(selectedMyEvent?.status).color" class="mr-1">
+                    {{ getEventStatusInfo(selectedMyEvent?.status).icon }}
+                  </v-icon>
+                  {{ selectedMyEvent?.status }}
+                  <v-btn
+                    icon="mdi-refresh"
+                    variant="text"
+                    size="x-small"
+                    title="Refresh status"
+                    :loading="isRefreshingStatus"
+                    :disabled="isRefreshingStatus"
+                    @click="refreshEventStatus()"
                   />
-                </v-col>
-                <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ selectedMyEvent?.store_name }}
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ selectedMyEvent?.address }}
-                  </p>
-                </v-col>
-              </v-row>
-            </v-card>
-            <v-card color="primary" class="mr-4 mt-4 event-card">
-              <v-responsive
-                style="width: 100%; height: 200px"
-                aspect-ratio="16/9"
-              >
-                <iframe
-                  v-if="selectedEvent?.latitude"
+                </span>
+                <span class="event-detail__scheduled">
+                  <strong>SCHEDULED FOR:</strong>
+                  {{ formatEventDate(selectedMyEvent?.event_date, userTimezone) }}
+                </span>
+              </div>
+
+              <BaseAlert v-model="showQuitSuccessAlert" type="success" title="Success" class="mb-3" variant="tonal" closable>
+                You have successfully left the event. It will no longer appear in your list.
+              </BaseAlert>
+              <BaseAlert v-model="showQuitErrorAlert" type="error" title="Failed to Leave Event" class="mb-3" variant="tonal" closable>
+                {{ quitErrorMessage }}
+              </BaseAlert>
+
+              <div class="event-detail__store" @click="openInGoogleMaps()">
+                <img
                   :src="
-                    `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                    `&z=15&output=embed`
+                    selectedMyEvent?.picture_hash
+                      ? `https://assets.drunagor.app/${selectedMyEvent.picture_hash}`
+                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
                   "
-                  frameborder="0"
-                  style="border: 0; width: 100%; height: 100%"
-                  allowfullscreen
-                  loading="lazy"
+                  alt=""
+                  class="event-detail__store-img"
                 />
-              </v-responsive>
-            </v-card>
-            <v-card-text v-if="eventRewards.length">
-              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-for="(reward, index) in eventRewards"
-                :key="index"
-                class="align-center my-2"
-              >
-                <v-col cols="3" md="2">
-                  <v-avatar size="60">
-                    <v-img
-                      :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                    />
+                <div style="min-width: 0">
+                  <h3 class="event-detail__store-name">{{ selectedMyEvent?.store_name }}</h3>
+                  <p class="event-detail__store-address">
+                    <v-icon size="16" color="red">mdi-map-marker</v-icon>{{ selectedMyEvent?.address }}
+                  </p>
+                </div>
+              </div>
+
+              <div v-if="selectedMyEvent?.latitude" class="event-detail__map">
+                <iframe
+                  :src="`https://www.google.com/maps?q=${selectedMyEvent.latitude},${selectedMyEvent.longitude}&z=15&output=embed`"
+                  title="Store location"
+                  loading="lazy"
+                  allowfullscreen
+                />
+              </div>
+
+              <template v-if="eventRewards.length">
+                <h3 class="event-detail__section">REWARDS:</h3>
+                <div v-for="(reward, index) in eventRewards" :key="index" class="event-detail__reward">
+                  <v-avatar size="72">
+                    <v-img :src="`https://assets.drunagor.app/${reward.picture_hash}`" />
                   </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                  <p class="text-body-2">{{ reward.description }}</p>
-                </v-col>
-              </v-row>
+                  <div>
+                    <h4 class="event-detail__reward-name">{{ reward.name }}</h4>
+                    <p class="event-detail__reward-text">{{ reward.description }}</p>
+                  </div>
+                </div>
+              </template>
             </v-card-text>
+
+            <div class="event-detail__actions">
+              <button class="event-detail__action event-detail__action--quit" @click="quitEvent()">
+                Quit event
+              </button>
+              <button
+                class="event-detail__action event-detail__action--join"
+                :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
+                :title="
+                  currentPlayer?.event_status !== 'Joined the Quest'
+                    ? 'Available once the retailer starts your campaign'
+                    : ''
+                "
+                @click="showCampaignDialog = true"
+              >
+                Join campaign
+              </button>
+            </div>
           </v-card>
         </v-dialog>
 
@@ -1665,6 +1613,19 @@ watch(
 }
 .event-detail__action--join {
   background: #5fae54;
+}
+.event-detail__action--quit {
+  background: #e53935;
+}
+.event-detail__action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.event-detail__status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 .events-panel {
   background: #0d0d0d !important;
