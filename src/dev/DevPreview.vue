@@ -37,6 +37,8 @@
     </v-container>
 
     <!-- Player -->
+    <UserEvents v-else-if="screen === 'events'" />
+
     <Lobby v-else-if="screen === 'lobby'" />
 
     <v-container v-else-if="screen === 'hero-prep'" max-width="700" class="py-6">
@@ -83,6 +85,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
 import Lobby from "@/components/Lobby.vue";
+import UserEvents from "@/components/UserEvents.vue";
 import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vue";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import AssemblyTutorial from "@/pages/AssemblyTutorial.vue";
@@ -105,6 +108,7 @@ const groups: { title: string; items: Screen[] }[] = [
   {
     title: "Player journey",
     items: [
+      { id: "events", title: "Events", icon: "mdi-calendar-search", role: "player", description: "Player events list (I'M IN / NEXT / ALL, sorting) and the event detail with Share event and Count me in." },
       { id: "lobby", title: "Event Lobby", icon: "mdi-account-group", role: "player", description: "Table with other players. Pick a hero from Choose your Hero or Create New Hero, confirm it and see the preparation popup." },
       { id: "hero-prep", title: "Hero Preparation", icon: "mdi-sword", role: "player", description: "The Prepare your Hero popup for any hero and season, without going through the lobby." },
       { id: "first-setup", title: "First Setup Guide", icon: "mdi-map", role: "player", description: "Room assembly steps the player sees when entering the campaign." },

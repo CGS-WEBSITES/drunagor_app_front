@@ -12,16 +12,37 @@ const encodeHero = (heroId: string) => btoa(JSON.stringify({ heroId }));
 
 export const DEV_EVENT = {
   events_pk: DEV_EVENT_PK,
-  store_name: "Dev Preview Store",
+  store_name: "CGS Store",
   scenario: "Wing 1 Tutorial",
   seasons_fk: 2,
   event_date: new Date(Date.now() + 86400000).toISOString(),
-  address: "123 Dungeon Street",
+  address: "Billings, MT, USA",
   seats_number: 8,
-  latitude: null,
-  longitude: null,
+  latitude: 45.7833,
+  longitude: -108.5007,
   picture_hash: null,
 };
+
+const inDays = (days: number, hour: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  date.setHours(hour, 0, 0, 0);
+  return date.toISOString();
+};
+
+// Event list shown on the player's Events page.
+const LIST_EVENTS = [
+  DEV_EVENT,
+  { ...DEV_EVENT, events_pk: 900011, store_name: "Barbarian Boardgame Store", address: "Springfield, MO, USA", scenario: "Wing 2 Advanced", seasons_fk: 2, event_date: inDays(3, 18), latitude: 37.209, longitude: -93.2923 },
+  { ...DEV_EVENT, events_pk: 900012, store_name: "Racchunk's Boardgame Mega Store", address: "Santa Monica, CA, USA", scenario: "Wing 3", seasons_fk: 3, event_date: inDays(6, 15), latitude: 34.0195, longitude: -118.4912 },
+  { ...DEV_EVENT, events_pk: 900013, store_name: "Boardgames da Gabi", address: "Lowrey Ave, Honolulu, HI, USA", scenario: "Wing 1 Tutorial", seasons_fk: 2, event_date: inDays(10, 19), latitude: 21.3069, longitude: -157.8583 },
+  { ...DEV_EVENT, events_pk: 900014, store_name: "Fize Boardgame Mega Store", address: "Kansas City, MO, USA", scenario: "Wing 4", seasons_fk: 3, event_date: inDays(14, 17), latitude: 39.0997, longitude: -94.5786 },
+];
+
+const REWARDS = [
+  { name: "Tutorial Completed", description: "Complete the Wing 1 Tutorial.", picture_hash: "badges%26achievements/Tutorial%20Complete.png" },
+  { name: "Drunagor APP Badges", description: "Check in at the event and get an exclusive event badge to show in your profile.", picture_hash: "badges%26achievements/Tutorial%20Complete.png" },
+];
 
 type State = {
   nextHeroPk: number;
@@ -101,7 +122,13 @@ const routes: Route[] = [
     if (heroPk !== undefined) state.myHeroPk = heroPk ? Number(heroPk) : null;
     return { message: "ok" };
   }],
-  ["get", /^rl_events_rewards\/list_rewards$/, () => ({ rewards: [] })],
+  ["get", /^rl_events_rewards\/list_rewards$/, () => ({ rewards: REWARDS })],
+  ["get", /^events\/list_events$/, () => ({ events: LIST_EVENTS })],
+  ["get", /^events\/my_events\/player$/, () => ({ events: [{ ...LIST_EVENTS[1], status: "Granted Passage" }] })],
+  ["get", /^events\/my_events\/retailer$/, () => ({ events: [DEV_EVENT] })],
+
+  ["get", /^stores\/list$/, () => ({ stores: [] })],
+  ["get", /^sceneries\/search$/, () => ({ sceneries: [] })],
 
   // Heroes
   ["get", /^playable_heroes\/search$/, () => ({ playable_heroes: state.myHeroes })],
