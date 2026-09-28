@@ -3,120 +3,51 @@
     <Toast />
 
     <v-row no-gutters v-if="mdAndUp && showDesktopAppBar">
-      <v-app-bar app height="64" color="secundary">
-        <div
-          @click="$router.push({ name: 'Dashboard' })"
-          style="cursor: pointer"
-          class="d-flex align-center pl-6"
-        >
-          <v-img
-            src="@/assets/darknessl.png"
-            height="30"
-            width="30"
-            alt="Drunagor Icon"
-            contain
-            class="mr-2"
-          ></v-img>
-          <span>App Drunagor</span>
-        </div>
+      <v-app-bar app height="64" flat class="top-bar">
+        <div class="top-bar__inner">
+          <div class="top-bar__brand" @click="$router.push({ name: 'Dashboard' })">
+            <v-img src="@/assets/darknessl.png" height="28" width="28" alt="" contain />
+            <span>DRUNAGOR APP</span>
+          </div>
 
-        <template v-if="
-          [
-            'Home',
-            'Login',
-            'Gama',
-            'Community',
-            'RetailerRegistration',
-            'ForgotPassword',
-            'ShareEvent',
-            'RetailerTutorial',
-            'BoxAssemblyGuide',
-            'NightsCommunication',
-          ].includes(route.name)
-        ">
-          <v-spacer></v-spacer>
+          <v-spacer />
+
           <v-btn
-            color="WHITE"
-            large
+            v-if="isPublicRoute"
+            color="white"
+            variant="outlined"
             @click="$router.push({ name: 'Login', query: { tab: 'signup' } })"
           >
             Sign up
           </v-btn>
-        </template>
 
-        <div class="d-flex flex-grow-1 align-center justify-space-between" v-else>
-          <div class="d-flex justify-center flex-grow-1">
-            <v-hover v-for="(item, index) in menuItems" :key="index">
-              <template v-slot:default="{ isHovering, props }">
-                <v-btn
-                  v-bind="props"
-                  color="secundary"
-                  :elevation="isHovering ? 10 : 0"
-                  :disabled="item.disabled"
-                  class="mx-2"
-                  @click="item.to ? router.push(item.to) : item.do()"
-                >
-                  {{ item.title }}
+          <template v-else>
+            <v-menu location="bottom end" offset="8">
+              <template v-slot:activator="{ props }">
+                <v-btn v-bind="props" icon variant="text" title="Profile">
+                  <v-avatar size="34">
+                    <v-img
+                      :src="
+                        user.picture_hash
+                          ? assets + '/Profile/' + user.picture_hash
+                          : assets + '/Profile/user.png'
+                      "
+                    />
+                  </v-avatar>
                 </v-btn>
               </template>
-            </v-hover>
-          </div>
+              <v-list min-width="200">
+                <v-list-item :title="user.user_name || 'User'" :subtitle="roleLabel" />
+                <v-divider />
+                <v-list-item prepend-icon="mdi-account" title="My Profile" @click="router.push({ name: 'PerfilHome' })" />
+                <v-list-item prepend-icon="mdi-logout" title="Log Out" @click="logOut" />
+              </v-list>
+            </v-menu>
 
-          <v-menu open-on-click offset-y>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" icon class="mr-2" variant="text" style="min-width: 48px; width: 48px; height: 48px;">
-                <div v-if="currentThemeObj" class="d-flex" style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255,255,255,0.8);">
-                  <div :style="{ backgroundColor: currentThemeObj.bg }" style="width: 50%; height: 100%;"></div>
-                  <div :style="{ backgroundColor: currentThemeObj.primary }" style="width: 50%; height: 100%;"></div>
-                </div>
-                <v-img v-else :src="themeIcon" max-height="24" max-width="24" contain></v-img>
-              </v-btn>
-            </template>
-            <v-list class="bg-grey-darken-4 pa-2" min-width="220" rounded="lg">
-              <v-list-item
-                v-for="t in themesList"
-                :key="t.name"
-                @click="selectTheme(t.name)"
-                :active="theme === t.name"
-                class="rounded-lg my-1"
-              >
-                <template v-slot:prepend>
-                  <div class="d-flex mr-3" style="width: 24px; height: 24px; border-radius: 50%; overflow: hidden; border: 1px solid rgba(255,255,255,0.3);">
-                    <div :style="{ backgroundColor: t.bg }" style="width: 50%; height: 100%;"></div>
-                    <div :style="{ backgroundColor: t.primary }" style="width: 50%; height: 100%;"></div>
-                  </div>
-                </template>
-                <v-list-item-title class="text-white font-weight-medium">{{ t.label }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-
-          <v-menu open-on-click offset-y>
-            <template v-slot:activator="{ props }">
-              <v-btn v-bind="props" text class="px-3">
-                <span class="pr-1">{{ user.user_name }}</span>
-                <v-avatar size="35" class="mr-2">
-                  <v-img
-                    :src="
-                      user.picture_hash
-                        ? assets + '/Profile/' + user.picture_hash
-                        : assets + '/Profile/user.png'
-                    "
-                  />
-                </v-avatar>
-                <v-icon right>mdi-chevron-down</v-icon>
-              </v-btn>
-            </template>
-
-            <v-list>
-              <v-list-item @click="logOut">
-                <v-list-item-icon>
-                  <v-icon>mdi-logout</v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>Log Out</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+            <v-btn icon variant="text" title="Menu" @click="drawer = !drawer">
+              <v-icon size="30">mdi-menu</v-icon>
+            </v-btn>
+          </template>
         </div>
       </v-app-bar>
     </v-row>
@@ -171,7 +102,7 @@
             : assets + '/Profile/user.png'
         "
         :title="user.user_name || 'User'"
-        :subtitle="role === 3 ? 'Retailer' : role === 4 ? 'Support' : role === 1 ? 'Admin' : 'Player'"
+        :subtitle="roleLabel"
       >
       </v-list-item>
 
@@ -255,7 +186,6 @@ import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useTutorialStore } from "@/store/TutorialStore";
 import { CampaignStore } from "@/store/CampaignStore";
-import themeIcon from "@/assets/theme.png";
 import VectorIcon from "@/assets/Vector.png";
 
 const axios: any = inject("axios");
@@ -324,10 +254,6 @@ const themesList = [
   { name: "RoseTheme", label: "Rose", primary: "#763C3C", bg: "#392020" }
 ];
 
-const currentThemeObj = computed(() => {
-  return themesList.find(t => t.name === theme.value);
-});
-
 const selectTheme = (themeName: string) => {
   theme.value = themeName;
   localStorage.setItem("appTheme", themeName);
@@ -355,6 +281,24 @@ const handleBack = () => {
 };
 
 const role = computed(() => userStore.user?.roles_fk || 2);
+const roleLabel = computed(() =>
+  role.value === 3 ? "Retailer" : role.value === 4 ? "Support" : role.value === 1 ? "Admin" : "Player",
+);
+
+// Public pages show a Sign up button instead of the profile and menu.
+const PUBLIC_ROUTES = [
+  "Home",
+  "Login",
+  "Gama",
+  "Community",
+  "RetailerRegistration",
+  "ForgotPassword",
+  "ShareEvent",
+  "RetailerTutorial",
+  "BoxAssemblyGuide",
+  "NightsCommunication",
+];
+const isPublicRoute = computed(() => PUBLIC_ROUTES.includes(String(route.name)));
 
 const menuItems = computed(() => {
   return [
@@ -504,6 +448,33 @@ onBeforeMount(() => {
   width: 100%;
 }
 
+.top-bar {
+  background: #050505 !important;
+  border-top: 3px solid #3b1740;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.top-bar .v-toolbar__content {
+  justify-content: center;
+}
+.top-bar__inner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 1080px;
+  padding: 0 16px;
+}
+.top-bar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
 .safe-pwa-top-bar {
   padding-top: env(safe-area-inset-top, 0px) !important;
   height: calc(56px + env(safe-area-inset-top, 0px)) !important;
