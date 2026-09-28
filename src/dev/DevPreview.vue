@@ -189,9 +189,18 @@ watch(
 </script>
 
 <style scoped>
+/* Sits right below the fixed app bar (68px desktop with its border, 56px mobile). The app
+   already pads the page by 40px on desktop and not at all on mobile. */
 .dev-toolbar {
   position: sticky;
-  top: 0;
+  top: 68px;
+  margin-top: 28px;
   z-index: 20;
+}
+@media (max-width: 959px) {
+  .dev-toolbar {
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    margin-top: calc(56px + env(safe-area-inset-top, 0px));
+  }
 }
 </style>
