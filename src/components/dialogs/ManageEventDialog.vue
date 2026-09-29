@@ -7,139 +7,45 @@
     :fullscreen="smAndDown"
     persistent
   >
-    <v-card color="surface" class="manage-event-card d-flex flex-column">
+    <v-card color="#2b2b2b" class="manage-event-card d-flex flex-column">
       <div v-if="dialogLoading" class="dialog-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>
 
-      <v-card-title class="d-flex justify-space-between align-center flex-shrink-0">
-        <span class="text-h6">Manage Event</span>
-        <v-btn icon variant="text" @click="closeDialog">
+      <div class="manage-event__header">
+        <span class="manage-event__kicker">Manage event</span>
+        <h2 class="manage-event__title">{{ event?.store_name }}</h2>
+        <span class="manage-event__date">{{ formatEventDate(event?.event_date, userTimezone) }}</span>
+        <v-btn icon variant="text" size="small" class="manage-event__close" @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-      </v-card-title>
+      </div>
 
-      <v-tabs
-        v-model="activeTab"
-        bg-color="background"
-        centered
-        grow
-        class="mb-4 flex-shrink-0"
-      >
-        <v-tab value="details">
-          <v-icon start>mdi-information-outline</v-icon> Details
-        </v-tab>
-        <v-tab value="tables">
-          <v-icon start>mdi-table-chair</v-icon> Tables
-        </v-tab>
-        <v-tab value="setup">
-          <v-icon start>mdi-table-furniture</v-icon> Table Assembly
-        </v-tab>
-      </v-tabs>
+      <nav class="manage-event__tabs">
+        <button
+          v-for="tab in manageTabs"
+          :key="tab.value"
+          class="manage-event__tab"
+          :class="{ active: activeTab === tab.value }"
+          @click="activeTab = tab.value"
+        >
+          <v-icon size="18">{{ tab.icon }}</v-icon>
+          <span>{{ tab.label }}</span>
+        </button>
+      </nav>
 
       <v-card-text class="flex-grow-1 overflow-y-auto pt-0">
         <v-window v-model="activeTab">
           <v-window-item value="details">
+            <EventDetailContent :event="event" :rewards="eventRewards" :timezone="userTimezone" />
             <div class="event-actions">
-              <v-btn v-if="editable" variant="tonal" prepend-icon="mdi-pencil" @click="emit('edit', event)">
+              <v-btn v-if="editable" variant="flat" color="secondary" prepend-icon="mdi-pencil" @click="emit('edit', event)">
                 Edit event
               </v-btn>
               <v-btn variant="flat" color="error" prepend-icon="mdi-delete" @click="deleteConfirm = true">
                 Delete event
               </v-btn>
             </div>
-            <v-card-text class="pt-0">
-              <p>
-                <v-icon>mdi-seat</v-icon> Available Seats:
-                {{ event?.seats_number }}
-              </p>
-              <p>
-                <v-icon>mdi-sword-cross</v-icon> Scenario:
-                {{ event?.scenario }}
-              </p>
-              <p v-if="getSeasonInfo(event?.seasons_fk).name">
-                <v-icon>mdi-shield-sun</v-icon> Season:
-                {{ getSeasonInfo(event.seasons_fk).name }}
-              </p>
-              <p class="text-end scheduled-box">
-                Scheduled for:
-                {{ formatEventDate(event?.event_date, userTimezone) }}
-              </p>
-            </v-card-text>
-
-            <v-card
-              color="primary"
-              min-height="130px"
-              class="mr-4 event-card"
-              @click="openInGoogleMaps()"
-            >
-              <v-row no-gutters>
-                <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      event?.picture_hash
-                        ? `https://assets.drunagor.app/${event.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
-                </v-col>
-                <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ event?.store_name }}
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ event?.address }}
-                  </p>
-                </v-col>
-              </v-row>
-            </v-card>
-
-            <v-card color="primary" class="mr-4 mt-4 event-card">
-              <v-responsive
-                style="width: 100%; height: 200px"
-                aspect-ratio="16/9"
-              >
-                <iframe
-                  v-if="event?.latitude"
-                  :src="
-                    `https://www.google.com/maps?q=${event.latitude},${event.longitude}` +
-                    `&z=15&output=embed`
-                  "
-                  frameborder="0"
-                  style="border: 0; width: 100%; height: 100%"
-                  allowfullscreen
-                  loading="lazy"
-                />
-              </v-responsive>
-            </v-card>
-
-            <v-card-text>
-              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-if="eventRewards.length"
-                v-for="(reward, index) in eventRewards"
-                :key="index"
-                class="align-center my-2"
-              >
-                <v-col cols="3" md="2">
-                  <v-avatar size="60">
-                    <v-img
-                      :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                    />
-                  </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                </v-col>
-              </v-row>
-              <p v-else class="text-caption">
-                No rewards linked to this event.
-              </p>
-            </v-card-text>
           </v-window-item>
 
           <v-window-item value="tables">
@@ -696,6 +602,7 @@ import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
 import { formatEventDate } from "@/utils/dateHelpers";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import EventDetailContent from "@/components/EventDetailContent.vue";
 import { tableAssemblySteps } from "@/data/assembly/tableAssembly";
 
 const { smAndDown } = useDisplay();
@@ -798,6 +705,12 @@ const openInGoogleMaps = () => {
 };
 
 const closeDialog = () => emit("update:modelValue", false);
+
+const manageTabs = [
+  { value: "details", label: "Details", icon: "mdi-information-outline" },
+  { value: "tables", label: "Tables & players", icon: "mdi-table-chair" },
+  { value: "setup", label: "Table assembly", icon: "mdi-table-furniture" },
+];
 
 const deleteConfirm = ref(false);
 const deleting = ref(false);
@@ -1294,11 +1207,78 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
-.event-actions {
+.manage-event-card {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+}
+.manage-event__header {
+  position: relative;
+  flex-shrink: 0;
+  padding: 20px 56px 12px;
+  text-align: center;
+}
+.manage-event__kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.manage-event__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.manage-event__date {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.manage-event__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.manage-event__tabs {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding: 0 16px 8px;
+  flex-shrink: 0;
+  gap: 6px;
+  margin: 0 16px 16px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+}
+.manage-event__tab {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 6px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.6;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.manage-event__tab.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
+}
+.event-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+@media (max-width: 599px) {
+  .manage-event__tab {
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.66rem;
+  }
 }
 /* Fixed height so switching tabs does not resize the dialog. Vuetify sizes
    dialog cards through flex-basis, read from --v-card-height. */
