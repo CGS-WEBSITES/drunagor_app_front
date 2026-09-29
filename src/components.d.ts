@@ -71,6 +71,7 @@ declare module 'vue' {
     DesktopDash: typeof import('./components/DesktopDash.vue')['default']
     DialogLoadCampaing: typeof import('./components/dialogs/DialogLoadCampaing.vue')['default']
     DialogSaveCampaign: typeof import('./components/dialogs/DialogSaveCampaign.vue')['default']
+    EffectPicker: typeof import('./components/EffectPicker.vue')['default']
     ErrorMensage: typeof import('./components/ErrorMensage.vue')['default']
     EventDetailContent: typeof import('./components/EventDetailContent.vue')['default']
     EventFormDialog: typeof import('./components/dialogs/EventFormDialog.vue')['default']
