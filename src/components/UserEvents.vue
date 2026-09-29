@@ -36,9 +36,7 @@
           </button>
         </div>
         <div class="events-sort__group">
-          <button class="events-sort__label events-sort__clear" title="Reset sorting" @click="setSort('date')">
-            <v-icon size="16">mdi-close-circle</v-icon> Sort by:
-          </button>
+          <span class="events-sort__label">Sort by:</span>
           <button
             v-for="option in sortOptions"
             :key="option.value"
