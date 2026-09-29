@@ -15,14 +15,9 @@
 
         <!-- Main shortcuts -->
         <div class="dash-cards">
-          <template v-for="card in mainCards" :key="card.title">
-            <button v-if="card.host" class="dash-card dash-card--host" :disabled="creating" @click="createEvent">
-              <img :src="hostEventArt" :alt="card.title" />
-            </button>
-            <router-link v-else :to="card.to ?? '/'" class="dash-card">
-              <img :src="card.image" :alt="card.title" />
-            </router-link>
-          </template>
+          <router-link v-for="card in mainCards" :key="card.title" :to="card.to" class="dash-card">
+            <img :src="card.image" :alt="card.title" />
+          </router-link>
         </div>
 
         <!-- The retailer's next events: click one to manage it. -->
@@ -34,30 +29,19 @@
             <div v-if="loadingEvents" class="d-flex justify-center py-6">
               <v-progress-circular indeterminate size="28" />
             </div>
-            <div v-else-if="upcomingEvents.length" class="dash-events">
+            <div v-else class="dash-events">
+              <CreateEventCard :loading="creating" @create="createEvent" />
               <EventListCard
-                v-for="event in upcomingEvents.slice(0, 6)"
+                v-for="event in upcomingEvents.slice(0, 5)"
                 :key="event.events_pk"
                 :event="event"
                 :timezone="timezone"
                 @open="openEvent(event)"
               >
                 <template #status>
-                  <span class="dash-manage-hint">
-                    <template v-if="tableStats[event.events_pk]">
-                      {{ tableStats[event.events_pk].players }}/{{ tableStats[event.events_pk].seats }} players ·
-                    </template>
-                    Manage <v-icon size="16">mdi-chevron-right</v-icon>
-                  </span>
+                  <span class="dash-manage-hint"><v-icon size="14">mdi-cog</v-icon> Manage</span>
                 </template>
               </EventListCard>
-            </div>
-            <p v-else class="dash-empty">No upcoming events yet.</p>
-
-            <div class="dash-create">
-              <v-btn color="accent" size="large" class="font-weight-bold" prepend-icon="mdi-plus-thick" :loading="creating" @click="createEvent">
-                Create event
-              </v-btn>
             </div>
           </div>
         </section>
@@ -85,7 +69,7 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import EventListCard from "@/components/EventListCard.vue";
-import hostEventArt from "@/assets/btn-host.png";
+import CreateEventCard from "@/components/CreateEventCard.vue";
 
 const ASSETS = "https://assets.drunagor.app";
 
@@ -98,10 +82,9 @@ const avatarUrl = computed(() =>
   userStore.user?.picture_hash ? `${ASSETS}/Profile/${userStore.user.picture_hash}` : `${ASSETS}/Profile/user.png`,
 );
 
-type MainCard = { title: string; image?: string; to?: string; host?: boolean };
-const mainCards: MainCard[] = [
+const mainCards = [
   { title: "Events", image: `${ASSETS}/Dashboard/btn-events3.png`, to: "/events" },
-  { title: "Host a Drunagor Night", host: true },
+  { title: "Campaign Manager", image: `${ASSETS}/Dashboard/btn-campaignmanager.png`, to: "/campaign-tracker/" },
   { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" },
   { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
 ];
@@ -113,25 +96,9 @@ const shortcuts = [
   { title: "RETAILER FAQ", icon: "mdi-help-circle", image: `${ASSETS}/Dashboard/btn-horseman.png`, to: "/FAQforRetailers" },
 ];
 
-// Upcoming events and their table occupancy.
+// The retailer's upcoming events.
 const upcomingEvents = ref<any[]>([]);
 const loadingEvents = ref(true);
-const tableStats = ref<Record<number, { tables: number; players: number; seats: number }>>({});
-
-
-const loadTableStats = async (eventPk: number) => {
-  try {
-    const { data } = await axios.get(`/event_tables/list/${eventPk}`);
-    const tables = data.tables || [];
-    tableStats.value[eventPk] = {
-      tables: tables.length,
-      players: tables.reduce((sum: number, table: any) => sum + (table.players_count || 0), 0),
-      seats: tables.reduce((sum: number, table: any) => sum + (table.max_players || 0), 0),
-    };
-  } catch {
-    // The event simply shows without table numbers.
-  }
-};
 
 const loadEvents = async () => {
   try {
@@ -141,7 +108,6 @@ const loadEvents = async () => {
     upcomingEvents.value = (data.events || []).sort(
       (a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime(),
     );
-    await Promise.allSettled(upcomingEvents.value.map((event) => loadTableStats(event.events_pk)));
   } catch (error) {
     console.error("[RetailerDesktopDash] Failed to load events", error);
   } finally {
@@ -244,10 +210,6 @@ onMounted(loadEvents);
 .dash-card:hover img {
   transform: scale(1.05);
 }
-.dash-card--host {
-  position: relative;
-  padding: 0;
-}
 .dash-section {
   margin-top: 28px;
 }
@@ -279,14 +241,14 @@ onMounted(loadEvents);
 .dash-manage-hint {
   display: flex;
   align-items: center;
-  color: rgb(var(--v-theme-primary));
-  font-size: 0.75rem;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 999px;
+  color: rgb(var(--v-theme-on-primary));
+  font-size: 0.72rem;
   font-weight: 700;
-}
-.dash-create {
-  display: flex;
-  justify-content: center;
-  padding-top: 14px;
+  text-transform: uppercase;
 }
 .dash-empty {
   display: flex;
