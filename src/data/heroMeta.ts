@@ -1,11 +1,28 @@
-// Display names and marks for heroes and the boxes they come from.
+// Display names, colors and marks for heroes and the boxes they come from.
 import type { ContentId } from "@/data/type/ContentId";
 import type { HeroClass } from "@/data/type/HeroClass";
+import type { HeroData } from "@/data/repository/HeroData";
 import coreLogo from "@/assets/logo/core.webp";
 import awakeningsLogo from "@/assets/logo/awakenings.webp";
 import apocalypseLogo from "@/assets/logo/apocalypse.webp";
 import s1Flag from "@/assets/s1flag.png";
 import s2Flag from "@/assets/s2flag.png";
+import assassinIcon from "@/assets/classes/assassin.png";
+import barbarianIcon from "@/assets/classes/Barbarian.png";
+import bardIcon from "@/assets/classes/Bard.png";
+import clericIcon from "@/assets/classes/Cleric.png";
+import druidIcon from "@/assets/classes/Druid.png";
+import mageIcon from "@/assets/classes/Mage.png";
+import monkIcon from "@/assets/classes/Monk.png";
+import necromancerIcon from "@/assets/classes/Necromancer.png";
+import paladinIcon from "@/assets/classes/Paladin.png";
+import rangerIcon from "@/assets/classes/Ranger.png";
+import shadowKnightIcon from "@/assets/classes/Shadow Knight.png";
+import shamanIcon from "@/assets/classes/Shaman.png";
+import sorcererIcon from "@/assets/classes/Sorcerer.png";
+import swordmageIcon from "@/assets/classes/Swordmage.png";
+import warlordIcon from "@/assets/classes/Warlord.png";
+import warriorIcon from "@/assets/classes/Warrior.png";
 
 export const CONTENT_LABELS: Record<ContentId, string> = {
   core: "Core Box",
@@ -34,13 +51,55 @@ export const CONTENT_LOGOS: Partial<Record<ContentId, string>> = {
 export const heroClassLabel = (heroClass: HeroClass | string) =>
   heroClass === "Assasin" ? "Assassin" : heroClass === "Shadow knight" ? "Shadow Knight" : heroClass;
 
+// Class colors (background and stroke) and symbols, from the design.
+export const CLASS_STYLES: Record<string, { bg: string; stroke: string; icon: string }> = {
+  Necromancer: { bg: "#12012D", stroke: "#773993", icon: necromancerIcon },
+  Mage: { bg: "#3A2447", stroke: "#774C73", icon: mageIcon },
+  Bard: { bg: "#520032", stroke: "#8F0B5B", icon: bardIcon },
+  Warlord: { bg: "#590122", stroke: "#9F2342", icon: warlordIcon },
+  Warrior: { bg: "#2C0011", stroke: "#69141A", icon: warriorIcon },
+  Barbarian: { bg: "#6E0013", stroke: "#BF3E28", icon: barbarianIcon },
+  Monk: { bg: "#945304", stroke: "#DC7E1B", icon: monkIcon },
+  Ranger: { bg: "#003253", stroke: "#0061A1", icon: rangerIcon },
+  Swordmage: { bg: "#4F6A73", stroke: "#7093A5", icon: swordmageIcon },
+  Paladin: { bg: "#7F848A", stroke: "#FFFFFF", icon: paladinIcon },
+  Sorcerer: { bg: "#114934", stroke: "#4C998B", icon: sorcererIcon },
+  "Shadow Knight": { bg: "#231615", stroke: "#62413E", icon: shadowKnightIcon },
+  Druid: { bg: "#322821", stroke: "#9B815A", icon: druidIcon },
+  Assassin: { bg: "#352E2C", stroke: "#867571", icon: assassinIcon },
+  Shaman: { bg: "#433933", stroke: "#938366", icon: shamanIcon },
+  Cleric: { bg: "#644629", stroke: "#B3975D", icon: clericIcon },
+};
+
+const FALLBACK_STYLE = { bg: "#2b2b2b", stroke: "#555555", icon: "" };
+export const classStyle = (heroClass: HeroClass | string) => CLASS_STYLES[heroClassLabel(heroClass)] ?? FALLBACK_STYLE;
+
+// Cut-out portraits, named hero-<name>-<class>.png (some with typos).
+const PORTRAITS = import.meta.glob("@/assets/companion/hero-*.png", { eager: true, import: "default" }) as Record<string, string>;
+const portraitEntries = Object.entries(PORTRAITS)
+  .map(([path, url]) => {
+    const match = /hero-([a-z]+)-([a-z]+)(-\d+)?\.png$/.exec(path);
+    return match ? { name: match[1], cls: match[2], variant: !!match[3], url } : null;
+  })
+  .filter((entry): entry is { name: string; cls: string; variant: boolean; url: string } => !!entry)
+  .sort((a, b) => Number(a.variant) - Number(b.variant));
+
+export function heroPortrait(hero: HeroData): string {
+  const name = hero.name.toLowerCase().replace(/[^a-z]/g, "");
+  const cls = heroClassLabel(hero.class).toLowerCase().replace(/[^a-z]/g, "");
+  const found = portraitEntries.find(
+    (entry) => entry.name.slice(0, 4) === name.slice(0, 4) && entry.cls.slice(0, 4) === cls.slice(0, 4),
+  );
+  return found?.url ?? hero.images.avatar;
+}
+
 // Where an item comes from: a box, or a Drunagor Nights season.
 export type ItemSource = "core" | "awakenings" | "apocalypse" | "season-1" | "season-2";
 
-export const ITEM_SOURCE_MARKS: Record<ItemSource, { label: string; image: string; flag: boolean }> = {
-  core: { label: "Core Box", image: coreLogo, flag: false },
-  awakenings: { label: "Awakenings", image: awakeningsLogo, flag: false },
-  apocalypse: { label: "Apocalypse", image: apocalypseLogo, flag: false },
-  "season-1": { label: "Drunagor Nights – Season 1", image: s1Flag, flag: true },
-  "season-2": { label: "Drunagor Nights – Season 2", image: s2Flag, flag: true },
+export const ITEM_SOURCE_MARKS: Record<ItemSource, { label: string; short: string; color: string; flag?: string }> = {
+  core: { label: "Core Box", short: "Core", color: "#6d6d6d" },
+  awakenings: { label: "Awakenings", short: "Awakenings", color: "#2f6f73" },
+  apocalypse: { label: "Apocalypse", short: "Apocalypse", color: "#8a2a1f" },
+  "season-1": { label: "Drunagor Nights – Season 1", short: "S1", color: "#1d4a44", flag: s1Flag },
+  "season-2": { label: "Drunagor Nights – Season 2", short: "S2", color: "#1d4a44", flag: s2Flag },
 };

@@ -219,6 +219,9 @@ function equipFromStash(index: number) {
   font-weight: 700;
   text-transform: uppercase;
 }
+.equip__select {
+  min-width: 0;
+}
 .equip__select :deep(.v-field) {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 6px;
@@ -232,8 +235,9 @@ function equipFromStash(index: number) {
 }
 .item-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px 8px;
   min-height: 44px;
   margin-bottom: 6px;
   padding: 6px 8px 6px 12px;
@@ -242,7 +246,7 @@ function equipFromStash(index: number) {
 }
 .item-row__text {
   display: flex;
-  flex: 1;
+  flex: 1 1 140px;
   flex-direction: column;
   min-width: 0;
 }
