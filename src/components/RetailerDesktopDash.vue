@@ -30,7 +30,6 @@
               <v-progress-circular indeterminate size="28" />
             </div>
             <div v-else class="dash-events">
-              <CreateEventCard :loading="creating" @create="createEvent" />
               <EventListCard
                 v-for="event in upcomingEvents.slice(0, 5)"
                 :key="event.events_pk"
@@ -39,9 +38,10 @@
                 @open="openEvent(event)"
               >
                 <template #status>
-                  <span class="dash-manage-hint"><v-icon size="14">mdi-cog</v-icon> Manage</span>
+                  <span class="dash-manage-hint">Manage <v-icon size="16">mdi-chevron-right</v-icon></span>
                 </template>
               </EventListCard>
+              <CreateEventCard :loading="creating" @create="createEvent" />
             </div>
           </div>
         </section>
@@ -59,7 +59,13 @@
       </div>
     </div>
 
-    <ManageEventDialog v-model="manageDialog" :event="selectedEvent" @refresh="loadEvents" />
+    <ManageEventDialog
+      v-model="manageDialog"
+      :event="selectedEvent"
+      editable
+      @refresh="loadEvents"
+      @edit="editEvent"
+    />
   </div>
 </template>
 
@@ -120,6 +126,12 @@ const selectedEvent = ref<any>(null);
 const openEvent = (event: any) => {
   selectedEvent.value = event;
   manageDialog.value = true;
+};
+
+// The edit form lives on the Events page, which opens it for ?edit=<id>.
+const editEvent = (event: any) => {
+  manageDialog.value = false;
+  router.push({ path: "/events", query: { edit: String(event.events_pk) } });
 };
 
 // Events need a store: without one, send the retailer to create it first.
@@ -238,17 +250,24 @@ onMounted(loadEvents);
   height: auto;
   min-height: 96px;
 }
+/* "Manage" on the retailer's own events: outlined, filled when the card is hovered. */
 .dash-manage-hint {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
-  background: rgb(var(--v-theme-primary));
+  padding: 3px 8px 3px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 999px;
-  color: rgb(var(--v-theme-on-primary));
+  color: #141414;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.dash-events :deep(.event-list-card:hover) .dash-manage-hint {
+  background: rgb(var(--v-theme-primary));
+  border-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
 }
 .dash-empty {
   display: flex;

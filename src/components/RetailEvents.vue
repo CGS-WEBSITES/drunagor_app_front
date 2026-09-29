@@ -126,7 +126,6 @@
         </div>
         <div v-else class="list-container">
           <div class="events-grid">
-            <CreateEventCard @create="openCreateEventDialog" />
             <EventListCard
               v-for="event in sortedMyEvents"
               :key="event.events_pk"
@@ -135,9 +134,10 @@
               @open="openManageDialog(event)"
             >
               <template #status>
-                <span class="events-manage-hint"><v-icon size="14">mdi-cog</v-icon> Manage</span>
+                <span class="events-manage-hint">Manage <v-icon size="16">mdi-chevron-right</v-icon></span>
               </template>
             </EventListCard>
+            <CreateEventCard @create="openCreateEventDialog" />
           </div>
         </div>
       </div>
@@ -1580,6 +1580,14 @@ onMounted(async () => {
   await fetchPlayerEvents(showPast.value);
   await fetchUserCreatedEvents(showPast.value);
 
+  // "Edit event" from the dashboard lands here with ?edit=<events_pk>.
+  if (route.query.edit) {
+    const eventToEdit = userCreatedEvents.value.find((e) => String(e.events_pk) === String(route.query.edit));
+    activeTab.value = 2;
+    router.replace({ query: null });
+    if (eventToEdit) openEditDialog(eventToEdit, true);
+  }
+
   eventsInterval.value = setInterval(() => {
     if (activeTab.value === 1) {
       fetchPlayerEvents(showPast.value, true);
@@ -1933,18 +1941,24 @@ watch(
   }
 }
 
-/* Small "Manage" pill on the retailer's own event cards. */
+/* "Manage" on the retailer's own events: outlined, filled when the card is hovered. */
 .events-manage-hint {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
-  background: rgb(var(--v-theme-primary));
+  padding: 3px 8px 3px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
   border-radius: 999px;
-  color: rgb(var(--v-theme-on-primary));
+  color: #141414;
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.events-grid :deep(.event-list-card:hover) .events-manage-hint {
+  background: rgb(var(--v-theme-primary));
+  border-color: rgb(var(--v-theme-primary));
+  color: rgb(var(--v-theme-on-primary));
 }
 .page-loading-overlay {
   position: fixed;
