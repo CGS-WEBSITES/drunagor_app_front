@@ -204,7 +204,7 @@ const adding = ref<string | null>(null);
 async function addHero(heroId: string, marker = heroId) {
   adding.value = marker;
   try {
-    const created = await playableHeroStore.createHero(heroId, userStore.user.users_pk);
+    const created = await playableHeroStore.createHero(heroId, userStore.user.users_pk ?? 0);
     showSnackbar(`${heroDataRepository.find(heroId)?.name ?? "Hero"} joined your heroes!`);
     return created;
   } catch (e: any) {
@@ -235,7 +235,7 @@ async function addRandomHero() {
 }
 
 onMounted(() => {
-  playableHeroStore.fetchHeroes(userStore.user.users_pk);
+  if (userStore.user.users_pk) playableHeroStore.fetchHeroes(userStore.user.users_pk);
 });
 </script>
 
