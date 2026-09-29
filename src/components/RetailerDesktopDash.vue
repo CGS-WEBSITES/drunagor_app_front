@@ -66,6 +66,8 @@
       @refresh="loadEvents"
       @edit="editEvent"
     />
+
+    <EventFormDialog v-model="formDialog" :event="formEvent" @saved="onEventSaved" />
   </div>
 </template>
 
@@ -76,6 +78,7 @@ import { useUserStore } from "@/store/UserStore";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import EventListCard from "@/components/EventListCard.vue";
 import CreateEventCard from "@/components/CreateEventCard.vue";
+import EventFormDialog from "@/components/dialogs/EventFormDialog.vue";
 
 const ASSETS = "https://assets.drunagor.app";
 
@@ -128,10 +131,21 @@ const openEvent = (event: any) => {
   manageDialog.value = true;
 };
 
-// The edit form lives on the Events page, which opens it for ?edit=<id>.
+// Create and edit right here, without leaving the dashboard.
+const formDialog = ref(false);
+const formEvent = ref<any>(null);
 const editEvent = (event: any) => {
   manageDialog.value = false;
-  router.push({ path: "/events", query: { edit: String(event.events_pk) } });
+  formEvent.value = event;
+  formDialog.value = true;
+};
+const onEventSaved = async (eventPk: number) => {
+  await loadEvents();
+  // A new event opens in Manage Event, ready for tables and players.
+  if (!formEvent.value) {
+    const created = upcomingEvents.value.find((event) => event.events_pk === eventPk);
+    if (created) openEvent(created);
+  }
 };
 
 // Events need a store: without one, send the retailer to create it first.
@@ -143,7 +157,12 @@ const createEvent = async () => {
       params: { users_fk: userStore.user?.users_pk },
       validateStatus: (status: number) => status === 200 || status === 404,
     });
-    router.push((data.stores || []).length ? { path: "/events", query: { action: "create" } } : "/profile/store-settings");
+    if ((data.stores || []).length) {
+      formEvent.value = null;
+      formDialog.value = true;
+    } else {
+      router.push("/profile/store-settings");
+    }
   } finally {
     creating.value = false;
   }
