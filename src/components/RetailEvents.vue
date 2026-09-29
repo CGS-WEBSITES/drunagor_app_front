@@ -88,9 +88,7 @@
           </button>
         </div>
         <div class="events-sort__group">
-          <button class="events-sort__label events-sort__clear" title="Reset sorting" @click="setSort('date')">
-            <v-icon size="16">mdi-close-circle</v-icon> Sort by:
-          </button>
+          <span class="events-sort__label">Sort by:</span>
           <button
             v-for="option in sortOptions"
             :key="option.value"
@@ -127,12 +125,8 @@
           <v-progress-circular indeterminate size="80" color="primary" />
         </div>
         <div v-else class="list-container">
-          <div class="events-create">
-            <v-btn color="accent" size="large" class="font-weight-bold" prepend-icon="mdi-plus-thick" @click="openCreateEventDialog">
-              Create event
-            </v-btn>
-          </div>
-          <div v-if="userCreatedEvents.length" class="events-grid">
+          <div class="events-grid">
+            <CreateEventCard @create="openCreateEventDialog" />
             <EventListCard
               v-for="event in sortedMyEvents"
               :key="event.events_pk"
@@ -141,112 +135,28 @@
               @open="openManageDialog(event)"
             >
               <template #status>
-                <span class="events-manage-hint">Manage <v-icon size="16">mdi-chevron-right</v-icon></span>
+                <span class="events-manage-hint"><v-icon size="14">mdi-cog</v-icon> Manage</span>
               </template>
             </EventListCard>
           </div>
-          <p v-else class="text-center text-grey py-8">No events match the selected filters.</p>
         </div>
       </div>
 
-      <v-dialog v-model="dialog" max-width="600" min-height="410">
-        <v-card color="surface">
-          <v-card-actions class="d-flex justify-left">
-            <v-btn color="red" @click="dialog = false">X</v-btn>
-          </v-card-actions>
-          <v-card-text>
-            <p>
-              <v-icon>mdi-seat</v-icon> Available Seats:
-              {{ selectedEvent?.seats_number }}
-            </p>
-            <p>
-              <v-icon>mdi-sword-cross</v-icon> Scenario:
-              {{ selectedEvent?.scenario }}
-            </p>
-            <p v-if="getSeasonInfo(selectedEvent?.seasons_fk).name">
-              <v-icon>mdi-shield-sun</v-icon> Season:
-              {{ getSeasonInfo(selectedEvent.seasons_fk).name }}
-            </p>
-            <p class="text-end scheduled-box">
-              Sheduled for:
-              {{ formatEventDate(selectedEvent?.event_date, userTimezone) }}
-            </p>
+      <v-dialog v-model="dialog" max-width="560" scrollable>
+        <v-card class="event-dialog" color="#2b2b2b">
+          <div class="event-dialog__header">
+            <h2 class="event-dialog__title">{{ selectedEvent?.store_name }}</h2>
+            <v-btn icon variant="text" size="small" class="event-dialog__close" @click="dialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+          <v-card-text class="pt-0">
+            <EventDetailContent :event="selectedEvent" :rewards="eventRewards" :timezone="userTimezone" />
           </v-card-text>
-          <v-card
-            color="primary"
-            min-height="130px"
-            class="mr-4 event-card"
-            @click="openInGoogleMaps()"
-          >
-            <v-row no-gutters>
-              <v-col cols="3" lg="3">
-                <v-img
-                  :src="
-                    selectedEvent?.picture_hash
-                      ? `https://assets.drunagor.app/${selectedEvent.picture_hash}`
-                      : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                  "
-                  class="event-img"
-                />
-              </v-col>
-              <v-col cols="9" class="pa-2">
-                <h3 class="text-subtitle-1 font-weight-bold">
-                  {{ selectedEvent?.store_name }}
-                </h3>
-                <p class="text-caption">
-                  <v-icon color="red">mdi-map-marker</v-icon>
-                  {{ selectedEvent?.address }}
-                </p>
-              </v-col>
-              <v-col cols="2" class="text-right pa-0"></v-col>
-            </v-row>
-          </v-card>
-
-          <v-card color="primary" class="mr-4 mt-4 event-card">
-            <v-responsive
-              style="width: 100%; height: 200px"
-              aspect-ratio="16/9"
-            >
-              <iframe
-                v-if="selectedEvent?.latitude"
-                :src="
-                  `https://www.google.com/maps?q=${selectedEvent.latitude},${selectedEvent.longitude}` +
-                  `&z=15&output=embed`
-                "
-                frameborder="0"
-                style="border: 0; width: 100%; height: 100%"
-                allowfullscreen
-                loading="lazy"
-              />
-            </v-responsive>
-          </v-card>
-
-          <v-card-text>
-            <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-
-            <v-row
-              v-if="eventRewards.length"
-              v-for="(reward, index) in eventRewards"
-              :key="index"
-              class="align-center my-2"
-            >
-              <v-col cols="3" md="2">
-                <v-avatar size="60">
-                  <v-img
-                    :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                  />
-                </v-avatar>
-              </v-col>
-              <v-col cols="9" md="10">
-                <h4 class="text-subtitle-1 font-weight-bold">
-                  {{ reward.name }}
-                </h4>
-              </v-col>
-            </v-row>
-
-            <p v-else class="text-caption">No rewards linked to this event.</p>
-          </v-card-text>
-          <v-row class="mt-2 ml-0"> </v-row>
+          <button class="event-dialog__share" @click="shareSelectedEvent">
+            <v-icon start size="18">{{ shareCopied ? "mdi-check" : "mdi-share-variant" }}</v-icon>
+            {{ shareCopied ? "Link copied" : "Share event" }}
+          </button>
         </v-card>
       </v-dialog>
 
@@ -441,135 +351,121 @@
         </v-card>
       </v-dialog>
 
-      <v-dialog v-model="editEventDialog" scroll-target="#app" max-width="800">
-        <v-card class="dark-background">
+      <v-dialog v-model="editEventDialog" scroll-target="#app" max-width="720">
+        <v-card class="edit-event" color="#141414">
           <div v-if="loading" class="loading-overlay">
             <v-progress-circular indeterminate size="80" color="primary" />
           </div>
-          <v-alert v-if="showSuccessAlert" type="success" class="mb-4" dense>
+
+          <div class="edit-event__header">
+            <h2>Edit event</h2>
+            <v-btn icon variant="text" size="small" @click="editEventDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </div>
+
+          <v-alert v-if="showSuccessAlert" type="success" variant="tonal" density="compact" class="mx-6 mb-2">
             Event changed successfully
           </v-alert>
-          <v-card-text>
-            <v-row>
-              <v-col cols="6" md="6" v-if="isEditable">
-                <v-select
-                  v-model="editableEvent.seats_number"
-                  :items="[1, 2, 3, 4]"
-                  label="SEATS"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col cols="6" md="6" v-if="isEditable">
-                <v-select
-                  v-model="editableEvent.sceneries_fk"
-                  :items="editableScenarios"
-                  item-title="displayName"
-                  item-value="sceneries_pk"
-                  label="SCENARIO"
-                  variant="outlined"
-                  :key="editableScenarios.length"
-                  clearable
-                ></v-select>
-              </v-col>
-              <v-col cols="12" v-if="isEditable">
-                <v-select
-                  v-model="editableEvent.store"
-                  :items="availableStores"
-                  label="STORE"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col cols="6" md="3" v-if="isEditable">
-                <v-text-field
-                  v-model="editableEvent.hour"
-                  label="TIME"
-                  variant="outlined"
-                  placeholder="HH:MM"
-                  maxlength="5"
-                  @blur="validateTime"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6" md="2" v-if="isEditable">
-                <v-select
-                  v-model="editableEvent.ampm"
-                  :items="['AM', 'PM']"
-                  label="AM/PM"
-                  variant="outlined"
-                ></v-select>
-              </v-col>
-              <v-col
-                cols="12"
-                md="6"
-                class="d-flex align-center"
-                v-if="isEditable"
-              >
+
+          <div class="edit-event__body">
+            <label class="edit-event__label">Scenario</label>
+            <v-select
+              v-model="editableEvent.sceneries_fk"
+              :items="editableScenarios"
+              item-title="displayName"
+              item-value="sceneries_pk"
+              :key="editableScenarios.length"
+              :disabled="!isEditable"
+              variant="solo"
+              density="compact"
+              flat
+              hide-details
+              class="edit-event__field"
+            />
+
+            <label class="edit-event__label">Store</label>
+            <v-select
+              v-model="editableEvent.store"
+              :items="availableStores"
+              :disabled="!isEditable"
+              prepend-inner-icon="mdi-store"
+              variant="solo"
+              density="compact"
+              flat
+              hide-details
+              class="edit-event__field"
+            />
+
+            <div class="edit-event__row">
+              <div>
+                <label class="edit-event__label">Date</label>
                 <v-text-field
                   v-model="editableEvent.date"
-                  label="DATE"
                   type="date"
-                  variant="outlined"
-                  class="date-input"
                   :min="today"
                   :max="oneYearFromTodayISO"
                   :rules="dateRules"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" v-if="editableRewardsItems.length > 0">
-                <p class="pb-2 font-weight-bold cinzel-text">EVENT REWARDS:</p>
-                <v-card
+                  :disabled="!isEditable"
+                  variant="solo"
+                  density="compact"
+                  flat
+                  hide-details="auto"
+                  class="edit-event__field"
+                />
+              </div>
+              <div>
+                <label class="edit-event__label">Time</label>
+                <div class="edit-event__time">
+                  <v-text-field
+                    v-model="editableEvent.hour"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                    :disabled="!isEditable"
+                    variant="solo"
+                    density="compact"
+                    flat
+                    hide-details
+                    class="edit-event__field"
+                    @blur="validateTime"
+                  />
+                  <v-select
+                    v-model="editableEvent.ampm"
+                    :items="['AM', 'PM']"
+                    :disabled="!isEditable"
+                    variant="solo"
+                    density="compact"
+                    flat
+                    hide-details
+                    class="edit-event__field edit-event__ampm"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <template v-if="editableRewardsItems.length">
+              <label class="edit-event__label">Rewards</label>
+              <div class="edit-event__rewards">
+                <v-avatar
                   v-for="(reward, index) in editableRewardsItems"
                   :key="index"
-                  rounded="lg"
-                  elevation="2"
-                  class="py-2 px-2 d-flex align-center position-relative mb-2"
-                  color="rgba(255, 255, 255, 0.05)"
+                  size="48"
+                  :title="reward.name"
                 >
-                  <v-row class="align-center" no-gutters>
-                    <v-col
-                      cols="3"
-                      sm="2"
-                      class="d-flex align-center justify-center pl-2"
-                    >
-                      <v-img
-                        :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                        alt="Reward Icon"
-                        max-height="64"
-                        max-width="64"
-                        contain
-                      ></v-img>
-                    </v-col>
-                    <v-col
-                      cols="9"
-                      sm="10"
-                      class="pl-4 d-flex flex-column justify-center"
-                    >
-                      <p class="font-weight-bold white--text ma-0 text-h6">
-                        {{ reward.name }}
-                      </p>
-                      <p class="text-body-2 grey--text ma-0">
-                        {{ reward.description }}
-                      </p>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
+                  <v-img :src="`https://assets.drunagor.app/${reward.picture_hash}`" />
+                </v-avatar>
+              </div>
+            </template>
+          </div>
 
-              <v-col cols="12" class="d-flex justify-space-between">
-                <v-btn color="red" @click="editEventDialog = false"
-                  >Close</v-btn
-                >
-                <v-btn
-                  v-if="isEditable"
-                  color="green"
-                  :loading="loading"
-                  :disabled="loading"
-                  @click="saveEditedEvent"
-                >
-                  Save Changes</v-btn
-                >
-              </v-col>
-            </v-row>
-          </v-card-text>
+          <button
+            v-if="isEditable"
+            class="edit-event__confirm"
+            :disabled="loading"
+            @click="saveEditedEvent"
+          >
+            Confirm changes
+          </button>
         </v-card>
       </v-dialog>
     </v-card>
@@ -606,6 +502,8 @@ import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
 import EventListCard from "@/components/EventListCard.vue";
+import CreateEventCard from "@/components/CreateEventCard.vue";
+import EventDetailContent from "@/components/EventDetailContent.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import {
@@ -869,7 +767,18 @@ const filteredScenarios = computed(() => {
   return [];
 });
 
+// Always offer the event's current scenario, even when it is no longer one
+// retailers can pick for new events (otherwise the select shows its raw id).
 const editableScenarios = computed(() => {
+  const options = editableScenarioOptions.value;
+  const current = sceneries.value.find((scenario) => scenario.sceneries_pk === editableEvent.value.sceneries_fk);
+  if (current && !options.some((option) => option.sceneries_pk === current.sceneries_pk)) {
+    return [decorateScenario(current), ...options];
+  }
+  return options;
+});
+
+const editableScenarioOptions = computed(() => {
   const currentSeason =
     editableEvent.value.seasons_fk ?? selectedEvent.value?.seasons_fk;
 
@@ -1001,6 +910,24 @@ const todayISO = today.toISOString().split("T")[0];
 const oneYearFromToday = new Date();
 oneYearFromToday.setFullYear(today.getFullYear() + 1);
 const oneYearFromTodayISO = oneYearFromToday.toISOString().split("T")[0];
+
+// Share uses the phone's share sheet when there is one, else copies the link.
+const shareCopied = ref(false);
+const shareSelectedEvent = async () => {
+  if (!selectedEvent.value?.events_pk) return;
+  const url = `${window.location.origin}/event/${btoa(String(selectedEvent.value.events_pk))}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: selectedEvent.value.store_name, url });
+      return;
+    } catch {
+      // Share sheet closed: fall back to copying.
+    }
+  }
+  await navigator.clipboard?.writeText(url);
+  shareCopied.value = true;
+  setTimeout(() => (shareCopied.value = false), 2000);
+};
 
 const openDialog = (event) => {
   selectedEvent.value = event;
@@ -1430,12 +1357,18 @@ const editFromManage = (event) => {
 };
 
 const openEditDialog = (event, editable = false) => {
-  const parsed = parseApiDate(event.event_date);
-  const hours24 = parsed ? parsed.getHours() : 0;
-  const minutes = parsed ? String(parsed.getMinutes()).padStart(2, "0") : "00";
-  const datePart = parsed
-    ? `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`
-    : "";
+  // Edit the time as the store sees it: the API sends it with the store's
+  // offset ("2026-09-29T18:00:00-05:00") and saving treats it as store time,
+  // so reading it in the browser's timezone would shift the event.
+  const wallClock = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})/.exec(event.event_date || "");
+  const parsed = wallClock ? null : parseApiDate(event.event_date);
+  const hours24 = wallClock ? Number(wallClock[2]) : parsed ? parsed.getHours() : 0;
+  const minutes = wallClock ? wallClock[3] : parsed ? String(parsed.getMinutes()).padStart(2, "0") : "00";
+  const datePart = wallClock
+    ? wallClock[1]
+    : parsed
+      ? `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, "0")}-${String(parsed.getDate()).padStart(2, "0")}`
+      : "";
   const hours12 = hours24 % 12 || 12;
   const ampm = hours24 >= 12 ? "PM" : "AM";
 
@@ -1764,6 +1697,107 @@ watch(
 </script>
 
 <style scoped>
+.edit-event {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+}
+.edit-event__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 4px 24px;
+}
+.edit-event__header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.edit-event__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 24px 24px;
+}
+.edit-event__label {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.edit-event__field :deep(.v-field) {
+  border-radius: 8px;
+  background: #e8e8e8;
+  color: #141414;
+}
+.edit-event__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.edit-event__time {
+  display: flex;
+  gap: 8px;
+}
+.edit-event__ampm {
+  flex: 0 0 96px;
+}
+.edit-event__rewards {
+  display: flex;
+  gap: 10px;
+}
+.edit-event__confirm {
+  height: 52px;
+  background: #fff;
+  color: #000;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+.edit-event__confirm:hover {
+  background: #e0e0e0;
+}
+.edit-event__confirm:disabled {
+  opacity: 0.6;
+}
+@media (max-width: 599px) {
+  .edit-event__row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+.event-dialog {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+}
+.event-dialog__header {
+  position: relative;
+  padding: 20px 56px 8px;
+  text-align: center;
+}
+.event-dialog__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.event-dialog__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.event-dialog__share {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  background: #1e88e5;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
 .events-panel {
   background: #0d0d0d !important;
   border-radius: 8px 8px 0 0;
@@ -1899,17 +1933,18 @@ watch(
   }
 }
 
-.events-create {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 12px 0;
-}
+/* Small "Manage" pill on the retailer's own event cards. */
 .events-manage-hint {
   display: flex;
   align-items: center;
-  color: rgb(var(--v-theme-primary));
-  font-size: 0.75rem;
+  gap: 4px;
+  padding: 3px 10px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 999px;
+  color: rgb(var(--v-theme-on-primary));
+  font-size: 0.72rem;
   font-weight: 700;
+  text-transform: uppercase;
 }
 .page-loading-overlay {
   position: fixed;
