@@ -35,116 +35,74 @@
           >click here<v-icon size="x-small" style="color: #BCA341;" class="ml-0.5">mdi-open-in-new</v-icon></a>.
         </p>
 
-        <!-- ================= STEP 1 ================= -->
-        <div class="step-section mb-4">
-          <!-- Step Banner Header -->
-          <div 
+        <!-- The four steps, from guideSteps below. -->
+        <div v-for="step in guideSteps" :key="step.n" class="step-section mb-4">
+          <div
             class="step-banner rounded-lg d-flex align-center cursor-pointer"
-            :class="{ 'banner-open': openSteps[1] }"
-            @click="toggleStep(1)"
+            :class="{ 'banner-open': openSteps[step.n] }"
+            @click="toggleStep(step.n)"
           >
-            <span class="step-badge badge-step-1">STEP 1</span>
+            <span class="step-badge" :class="`badge-step-${step.n}`">STEP {{ step.n }}</span>
             <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
-              The “Age of Darkness” Core Box
+              {{ step.title }}
             </h2>
           </div>
 
-          <!-- Expandable Content for Step 1 with Grey Background -->
           <v-expand-transition>
-            <div v-show="openSteps[1]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
-              <p class="intro-p text-white mb-5">
-                Open the <strong class="text-white font-weight-bold">Core Box</strong> and let’s sort through the components.
-              </p>
+            <div v-show="openSteps[step.n]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
+              <p v-for="(text, i) in step.intro" :key="i" class="intro-p text-white mb-4" v-html="text"></p>
 
-              <!-- 1.1 -->
-              <div class="substep-block mb-5">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  1.1 – What you should <strong class="text-white font-weight-black">SET ASIDE</strong> (we won’t be using these):
-                </h3>
-                <div class="checklist-items">
-                  <div 
-                    v-for="item in step1SetAsideItems" 
-                    :key="item.id"
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked(item.id) }"
-                    @click="handleItemClick(item)"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked(item.id) }"
-                      @click.stop="handleItemClick(item)"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
-                  </div>
-                </div>
+              <div v-if="step.image" class="text-center my-5">
+                <v-img
+                  :src="step.image.image"
+                  eager
+                  :alt="step.image.title"
+                  max-width="280"
+                  class="mx-auto rounded-lg shadow-elevation-8 cursor-pointer"
+                  @click="openModal(step.image)"
+                >
+                  <template v-slot:error>
+                    <div class="guide-image-fallback rounded-lg pa-5 text-center mx-auto">
+                      <v-icon size="36" class="mb-1">mdi-image-off-outline</v-icon>
+                      <div class="text-caption text-grey-lighten-1">{{ step.image.title }}</div>
+                    </div>
+                  </template>
+                </v-img>
               </div>
 
-              <!-- 1.2 -->
-              <div class="substep-block mb-5">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  1.2 – What you should <strong class="text-white font-weight-black">SEPARATE</strong> (keep nearby):
-                </h3>
-                <div class="checklist-items">
-                  <div 
-                    v-for="item in step1SeparateItems" 
-                    :key="item.id"
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked(item.id) }"
-                    @click="handleItemClick(item)"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked(item.id) }"
-                      @click.stop="handleItemClick(item)"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
-                  </div>
-                </div>
-                <p class="note-text text-grey-lighten-1 mt-2 pl-7">
-                  Note: The Large Miniatures Tray is located at the bottom of the box.
-                </p>
-              </div>
+              <div v-for="sub in step.substeps" :key="sub.heading" class="substep-block mb-5">
+                <h3 class="substep-heading font-weight-bold text-white mb-2" v-html="sub.heading"></h3>
+                <p v-if="sub.text" class="intro-p text-white mb-3" v-html="sub.text"></p>
 
-              <!-- 1.3 -->
-              <div class="substep-block">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  1.3 – Organizing the Core Box:
-                </h3>
-                <div class="checklist-items">
-                  <div 
-                    v-for="item in step1OrganizeItems" 
-                    :key="item.id"
-                    class="mb-1"
-                  >
-                    <!-- Main parent row -->
-                    <div 
+                <div v-if="sub.items" class="checklist-items">
+                  <div v-for="item in sub.items" :key="item.id" class="mb-1">
+                    <div
                       class="checklist-row d-flex align-start py-2 cursor-pointer"
                       :class="{ 'row-checked': !item.details && isChecked(item.id) }"
+                      @click="handleItemClick(item)"
                     >
-                      <div 
-                        class="custom-checkbox flex-shrink-0" 
+                      <div
+                        class="custom-checkbox flex-shrink-0"
                         :class="{ 'checked': isParentChecked(item) }"
                         @click.stop="toggleParentCheck(item)"
                       ></div>
-                      <span 
-                        class="row-label text-white flex-grow-1" 
-                        :class="{ 'text-decoration-line-through opacity-50': isParentChecked(item) }"
-                        @click="handleItemClick(item)" 
+                      <span
+                        class="row-label text-white flex-grow-1"
+                        :class="{ 'text-decoration-line-through opacity-50': item.details && isParentChecked(item) }"
                         v-html="item.label"
                       ></span>
                     </div>
 
-                    <!-- Sub-bullets: independent individual rows so hover and selection are separate -->
                     <div v-if="item.details" class="sub-bullets pl-5 pl-sm-6 mt-0.5">
-                      <div 
-                        v-for="(detail, dIdx) in item.details" 
-                        :key="dIdx" 
+                      <div
+                        v-for="detail in item.details"
+                        :key="detail.id"
                         class="checklist-row d-flex align-start py-1.5 cursor-pointer mb-1"
                         :class="{ 'row-checked': isChecked(detail.id) }"
                         @click.stop="handleItemClick(detail)"
                       >
-                        <div 
-                          class="custom-checkbox flex-shrink-0 mr-2" 
+                        <div
+                          class="custom-checkbox flex-shrink-0 mr-2"
                           :class="{ 'checked': isChecked(detail.id) }"
                           @click.stop="toggleCheck(detail.id)"
                         ></div>
@@ -153,421 +111,112 @@
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </v-expand-transition>
-        </div>
 
-        <!-- ================= STEP 2 ================= -->
-        <div class="step-section mb-4">
-          <!-- Step Banner Header -->
-          <div 
-            class="step-banner rounded-lg d-flex align-center cursor-pointer"
-            :class="{ 'banner-open': openSteps[2] }"
-            @click="toggleStep(2)"
-          >
-            <span class="step-badge badge-step-2">STEP 2</span>
-            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
-              The Organized Play Kit
-            </h2>
-          </div>
+                <p v-if="sub.note" class="note-text text-grey-lighten-1 mt-2 pl-7" v-html="sub.note"></p>
 
-          <!-- Expandable Content for Step 2 with Grey Background -->
-          <v-expand-transition>
-            <div v-show="openSteps[2]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
-              <p class="intro-p text-white mb-5">
-                Open the <strong class="text-white font-weight-bold">Organized Play Kit</strong> and combine its contents with the components we have already prepared.
-              </p>
+                <template v-if="sub.cardsTable">
+                    <div class="cards-table-wrapper mb-2 overflow-x-auto">
+                      <v-table theme="dark" class="mini-cards-table rounded-lg" style="min-width: 680px;">
+                        <thead>
+                          <tr>
+                            <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase" style="width: 226px; min-width: 226px;">
+                              HERO COMPONENTS
+                            </th>
+                            <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase" style="width: 226px; min-width: 226px;">
+                              ENEMY COMPONENTS
+                            </th>
+                            <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 text-uppercase" style="width: 228px; min-width: 228px;">
+                              ADVENTURE COMPONENTS
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="rowIndex in maxCardRows" :key="rowIndex" class="table-row-custom">
+                            <!-- Hero -->
+                            <td class="table-cell-custom pa-3 align-top border-col-right text-center" style="width: 226px; min-width: 226px;">
+                              <div 
+                                v-if="heroCards[rowIndex - 1]" 
+                                class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
+                                :class="{ 'cell-checked': isChecked(heroCards[rowIndex - 1].id) }"
+                                @click="handleItemClick(heroCards[rowIndex - 1])"
+                              >
+                                <span class="text-caption text-white style-table-text mb-2 text-center">{{ heroCards[rowIndex - 1].label }}</span>
+                                <div 
+                                  class="custom-checkbox flex-shrink-0 ma-0" 
+                                  :class="{ 'checked': isChecked(heroCards[rowIndex - 1].id) }"
+                                  @click.stop="handleItemClick(heroCards[rowIndex - 1])"
+                                ></div>
+                              </div>
+                            </td>
 
-              <!-- Kit Box Image -->
-              <div class="text-center my-5">
-                <v-img
-                  :src="getImg('Drunagor Nights Box.png')"
-                  alt="Organized Play Kit Box"
-                  max-width="280"
-                  class="mx-auto rounded-lg shadow-elevation-8 cursor-pointer"
-                  @click="openModal({ id: 'op_kit_box', title: 'Organized Play Kit', image: getImg('Drunagor Nights Box.png') })"
-                >
-                  <template v-slot:error>
-                    <div class="box-preview-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 280px;">
-                      <v-icon size="40" color="cyan-accent-3" class="mb-1">mdi-package-variant</v-icon>
-                      <div class="text-caption font-weight-bold text-white">Organized Play Kit Box</div>
+                            <!-- Enemy -->
+                            <td class="table-cell-custom pa-3 align-top border-col-right text-center" style="width: 226px; min-width: 226px;">
+                              <div 
+                                v-if="enemyCards[rowIndex - 1]" 
+                                class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
+                                :class="{ 'cell-checked': isChecked(enemyCards[rowIndex - 1].id) }"
+                                @click="handleItemClick(enemyCards[rowIndex - 1])"
+                              >
+                                <span class="text-caption text-white style-table-text mb-2 text-center">{{ enemyCards[rowIndex - 1].label }}</span>
+                                <div 
+                                  class="custom-checkbox flex-shrink-0 ma-0" 
+                                  :class="{ 'checked': isChecked(enemyCards[rowIndex - 1].id) }"
+                                  @click.stop="handleItemClick(enemyCards[rowIndex - 1])"
+                                ></div>
+                              </div>
+                            </td>
+
+                            <!-- Adventure -->
+                            <td class="table-cell-custom pa-3 align-top text-center" style="width: 228px; min-width: 228px;">
+                              <div 
+                                v-if="adventureCards[rowIndex - 1]" 
+                                class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
+                                :class="{ 'cell-checked': isChecked(adventureCards[rowIndex - 1].id) }"
+                                @click="handleItemClick(adventureCards[rowIndex - 1])"
+                              >
+                                <span class="text-caption text-white style-table-text mb-2 text-center">{{ adventureCards[rowIndex - 1].label }}</span>
+                                <div 
+                                  class="custom-checkbox flex-shrink-0 ma-0" 
+                                  :class="{ 'checked': isChecked(adventureCards[rowIndex - 1].id) }"
+                                  @click.stop="handleItemClick(adventureCards[rowIndex - 1])"
+                                ></div>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </v-table>
                     </div>
-                  </template>
-                </v-img>
-              </div>
 
-              <!-- 2.1 -->
-              <div class="substep-block mb-5">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  2.1 – What to separate:
-                </h3>
-                <div class="checklist-items">
-                  <div 
-                    v-for="item in step2SeparateItems" 
-                    :key="item.id"
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked(item.id) }"
-                    @click="handleItemClick(item)"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked(item.id) }"
-                      @click.stop="handleItemClick(item)"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
-                  </div>
-                </div>
+                    <!-- Scroll Indicator Cue for Mobile -->
+                    <div class="d-flex align-center justify-center ga-1.5 mt-1 mb-4 text-caption text-grey-lighten-1 font-weight-medium d-sm-none">
+                      <v-icon size="small" color="cyan-accent-3">mdi-arrow-left-right</v-icon>
+                      <span>Scroll sideways to view ADVENTURE COMPONENTS</span>
+                    </div>
+                </template>
 
-                <!-- Gift Cards Image -->
-                <div class="text-center my-4">
+                <p v-if="sub.after" class="intro-p text-white mb-3" v-html="sub.after"></p>
+
+                <div v-if="sub.image" class="text-center my-4">
                   <v-img
-                    :src="getImg('GIFT CARDS.png')"
-                    alt="Gift Item Cards"
+                    :src="sub.image.image"
+                    eager
+                    :alt="sub.image.title"
                     max-width="400"
                     class="mx-auto rounded-lg cursor-pointer"
-                    @click="openModal({ id: 'step2_1_gift_cards', title: 'Gift Item Cards (80x)', image: getImg('GIFT CARDS.png') })"
+                    @click="openModal(sub.image)"
                   >
                     <template v-slot:error>
-                      <div class="cards-preview-fallback rounded-lg pa-4 text-center mx-auto" style="max-width: 400px;">
-                        <v-icon size="32" color="amber-accent-2" class="mb-1">mdi-cards</v-icon>
-                        <div class="text-caption text-grey-lighten-1">Gift Item Cards (80x)</div>
+                      <div class="guide-image-fallback rounded-lg pa-5 text-center mx-auto">
+                        <v-icon size="36" class="mb-1">mdi-image-off-outline</v-icon>
+                        <div class="text-caption text-grey-lighten-1">{{ sub.image.title }}</div>
                       </div>
                     </template>
                   </v-img>
                 </div>
               </div>
 
-              <!-- 2.2 -->
-              <div class="substep-block mb-5">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  2.2 – Rescue the Pet Cards <span class="text-amber-accent-2 text-caption font-weight-bold ml-1">(Special Step!)</span>
-                </h3>
-                <p class="intro-p text-white mb-3">
-                  Go back to the pile of components you <strong class="text-white font-weight-bold">set aside</strong> from the Core Box, open the appropriate card pack, and <strong class="text-white font-weight-bold">retrieve Maya’s 2 Pet Cards</strong> (<strong class="text-white font-weight-bold">Wolf and Eagle</strong>). Add them to the components that will be used.
-                </p>
-                
-                <div 
-                  class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                  :class="{ 'row-checked': isChecked('step2_2_pet_cards') }"
-                  @click="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
-                >
-                  <div 
-                    class="custom-checkbox flex-shrink-0" 
-                    :class="{ 'checked': isChecked('step2_2_pet_cards') }"
-                    @click.stop="handleItemClick({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
-                  ></div>
-                  <span class="row-label text-white flex-grow-1">
-                    Retrieve Maya's 2 Pet Cards (Wolf and Eagle) and add to active components.
-                  </span>
-                </div>
-
-                <!-- Pet Cards Image -->
-                <div class="text-center my-3">
-                  <v-img
-                    :src="getImg('Pets Maya.png')"
-                    alt="Maya's Pet Cards - Wolf and Eagle"
-                    max-width="380"
-                    class="mx-auto rounded-lg cursor-pointer"
-                    @click="openModal({ id: 'step2_2_pet_cards', title: 'Maya\'s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') })"
-                  >
-                    <template v-slot:error>
-                      <div class="pet-preview-fallback rounded-lg pa-4 text-center mx-auto d-flex justify-center ga-4" style="max-width: 380px;">
-                        <div class="text-caption text-grey-lighten-1"><v-icon size="small" color="cyan-accent-3">mdi-owl</v-icon> Eagle Pet Card</div>
-                        <div class="text-caption text-grey-lighten-1"><v-icon size="small" color="cyan-accent-3">mdi-dog</v-icon> Wolf Pet Card</div>
-                      </div>
-                    </template>
-                  </v-img>
-                </div>
-              </div>
-
-              <!-- 2.3 Organizing Kit's Mini USA Cards -->
-              <div class="substep-block mb-5">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  2.3 – Organizing the Kit’s Mini USA Cards:
-                </h3>
-                <p class="intro-p text-white mb-3">
-                  Sort the cards into separate piles by category: <strong class="text-white font-weight-bold">Heroes, Enemies, and Adventures</strong>.
-                </p>
-
-                <!-- Table Matching Image 3 (Scrollable with 3rd column peek and visible scrollbar) -->
-                <div class="cards-table-wrapper mb-2 overflow-x-auto">
-                  <v-table theme="dark" class="mini-cards-table rounded-lg" style="min-width: 680px;">
-                    <thead>
-                      <tr>
-                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase" style="width: 226px; min-width: 226px;">
-                          HERO COMPONENTS
-                        </th>
-                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 border-col-right text-uppercase" style="width: 226px; min-width: 226px;">
-                          ENEMY COMPONENTS
-                        </th>
-                        <th class="text-center text-caption font-weight-bold text-white bg-grey-darken-3 py-3 text-uppercase" style="width: 228px; min-width: 228px;">
-                          ADVENTURE COMPONENTS
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="rowIndex in maxCardRows" :key="rowIndex" class="table-row-custom">
-                        <!-- Hero -->
-                        <td class="table-cell-custom pa-3 align-top border-col-right text-center" style="width: 226px; min-width: 226px;">
-                          <div 
-                            v-if="heroCards[rowIndex - 1]" 
-                            class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
-                            :class="{ 'cell-checked': isChecked(heroCards[rowIndex - 1].id) }"
-                            @click="handleItemClick(heroCards[rowIndex - 1])"
-                          >
-                            <span class="text-caption text-white style-table-text mb-2 text-center">{{ heroCards[rowIndex - 1].label }}</span>
-                            <div 
-                              class="custom-checkbox flex-shrink-0 ma-0" 
-                              :class="{ 'checked': isChecked(heroCards[rowIndex - 1].id) }"
-                              @click.stop="handleItemClick(heroCards[rowIndex - 1])"
-                            ></div>
-                          </div>
-                        </td>
-
-                        <!-- Enemy -->
-                        <td class="table-cell-custom pa-3 align-top border-col-right text-center" style="width: 226px; min-width: 226px;">
-                          <div 
-                            v-if="enemyCards[rowIndex - 1]" 
-                            class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
-                            :class="{ 'cell-checked': isChecked(enemyCards[rowIndex - 1].id) }"
-                            @click="handleItemClick(enemyCards[rowIndex - 1])"
-                          >
-                            <span class="text-caption text-white style-table-text mb-2 text-center">{{ enemyCards[rowIndex - 1].label }}</span>
-                            <div 
-                              class="custom-checkbox flex-shrink-0 ma-0" 
-                              :class="{ 'checked': isChecked(enemyCards[rowIndex - 1].id) }"
-                              @click.stop="handleItemClick(enemyCards[rowIndex - 1])"
-                            ></div>
-                          </div>
-                        </td>
-
-                        <!-- Adventure -->
-                        <td class="table-cell-custom pa-3 align-top text-center" style="width: 228px; min-width: 228px;">
-                          <div 
-                            v-if="adventureCards[rowIndex - 1]" 
-                            class="cell-check-item d-flex flex-column align-center justify-space-between pa-1 rounded cursor-pointer fill-height"
-                            :class="{ 'cell-checked': isChecked(adventureCards[rowIndex - 1].id) }"
-                            @click="handleItemClick(adventureCards[rowIndex - 1])"
-                          >
-                            <span class="text-caption text-white style-table-text mb-2 text-center">{{ adventureCards[rowIndex - 1].label }}</span>
-                            <div 
-                              class="custom-checkbox flex-shrink-0 ma-0" 
-                              :class="{ 'checked': isChecked(adventureCards[rowIndex - 1].id) }"
-                              @click.stop="handleItemClick(adventureCards[rowIndex - 1])"
-                            ></div>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </v-table>
-                </div>
-
-                <!-- Scroll Indicator Cue for Mobile -->
-                <div class="d-flex align-center justify-center ga-1.5 mt-1 mb-4 text-caption text-grey-lighten-1 font-weight-medium d-sm-none">
-                  <v-icon size="small" color="cyan-accent-3">mdi-arrow-left-right</v-icon>
-                  <span>Scroll sideways to view ADVENTURE COMPONENTS</span>
-                </div>
-
-                <p class="intro-p text-white mb-3">
-                  Place each of these <strong class="text-white font-weight-bold">3 categories</strong> into one of the <strong class="text-white font-weight-bold">3 Save Game Boxes</strong> that are still empty.
-                </p>
-
-                <!-- 3 Save Game Boxes Image -->
-                <div class="text-center my-4">
-                  <v-img
-                    :src="getImg('Hero_Enemy_Adventure components.png')"
-                    alt="3 Save Game Boxes Layout"
-                    max-width="400"
-                    class="mx-auto rounded-lg cursor-pointer"
-                    @click="openModal({ id: 'save_boxes_layout', title: '3 Save Game Boxes Layout', image: getImg('Hero_Enemy_Adventure components.png') })"
-                  >
-                    <template v-slot:error>
-                      <div class="save-boxes-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 400px;">
-                        <v-icon size="36" color="cyan-accent-3" class="mb-1">mdi-archive-outline</v-icon>
-                        <div class="text-caption text-grey-lighten-1">Place categories into the 3 empty Save Game Boxes</div>
-                      </div>
-                    </template>
-                  </v-img>
-                </div>
-              </div>
-
-              <!-- 2.4 -->
-              <div class="substep-block">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  2.4 – Packing Everything Back into the Core Box
-                </h3>
-                <p class="intro-p text-white mb-3">
-                  Now, return the following components to the <strong class="text-white font-weight-bold">Core Box</strong>:
-                </p>
-                <div class="checklist-items">
-                  <div 
-                    v-for="item in step2PackItems" 
-                    :key="item.id"
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked(item.id) }"
-                    @click="handleItemClick(item)"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked(item.id) }"
-                      @click.stop="handleItemClick(item)"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1" v-html="item.label"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </v-expand-transition>
-        </div>
-
-        <!-- ================= STEP 3 ================= -->
-        <div class="step-section mb-4">
-          <!-- Step Banner Header -->
-          <div 
-            class="step-banner rounded-lg d-flex align-center cursor-pointer"
-            :class="{ 'banner-open': openSteps[3] }"
-            @click="toggleStep(3)"
-          >
-            <span class="step-badge badge-step-3">STEP 3</span>
-            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
-              The “Build Your Own Dungeon” Add-On
-            </h2>
-          </div>
-
-          <!-- Expandable Content for Step 3 with Grey Background -->
-          <v-expand-transition>
-            <div v-show="openSteps[3]" class="step-open-container pt-4 pb-4 px-3 px-sm-5 mb-4">
-              <p class="intro-p text-white mb-5">
-                Open the add-on box and <strong class="text-white font-weight-bold">Set Aside</strong> the plastic wraps containing the <strong class="text-white font-weight-bold">Map Tiles</strong>.
-              </p>
-
-              <!-- BYOD Box Image -->
-              <div class="text-center my-5">
-                <v-img
-                  :src="getImg('Build Your Own Dungeon.png')"
-                  alt="Build Your Own Dungeon Add-On Box"
-                  max-width="280"
-                  class="mx-auto rounded-lg cursor-pointer shadow-elevation-8"
-                  @click="openModal({ id: 'byod_box', title: 'Build Your Own Dungeon Add-On', image: getImg('Build Your Own Dungeon.png') })"
-                >
-                  <template v-slot:error>
-                    <div class="byod-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 280px;">
-                      <v-icon size="40" color="amber-accent-2" class="mb-1">mdi-castle</v-icon>
-                      <div class="text-caption font-weight-bold text-white">Build Your Own Dungeon Add-On</div>
-                    </div>
-                  </template>
-                </v-img>
-              </div>
-
-              <!-- 3.1 -->
-              <div class="substep-block">
-                <h3 class="substep-heading font-weight-bold text-white mb-2">
-                  3.1 – What to do:
-                </h3>
-                
-                <div class="checklist-items">
-                  <div 
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked('step3_1_dungeon_trays') }"
-                    @click="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: getImg('5 New Trays.png'), title: '5 Dungeon Trays Vertically Positioned' })"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked('step3_1_dungeon_trays') }"
-                      @click.stop="handleItemClick({ id: 'step3_1_dungeon_trays', label: 'Pack 5 Dungeon Trays vertically inside Core Box', image: getImg('5 New Trays.png'), title: '5 Dungeon Trays Vertically Positioned' })"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1">
-                      <strong class="text-white font-weight-bold">Pack into the Core Box:</strong> Take the <strong class="text-white font-weight-bold">5 new Dungeon Trays</strong> and place them inside the Core Box. Position them <strong class="text-white font-weight-bold">vertically</strong> so they fit.
-                    </span>
-                  </div>
-
-                  <!-- Dungeon Trays Vertical Placement Image -->
-                  <div class="text-center my-3">
-                    <v-img
-                      :src="getImg('5 New Trays.png')"
-                      alt="5 New Dungeon Trays Positioned Vertically"
-                      max-width="400"
-                      class="mx-auto rounded-lg cursor-pointer"
-                      @click="openModal({ id: 'step3_1_dungeon_trays', title: '5 Dungeon Trays Vertically Positioned', image: getImg('5 New Trays.png') })"
-                    >
-                      <template v-slot:error>
-                        <div class="trays-fallback rounded-lg pa-5 text-center mx-auto" style="max-width: 400px;">
-                          <v-icon size="36" color="cyan-accent-3" class="mb-1">mdi-view-grid-plus</v-icon>
-                          <div class="text-caption text-grey-lighten-1">Position 5 Dungeon Trays vertically inside the box</div>
-                        </div>
-                      </template>
-                    </v-img>
-                  </div>
-
-                  <div 
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked('step3_1_gift_cards') }"
-                    @click="handleItemClick({ id: 'step3_1_gift_cards', title: 'Gift Item Cards', image: getImg('GIFT CARDS.png') })"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked('step3_1_gift_cards') }"
-                      @click.stop="handleItemClick({ id: 'step3_1_gift_cards', title: 'Gift Item Cards', image: getImg('GIFT CARDS.png') })"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1">
-                      Place the stack of <strong class="text-white font-weight-bold">Gift Cards</strong> inside the Core Box as well.
-                    </span>
-                  </div>
-
-                  <div 
-                    class="checklist-row d-flex align-start py-2.5 cursor-pointer mb-1"
-                    :class="{ 'row-checked': isChecked('step3_1_close_box') }"
-                    @click="handleItemClick({ id: 'step3_1_close_box', title: 'Core Box Fully Closed', image: getImg('Drunagor Nights Box.png') })"
-                  >
-                    <div 
-                      class="custom-checkbox flex-shrink-0" 
-                      :class="{ 'checked': isChecked('step3_1_close_box') }"
-                      @click.stop="handleItemClick({ id: 'step3_1_close_box', title: 'Core Box Fully Closed', image: getImg('Drunagor Nights Box.png') })"
-                    ></div>
-                    <span class="row-label text-white flex-grow-1">
-                      Put the lid on and <strong class="text-white font-weight-bold">close the Core Box!</strong>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </v-expand-transition>
-        </div>
-
-        <!-- ================= STEP 4 ================= -->
-        <div class="step-section mb-4">
-          <!-- Step Banner Header -->
-          <div 
-            class="step-banner rounded-lg d-flex align-center cursor-pointer"
-            :class="{ 'banner-open': openSteps[4] }"
-            @click="toggleStep(4)"
-          >
-            <span class="step-badge badge-step-4">STEP 4</span>
-            <h2 class="step-title single-line-title font-weight-bold text-white pl-3 pr-3 py-2.5 flex-grow-1">
-              Clean-Up and You’re Done!
-            </h2>
-          </div>
-
-          <!-- Expandable Content for Step 4 matching input_file_0.png -->
-          <v-expand-transition>
-            <div v-show="openSteps[4]" class="step-open-container pt-4 pb-4 px-4 px-sm-5 mb-4">
-              <p class="intro-p text-white mb-4">
-                That’s it! Your <strong class="text-white font-weight-bold">Core Box</strong> is now fully optimized and ready for <strong class="text-white font-weight-bold">Drunagor Nights</strong>.
-              </p>
-
-              <p class="intro-p text-white mb-4">
-                Take all the components you <strong class="text-white font-weight-bold">set aside</strong> during the previous steps and place them inside the now-empty <strong class="text-white font-weight-bold">Organized Play Kit box.</strong>
-              </p>
-
-              <p class="intro-p text-white mb-5">
-                Store that box somewhere safe, as you may want to use the original Heroes or some of those components again in the future.
-              </p>
-
-              <div class="py-1">
-                <span class="step4-enjoy-text font-weight-bold text-white">
-                  Enjoy the game!
-                </span>
+              <div v-if="step.enjoy" class="py-1">
+                <span class="step4-enjoy-text font-weight-bold text-white">Enjoy the game!</span>
               </div>
             </div>
           </v-expand-transition>
@@ -866,7 +515,7 @@ const updateModalDisplay = () => {
 // Computed for modal action button state
 const activeModalIsChecked = computed(() => {
   if (!activeModalItem.value.id) return false;
-  const parentWithDetails = step1OrganizeItems.find(i => i.id === activeModalItem.value.id && i.details);
+  const parentWithDetails = findParentItem(activeModalItem.value.id);
   if (parentWithDetails) {
     return isParentChecked(parentWithDetails);
   }
@@ -876,7 +525,7 @@ const activeModalIsChecked = computed(() => {
 // Toggle check from inside modal (stays open for user feedback until clicking outside)
 const toggleActiveModalCheckOnly = () => {
   if (activeModalItem.value.id) {
-    const parentWithDetails = step1OrganizeItems.find(i => i.id === activeModalItem.value.id && i.details);
+    const parentWithDetails = findParentItem(activeModalItem.value.id);
     if (parentWithDetails) {
       toggleParentCheck(parentWithDetails);
     } else {
@@ -889,188 +538,43 @@ onMounted(() => {
   loadFromLocalStorage();
 });
 
-// Item Definitions with exact S3 image URLs from user folder mapping
-const step1SetAsideItems = [
-  {
-    id: 'step1_1_adventure_books',
-    label: 'The <strong class="text-white font-weight-bold">Adventure Book</strong> and <strong class="text-white font-weight-bold">Interaction Book</strong>.',
-    image: getImg('Adventure Book and Interaction Book.png'),
-    title: 'The Adventure Book and Interaction Book'
-  },
-  {
-    id: 'step1_1_campaign_log',
-    label: 'The <strong class="text-white font-weight-bold">Campaign Log</strong>.',
-    image: getImg('Campaign log pad.png'),
-    title: 'Campaign Log'
-  },
-  {
-    id: 'step1_1_start_here',
-    label: 'The <strong class="text-white font-weight-bold">“Start Here” Booklet</strong>.',
-    image: getImg('Start Here.png'),
-    title: 'The “Start Here” Booklet'
-  },
-  {
-    id: 'step1_1_doors',
-    label: 'The plastic wrap containing the <strong class="text-white font-weight-bold">Doors</strong>.',
-    image: getImg('Doors Pack.png'),
-    title: 'Doors Pack'
-  },
-  {
-    id: 'step1_1_hero_boards',
-    label: 'All original <strong class="text-white font-weight-bold">Hero Boards</strong> from the Core Box.',
-    image: getImg('PLAYERBOARDS_CORE.png'),
-    title: 'Hero Boards'
-  },
-  {
-    id: 'step1_1_mini_cards',
-    label: 'The packs of <strong class="text-white font-weight-bold">Mini American Cards</strong> found inside the <strong class="text-white font-weight-bold">Save Game Boxes</strong>. Empty the boxes, but <strong class="text-white font-weight-bold">keep them nearby!</strong>',
-    image: getImg('Save Game Box Empty.png'),
-    title: 'Save Game Box'
-  }
-];
+// Guide content, following the "Retailer Manual – OP Kit preparation" text.
+// Images live in the assets bucket (see getImg).
+interface GuideItem {
+  id: string;
+  label: string;
+  title?: string;
+  image?: string;
+  images?: ModalImage[];
+  details?: GuideItem[];
+}
+interface GuideSubstep {
+  heading: string;
+  text?: string;
+  items?: GuideItem[];
+  note?: string;
+  cardsTable?: boolean;
+  after?: string;
+  image?: { id: string; title: string; image: string };
+}
+interface GuideStep {
+  n: number;
+  title: string;
+  intro: string[];
+  image?: { id: string; title: string; image: string };
+  substeps: GuideSubstep[];
+  enjoy?: boolean;
+}
 
-const step1SeparateItems = [
-  {
-    id: 'step1_2_rulebook',
-    label: '<strong class="text-white font-weight-bold">Rulebook</strong>.',
-    image: getImg('Rulebook.png'),
-    title: 'Rulebook'
-  },
-  {
-    id: 'step1_2_map_tiles',
-    label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.',
-    image: getImg('Map Tiles CORE.png'),
-    title: 'Map Tiles'
-  },
-  {
-    id: 'step1_2_velvet_bag',
-    label: '<strong class="text-white font-weight-bold">Velvet Bag</strong>.',
-    image: getImg('Velvet BAG.png'),
-    title: 'Velvet Bag'
-  },
-  {
-    id: 'step1_2_punchboards',
-    label: 'All <strong class="text-white font-weight-bold">Punchboards</strong>.',
-    image: getImg('Punchboards.png'),
-    title: 'Punchboards'
-  },
-  {
-    id: 'step1_2_save_boxes',
-    label: 'The <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (1 with the colored bases still inside and the other 5 now empty).',
-    image: getImg('Snap Box.png'),
-    title: 'Save Game Boxes'
-  },
-  {
-    id: 'step1_2_monster_boards',
-    label: 'The <strong class="text-white font-weight-bold">2 Monster Status Boards</strong>.',
-    image: getImg('Monster Status Boards.png'),
-    title: 'Monster Status Boards'
-  },
-  {
-    id: 'step1_2_trays',
-    label: '<strong class="text-white font-weight-bold">All trays:</strong> Darkness Tiles, Tokens, Small Miniatures, and Dungeon Tiles.',
-    image: getImg('Darkness Tray Empty.png'),
-    title: 'All Trays',
-    images: [
-      { title: 'Darkness Tray Empty', image: getImg('Darkness Tray Empty.png') },
-      { title: 'Token Tray Empty', image: getImg('Tokens Tray Empty.png') },
-      { title: 'Small Miniature Tray', image: getImg('Small Miniature Tray.png') },
-      { title: 'Dungeon Trayz', image: getImg('Dungeon Trayz.png') }
-    ]
-  },
-  {
-    id: 'step1_2_cubes_bag',
-    label: 'The bag containing the <strong class="text-white font-weight-bold">colored cubes</strong>.',
-    image: getImg('Colored Cubes.png'),
-    title: 'Colored Cubes'
-  }
-];
-
-const step1OrganizeItems = [
-  {
-    id: 'step1_3_trays_order',
-    label: '<strong class="text-white font-weight-bold">Trays:</strong> Return the <strong class="text-white font-weight-bold">Small Miniatures Tray</strong> and the <strong class="text-white font-weight-bold">Dungeon Trays</strong> to the box. (Order: <strong class="text-white font-weight-bold">Tray 1</strong> on the bottom, <strong class="text-white font-weight-bold">Tray 2</strong> in the middle, and <strong class="text-white font-weight-bold">Tray 3</strong> on top.)',
-    image: getImg('Dungeon Trayz.png'),
-    title: 'Dungeon Trays & Small Miniature Tray',
-    images: [
-      { title: 'Small Miniature Tray', image: getImg('Small Miniature Tray.png') },
-      { title: 'Dungeon Trayz', image: getImg('Dungeon Trayz.png') }
-    ]
-  },
-  {
-    id: 'step1_3_cubes_sort',
-    label: '<strong class="text-white font-weight-bold">Colored Cubes:</strong> Sort them into the empty <strong class="text-white font-weight-bold">Save Game Boxes</strong>.',
-    image: getImg('Colored Cubes.png'),
-    title: 'Colored Cubes Sorting',
-    details: [
-      {
-        id: 'step1_3_box_a',
-        label: '<strong class="text-white font-weight-bold">Box A:</strong> Place the <strong class="text-white font-weight-bold">Yellow and Red Cubes</strong> in one compartment, and the <strong class="text-white font-weight-bold">Green and Blue Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">two dice</strong> in the narrow space between the compartments.',
-        image: getImg('CUBE Tray 1.png'),
-        title: 'BOX A - Cubes & Dice'
-      },
-      {
-        id: 'step1_3_box_b',
-        label: '<strong class="text-white font-weight-bold">Box B:</strong> Place the <strong class="text-white font-weight-bold">Black Cubes</strong> in one compartment and the <strong class="text-white font-weight-bold">White Cubes</strong> in the other. Place the <strong class="text-white font-weight-bold">Purple and Pink Cubes</strong> in the narrow space between the compartments.',
-        image: getImg('CUBE Tray 2.png'),
-        title: 'BOX B - Cubes'
-      }
-    ]
-  },
-  {
-    id: 'step1_3_cardboard',
-    label: '<strong class="text-white font-weight-bold">Cardboard Components (Punchboards):</strong> Punch out all components.',
-    image: getImg('Punchboards.png'),
-    title: 'Cardboard Components',
-    details: [
-      {
-        id: 'step1_3_darkness_tray',
-        label: '<strong class="text-white font-weight-bold">Darkness Tiles:</strong> Place them in the <strong class="text-white font-weight-bold">Darkness Tile Tray</strong>, then return the tray to the box.',
-        image: getImg('Darkness Tray Fullfiled.png'),
-        title: 'Darkness Tray'
-      },
-      {
-        id: 'step1_3_runes',
-        label: '<strong class="text-white font-weight-bold">Runes:</strong> Place them inside the <strong class="text-white font-weight-bold">Velvet Bag</strong>.',
-        image: getImg('Rune Bag.png'),
-        title: 'Rune Bag'
-      },
-      {
-        id: 'step1_3_tokens',
-        label: '<strong class="text-white font-weight-bold">Tokens:</strong> Place them in the <strong class="text-white font-weight-bold">Token Tray</strong>. Any tokens that do not fit should go into the plastic bag that held the cubes and be <strong class="text-white font-weight-bold">set aside</strong>. Return the tray to the box.',
-        image: getImg('Tokens Tray Fullfiled.png'),
-        title: 'Token Tray'
-      },
-      {
-        id: 'step1_3_initiative',
-        label: '<strong class="text-white font-weight-bold">Initiative Track and Bridges:</strong> <strong class="text-white font-weight-bold">Keep them nearby.</strong>',
-        image: getImg('Initiative Bridge.png'),
-        title: 'Initiative Track and Bridges'
-      }
-    ]
-  }
-];
-
-const step2SeparateItems = [
-  {
-    id: 'step2_1_hero_boards',
-    label: '<strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.',
-    image: getImg('PLAYERBOARDS_DNS1.png'),
-    title: 'Hero Boards (Kit)'
-  },
-  {
-    id: 'step2_1_map_tiles',
-    label: '<strong class="text-white font-weight-bold">Map Tiles</strong>.',
-    image: getImg('Map Tiles DNS1.png'),
-    title: 'Map Tiles (Kit)'
-  },
-  { 
-    id: 'step2_1_gift_cards', 
-    label: '<strong class="text-white font-weight-bold">Gift Item Cards (80x):</strong> Set them aside and, if possible, assemble the Gift Packs with one of each Gift card in them.',
-    image: getImg('GIFT CARDS.png'),
-    title: 'Gift Item Cards (80x)'
-  }
-];
+const b = (text: string) => `<strong class="text-white font-weight-bold">${text}</strong>`;
+const loud = (text: string) => `<strong class="text-white font-weight-black">${text}</strong>`;
+const item = (id: string, label: string, file: string, title: string, extra: Partial<GuideItem> = {}): GuideItem => ({
+  id,
+  label,
+  image: getImg(file),
+  title,
+  ...extra,
+});
 
 // Mini Cards Table Data
 const heroCards = [
@@ -1103,47 +607,184 @@ const adventureCards = [
 
 const maxCardRows = Math.max(heroCards.length, enemyCards.length, adventureCards.length);
 
-const step2PackItems = [
+const guideSteps: GuideStep[] = [
   {
-    id: 'step2_4_save_boxes',
-    label: 'All <strong class="text-white font-weight-bold">6 Save Game Boxes</strong> (now fully packed).',
-    image: getImg('The 6 Save Game Boxes.png'),
-    title: 'The 6 Save Game Boxes'
+    n: 1,
+    title: 'The “Age of Darkness” Core Box',
+    intro: [`Open the ${b('Core Box')} and let’s sort through the components.`],
+    substeps: [
+      {
+        heading: `1.1 – What you should ${loud('SET ASIDE')} (we won’t be using these):`,
+        items: [
+          item('step1_1_adventure_books', `The ${b('Adventure Book')} and ${b('Interactions Book')}.`, 'Adventure Book and Interaction Book.png', 'The Adventure Book and Interactions Book'),
+          item('step1_1_campaign_log', `The ${b('Campaign Log Pad')}.`, 'Campaign log pad.png', 'Campaign Log Pad'),
+          item('step1_1_start_here', `The ${b('“Start Here” Booklet')}.`, 'Start Here.png', 'The “Start Here” Booklet'),
+          item('step1_1_doors', `The plastic wrap containing the ${b('Doors')}.`, 'Doors Pack.png', 'Doors'),
+        ],
+      },
+      {
+        heading: `1.2 – What you should ${loud('SEPARATE')} (keep nearby):`,
+        items: [
+          item('step1_2_rulebook', `${b('Rulebook')}.`, 'Rulebook.png', 'Rulebook'),
+          item('step1_2_map_tiles', `${b('Map Tiles')}.`, 'Map Tiles CORE.png', 'Map Tiles'),
+          item('step1_2_velvet_bag', `${b('Velvet Bag')}.`, 'Velvet BAG.png', 'Velvet Bag'),
+          item('step1_2_punchboards', `All ${b('Punchboards')}.`, 'Punchboards.png', 'Punchboards'),
+          item('step1_2_trays', `${b('All trays:')} Darkness Tiles, Token, Small Miniatures, and Dungeon.`, 'Darkness Tray Empty.png', 'All Trays', {
+            images: [
+              { title: 'Darkness Tiles Tray', image: getImg('Darkness Tray Empty.png') },
+              { title: 'Token Tray', image: getImg('Tokens Tray Empty.png') },
+              { title: 'Small Miniatures Tray', image: getImg('Small Miniature Tray.png') },
+              { title: 'Dungeon Trays', image: getImg('Dungeon Trayz.png') },
+            ],
+          }),
+          item('step1_2_cubes_bag', `The bag containing the ${b('colored cubes')}.`, 'Colored Cubes.png', 'Colored Cubes'),
+          item('step1_2_large_tray', `The ${b('Large Miniatures Tray')}.`, 'Large Miniature Tray.png', 'Large Miniatures Tray'),
+        ],
+        note: `Note: The Large Miniatures Tray is located at the bottom of the box. ${b('Do not remove it.')}`,
+      },
+      {
+        heading: `1.3 – What you should ${loud('SORT')} before setting aside and separating:`,
+        items: [
+          item('step1_3_boards', `Plastic wrap containing ${b('Hero Boards')} and ${b('Monster Status Boards')}.`, 'PLAYERBOARDS_CORE.png', 'Hero Boards and Monster Status Boards', {
+            details: [
+              item('step1_3_boards_aside', `${b('Set Aside')} the Hero Boards.`, 'PLAYERBOARDS_CORE.png', 'Hero Boards and Monster Status Boards'),
+              item('step1_3_boards_separate', `${b('Separate')} the Monster Status Boards.`, 'Monster Status Boards.png', 'Monster Status Boards'),
+            ],
+          }),
+          item('step1_3_minis', `${b('Mini Cards')} and ${b('Save Game Boxes')}.`, 'Mini Cards and Save Game Boxes.png', 'Mini Cards and Save Game Boxes', {
+            details: [
+              item('step1_3_minis_aside', `${b('Set Aside')} the Mini Cards.`, 'Mini Cards.png', 'Mini Cards'),
+              item('step1_3_minis_separate', `${b('Separate')} the Save Game Boxes.`, 'Mini Save Game Boxes.png', 'Save Game Boxes'),
+            ],
+          }),
+        ],
+      },
+      {
+        heading: `1.3.1 – Rescue the Pet Cards <span class="text-amber-accent-2 text-caption font-weight-bold ml-1">(Special Step!)</span>`,
+        text: `Open the card packs until you find and ${b('retrieve Maya’s 2 Pet Cards')} (${b('Wolf and Eagle')}). Add them to the components that will be used.`,
+        items: [item('step1_3_pets', 'Retrieve Maya’s 2 Pet Cards (Wolf and Eagle).', 'Pets Maya.png', 'Maya’s Pet Cards (Wolf & Eagle)')],
+        image: { id: 'step1_3_pets', title: 'Maya’s Pet Cards (Wolf & Eagle)', image: getImg('Pets Maya.png') },
+      },
+      {
+        heading: '1.4 – Organizing Cubes, Trays and Boxes:',
+        items: [
+          item('step1_4_cubes', `${b('Colored Cubes:')} Sort them into the empty ${b('Save Game Boxes')}.`, 'Colored Cubes.png', 'Colored Cubes', {
+            details: [
+              item('step1_4_box_a', `${b('Box A:')} Place the ${b('Yellow and Red Cubes')} in one compartment, and the ${b('Green and Blue Cubes')} in the other. Place the ${b('two dice')} in the narrow space between the compartments.`, 'CUBE Tray 1.png', 'Box A – Cubes & Dice'),
+              item('step1_4_box_b', `${b('Box B:')} Place the ${b('Black Cubes')} in one compartment and the ${b('White Cubes')} in the other. Place the ${b('Purple and Pink Cubes')} in the narrow space between the compartments.`, 'CUBE Tray 2.png', 'Box B – Cubes'),
+            ],
+          }),
+          item('step1_4_cardboard', `${b('Cardboard Components (Punchboards):')} Punch out all components.`, 'Punchboards.png', 'Cardboard Components', {
+            details: [
+              item('step1_4_darkness', `${b('Darkness Tiles:')} Place them in the ${b('Darkness Tiles Tray')}.`, 'Darkness Tray Fullfiled.png', 'Darkness Tiles Tray'),
+              item('step1_4_runes', `${b('Runes:')} Place them inside the ${b('Velvet Bag')}.`, 'Rune Bag.png', 'Rune Bag'),
+              item('step1_4_tokens', `${b('Tokens:')} Place them in the ${b('Token Tray')}. Any tokens that do not fit should go into the plastic bag that held the cubes and be ${b('set aside')}.`, 'Tokens Tray Fullfiled.png', 'Token Tray'),
+              item('step1_4_initiative', `${b('Initiative Track and Bridges:')} Keep them nearby.`, 'Initiative Bridge.png', 'Initiative Track and Bridges'),
+            ],
+          }),
+        ],
+      },
+    ],
   },
   {
-    id: 'step2_4_velvet_bag',
-    label: 'The <strong class="text-white font-weight-bold">Velvet Bag</strong> containing the Runes.',
-    image: getImg('Rune Bag.png'),
-    title: 'Rune Bag'
+    n: 2,
+    title: 'The “Build Your Own Dungeon” Add-On',
+    intro: [],
+    image: { id: 'byod_box', title: 'Build Your Own Dungeon Add-On', image: getImg('Build Your Own Dungeon.png') },
+    substeps: [
+      {
+        heading: '2.1 – Open the Build Your Own Dungeon add-on:',
+        items: [
+          item('step2_1_maps', `${b('Set Aside')} the plastic wraps containing the ${b('Map Tiles')}.`, 'SETASIDE maps SERPARATE DGtray.png', 'Set aside the Map Tiles, separate the Dungeon Trays'),
+          item('step2_1_trays', `${b('Separate')} the ${b('5 new Dungeon Trays')}.`, 'SETASIDE maps SERPARATE DGtray.png', 'Set aside the Map Tiles, separate the Dungeon Trays'),
+        ],
+        image: { id: 'step2_1_trays', title: 'Set aside the Map Tiles, separate the Dungeon Trays', image: getImg('SETASIDE maps SERPARATE DGtray.png') },
+      },
+      {
+        heading: '2.2 – Return the plastic components to the Core Box:',
+        items: [
+          item('step2_2_trays', `${b('Trays:')} Return the ${b('Dungeon Trays')}, the ${b('Small Miniatures Tray')}, the ${b('Darkness Tiles Tray')}, and the ${b('Token Tray')} to the box.`, 'Dungeon Trayz.png', 'Trays', {
+            images: [
+              { title: 'Dungeon Trays', image: getImg('Dungeon Trayz.png') },
+              { title: '5 new Dungeon Trays', image: getImg('5 New Trays.png') },
+              { title: 'Small Miniatures Tray', image: getImg('Small Miniature Tray.png') },
+              { title: 'Darkness Tiles Tray', image: getImg('Darkness Tray Fullfiled.png') },
+              { title: 'Token Tray', image: getImg('Tokens Tray Fullfiled.png') },
+            ],
+          }),
+        ],
+      },
+    ],
   },
   {
-    id: 'step2_4_initiative',
-    label: 'The <strong class="text-white font-weight-bold">Initiative Track</strong> and <strong class="text-white font-weight-bold">Bridges</strong>.',
-    image: getImg('Initiative Bridge.png'),
-    title: 'Initiative Track and Bridges'
+    n: 3,
+    title: 'The Organized Play Kit',
+    intro: [`Open the ${b('Organized Play Kit')} and combine its contents with the components we have already prepared.`],
+    image: { id: 'op_kit_box', title: 'Organized Play Kit', image: getImg('Drunagor Nights Box.png') },
+    substeps: [
+      {
+        heading: '3.1 – What to separate:',
+        items: [
+          item('step3_1_hero_boards', `${b('Hero Boards')} from the Kit.`, 'PLAYERBOARDS_DNS1.png', 'Hero Boards (Kit)'),
+          item('step3_1_map_tiles', `${b('Map Tiles')}.`, 'Map Tiles DNS1.png', 'Map Tiles (Kit)'),
+          item('step3_1_mini_cards', `${b('Mini Cards')}.`, 'Hero_Enemy_Adventure components.png', 'Mini Cards (Kit)'),
+          item('step3_1_gift_cards', `${b('Gift Item Cards (80x)')}.`, 'GIFT CARDS.png', 'Gift Item Cards (80x)'),
+          item('step3_1_doors', `${b('Doors')}.`, 'Doors Pack S1.png', 'Doors (Kit)'),
+        ],
+      },
+      {
+        heading: '3.2 – Store the Mini Cards inside the Save Game Boxes:',
+        text: `Sort the Kit’s cards by category: ${b('Heroes, Enemies, and Adventures')}.`,
+        cardsTable: true,
+        after: `Store all Mini Cards inside the ${b('3 empty Save Game Boxes')}, one category per box.`,
+        image: { id: 'save_boxes_layout', title: '3 Save Game Boxes', image: getImg('Hero_Enemy_Adventure components.png') },
+      },
+      {
+        heading: '3.3 – Packing Everything Back into the Core Box:',
+        text: `Now, return the following components to the ${b('Core Box')}:`,
+        items: [
+          item('step3_3_save_boxes', `All ${b('6 Save Game Boxes')} (now fully packed).`, 'The 6 Save Game Boxes.png', 'The 6 Save Game Boxes'),
+          item('step3_3_velvet_bag', `The ${b('Velvet Bag')} containing the Runes.`, 'Rune Bag.png', 'Rune Bag'),
+          item('step3_3_initiative', `The ${b('Initiative Track')} and ${b('Bridges')}.`, 'Initiative Bridge.png', 'Initiative Track and Bridges'),
+          item('step3_3_map_tiles', `All ${b('Map Tiles')} (combining those from the Kit with those from the Core Box).`, 'Map Tiles DNS1.png', 'All Map Tiles'),
+          item('step3_3_doors', `All ${b('Doors')}.`, 'Doors Pack S1.png', 'All Doors'),
+          item('step3_3_hero_boards', `The ${b('Hero Boards')} from the Kit.`, 'PLAYERBOARDS_DNS1.png', 'Hero Boards'),
+          item('step3_3_monster_boards', `Both ${b('Monster Status Boards')}.`, 'Monster Status Boards.png', 'Monster Status Boards'),
+          item('step3_3_rulebook', `The ${b('Rulebook')}.`, 'Rulebook.png', 'Rulebook'),
+        ],
+      },
+      {
+        heading: '3.4 – Finish Up:',
+        items: [item('step3_4_close_box', `Put the lid on and ${b('close the Core Box!')}`, 'corebox.png', 'Core Box closed')],
+      },
+    ],
   },
   {
-    id: 'step2_4_map_tiles',
-    label: 'All <strong class="text-white font-weight-bold">Map Tiles</strong> (combining those from the Kit with those from the Core Box).',
-    image: getImg('Map Tiles DNS1.png'),
-    title: 'All Map Tiles'
+    n: 4,
+    title: 'Clean-Up and You’re Done!',
+    intro: [
+      `That’s it! Your ${b('Core Box')} is now fully optimized and ready for ${b('Drunagor Nights')}.`,
+      `Take all the components you ${b('set aside')} during the previous steps and place them inside the now-empty ${b('Organized Play Kit box')}.`,
+      'Store that box somewhere safe, as you may want to use the original Heroes or some of those components again in the future.',
+    ],
+    substeps: [],
+    enjoy: true,
   },
-  {
-    id: 'step2_4_hero_boards',
-    label: 'The <strong class="text-white font-weight-bold">Hero Boards</strong> from the Kit.',
-    image: getImg('PLAYERBOARDS_DNS1.png'),
-    title: 'Hero Boards'
-  },
-  {
-    id: 'step2_4_rulebook',
-    label: 'The <strong class="text-white font-weight-bold">Rulebook</strong>.',
-    image: getImg('Rulebook.png'),
-    title: 'Rulebook'
-  }
 ];
+
+// The item with sub-bullets that has this id, if any.
+const findParentItem = (id?: string) =>
+  guideSteps
+    .flatMap((step) => step.substeps.flatMap((sub) => sub.items ?? []))
+    .find((entry) => entry.id === id && entry.details);
 </script>
 
 <style scoped>
+.guide-image-fallback {
+  max-width: 400px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
 .safe-area-padding {
   padding-top: calc(env(safe-area-inset-top, 0px) + 20px) !important;
 }
