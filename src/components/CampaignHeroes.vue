@@ -66,8 +66,8 @@
         <v-btn v-if="view === 'mine'" color="accent" variant="flat" prepend-icon="mdi-plus" @click="view = 'all'">Add hero</v-btn>
       </div>
 
-      <!-- Groups flow in columns, like the hero board. -->
-      <div v-else class="heroes-columns">
+      <!-- Groups side by side when they fit. -->
+      <div v-else class="heroes-groups" :class="{ 'heroes-groups--flat': groupBy === 'none' }">
         <section v-for="group in groups" :key="group.key" class="heroes-group">
           <h2
             v-if="group.label"
@@ -75,26 +75,35 @@
             :style="group.style ? { background: group.style.bg, borderColor: group.style.stroke } : undefined"
           >
             <img v-if="group.style?.icon" :src="group.style.icon" alt="" class="heroes-group__icon" />
-            {{ group.label }}
-            <span>{{ group.heroes.length }}</span>
+            <img v-else-if="group.logo" :src="group.logo" alt="" class="heroes-group__logo" />
+            <v-icon v-else-if="groupBy === 'box'" size="24">mdi-package-variant-closed</v-icon>
+            <span class="heroes-group__name">{{ group.label }}</span>
+            <span class="heroes-group__count">{{ group.heroes.length }}</span>
           </h2>
-          <button
-            v-for="entry in group.heroes"
-            :key="entry.data.id"
-            class="hero-row"
-            :class="{ 'hero-row--locked': !entry.owned }"
-            :style="{ background: classStyle(entry.data.class).bg, borderColor: classStyle(entry.data.class).stroke }"
-            @click="entry.owned ? openHero(entry) : askToAdd(entry.data)"
-          >
-            <img :src="heroPortrait(entry.data)" alt="" class="hero-row__portrait" loading="lazy" />
-            <span class="hero-row__text">
-              <strong>{{ entry.data.name }}</strong>
-              <small>{{ entry.data.race }} | {{ heroClassLabel(entry.data.class) }}</small>
-              <em>{{ contentLabel(entry.data.content) }}</em>
-            </span>
-            <v-icon v-if="!entry.owned" class="hero-row__add" size="22">mdi-plus-circle</v-icon>
-            <img v-else-if="classStyle(entry.data.class).icon" :src="classStyle(entry.data.class).icon" alt="" class="hero-row__class" />
-          </button>
+          <div class="heroes-grid">
+            <button
+              v-for="entry in group.heroes"
+              :key="entry.data.id"
+              class="hero-tile"
+              :class="{ 'hero-tile--locked': !entry.owned }"
+              :title="entry.owned ? `Open ${entry.data.name}` : `Add ${entry.data.name} to your heroes`"
+              @click="entry.owned ? openHero(entry) : askToAdd(entry.data)"
+            >
+              <img :src="entry.data.images.avatar" :alt="entry.data.name" class="hero-tile__img" loading="lazy" />
+              <img
+                v-if="CONTENT_LOGOS[entry.data.content]"
+                :src="CONTENT_LOGOS[entry.data.content]"
+                :alt="contentLabel(entry.data.content)"
+                :title="contentLabel(entry.data.content)"
+                class="hero-tile__box"
+              />
+              <span v-if="!entry.owned" class="hero-tile__add"><v-icon size="18">mdi-plus</v-icon> Add</span>
+              <span class="hero-tile__text">
+                <strong>{{ entry.data.name }}</strong>
+                <small>{{ entry.data.race }} | {{ heroClassLabel(entry.data.class) }}</small>
+              </span>
+            </button>
+          </div>
         </section>
       </div>
     </div>
@@ -137,7 +146,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ContentId } from "@/data/type/ContentId";
 import { RandomizeHero } from "@/service/RandomizeHero";
-import { CONTENT_LABELS, classStyle, heroClassLabel, heroPortrait } from "@/data/heroMeta";
+import { CONTENT_LABELS, CONTENT_LOGOS, classStyle, heroClassLabel, heroPortrait } from "@/data/heroMeta";
 
 const router = useRouter();
 const playableHeroStore = usePlayableHeroStore();
@@ -205,6 +214,7 @@ const groups = computed(() => {
       key: key || "all",
       label: key,
       style: groupBy.value === "class" ? classStyle(key) : null,
+      logo: groupBy.value === "box" ? CONTENT_LOGOS[heroes[0].data.content] : undefined,
       // Owned heroes first, then by name.
       heroes: heroes.sort((a, b) => Number(b.owned) - Number(a.owned) || a.data.name.localeCompare(b.data.name)),
     }));
@@ -371,107 +381,148 @@ onMounted(() => {
   border-radius: 12px;
   text-align: center;
 }
-.heroes-columns {
-  columns: 3 320px;
-  column-gap: 20px;
+.heroes-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px 24px;
 }
 .heroes-group {
-  break-inside: avoid;
-  margin-bottom: 20px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.heroes-groups--flat .heroes-group {
+  flex: 1 1 100%;
 }
 .heroes-group__title {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 44px;
-  margin-bottom: 8px;
+  min-height: 48px;
+  margin-bottom: 12px;
   padding: 6px 14px;
   background: #3a3736;
-  border: 1px solid transparent;
-  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.heroes-group__title span {
-  margin-left: auto;
-  font-size: 0.75rem;
-  font-weight: 600;
-  opacity: 0.6;
+.heroes-group__name {
+  flex: 1;
+  white-space: nowrap;
+}
+/* How many heroes of this group. */
+.heroes-group__count {
+  min-width: 34px;
+  padding: 2px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 999px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-align: center;
 }
 .heroes-group__icon {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
+}
+.heroes-group__logo {
+  height: 26px;
+  max-width: 70px;
+  object-fit: contain;
+}
+.heroes-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-/* One hero: class color, portrait, name, class symbol. */
-.hero-row {
+/* One hero: portrait, name at the bottom. */
+.hero-tile {
+  position: relative;
+  width: 150px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: #1a1a1a;
+  text-align: left;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.hero-tile:hover {
+  border-color: rgb(var(--v-theme-accent));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px);
+}
+.hero-tile__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.2s ease, transform 0.3s ease;
+}
+.hero-tile:hover .hero-tile__img {
+  transform: scale(1.05);
+}
+.hero-tile--locked .hero-tile__img {
+  filter: grayscale(1) brightness(0.5);
+}
+.hero-tile--locked:hover .hero-tile__img {
+  filter: grayscale(0.3) brightness(0.75);
+}
+.hero-tile__box {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  height: 22px;
+  max-width: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+.hero-tile__add {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  height: 56px;
-  margin-bottom: 8px;
-  padding: 0 12px 0 0;
-  overflow: hidden;
-  border: 1px solid;
-  border-radius: 6px;
-  text-align: left;
-  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
-}
-.hero-row:hover {
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
-  filter: brightness(1.15);
-  transform: translateX(3px);
-}
-.hero-row__portrait {
-  flex-shrink: 0;
-  width: 60px;
-  height: 56px;
-  object-fit: cover;
-  object-position: center top;
-}
-.hero-row__text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-  line-height: 1.15;
-}
-.hero-row__text strong {
-  font-size: 0.95rem;
+  gap: 4px;
+  padding: 6px 14px;
+  background: rgb(var(--v-theme-accent));
+  border-radius: 999px;
+  color: #141414;
+  font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.2s ease;
 }
-.hero-row__text small {
-  font-size: 0.68rem;
+.hero-tile--locked:hover .hero-tile__add,
+.hero-tile--locked:focus-visible .hero-tile__add {
+  opacity: 1;
+}
+.hero-tile__text {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 10px 10px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+  color: #fff;
+}
+.hero-tile__text strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.hero-tile__text small {
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  opacity: 0.9;
-}
-.hero-row__text em {
-  font-size: 0.6rem;
-  font-style: normal;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-.hero-row__class {
-  flex-shrink: 0;
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-}
-.hero-row--locked {
-  filter: grayscale(0.85) brightness(0.6);
-}
-.hero-row--locked:hover {
-  filter: grayscale(0.3) brightness(0.9);
-}
-.hero-row__add {
-  flex-shrink: 0;
-  color: rgb(var(--v-theme-accent));
+  opacity: 0.8;
 }
 
 /* Add confirmation */
@@ -542,6 +593,23 @@ onMounted(() => {
   }
   .heroes-sort {
     margin-left: 0;
+  }
+  .heroes-group {
+    flex-basis: 100%;
+  }
+  .heroes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .hero-tile {
+    width: auto;
+  }
+  .hero-tile__text strong {
+    font-size: 0.8rem;
+  }
+  .hero-tile__text small {
+    font-size: 0.6rem;
   }
 }
 </style>
