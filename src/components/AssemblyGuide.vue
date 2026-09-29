@@ -19,7 +19,7 @@
             :alt="`Assembly step ${currentStep + 1}`"
             contain
             class="rounded assembly-image"
-            :max-height="isMobile ? '45vh' : '55vh'"
+            :max-height="isMobile ? 170 : 200"
           >
             <template v-slot:placeholder>
               <v-row class="fill-height ma-0" align="center" justify="center">
@@ -46,12 +46,12 @@
         :class="isMobile ? 'pa-3' : 'pa-4 pa-md-6'"
         color="grey-darken-4"
       >
-        <h3 v-if="currentStepData.title" class="step-title text-h6 font-weight-bold mb-2">
+        <h3 v-if="currentStepData.title" class="step-title mb-2">
           {{ currentStepData.title }}
         </h3>
         <div
           :class="isMobile ? 'text-body-2' : 'text-body-1'"
-          class="text-justify mb-0 html-instruction"
+          class="mb-0 html-instruction"
           v-html="currentStepData.instruction"
           @click="handleInstructionClick"
         ></div>
@@ -524,17 +524,26 @@ onUnmounted(() => {
   background-color: #1e1e1e;
 }
 
+/* Fixed heights so the card never resizes and Next stays in place. */
 .image-container {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 260px;
 }
 
 .image-placeholder {
-  min-height: 220px;
+  height: 100%;
   border: 2px dashed rgba(255, 255, 255, 0.2);
 }
 
 .step-title {
-  color: #bca341;
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .image-wrapper {
@@ -571,7 +580,8 @@ onUnmounted(() => {
 }
 
 .instruction-box {
-  min-height: 60px;
+  height: 180px;
+  overflow-y: auto;
   border-top: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -711,8 +721,11 @@ onUnmounted(() => {
     font-size: 0.7rem !important;
   }
 
+  .image-container {
+    height: 230px;
+  }
   .instruction-box {
-    min-height: 50px;
+    height: 200px;
   }
 
   .zoom-image-wrapper {
@@ -726,11 +739,23 @@ onUnmounted(() => {
   }
 }
 
+/* Same type as the rest of the app. */
+.assembly-guide {
+  font-family: "Poppins", sans-serif;
+}
 .html-instruction,
 .html-instruction :deep(p),
 .html-instruction :deep(li) {
-  font-family: "EB Garamond", serif !important;
-  font-size: 1.15rem !important;
-  line-height: 1.6 !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.87);
+}
+.html-instruction :deep(em) {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+.html-instruction :deep(strong) {
+  color: #fff;
 }
 </style>
