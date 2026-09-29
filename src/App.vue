@@ -300,60 +300,25 @@ const PUBLIC_ROUTES = [
 ];
 const isPublicRoute = computed(() => PUBLIC_ROUTES.includes(String(route.name)));
 
+// Side menu, ordered by what each kind of account uses most.
 const menuItems = computed(() => {
-  return [
-    {
-      title: role.value === 3 ? "Campaign Manager" : "Companion",
-      iconImage: VectorIcon,
-      to: { name: "Campaign Overview" },
-      disabled: false,
-    },
-    {
-      title: role.value === 3 ? "SKUs Manager" : "Library",
-      icon: "mdi-book",
-      to: { name: "Library" },
-      disabled: false,
-    },
-    {
-      title: "Heroes",
-      icon: "mdi-shield-sword",
-      to: { name: "HeroesManager" },
-      disabled: false,
-    },
-    // ALTERAÇÃO 2: Novo item adicionado
-    {
-      title: "Community Builds",
-      icon: "mdi-hammer-wrench",
-      to: { name: "CommunityBuilds" },
-      disabled: false,
-    },
-    {
-      title: "Dashboard",
-      icon: "mdi-view-dashboard",
-      to: { name: "Dashboard" },
-      disabled: false,
-    },
-    ...(role.value === 1 || role.value === 4 ? [
-      {
-        title: "Support & Analytics",
-        icon: "mdi-storefront",
-        to: { name: "SupportDashboard" },
-        disabled: false,
-      }
-    ] : []),
-    {
-      title: "Events",
-      icon: "mdi-calendar",
-      to: { name: "Events" },
-      disabled: false,
-    },
-    {
-      title: "My Profile",
-      icon: "mdi-account",
-      to: { name: "PerfilHome" },
-      disabled: false,
-    },
-  ];
+  const isRetailer = role.value === 3;
+  type MenuItem = { title: string; icon?: string; iconImage?: string; to: { name: string } };
+  const item: Record<"dashboard" | "events" | "profile" | "companion" | "library" | "heroes" | "builds" | "support", MenuItem> = {
+    dashboard: { title: "Dashboard", icon: "mdi-view-dashboard", to: { name: "Dashboard" } },
+    events: { title: "Events", icon: "mdi-calendar", to: { name: "Events" } },
+    profile: { title: "My Profile", icon: "mdi-account", to: { name: "PerfilHome" } },
+    companion: { title: isRetailer ? "Campaign Manager" : "Companion", iconImage: VectorIcon, to: { name: "Campaign Overview" } },
+    library: { title: isRetailer ? "SKUs Manager" : "Library", icon: "mdi-book", to: { name: "Library" } },
+    heroes: { title: "Heroes", icon: "mdi-shield-sword", to: { name: "HeroesManager" } },
+    builds: { title: "Community Builds", icon: "mdi-hammer-wrench", to: { name: "CommunityBuilds" } },
+    support: { title: "Support & Analytics", icon: "mdi-storefront", to: { name: "SupportDashboard" } },
+  };
+  const order: (keyof typeof item)[] = isRetailer
+    ? ["dashboard", "events", "profile", "companion", "library", "heroes", "builds"]
+    : ["dashboard", "companion", "heroes", "events", "library", "builds", "profile"];
+  if (role.value === 1 || role.value === 4) order.splice(1, 0, "support");
+  return order.map((key) => ({ ...item[key], disabled: false }));
 });
 
 const handleMenuClick = (item) => {
