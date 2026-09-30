@@ -47,6 +47,26 @@ export const CONTENT_LOGOS: Partial<Record<ContentId, string>> = {
   apocalypse: apocalypseLogo,
 };
 
+// Each box's symbol, as printed on its components (white, on transparent).
+const BOX_SYMBOL_FILES = import.meta.glob("@/assets/box symbols/*.png", { eager: true, import: "default" }) as Record<string, string>;
+const boxSymbol = (file: string) => Object.entries(BOX_SYMBOL_FILES).find(([path]) => path.endsWith(`/${file}.png`))?.[1];
+export const CONTENT_SYMBOLS: Partial<Record<ContentId, string | undefined>> = {
+  apocalypse: boxSymbol("Vector"),
+  awakenings: boxSymbol("Vector-1"),
+  core: boxSymbol("Vector-2"),
+  "desert-of-hellscar": boxSymbol("Vector-4"),
+  handuriel: boxSymbol("Vector-5"),
+  "hero-pack-1": boxSymbol("Vector-6"),
+  lordwrath: boxSymbol("Vector-7"),
+  lorien: boxSymbol("Vector-8"),
+  "monster-pack-1": boxSymbol("Vector-9"),
+  "the-ruin-of-luccanor": boxSymbol("Vector-10"),
+  "the-shadow-world": boxSymbol("Vector-11"),
+  "spoils-of-war": boxSymbol("Vector-12"),
+  "rise-of-the-undead-dragon": boxSymbol("Vector-13"),
+  "fallen-sisters": boxSymbol("E"),
+};
+
 // Box renders, the same ones the Library shows.
 const LIBRARY = "https://assets.drunagor.app/Library";
 export const CONTENT_BOX_IMAGES: Partial<Record<ContentId, string>> = {

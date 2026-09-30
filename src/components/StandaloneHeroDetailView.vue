@@ -14,11 +14,16 @@
       <!-- Banner: the hero art, whole. -->
       <header class="sheet-banner">
         <img :src="(heroData.images as any).trackerInfo || heroData.images.avatar" :alt="heroData.name" class="sheet-banner__img" />
-        <span class="sheet-banner__box">
-          <img v-if="CONTENT_BOX_IMAGES[heroData.content]" :src="CONTENT_BOX_IMAGES[heroData.content]" alt="" />
-          <v-icon v-else size="18">mdi-package-variant-closed</v-icon>
-          {{ CONTENT_LABELS[heroData.content] }}
-        </span>
+        <!-- Box symbol and name, and whose hero this is. -->
+        <div class="sheet-banner__meta">
+          <span class="sheet-banner__box">
+            <img v-if="CONTENT_SYMBOLS[heroData.content]" :src="CONTENT_SYMBOLS[heroData.content]" alt="" />
+            {{ CONTENT_LABELS[heroData.content] }}
+          </span>
+          <span v-if="userStore.user?.user_name" class="sheet-banner__player">
+            Player: <strong>{{ userStore.user.user_name }}</strong>
+          </span>
+        </div>
         <v-menu location="bottom end">
           <template #activator="{ props: menuProps }">
             <v-btn v-bind="menuProps" icon="mdi-dots-vertical" variant="text" size="small" class="sheet-banner__menu" aria-label="Hero options" />
@@ -132,7 +137,7 @@ import { useI18n } from "vue-i18n";
 import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
 import { useUserStore } from "@/store/UserStore";
 import { HeroEquipment, RESOURCE_DEFINITIONS, SequentialAdventureState } from "@/store/Hero";
-import { CONTENT_BOX_IMAGES, CONTENT_LABELS } from "@/data/heroMeta";
+import { CONTENT_LABELS, CONTENT_SYMBOLS } from "@/data/heroMeta";
 import HeroSheetEffects from "@/components/hero-sheet/HeroSheetEffects.vue";
 import StatStepper from "@/components/hero-sheet/StatStepper.vue";
 import HeroSheetEquipment from "@/components/hero-sheet/HeroSheetEquipment.vue";
@@ -285,24 +290,34 @@ onMounted(async () => {
   width: 100%;
   height: auto;
 }
-.sheet-banner__box {
+/* Lined up with the name printed on the art. */
+.sheet-banner__meta {
   position: absolute;
-  bottom: 14px;
-  left: 20px;
+  bottom: 8%;
+  left: 4.8%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.sheet-banner__box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 12px 4px 4px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 999px;
-  font-size: 0.75rem;
+  gap: 6px;
+  font-size: clamp(0.65rem, 1.3vw, 1rem);
   font-weight: 700;
   text-transform: uppercase;
 }
 .sheet-banner__box img {
-  width: 40px;
-  height: 30px;
-  object-fit: contain;
+  height: clamp(14px, 1.9vw, 24px);
+  width: auto;
+}
+.sheet-banner__player {
+  font-size: clamp(0.7rem, 1.4vw, 1.1rem);
+}
+.sheet-banner__player strong {
+  font-weight: 700;
 }
 .sheet-banner__menu {
   position: absolute !important;
@@ -420,15 +435,6 @@ onMounted(async () => {
   }
   .sheet-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .sheet-banner__box {
-    bottom: 8px;
-    left: 10px;
-    font-size: 0.62rem;
-  }
-  .sheet-banner__box img {
-    width: 30px;
-    height: 22px;
   }
   .sheet-savebar {
     right: 12px;

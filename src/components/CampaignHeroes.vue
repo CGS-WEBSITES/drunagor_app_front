@@ -47,6 +47,25 @@
         </div>
       </div>
 
+      <!-- My content: the boxes you own. Tap to add or remove. -->
+      <div v-if="contentScope === 'mine'" class="heroes-content">
+        <span class="heroes-content__label">My hero content</span>
+        <div class="heroes-content__list">
+          <button
+            v-for="box in heroBoxes"
+            :key="box.id"
+            class="heroes-content__box"
+            :class="{ on: configurationStore.isEnabledHeroContent(box.id) }"
+            :aria-pressed="configurationStore.isEnabledHeroContent(box.id)"
+            @click="toggleContent(box.id)"
+          >
+            <img v-if="box.symbol" :src="box.symbol" alt="" />
+            {{ box.label }}
+            <v-icon size="14">{{ configurationStore.isEnabledHeroContent(box.id) ? "mdi-check" : "mdi-plus" }}</v-icon>
+          </button>
+        </div>
+      </div>
+
       <p v-if="view === 'all'" class="heroes-hint">
         <v-icon size="16" class="mr-1">mdi-information-outline</v-icon>Faded heroes aren't in your roster yet. Click one to add it.
       </p>
@@ -90,9 +109,8 @@
               @click="entry.owned ? openHero(entry) : askToAdd(entry.data)"
             >
               <img :src="entry.data.images.avatar" :alt="entry.data.name" class="hero-tile__img" loading="lazy" />
-              <span class="hero-tile__box" :title="contentLabel(entry.data.content)">
-                <img v-if="CONTENT_BOX_IMAGES[entry.data.content]" :src="CONTENT_BOX_IMAGES[entry.data.content]" :alt="contentLabel(entry.data.content)" />
-                <v-icon v-else size="20">mdi-package-variant-closed</v-icon>
+              <span v-if="CONTENT_SYMBOLS[entry.data.content]" class="hero-tile__box" :title="contentLabel(entry.data.content)">
+                <img :src="CONTENT_SYMBOLS[entry.data.content]" :alt="contentLabel(entry.data.content)" />
               </span>
               <span v-if="!entry.owned" class="hero-tile__add"><v-icon size="18">mdi-plus</v-icon> Add</span>
               <span class="hero-tile__text">
@@ -127,8 +145,7 @@
             </p>
             <p class="hero-confirm__path">Path of {{ confirming.path }}</p>
             <div class="hero-confirm__box">
-              <img v-if="CONTENT_BOX_IMAGES[confirming.content]" :src="CONTENT_BOX_IMAGES[confirming.content]" alt="" />
-              <v-icon v-else size="22">mdi-package-variant-closed</v-icon>
+              <img v-if="CONTENT_SYMBOLS[confirming.content]" :src="CONTENT_SYMBOLS[confirming.content]" alt="" />
               <span>{{ contentLabel(confirming.content) }}</span>
             </div>
           </div>
@@ -160,7 +177,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ContentId } from "@/data/type/ContentId";
 import { RandomizeHero } from "@/service/RandomizeHero";
-import { CONTENT_BOX_IMAGES, CONTENT_LABELS, CONTENT_LOGOS, classStyle, heroClassLabel } from "@/data/heroMeta";
+import { CONTENT_LABELS, CONTENT_SYMBOLS, classStyle, heroClassLabel } from "@/data/heroMeta";
 
 const router = useRouter();
 const playableHeroStore = usePlayableHeroStore();
@@ -193,6 +210,19 @@ const contentScope = useStorage<Scope>("heroes.content", "all");
 const groupBy = useStorage<Group>("heroes.group", "class");
 
 const contentLabel = (content: ContentId) => CONTENT_LABELS[content] ?? content;
+
+// Boxes that have heroes, for the My content picker.
+const heroBoxes = computed(() =>
+  [...new Set(heroDataRepository.findAll().map((hero: HeroData) => hero.content))]
+    .map((id) => ({ id: id as ContentId, label: contentLabel(id as ContentId), symbol: CONTENT_SYMBOLS[id as ContentId] }))
+    .sort((a, b) => a.label.localeCompare(b.label)),
+);
+function toggleContent(id: ContentId) {
+  const enabled = configurationStore.enabledHeroContent;
+  const index = enabled.indexOf(id);
+  if (index >= 0) enabled.splice(index, 1);
+  else enabled.push(id);
+}
 
 interface Entry {
   data: HeroData;
@@ -228,7 +258,7 @@ const groups = computed(() => {
       key: key || "all",
       label: key,
       style: groupBy.value === "class" ? classStyle(key) : null,
-      logo: groupBy.value === "box" ? CONTENT_BOX_IMAGES[heroes[0].data.content] ?? CONTENT_LOGOS[heroes[0].data.content] : undefined,
+      logo: groupBy.value === "box" ? CONTENT_SYMBOLS[heroes[0].data.content] : undefined,
       // Owned heroes first, then by name.
       heroes: heroes.sort((a, b) => Number(b.owned) - Number(a.owned) || a.data.name.localeCompare(b.data.name)),
     }));
@@ -401,6 +431,46 @@ onMounted(() => {
   color: rgb(var(--v-theme-accent));
   opacity: 1;
 }
+.heroes-content {
+  margin: -4px 0 18px;
+}
+.heroes-content__label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.heroes-content__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.heroes-content__box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.heroes-content__box img {
+  height: 18px;
+  width: auto;
+}
+.heroes-content__box.on {
+  background: rgba(var(--v-theme-accent), 0.15);
+  border-color: rgb(var(--v-theme-accent));
+  opacity: 1;
+}
 .heroes-hint {
   display: flex;
   align-items: center;
@@ -465,8 +535,8 @@ onMounted(() => {
   object-fit: contain;
 }
 .heroes-group__logo {
-  height: 34px;
-  max-width: 60px;
+  height: 26px;
+  max-width: 40px;
   object-fit: contain;
 }
 .heroes-grid {
@@ -509,19 +579,14 @@ onMounted(() => {
 }
 .hero-tile__box {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 46px;
-  height: 34px;
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.9));
 }
 .hero-tile__box img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: 24px;
+  width: auto;
 }
 .hero-tile__add {
   position: absolute;
@@ -664,9 +729,8 @@ onMounted(() => {
   opacity: 0.9;
 }
 .hero-confirm__box img {
-  width: 48px;
-  height: 34px;
-  object-fit: contain;
+  height: 22px;
+  width: auto;
 }
 .hero-confirm__actions {
   position: relative;
@@ -683,8 +747,32 @@ onMounted(() => {
   .heroes-panel {
     padding: 16px 12px;
   }
+  .heroes-head > div:last-child {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  .heroes-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .heroes-seg button {
+    flex: 1;
+    padding: 8px 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
   .heroes-sort {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto repeat(4, 1fr);
     margin-left: 0;
+  }
+  .heroes-sort__item {
+    padding: 5px 4px;
+    font-size: 0.7rem;
+    text-align: center;
   }
   .hero-confirm__body {
     flex-direction: column;
