@@ -38,8 +38,15 @@ export function useBadgeStats(axios: any) {
     loading = axios
       .get("/rl_users_rewards/stats")
       .then(({ data }: any) => {
+        // Only trust a real answer: a user count and per-badge numbers.
+        if (!(Number(data?.total_users) > 0) || !Array.isArray(data?.rewards)) {
+          stats.value = null;
+          return;
+        }
         const map: Record<number, number> = {};
-        for (const reward of data?.rewards ?? []) map[reward.rewards_pk] = Number(reward.percent) || 0;
+        for (const reward of data.rewards) {
+          if (reward?.rewards_pk != null && reward.percent != null) map[Number(reward.rewards_pk)] = Number(reward.percent);
+        }
         stats.value = map;
       })
       .catch(() => {

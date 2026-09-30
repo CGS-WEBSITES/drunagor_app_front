@@ -91,8 +91,8 @@ const showAllBadges = ref(false);
 // Percentage of the community with each badge, and its rarity tier.
 const badgeStats = useBadgeStats(axios);
 const rarityOf = (rewardPk: number) => {
-  if (!badgeStats.value) return null;
-  const percent = badgeStats.value[rewardPk] ?? 0;
+  const percent = badgeStats.value?.[Number(rewardPk)];
+  if (percent == null) return null;
   return { ...badgeRarity(percent), percent: formatPercent(percent) };
 };
 const route = useRoute();
