@@ -459,7 +459,8 @@ function lbDoubleTap() {
 }
 
 .tharmagar-sprite {
-  height: 85vh;
+  /* Fits whatever space the chat has (page section or fullscreen). */
+  height: min(85vh, 96%);
   object-fit: contain;
   animation: breathe 6s ease-in-out infinite;
   transform-origin: bottom center;

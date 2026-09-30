@@ -1354,10 +1354,33 @@ const checkAndAwardSeason1Achievements = async () => {
   max-width: 1100px;
   margin: 0 auto 24px;
 }
+/* Tharmagar fills the screen below the bar, framed like a scene. */
 .campaign-section--chat {
-  height: 80vh;
+  position: relative;
+  max-width: 1400px;
+  height: calc(100vh - 190px);
+  min-height: 460px;
   overflow: hidden;
-  border-radius: 12px;
+  border: 1px solid rgba(var(--v-theme-accent), 0.35);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.campaign-section--chat::after {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.75);
+  content: "";
+  pointer-events: none;
+}
+@media (max-width: 959px) {
+  .campaign-section--chat {
+    height: calc(100vh - 200px);
+    margin: 0 -12px 16px;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
 }
 .manage {
   display: flex;

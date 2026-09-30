@@ -39,9 +39,11 @@ const TABS = [
 </script>
 
 <style scoped>
+/* Only as wide as its content, centered. */
 .campaign-nav {
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
   padding-top: 8px;
   padding-bottom: 8px;
 }
@@ -51,11 +53,12 @@ const TABS = [
 }
 .campaign-nav__card {
   display: flex;
-  flex: 1;
+  flex: 0 1 auto;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px !important;
 }
 .campaign-nav__tab {
   letter-spacing: 1px;
@@ -66,7 +69,8 @@ const TABS = [
 }
 .campaign-nav__save {
   flex-shrink: 0;
-  height: 48px !important;
+  height: 44px !important;
+  border-radius: 999px !important;
   background: rgb(var(--v-theme-accent)) !important;
   color: #141414 !important;
   font-weight: 800;
