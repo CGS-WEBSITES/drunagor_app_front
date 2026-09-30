@@ -601,11 +601,8 @@
                       <v-col cols="12">
                         <v-card class="pa-2" color="primary">
                           <div class="d-flex justify-center flex-wrap gap-2">
-                            <CampaignLogAddHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                            <CampaignLogImportHero
+                            <!-- New, from another campaign or from My heroes. -->
+                            <CampaignAddHero
                               :campaign-id="campaignId"
                               class="mx-1 my-1"
                             />
@@ -814,6 +811,7 @@ import {
 } from "vue";
 import { ref as vueRef } from "vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
+import CampaignAddHero from "@/components/CampaignAddHero.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
 import CampaignRemove from "@/components/CampaignRemove.vue";

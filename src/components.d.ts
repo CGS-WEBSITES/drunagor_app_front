@@ -19,6 +19,7 @@ declare module 'vue' {
     BaseList: typeof import('./components/BaseList.vue')['default']
     BaseListItem: typeof import('./components/BaseListItem.vue')['default']
     BaseListSearch: typeof import('./components/BaseListSearch.vue')['default']
+    CampaignAddHero: typeof import('./components/CampaignAddHero.vue')['default']
     CampaignBook: typeof import('./components/CampaignBook.vue')['default']
     CampaignBookNew: typeof import('./components/CampaignBookNew.vue')['default']
     CampaignCampPhase: typeof import('./components/CampaignCampPhase.vue')['default']
