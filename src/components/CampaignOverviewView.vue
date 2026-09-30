@@ -274,6 +274,12 @@
             </div>
           </div>
 
+          <div v-else-if="isUnderkeep(campaign.campaign) && loadingExtra.has(campaign.campaignId)" class="mt-1 px-3 pb-3">
+            <div class="d-flex ga-2">
+              <v-skeleton-loader v-for="n in 3" :key="n" type="image" width="60" height="85" class="rounded" color="transparent" />
+            </div>
+          </div>
+
           <!-- Legacy style: Hero Avatars -->
           <div v-else class="mt-1 px-3 pt-0 pb-0">
             <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
@@ -769,57 +775,52 @@ const loadCampaigns = async () => {
   }
 
   try {
-    // Primeira requisição: sem season 2 (ou season 2 = false)
-    try {
-      const campaignsResponse1 = await axios.get("/rl_campaigns_users/search", {
-        params: {
-          users_fk: userStore.user.users_pk,
-          show_season2: false,
-          _t: Date.now(),
-        },
-      });
-
-      if (campaignsResponse1.data?.campaigns) {
-        for (const campaignData of campaignsResponse1.data.campaigns) {
-          await loadCampaignWithHeroes(campaignData);
-        }
+    // Both seasons at once.
+    const params = (showSeason2: boolean) => ({ users_fk: userStore.user!.users_pk, show_season2: showSeason2, _t: Date.now() });
+    const results = await Promise.allSettled([
+      axios.get("/rl_campaigns_users/search", { params: params(false) }),
+      axios.get("/rl_campaigns_users/search", { params: params(true) }),
+    ]);
+    for (const result of results) {
+      if (result.status === "rejected") {
+        console.warn("Error loading campaigns:", result.reason);
+        continue;
       }
-    } catch (err1) {
-      console.warn("Error loading Season 1 campaigns:", err1);
-    }
-
-    // Segunda requisição: com season 2 = true
-    try {
-      const campaignsResponse2 = await axios.get("/rl_campaigns_users/search", {
-        params: {
-          users_fk: userStore.user.users_pk,
-          show_season2: true,
-          _t: Date.now(),
-        },
-      });
-
-      if (campaignsResponse2.data?.campaigns) {
-        for (const campaignData of campaignsResponse2.data.campaigns) {
-          await loadCampaignWithHeroes(campaignData);
-        }
+      for (const campaignData of result.value.data?.campaigns ?? []) {
+        loadCampaignWithHeroes(campaignData);
       }
-    } catch (err2) {
-      console.warn("Error loading Season 2 campaigns:", err2);
     }
-
-    const storeCampaigns = campaignStore.findAll();
-    const underkeepCampaigns = storeCampaigns.filter(c => c.campaign === 'underkeep' || c.campaign === 'underkeep2');
-    
-    await Promise.allSettled(
-        underkeepCampaigns.map(c => loadExtraData(c.campaignId))
-    );
-
   } catch (error) {
     console.error("Error fetching campaigns:", error);
     addLoadingError("Error fetching campaigns. Please try again later.");
   } finally {
+    // The list shows now; the details below keep loading.
     loading.value = false;
   }
+
+  loadExtraDataInBackground();
+};
+
+// Last door, players and their heroes for Drunagor Nights campaigns, newest
+// first and a few at a time so the list stays responsive.
+const loadingExtra = ref(new Set<string>());
+const EXTRA_CONCURRENCY = 4;
+const loadExtraDataInBackground = async () => {
+  const queue = campaignStore
+    .findAll()
+    .filter((c) => c.campaign === "underkeep" || c.campaign === "underkeep2")
+    .sort((a, b) => Number(b.campaignId) - Number(a.campaignId))
+    .map((c) => c.campaignId);
+  loadingExtra.value = new Set(queue);
+
+  const worker = async () => {
+    while (queue.length) {
+      const campaignId = queue.shift()!;
+      await loadExtraData(campaignId);
+      loadingExtra.value.delete(campaignId);
+    }
+  };
+  await Promise.all(Array.from({ length: EXTRA_CONCURRENCY }, worker));
 };
 
 const goToCampaign = (campaign: any) => {
