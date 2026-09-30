@@ -167,138 +167,75 @@
           v-for="campaign in allCampaigns"
           :key="campaign.campaignId"
         >
-          <v-card
-            color="primary"
-            elevation="16"
-            width="100%"
-            class="transition-swing"
-            style="overflow: hidden;"
-            @click="goToCampaign(campaign)"
-          >
-            <v-img
-              v-if="campaign.campaign === 'core'"
-              src="https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp"
-              max-height="200"
-              cover
-            ></v-img>
+          <v-card color="primary" elevation="8" class="camp-card" @click="goToCampaign(campaign)">
+            <img :src="CAMPAIGN_BANNERS[campaign.campaign]" alt="" class="camp-card__banner" loading="lazy" />
 
-            <v-img
-              v-else-if="campaign.campaign === 'apocalypse'"
-              src="https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp"
-              max-height="200"
-              cover
-            ></v-img>
-
-            <v-img
-              v-else-if="campaign.campaign === 'awakenings'"
-              src="https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp"
-              max-height="200"
-              cover
-            ></v-img>
-
-            <v-img
-              v-else-if="campaign.campaign === 'underkeep'"
-              src="@/assets/underkeep.png"
-              max-height="200"
-              cover
-            ></v-img>
-
-            <v-img
-              v-else-if="campaign.campaign === 'underkeep2'"
-              src="@/assets/underkeep2.png"
-              max-height="200"
-              cover
-            >
-            </v-img>
-
-            <v-card-title class="d-flex flex-column text-uppercase pb-1">
-              <div class="d-flex justify-space-between align-center w-100">
-                <span class="text-h5 font-weight-bold mb-0 text-truncate">
-                  {{ campaign.name || "Unnamed Campaign" }}
+            <div class="camp-card__head">
+              <div class="camp-card__title">
+                <h3>{{ campaign.name || "Unnamed Campaign" }}</h3>
+                <span class="camp-card__box">
+                  <img v-if="campaignMark(campaign.campaign).symbol" :src="campaignMark(campaign.campaign).symbol" alt="" />
+                  {{ campaignMark(campaign.campaign).label }}
                 </span>
-                <v-chip
-                  v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.isFinished"
-                  color="red-darken-4"
-                  size="small"
-                  variant="flat"
-                  class="font-weight-bold ml-2"
-                >
-                  FINISHED
-                </v-chip>
-              </div>
-
-              <div class="d-flex align-center text-subtitle-1 mt-0 w-100">
-                <span v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</span>
-                <span v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.lastDoorName" class="ml-2">
-                  - Last Door: <span class="text-white font-weight-bold">{{ extraCampaignData[campaign.campaignId].lastDoorName }}</span>
-                </span>
-                <span v-if="isUnderkeep(campaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold text-subtitle-2">
-                  {{ calculateCompletionPercentage(campaign) }}%
+                <span v-if="isUnderkeep(campaign.campaign)" class="camp-card__door">
+                  <template v-if="campaign.wing">{{ formatWingName(campaign.wing) }}</template>
+                  <template v-if="extraCampaignData[campaign.campaignId]?.lastDoorName"> · Last door: <strong>{{ extraCampaignData[campaign.campaignId].lastDoorName }}</strong></template>
                 </span>
               </div>
-            </v-card-title>
+              <v-chip v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]?.isFinished" color="red-darken-4" size="small" variant="flat" class="font-weight-bold">
+                FINISHED
+              </v-chip>
+              <span v-if="isUnderkeep(campaign.campaign)" class="camp-card__percent">{{ calculateCompletionPercentage(campaign) }}%</span>
+              <v-btn
+                icon
+                variant="text"
+                size="small"
+                :aria-label="collapsed.has(campaign.campaignId) ? 'Show heroes' : 'Hide heroes'"
+                @click.stop="toggleCollapsed(campaign.campaignId)"
+              >
+                <v-icon>{{ collapsed.has(campaign.campaignId) ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
+              </v-btn>
+            </div>
 
             <v-progress-linear
               v-if="isUnderkeep(campaign.campaign)"
               :model-value="calculateCompletionPercentage(campaign)"
               color="amber-accent-2"
               height="3"
-              class="mb-0"
-            ></v-progress-linear>
+            />
 
-          <!-- Underkeep style: Players list -->
-          <div v-if="isUnderkeep(campaign.campaign) && extraCampaignData[campaign.campaignId]" class="mt-1 px-3 pt-0 pb-0">
-            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
-              <div
-                v-for="player in extraCampaignData[campaign.campaignId].players"
-                :key="player.rl_campaigns_users_pk"
-                class="d-flex flex-column align-center text-center player-standee-container"
-              >
-                <!-- Hero Standee Card (120x170 proportional) -->
-                <div class="hero-standee-card">
-                  <v-img
-                    v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
-                    :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk).images.avatar"
-                    cover
-                    class="w-100 h-100"
-                  ></v-img>
-                  <v-icon v-else size="large" color="grey" class="ma-auto">mdi-help</v-icon>
+            <v-expand-transition>
+              <div v-show="!collapsed.has(campaign.campaignId)">
+                <!-- Drunagor Nights: each player with their hero and nick. -->
+                <div v-if="isUnderkeep(campaign.campaign)" class="camp-card__heroes">
+                  <template v-if="extraCampaignData[campaign.campaignId]">
+                    <div v-for="player in extraCampaignData[campaign.campaignId].players" :key="player.rl_campaigns_users_pk" class="camp-hero">
+                      <img
+                        v-if="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)"
+                        :src="getPlayerHero(campaign.campaignId, player.playable_heroes_fk)!.images.avatar"
+                        alt=""
+                      />
+                      <v-icon v-else size="28" class="camp-hero__empty">mdi-help</v-icon>
+                      <span class="camp-hero__nick">{{ player.user_name }}</span>
+                    </div>
+                    <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="camp-card__none">No players synced yet.</span>
+                  </template>
+                  <template v-else-if="loadingExtra.has(campaign.campaignId)">
+                    <div v-for="n in 3" :key="n" class="camp-hero camp-hero--loading" />
+                  </template>
+                </div>
 
-                  <!-- Player Name overlay at bottom -->
-                  <div class="player-name-overlay">
-                    <span class="player-name-text">{{ player.user_name }}</span>
+                <!-- Legacy: the party's heroes, and room for more. -->
+                <div v-else class="camp-card__heroes">
+                  <div v-for="hero in heroAvatars(campaign.campaignId)" :key="hero.id" class="camp-hero">
+                    <img :src="hero.images.avatar" :alt="hero.name" />
+                  </div>
+                  <div v-if="heroAvatars(campaign.campaignId).length < 5" class="camp-hero camp-hero--add" title="Add a hero">
+                    <v-icon size="26">mdi-account-plus</v-icon>
                   </div>
                 </div>
               </div>
-              <span v-if="extraCampaignData[campaign.campaignId].players.length === 0" class="text-caption text-grey font-italic pb-3">No players synced yet.</span>
-            </div>
-          </div>
-
-          <div v-else-if="isUnderkeep(campaign.campaign) && loadingExtra.has(campaign.campaignId)" class="mt-1 px-3 pb-3">
-            <div class="d-flex ga-2">
-              <v-skeleton-loader v-for="n in 3" :key="n" type="image" width="60" height="85" class="rounded" color="transparent" />
-            </div>
-          </div>
-
-          <!-- Legacy style: Hero Avatars -->
-          <div v-else class="mt-1 px-3 pt-0 pb-0">
-            <div class="d-flex flex-wrap align-end mt-0 standees-list-container">
-              <div
-                v-for="hero in heroAvatars(campaign.campaignId)"
-                :key="hero.heroId"
-                class="d-flex flex-column align-center text-center player-standee-container"
-              >
-                <!-- Hero Standee Card (120x170 proportional) -->
-                <div class="hero-standee-card">
-                  <v-img
-                    :src="hero.images.avatar"
-                    cover
-                    class="w-100 h-100"
-                  ></v-img>
-                </div>
-              </div>
-            </div>
-          </div>
+            </v-expand-transition>
           </v-card>
         </v-col>
       </v-row>
@@ -504,6 +441,12 @@
 </template>
 
 <script setup lang="ts">
+import underkeepBanner from "@/assets/underkeep.png";
+import underkeep2Banner from "@/assets/underkeep2.png";
+import s1Flag from "@/assets/s1flag.png";
+import s2Flag from "@/assets/s2flag.png";
+import { CONTENT_LABELS, CONTENT_SYMBOLS } from "@/data/heroMeta";
+import type { ContentId } from "@/data/type/ContentId";
 import { calculateCompletionPercentage } from "@/utils/campaignProgress";
 import { ref, computed, onBeforeMount } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -609,6 +552,29 @@ const sortOrder = ref('desc');
 const extraCampaignData = ref<Record<string, { lastDoorName: string, isFinished: boolean, players: any[] }>>({});
 
 const BOX_ID = 38;
+
+const CAMPAIGN_BANNERS: Record<string, string> = {
+  core: "https://assets.drunagor.app/CampaignTracker/CoreCompanion.webp",
+  apocalypse: "https://assets.drunagor.app/CampaignTracker/ApocCompanion.webp",
+  awakenings: "https://assets.drunagor.app/CampaignTracker/AwakComapanion.webp",
+  underkeep: underkeepBanner,
+  underkeep2: underkeep2Banner,
+};
+
+// Symbol and name of the box a campaign is played with.
+const campaignMark = (type: string) => {
+  if (type === "underkeep") return { symbol: s1Flag, label: "Drunagor Nights · S1" };
+  if (type === "underkeep2") return { symbol: s2Flag, label: "Drunagor Nights · S2" };
+  const content = type as ContentId;
+  return { symbol: CONTENT_SYMBOLS[content], label: type === "core" ? "Corebox" : CONTENT_LABELS[content] ?? type };
+};
+
+// Cards whose hero row is folded away.
+const collapsed = ref(new Set<string>());
+const toggleCollapsed = (campaignId: string) => {
+  if (collapsed.value.has(campaignId)) collapsed.value.delete(campaignId);
+  else collapsed.value.add(campaignId);
+};
 
 const allCampaigns = computed(() => {
   let campaigns = [...campaignStore.findAll()];
@@ -1122,6 +1088,127 @@ onBeforeMount(async () => {
   }
   .standees-list-container {
     gap: 6px;
+  }
+}
+
+/* Campaign card: banner, title row, heroes. */
+.camp-card {
+  overflow: hidden;
+  cursor: pointer;
+  font-family: "Poppins", sans-serif;
+}
+.camp-card__banner {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 5;
+  object-fit: cover;
+}
+.camp-card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px 10px 16px;
+}
+.camp-card__title {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.camp-card__title h3 {
+  overflow: hidden;
+  font-size: clamp(1rem, 4.2vw, 1.3rem);
+  font-weight: 800;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.camp-card__box {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.camp-card__box img {
+  width: auto;
+  height: 16px;
+}
+.camp-card__door {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+.camp-card__percent {
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+/* Five columns that scale with the card: same look on every phone. */
+.camp-card__heroes {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px 12px 14px;
+}
+.camp-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.camp-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.camp-hero__empty {
+  opacity: 0.4;
+}
+.camp-hero__nick {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 14px 4px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  color: #fff;
+  font-size: clamp(0.55rem, 2.4vw, 0.72rem);
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.camp-hero--add {
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  opacity: 0.8;
+}
+.camp-hero--loading {
+  animation: camp-pulse 1.2s ease-in-out infinite;
+}
+@keyframes camp-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+.camp-card__none {
+  grid-column: 1 / -1;
+  padding: 8px 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  opacity: 0.6;
+}
+@media (min-width: 960px) {
+  .camp-card__heroes {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 110px));
   }
 }
 </style>
