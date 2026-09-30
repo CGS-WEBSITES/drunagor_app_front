@@ -1,139 +1,39 @@
 <template>
-  <div class="page-background d-flex align-center justify-center pl-lg-16">
-      <v-sheet
-        class="pa-4"
-        border
-        rounded="lg"
-        width="100%"
-        max-width="1100"
-        color="secundary"
-      >
-        <h2 class="font-weight-bold text-h4 text-center mb-4">Community Forge <span class="mdi mdi-anvil"></span></h2>
+  <!-- The app pads a page root, so pad an inner wrapper (like the Library). -->
+  <div>
+    <div class="forge-page">
+      <h1 class="forge-page__title cinzel-text">COMMUNITY FORGE</h1>
+      <p class="forge-page__sub">Tools made by the community for Chronicles of Drunagor.</p>
 
-        <v-list bg-color="transparent">
-          <v-list-item
-            v-for="app in applications"
-            :key="app.title"
-            :href="app.url"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mb-3 list-item-padding"
-            border
-            rounded="lg"
-          >
-            <template #prepend>
-              <v-avatar size="48">
-                <v-img
-                  v-if="app.imageSrc"
-                  :src="app.imageSrc"
-                  :alt="`${app.title} logo`"
-                  cover
-                ></v-img>
-                <v-icon v-else icon="mdi-tools" size="32"></v-icon>
-              </v-avatar>
-            </template>
+      <div class="forge-grid">
+        <a v-for="app in applications" :key="app.title" :href="app.url" target="_blank" rel="noopener noreferrer" class="forge-card">
+          <div class="forge-card__head">
+            <v-avatar size="56" class="forge-card__logo">
+              <v-img v-if="app.imageSrc" :src="app.imageSrc" :alt="`${app.title} logo`" cover />
+              <v-icon v-else icon="mdi-tools" size="30" />
+            </v-avatar>
+            <div class="forge-card__name">
+              <h2>{{ app.title }}</h2>
+              <span><v-icon size="14">mdi-open-in-new</v-icon> Open tool</span>
+            </div>
+          </div>
 
-            <v-list-item-title class="text-h6 ml-2">{{ app.title }}</v-list-item-title>
+          <div class="forge-card__links">
+            <button v-if="app.discord" class="forge-link forge-link--discord" title="Copy Discord name" @click.prevent.stop="copyToClipboard(app.discord)">
+              <img src="https://cdn.simpleicons.org/discord/fff" alt="" />{{ app.discord }}
+            </button>
+            <button v-if="app.github" class="forge-link forge-link--github" @click.prevent.stop="openLink(`https://github.com/${app.github}`)">
+              <v-icon size="16">mdi-github</v-icon>{{ app.github }}
+            </button>
+            <button v-if="app.bgg" class="forge-link forge-link--bgg" @click.prevent.stop="openLink(`https://boardgamegeek.com/user/${app.bgg}`)">
+              <img :src="bggChip.iconUrl" alt="" />{{ app.bgg }}
+            </button>
+          </div>
+        </a>
+      </div>
+    </div>
 
-            <v-list-item-subtitle class="d-md-none mt-2 ml-2">
-              <div class="d-flex align-center flex-wrap ga-2">
-                <v-chip
-                  v-if="app.discord"
-                  color="#5865F2"
-                  variant="flat"
-                  size="small"
-                  @click.prevent.stop="copyToClipboard(app.discord)"
-                >
-                  <template #prepend>
-                    <v-avatar class="mr-1" size="16">
-                      <v-img src="https://cdn.simpleicons.org/discord/fff"></v-img>
-                    </v-avatar>
-                  </template>
-                  {{ app.discord }}
-                </v-chip>
-                <v-chip
-                  v-if="app.github"
-                  color="grey-darken-3"
-                  prepend-icon="mdi-github"
-                  variant="flat"
-                  size="small"
-                  @click.prevent.stop="openLink(`https://github.com/${app.github}`)"
-                >
-                  {{ app.github }}
-                </v-chip>
-                <v-chip
-                  v-if="app.bgg"
-                  :color="bggChip.color"
-                  variant="flat"
-                  size="small"
-                  @click.prevent.stop="openLink(`https://boardgamegeek.com/user/${app.bgg}`)"
-                >
-                  <template #prepend>
-                    <v-avatar class="mr-1" size="16">
-                       <v-img :src="bggChip.iconUrl"></v-img>
-                    </v-avatar>
-                  </template>
-                  {{ app.bgg }}
-                </v-chip>
-              </div>
-            </v-list-item-subtitle>
-            
-            <template #append>
-              <div class="d-none d-md-flex align-center ga-3">
-                <v-chip
-                  v-if="app.discord"
-                  color="#5865F2"
-                  variant="flat"
-                  size="large"
-                  @click.prevent.stop="copyToClipboard(app.discord)"
-                  style="cursor: pointer;"
-                >
-                  <template #prepend>
-                    <v-avatar class="mr-2" size="24">
-                      <v-img src="https://cdn.simpleicons.org/discord/fff"></v-img>
-                    </v-avatar>
-                  </template>
-                  {{ app.discord }}
-                </v-chip>
-                <v-chip
-                  v-if="app.github"
-                  color="grey-darken-3"
-                  prepend-icon="mdi-github"
-                  variant="flat"
-                  size="large"
-                  @click.prevent.stop="openLink(`https://github.com/${app.github}`)"
-                  style="cursor: pointer;"
-                >
-                  {{ app.github }}
-                </v-chip>
-                <v-chip
-                  v-if="app.bgg"
-                  :color="bggChip.color"
-                  variant="flat"
-                  size="large"
-                  @click.prevent.stop="openLink(`https://boardgamegeek.com/user/${app.bgg}`)"
-                  style="cursor: pointer;"
-                >
-                  <template #prepend>
-                    <v-avatar class="mr-2" size="24">
-                      <v-img :src="bggChip.iconUrl"></v-img>
-                    </v-avatar>
-                  </template>
-                  {{ app.bgg }}
-                </v-chip>
-              </div>
-            </template>
-
-          </v-list-item>
-        </v-list>
-      </v-sheet>
-
-    <v-snackbar
-      v-model="snackbar.show"
-      :timeout="2000"
-      :color="snackbar.color"
-      location="bottom right"
-    >
+    <v-snackbar v-model="snackbar.show" :timeout="2000" :color="snackbar.color" location="bottom right">
       {{ snackbar.text }}
     </v-snackbar>
   </div>
@@ -200,23 +100,107 @@ function openLink(url) {
 </script>
 
 <style scoped>
-.page-background {
-  background-color: rgb(var(--v-theme-background));
-  min-height: 100vh;
+/* Same width and title as the Library. */
+.forge-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 76px 16px 48px;
+  font-family: "Poppins", sans-serif;
+  color: rgb(var(--v-theme-on-surface));
 }
-
-.v-list-item {
-  transition: all 0.2s ease-in-out;
+.forge-page__title {
+  font-family: "Cinzel", serif;
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-align: center;
 }
-
-.list-item-padding {
-  padding-top: 16px !important;
-  padding-bottom: 16px !important;
+.forge-page__sub {
+  margin: 0 0 24px;
+  text-align: center;
+  opacity: 0.7;
 }
-
-.v-list-item:hover {
-  background-color: rgba(var(--v-theme-on-surface), 0.04);
+.forge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.forge-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.forge-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   transform: translateY(-2px);
-  border-color: rgba(var(--v-theme-primary), 0.5) !important;
+}
+.forge-card__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.forge-card__logo {
+  background: rgb(var(--v-theme-secondary));
+}
+.forge-card__name h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.forge-card__name span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgb(var(--v-theme-accent));
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.forge-card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.forge-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: filter 0.15s ease;
+}
+.forge-link:hover {
+  filter: brightness(1.15);
+}
+.forge-link img {
+  width: 16px;
+  height: 16px;
+}
+.forge-link--discord {
+  background: #5865f2;
+}
+.forge-link--github {
+  background: rgb(var(--v-theme-secondary));
+}
+.forge-link--bgg {
+  background: #443f64;
+}
+@media (max-width: 959px) {
+  .forge-page {
+    padding: 76px 12px 32px;
+  }
+  .forge-page__title {
+    font-size: 2.4rem;
+  }
+  .forge-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
