@@ -90,13 +90,10 @@
               @click="entry.owned ? openHero(entry) : askToAdd(entry.data)"
             >
               <img :src="entry.data.images.avatar" :alt="entry.data.name" class="hero-tile__img" loading="lazy" />
-              <img
-                v-if="CONTENT_LOGOS[entry.data.content]"
-                :src="CONTENT_LOGOS[entry.data.content]"
-                :alt="contentLabel(entry.data.content)"
-                :title="contentLabel(entry.data.content)"
-                class="hero-tile__box"
-              />
+              <span class="hero-tile__box" :title="contentLabel(entry.data.content)">
+                <img v-if="CONTENT_BOX_IMAGES[entry.data.content]" :src="CONTENT_BOX_IMAGES[entry.data.content]" :alt="contentLabel(entry.data.content)" />
+                <v-icon v-else size="20">mdi-package-variant-closed</v-icon>
+              </span>
               <span v-if="!entry.owned" class="hero-tile__add"><v-icon size="18">mdi-plus</v-icon> Add</span>
               <span class="hero-tile__text">
                 <strong>{{ entry.data.name }}</strong>
@@ -109,22 +106,39 @@
     </div>
 
     <!-- Adding a hero, picked or random, always asks first. -->
-    <v-dialog :model-value="!!confirming" max-width="460" @update:model-value="!$event && (confirming = null)">
-      <v-card v-if="confirming" class="hero-confirm" :style="{ background: classStyle(confirming.class).bg }">
+    <v-dialog :model-value="!!confirming" max-width="560" @update:model-value="!$event && closeConfirm()">
+      <v-card v-if="confirming" class="hero-confirm" :style="{ '--class-bg': classStyle(confirming.class).bg, '--class-stroke': classStyle(confirming.class).stroke }">
         <img v-if="classStyle(confirming.class).icon" :src="classStyle(confirming.class).icon" alt="" class="hero-confirm__watermark" />
-        <div class="hero-confirm__body">
-          <img :src="heroPortrait(confirming)" alt="" class="hero-confirm__portrait" />
-          <div>
-            <span class="hero-confirm__kicker">{{ randomMode ? "Your random hero" : "Add hero" }}</span>
+        <v-btn icon="mdi-close" variant="text" size="small" class="hero-confirm__close" aria-label="Close" @click="closeConfirm" />
+
+        <span class="hero-confirm__kicker">
+          <v-icon v-if="randomMode" size="16" class="mr-1">mdi-dice-5</v-icon>{{ randomMode ? (rolling ? "Rolling..." : "Your random hero") : "Add hero" }}
+        </span>
+
+        <div class="hero-confirm__body" :class="{ rolling }">
+          <div class="hero-confirm__portrait">
+            <img :src="confirming.images.avatar" :alt="confirming.name" />
+          </div>
+          <div class="hero-confirm__info">
             <h3>{{ confirming.name }}</h3>
-            <p>{{ confirming.race }} | {{ heroClassLabel(confirming.class) }}</p>
-            <p class="hero-confirm__box">{{ contentLabel(confirming.content) }}</p>
+            <p class="hero-confirm__class">
+              <img v-if="classStyle(confirming.class).icon" :src="classStyle(confirming.class).icon" alt="" />
+              {{ confirming.race }} | {{ heroClassLabel(confirming.class) }}
+            </p>
+            <p class="hero-confirm__path">Path of {{ confirming.path }}</p>
+            <div class="hero-confirm__box">
+              <img v-if="CONTENT_BOX_IMAGES[confirming.content]" :src="CONTENT_BOX_IMAGES[confirming.content]" alt="" />
+              <v-icon v-else size="22">mdi-package-variant-closed</v-icon>
+              <span>{{ contentLabel(confirming.content) }}</span>
+            </div>
           </div>
         </div>
+
         <div class="hero-confirm__actions">
-          <v-btn variant="text" @click="confirming = null">Cancel</v-btn>
-          <v-btn v-if="randomMode" variant="outlined" prepend-icon="mdi-dice-5" @click="rollRandom">Reroll</v-btn>
-          <v-btn color="accent" variant="flat" :loading="adding" @click="confirmAdd">Add to my heroes</v-btn>
+          <v-btn v-if="randomMode" variant="outlined" size="large" prepend-icon="mdi-dice-5" :disabled="rolling || adding" @click="rollRandom">Roll again</v-btn>
+          <v-btn color="accent" variant="flat" size="large" prepend-icon="mdi-plus" :loading="adding" :disabled="rolling" @click="confirmAdd">
+            Add {{ confirming.name }}
+          </v-btn>
         </div>
       </v-card>
     </v-dialog>
@@ -146,7 +160,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ContentId } from "@/data/type/ContentId";
 import { RandomizeHero } from "@/service/RandomizeHero";
-import { CONTENT_LABELS, CONTENT_LOGOS, classStyle, heroClassLabel, heroPortrait } from "@/data/heroMeta";
+import { CONTENT_BOX_IMAGES, CONTENT_LABELS, CONTENT_LOGOS, classStyle, heroClassLabel } from "@/data/heroMeta";
 
 const router = useRouter();
 const playableHeroStore = usePlayableHeroStore();
@@ -214,7 +228,7 @@ const groups = computed(() => {
       key: key || "all",
       label: key,
       style: groupBy.value === "class" ? classStyle(key) : null,
-      logo: groupBy.value === "box" ? CONTENT_LOGOS[heroes[0].data.content] : undefined,
+      logo: groupBy.value === "box" ? CONTENT_BOX_IMAGES[heroes[0].data.content] ?? CONTENT_LOGOS[heroes[0].data.content] : undefined,
       // Owned heroes first, then by name.
       heroes: heroes.sort((a, b) => Number(b.owned) - Number(a.owned) || a.data.name.localeCompare(b.data.name)),
     }));
@@ -242,6 +256,9 @@ function askToAdd(hero: HeroData) {
   confirming.value = hero;
 }
 
+// Random: flick through a few heroes before landing on the pick.
+const rolling = ref(false);
+let rollTimer: ReturnType<typeof setTimeout> | null = null;
 function rollRandom() {
   const existing = playableHeroStore.heroes.map((hero) => hero.heroId);
   const random = new RandomizeHero().randomize(existing);
@@ -249,8 +266,28 @@ function rollRandom() {
     showSnackbar("Every hero from your content is already in your roster.", "warning");
     return;
   }
+  const pick = heroDataRepository.find(random.id) ?? null;
+  const pool = heroDataRepository.findAll().filter((hero: HeroData) => !existing.includes(hero.id));
   randomMode.value = true;
-  confirming.value = heroDataRepository.find(random.id) ?? null;
+  rolling.value = true;
+  let step = 0;
+  const tick = () => {
+    if (step >= 10 || !pool.length) {
+      confirming.value = pick;
+      rolling.value = false;
+      return;
+    }
+    confirming.value = pool[Math.floor(Math.random() * pool.length)];
+    step += 1;
+    rollTimer = setTimeout(tick, 60 + step * 18);
+  };
+  tick();
+}
+
+function closeConfirm() {
+  if (rollTimer) clearTimeout(rollTimer);
+  rolling.value = false;
+  confirming.value = null;
 }
 
 // After adding, go straight to the new hero's sheet.
@@ -428,8 +465,8 @@ onMounted(() => {
   object-fit: contain;
 }
 .heroes-group__logo {
-  height: 26px;
-  max-width: 70px;
+  height: 34px;
+  max-width: 60px;
   object-fit: contain;
 }
 .heroes-grid {
@@ -472,12 +509,19 @@ onMounted(() => {
 }
 .hero-tile__box {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  height: 22px;
-  max-width: 56px;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 34px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.8));
+}
+.hero-tile__box img {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
 }
 .hero-tile__add {
   position: absolute;
@@ -529,60 +573,108 @@ onMounted(() => {
 .hero-confirm {
   position: relative;
   overflow: hidden;
-  padding: 20px;
+  padding: 22px;
+  background: linear-gradient(135deg, var(--class-bg), #151515 140%) !important;
+  border: 1px solid var(--class-stroke);
   color: #fff;
   font-family: "Poppins", sans-serif;
 }
 .hero-confirm__watermark {
   position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 170px;
-  opacity: 0.12;
+  top: 50%;
+  right: -30px;
+  width: 260px;
+  opacity: 0.1;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.hero-confirm__close {
+  position: absolute !important;
+  top: 10px;
+  right: 10px;
+}
+.hero-confirm__kicker {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0.8;
 }
 .hero-confirm__body {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
 }
 .hero-confirm__portrait {
-  width: 110px;
-  height: 110px;
-  border-radius: 10px;
+  flex-shrink: 0;
+  width: 150px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border: 2px solid var(--class-stroke);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+.hero-confirm__portrait img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center top;
-  background: rgba(0, 0, 0, 0.25);
 }
-.hero-confirm__kicker {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  opacity: 0.7;
+.hero-confirm__body.rolling .hero-confirm__portrait {
+  filter: blur(1px) brightness(0.85);
 }
-.hero-confirm h3 {
-  font-size: 1.5rem;
+.hero-confirm__info h3 {
+  font-size: 2rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1;
   text-transform: uppercase;
 }
-.hero-confirm p {
+.hero-confirm__class {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.hero-confirm__class img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.hero-confirm__path {
   margin: 2px 0 0;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
+  opacity: 0.75;
 }
 .hero-confirm__box {
-  opacity: 0.65;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.hero-confirm__box img {
+  width: 48px;
+  height: 34px;
+  object-fit: contain;
 }
 .hero-confirm__actions {
   position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 20px;
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 10px;
+  margin-top: 22px;
 }
 @media (max-width: 599px) {
   .heroes-page {
@@ -593,6 +685,17 @@ onMounted(() => {
   }
   .heroes-sort {
     margin-left: 0;
+  }
+  .hero-confirm__body {
+    flex-direction: column;
+    text-align: center;
+  }
+  .hero-confirm__class,
+  .hero-confirm__box {
+    justify-content: center;
+  }
+  .hero-confirm__actions {
+    grid-auto-flow: row;
   }
   .heroes-group {
     flex-basis: 100%;

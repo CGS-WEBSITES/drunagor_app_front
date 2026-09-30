@@ -11,19 +11,14 @@
     <p v-else-if="!heroView || !heroData" class="text-center py-16">Hero not found.</p>
 
     <template v-else>
-      <!-- Banner: class color, class symbol, the hero and who they are. -->
-      <header class="sheet-banner" :style="{ background: style.bg, borderColor: style.stroke }">
-        <img v-if="style.icon" :src="style.icon" alt="" class="sheet-banner__watermark" />
-        <div class="sheet-banner__text">
-          <h1>{{ heroData.name }}</h1>
-          <p class="sheet-banner__class">{{ heroData.race }} | {{ heroClassLabel(heroData.class) }}</p>
-          <p class="sheet-banner__path">Path of {{ heroData.path }}</p>
-          <div class="sheet-banner__meta">
-            <span><v-icon size="14" class="mr-1">mdi-package-variant-closed</v-icon>{{ CONTENT_LABELS[heroData.content] }}</span>
-            <span v-if="userStore.user?.user_name">Player: <strong>{{ userStore.user.user_name }}</strong></span>
-          </div>
-        </div>
-        <img :src="heroPortrait(heroData)" :alt="heroData.name" class="sheet-banner__portrait" />
+      <!-- Banner: the hero art, whole. -->
+      <header class="sheet-banner">
+        <img :src="(heroData.images as any).trackerInfo || heroData.images.avatar" :alt="heroData.name" class="sheet-banner__img" />
+        <span class="sheet-banner__box">
+          <img v-if="CONTENT_BOX_IMAGES[heroData.content]" :src="CONTENT_BOX_IMAGES[heroData.content]" alt="" />
+          <v-icon v-else size="18">mdi-package-variant-closed</v-icon>
+          {{ CONTENT_LABELS[heroData.content] }}
+        </span>
         <v-menu location="bottom end">
           <template #activator="{ props: menuProps }">
             <v-btn v-bind="menuProps" icon="mdi-dots-vertical" variant="text" size="small" class="sheet-banner__menu" aria-label="Hero options" />
@@ -35,6 +30,7 @@
       </header>
 
       <div class="sheet-grid">
+        <div class="sheet-stack">
         <!-- Vitals -->
         <section class="sheet-card">
           <h3 class="sheet-title">Vitals</h3>
@@ -72,6 +68,12 @@
             />
           </div>
         </section>
+
+        <!-- Aura, status and outcome -->
+        <section class="sheet-card">
+          <HeroSheetEffects :state="heroView.state" />
+        </section>
+        </div>
 
         <!-- Equipment and stash -->
         <section class="sheet-card">
@@ -130,7 +132,8 @@ import { useI18n } from "vue-i18n";
 import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
 import { useUserStore } from "@/store/UserStore";
 import { HeroEquipment, RESOURCE_DEFINITIONS, SequentialAdventureState } from "@/store/Hero";
-import { CONTENT_LABELS, classStyle, heroClassLabel, heroPortrait } from "@/data/heroMeta";
+import { CONTENT_BOX_IMAGES, CONTENT_LABELS } from "@/data/heroMeta";
+import HeroSheetEffects from "@/components/hero-sheet/HeroSheetEffects.vue";
 import StatStepper from "@/components/hero-sheet/StatStepper.vue";
 import HeroSheetEquipment from "@/components/hero-sheet/HeroSheetEquipment.vue";
 import HeroSheetSkills from "@/components/hero-sheet/HeroSheetSkills.vue";
@@ -152,7 +155,6 @@ const removing = ref(false);
 const heroView = computed(() => playableHeroStore.findByPk(playableHeroesPk));
 const heroData = computed(() => heroView.value?.staticData ?? null);
 const adventure = computed(() => heroView.value!.state.sequentialAdventureState!);
-const style = computed(() => classStyle(heroData.value?.class ?? ""));
 
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
@@ -270,82 +272,50 @@ onMounted(async () => {
   margin: 0 -8px 8px;
 }
 
-/* Banner, built like the hero board header. */
+/* Banner: the hero art, never cropped. */
 .sheet-banner {
   position: relative;
-  display: flex;
-  align-items: stretch;
-  min-height: 200px;
   margin-bottom: 16px;
   overflow: hidden;
-  border: 1px solid;
   border-radius: 14px;
+  background: #3a3431;
 }
-.sheet-banner__watermark {
+.sheet-banner__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.sheet-banner__box {
   position: absolute;
-  top: 50%;
-  right: 12%;
-  width: 260px;
-  opacity: 0.1;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-.sheet-banner__text {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 24px 28px;
-}
-.sheet-banner__text h1 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  line-height: 1;
-  text-transform: uppercase;
-}
-.sheet-banner__class {
-  margin: 6px 0 0;
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-.sheet-banner__path {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  opacity: 0.85;
-}
-.sheet-banner__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: auto;
-  padding-top: 16px;
-  font-size: 0.8rem;
-}
-.sheet-banner__meta span:first-child {
+  bottom: 14px;
+  left: 20px;
   display: flex;
   align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 999px;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
 }
-.sheet-banner__portrait {
-  position: relative;
-  z-index: 1;
-  align-self: flex-end;
-  width: 200px;
-  height: 200px;
-  margin-right: 5%;
+.sheet-banner__box img {
+  width: 40px;
+  height: 30px;
   object-fit: contain;
-  object-position: bottom;
 }
 .sheet-banner__menu {
   position: absolute !important;
   top: 8px;
   right: 8px;
   z-index: 2;
+  background: rgba(0, 0, 0, 0.35);
+}
+.sheet-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
 }
 
 .sheet-grid {
@@ -451,30 +421,14 @@ onMounted(async () => {
   .sheet-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .sheet-banner {
-    min-height: 150px;
+  .sheet-banner__box {
+    bottom: 8px;
+    left: 10px;
+    font-size: 0.62rem;
   }
-  .sheet-banner__text {
-    padding: 16px;
-  }
-  .sheet-banner__text h1 {
-    font-size: 1.5rem;
-  }
-  .sheet-banner__class {
-    font-size: 0.85rem;
-  }
-  .sheet-banner__path,
-  .sheet-banner__meta {
-    font-size: 0.7rem;
-  }
-  .sheet-banner__portrait {
-    width: 130px;
-    height: 150px;
-    margin-right: 0;
-  }
-  .sheet-banner__watermark {
-    right: 0;
-    width: 160px;
+  .sheet-banner__box img {
+    width: 30px;
+    height: 22px;
   }
   .sheet-savebar {
     right: 12px;

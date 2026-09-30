@@ -88,6 +88,7 @@ declare module 'vue' {
     HeroPreparationDialog: typeof import('./components/dialogs/HeroPreparationDialog.vue')['default']
     HeroSavePut: typeof import('./components/HeroSavePut.vue')['default']
     HeroSequentialStateView: typeof import('./components/HeroSequentialStateView.vue')['default']
+    HeroSheetEffects: typeof import('./components/hero-sheet/HeroSheetEffects.vue')['default']
     HeroSheetEquipment: typeof import('./components/hero-sheet/HeroSheetEquipment.vue')['default']
     HeroSheetSkills: typeof import('./components/hero-sheet/HeroSheetSkills.vue')['default']
     HeroSummaryPanel: typeof import('./components/HeroSummaryPanel.vue')['default']

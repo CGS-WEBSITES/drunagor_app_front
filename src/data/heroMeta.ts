@@ -47,6 +47,24 @@ export const CONTENT_LOGOS: Partial<Record<ContentId, string>> = {
   apocalypse: apocalypseLogo,
 };
 
+// Box renders, the same ones the Library shows.
+const LIBRARY = "https://assets.drunagor.app/Library";
+export const CONTENT_BOX_IMAGES: Partial<Record<ContentId, string>> = {
+  core: `${LIBRARY}/box-corebox.png`,
+  apocalypse: `${LIBRARY}/box-apoc.png`,
+  lordwrath: `${LIBRARY}/box-lordwrath.png`,
+  "the-ruin-of-luccanor": `${LIBRARY}/box-luccanor.png`,
+  "the-shadow-world": `${LIBRARY}/box-shadowworld.png`,
+  "fallen-sisters": `${LIBRARY}/box-fallen.png`,
+  "hero-pack-1": `${LIBRARY}/box-heropack.png`,
+  lorien: `${LIBRARY}/box-lorien.png`,
+  "monster-pack-1": `${LIBRARY}/box-monsterpack.png`,
+  "spoils-of-war": `${LIBRARY}/box-spoils.png`,
+  awakenings: `${LIBRARY}/box-awakenings.png`,
+  "desert-of-hellscar": `${LIBRARY}/box-hellscar.png`,
+  "rise-of-the-undead-dragon": `${LIBRARY}/box-undeaddragon.png`,
+};
+
 // The data spells it "Assasin".
 export const heroClassLabel = (heroClass: HeroClass | string) =>
   heroClass === "Assasin" ? "Assassin" : heroClass === "Shadow knight" ? "Shadow Knight" : heroClass;
