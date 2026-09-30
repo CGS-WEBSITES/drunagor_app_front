@@ -59,7 +59,7 @@
                 </v-img>
               </v-col>
 
-              <v-col cols="9" sm="10" class="pl-2 d-flex flex-column justify-center">
+              <v-col cols="9" sm="10" class="pl-2 d-flex flex-column justify-center" :class="{ 'pr-badge-rarity': rarityOf(reward.rewards_pk) }">
                 <p class="font-weight-bold white--text ma-0">
                   {{ reward.name }}
                 </p>
@@ -68,6 +68,12 @@
                 </p>
               </v-col>
             </v-row>
+
+            <!-- Share of the community that has it. -->
+            <div v-if="rarityOf(reward.rewards_pk)" class="badge-rarity" :style="{ color: rarityOf(reward.rewards_pk)!.color }">
+              <strong>{{ rarityOf(reward.rewards_pk)!.percent }}</strong>
+              <span>{{ rarityOf(reward.rewards_pk)!.label }}</span>
+            </div>
 
             <!-- Date in the bottom right corner (Identical to outer profile widget) -->
             <div
@@ -116,6 +122,7 @@
 import { ref, computed, watch, inject } from "vue";
 import axios from "axios";
 import { getToken } from "@/service/AccessToken";
+import { badgeRarity, formatPercent, useBadgeStats } from "@/utils/badgeRarity";
 
 const props = defineProps({
   modelValue: {
@@ -202,6 +209,14 @@ const getEarnedDate = (rewardPk: number) => {
   });
 };
 
+// Percentage of the community with each badge, and its rarity tier.
+const badgeStats = useBadgeStats(axiosInstance);
+const rarityOf = (rewardPk: number) => {
+  if (!badgeStats.value) return null;
+  const percent = badgeStats.value[rewardPk] ?? 0;
+  return { ...badgeRarity(percent), percent: formatPercent(percent) };
+};
+
 const getRewardImage = (pictureHash: string) => {
   if (!pictureHash) return "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png";
   if (pictureHash.startsWith("http")) return pictureHash;
@@ -285,9 +300,13 @@ watch(
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.locked-badge {
+/* Badges you don't have: faded, but the rarity keeps its color. */
+.locked-badge > :not(.badge-rarity) {
   opacity: 0.4;
   filter: grayscale(100%);
+}
+.locked-badge .badge-rarity {
+  opacity: 0.8;
 }
 
 .bg-black-opacity {
@@ -301,5 +320,31 @@ watch(
 .date-position {
   position: absolute;
   right: 12px;
+}
+
+/* Rarity: big italic percentage, tier name under it. */
+.badge-rarity {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: "Poppins", sans-serif;
+  font-style: italic;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.badge-rarity strong {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.badge-rarity span {
+  margin-top: 2px;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.pr-badge-rarity {
+  padding-right: 96px !important;
 }
 </style>

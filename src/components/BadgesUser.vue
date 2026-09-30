@@ -22,7 +22,7 @@
             <v-card
               rounded="lg"
               elevation="3"
-              class="py-2 px-0 mb-2 d-flex align-center"
+              class="py-2 px-0 mb-2 d-flex align-center position-relative"
               color="secundary"
             >
               <v-row class="align-center">
@@ -41,7 +41,7 @@
                 </v-col>
 
                 <!-- Details -->
-                <v-col cols="9" class="pl-0 d-flex flex-column justify-center">
+                <v-col cols="9" class="pl-0 d-flex flex-column justify-center" :class="{ 'pr-badge-rarity': rarityOf(item.rewardsPk) }">
                   <p class="font-weight-bold white--text ma-0">
                     {{ item.title }}
                   </p>
@@ -51,6 +51,11 @@
                   <p class="text-caption grey--text ma-0">{{ item.date }}</p>
                 </v-col>
               </v-row>
+              <!-- Share of the community that has it. -->
+              <div v-if="rarityOf(item.rewardsPk)" class="badge-rarity" :style="{ color: rarityOf(item.rewardsPk)!.color }">
+                <strong>{{ rarityOf(item.rewardsPk)!.percent }}</strong>
+                <span>{{ rarityOf(item.rewardsPk)!.label }}</span>
+              </div>
             </v-card>
           </template>
         </v-virtual-scroll>
@@ -78,9 +83,18 @@ import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import axios from "axios";
 import AllBadgesDialog from "@/components/dialogs/AllBadgesDialog.vue";
+import { badgeRarity, formatPercent, useBadgeStats } from "@/utils/badgeRarity";
 
-const userRewards = ref([]);
+const userRewards = ref<any[]>([]);
 const showAllBadges = ref(false);
+
+// Percentage of the community with each badge, and its rarity tier.
+const badgeStats = useBadgeStats(axios);
+const rarityOf = (rewardPk: number) => {
+  if (!badgeStats.value) return null;
+  const percent = badgeStats.value[rewardPk] ?? 0;
+  return { ...badgeRarity(percent), percent: formatPercent(percent) };
+};
 const route = useRoute();
 
 const userId = computed(() => {
@@ -105,7 +119,8 @@ const fetchUserRewards = async () => {
       },
     });
 
-    userRewards.value = (response.data.rewards || []).map((reward) => ({
+    userRewards.value = (response.data.rewards || []).map((reward: any) => ({
+      rewardsPk: reward.rewards_pk,
       image: `https://assets.drunagor.app/${reward.picture_hash}`,
       title: reward.name,
       description: reward.description,
@@ -131,5 +146,31 @@ onMounted(() => {
 .clickable-badges-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Rarity: big italic percentage, tier name under it. */
+.badge-rarity {
+  position: absolute;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: "Poppins", sans-serif;
+  font-style: italic;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.badge-rarity strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.badge-rarity span {
+  margin-top: 2px;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+.pr-badge-rarity {
+  padding-right: 96px !important;
 }
 </style>
