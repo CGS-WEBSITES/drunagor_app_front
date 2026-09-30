@@ -63,46 +63,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Hero } from "@/store/Hero";
-import { ConfigurationStore } from "@/store/ConfigurationStore";
 import EffectPicker from "@/components/EffectPicker.vue";
-import { CampaignLogAuraRepository as CoreAura } from "@/data/repository/campaign/core/CampaignLogAuraRepository";
-import { CampaignLogStatusRepository as CoreStatus } from "@/data/repository/campaign/core/CampaignLogStatusRepository";
-import { CampaignLogOutcomeRepository as CoreOutcome } from "@/data/repository/campaign/core/CampaignLogOutcomeRepository";
-import { CampaignLogAuraRepository as AwakeningsAura } from "@/data/repository/campaign/awakenings/CampaignLogAuraRepository";
-import { CampaignLogStatusRepository as AwakeningsStatus } from "@/data/repository/campaign/awakenings/CampaignLogStatusRepository";
-import { CampaignLogAuraRepository as ApocalypseAura } from "@/data/repository/campaign/apocalypse/CampaignLogAuraRepository";
-import { CampaignLogStatusRepository as ApocalypseStatus } from "@/data/repository/campaign/apocalypse/CampaignLogStatusRepository";
-import { CampaignLogOutcomeRepository as ApocalypseOutcome } from "@/data/repository/campaign/apocalypse/CampaignLogOutcomeRepository";
-import { CampaignLogStatusRepository as Season1Status } from "@/data/repository/campaign/underkeep/CampaignLogStatusRepository";
-import { CampaignLogOutcomeRepository as Season1Outcome } from "@/data/repository/campaign/underkeep/CampaignLogOutcomeRepository";
-import { CampaignLogStatusRepository as Season2Status } from "@/data/repository/campaign/underkeep2/CampaignLogStatusRepository";
-import { CampaignLogOutcomeRepository as Season2Outcome } from "@/data/repository/campaign/underkeep2/CampaignLogOutcomeRepository";
+import { useCampaignEffects } from "@/components/hero-sheet/useCampaignEffects";
 import { NIGHTS_HEROES } from "@/data/heroMeta";
 
 const props = defineProps<{ state: Hero }>();
 
-type Effect = { id: string; name: string; effect?: string };
-type Repo = { load(locale: string): void; findAll(): Effect[] };
 interface Picks {
   auraId: string | null;
   statusIds: string[];
   outcomeIds: string[];
 }
 
-// Repositories read translations with useI18n, so they load here in setup.
-const language = ConfigurationStore().enabledLanguage;
-const load = (repository: Repo) => {
-  repository.load(language);
-  return repository.findAll();
-};
-
-const ALL_CAMPAIGNS = [
-  { id: "core", short: "Core", label: "Core campaign", aura: load(new CoreAura()), status: load(new CoreStatus()), outcome: load(new CoreOutcome()), outcomeLabel: "Outcome" },
-  { id: "awakenings", short: "Awakenings", label: "Awakenings", aura: load(new AwakeningsAura()), status: load(new AwakeningsStatus()), outcome: null, outcomeLabel: "Outcome" },
-  { id: "apocalypse", short: "Apocalypse", label: "Apocalypse", aura: load(new ApocalypseAura()), status: load(new ApocalypseStatus()), outcome: load(new ApocalypseOutcome()), outcomeLabel: "Outcome" },
-  { id: "underkeep", short: "DN S1", label: "Drunagor Nights – Season 1", aura: null, status: load(new Season1Status()), outcome: load(new Season1Outcome()), outcomeLabel: "Dungeon role", nights: true },
-  { id: "underkeep2", short: "DN S2", label: "Drunagor Nights – Season 2", aura: null, status: load(new Season2Status()), outcome: load(new Season2Outcome()), outcomeLabel: "Dungeon role", nights: true },
-];
+const ALL_CAMPAIGNS = useCampaignEffects();
 
 // Drunagor Nights is only played with the five Core heroes.
 const campaigns = computed(() =>

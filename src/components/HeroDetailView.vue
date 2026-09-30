@@ -1,396 +1,402 @@
 <template>
-  <v-row no-gutters class="pt-6">
-    <v-col cols="12" class="d-flex justify-center pb-4 ga-4">
-      <v-btn
-        variant="text"
-        color="grey-lighten-1"
-        @click="navigateBack"
-        class="text-none font-weight-bold"
-        prepend-icon="mdi-arrow-left"
-        size="large"
-      >
-        Back
-      </v-btn>
-      <v-btn
-        variant="elevated"
-        color="success"
-        @click="saveAndGoBack"
-        :disabled="!isLoaded"
-        size="large"
-        class="px-8 font-weight-black text-uppercase"
-        prepend-icon="mdi-content-save"
-      >
-        {{ t("Save Changes") }}
-      </v-btn>
-    </v-col>
-  </v-row>
+  <!-- Editing a campaign hero: the same sheet as My heroes, with this campaign's rules. -->
+  <div class="sheet-page">
+    <HeroSavePut ref="heroSavePutRef" :campaign-id="campaignId" :hero-id="heroId" @success="onSaved" @fail="onSaveFail" />
 
-  <HeroSavePut
-    ref="heroSavePutRef"
-    :campaign-id="campaignId"
-    :hero-id="heroId"
-    @success="onSaveSuccess"
-    @fail="onSaveFail"
-    style="display: none"
-  />
+    <div class="sheet-top">
+      <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="goBack">Back to campaign</v-btn>
+    </div>
 
-  <!-- Loading State -->
-  <v-row v-if="!isLoaded" no-gutters>
-    <v-col
-      cols="12"
-      class="d-flex justify-center align-center"
-      style="min-height: 400px"
-    >
-      <v-progress-circular indeterminate color="primary" size="64" />
-    </v-col>
-  </v-row>
+    <div v-if="!isLoaded" class="text-center py-16">
+      <v-progress-circular indeterminate color="primary" size="56" />
+    </div>
 
-  <v-row v-else no-gutters>
-    <v-col cols="12" class="d-flex align-center justify-center px-4 px-md-0">
-      <v-card
-        elevation="16"
-        rounded
-        style="background-color: #1f2937"
-        width="800px"
-        class="hero-list-item rounded-t-xl"
-      >
-        <v-img :src="hero?.images?.trackerInfo" class="rounded-0" contain />
+    <p v-else-if="!state || !heroData || !campaign" class="text-center py-16">Hero not found in this campaign.</p>
 
-        <v-card-actions>
-          <v-row no-gutters class="px-6">
-            <v-col cols="12">
-              <v-divider></v-divider>
+    <template v-else>
+      <header class="sheet-banner">
+        <img :src="(heroData.images as any).trackerInfo || heroData.images.avatar" :alt="heroData.name" class="sheet-banner__img" />
+        <div class="sheet-banner__meta">
+          <span class="sheet-banner__box">
+            <img v-if="CONTENT_SYMBOLS[heroData.content]" :src="CONTENT_SYMBOLS[heroData.content]" alt="" />
+            {{ CONTENT_LABELS[heroData.content] }}
+          </span>
+          <span class="sheet-banner__player">Campaign: <strong>{{ campaign.name || "Unnamed" }}</strong></span>
+        </div>
+      </header>
 
-              <div class="text-center text-h5">
-                {{ t("label.equipment") }}
+      <div class="sheet-grid">
+        <div class="sheet-stack">
+          <!-- Vitals: resources only exist in Adventure mode. -->
+          <section class="sheet-card">
+            <h3 class="sheet-title">Vitals</h3>
+            <template v-if="adventure">
+              <StatStepper v-model="adventure.lifepoints" label="Life points" icon="mdi-heart" icon-color="#e05353" class="mb-4" />
+              <div class="sheet-subtitle">Cubes</div>
+              <div class="sheet-pairs">
+                <StatStepper v-model="adventure.availableCubes" label="Available" icon="mdi-cube-outline" />
+                <StatStepper v-model="adventure.usedCubes" label="Used" icon="mdi-cube-off-outline" />
+                <StatStepper v-model="adventure.curseCubes" label="Curse" icon="mdi-cube" icon-color="#9c6ade" />
+                <StatStepper v-model="adventure.traumaCubes" label="Trauma" icon="mdi-cube" icon-color="#9e9e9e" />
               </div>
-              <CampaignHeroItems
-                :campaign-id="campaignId"
-                :hero-id="heroId"
-                :repository="repository"
-                :hero="hero"
-                @stash="onStash"
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-divider></v-divider>
+            </template>
 
-              <div class="text-center text-h5">
-                {{ t("label.stash") }}
-              </div>
-              <CampaignHeroStash
-                :campaign-id="campaignId"
-                :repository="repository"
-                :hero-id="heroId"
-                :key="stash"
-                class="px-2"
-              />
-            </v-col>
-            <v-col cols="12">
-              <v-divider></v-divider>
-
-              <div class="text-center text-h5">
-                {{ t("label.skills") }}
-              </div>
-              <CampaignHeroSkills
-                :campaign-id="campaignId"
-                :hero-id="heroId"
-                :campaign="campaign"
-                :hero="hero"
-              ></CampaignHeroSkills>
-            </v-col>
-            <v-col cols="12">
-              <v-divider></v-divider>
-              <div class="text-center text-h5 pt-4 pb-2">
-                {{ t("label.class-abilities", "Class Abilities") }}
-              </div>
-              <div
-                class="d-flex flex-wrap justify-center align-center pa-2 mb-2"
-                style="gap: 8px"
+            <div class="sheet-subtitle" :class="{ 'sheet-subtitle--first': !adventure }">Class abilities</div>
+            <div class="sheet-abilities">
+              <button
+                v-for="n in 8"
+                :key="n"
+                class="sheet-ability"
+                :class="{ on: n <= state.classAbilityCount }"
+                :aria-label="`${n} class abilities`"
+                @click="state.classAbilityCount = state.classAbilityCount === n ? n - 1 : n"
               >
-                <v-chip
-                  v-for="n in 8"
-                  :key="n"
-                  @click="setAbilityCount(n)"
-                  :variant="
-                    n <= localClassAbilityCount ? 'elevated' : 'outlined'
-                  "
-                  :color="
-                    n <= localClassAbilityCount ? 'amber-darken-2' : 'default'
-                  "
-                  size="large"
-                  style="cursor: pointer"
-                >
-                  <v-icon
-                    :icon="
-                      n <= localClassAbilityCount
-                        ? 'mdi-star-circle'
-                        : 'mdi-circle-outline'
-                    "
-                  ></v-icon>
-                </v-chip>
+                <v-icon size="20">{{ n <= state.classAbilityCount ? "mdi-star-circle" : "mdi-circle-outline" }}</v-icon>
+              </button>
+            </div>
+
+            <template v-if="adventure">
+              <div class="sheet-subtitle">Resources</div>
+              <div class="sheet-pairs">
+                <StatStepper
+                  v-for="resource in RESOURCE_DEFINITIONS"
+                  :key="resource.id"
+                  v-model="adventure.resources[resource.id]"
+                  :label="resource.name || t(resource.translation_key)"
+                />
               </div>
-            </v-col>
-          </v-row>
-        </v-card-actions>
-      </v-card>
-    </v-col>
-  </v-row>
+            </template>
+          </section>
 
-  <v-row v-if="isLoaded" no-gutters class="pt-6">
-    <v-col cols="12" class="d-flex justify-center pb-4 ga-4">
-      <v-btn
-        variant="text"
-        color="grey-lighten-1"
-        @click="navigateBack"
-        class="text-none font-weight-bold"
-        prepend-icon="mdi-arrow-left"
-        size="large"
-      >
-        Back
-      </v-btn>
-      <v-btn variant="elevated" color="success" @click="saveAndGoBack" size="large" class="px-8 font-weight-black text-uppercase" prepend-icon="mdi-content-save">
-        {{ t("Save Changes") }}
-      </v-btn>
-    </v-col>
-  </v-row>
+          <!-- This campaign's aura, status and outcome. -->
+          <section v-if="effects" class="sheet-card">
+            <h3 class="sheet-title mb-3">{{ effects.aura ? "Aura · Status · " : "Status · " }}{{ effects.outcomeLabel }}</h3>
+            <EffectPicker
+              v-if="effects.aura"
+              :model-value="state.auraId ? [state.auraId] : []"
+              title="Aura"
+              :items="effects.aura"
+              :multiple="false"
+              placeholder="Select an aura"
+              hint="Aura is removed when you receive a trauma cube or another aura"
+              @update:model-value="state.auraId = $event[0] ?? null"
+            />
+            <EffectPicker v-model="state.statusIds" title="Status" :items="effects.status" placeholder="Add or remove status" hint="Statuses are removed during the camp phase" />
+            <EffectPicker
+              v-if="effects.outcome"
+              v-model="state.outcomeIds"
+              :title="effects.outcomeLabel"
+              :items="effects.outcome"
+              :placeholder="`Add or remove ${effects.outcomeLabel.toLowerCase()}`"
+              hint="Remain in effect for the entire campaign unless some other effect changes them"
+            />
+          </section>
+        </div>
 
-  <v-snackbar
-    v-model="snackbarVisible"
-    :timeout="snackbarTimeout"
-    :color="snackbarColor"
-    location="top"
-  >
-    {{ snackbarText }}
-  </v-snackbar>
+        <section class="sheet-card">
+          <HeroSheetEquipment :state="state" :hero="heroData" :sources="itemSources" />
+        </section>
+
+        <section class="sheet-card">
+          <HeroSheetSkills :state="state" :lock="isNights ? 'nights' : 'normal'" />
+        </section>
+      </div>
+    </template>
+
+    <v-slide-y-reverse-transition>
+      <div v-if="dirty" class="sheet-savebar">
+        <span><v-icon size="18" class="mr-2">mdi-pencil-circle</v-icon>You have unsaved changes</span>
+        <v-btn color="accent" variant="flat" prepend-icon="mdi-content-save" :loading="isSaving" @click="save">Save</v-btn>
+      </div>
+    </v-slide-y-reverse-transition>
+
+    <v-snackbar v-model="snackbarVisible" :timeout="2500" :color="snackbarColor" location="top">{{ snackbarText }}</v-snackbar>
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { HeroData } from "@/data/repository/HeroData";
-import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import CampaignHeroItems from "@/components/CampaignHeroItems.vue";
-import CampaignHeroStash from "@/components/CampaignHeroStash.vue";
-import CampaignHeroSkills from "@/components/CampaignHeroSkills.vue";
-import HeroSavePut from "@/components/HeroSavePut.vue";
-import { ref, onMounted } from "vue";
-import { CampaignStore } from "@/store/CampaignStore";
-import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
-import { UnderKeepItemDataRepository } from "@/data/repository/campaign/underkeep/UnderKeepItemDataRepository";
-import { UnderKeep2ItemDataRepository } from "@/data/repository/campaign/underkeep2/UnderKeep2ItemDataRepository";
-import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
-import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
-import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
 import { useI18n } from "vue-i18n";
+import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
+import { CampaignStore } from "@/store/CampaignStore";
 import { HeroStore } from "@/store/HeroStore";
-import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
+import { HeroEquipment, RESOURCE_DEFINITIONS } from "@/store/Hero";
 import type { Campaign } from "@/store/Campaign";
+import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
+import { CONTENT_LABELS, CONTENT_SYMBOLS, type ItemSource } from "@/data/heroMeta";
+import HeroSavePut from "@/components/HeroSavePut.vue";
+import StatStepper from "@/components/hero-sheet/StatStepper.vue";
+import HeroSheetEquipment from "@/components/hero-sheet/HeroSheetEquipment.vue";
+import HeroSheetSkills from "@/components/hero-sheet/HeroSheetSkills.vue";
+import EffectPicker from "@/components/EffectPicker.vue";
+import { useCampaignEffects } from "@/components/hero-sheet/useCampaignEffects";
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const heroDataRepository = new HeroDataRepository();
-const { t } = useI18n();
-const heroSavePutRef = ref();
-
-const heroId = route.params.heroId.toString();
-const campaignId = route.params.campaignId.toString();
-
 const campaignStore = CampaignStore();
 const heroStore = HeroStore();
+const heroDataRepository = new HeroDataRepository();
+const allEffects = useCampaignEffects();
 
+// Ids come from the route, or from props (dev preview).
+const props = defineProps<{ campaignIdProp?: string; heroIdProp?: string }>();
+const params = route.params as { heroId?: string; campaignId?: string };
+const heroId = String(props.heroIdProp ?? params.heroId);
+const campaignId = String(props.campaignIdProp ?? params.campaignId);
+
+const heroSavePutRef = ref<{ save: () => Promise<boolean> } | null>(null);
 const isLoaded = ref(false);
-
+const isSaving = ref(false);
+const dirty = ref(false);
 const campaign = ref<Campaign | null>(null);
-const hero = ref<HeroData | null>(null);
-const campaignHeroRef = ref<any>(null);
-const repository = ref<ItemDataRepository | null>(null);
 
-const localClassAbilityCount = ref(0);
-const stash = ref(0);
+const state = computed(() => heroStore.findInCampaignOptional(heroId, campaignId));
+const heroData = computed(() => heroDataRepository.find(heroId) ?? null);
+const adventure = computed(() => (state.value?.sequentialAdventureState as any) ?? null);
+const isNights = computed(() => ["underkeep", "underkeep2"].includes(campaign.value?.campaign ?? ""));
+const effects = computed(() => allEffects.find((entry) => entry.id === campaign.value?.campaign) ?? null);
+
+// Items offered by default: the boxes this campaign is played with.
+const ITEM_SOURCES: Record<string, ItemSource[]> = {
+  core: ["core"],
+  awakenings: ["awakenings", "core"],
+  apocalypse: ["apocalypse", "core"],
+  underkeep: ["season-1"],
+  underkeep2: ["season-2"],
+};
+const itemSources = computed(() => ITEM_SOURCES[campaign.value?.campaign ?? ""] ?? []);
 
 const snackbarVisible = ref(false);
 const snackbarText = ref("");
 const snackbarColor = ref("success");
-const snackbarTimeout = ref(3000);
-
-function getRepository(campaignType: string): ItemDataRepository {
-  switch (campaignType) {
-    case "core":
-      return new CoreItemDataRepository();
-    case "apocalypse":
-      return new ApocalypseItemDataRepository();
-    case "awakenings":
-      return new AwakeningsItemDataRepository();
-    case "underkeep":
-      return new UnderKeepItemDataRepository();
-    case "underkeep2":
-      return new UnderKeep2ItemDataRepository();
-    default:
-      throw new Error(`Unknown campaign type: ${campaignType}`);
-  }
-}
-
-function setAbilityCount(count: number) {
-  if (localClassAbilityCount.value === count) {
-    localClassAbilityCount.value = count - 1;
-  } else {
-    localClassAbilityCount.value = count;
-  }
-}
-
-function onStash() {
-  stash.value += 1;
-}
-
-const getInstructionStateKey = () => `campaign_${campaignId}_instruction_state`;
-const getInstructionStepKey = (tab: string) =>
-  `campaign_${campaignId}_instruction_step_${tab}`;
-
-const getInstructionState = () => {
-  if (typeof window !== "undefined") {
-    try {
-      const stateStr = localStorage.getItem(getInstructionStateKey());
-
-      if (stateStr) {
-        const state = JSON.parse(stateStr);
-        const now = Date.now();
-        const thirtyMinutes = 30 * 60 * 1000;
-
-        if (now - state.timestamp < thirtyMinutes) {
-          const stepStr = localStorage.getItem(
-            getInstructionStepKey(state.tab),
-          );
-          return {
-            expanded: state.expanded,
-            tab: state.tab,
-            step: stepStr ? parseInt(stepStr) : undefined,
-          };
-        } else {
-          localStorage.removeItem(getInstructionStateKey());
-          localStorage.removeItem(getInstructionStepKey("load"));
-          localStorage.removeItem(getInstructionStepKey("save"));
-        }
-      }
-    } catch (error) {
-      console.error("Erro ao obter estado das instruções:", error);
-    }
-  }
-  return null;
-};
-
-const onSaveSuccess = () => {
-  snackbarText.value = "Equipment and skills saved successfully!";
-  snackbarColor.value = "success";
+function notify(text: string, color = "success") {
+  snackbarText.value = text;
+  snackbarColor.value = color;
   snackbarVisible.value = true;
-
-  setTimeout(() => {
-    navigateBack();
-  }, 1000);
-};
-
-const onSaveFail = () => {
-  snackbarText.value = "Failed to save equipment and skills.";
-  snackbarColor.value = "error";
-  snackbarVisible.value = true;
-};
-
-function navigateBack() {
-  const instructionState = getInstructionState();
-  const query: any = {};
-
-  if (instructionState && instructionState.expanded) {
-    query.instructions = "open";
-    query.tab = instructionState.tab;
-  }
-
-  router.push({
-    name: "Campaign",
-    params: { id: campaignId },
-    query: query,
-  });
 }
 
-function syncStateToStore() {
-  if (campaignHeroRef.value) {
-    campaignHeroRef.value.classAbilityCount =
-      Number(localClassAbilityCount.value) || 0;
+function fillDefaults() {
+  const hero = state.value;
+  if (!hero) return;
+  if (!hero.equipment) hero.equipment = new HeroEquipment();
+  if (!hero.stashedCardIds) hero.stashedCardIds = [];
+  if (!hero.skillIds) hero.skillIds = [];
+  if (!hero.statusIds) hero.statusIds = [];
+  if (!hero.outcomeIds) hero.outcomeIds = [];
+  if (typeof hero.classAbilityCount !== "number") hero.classAbilityCount = 0;
+  if (!hero.dungeonRoleSkillCubeColors) hero.dungeonRoleSkillCubeColors = { rankOne: null, rankTwo: null };
+  const adv = hero.sequentialAdventureState as any;
+  if (adv) {
+    if (!adv.resources) adv.resources = {};
+    for (const resource of RESOURCE_DEFINITIONS) if (typeof adv.resources[resource.id] !== "number") adv.resources[resource.id] = 0;
+    for (const key of ["lifepoints", "availableCubes", "usedCubes", "curseCubes", "traumaCubes"]) adv[key] = Number(adv[key]) || 0;
   }
 }
 
-function saveAndGoBack() {
-  syncStateToStore();
-
-  if (heroSavePutRef.value && heroSavePutRef.value.save) {
-    heroSavePutRef.value.save().catch((error: any) => {
-      console.error("Error saving:", error);
-      onSaveFail();
-    });
-  } else {
-    navigateBack();
+async function save() {
+  isSaving.value = true;
+  try {
+    await heroSavePutRef.value?.save();
+  } catch {
+    // onSaveFail shows the message.
+  } finally {
+    isSaving.value = false;
   }
+}
+function onSaved() {
+  dirty.value = false;
+  notify(`${heroData.value?.name ?? "Hero"} saved.`);
+}
+function onSaveFail() {
+  notify("Failed to save the hero.", "error");
+}
+
+function goBack() {
+  router.push({ name: "Campaign", params: { id: campaignId } } as any);
 }
 
 onMounted(async () => {
   try {
-    const loader = new CampaignLoadFromStorage();
-    await loader.loadCampaignComplete(campaignId);
-
-    const foundCampaign = campaignStore.find(campaignId);
-    if (!foundCampaign) {
-      throw new Error(`Campaign ${campaignId} not found`);
-    }
-    campaign.value = foundCampaign;
-
-    repository.value = getRepository(foundCampaign.campaign);
-
-    const updatedHero = heroStore.findInCampaignOptional(heroId, campaignId);
-
-    if (updatedHero) {
-      campaignHeroRef.value = updatedHero;
-
-      if (!updatedHero.equipment) {
-        updatedHero.equipment = {
-          weaponId: "",
-          offHandId: "",
-          armorId: "",
-          trinketId: "",
-          bagOneId: "",
-          bagTwoId: "",
-        };
-      }
-      if (!updatedHero.stashedCardIds) {
-        updatedHero.stashedCardIds = [];
-      }
-      if (!updatedHero.skillIds) {
-        updatedHero.skillIds = [];
-      }
-      if (typeof updatedHero.classAbilityCount === "undefined") {
-        updatedHero.classAbilityCount = 0;
-      }
-
-      localClassAbilityCount.value = updatedHero.classAbilityCount || 0;
-
-      hero.value = heroDataRepository.find(heroId) ?? null;
-    } else {
-      console.error(`Hero ${heroId} not found in campaign ${campaignId}`);
-      snackbarText.value = "Hero not found in this campaign.";
-      snackbarColor.value = "error";
-      snackbarVisible.value = true;
-    }
+    await new CampaignLoadFromStorage().loadCampaignComplete(campaignId);
+    campaign.value = campaignStore.findOptional(campaignId) ?? null;
+    fillDefaults();
   } catch (error) {
     console.error("Error loading hero data:", error);
-    snackbarText.value = "Error loading hero data.";
-    snackbarColor.value = "error";
-    snackbarVisible.value = true;
+    notify("Error loading hero data.", "error");
   } finally {
     isLoaded.value = true;
   }
+  await nextTick();
+  watch(() => state.value, () => (dirty.value = true), { deep: true });
 });
 </script>
 
 <style scoped>
-#hero-card {
-  background-image: url("@/assets/hero/flag-bg-red.webp");
-  background-repeat: no-repeat;
+.sheet-page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 12px 16px 96px;
+  font-family: "Poppins", sans-serif;
+  color: #fff;
+}
+.sheet-top {
+  margin: 0 -8px 8px;
+}
+.sheet-banner {
+  position: relative;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #3a3431;
+}
+.sheet-banner__img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  object-position: left top;
+}
+.sheet-banner__meta {
+  position: absolute;
+  bottom: 8%;
+  left: 4.8%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.sheet-banner__box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: clamp(0.65rem, 1.3vw, 1rem);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.sheet-banner__box img {
+  width: auto;
+  height: clamp(14px, 1.9vw, 24px);
+}
+.sheet-banner__player {
+  font-size: clamp(0.7rem, 1.4vw, 1.1rem);
+}
+.sheet-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.sheet-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.sheet-card {
+  min-width: 0;
+  padding: 18px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+}
+.sheet-card :deep(.sheet-title-row) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.sheet-card :deep(.sheet-title),
+.sheet-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.sheet-card > .sheet-title {
+  margin-bottom: 12px;
+}
+.sheet-subtitle {
+  margin: 18px 0 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.sheet-subtitle--first {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.sheet-pairs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sheet-abilities {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+}
+.sheet-ability {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  opacity: 0.6;
+}
+.sheet-ability.on {
+  background: rgba(var(--v-theme-accent), 0.25);
+  color: rgb(var(--v-theme-accent));
+  opacity: 1;
+}
+.sheet-savebar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 18px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transform: translateX(-50%);
+}
+@media (max-width: 1279px) {
+  .sheet-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .sheet-grid > :first-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 767px) {
+  .sheet-page {
+    padding: 8px 12px 96px;
+  }
+  .sheet-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sheet-banner__img {
+    max-height: none;
+  }
+  .sheet-savebar {
+    right: 12px;
+    left: 12px;
+    bottom: 80px;
+    transform: none;
+  }
 }
 </style>

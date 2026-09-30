@@ -52,6 +52,8 @@
 
     <CampaignView v-else-if="screen === 'campaign'" :key="String(route.params.id)" />
 
+    <HeroDetailView v-else-if="screen === 'campaign-hero'" campaign-id-prop="900104" hero-id-prop="elros" />
+
     <Lobby v-else-if="screen === 'lobby'" />
 
     <v-container v-else-if="screen === 'hero-prep'" max-width="700" class="py-6">
@@ -105,6 +107,7 @@ import AssemblyGuide from "@/components/AssemblyGuide.vue";
 import DevEffects from "@/dev/DevEffects.vue";
 import CampaignOverviewView from "@/components/CampaignOverviewView.vue";
 import CampaignView from "@/components/CampaignView.vue";
+import HeroDetailView from "@/components/HeroDetailView.vue";
 import Lobby from "@/components/Lobby.vue";
 import UserEvents from "@/components/UserEvents.vue";
 import DesktopDash from "@/components/DesktopDash.vue";
@@ -142,6 +145,7 @@ const groups: { title: string; items: Screen[] }[] = [
       { id: "gameplay", title: "Gameplay", icon: "mdi-dice-multiple", role: "player", description: "Campaign screen at the First Setup door, with Vorn, Lorelai and Maya. Opens the First Setup guide, then the Start Here book." },
       { id: "campaigns", title: "Campaign list", icon: "mdi-format-list-bulleted", role: "player", description: "Many campaigns (Core, Apocalypse, Awakenings and Drunagor Nights) to check the list and how it loads." },
       { id: "campaign", title: "Legacy campaign", icon: "mdi-sword", role: "player", description: "A Core campaign: the navigation bar on PC and the Add hero dialog." },
+      { id: "campaign-hero", title: "Campaign hero (edit)", icon: "mdi-pencil", role: "player", description: "Editing Elros inside the Core campaign." },
       { id: "effects", title: "Aura / Status / Outcome", icon: "mdi-auto-fix", role: "player", description: "The hero effect pickers from the campaign sheet, with Core data." },
     ],
   },

@@ -1,6 +1,14 @@
 <template>
   <!-- Legacy campaigns: one place to add a hero, from scratch, another campaign or My heroes. -->
-  <v-btn variant="elevated" rounded prepend-icon="mdi-plus" :disabled="isFull" v-bind="$attrs" @click="open">
+  <!-- tile: a wide dashed slot at the end of the hero list. -->
+  <button v-if="tile && !isFull" class="add-tile" v-bind="$attrs" @click="open">
+    <v-icon size="28">mdi-account-plus</v-icon>
+    <span>
+      <strong>Add hero</strong>
+      <small>New, from another campaign or from My heroes · {{ heroesHere.length }}/{{ MAX_HEROES }}</small>
+    </span>
+  </button>
+  <v-btn v-else-if="!tile" variant="elevated" rounded prepend-icon="mdi-plus" :disabled="isFull" v-bind="$attrs" @click="open">
     {{ t("label.add-hero") }}
     <v-tooltip v-if="isFull" activator="parent" location="top">This campaign already has {{ MAX_HEROES }} heroes</v-tooltip>
   </v-btn>
@@ -138,7 +146,7 @@ import awakeningsLogo from "@/assets/logo/awakenings.webp";
 import apocalypseLogo from "@/assets/logo/apocalypse.webp";
 
 defineOptions({ inheritAttrs: false });
-const props = defineProps<{ campaignId: string }>();
+const props = defineProps<{ campaignId: string; tile?: boolean }>();
 
 const { t } = useI18n();
 const campaignStore = CampaignStore();
@@ -303,6 +311,38 @@ function done(text: string) {
 </script>
 
 <style scoped>
+.add-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 92px;
+  border: 2px dashed rgba(var(--v-theme-accent), 0.55);
+  border-radius: 12px;
+  color: rgb(var(--v-theme-accent));
+  font-family: "Poppins", sans-serif;
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.add-tile:hover {
+  background: rgba(var(--v-theme-accent), 0.08);
+  border-color: rgb(var(--v-theme-accent));
+}
+.add-tile span {
+  display: flex;
+  flex-direction: column;
+}
+.add-tile strong {
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.add-tile small {
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 0.75rem;
+  opacity: 0.65;
+}
 .add-hero {
   color: #fff;
   font-family: "Poppins", sans-serif;

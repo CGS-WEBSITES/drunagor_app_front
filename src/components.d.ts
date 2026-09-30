@@ -144,6 +144,7 @@ declare module 'vue' {
     SequentialAdventureButton: typeof import('./components/SequentialAdventureButton.vue')['default']
     ShareCampaignButton: typeof import('./components/ShareCampaignButton.vue')['default']
     SharedKeywords: typeof import('./components/SharedKeywords.vue')['default']
+    SlotIcon: typeof import('./components/hero-sheet/SlotIcon.vue')['default']
     SocialHub: typeof import('./components/SocialHub.vue')['default']
     StandaloneHeroDetailView: typeof import('./components/StandaloneHeroDetailView.vue')['default']
     StandaloneHeroSavePut: typeof import('./components/StandaloneHeroSavePut.vue')['default']

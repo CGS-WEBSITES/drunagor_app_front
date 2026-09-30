@@ -44,14 +44,28 @@ const REWARDS = [
   { name: "Drunagor APP Badges", description: "Check in at the event and get an exclusive event badge to show in your profile.", picture_hash: "badges%26achievements/Tutorial%20Complete.png" },
 ];
 
-const campaignHash = (campaign: string, wing: string, door: string, daysAgo: number, heroes: string[] = []) =>
-  btoa(JSON.stringify({ campaignData: { campaign, wing, door }, heroes: heroes.map((heroId) => ({ heroId })), savedAt: inDays(-daysAgo, 20) }));
+const campaignHash = (campaign: string, wing: string, door: string, daysAgo: number, heroes: (string | Record<string, unknown>)[] = []) =>
+  btoa(JSON.stringify({ campaignData: { campaign, wing, door }, heroes: heroes.map((hero) => (typeof hero === "string" ? { heroId: hero } : hero)), savedAt: inDays(-daysAgo, 20) }));
+
+// A played Core party, to see heroes with items and effects.
+const OLD_GUARD_HEROES = [
+  {
+    heroId: "elros",
+    equipment: { weaponId: "amiran-halberd", offHandId: "deadly-backstabber", armorId: "cloth-armor", trinketId: "amulet-of-power", bagOneId: "cosmic-gemstone-chest", bagTwoId: "" },
+    stashedCardIds: ["crossbow", "breastplate"],
+    skillIds: ["melee-1", "agility-1", "dungeon-role-1"],
+    classAbilityCount: 3,
+    statusIds: ["a-cooperative-approach"],
+    outcomeIds: [],
+  },
+  "lorelai",
+];
 
 const DASH_CAMPAIGNS = [
   { campaigns_fk: 900101, party_name: "Creative Games Studio Party", box: 1, tracker_hash: campaignHash("apocalypse", "", "", 1, ["vorn", "maya", "jaheen"]) },
   { campaigns_fk: 900102, party_name: "Friday Night Heroes", box: 38, tracker_hash: campaignHash("underkeep", "Wing 1 Tutorial", "DUNGEON FOYER", 3) },
   { campaigns_fk: 900103, party_name: "The Dawnbreakers", box: 39, tracker_hash: campaignHash("underkeep2", "Wing 3", "FIRST SETUP", 6) },
-  { campaigns_fk: 900104, party_name: "Old Guard", box: 1, tracker_hash: campaignHash("core", "", "", 20, ["elros", "lorelai"]) },
+  { campaigns_fk: 900104, party_name: "Old Guard", box: 1, tracker_hash: campaignHash("core", "", "", 20, OLD_GUARD_HEROES) },
 ];
 
 // A player with many campaigns, to see the list and its loading.
@@ -176,8 +190,9 @@ const routes: Route[] = [
     if (config.params?.campaigns_fk) return { campaigns: all.filter((c) => String(c.campaigns_fk) === String(config.params.campaigns_fk)) };
     return { campaigns: all.filter((c) => (c.box === 39) === (String(config.params?.show_season2) === "true")) };
   }],
+  // Players with linked heroes only in Drunagor Nights; legacy parties keep their own heroes.
   ["get", /^rl_campaigns_users\/list_players$/, (config) => ({
-    Users: config.params?.campaigns_fk
+    Users: config.params?.campaigns_fk && [38, 39].includes([...DASH_CAMPAIGNS, ...EXTRA_CAMPAIGNS].find((c) => String(c.campaigns_fk) === String(config.params.campaigns_fk))?.box ?? 38)
       ? [
           { user_name: "You", playable_heroes_fk: 101 },
           { user_name: "Ana", playable_heroes_fk: 501 },

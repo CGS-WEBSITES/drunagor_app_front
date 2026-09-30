@@ -1,79 +1,75 @@
 <template>
-  <!-- Campaign actions on PC, in the same style as the Companion menu. Phones use the bottom bar. -->
-  <v-container max-width="1100" class="campaign-nav d-none d-md-flex">
-    <v-card color="primary" rounded="lg" elevation="3" class="campaign-nav__card">
-      <v-btn icon="mdi-arrow-left" size="small" class="campaign-nav__back" title="Back to campaigns" aria-label="Back to campaigns" @click="router.push('/campaign-tracker/')" />
-      <span class="campaign-nav__divider" />
+  <!-- PC: back on the left, the campaign's sections in the middle, Save on the right. Phones use the bottom bar. -->
+  <v-container max-width="1400" class="campaign-nav d-none d-md-flex">
+    <v-btn icon="mdi-arrow-left" class="campaign-nav__back" title="Back to campaigns" aria-label="Back to campaigns" @click="router.push('/campaign-tracker/')" />
+
+    <v-card color="primary" rounded="lg" elevation="3" class="campaign-nav__card" role="tablist">
       <v-btn
-        v-for="action in visibleActions"
-        :key="action.value"
+        v-for="tab in TABS"
+        :key="tab.value"
         rounded
-        class="campaign-nav__btn"
-        :class="{ 'campaign-nav__btn--save': action.value === 'save', 'campaign-nav__btn--danger': action.value === 'remove' }"
-        :prepend-icon="action.icon"
-        @click="emit('action', action.value)"
+        role="tab"
+        :aria-selected="modelValue === tab.value"
+        class="campaign-nav__tab"
+        :class="{ active: modelValue === tab.value }"
+        :prepend-icon="tab.icon"
+        @click="emit('update:modelValue', tab.value)"
       >
-        {{ action.label }}
+        {{ tab.label }}
       </v-btn>
     </v-card>
+
+    <v-btn class="campaign-nav__save" prepend-icon="mdi-content-save-outline" :loading="saving" @click="emit('save')">Save</v-btn>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useRouter } from "vue-router";
 
-const props = defineProps<{ showLoadInstructions?: boolean }>();
-const emit = defineEmits<{ (e: "action", value: string): void }>();
+defineProps<{ modelValue: string; saving?: boolean }>();
+const emit = defineEmits<{ (e: "update:modelValue", value: string): void; (e: "save"): void }>();
 const router = useRouter();
 
-// Remove first and Save last, where the eye ends.
-const ACTIONS = [
-  { value: "remove", label: "Remove", icon: "mdi-delete-outline" },
-  { value: "load-instructions", label: "Instructions", icon: "mdi-lightbulb-on-outline" },
-  { value: "player-list", label: "Players", icon: "mdi-account-group" },
+const TABS = [
+  { value: "heroes", label: "Heroes", icon: "mdi-account-group" },
   { value: "keywords", label: "Keywords", icon: "mdi-book-search-outline" },
-  { value: "export", label: "Export", icon: "mdi-export" },
   { value: "tharmagar", label: "Tharmagar", icon: "mdi-comment-question-outline" },
-  { value: "save", label: "Save", icon: "mdi-content-save-outline" },
+  { value: "manage", label: "Manage", icon: "mdi-cog-outline" },
 ];
-
-const visibleActions = computed(() =>
-  ACTIONS.filter((action) => action.value !== "load-instructions" || props.showLoadInstructions),
-);
 </script>
 
 <style scoped>
 .campaign-nav {
-  justify-content: center;
+  align-items: center;
+  gap: 12px;
   padding-top: 8px;
   padding-bottom: 8px;
 }
+.campaign-nav__back {
+  flex-shrink: 0;
+  background: rgb(var(--v-theme-primary)) !important;
+}
 .campaign-nav__card {
   display: flex;
+  flex: 1;
   flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 10px 14px;
 }
-.campaign-nav__btn {
+.campaign-nav__tab {
   letter-spacing: 1px;
 }
-.campaign-nav__btn--save {
+.campaign-nav__tab.active {
+  background: rgb(var(--v-theme-terciary)) !important;
+  color: rgb(var(--v-theme-on-terciary)) !important;
+}
+.campaign-nav__save {
+  flex-shrink: 0;
+  height: 48px !important;
   background: rgb(var(--v-theme-accent)) !important;
   color: #141414 !important;
-}
-.campaign-nav__btn--danger {
-  color: #ff8a80 !important;
-}
-.campaign-nav__back {
-  background: rgb(var(--v-theme-secondary)) !important;
-}
-.campaign-nav__divider {
-  width: 1px;
-  height: 28px;
-  margin: 0 4px;
-  background: rgba(255, 255, 255, 0.2);
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 </style>

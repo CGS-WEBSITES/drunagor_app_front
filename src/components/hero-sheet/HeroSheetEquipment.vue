@@ -11,12 +11,23 @@
         label="Only usable"
         class="equip__filter"
       />
+      <v-switch
+        v-if="sources?.length"
+        v-model="allBoxes"
+        color="accent"
+        density="compact"
+        hide-details
+        inset
+        label="All boxes"
+        class="equip__filter"
+      />
     </div>
 
     <div v-for="slot in slots" :key="slot.key" class="equip__slot" :class="{ 'equip__slot--gap': slot.key === 'bagOneId' }">
-      <span class="equip__label"><v-icon size="16" class="mr-1">{{ slot.icon }}</v-icon>{{ slot.label }}</span>
+      <span class="equip__label"><SlotIcon :type="slot.iconType" :size="18" class="mr-2" />{{ slot.label }}</span>
 
       <div v-if="state.equipment[slot.key]" class="item-row">
+        <SlotIcon :type="typeOf(state.equipment[slot.key])" :size="22" class="item-row__type" />
         <div class="item-row__text">
           <strong>{{ itemName(state.equipment[slot.key]) }}</strong>
           <small>{{ itemSub(state.equipment[slot.key]) }}</small>
@@ -90,7 +101,7 @@
     <p class="equip__hint">Stashed items can't be used during a scenario.</p>
 
     <div v-for="(id, index) in state.stashedCardIds" :key="`${id}-${index}`" class="item-row">
-      <v-icon size="18" class="opacity-70">{{ iconFor(id) }}</v-icon>
+      <SlotIcon :type="typeOf(id)" :size="22" class="item-row__type" />
       <div class="item-row__text">
         <strong>{{ itemName(id) }}</strong>
         <small>{{ itemSub(id) }}</small>
@@ -118,33 +129,30 @@ import type { ItemData } from "@/data/repository/ItemData";
 import type { ItemType } from "@/data/type/ItemType";
 import { allItemsRepository } from "@/data/repository/AllItemsRepository";
 import ItemSourceMarks from "@/components/hero-sheet/ItemSourceMarks.vue";
+import SlotIcon from "@/components/hero-sheet/SlotIcon.vue";
+import type { ItemSource } from "@/data/heroMeta";
 
-const props = defineProps<{ state: Hero; hero: HeroData }>();
+// sources: in a campaign, the boxes whose items it can pick by default.
+const props = defineProps<{ state: Hero; hero: HeroData; sources?: ItemSource[] }>();
 const { t } = useI18n();
 
 type SlotKey = keyof HeroEquipment;
 interface Slot {
   key: SlotKey;
   label: string;
-  icon: string;
+  iconType: string;
   type: ItemType | null;
 }
 
 const slots: Slot[] = [
-  { key: "weaponId", label: "Weapon", icon: "mdi-sword", type: "Weapon" },
-  { key: "offHandId", label: "Off hand", icon: "mdi-shield-half-full", type: "Off Hand" },
-  { key: "armorId", label: "Armor", icon: "mdi-shield-account", type: "Armor" },
-  { key: "trinketId", label: "Trinket", icon: "mdi-diamond-stone", type: "Trinket" },
-  { key: "bagOneId", label: "Bag slot 1", icon: "mdi-bag-personal", type: null },
-  { key: "bagTwoId", label: "Bag slot 2", icon: "mdi-bag-personal", type: null },
+  { key: "weaponId", label: "Weapon", iconType: "Weapon", type: "Weapon" },
+  { key: "offHandId", label: "Off hand", iconType: "Off Hand", type: "Off Hand" },
+  { key: "armorId", label: "Armor", iconType: "Armor", type: "Armor" },
+  { key: "trinketId", label: "Trinket", iconType: "Trinket", type: "Trinket" },
+  { key: "bagOneId", label: "Bag slot 1", iconType: "Bag", type: null },
+  { key: "bagTwoId", label: "Bag slot 2", iconType: "Bag", type: null },
 ];
 
-const TYPE_ICONS: Record<string, string> = {
-  Weapon: "mdi-sword",
-  "Off Hand": "mdi-shield-half-full",
-  Armor: "mdi-shield-account",
-  Trinket: "mdi-diamond-stone",
-};
 
 const filterProficiencies = ref(true);
 
@@ -160,17 +168,24 @@ const itemSub = (id: string) => {
   return [item.itemType, ...(kinds.length ? [kinds.join(" | ")] : [])].join(" · ");
 };
 
-const iconFor = (id: string) => TYPE_ICONS[allItemsRepository.find(id)?.itemType ?? ""] ?? "mdi-bag-personal";
+const typeOf = (id: string) => allItemsRepository.find(id)?.itemType ?? "Bag";
+
+// In a campaign, only its own boxes unless "All boxes" is on.
+const allBoxes = ref(false);
+const inSources = (item: ItemData) =>
+  !props.sources?.length || allBoxes.value || allItemsRepository.sourcesOf(item.id).some((source) => props.sources!.includes(source));
 
 const toOption = (item: ItemData) => ({ id: item.id, name: t(item.translation_key), sub: itemSub(item.id) });
 
 const optionsFor = (slot: Slot) => {
   const items = slot.type ? allItemsRepository.findByType(slot.type, null) : allItemsRepository.findAll();
-  const usable = items.filter((item) => !slot.type || !filterProficiencies.value || heroCanUse(props.hero, item));
+  const usable = items
+    .filter(inSources)
+    .filter((item) => !slot.type || !filterProficiencies.value || heroCanUse(props.hero, item));
   return sortBy(usable.map(toOption), ["name"]);
 };
 
-const stashOptions = computed(() => sortBy(allItemsRepository.findAll().map(toOption), ["name"]));
+const stashOptions = computed(() => sortBy(allItemsRepository.findAll().filter(inSources).map(toOption), ["name"]));
 
 function stashSlot(key: SlotKey) {
   const id = props.state.equipment[key];
@@ -243,6 +258,10 @@ function equipFromStash(index: number) {
   padding: 6px 8px 6px 12px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 6px;
+}
+.item-row__type {
+  flex-shrink: 0;
+  opacity: 0.9;
 }
 .item-row__text {
   display: flex;

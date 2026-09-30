@@ -3,7 +3,7 @@
     <div class="sheet-title-row">
       <h3 class="sheet-title">Skills</h3>
       <!-- Heroes with Drunagor Nights skill cards pick between both sets. -->
-      <div v-if="hasNightsSkills" class="skills__mode">
+      <div v-if="hasNightsSkills && !lock" class="skills__mode">
         <button :class="{ active: mode === 'normal' }" @click="mode = 'normal'">Skills</button>
         <button :class="{ active: mode === 'nights' }" @click="mode = 'nights'">
           <img :src="s1Flag" alt="" class="skills__mode-flag" /> Drunagor Nights
@@ -107,7 +107,8 @@ import type { Hero } from "@/store/Hero";
 import { underkeepSkillCards, findSkillsFor, type SkillCard } from "@/data/repository/campaign/underkeep/underkeepSkillData";
 import s1Flag from "@/assets/s1flag.png";
 
-const props = defineProps<{ state: Hero }>();
+// lock: a campaign decides which skills its heroes use.
+const props = defineProps<{ state: Hero; lock?: "normal" | "nights" }>();
 
 type SkillType = "melee" | "ranged" | "agility" | "wisdom";
 const SKILLS: { id: SkillType; label: string; icon: string; color: string }[] = [
@@ -160,7 +161,13 @@ function setRoleColor(name: string) {
 const heroCards = computed(() => underkeepSkillCards.filter((card) => card.heroId === props.state.heroId));
 const hasNightsSkills = computed(() => heroCards.value.length > 0);
 const mode = ref<"normal" | "nights">(
-  heroCards.value.some((card) => props.state.skillIds.includes(card.id)) ? "nights" : "normal",
+  props.lock === "nights" && heroCards.value.length
+    ? "nights"
+    : props.lock === "normal"
+      ? "normal"
+      : heroCards.value.some((card) => props.state.skillIds.includes(card.id))
+        ? "nights"
+        : "normal",
 );
 const nightsCard = (type: SkillType) => heroCards.value.find((card) => card.skillType === type && has(card.id));
 

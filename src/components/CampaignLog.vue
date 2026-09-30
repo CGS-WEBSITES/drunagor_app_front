@@ -1,118 +1,84 @@
 <template>
   <div class="hero-sum">
     <div class="hero-sum__main">
-      <img :src="heroArt" :alt="hero.name" class="hero-sum__art" />
+      <div class="hero-sum__art-wrap">
+        <img :src="heroArt" :alt="hero.name" class="hero-sum__art" />
+      </div>
 
       <div class="hero-sum__info">
-        <!-- Numbers at a glance -->
-        <div class="hero-sum__stats">
-          <template v-if="adventure">
-            <span class="stat" title="Life points"><v-icon size="16" color="#e05353">mdi-heart</v-icon>{{ adventure.lifepoints ?? 0 }}</span>
-            <span class="stat" title="Available / used cubes"><v-icon size="16">mdi-cube-outline</v-icon>{{ adventure.availableCubes ?? 0 }}/{{ adventure.usedCubes ?? 0 }}</span>
-            <span class="stat" title="Curse cubes"><v-icon size="16" color="#9c6ade">mdi-cube</v-icon>{{ adventure.curseCubes ?? 0 }}</span>
-            <span class="stat" title="Trauma cubes"><v-icon size="16" color="#9e9e9e">mdi-cube</v-icon>{{ adventure.traumaCubes ?? 0 }}</span>
-          </template>
-          <span class="stat" title="Class abilities"><v-icon size="16" color="accent">mdi-star-circle</v-icon>{{ state?.classAbilityCount ?? 0 }}</span>
-          <span class="stat" title="Skills"><v-icon size="16">mdi-lightning-bolt</v-icon>{{ skillCount }} skills</span>
+        <div class="hero-sum__top">
+          <!-- Numbers at a glance -->
+          <div class="hero-sum__stats">
+            <template v-if="adventure">
+              <span class="stat" title="Life points"><v-icon size="16" color="#e05353">mdi-heart</v-icon>{{ adventure.lifepoints ?? 0 }}</span>
+              <span class="stat" title="Available / used cubes"><v-icon size="16">mdi-cube-outline</v-icon>{{ adventure.availableCubes ?? 0 }}/{{ adventure.usedCubes ?? 0 }}</span>
+              <span class="stat" title="Curse cubes"><v-icon size="16" color="#9c6ade">mdi-cube</v-icon>{{ adventure.curseCubes ?? 0 }}</span>
+              <span class="stat" title="Trauma cubes"><v-icon size="16" color="#9e9e9e">mdi-cube</v-icon>{{ adventure.traumaCubes ?? 0 }}</span>
+            </template>
+            <span class="stat" title="Class abilities"><v-icon size="16" color="accent">mdi-star-circle</v-icon>{{ state?.classAbilityCount ?? 0 }}</span>
+            <span class="stat" title="Skills"><v-icon size="16">mdi-lightning-bolt</v-icon>{{ skillCount }} skills</span>
+          </div>
+          <div class="hero-sum__buttons">
+            <v-btn size="small" variant="flat" color="accent" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click.stop="openHeroEquipmentSkills">
+              Edit
+            </v-btn>
+            <v-btn
+              v-if="isLegacy"
+              icon="mdi-account-remove-outline"
+              size="small"
+              variant="text"
+              class="hero-sum__remove"
+              :title="`Remove ${hero.name}`"
+              :aria-label="`Remove ${hero.name}`"
+              @click.stop="removeDialog = true"
+            />
+          </div>
         </div>
 
         <!-- Equipped items -->
-        <div class="hero-sum__items">
-          <span v-for="item in equipped" :key="item.slot" class="sum-item" :title="item.slot">
-            <v-icon size="14">{{ item.icon }}</v-icon>{{ item.name }}
-          </span>
-          <span v-if="!equipped.length" class="hero-sum__muted">No items equipped</span>
-          <span v-if="state?.stashedCardIds?.length" class="hero-sum__muted">+{{ state.stashedCardIds.length }} in stash</span>
+        <div v-if="equipped.length" class="hero-sum__items">
+          <div v-for="item in equipped" :key="item.key" class="sum-item">
+            <SlotIcon :type="item.type" :size="24" />
+            <div class="sum-item__text">
+              <strong>{{ item.name }}</strong>
+              <small>{{ item.sub }}</small>
+            </div>
+          </div>
         </div>
+        <p v-else class="hero-sum__muted">No items equipped</p>
+        <p v-if="state?.stashedCardIds?.length" class="hero-sum__muted">+{{ state.stashedCardIds.length }} in the stash</p>
 
-        <!-- Effects -->
-        <div v-if="effectCount" class="hero-sum__effects">
-          <span v-if="state?.auraId" class="sum-chip">Aura</span>
-          <span v-if="state?.statusIds?.length" class="sum-chip">{{ state.statusIds.length }} status</span>
-          <span v-if="state?.outcomeIds?.length" class="sum-chip">{{ state.outcomeIds.length }} {{ campaign.campaign === "underkeep" ? "dungeon role" : "outcome" }}</span>
-        </div>
-
-        <div class="hero-sum__actions">
-          <v-btn
-            v-if="isSequentialAdventure"
-            size="small"
-            variant="tonal"
-            prepend-icon="mdi-shield-half-full"
-            class="shepherd-btn-manage-resources"
-            @click.stop="openSequentialStateEditor"
-          >
-            {{ t("Manage Resources") }}
-          </v-btn>
-          <v-btn size="small" variant="flat" color="accent" prepend-icon="mdi-sword-cross" class="shepherd-btn-equipment-skills" @click.stop="openHeroEquipmentSkills">
-            {{ t("label.equipment-skills") }}
-          </v-btn>
-          <v-btn size="small" variant="text" :append-icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open">
-            {{ campaign.campaign === "underkeep" ? "Status · Dungeon role" : "Status · Outcome · Aura" }}
-          </v-btn>
+        <!-- Effects: open a card to read it. -->
+        <div v-if="effects && effectCount" class="hero-sum__effects">
+          <EffectPicker
+            v-if="effects.aura && state?.auraId"
+            :model-value="[state.auraId]"
+            title="Aura"
+            :items="effects.aura"
+            :editable="false"
+          />
+          <EffectPicker v-if="state?.statusIds?.length" :model-value="state.statusIds" title="Status" :items="effects.status" :editable="false" />
+          <EffectPicker
+            v-if="effects.outcome && state?.outcomeIds?.length"
+            :model-value="state.outcomeIds"
+            :title="effects.outcomeLabel"
+            :items="effects.outcome"
+            :editable="false"
+          />
         </div>
       </div>
     </div>
 
-    <v-expand-transition>
-      <div v-if="open" class="hero-sum__editors">
-        <v-row no-gutters>
-            <v-col cols="12">
-              <CampaignLogSequentialAdventure
-                v-if="isSequentialAdventure"
-                :hero="hero"
-                :campaign-id="campaignId"
-                :hide-manage-button="true"
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <CampaignLogCore
-                v-if="campaign.campaign == 'core'"
-                :campaign-id="props.campaignId"
-                :hero-id="props.heroId"
-                :hide-equipment-button="true"
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <CampaignLogAwakenings
-                v-if="campaign.campaign == 'awakenings'"
-                :campaign-id="props.campaignId"
-                :hero-id="props.heroId"
-                :hide-equipment-button="true"
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <CampaignLogApocalypse
-                v-if="campaign.campaign == 'apocalypse'"
-                :campaign-id="props.campaignId"
-                :hero-id="props.heroId"
-                :hide-equipment-button="true"
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <CampaignLogUnderKeep
-                v-if="campaign.campaign == 'underkeep'"
-                :campaign-id="props.campaignId"
-                :hero-id="props.heroId"
-                :hide-equipment-button="true"
-              />
-            </v-col>
-
-            <v-col cols="12">
-              <CampaignLogUnderKeep2
-                v-if="campaign.campaign == 'underkeep2'"
-                :campaign-id="props.campaignId"
-                :hero-id="props.heroId"
-                :hide-equipment-button="true"
-              />
-            </v-col>
-
-        </v-row>
-      </div>
-    </v-expand-transition>
+    <v-dialog v-model="removeDialog" max-width="400">
+      <v-card color="surface" class="pa-5">
+        <h3 class="text-h6 font-weight-bold mb-2">Remove {{ hero.name }}?</h3>
+        <p class="text-body-2 mb-4">The hero leaves this campaign with its items and effects. Save the campaign to keep the change.</p>
+        <div class="d-flex justify-end ga-2">
+          <v-btn variant="text" @click="removeDialog = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" @click="removeHero">Remove</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -124,12 +90,9 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
 import { useRouter } from "vue-router";
-import CampaignLogCore from "./CampaignLogCore.vue";
-import CampaignLogUnderKeep from "./CampaignLogUnderKeep.vue";
-import CampaignLogUnderKeep2 from "./CampaignLogUnderKeep2.vue";
-import CampaignLogAwakenings from "./CampaignLogAwakenings.vue";
-import CampaignLogApocalypse from "./CampaignLogApocalypse.vue";
-import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
+import SlotIcon from "@/components/hero-sheet/SlotIcon.vue";
+import EffectPicker from "@/components/EffectPicker.vue";
+import { useCampaignEffects } from "@/components/hero-sheet/useCampaignEffects";
 import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
@@ -147,7 +110,14 @@ const campaign = campaignStore.find(props.campaignId);
 const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
 const heroStore = HeroStore();
-const open = ref(false);
+const removeDialog = ref(false);
+const isLegacy = ["core", "awakenings", "apocalypse"].includes(campaign.campaign);
+const effects = useCampaignEffects().find((entry) => entry.id === campaign.campaign) ?? null;
+
+function removeHero() {
+  heroStore.removeFromCampaign(props.heroId, props.campaignId);
+  removeDialog.value = false;
+}
 const state = computed(() => heroStore.findInCampaignOptional(props.heroId, props.campaignId));
 const adventure = computed(() => state.value?.sequentialAdventureState as any);
 const skillCount = computed(() => (state.value?.skillIds ?? []).length);
@@ -155,30 +125,23 @@ const effectCount = computed(
   () => (state.value?.auraId ? 1 : 0) + (state.value?.statusIds?.length ?? 0) + (state.value?.outcomeIds?.length ?? 0),
 );
 
-const SLOTS = [
-  { key: "weaponId", slot: "Weapon", icon: "mdi-sword" },
-  { key: "offHandId", slot: "Off hand", icon: "mdi-shield-half-full" },
-  { key: "armorId", slot: "Armor", icon: "mdi-shield-account" },
-  { key: "trinketId", slot: "Trinket", icon: "mdi-diamond-stone" },
-  { key: "bagOneId", slot: "Bag", icon: "mdi-bag-personal" },
-  { key: "bagTwoId", slot: "Bag", icon: "mdi-bag-personal" },
-] as const;
+const SLOTS = ["weaponId", "offHandId", "armorId", "trinketId", "bagOneId", "bagTwoId"] as const;
 const equipped = computed(() =>
-  SLOTS.map((entry) => {
-    const id = (state.value?.equipment as any)?.[entry.key];
-    const item = id ? allItemsRepository.find(id) : undefined;
-    return id ? { slot: entry.slot, icon: entry.icon, name: item ? t(item.translation_key) : id } : null;
-  }).filter((entry) => entry !== null) as { slot: string; icon: string; name: string }[],
+  SLOTS.map((key) => {
+    const id = (state.value?.equipment as any)?.[key] as string | undefined;
+    if (!id) return null;
+    const item: any = allItemsRepository.find(id);
+    const kinds: string[] = item?.weaponTypes ?? item?.offHandTypes ?? item?.armorTypes ?? (item?.consumableType ? [item.consumableType] : []);
+    return {
+      key,
+      type: item?.itemType ?? "Bag",
+      name: item ? t(item.translation_key) : id,
+      sub: kinds.length ? kinds.join(" | ") : item?.itemType ?? "",
+    };
+  }).filter((entry) => entry !== null) as { key: string; type: string; name: string; sub: string }[],
 );
 const heroArt = (hero.images as any)?.trackerInfo || hero.images?.avatar;
 
-
-function openSequentialStateEditor() {
-  router.push({
-    name: "HeroSequentialState",
-    params: { campaignId: props.campaignId, heroId: props.heroId },
-  });
-}
 
 function openHeroEquipmentSkills() {
   router.push({
@@ -197,31 +160,46 @@ function openHeroEquipmentSkills() {
 }
 .hero-sum__main {
   display: flex;
-  gap: 16px;
+  gap: 18px;
 }
 /* The art keeps its shape: a fixed share of the card on PC. */
+.hero-sum__art-wrap {
+  flex: 0 0 40%;
+  max-width: 40%;
+}
 .hero-sum__art {
   display: block;
-  flex: 0 0 44%;
-  width: 44%;
+  width: 100%;
   aspect-ratio: 1365 / 499;
   object-fit: cover;
-  align-self: flex-start;
 }
 .hero-sum__info {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
-  padding: 12px 14px 12px 0;
+  padding: 14px 14px 14px 0;
 }
-.hero-sum__stats,
-.hero-sum__items,
-.hero-sum__effects {
+.hero-sum__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.hero-sum__stats {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+.hero-sum__buttons {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+}
+.hero-sum__remove {
+  color: #ff8a80 !important;
 }
 .stat {
   display: inline-flex;
@@ -233,55 +211,60 @@ function openHeroEquipmentSkills() {
   font-size: 0.8rem;
   font-weight: 700;
 }
+/* Items as rows, like the design: icon, name, kind. */
+.hero-sum__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 6px;
+}
 .sum-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  max-width: 100%;
-  padding: 2px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
-  font-size: 0.72rem;
+  gap: 10px;
+  min-width: 0;
+  padding: 6px 10px;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 8px;
+}
+.sum-item__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.sum-item__text strong {
   overflow: hidden;
+  font-size: 0.82rem;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.sum-chip {
-  padding: 2px 8px;
-  background: rgba(var(--v-theme-accent), 0.2);
-  border-radius: 999px;
-  color: rgb(var(--v-theme-accent));
+.sum-item__text small {
   font-size: 0.7rem;
-  font-weight: 800;
-  text-transform: uppercase;
+  opacity: 0.75;
+}
+.hero-sum__effects :deep(.effects) {
+  margin-bottom: 8px;
+}
+.hero-sum__effects :deep(.effects__title) {
+  font-size: 0.8rem;
 }
 .hero-sum__muted {
+  margin: 0;
   font-size: 0.75rem;
   opacity: 0.6;
-}
-.hero-sum__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: auto;
-}
-.hero-sum__editors {
-  padding: 12px 16px 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 @media (max-width: 959px) {
   .hero-sum__main {
     flex-direction: column;
     gap: 0;
   }
-  .hero-sum__art {
-    width: 100%;
+  .hero-sum__art-wrap {
+    max-width: 100%;
   }
   .hero-sum__info {
     padding: 12px;
   }
 }
-
 .action-buttons-container {
   margin-top: 10px;
   display: flex;

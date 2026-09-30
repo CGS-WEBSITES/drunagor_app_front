@@ -138,14 +138,21 @@ export class CampaignLoadFromStorage {
             const camp = decodedData.campaignData;
             camp.campaignId = campaignId;
 
-            camp.heroes = [];
+            // Legacy parties keep their heroes in the saved hash (Drunagor Nights
+            // heroes come from the players below). Opening the page directly
+            // used to drop them.
+            const isLegacy = ["core", "awakenings", "apocalypse"].includes(camp.campaign);
+            const savedHeroes = isLegacy && Array.isArray(decodedData.heroes)
+              ? decodedData.heroes.map((hero: any) => ({ ...hero, campaignId }))
+              : [];
+            camp.heroes = savedHeroes;
 
             if (this.campaignStore.has(campaignId)) {
               const existingCampaign = this.campaignStore.find(campaignId);
               const existingHeroes = existingCampaign.heroes || [];
 
               Object.assign(existingCampaign, camp);
-              existingCampaign.heroes = existingHeroes;
+              existingCampaign.heroes = existingHeroes.length ? existingHeroes : savedHeroes;
             } else {
               this.campaignStore.add(camp);
             }
