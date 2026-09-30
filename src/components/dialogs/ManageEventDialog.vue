@@ -6,7 +6,7 @@
     max-width="900"
     :fullscreen="smAndDown"
   >
-    <v-card color="#2b2b2b" class="manage-event-card d-flex flex-column">
+    <v-card color="surface" class="manage-event-card d-flex flex-column">
       <div v-if="dialogLoading" class="dialog-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>

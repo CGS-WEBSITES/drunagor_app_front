@@ -37,7 +37,7 @@ const outcomeIds = ref<string[]>(outcomes.slice(0, 3).map((outcome) => outcome.i
 <style scoped>
 .dev-effects {
   padding: 16px;
-  background: #2b2b2b;
+  background: rgb(var(--v-theme-primary));
   border-radius: 12px;
 }
 </style>

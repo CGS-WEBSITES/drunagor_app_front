@@ -66,7 +66,7 @@
 
     <!-- Cube color for a dungeon role level -->
     <v-dialog v-model="roleDialog" max-width="360">
-      <v-card color="#2b2b2b" class="pa-4">
+      <v-card color="surface" class="pa-4">
         <h3 class="sheet-title mb-3">Action cube color</h3>
         <div class="cube-grid">
           <button v-for="cube in CUBES" :key="cube.name" class="cube-option" @click="setRoleColor(cube.name)">
@@ -78,7 +78,7 @@
 
     <!-- Pick a Drunagor Nights card -->
     <v-dialog :model-value="!!picking" max-width="760" @update:model-value="picking = null">
-      <v-card color="#2b2b2b" class="pa-4">
+      <v-card color="surface" class="pa-4">
         <h3 class="sheet-title mb-3">Choose a {{ picking }} card</h3>
         <div class="card-picker">
           <button v-for="card in pickerCards" :key="card.id" class="skill-card" @click="pickCard(card)">
@@ -90,7 +90,7 @@
 
     <!-- A chosen card -->
     <v-dialog :model-value="!!viewing" max-width="480" @update:model-value="viewing = null">
-      <v-card v-if="viewing" color="#2b2b2b" class="pa-4">
+      <v-card v-if="viewing" color="surface" class="pa-4">
         <img :src="viewing.image" :alt="viewing.name" class="w-100 rounded" />
         <div class="d-flex justify-end ga-2 mt-3">
           <v-btn variant="text" @click="picking = viewing.skillType; viewing = null">Change</v-btn>
@@ -257,7 +257,7 @@ function removeCard(card: SkillCard) {
   display: inline-block;
   width: 14px;
   height: 14px;
-  background: #3a3a3a;
+  background: rgb(var(--v-theme-secondary));
   border: 1px solid rgba(0, 0, 0, 0.6);
   border-radius: 3px;
   transform: rotate(45deg);

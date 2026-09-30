@@ -6,7 +6,7 @@
   </v-btn>
 
   <v-dialog v-model="visible" max-width="760" scrollable>
-    <v-card class="add-hero" color="#232323">
+    <v-card class="add-hero" color="surface">
       <div class="add-hero__head">
         <h2>Add hero</h2>
         <v-btn icon="mdi-close" variant="text" size="small" aria-label="Close" @click="visible = false" />

@@ -354,7 +354,7 @@ onMounted(() => {
 }
 .heroes-panel {
   padding: 24px;
-  background: rgba(30, 30, 30, 0.92);
+  background: rgb(var(--v-theme-surface));
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
@@ -507,7 +507,7 @@ onMounted(() => {
   min-height: 48px;
   margin-bottom: 12px;
   padding: 6px 14px;
-  background: #3a3736;
+  background: rgb(var(--v-theme-primary));
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
   font-size: 1rem;

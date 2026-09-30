@@ -111,7 +111,7 @@ function remove(id: string) {
 }
 .effect-card {
   overflow: hidden;
-  background: #3a3a3a;
+  background: rgb(var(--v-theme-secondary));
   border-radius: 6px;
 }
 .effect-card__head {

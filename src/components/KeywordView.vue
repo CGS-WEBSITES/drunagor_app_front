@@ -89,7 +89,7 @@ watch(single, (id) => {
 }
 .keywords-panel {
   padding: 20px;
-  background: rgba(30, 30, 30, 0.92);
+  background: rgb(var(--v-theme-surface));
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
@@ -109,7 +109,7 @@ watch(single, (id) => {
   gap: 8px;
   margin-bottom: 14px;
   padding: 0 12px;
-  background: #4a4a4a;
+  background: rgb(var(--v-theme-secondary));
   border-radius: 8px;
 }
 .keywords-search__icon {
@@ -136,7 +136,7 @@ watch(single, (id) => {
 }
 .keyword-card {
   overflow: hidden;
-  background: #3a3a3a;
+  background: rgb(var(--v-theme-primary));
   border-radius: 8px;
   scroll-margin-top: 120px;
 }

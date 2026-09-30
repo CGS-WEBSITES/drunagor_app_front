@@ -142,7 +142,7 @@
       </div>
 
       <v-dialog v-model="dialog" max-width="560" scrollable>
-        <v-card class="event-dialog" color="#2b2b2b">
+        <v-card class="event-dialog" color="surface">
           <div class="event-dialog__header">
             <h2 class="event-dialog__title">{{ selectedEvent?.store_name }}</h2>
             <v-btn icon variant="text" size="small" class="event-dialog__close" @click="dialog = false">

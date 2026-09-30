@@ -105,7 +105,7 @@
     </v-slide-y-reverse-transition>
 
     <v-dialog v-model="removeDialog" max-width="400">
-      <v-card color="#2b2b2b" class="pa-5">
+      <v-card color="surface" class="pa-5">
         <h3 class="sheet-title mb-2">Remove {{ heroData?.name }}?</h3>
         <p class="text-body-2 mb-4">Their equipment, skills and resources will be lost. This can't be undone.</p>
         <div class="d-flex justify-end ga-2">
@@ -116,7 +116,7 @@
     </v-dialog>
 
     <v-dialog v-model="leaveDialog" max-width="400">
-      <v-card color="#2b2b2b" class="pa-5">
+      <v-card color="surface" class="pa-5">
         <h3 class="sheet-title mb-2">Leave without saving?</h3>
         <p class="text-body-2 mb-4">Your changes to {{ heroData?.name }} will be lost.</p>
         <div class="d-flex justify-end ga-2">
@@ -291,7 +291,7 @@ onMounted(async () => {
   gap: 12px 24px;
   margin-top: 24px;
   padding: 16px 18px;
-  background: rgba(43, 43, 43, 0.95);
+  background: rgb(var(--v-theme-primary));
   border: 1px solid rgba(255, 138, 128, 0.25);
   border-radius: 12px;
 }
@@ -366,7 +366,7 @@ onMounted(async () => {
 .sheet-card {
   min-width: 0;
   padding: 18px;
-  background: rgba(43, 43, 43, 0.95);
+  background: rgb(var(--v-theme-primary));
   border-radius: 12px;
 }
 .sheet-card :deep(.sheet-title-row) {
@@ -431,7 +431,7 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
   padding: 8px 8px 8px 18px;
-  background: #1f1f1f;
+  background: rgb(var(--v-theme-surface));
   border: 1px solid rgba(var(--v-theme-accent), 0.6);
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
