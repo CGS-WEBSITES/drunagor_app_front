@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-center w-100 pa-0">
     <v-container max-width="804" class="py-4">
-      <v-card color="primary" elevation="2" rounded="lg">
+      <v-card class="account-card" elevation="2">
         <!-- Header: Toggle only if NOT embedded -->
         <v-card-title
           class="d-flex justify-space-between align-center"
