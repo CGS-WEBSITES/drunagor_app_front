@@ -406,77 +406,48 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-tabs
-                    v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)"
-                    v-model="legacyTab"
-                    density="compact"
-                    grow
-                    bg-color="surface"
-                    class="mb-3 rounded"
-                    slider-color="white"
-                  >
-                    <v-tab value="heroes" class="text-caption">
-                      <v-icon size="small" class="mr-1">mdi-account-multiple</v-icon>
-                      Heroes
-                    </v-tab>
-                    <v-tab value="log" class="text-caption">
-                      <v-icon size="small" class="mr-1">mdi-notebook</v-icon>
-                      Campaign Log
-                    </v-tab>
-                  </v-tabs>
+                  <!-- Awakenings and Apocalypse also keep a campaign log. -->
+                  <div v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)" class="log-switch" role="tablist">
+                    <button role="tab" :class="{ active: legacyTab === 'heroes' }" @click="legacyTab = 'heroes'">
+                      <v-icon size="18">mdi-account-multiple</v-icon>Heroes
+                    </button>
+                    <button role="tab" :class="{ active: legacyTab === 'log' }" @click="legacyTab = 'log'">
+                      <v-icon size="18">mdi-notebook</v-icon>Campaign log
+                    </button>
+                  </div>
 
-                  <div v-show="['awakenings', 'apocalypse'].includes(campaign.campaign) && legacyTab === 'log'">
-                    <v-row no-gutters class="mb-3 px-2">
-                      <v-col cols="12">
-                        <v-card color="primary" class="pa-4 mb-3">
-                          <v-card-title class="text-h6 pa-0 mb-3">
-                            Adventure Mode
-                          </v-card-title>
-                          <v-btn
-                            :color="isSequentialAdventure ? 'amber-darken-3' : 'grey-darken-2'"
-                            variant="tonal"
-                            size="small"
-                            prepend-icon="mdi-map-marker-path"
-                            @click="toggleSequentialAdventure"
-                            class="font-weight-bold rounded-lg w-100"
-                          >
-                            {{ isSequentialAdventure ? 'Adventure Mode ON' : 'Adventure Mode OFF' }}
-                          </v-btn>
-                        </v-card>
-                      </v-col>
-                    </v-row>
+                  <div v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)" v-show="legacyTab === 'log'" class="log">
+                    <section class="log-card log-card--row">
+                      <div>
+                        <h3>Adventure mode</h3>
+                        <p>Track life, cubes and resources of each hero between scenarios.</p>
+                      </div>
+                      <v-switch
+                        :model-value="isSequentialAdventure"
+                        color="accent"
+                        hide-details
+                        inset
+                        density="compact"
+                        :aria-label="isSequentialAdventure ? 'Turn adventure mode off' : 'Turn adventure mode on'"
+                        @update:model-value="toggleSequentialAdventure"
+                      />
+                    </section>
 
-                    <v-row
-                      no-gutters
-                      class="d-flex justify-center mb-3"
-                      v-if="
-                        campaign.campaign == 'awakenings' ||
-                        campaign.campaign == 'apocalypse'
-                      "
-                    >
-                      <v-col cols="12" class="px-2">
-                        <StoryRecord :campaign-id="campaignId" />
-                      </v-col>
-                    </v-row>
+                    <section class="log-card">
+                      <h3>Story record</h3>
+                      <StoryRecord :campaign-id="campaignId" />
+                    </section>
 
-                    <v-row
-                      no-gutters
-                      class="d-flex justify-center mb-3"
-                      v-if="campaign.campaign == 'apocalypse'"
-                    >
-                      <v-col cols="12" class="px-2">
-                        <v-sheet
-                          rounded
-                          border="md"
-                          class="pa-6 text-white bg-surface"
-                        >
-                          <StoryRecordLegacyTrail :campaign-id="campaignId" />
-                          <StoryRecordBackgroundAndTrait
-                            :campaign-id="campaignId"
-                          />
-                        </v-sheet>
-                      </v-col>
-                    </v-row>
+                    <template v-if="campaign.campaign == 'apocalypse'">
+                      <section class="log-card">
+                        <h3>Legacy trail</h3>
+                        <StoryRecordLegacyTrail :campaign-id="campaignId" />
+                      </section>
+                      <section class="log-card">
+                        <h3>Backgrounds & traits</h3>
+                        <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
+                      </section>
+                    </template>
                   </div>
 
                   <div v-show="!['awakenings', 'apocalypse'].includes(campaign.campaign) || legacyTab === 'heroes'">
@@ -1350,6 +1321,70 @@ const checkAndAwardSeason1Achievements = async () => {
 </script>
 
 <style scoped>
+.log-switch {
+  display: flex;
+  gap: 4px;
+  max-width: 420px;
+  margin: 0 0 16px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+}
+.log-switch button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.log-switch button.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
+}
+.log {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.log-card {
+  padding: 16px 18px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+}
+.log-card h3 {
+  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.log-card--row {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.log-card--row h3 {
+  margin-bottom: 2px;
+}
+.log-card--row p {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.log-card--row .v-switch {
+  flex: 0 0 auto;
+}
+
 .campaign-section {
   max-width: 1100px;
   margin: 0 auto 24px;

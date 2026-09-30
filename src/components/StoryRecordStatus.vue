@@ -1,43 +1,12 @@
 <template>
-  <span data-testid="story-record-status">
-    <v-select
-      v-model="statusIds"
-      clearable
-      chips
-      :label="$t('text.add-or-remove-status')"
-      :hint="$t('text.status-info')"
-      :items="statuses"
-      item-title="name"
-      item-value="id"
-      multiple
-      variant="outlined"
-    ></v-select>
-
-    <v-sheet
-      v-if="statusIds.length > 0"
-      rounded
-      border="md"
-      class="mb-6 pa-6 text-white"
-    >
-      <ul>
-        <li
-          class="py-1"
-          v-for="status in findStatuses(statusIds)"
-          :key="status.id"
-        >
-          {{ status.name }}
-          <div class="px-4 font-italic" v-if="status.effect">
-            {{ status.effect }}
-          </div>
-        </li>
-      </ul>
-    </v-sheet>
-  </span>
+  <div data-testid="story-record-status">
+    <EffectPicker v-model="statusIds" title="Status" :items="statuses" placeholder="Add or remove status" :hint="t('text.status-info')" />
+  </div>
 </template>
 
 <script setup lang="ts">
+import EffectPicker from "@/components/EffectPicker.vue";
 import { ref, watch } from "vue";
-import type { Status } from "@/data/repository/campaign/Status";
 import type { StatusRepository } from "@/data/repository/campaign/StatusRepository";
 import { CampaignStore } from "@/store/CampaignStore";
 import { useI18n } from "vue-i18n";
@@ -57,18 +26,6 @@ const statuses = props.repository.findAll();
 
 const statusIds = ref([] as string[]);
 statusIds.value = campaignStore.find(props.campaignId).statusIds ?? [];
-
-function findStatuses(statusIds: string[]): Status[] {
-  const statuses: Status[] = [];
-  statusIds.forEach((statusId) => {
-    let status = props.repository.find(statusId);
-    if (status) {
-      statuses.push(status);
-    }
-  });
-
-  return statuses;
-}
 
 watch(statusIds, (newStatusIds) => {
   campaignStore.find(props.campaignId).statusIds = newStatusIds;

@@ -29,7 +29,7 @@
       <div class="sheet-grid">
         <div class="sheet-stack">
         <!-- Vitals -->
-        <section class="sheet-card">
+        <SheetCard id="vitals">
           <h3 class="sheet-title">Vitals</h3>
           <StatStepper v-model="adventure.lifepoints" label="Life points" icon="mdi-heart" icon-color="#e05353" class="mb-4" />
 
@@ -64,23 +64,23 @@
               :label="resource.name || t(resource.translation_key)"
             />
           </div>
-        </section>
+        </SheetCard>
 
         <!-- Aura, status and outcome -->
-        <section class="sheet-card">
+        <SheetCard id="effects">
           <HeroSheetEffects :state="heroView.state" />
-        </section>
+        </SheetCard>
         </div>
 
         <!-- Equipment and stash -->
-        <section class="sheet-card">
+        <SheetCard id="equipment">
           <HeroSheetEquipment :state="heroView.state" :hero="heroData" />
-        </section>
+        </SheetCard>
 
         <!-- Skills -->
-        <section class="sheet-card">
+        <SheetCard id="skills">
           <HeroSheetSkills :state="heroView.state" />
-        </section>
+        </SheetCard>
       </div>
 
       <!-- Removing lives at the end of the sheet, away from everyday actions. -->
@@ -143,6 +143,7 @@ import { HeroEquipment, RESOURCE_DEFINITIONS, SequentialAdventureState } from "@
 import { CONTENT_LABELS, CONTENT_SYMBOLS } from "@/data/heroMeta";
 import HeroSheetEffects from "@/components/hero-sheet/HeroSheetEffects.vue";
 import StatStepper from "@/components/hero-sheet/StatStepper.vue";
+import SheetCard from "@/components/hero-sheet/SheetCard.vue";
 import HeroSheetEquipment from "@/components/hero-sheet/HeroSheetEquipment.vue";
 import HeroSheetSkills from "@/components/hero-sheet/HeroSheetSkills.vue";
 
@@ -321,31 +322,40 @@ onMounted(async () => {
   width: 100%;
   height: auto;
 }
+/* On wide screens the art would get too tall: cap it, keeping the name side. */
+@media (min-width: 768px) {
+  .sheet-banner__img {
+    max-height: 300px;
+    object-fit: cover;
+    object-position: left top;
+  }
+}
 /* Lined up with the name printed on the art. */
+/* Box and owner in a strip under the art. */
 .sheet-banner__meta {
-  position: absolute;
-  bottom: 8%;
-  left: 4.8%;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.35);
   color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 .sheet-banner__box {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: clamp(0.65rem, 1.3vw, 1rem);
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 .sheet-banner__box img {
-  height: clamp(14px, 1.9vw, 24px);
+  height: 18px;
   width: auto;
 }
 .sheet-banner__player {
-  font-size: clamp(0.7rem, 1.4vw, 1.1rem);
+  font-size: 0.85rem;
 }
 .sheet-banner__player strong {
   font-weight: 700;

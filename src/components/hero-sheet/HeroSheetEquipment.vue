@@ -2,6 +2,8 @@
   <div class="equip">
     <div class="sheet-title-row">
       <h3 class="sheet-title">Equipment</h3>
+    </div>
+    <div class="equip__filters">
       <v-switch
         v-model="filterProficiencies"
         color="accent"
@@ -71,7 +73,7 @@
     </div>
 
     <!-- Stash -->
-    <h3 class="sheet-title mt-6">Stash</h3>
+    <h3 class="sheet-title mt-6 d-flex align-center"><SlotIcon type="Stash" :size="20" class="mr-2" />Stash</h3>
     <v-autocomplete
       :model-value="null"
       :items="stashOptions"
@@ -149,8 +151,9 @@ const slots: Slot[] = [
   { key: "offHandId", label: "Off hand", iconType: "Off Hand", type: "Off Hand" },
   { key: "armorId", label: "Armor", iconType: "Armor", type: "Armor" },
   { key: "trinketId", label: "Trinket", iconType: "Trinket", type: "Trinket" },
-  { key: "bagOneId", label: "Bag slot 1", iconType: "Bag", type: null },
-  { key: "bagTwoId", label: "Bag slot 2", iconType: "Bag", type: null },
+  // Bag slots only hold potions and other consumables.
+  { key: "bagOneId", label: "Bag slot 1", iconType: "Consumable", type: "Consumable" },
+  { key: "bagTwoId", label: "Bag slot 2", iconType: "Consumable", type: "Consumable" },
 ];
 
 
@@ -194,15 +197,14 @@ function stashSlot(key: SlotKey) {
   props.state.equipment[key] = "";
 }
 
-// Equip goes to the item's own slot (swapping what was there into the stash),
-// anything else to the first free bag slot.
+// Equip goes to the item's own slot, swapping what was there into the stash.
+// Consumables take the first free bag slot.
 function equipFromStash(index: number) {
   const id = props.state.stashedCardIds[index];
   const type = allItemsRepository.find(id)?.itemType;
-  const typed = slots.find((slot) => slot.type && slot.type === type);
-  const target: SlotKey | undefined = typed
-    ? typed.key
-    : (["bagOneId", "bagTwoId"] as SlotKey[]).find((key) => !props.state.equipment[key]) ?? "bagOneId";
+  const bags: SlotKey[] = ["bagOneId", "bagTwoId"];
+  const typed = type === "Consumable" ? undefined : slots.find((slot) => slot.type && slot.type === type);
+  const target: SlotKey = typed ? typed.key : bags.find((key) => !props.state.equipment[key]) ?? "bagOneId";
   const previous = props.state.equipment[target];
   props.state.stashedCardIds.splice(index, 1);
   if (previous) props.state.stashedCardIds.push(previous);
@@ -211,6 +213,13 @@ function equipFromStash(index: number) {
 </script>
 
 <style scoped>
+/* Filters on their own line, under the title. */
+.equip__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: -6px 0 12px;
+}
 .equip__filter {
   flex: 0 0 auto;
 }

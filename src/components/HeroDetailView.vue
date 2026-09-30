@@ -28,7 +28,7 @@
       <div class="sheet-grid">
         <div class="sheet-stack">
           <!-- Vitals: resources only exist in Adventure mode. -->
-          <section class="sheet-card">
+          <SheetCard id="vitals">
             <h3 class="sheet-title">Vitals</h3>
             <template v-if="adventure">
               <StatStepper v-model="adventure.lifepoints" label="Life points" icon="mdi-heart" icon-color="#e05353" class="mb-4" />
@@ -66,10 +66,10 @@
                 />
               </div>
             </template>
-          </section>
+          </SheetCard>
 
           <!-- This campaign's aura, status and outcome. -->
-          <section v-if="effects" class="sheet-card">
+          <SheetCard v-if="effects" id="effects">
             <h3 class="sheet-title mb-3">{{ effects.aura ? "Aura · Status · " : "Status · " }}{{ effects.outcomeLabel }}</h3>
             <EffectPicker
               v-if="effects.aura"
@@ -90,16 +90,25 @@
               :placeholder="`Add or remove ${effects.outcomeLabel.toLowerCase()}`"
               hint="Remain in effect for the entire campaign unless some other effect changes them"
             />
-          </section>
+          </SheetCard>
         </div>
 
-        <section class="sheet-card">
+        <SheetCard id="equipment">
           <HeroSheetEquipment :state="state" :hero="heroData" :sources="itemSources" />
-        </section>
+        </SheetCard>
 
-        <section class="sheet-card">
+        <SheetCard id="skills">
           <HeroSheetSkills :state="state" :lock="isNights ? 'nights' : 'normal'" />
-        </section>
+        </SheetCard>
+      </div>
+
+      <!-- Leaving the party lives here, away from the campaign list. -->
+      <div v-if="!isNights" class="sheet-danger">
+        <div>
+          <strong>Remove {{ heroData.name }} from this campaign</strong>
+          <p>The hero leaves the party with its items and effects. My heroes is not affected.</p>
+        </div>
+        <v-btn variant="tonal" prepend-icon="mdi-account-remove-outline" class="sheet-danger__btn" @click="removeDialog = true">Remove hero</v-btn>
       </div>
     </template>
 
@@ -109,6 +118,17 @@
         <v-btn color="accent" variant="flat" prepend-icon="mdi-content-save" :loading="isSaving" @click="save">Save</v-btn>
       </div>
     </v-slide-y-reverse-transition>
+
+    <v-dialog v-model="removeDialog" max-width="400">
+      <v-card color="surface" class="pa-5">
+        <h3 class="text-h6 font-weight-bold mb-2">Remove {{ heroData?.name }}?</h3>
+        <p class="text-body-2 mb-4">The campaign is saved without this hero.</p>
+        <div class="d-flex justify-end ga-2">
+          <v-btn variant="text" @click="removeDialog = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" :loading="isSaving" @click="removeHero">Remove</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
 
     <v-snackbar v-model="snackbarVisible" :timeout="2500" :color="snackbarColor" location="top">{{ snackbarText }}</v-snackbar>
   </div>
@@ -127,6 +147,7 @@ import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 import { CONTENT_LABELS, CONTENT_SYMBOLS, type ItemSource } from "@/data/heroMeta";
 import HeroSavePut from "@/components/HeroSavePut.vue";
 import StatStepper from "@/components/hero-sheet/StatStepper.vue";
+import SheetCard from "@/components/hero-sheet/SheetCard.vue";
 import HeroSheetEquipment from "@/components/hero-sheet/HeroSheetEquipment.vue";
 import HeroSheetSkills from "@/components/hero-sheet/HeroSheetSkills.vue";
 import EffectPicker from "@/components/EffectPicker.vue";
@@ -213,6 +234,15 @@ function onSaveFail() {
   notify("Failed to save the hero.", "error");
 }
 
+const removeDialog = ref(false);
+async function removeHero() {
+  heroStore.removeFromCampaign(heroId, campaignId);
+  await save();
+  removeDialog.value = false;
+  dirty.value = false;
+  goBack();
+}
+
 function goBack() {
   router.push({ name: "Campaign", params: { id: campaignId } } as any);
 }
@@ -255,33 +285,35 @@ onMounted(async () => {
 .sheet-banner__img {
   display: block;
   width: 100%;
-  max-height: 360px;
+  max-height: 260px;
   object-fit: cover;
   object-position: left top;
 }
+/* Box and owner in a strip under the art. */
 .sheet-banner__meta {
-  position: absolute;
-  bottom: 8%;
-  left: 4.8%;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 10px 18px;
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
 }
 .sheet-banner__box {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: clamp(0.65rem, 1.3vw, 1rem);
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 .sheet-banner__box img {
   width: auto;
-  height: clamp(14px, 1.9vw, 24px);
+  height: 18px;
 }
 .sheet-banner__player {
-  font-size: clamp(0.7rem, 1.4vw, 1.1rem);
+  font-size: 0.85rem;
 }
 .sheet-grid {
   display: grid;
@@ -356,6 +388,31 @@ onMounted(async () => {
   background: rgba(var(--v-theme-accent), 0.25);
   color: rgb(var(--v-theme-accent));
   opacity: 1;
+}
+.sheet-danger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: 24px;
+  padding: 16px 18px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(255, 138, 128, 0.25);
+  border-radius: 12px;
+}
+.sheet-danger strong {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+.sheet-danger p {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.sheet-danger__btn {
+  background: rgba(255, 138, 128, 0.12) !important;
+  color: #ff8a80 !important;
 }
 .sheet-savebar {
   position: fixed;

@@ -97,6 +97,8 @@ export const SLOT_ICONS: Record<string, { image?: string; mdi: string }> = {
   Consumable: { image: trackerIcon("Vector-2"), mdi: "mdi-bottle-tonic" },
   Bag: { image: trackerIcon("Vector-2"), mdi: "mdi-bag-personal" },
   Treasure: { image: trackerIcon("Vector-3"), mdi: "mdi-treasure-chest" },
+  // No design icon for the backpack yet.
+  Stash: { mdi: "mdi-bag-personal" },
 };
 
 // Drunagor Nights is played only with the five Core heroes.
