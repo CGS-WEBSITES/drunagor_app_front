@@ -24,14 +24,6 @@
             Player: <strong>{{ userStore.user.user_name }}</strong>
           </span>
         </div>
-        <v-menu location="bottom end">
-          <template #activator="{ props: menuProps }">
-            <v-btn v-bind="menuProps" icon="mdi-dots-vertical" variant="text" size="small" class="sheet-banner__menu" aria-label="Hero options" />
-          </template>
-          <v-list density="compact" bg-color="#2b2b2b">
-            <v-list-item prepend-icon="mdi-delete-outline" base-color="error" title="Remove hero" @click="removeDialog = true" />
-          </v-list>
-        </v-menu>
       </header>
 
       <div class="sheet-grid">
@@ -89,6 +81,17 @@
         <section class="sheet-card">
           <HeroSheetSkills :state="heroView.state" />
         </section>
+      </div>
+
+      <!-- Removing lives at the end of the sheet, away from everyday actions. -->
+      <div class="sheet-danger">
+        <div>
+          <strong>Remove {{ heroData.name }}</strong>
+          <p>Takes the hero out of My heroes, with its equipment, skills and resources. Campaigns keep their own copy.</p>
+        </div>
+        <v-btn variant="tonal" color="error" prepend-icon="mdi-account-remove-outline" class="sheet-danger__btn" @click="removeDialog = true">
+          Remove hero
+        </v-btn>
       </div>
     </template>
 
@@ -274,7 +277,35 @@ onMounted(async () => {
   color: #fff;
 }
 .sheet-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   margin: 0 -8px 8px;
+}
+.sheet-danger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: 24px;
+  padding: 16px 18px;
+  background: rgba(43, 43, 43, 0.95);
+  border: 1px solid rgba(255, 138, 128, 0.25);
+  border-radius: 12px;
+}
+.sheet-danger strong {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+.sheet-danger p {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.sheet-danger__btn {
+  color: #ff8a80 !important;
 }
 
 /* Banner: the hero art, never cropped. */
@@ -318,13 +349,6 @@ onMounted(async () => {
 }
 .sheet-banner__player strong {
   font-weight: 700;
-}
-.sheet-banner__menu {
-  position: absolute !important;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.35);
 }
 .sheet-stack {
   display: flex;

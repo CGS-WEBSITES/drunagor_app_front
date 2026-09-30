@@ -85,6 +85,9 @@ export const CONTENT_BOX_IMAGES: Partial<Record<ContentId, string>> = {
   "rise-of-the-undead-dragon": `${LIBRARY}/box-undeaddragon.png`,
 };
 
+// Drunagor Nights is played only with the five Core heroes.
+export const NIGHTS_HEROES = ["elros", "vorn", "lorelai", "maya", "jaheen"];
+
 // The data spells it "Assasin".
 export const heroClassLabel = (heroClass: HeroClass | string) =>
   heroClass === "Assasin" ? "Assassin" : heroClass === "Shadow knight" ? "Shadow Knight" : heroClass;
