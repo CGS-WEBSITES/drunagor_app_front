@@ -1,53 +1,61 @@
 <template>
-  <v-expansion-panels variant="accordion" class="mb-2">
-    <v-expansion-panel elevation="16" rounded style="background-color: #1f2937">
-      <v-expansion-panel-title
-        class="pa-3 hero-background-title"
-        :style="heroBackgroundStyle"
-      >
-        </v-expansion-panel-title>
+  <div class="hero-sum">
+    <div class="hero-sum__main">
+      <img :src="heroArt" :alt="hero.name" class="hero-sum__art" />
 
-      <v-expansion-panel-text class="pa-0">
-        <v-card-text class="px-0 pt-0 position-relative">
-          <v-row no-gutters>
-            <v-col cols="12" class="position-relative">
-              <div class="action-buttons-container">
-                <v-btn
-                  v-if="isSequentialAdventure"
-                  @click.stop="openSequentialStateEditor"
-                  variant="flat"
-                  color="amber-darken-3"
-                  prepend-icon="mdi-shield-half-full"
-                  class="action-btn manage-btn shepherd-btn-manage-resources font-weight-black rounded-lg"
-                  size="small"
-                >
-                  {{ t("Manage Resources") }}
-                </v-btn>
+      <div class="hero-sum__info">
+        <!-- Numbers at a glance -->
+        <div class="hero-sum__stats">
+          <template v-if="adventure">
+            <span class="stat" title="Life points"><v-icon size="16" color="#e05353">mdi-heart</v-icon>{{ adventure.lifepoints ?? 0 }}</span>
+            <span class="stat" title="Available / used cubes"><v-icon size="16">mdi-cube-outline</v-icon>{{ adventure.availableCubes ?? 0 }}/{{ adventure.usedCubes ?? 0 }}</span>
+            <span class="stat" title="Curse cubes"><v-icon size="16" color="#9c6ade">mdi-cube</v-icon>{{ adventure.curseCubes ?? 0 }}</span>
+            <span class="stat" title="Trauma cubes"><v-icon size="16" color="#9e9e9e">mdi-cube</v-icon>{{ adventure.traumaCubes ?? 0 }}</span>
+          </template>
+          <span class="stat" title="Class abilities"><v-icon size="16" color="accent">mdi-star-circle</v-icon>{{ state?.classAbilityCount ?? 0 }}</span>
+          <span class="stat" title="Skills"><v-icon size="16">mdi-lightning-bolt</v-icon>{{ skillCount }} skills</span>
+        </div>
 
-                <v-btn
-                  v-if="
-                    (campaign.campaign == 'core' ||
-                      campaign.campaign == 'awakenings' ||
-                      campaign.campaign == 'apocalypse' ||
-                      campaign.campaign == 'underkeep' ||
-                      campaign.campaign == 'underkeep2')
-                  "
-                  @click.stop="openHeroEquipmentSkills"
-                  variant="flat"
-                  color="blue-darken-3"
-                  prepend-icon="mdi-sword-cross"
-                  class="action-btn equipment-btn shepherd-btn-equipment-skills font-weight-black rounded-lg"
-                  size="small"
-                >
-                  {{ t("label.equipment-skills") }}
-                </v-btn>
-              </div>
-            </v-col>
-          </v-row>
-        </v-card-text>
+        <!-- Equipped items -->
+        <div class="hero-sum__items">
+          <span v-for="item in equipped" :key="item.slot" class="sum-item" :title="item.slot">
+            <v-icon size="14">{{ item.icon }}</v-icon>{{ item.name }}
+          </span>
+          <span v-if="!equipped.length" class="hero-sum__muted">No items equipped</span>
+          <span v-if="state?.stashedCardIds?.length" class="hero-sum__muted">+{{ state.stashedCardIds.length }} in stash</span>
+        </div>
 
-        <v-card-actions>
-          <v-row no-gutters>
+        <!-- Effects -->
+        <div v-if="effectCount" class="hero-sum__effects">
+          <span v-if="state?.auraId" class="sum-chip">Aura</span>
+          <span v-if="state?.statusIds?.length" class="sum-chip">{{ state.statusIds.length }} status</span>
+          <span v-if="state?.outcomeIds?.length" class="sum-chip">{{ state.outcomeIds.length }} {{ campaign.campaign === "underkeep" ? "dungeon role" : "outcome" }}</span>
+        </div>
+
+        <div class="hero-sum__actions">
+          <v-btn
+            v-if="isSequentialAdventure"
+            size="small"
+            variant="tonal"
+            prepend-icon="mdi-shield-half-full"
+            class="shepherd-btn-manage-resources"
+            @click.stop="openSequentialStateEditor"
+          >
+            {{ t("Manage Resources") }}
+          </v-btn>
+          <v-btn size="small" variant="flat" color="accent" prepend-icon="mdi-sword-cross" class="shepherd-btn-equipment-skills" @click.stop="openHeroEquipmentSkills">
+            {{ t("label.equipment-skills") }}
+          </v-btn>
+          <v-btn size="small" variant="text" :append-icon="open ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="open = !open">
+            {{ campaign.campaign === "underkeep" ? "Status · Dungeon role" : "Status · Outcome · Aura" }}
+          </v-btn>
+        </div>
+      </div>
+    </div>
+
+    <v-expand-transition>
+      <div v-if="open" class="hero-sum__editors">
+        <v-row no-gutters>
             <v-col cols="12">
               <CampaignLogSequentialAdventure
                 v-if="isSequentialAdventure"
@@ -102,15 +110,16 @@
               />
             </v-col>
 
-          </v-row>
-        </v-card-actions>
-      </v-expansion-panel-text>
-    </v-expansion-panel>
-  </v-expansion-panels>
+        </v-row>
+      </div>
+    </v-expand-transition>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import { HeroStore } from "@/store/HeroStore";
+import { allItemsRepository } from "@/data/repository/AllItemsRepository";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -137,12 +146,32 @@ const { t } = useI18n();
 const campaign = campaignStore.find(props.campaignId);
 const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 
-const heroBackgroundStyle = computed(() => ({
-  backgroundImage: `url(${hero.images?.trackerInfo || hero.images?.background})`,
-  backgroundSize: "cover", 
-  backgroundPosition: "center right", 
-  backgroundRepeat: "no-repeat",
-}));
+const heroStore = HeroStore();
+const open = ref(false);
+const state = computed(() => heroStore.findInCampaignOptional(props.heroId, props.campaignId));
+const adventure = computed(() => state.value?.sequentialAdventureState as any);
+const skillCount = computed(() => (state.value?.skillIds ?? []).length);
+const effectCount = computed(
+  () => (state.value?.auraId ? 1 : 0) + (state.value?.statusIds?.length ?? 0) + (state.value?.outcomeIds?.length ?? 0),
+);
+
+const SLOTS = [
+  { key: "weaponId", slot: "Weapon", icon: "mdi-sword" },
+  { key: "offHandId", slot: "Off hand", icon: "mdi-shield-half-full" },
+  { key: "armorId", slot: "Armor", icon: "mdi-shield-account" },
+  { key: "trinketId", slot: "Trinket", icon: "mdi-diamond-stone" },
+  { key: "bagOneId", slot: "Bag", icon: "mdi-bag-personal" },
+  { key: "bagTwoId", slot: "Bag", icon: "mdi-bag-personal" },
+] as const;
+const equipped = computed(() =>
+  SLOTS.map((entry) => {
+    const id = (state.value?.equipment as any)?.[entry.key];
+    const item = id ? allItemsRepository.find(id) : undefined;
+    return id ? { slot: entry.slot, icon: entry.icon, name: item ? t(item.translation_key) : id } : null;
+  }).filter((entry) => entry !== null) as { slot: string; icon: string; name: string }[],
+);
+const heroArt = (hero.images as any)?.trackerInfo || hero.images?.avatar;
+
 
 function openSequentialStateEditor() {
   router.push({
@@ -160,6 +189,99 @@ function openHeroEquipmentSkills() {
 </script>
 
 <style scoped>
+.hero-sum {
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+}
+.hero-sum__main {
+  display: flex;
+  gap: 16px;
+}
+/* The art keeps its shape: a fixed share of the card on PC. */
+.hero-sum__art {
+  display: block;
+  flex: 0 0 44%;
+  width: 44%;
+  aspect-ratio: 1365 / 499;
+  object-fit: cover;
+  align-self: flex-start;
+}
+.hero-sum__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 14px 12px 0;
+}
+.hero-sum__stats,
+.hero-sum__items,
+.hero-sum__effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.sum-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sum-chip {
+  padding: 2px 8px;
+  background: rgba(var(--v-theme-accent), 0.2);
+  border-radius: 999px;
+  color: rgb(var(--v-theme-accent));
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.hero-sum__muted {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+.hero-sum__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+.hero-sum__editors {
+  padding: 12px 16px 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+@media (max-width: 959px) {
+  .hero-sum__main {
+    flex-direction: column;
+    gap: 0;
+  }
+  .hero-sum__art {
+    width: 100%;
+  }
+  .hero-sum__info {
+    padding: 12px;
+  }
+}
+
 .action-buttons-container {
   margin-top: 10px;
   display: flex;

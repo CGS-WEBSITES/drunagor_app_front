@@ -21,30 +21,42 @@
       <v-card-text class="add-hero__body">
         <!-- New hero -->
         <template v-if="source === 'new'">
-          <v-text-field
-            v-model="search"
-            placeholder="Search hero"
-            prepend-inner-icon="mdi-magnify"
-            variant="solo"
-            density="compact"
-            flat
-            hide-details
-            clearable
-            class="add-hero__search"
-          />
+          <div class="add-hero__filters">
+            <v-text-field
+              v-model="search"
+              placeholder="Search hero"
+              prepend-inner-icon="mdi-magnify"
+              variant="solo"
+              density="compact"
+              flat
+              hide-details
+              clearable
+              class="add-hero__search"
+            />
+            <v-select v-model="classFilter" :items="classOptions" placeholder="Class" variant="solo" density="compact" flat hide-details clearable class="add-hero__search" />
+            <v-select v-model="boxFilter" :items="boxOptions" item-title="label" item-value="id" placeholder="Box" variant="solo" density="compact" flat hide-details clearable class="add-hero__search">
+              <template #item="{ props: itemProps, item }">
+                <v-list-item v-bind="itemProps">
+                  <template #prepend><img v-if="item.raw.symbol" :src="item.raw.symbol" alt="" class="add-hero__symbol" /></template>
+                </v-list-item>
+              </template>
+            </v-select>
+          </div>
           <div class="add-hero__grid">
-            <button v-if="!search" class="pick-tile pick-tile--random" @click="addRandom">
+            <button v-if="!search && !classFilter && !boxFilter" class="pick-tile pick-tile--random" @click="addRandom">
               <v-icon size="40">mdi-dice-5</v-icon>
               <strong>Random</strong>
             </button>
             <button v-for="hero in newHeroes" :key="hero.id" class="pick-tile" @click="addNew(hero)">
               <img :src="hero.images.avatar" :alt="hero.name" />
+              <img v-if="CONTENT_SYMBOLS[hero.content]" :src="CONTENT_SYMBOLS[hero.content]" alt="" class="pick-tile__box" />
               <span class="pick-tile__text">
                 <strong>{{ hero.name }}</strong>
                 <small>{{ heroClassLabel(hero.class) }}</small>
               </span>
             </button>
           </div>
+          <p v-if="!newHeroes.length" class="add-hero__empty">No heroes match these filters.</p>
         </template>
 
         <!-- From another campaign -->
@@ -117,7 +129,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import type { ItemDataRepository } from "@/data/repository/ItemDataRepository";
 import { RandomizeHero } from "@/service/RandomizeHero";
-import { heroClassLabel } from "@/data/heroMeta";
+import { CONTENT_LABELS, CONTENT_SYMBOLS, heroClassLabel } from "@/data/heroMeta";
 import { CoreItemDataRepository } from "@/data/repository/campaign/core/CoreItemDataRepository";
 import { AwakeningsItemDataRepository } from "@/data/repository/campaign/awakenings/AwakeningsItemDataRepository";
 import { ApocalypseItemDataRepository } from "@/data/repository/campaign/apocalypse/ApocalypseItemDataRepository";
@@ -167,13 +179,21 @@ function foreignItemCount(state: Hero): number {
   return ids.filter((id) => !itemRepository.value!.find(id)).length;
 }
 
-// New hero
+// New hero: the heroes from your content, with filters.
+const classFilter = ref<string | null>(null);
+const boxFilter = ref<string | null>(null);
+const enabledHeroes = new EnabledHeroes().findAll() as HeroData[];
+const classOptions = [...new Set(enabledHeroes.map((hero) => heroClassLabel(hero.class)))].sort();
+const boxOptions = [...new Set(enabledHeroes.map((hero) => hero.content))]
+  .map((id) => ({ id, label: CONTENT_LABELS[id] ?? id, symbol: CONTENT_SYMBOLS[id] }))
+  .sort((a, b) => a.label.localeCompare(b.label));
 const newHeroes = computed(() => {
   const query = (search.value ?? "").toLowerCase().trim();
-  return new EnabledHeroes()
-    .findAll()
-    .filter((hero: HeroData) => !isHere(hero.id))
-    .filter((hero: HeroData) => !query || hero.name.toLowerCase().includes(query));
+  return enabledHeroes
+    .filter((hero) => !isHere(hero.id))
+    .filter((hero) => !query || hero.name.toLowerCase().includes(query))
+    .filter((hero) => !classFilter.value || heroClassLabel(hero.class) === classFilter.value)
+    .filter((hero) => !boxFilter.value || hero.content === boxFilter.value);
 });
 
 function freshHero(heroId: string): Hero {
@@ -261,6 +281,8 @@ function guard() {
 function open() {
   source.value = "new";
   search.value = "";
+  classFilter.value = null;
+  boxFilter.value = null;
   sourceCampaignId.value = null;
   visible.value = true;
   if (!playableHeroStore.loaded && userStore.user?.users_pk) playableHeroStore.fetchHeroes(userStore.user.users_pk);
@@ -323,11 +345,27 @@ function done(text: string) {
   opacity: 1;
 }
 .add-hero__body {
-  min-height: 360px;
+  height: min(560px, 70vh);
+  overflow-y: auto;
   padding: 8px 16px 16px !important;
 }
-.add-hero__search {
+.add-hero__filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 8px;
   margin-bottom: 12px;
+}
+.add-hero__symbol {
+  height: 18px;
+  margin-right: 10px;
+}
+.pick-tile__box {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: auto !important;
+  height: 20px !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.9));
 }
 .add-hero__search :deep(.v-field) {
   background: rgba(255, 255, 255, 0.08);
@@ -461,6 +499,12 @@ function done(text: string) {
   opacity: 0.8;
 }
 @media (max-width: 599px) {
+  .add-hero__filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .add-hero__filters > :first-child {
+    grid-column: 1 / -1;
+  }
   .add-hero__tabs button {
     flex-direction: column;
     gap: 2px;

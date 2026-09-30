@@ -363,65 +363,24 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-row no-gutters align="center" class="mb-3">
-                    <v-col cols="12" class="d-flex align-center">
-                       <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin w-100">
-                         <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1 text-no-wrap" style="flex-shrink: 0;">CAMPAIGN ID:</span>
-                         <v-tooltip location="top">
-                           <template v-slot:activator="{ props }">
-                             <v-icon
-                               v-bind="props"
-                               size="small"
-                               color="grey-lighten-1"
-                               class="cursor-pointer mr-2"
-                             >
-                               mdi-information-outline
-                             </v-icon>
-                           </template>
-                           <span>Use this code to invite your friends</span>
-                         </v-tooltip>
-                         <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold" style="flex-shrink: 0;">{{
-                           partyCode
-                         }}</v-chip>
-                         <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold" style="flex-shrink: 0;"
-                           >Generating...</v-chip
-                         >
-                         <v-spacer></v-spacer>
-                         <div class="d-flex align-center">
-                           <v-btn
-                             icon
-                             variant="text"
-                             color="success"
-                             class="mx-1"
-                             @click="handleSave"
-                           >
-                             <v-icon>mdi-content-save</v-icon>
-                             <v-tooltip activator="parent" location="top">Save Campaign</v-tooltip>
-                           </v-btn>
-                           <v-btn
-                             icon
-                             variant="text"
-                             color="grey-lighten-1"
-                             class="mx-1"
-                             @click="openPlayerListDialog"
-                           >
-                             <v-icon>mdi-account-group</v-icon>
-                             <v-tooltip activator="parent" location="top">Player List</v-tooltip>
-                           </v-btn>
-                           <v-btn
-                             icon
-                             variant="text"
-                             color="error"
-                             class="mx-1"
-                             @click="executeAction('remove')"
-                           >
-                             <v-icon>mdi-delete</v-icon>
-                             <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
-                           </v-btn>
-                         </div>
-                       </div>
-                    </v-col>
-                  </v-row>
+                  <!-- Invite code: what friends type to join this party. -->
+                  <div class="invite-card mb-3">
+                    <v-icon size="28" class="invite-card__icon">mdi-account-multiple-plus</v-icon>
+                    <div class="invite-card__text">
+                      <span class="invite-card__label">Invite code</span>
+                      <span class="invite-card__hint">Friends use it to join this campaign</span>
+                    </div>
+                    <button v-if="partyCode" class="invite-card__code" :title="codeCopied ? 'Copied!' : 'Copy code'" @click="copyPartyCode">
+                      {{ partyCode }}
+                      <v-icon size="16">{{ codeCopied ? "mdi-check" : "mdi-content-copy" }}</v-icon>
+                    </button>
+                    <span v-else class="invite-card__code invite-card__code--loading">Generating…</span>
+                    <!-- Phones: the bottom bar has no players or remove. -->
+                    <div class="d-flex d-md-none">
+                      <v-btn icon="mdi-account-group" variant="text" size="small" aria-label="Player list" @click="openPlayerListDialog" />
+                      <v-btn icon="mdi-delete-outline" variant="text" size="small" color="error" aria-label="Delete campaign" @click="executeAction('remove')" />
+                    </div>
+                  </div>
 
                   <v-tabs
                     v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)"
@@ -517,11 +476,7 @@
 
                     <v-row no-gutters>
                       <v-col cols="12">
-                        <v-sheet
-                          rounded
-                          border="md"
-                          class="text-white pa-2 shepherd-heroes-list"
-                        >
+                        <div class="d-flex flex-column ga-3 shepherd-heroes-list">
                           <div
                             v-if="
                               heroStore.findAllInCampaign(campaignId).length === 0
@@ -543,7 +498,7 @@
                               :is-sequential-adventure="isSequentialAdventure"
                             />
                           </div>
-                        </v-sheet>
+                        </div>
                       </v-col>
                     </v-row>
                   </div>
@@ -891,7 +846,6 @@ const snackbarIcon = ref("mdi-check");
 const snackbarColor = ref("success");
 const snackbarIconColor = ref("white");
 const snackbarTimeout = ref(3000);
-const speedDialOpen = ref(true);
 const tharmagarDialogVisible = ref(false);
 const bottomNavValue = ref<string | null>(null);
 
@@ -1102,16 +1056,22 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
+const codeCopied = ref(false);
+const copyPartyCode = async () => {
+  try {
+    await navigator.clipboard.writeText(partyCode.value ?? "");
+    codeCopied.value = true;
+    setTimeout(() => (codeCopied.value = false), 2000);
+  } catch {
+    // Clipboard blocked: the code stays visible to copy by hand.
+  }
+};
+
 const openPlayerListDialog = async () => {
   if (campaignPlayerListRef.value) {
     await campaignPlayerListRef.value.fetchPlayers();
   }
   playerListDialogVisible.value = true;
-};
-
-const handleSpeedDialAction = (action: string) => {
-  executeAction(action);
-  speedDialOpen.value = false;
 };
 
 const handleBottomNavAction = (action: string) => {
@@ -1431,6 +1391,64 @@ const checkAndAwardSeason1Achievements = async () => {
 </script>
 
 <style scoped>
+.invite-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+}
+.invite-card__icon {
+  color: rgb(var(--v-theme-accent));
+}
+.invite-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.invite-card__label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.invite-card__hint {
+  font-size: 0.72rem;
+  opacity: 0.65;
+}
+.invite-card__code {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(var(--v-theme-accent), 0.18);
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
+  border-radius: 8px;
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+@media (max-width: 599px) {
+  .invite-card {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+  .invite-card__hint {
+    display: none;
+  }
+  .invite-card__code {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+}
+.invite-card__code--loading {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
 /* Global Snackbar */
 .global-snackbar {
   z-index: 9999 !important;
