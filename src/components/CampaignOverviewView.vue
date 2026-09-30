@@ -1148,11 +1148,12 @@ onBeforeMount(async () => {
   font-weight: 800;
 }
 /* Five columns that scale with the card: same look on every phone. */
+/* Heroes stand side by side on the card, no frame around each. */
 .camp-card__heroes {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  padding: 4px 12px 14px;
+  gap: 2px;
+  padding: 4px 12px 0;
 }
 .camp-hero {
   position: relative;
@@ -1161,8 +1162,6 @@ onBeforeMount(async () => {
   justify-content: center;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.25);
 }
 .camp-hero img {
   width: 100%;
@@ -1188,10 +1187,10 @@ onBeforeMount(async () => {
   white-space: nowrap;
 }
 .camp-hero--add {
-  border: 1px dashed rgba(255, 255, 255, 0.25);
   opacity: 0.8;
 }
 .camp-hero--loading {
+  background: rgba(0, 0, 0, 0.2);
   animation: camp-pulse 1.2s ease-in-out infinite;
 }
 @keyframes camp-pulse {

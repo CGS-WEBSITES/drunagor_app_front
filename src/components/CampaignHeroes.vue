@@ -1,10 +1,11 @@
 <template>
   <div class="heroes-page">
+    <!-- Title outside the panel, like the Library. -->
+    <h1 class="heroes-page__title cinzel-text">{{ view === "mine" ? "MY HEROES" : "ALL HEROES" }}</h1>
+
     <div class="heroes-panel">
-      <!-- Header -->
       <div class="heroes-head">
         <div>
-          <h1 class="heroes-head__title">{{ view === "mine" ? "My Heroes" : "All Heroes" }}</h1>
           <p class="heroes-head__sub">
             {{ playableHeroStore.heroes.length }} {{ playableHeroStore.heroes.length === 1 ? "hero" : "heroes" }} in your roster
           </p>
@@ -344,11 +345,12 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Same width as the Library, so pages line up. */
 .heroes-page {
   width: 100%;
-  max-width: 1600px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 16px 24px 48px;
+  padding: 16px 16px 48px;
   font-family: "Poppins", sans-serif;
   color: #fff;
 }
@@ -361,10 +363,16 @@ onMounted(() => {
 .heroes-head {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+}
+.heroes-page__title {
+  margin-bottom: 24px;
+  font-size: 3.5rem;
+  font-weight: 900;
+  text-align: center;
 }
 .heroes-head__title {
   font-size: 1.6rem;
@@ -743,6 +751,10 @@ onMounted(() => {
 @media (max-width: 599px) {
   .heroes-page {
     padding: 8px 12px 32px;
+  }
+  .heroes-page__title {
+    margin-bottom: 16px;
+    font-size: 2.6rem;
   }
   .heroes-panel {
     padding: 16px 12px;
