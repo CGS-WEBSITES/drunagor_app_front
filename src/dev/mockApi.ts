@@ -54,6 +54,15 @@ const DASH_CAMPAIGNS = [
   { campaigns_fk: 900104, party_name: "Old Guard", box: 1, tracker_hash: campaignHash("core", "", "", 20, ["elros", "lorelai"]) },
 ];
 
+// A player with many campaigns, to see the list and its loading.
+const EXTRA_CAMPAIGNS = Array.from({ length: 14 }, (_, i) => {
+  const kind = ["underkeep", "core", "underkeep2", "awakenings", "underkeep", "apocalypse", "underkeep2"][i % 7];
+  const box = kind === "underkeep2" ? 39 : kind === "underkeep" ? 38 : 1;
+  const heroes = kind.startsWith("underkeep") ? [] : [["vorn", "maya", "elros", "lorelai"], ["jaheen", "maya"], ["elros", "vorn", "jaheen"]][i % 3];
+  const wing = kind === "underkeep" ? "Wing 1 Advanced" : kind === "underkeep2" ? "Wing 4" : "";
+  return { campaigns_fk: 900200 + i, party_name: `Party ${i + 1}`, box, tracker_hash: campaignHash(kind, wing, "", 8 + i, heroes) };
+});
+
 type State = {
   nextHeroPk: number;
   myHeroes: { playable_heroes_pk: number; hero_hash: string; creation_date: string }[];
@@ -160,7 +169,13 @@ const routes: Route[] = [
 
   // Campaigns
   // Dashboard campaigns; searches scoped to an event (Lobby) get none.
-  ["get", /^rl_campaigns_users\/search$/, (config) => ({ campaigns: config.params?.events_fk ? [] : DASH_CAMPAIGNS })],
+  ["get", /^rl_campaigns_users\/search$/, (config) => {
+    if (config.params?.events_fk) return { campaigns: [] };
+    const all = [...DASH_CAMPAIGNS, ...EXTRA_CAMPAIGNS];
+    // One campaign when opening it, every campaign for the list.
+    if (config.params?.campaigns_fk) return { campaigns: all.filter((c) => String(c.campaigns_fk) === String(config.params.campaigns_fk)) };
+    return { campaigns: all.filter((c) => (c.box === 39) === (String(config.params?.show_season2) === "true")) };
+  }],
   ["get", /^rl_campaigns_users\/list_players$/, (config) => ({
     Users: config.params?.campaigns_fk
       ? [

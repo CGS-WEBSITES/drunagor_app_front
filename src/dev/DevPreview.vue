@@ -48,6 +48,10 @@
 
     <UserEvents v-else-if="screen === 'events'" />
 
+    <CampaignOverviewView v-else-if="screen === 'campaigns'" />
+
+    <CampaignView v-else-if="screen === 'campaign'" :key="String(route.params.id)" />
+
     <Lobby v-else-if="screen === 'lobby'" />
 
     <v-container v-else-if="screen === 'hero-prep'" max-width="700" class="py-6">
@@ -99,6 +103,8 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
 import DevEffects from "@/dev/DevEffects.vue";
+import CampaignOverviewView from "@/components/CampaignOverviewView.vue";
+import CampaignView from "@/components/CampaignView.vue";
 import Lobby from "@/components/Lobby.vue";
 import UserEvents from "@/components/UserEvents.vue";
 import DesktopDash from "@/components/DesktopDash.vue";
@@ -134,6 +140,8 @@ const groups: { title: string; items: Screen[] }[] = [
       { id: "hero-prep", title: "Hero Preparation", icon: "mdi-sword", role: "player", description: "The Prepare your Hero popup for any hero and season, without going through the lobby." },
       { id: "first-setup", title: "First Setup Guide", icon: "mdi-map", role: "player", description: "Room assembly steps the player sees when entering the campaign." },
       { id: "gameplay", title: "Gameplay", icon: "mdi-dice-multiple", role: "player", description: "Campaign screen at the First Setup door, with Vorn, Lorelai and Maya. Opens the First Setup guide, then the Start Here book." },
+      { id: "campaigns", title: "Campaign list", icon: "mdi-format-list-bulleted", role: "player", description: "Many campaigns (Core, Apocalypse, Awakenings and Drunagor Nights) to check the list and how it loads." },
+      { id: "campaign", title: "Legacy campaign", icon: "mdi-sword", role: "player", description: "A Core campaign: the navigation bar on PC and the Add hero dialog." },
       { id: "effects", title: "Aura / Status / Outcome", icon: "mdi-auto-fix", role: "player", description: "The hero effect pickers from the campaign sheet, with Core data." },
     ],
   },
@@ -164,10 +172,15 @@ const route = useRoute();
 const screen = computed(() => String((route.params as Record<string, string>).screen || ""));
 const current = computed(() => allScreens.find((item) => item.id === screen.value && !item.to));
 
+// The Core campaign from the fake campaign list.
+const DEV_CAMPAIGN_PK = "900104";
+
 const screenRoute = (id: string) =>
   id === "lobby"
     ? { name: "DevPreview", params: { screen: "lobby", id: DEV_EVENT_PK }, query: { table_pk: DEV_TABLE_PK } }
-    : { name: "DevPreview", params: { screen: id } };
+    : id === "campaign"
+      ? { name: "DevPreview", params: { screen: "campaign", id: DEV_CAMPAIGN_PK } }
+      : { name: "DevPreview", params: { screen: id } };
 
 // Runs in setup, before any real screen mounts and calls the API.
 enterDevSandbox(current.value?.role ?? "player");

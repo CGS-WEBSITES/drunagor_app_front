@@ -50,6 +50,7 @@ declare module 'vue' {
     CampaignLogUnderKeep: typeof import('./components/CampaignLogUnderKeep.vue')['default']
     CampaignLogUnderKeep2: typeof import('./components/CampaignLogUnderKeep2.vue')['default']
     CampaignName: typeof import('./components/CampaignName.vue')['default']
+    CampaignNavBar: typeof import('./components/CampaignNavBar.vue')['default']
     CampaignNew: typeof import('./components/CampaignNew.vue')['default']
     CampaignOverviewView: typeof import('./components/CampaignOverviewView.vue')['default']
     CampaignPlayerList: typeof import('./components/CampaignPlayerList.vue')['default']

@@ -68,111 +68,11 @@
       </v-card>
     </v-dialog>
 
-    <v-speed-dial
-      v-model="speedDialOpen"
-      transition="fade-transition"
-      class="d-none d-md-flex"
-    >
-      <template v-slot:activator="{ props: activatorProps }">
-        <v-btn
-          v-bind="activatorProps"
-          :color="speedDialOpen ? 'red' : 'green'"
-          size="large"
-          icon
-          class="speed-dial-activator d-none d-md-flex"
-          elevation="14"
-        >
-          <v-icon>{{
-            speedDialOpen ? "mdi-close" : "mdi-script-text-outline"
-          }}</v-icon>
-        </v-btn>
-      </template>
-
-      <v-btn
-        key="save"
-        size="small"
-        color="success"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('save')"
-      >
-        <v-icon>mdi-content-save-outline</v-icon>
-        <v-tooltip activator="parent" location="start">
-          {{ t("label.save-campaign-put") || "Save Campaign" }}
-        </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        v-if="
-          campaign &&
-          ['underkeep', 'underkeep2'].includes(campaign.campaign) &&
-          showLoadInstructions
-        "
-        key="load-instructions"
-        size="small"
-        color="info"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('load-instructions')"
-      >
-        <v-icon>mdi-lightbulb-on-outline</v-icon>
-        <v-tooltip activator="parent" location="start">
-          Load Instructions
-        </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="export"
-        size="small"
-        color="orange"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('export')"
-      >
-        <v-icon>mdi-export</v-icon>
-        <v-tooltip activator="parent" location="start">
-          Export Campaign
-        </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="player-list"
-        size="small"
-        color="secondary"
-        icon
-        class="speed-dial-item"
-        @click="openPlayerListDialog"
-      >
-        <v-icon>mdi-account-group</v-icon>
-        <v-tooltip activator="parent" location="start"> Player List </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="tharmagar"
-        size="small"
-        color="amber-darken-2"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('tharmagar')"
-      >
-        <v-icon>mdi-comment-question-outline</v-icon>
-        <v-tooltip activator="parent" location="start">Ask Tharmagar</v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="remove"
-        size="small"
-        color="error"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('remove')"
-      >
-        <v-icon>mdi-delete-outline</v-icon>
-        <v-tooltip activator="parent" location="start">
-          Remove Campaign
-        </v-tooltip>
-      </v-btn>
-    </v-speed-dial>
+    <!-- PC: campaign navigation and actions at the top. -->
+    <CampaignNavBar
+      :show-load-instructions="!!(campaign && ['underkeep', 'underkeep2'].includes(campaign.campaign) && showLoadInstructions)"
+      @action="executeAction"
+    />
 
     <v-bottom-navigation
       v-model="bottomNavValue"
@@ -812,6 +712,7 @@ import {
 import { ref as vueRef } from "vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignAddHero from "@/components/CampaignAddHero.vue";
+import CampaignNavBar from "@/components/CampaignNavBar.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
 import CampaignRemove from "@/components/CampaignRemove.vue";
