@@ -72,33 +72,6 @@
           <strong>{{ barTitle }}</strong>
         </div>
 
-        <v-menu v-if="currentVolumeId && !isToolView && !smAndDown" location="bottom end" max-height="70vh" width="320" :offset="8">
-          <template #activator="{ props: menuProps }">
-            <button v-bind="menuProps" class="book-bar__btn" title="Contents">
-              <v-icon size="20">mdi-format-list-bulleted</v-icon>
-              <span class="d-none d-md-inline">Contents</span>
-            </button>
-          </template>
-          <v-card class="book-menu">
-            <v-list density="compact" nav>
-              <template v-for="(items, section) in currentVolumeGroups" :key="section">
-                <v-list-subheader class="text-uppercase font-weight-bold text-caption mt-2">{{ section }}</v-list-subheader>
-                <v-list-item
-                  v-for="(item, i) in items"
-                  :key="item.id"
-                  :active="item.id === activeItemId"
-                  rounded
-                  density="compact"
-                  @click="handleMobileNavigation(item)"
-                >
-                  <template #prepend><span class="text-caption mr-2 text-grey" style="width: 15px">{{ i + 1 }}</span></template>
-                  <v-list-item-title class="text-caption">{{ item.title }}</v-list-item-title>
-                </v-list-item>
-              </template>
-            </v-list>
-          </v-card>
-        </v-menu>
-
         <v-menu v-if="currentVolumeId && !isToolView" location="bottom end" :offset="8" :close-on-content-click="false">
           <template #activator="{ props: menuProps }">
             <button v-bind="menuProps" class="book-bar__btn" title="Text size">
@@ -148,14 +121,36 @@
         <span :style="{ width: progress + '%' }"></span>
       </div>
 
-      <div class="book-backdrop" :style="{ backgroundImage: `url(${backdropArt})` }"></div>
+      <div class="book-body">
+        <!-- PC: the contents stay beside the page and follow the reading. -->
+        <aside v-if="!smAndDown && currentVolumeId && !isToolView" class="book-toc">
+          <div class="book-toc__head">
+            <small>{{ currentVolume?.subtitle }}</small>
+            <strong>{{ currentVolume?.title }}</strong>
+          </div>
+          <template v-for="(items, section) in currentVolumeGroups" :key="section">
+            <h4 v-if="Object.keys(currentVolumeGroups).length > 1" class="book-toc__section">{{ section }}</h4>
+            <button
+              v-for="item in items"
+              :key="item.id"
+              class="book-toc__item"
+              :class="{ active: item.id === activeItemId }"
+              @click="handleMobileNavigation(item)"
+            >
+              {{ item.title }}
+            </button>
+          </template>
+        </aside>
       <div class="scroll-root" ref="scrollableContentRef" :style="{ '--book-font-scale': fontScale }" @scroll="onScroll">
         
         <div v-if="!currentVolumeId && !isToolView" key="bookshelf" class="shelf">
           <!-- Pick up where the party is, or where you stopped reading. -->
           <div v-if="hereScene || lastRead" class="shelf__resume">
             <button v-if="hereScene" class="resume-card resume-card--here" @click="openSceneByTarget(props.currentDoor!)">
-              <v-icon size="26">mdi-map-marker-radius</v-icon>
+              <span class="resume-card__thumb">
+                <img :src="coverById(hereScene.volumeId)" alt="" />
+                <v-icon size="18">mdi-map-marker-radius</v-icon>
+              </span>
               <span>
                 <small>You are here</small>
                 <strong>{{ hereScene.title }}</strong>
@@ -164,7 +159,10 @@
               <v-icon>mdi-chevron-right</v-icon>
             </button>
             <button v-if="lastRead" class="resume-card" @click="resumeReading">
-              <v-icon size="26">mdi-bookmark</v-icon>
+              <span class="resume-card__thumb">
+                <img :src="coverById(lastRead.volumeId)" alt="" />
+                <v-icon size="18">mdi-bookmark</v-icon>
+              </span>
               <span>
                 <small>Continue reading</small>
                 <strong>{{ lastRead.title }}</strong>
@@ -183,11 +181,14 @@
               :class="{ 'cover--here': hereScene?.volumeId === vol.id }"
               @click="switchVolume(vol.id)"
             >
-              <img :src="coverOf(vol)" alt="" class="cover__art" />
+              <span class="cover__frame">
+                <img :src="coverOf(vol)" alt="" class="cover__art" :class="{ 'cover__art--banner': vol.id.startsWith('start_here') }" />
+              </span>
               <span class="cover__text">
                 <small>{{ vol.subtitle }}</small>
                 <strong>{{ vol.title }}</strong>
               </span>
+              <v-icon class="cover__go">mdi-chevron-right</v-icon>
               <span v-if="hereScene?.volumeId === vol.id" class="cover__here">You are here</span>
             </button>
           </div>
@@ -251,15 +252,15 @@
                         <div
                           class="body-text mt-3 mx-6"
                           :class="{ 'body-text-fullscreen': isFullscreen }"
-                          v-html="item.body"
+                          v-html="figureize(item.body)"
                           @click="handleBodyClick"
                         ></div>
 
                         <v-card v-if="item.instruction" class="instruction-card mt-6 py-0 mx-6 mb-6" flat @click="handleBodyClick">
-                          <v-card-text class="pa-4" v-html="item.instruction" />
+                          <v-card-text class="pa-4" v-html="figureize(item.instruction)" />
                         </v-card>
 
-                        <v-card-text v-if="item.setup" v-html="item.setup" @click="handleBodyClick" />
+                        <v-card-text v-if="item.setup" v-html="figureize(item.setup)" @click="handleBodyClick" />
 
                         <div v-if="item.instruction" class="pt-5 px-16 text-center">
                           <v-img src="@/assets/Barra.png" max-height="20" contain />
@@ -304,7 +305,7 @@
                           <template v-for="(sec, sIdx) in chapter.sections" :key="sIdx">
                              <div :id="sec.id" class="mb-6">
                                 <h4 class="tutorial-section-title">{{ sec.title }}</h4>
-                                <div class="body-text-mechanics mt-2" v-html="sec.body" @click="handleBodyClick"></div>
+                                <div class="body-text-mechanics mt-2" v-html="figureize(sec.body)" @click="handleBodyClick"></div>
                              </div>
                              <div class="pt-5 px-16 text-center" v-if="sIdx < chapter.sections.length - 1">
                                 <v-img src="@/assets/Barra.png" max-height="20" contain />
@@ -337,6 +338,7 @@
 
           </transition>
         </v-container>
+      </div>
       </div>
     </div>
 
@@ -514,8 +516,19 @@ const showLightbox = ref(false);
 const activeImage = ref("");
 const zoomLevel = ref(1);
 
+// Big pictures (not inline icons) get a frame with a zoom hint.
+function figureize(html?: string) {
+  return (html || "").replace(/<img\b[^>]*>/g, (tag) =>
+    /inline-icon|\/icons\/|\.svg/.test(tag)
+      ? tag
+      : `<span class="book-figure">${tag}<span class="book-figure__zoom"><i class="mdi mdi-magnify-plus-outline"></i></span></span>`,
+  );
+}
+
 function handleBodyClick(event: MouseEvent) {
-  const target = event.target as HTMLElement;
+  const clicked = event.target as HTMLElement;
+  const figure = clicked?.closest?.(".book-figure");
+  const target = (figure ? figure.querySelector("img") : clicked) as HTMLElement;
   if (target && target.tagName === 'IMG') {
     if (target.classList.contains('inline-icon')) {
       return;
@@ -952,7 +965,10 @@ const isSeason2Volume = (vol?: Volume) => {
   return vol.id === "start_here_s2" || vol.id === "dragon" || text.includes("WING 3") || text.includes("WING 4");
 };
 const coverOf = (vol: Volume) => (vol.id.startsWith("start_here") ? (isSeason2Volume(vol) ? booktops2Img : booktopImg) : isSeason2Volume(vol) ? underkeep2Art : underkeepArt);
-const backdropArt = computed(() => (isSeason2Volume(currentVolume.value) ? underkeep2Art : underkeepArt));
+const coverById = (id: string) => {
+  const vol = availableVolumes.value.find((item) => item.id === id);
+  return vol ? coverOf(vol) : underkeepArt;
+};
 
 // Text size, remembered in this browser.
 const FONT_KEY = "book.fontScale";
@@ -1025,9 +1041,32 @@ function resumeReading() {
 }
 watch(lastReadKey, loadLastRead, { immediate: true });
 
+// The contents entry whose heading was last scrolled past.
+let trackFrame = 0;
+function trackActiveItem() {
+  cancelAnimationFrame(trackFrame);
+  trackFrame = requestAnimationFrame(() => {
+    const el = scrollableContentRef.value;
+    if (!el) return;
+    const line = el.getBoundingClientRect().top + 140;
+    const items = flatNavigationItems.value.filter((item) => item.viewType !== "player" || item.sectionIndex === currentIndex.value);
+    let current = items[0]?.id ?? null;
+    for (const item of items) {
+      const heading = document.getElementById(item.originalId || item.targetId || "");
+      if (heading && heading.getBoundingClientRect().top <= line) current = item.id;
+    }
+    activeItemId.value = current;
+  });
+}
+watch(activeItemId, () =>
+  nextTick(() => document.querySelector(".book-toc__item.active")?.scrollIntoView({ block: "nearest" })),
+);
+watch([currentVolumeId, currentIndex], () => nextTick(trackActiveItem));
+
 function onScroll() {
   const el = scrollableContentRef.value;
   if (!el) return;
+  trackActiveItem();
   const max = el.scrollHeight - el.clientHeight;
   scrollFraction.value = max > 0 ? Math.min(1, el.scrollTop / max) : 1;
   const top = el.scrollTop;
@@ -1263,17 +1302,6 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
   background: rgb(var(--v-theme-accent));
   transition: width 0.15s linear;
 }
-/* The wing's art, blurred, around the page. */
-.book-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-position: center;
-  background-size: cover;
-  filter: blur(18px) brightness(0.3);
-  transform: scale(1.1);
-  pointer-events: none;
-}
 .hover-white:hover { color: white !important; }
 
 /* Shelf */
@@ -1308,7 +1336,29 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
   background: linear-gradient(120deg, rgba(var(--v-theme-accent), 0.25), rgb(var(--v-theme-primary)) 70%);
   border-color: rgba(var(--v-theme-accent), 0.6);
 }
-.resume-card > span {
+.resume-card__thumb {
+  position: relative;
+  flex: 0 0 92px;
+  height: 52px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+.resume-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+}
+.resume-card__thumb .v-icon {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  color: rgb(var(--v-theme-accent));
+}
+.resume-card > span:not(.resume-card__thumb) {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -1343,64 +1393,70 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 }
 .shelf__covers {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
   margin-bottom: 28px;
 }
 .cover {
   position: relative;
   display: flex;
-  align-items: flex-end;
-  aspect-ratio: 3 / 2;
+  flex-direction: column;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   text-align: left;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .cover:hover {
   border-color: rgb(var(--v-theme-accent));
-  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px);
 }
 .cover--here {
   border-color: rgb(var(--v-theme-accent));
 }
+.cover__frame {
+  display: block;
+  aspect-ratio: 1364 / 528;
+  overflow: hidden;
+}
 .cover__art {
-  object-position: 78% center;
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
-.cover:hover .cover__art {
-  transform: scale(1.05);
+/* The Start Here banner is wider: keep its emblem in view. */
+.cover__art--banner {
+  object-position: left center;
 }
-.cover::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.1) 65%);
-  content: "";
+.cover:hover .cover__art {
+  transform: scale(1.04);
 }
 .cover__text {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
-  padding: 12px 14px;
+  padding: 10px 44px 12px 14px;
 }
 .cover__text small {
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: 0.62rem;
+  font-weight: 800;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  opacity: 0.75;
+  opacity: 0.55;
 }
 .cover__text strong {
   font-family: "Cinzel", serif;
-  font-size: 1.1rem;
-  line-height: 1.2;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+.cover__go {
+  position: absolute;
+  right: 12px;
+  bottom: 16px;
+  opacity: 0.45;
 }
 .cover__here {
   position: absolute;
@@ -1519,7 +1575,67 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 }
 .tracking-widest { letter-spacing: 2px; }
 
-.scroll-root { flex: 1; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; position: relative; z-index: 1; padding-bottom: 40px; }
+.book-body { position: relative; z-index: 1; display: flex; flex: 1; min-height: 0; background: #000; }
+.scroll-root { flex: 1; overflow-y: auto; overflow-x: hidden; scroll-behavior: smooth; position: relative; padding-bottom: 40px; background: #000; }
+
+/* Contents sidebar (PC) */
+.book-toc {
+  flex: 0 0 280px;
+  overflow-y: auto;
+  padding: 18px 12px 32px;
+  background: #0b0b0b;
+  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  font-family: "Poppins", sans-serif;
+}
+.book-toc__head {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 14px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.book-toc__head small {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+.book-toc__head strong {
+  font-family: "Cinzel", serif;
+  font-size: 1.05rem;
+}
+.book-toc__section {
+  margin: 14px 10px 6px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+.book-toc__item {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  border-left: 3px solid transparent;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: left;
+  opacity: 0.65;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+.book-toc__item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 1;
+}
+.book-toc__item.active {
+  background: rgba(var(--v-theme-accent), 0.14);
+  border-left-color: rgb(var(--v-theme-accent));
+  color: rgb(var(--v-theme-accent));
+  font-weight: 700;
+  opacity: 1;
+}
 /* A comfortable reading width (~70 characters a line). */
 .content-container { max-width: 780px; margin: 0 auto; padding: 24px 16px; min-height: 100%; }
 
@@ -1624,11 +1740,76 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
   display: block;
   width: auto !important;
   max-width: 100% !important;
-  max-height: min(440px, 55vh);
+  max-height: min(560px, 62vh);
   margin-right: auto !important;
   margin-left: auto !important;
   border-radius: 6px;
   cursor: zoom-in !important;
+}
+
+.body-text :deep(.book-figure),
+.body-text-mechanics :deep(.book-figure),
+.instruction-card :deep(.book-figure) {
+  position: relative;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 18px auto;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  text-indent: 0;
+  cursor: zoom-in;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.body-text :deep(.book-figure:hover),
+.body-text-mechanics :deep(.book-figure:hover),
+.instruction-card :deep(.book-figure:hover) {
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+  transform: translateY(-2px);
+}
+.body-text :deep(.book-figure img),
+.body-text-mechanics :deep(.book-figure img),
+.instruction-card :deep(.book-figure img) {
+  margin: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.body-text :deep(.book-figure__zoom),
+.body-text-mechanics :deep(.book-figure__zoom),
+.instruction-card :deep(.book-figure__zoom) {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.body-text :deep(.book-figure:hover .book-figure__zoom),
+.body-text-mechanics :deep(.book-figure:hover .book-figure__zoom),
+.instruction-card :deep(.book-figure:hover .book-figure__zoom) {
+  opacity: 1;
+}
+@media (max-width: 959px) {
+  .body-text :deep(.book-figure__zoom),
+  .body-text-mechanics :deep(.book-figure__zoom),
+  .instruction-card :deep(.book-figure__zoom) {
+    opacity: 0.85;
+  }
+  .body-text :deep(img:not(.inline-icon)),
+  .body-text-mechanics :deep(img:not(.inline-icon)),
+  .instruction-card :deep(img:not(.inline-icon)) {
+    max-height: min(420px, 55vh);
+  }
 }
 
 /* Image zoom rules */
