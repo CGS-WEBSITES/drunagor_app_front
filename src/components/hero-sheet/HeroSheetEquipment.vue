@@ -33,17 +33,17 @@
       </v-switch>
     </div>
 
-    <!-- Equipped items; empty slots wait below as small "+" buttons. -->
-    <p v-if="!shownSlots.length" class="equip__empty">Nothing equipped yet.</p>
-    <div v-for="slot in shownSlots" :key="slot.key" class="equip__slot" :class="{ 'equip__slot--bags': slot.key === firstShownBag }">
+    <!-- Every slot: pick, swap (click the item) or remove. -->
+    <div v-for="slot in slots" :key="slot.key" class="equip__slot" :class="{ 'equip__slot--bags': slot.key === 'bagOneId' }">
       <span class="equip__label"><SlotIcon :type="slot.iconType" :size="18" class="mr-2" />{{ slot.label }}</span>
 
-      <div v-if="state.equipment[slot.key]" class="item-line">
+      <div v-if="state.equipment[slot.key] && picking !== slot.key" class="item-line">
         <div class="item-row">
-          <div class="item-row__text">
+          <button class="item-row__text item-row__swap" :title="`Change ${slot.label.toLowerCase()}`" @click="picking = slot.key">
             <strong>{{ itemName(state.equipment[slot.key]) }}</strong>
             <small>{{ rowSub(state.equipment[slot.key]) }}</small>
-          </div>
+          </button>
+          <v-icon size="16" class="item-row__pencil">mdi-pencil</v-icon>
           <ItemSourceMarks :item-id="state.equipment[slot.key]" symbols />
           <button class="item-row__btn item-row__btn--stash" title="Move to the stash" aria-label="Move to the stash" @click="stashSlot(slot.key)">
             <SlotIcon type="Stash" :size="18" />
@@ -54,13 +54,18 @@
         </button>
       </div>
 
+      <button v-else-if="picking !== slot.key" class="item-empty" @click="picking = slot.key">
+        <v-icon size="18">mdi-plus</v-icon>Choose {{ slot.label.toLowerCase() }}
+      </button>
+
+      <!-- Picking: the current item (if any) is pre-selected; Esc or clicking away cancels. -->
       <v-autocomplete
         v-else
-        :model-value="null"
+        :model-value="state.equipment[slot.key] || null"
         :items="optionsFor(slot)"
         item-title="name"
         item-value="id"
-        :placeholder="`Select ${slot.label.toLowerCase()}`"
+        :placeholder="`Search ${slot.label.toLowerCase()}`"
         variant="solo"
         density="compact"
         flat
@@ -69,7 +74,7 @@
         prepend-inner-icon="mdi-magnify"
         autofocus
         menu
-        @update:model-value="(id: string | null) => { if (id) { state.equipment[slot.key] = id; picking = null; } }"
+        @update:model-value="(id: string | null) => { if (id) state.equipment[slot.key] = id; picking = null; }"
         @update:menu="(open: boolean) => !open && picking === slot.key && (picking = null)"
       >
         <template #item="{ props: itemProps, item }">
@@ -79,18 +84,13 @@
                 <div class="text-body-2 font-weight-bold">{{ item.raw.name }}</div>
                 <div class="text-caption opacity-70">{{ item.raw.sub }}</div>
               </div>
-              <ItemSourceMarks :item-id="item.raw.id" />
+              <ItemSourceMarks :item-id="item.raw.id" symbols />
             </div>
           </v-list-item>
         </template>
       </v-autocomplete>
     </div>
 
-    <div v-if="emptySlots.length" class="equip__add">
-      <button v-for="slot in emptySlots" :key="slot.key" class="equip__add-btn" @click="picking = slot.key">
-        <v-icon size="14">mdi-plus</v-icon><SlotIcon :type="slot.iconType" :size="16" />{{ slot.label }}
-      </button>
-    </div>
 
     <!-- Stash -->
     <h3 class="sheet-title equip__stash-title">Stash</h3>
@@ -115,7 +115,7 @@
               <div class="text-body-2 font-weight-bold">{{ item.raw.name }}</div>
               <div class="text-caption opacity-70">{{ item.raw.sub }}</div>
             </div>
-            <ItemSourceMarks :item-id="item.raw.id" />
+            <ItemSourceMarks :item-id="item.raw.id" symbols />
           </div>
         </v-list-item>
       </template>
@@ -182,10 +182,6 @@ const filterProficiencies = ref(true);
 
 // Slot being filled right now (its search is open).
 const picking = ref<SlotKey | null>(null);
-const shownSlots = computed(() => slots.filter((slot) => props.state.equipment[slot.key] || picking.value === slot.key));
-// The bag slots start after a divider.
-const firstShownBag = computed(() => shownSlots.value.find((slot) => slot.key === "bagOneId" || slot.key === "bagTwoId")?.key);
-const emptySlots = computed(() => slots.filter((slot) => !props.state.equipment[slot.key] && picking.value !== slot.key));
 
 const itemName = (id: string) => {
   const item = allItemsRepository.find(id);
@@ -261,6 +257,39 @@ function equipFromStash(index: number) {
 .equip__filter :deep(.v-label) {
   font-size: 0.75rem;
   opacity: 0.8;
+}
+.item-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.7;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+.item-empty:hover {
+  border-color: rgb(var(--v-theme-accent));
+  opacity: 1;
+}
+/* Clicking the item swaps it. */
+.item-row__swap {
+  align-self: stretch;
+  justify-content: center;
+  text-align: left;
+  cursor: pointer;
+}
+.item-row__pencil {
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.item-row:hover .item-row__pencil {
+  opacity: 0.6;
 }
 .equip__add {
   display: flex;
