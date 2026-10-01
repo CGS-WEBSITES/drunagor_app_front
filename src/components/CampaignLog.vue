@@ -156,51 +156,49 @@ function openHeroEquipmentSkills() {
   align-items: center;
   padding: 8px 14px 12px;
 }
-/* Stats: one strip, equal columns, everything centered. */
+/* Stats: roomy tiles, icon in a soft circle, number over its label. */
 .hero-sum__stats {
   display: grid;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  overflow: hidden;
-  background: rgb(var(--v-theme-secondary));
-  border-radius: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 .stat {
   display: grid;
-  grid-template-areas: "icon value" "label label";
-  justify-content: center;
+  grid-template-areas: "icon value" "icon label";
+  grid-template-columns: 36px 1fr;
+  column-gap: 10px;
   align-items: center;
-  column-gap: 5px;
-  row-gap: 2px;
-  padding: 7px 4px;
-  text-align: center;
+  padding: 10px 12px;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 10px;
 }
 .stat > :first-child {
   grid-area: icon;
+  justify-self: center;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
 }
 .stat strong {
   grid-area: value;
-}
-.stat small {
-  grid-area: label;
-}
-.stat + .stat {
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-}
-.stat strong {
-  font-size: 1.1rem;
+  align-self: end;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1;
 }
 .stat strong span {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   opacity: 0.6;
 }
 .stat small {
-  font-size: 0.58rem;
+  grid-area: label;
+  align-self: start;
+  margin-top: 3px;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   opacity: 0.6;
 }
@@ -248,6 +246,9 @@ function openHeroEquipmentSkills() {
   opacity: 0.6;
 }
 @media (max-width: 959px) {
+  .hero-sum__stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
   .hero-sum__main {
     flex-direction: column;
   }
