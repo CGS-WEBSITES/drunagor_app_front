@@ -16,9 +16,31 @@
         </span>
         <v-btn v-if="appEnv !== 'test'" size="small" color="green" @click="switchApiEnv('test')">Use test API</v-btn>
         <v-btn v-else size="small" variant="outlined" @click="switchApiEnv('prod')">Back to prod API</v-btn>
+        <span v-if="appUser" class="text-body-2">
+          Logged in as <strong>{{ appUser.user_name }}</strong> (#{{ appUser.users_pk }}).
+        </span>
+        <span v-else class="text-body-2 text-grey">Not logged in.</span>
         <p class="text-caption text-grey w-100 mb-0">
           Generated events only exist on test. To open the lobby links, switch to the test API and log in
           with a player account from the test database. Switching logs you out.
+        </p>
+      </v-card-text>
+    </v-card>
+
+    <!-- How to playtest Drunagor Nights -->
+    <v-card color="grey-darken-4">
+      <v-card-title class="text-body-1 font-weight-bold">Drunagor Nights playtest</v-card-title>
+      <v-card-text>
+        <ol class="text-body-2 pl-4 nights-steps">
+          <li>Use the test API and log in with your player account (e.g. DuduFlu2).</li>
+          <li>Log in as the tester below and generate an event for a Nights wing (1 table is enough).</li>
+          <li>Open the table's lobby first, so you are its leader.</li>
+          <li>Back here, add 1–3 bot players: they sit at your table with a Core hero already picked.</li>
+          <li>In the lobby pick your hero, Start game and create (or load) the campaign: it opens in the immersive view.</li>
+        </ol>
+        <p class="text-caption text-grey mb-0">
+          Bots are test accounts named zz_nights_bot1…6. The lobby lists players by name and the first one leads, so
+          keep your user name before "zz".
         </p>
       </v-card-text>
     </v-card>
@@ -93,11 +115,36 @@
         Event #{{ result.eventPk }} · {{ result.storeName }}
       </v-card-title>
       <v-card-text>
-        <div v-for="table in result.tables" :key="table.tablePk" class="d-flex align-center ga-2 mb-2">
-          <span class="text-body-2">Table {{ table.tableNumber }}</span>
-          <v-spacer />
-          <v-btn size="small" variant="text" icon="mdi-content-copy" title="Copy lobby link" @click="copy(table.lobbyPath)" />
-          <v-btn size="small" color="amber-accent-4" :href="table.lobbyPath" target="_blank">Open lobby</v-btn>
+        <div v-for="table in result.tables" :key="table.tablePk" class="mb-3">
+          <div class="d-flex flex-wrap align-center ga-2">
+            <span class="text-body-2">Table {{ table.tableNumber }}</span>
+            <v-spacer />
+            <v-btn size="small" variant="text" icon="mdi-content-copy" title="Copy lobby link" @click="copy(table.lobbyPath)" />
+            <v-btn size="small" color="amber-accent-4" :href="table.lobbyPath" target="_blank">Open lobby</v-btn>
+            <v-select
+              v-model="botCount[table.tablePk]"
+              :items="[1, 2, 3]"
+              density="compact"
+              hide-details
+              variant="outlined"
+              class="bot-count"
+            />
+            <v-btn
+              size="small"
+              color="green"
+              prepend-icon="mdi-robot"
+              :loading="busy === `bots-${table.tablePk}`"
+              :disabled="!!busy"
+              @click="addBots(result, table.tablePk)"
+            >
+              Add bots
+            </v-btn>
+          </div>
+          <div v-if="bots[table.tablePk]?.length" class="d-flex flex-wrap ga-1 mt-1">
+            <v-chip v-for="bot in bots[table.tablePk]" :key="bot.usersPk" size="small" prepend-icon="mdi-robot">
+              {{ bot.userName }} · {{ bot.heroId }}
+            </v-chip>
+          </div>
         </div>
       </v-card-text>
     </v-card>
@@ -117,6 +164,7 @@ import {
   seasonForScenery,
   type GeneratedEvent,
   type Scenery,
+  type TableBot,
 } from "@/dev/testDataGenerator";
 
 const appEnv = resolveApiEnv("prod");
@@ -125,10 +173,21 @@ const generator = new TestDataGenerator();
 const credentials = reactive(loadCredentials());
 const tester = ref<{ users_pk: number; user_name: string } | null>(null);
 const sceneries = ref<Scenery[]>([]);
-const busy = ref<"" | "login" | "register" | "generate">("");
+const busy = ref("");
 const error = ref("");
 const steps = ref<string[]>([]);
 const results = ref<GeneratedEvent[]>([]);
+const botCount = reactive<Record<number, number>>({});
+const bots = reactive<Record<number, TableBot[]>>({});
+
+// Who the app itself is logged in as (the player who will lead the lobby).
+const appUser = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("app_user") || "null") as { users_pk: number; user_name: string } | null;
+  } catch {
+    return null;
+  }
+})();
 
 const seasons = [
   { title: "Season 1", value: 2 },
@@ -190,8 +249,25 @@ const generate = () =>
       { ...form, sceneryPk: scenery.sceneries_pk, sceneryName: scenery.name },
       (step) => steps.value.push(step),
     );
+    result.tables.forEach((table) => (botCount[table.tablePk] = 2));
     results.value.unshift(result);
+  });
+
+const addBots = (event: GeneratedEvent, tablePk: number) =>
+  run(`bots-${tablePk}`, async () => {
+    steps.value = [];
+    const added = await generator.addBotsToTable(event, tablePk, botCount[tablePk] ?? 2, (step) => steps.value.push(step));
+    bots[tablePk] = [...(bots[tablePk] ?? []), ...added];
   });
 
 const copy = (path: string) => navigator.clipboard?.writeText(`${window.location.origin}${path}`);
 </script>
+
+<style scoped>
+.bot-count {
+  flex: 0 0 76px;
+}
+.nights-steps li {
+  margin-bottom: 4px;
+}
+</style>

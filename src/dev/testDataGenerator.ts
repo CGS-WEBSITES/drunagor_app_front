@@ -3,6 +3,8 @@
 // never depends on (or touches) the session or API the app is using.
 import axios, { type AxiosInstance } from "axios";
 import md5 from "js-md5";
+import { Hero, RESOURCE_DEFINITIONS, SequentialAdventureState } from "@/store/Hero";
+import { NIGHTS_HEROES } from "@/data/heroMeta";
 
 export const TEST_API_URL = "https://api.drunagor.app/test/system/";
 
@@ -24,8 +26,12 @@ export type GenerateOptions = {
 export type GeneratedEvent = {
   eventPk: number;
   storeName: string;
+  seasonFk: number;
   tables: { tablePk: number; tableNumber: number; lobbyPath: string }[];
 };
+
+export type TableBot = { usersPk: number; userName: string; heroId: string };
+
 
 const TESTER_STORE = {
   name: "Drunagor Tester Store",
@@ -164,6 +170,7 @@ export class TestDataGenerator {
       onStep("Done.");
       return {
         eventPk,
+        seasonFk: options.seasonFk,
         storeName: store.name,
         tables: (tableData.tables || []).map((table: any) => ({
           tablePk: table.event_tables_pk,
@@ -174,5 +181,114 @@ export class TestDataGenerator {
     } catch (error) {
       throw new Error(this.errorMessage(error));
     }
+  }
+
+  // Drunagor Nights playtests: bot players that sit at a table with a hero
+  // already picked, so one real player can run the whole lobby alone.
+  // The table lists players by user name and its first player leads, so the
+  // bots' names start with "zz" to leave the lead to the real player.
+  async addBotsToTable(
+    event: GeneratedEvent,
+    tablePk: number,
+    count: number,
+    onStep: (message: string) => void,
+  ): Promise<TableBot[]> {
+    const skusFk = event.seasonFk === 2 ? 38 : 39;
+    const { data: table } = await this.api.get("rl_events_users/table_players", {
+      params: { events_fk: event.eventPk, event_tables_pk: tablePk },
+    });
+    const seated = new Set<number>((table.players || []).map((player: any) => player.users_pk));
+    const bots: TableBot[] = [];
+
+    for (let i = 1; bots.length < count && i <= 6; i++) {
+      const bot = new BotPlayer(i);
+      onStep(`Getting ${bot.userName} ready...`);
+      try {
+        await bot.signIn();
+        if (seated.has(bot.usersPk!)) continue;
+        const heroId = NIGHTS_HEROES[(i - 1) % NIGHTS_HEROES.length];
+        const heroPk = await bot.ensureHero(heroId);
+        await bot.sitAt(event.eventPk, tablePk, skusFk, heroPk);
+        bots.push({ usersPk: bot.usersPk!, userName: bot.userName, heroId });
+      } catch (error) {
+        throw new Error(`${bot.userName}: ${this.errorMessage(error)}`);
+      }
+    }
+    onStep(`${bots.length} bot(s) at the table.`);
+    return bots;
+  }
+}
+
+// A throwaway player account in the TEST database.
+const BOT_PASSWORD = "nights-bot-test";
+
+class BotPlayer {
+  private api: AxiosInstance;
+  usersPk: number | null = null;
+  readonly email: string;
+  readonly userName: string;
+
+  constructor(index: number) {
+    this.api = axios.create({ baseURL: TEST_API_URL, adapter: "xhr" });
+    this.email = `nights.bot${index}@drunagor.dev`;
+    this.userName = `zz_nights_bot${index}`;
+  }
+
+  async signIn() {
+    const login = () => this.api.post("users/login", { login: this.email, password: md5(BOT_PASSWORD) });
+    let response;
+    try {
+      response = await login();
+    } catch {
+      await this.api.post("users/cadastro", {
+        name: `Nights Bot`,
+        user_name: this.userName,
+        email: this.email,
+        password: md5(BOT_PASSWORD),
+        roles_fk: 1,
+        active: true,
+        verified: true,
+        agreement: true,
+      });
+      response = await login();
+    }
+    this.api.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
+    this.usersPk = response.data.data.users_pk;
+  }
+
+  // Reuses the bot's hero of that kind, or creates a fresh one.
+  async ensureHero(heroId: string): Promise<number> {
+    const { data } = await this.api.get("playable_heroes/search", {
+      params: { users_fk: this.usersPk },
+      validateStatus: (status) => status === 200 || status === 404,
+    });
+    for (const playable of data.playable_heroes || data.heroes || []) {
+      try {
+        const state = JSON.parse(atob(playable.hero_hash));
+        if ((state.heroId || state.id) === heroId) return playable.playable_heroes_pk;
+      } catch {
+        // Unreadable hero: skip it.
+      }
+    }
+    const hero = new Hero(heroId, "");
+    hero.sequentialAdventureState = new SequentialAdventureState();
+    RESOURCE_DEFINITIONS.forEach((resource) => (hero.sequentialAdventureState!.resources[resource.id] = 0));
+    const state = JSON.parse(JSON.stringify(hero));
+    delete state.playableHeroesPk;
+    const { data: created } = await this.api.post("playable_heroes/cadastro", {
+      hero_hash: btoa(JSON.stringify(state)),
+      users_fk: this.usersPk,
+    });
+    return created.playable_hero.playable_heroes_pk;
+  }
+
+  // Same calls the lobby makes when a player joins and picks a hero.
+  async sitAt(eventPk: number, tablePk: number, skusFk: number, heroPk: number) {
+    await this.api.post("rl_events_users/cadastro", null, {
+      params: { users_fk: this.usersPk, events_fk: eventPk, event_tables_fk: tablePk, status: 1, active: true, playable_heroes_fk: heroPk },
+    });
+    await this.api.post("rl_campaigns_users/cadastro", null, {
+      params: { users_fk: this.usersPk, skus_fk: skusFk, active: true, playable_heroes_fk: heroPk, events_fk: eventPk },
+    });
   }
 }
