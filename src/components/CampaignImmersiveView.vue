@@ -12,7 +12,6 @@
       @touchend="handleTouchEnd"
       @wheel.prevent="handleZoom"
     >
-      <div class="map-ambience" :style="{ backgroundImage: `url(${ambienceArt})` }"></div>
       <div class="map-content" :style="mapTransformStyle">
         <img
           v-if="currentBackgroundImage"
@@ -39,13 +38,9 @@
           <div class="now-card mb-2">
             <small>{{ activeCampaignData.wing || "Campaign" }}</small>
             <strong>{{ activeCampaignData.door || "First Setup" }}</strong>
-            <button class="now-card__read" @click.stop="readTheScene">
-              <v-icon size="16">mdi-book-open-page-variant</v-icon>
-              Read scene
-            </button>
           </div>
 
-          <div v-if="!smAndDown" class="d-flex flex-column gap-2 mt-1">
+          <div class="side-tabs">
             <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
               <template v-slot:activator="{ props }">
                 <div 
@@ -336,15 +331,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Phones: books and references in a dock instead of the side tabs. -->
-    <nav v-if="smAndDown" class="imm-dock">
-      <button @click.stop="openBookDialog"><v-icon>mdi-book-open-variant</v-icon><span>Books</span></button>
-      <button @click.stop="openKeywordsDialog"><v-icon>mdi-book-search-outline</v-icon><span>Keywords</span></button>
-      <button v-if="isWing1Or2" @click.stop="runesDialogVisible = true"><v-icon>mdi-cards-variant</v-icon><span>Runes</span></button>
-      <button @click.stop="openOnlyInstructions"><img src="@/assets/door.png" alt="" /><span>Rules</span></button>
-      <button @click.stop="tharmagarDialogVisible = true"><v-icon>mdi-comment-question-outline</v-icon><span>Tharmagar</span></button>
-    </nav>
 
     <v-dialog v-model="dashboardExitDialog.visible" max-width="400">
         <v-card class="bg-grey-darken-3 rounded-lg border-thin">
@@ -908,8 +894,6 @@ import AssemblyGuide from "@/components/AssemblyGuide.vue";
 import { firstSetupSteps } from "@/data/assembly/firstSetup";
 import { useDisplay } from "vuetify";
 import { useEventListener } from "@vueuse/core";
-import underkeepArt from "@/assets/underkeep.png";
-import underkeep2Art from "@/assets/underkeep2.png";
 import { useUserStore } from "@/store/UserStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
@@ -1097,11 +1081,6 @@ const enrichedHeroes = computed(() => {
 
 const activeCampaignData = computed(
   () => campaignStore.find(props.campaignId) || props.campaign || {},
-);
-
-const currentLocationDisplay = computed(
-  () =>
-    `${activeCampaignData.value.wing || "Unknown"} - ${activeCampaignData.value.door || "Setup"}`,
 );
 
 const isWing1Or2 = computed(() => {
@@ -1665,11 +1644,6 @@ function onMapLoad() {
   fitMap();
 }
 
-// The wing's art, blurred, behind the map.
-const ambienceArt = computed(() => {
-  const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  return wing.includes("WING 3") || wing.includes("WING 4") ? underkeep2Art : underkeepArt;
-});
 
 function handleZoom(e: WheelEvent) {
   const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -2635,16 +2609,6 @@ watch(
   cursor: grabbing;
 }
 
-.map-ambience {
-  position: absolute;
-  inset: 0;
-  background-position: center;
-  background-size: cover;
-  filter: blur(22px) brightness(0.28) saturate(1.1);
-  transform: scale(1.1);
-  pointer-events: none;
-}
-
 .map-content {
   position: relative;
   width: 100%;
@@ -3451,25 +3415,6 @@ watch(
   line-height: 1.2;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
 }
-.now-card__read {
-  display: inline-flex;
-  align-self: flex-start;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 5px 10px;
-  background: rgba(255, 171, 0, 0.18);
-  border: 1px solid rgba(255, 171, 0, 0.5);
-  border-radius: 999px;
-  color: #ffd180;
-  font-family: "Poppins", sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  pointer-events: auto;
-}
-.now-card__read:hover {
-  background: rgba(255, 171, 0, 0.3);
-}
 
 /* Party / Save / Fit / More, each with its name. */
 .hud-btns {
@@ -3543,58 +3488,16 @@ watch(
   align-items: center;
   gap: 2px;
   padding: 1px 6px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(30, 30, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 999px;
   font-family: "Poppins", sans-serif;
   font-size: 0.68rem;
   font-weight: 700;
 }
 
-/* Phone dock */
-.imm-dock {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 40;
-  display: flex;
-  gap: 2px;
-  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
-  background: rgba(12, 12, 12, 0.94);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-}
-.imm-dock button {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  height: 48px;
-  border-radius: 10px;
-  color: #ddd;
-  font-family: "Poppins", sans-serif;
-}
-.imm-dock button img {
-  width: 22px;
-  height: 22px;
-}
-.imm-dock button span {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-.imm-dock button:active {
-  background: rgba(255, 255, 255, 0.08);
-}
-
 @media (max-width: 960px) {
-  /* Party / Save / Fit / More: a column under the Now card, icons only. */
-  .bottom-left {
-    top: 112px;
-    bottom: auto !important;
-  }
+  /* Party / Save / Fit / More: a column in the bottom left corner, icons only. */
   .hud-btns {
     flex-direction: column;
   }
@@ -3605,16 +3508,8 @@ watch(
   .hud-btn span {
     display: none;
   }
-  /* Heroes and actions sit just above the dock. */
-  .bottom-center {
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
-    left: 12px !important;
-    transform: none !important;
-  }
-  .bottom-right {
-    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
-  }
-  .right-tab-btn .tab-label:not(.tab-label--next) {
+  /* Phones: the right actions are icons only, so the heroes fit between. */
+  .right-tab-btn .tab-label {
     display: none;
   }
   .now-card {
@@ -3628,6 +3523,69 @@ watch(
   .hero-stats span {
     padding: 1px 4px;
     font-size: 0.6rem;
+  }
+}
+
+/* Side tabs: same look, steadier layout. */
+.side-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.side-tabs .bookmark-tab.left-side {
+  gap: 10px;
+  width: 172px;
+  min-height: 44px;
+  margin: 0 !important;
+  padding: 8px 14px 8px 12px;
+  background: linear-gradient(90deg, rgba(28, 28, 28, 0.95), rgba(16, 16, 16, 0.92));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.side-tabs .bookmark-tab.left-side:hover {
+  background: linear-gradient(90deg, rgba(44, 44, 44, 0.98), rgba(24, 24, 24, 0.95));
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.55);
+  transform: translateX(6px);
+}
+.side-tabs .bookmark-tab.left-side:active {
+  transform: translateX(3px) scale(0.98);
+}
+/* Every icon in the same 26px box, so the labels line up. */
+.side-tabs .bookmark-tab.left-side > .v-icon,
+.side-tabs .bookmark-tab.left-side > img {
+  flex: 0 0 26px;
+  width: 26px !important;
+  height: 26px !important;
+  font-size: 22px !important;
+}
+.side-tabs .bookmark-tab.left-side > img {
+  object-fit: contain;
+  padding: 2px;
+}
+.side-tabs .text-label {
+  margin-left: 0 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.8px;
+  text-align: left;
+  white-space: nowrap;
+}
+.side-tabs .start-here-tab {
+  margin-bottom: 4px !important;
+}
+@media (max-width: 960px) {
+  /* Phones: square icon tabs, big enough to tap. */
+  .side-tabs {
+    gap: 4px;
+  }
+  .side-tabs .bookmark-tab.left-side {
+    justify-content: center;
+    width: 46px;
+    min-height: 44px;
+    padding: 8px;
   }
 }
 </style>
