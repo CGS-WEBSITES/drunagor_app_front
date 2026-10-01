@@ -126,7 +126,7 @@ function openHeroEquipmentSkills() {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   padding: 12px 14px;
   overflow: hidden;
@@ -194,9 +194,14 @@ function openHeroEquipmentSkills() {
 }
 .sum-item__icon {
   display: flex;
-  flex: 0 0 24px;
+  flex: 0 0 28px;
+  width: 28px;
+  overflow: hidden;
   align-items: center;
   justify-content: center;
+}
+.sum-item__icon :deep(img) {
+  max-width: 100%;
 }
 .sum-item strong {
   flex: 0 1 auto;
@@ -232,12 +237,41 @@ function openHeroEquipmentSkills() {
     right: 0;
     bottom: 0;
     left: 40%;
+    justify-content: center;
+    container-type: size;
   }
   .stat small {
     display: none;
   }
   .stat {
     padding: 0 12px;
+  }
+}
+/* Taller cards: bigger pills and rows, still one line each. */
+@container (min-height: 150px) {
+  .stat {
+    height: 36px;
+    padding: 0 14px;
+    gap: 7px;
+  }
+  .stat strong {
+    font-size: 1.02rem;
+  }
+  .hero-sum__items {
+    gap: 8px;
+  }
+  .sum-item {
+    height: 42px;
+    padding: 0 12px 0 8px;
+  }
+  .sum-item strong {
+    font-size: 0.86rem;
+  }
+}
+/* Lots of room: labels on the numbers too. */
+@container (min-height: 190px) and (min-width: 700px) {
+  .stat small {
+    display: inline;
   }
 }
 @media (max-width: 959px) {
@@ -253,6 +287,20 @@ function openHeroEquipmentSkills() {
   }
   .hero-sum__items {
     grid-template-columns: minmax(0, 1fr);
+  }
+  /* Phones: numbers in an even 3-column grid. */
+  .hero-sum__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .stat {
+    justify-content: center;
+    height: 34px;
+    padding: 0 6px;
+    border-radius: 8px;
+  }
+  .sum-item {
+    height: 38px;
   }
 }
 .action-buttons-container {
