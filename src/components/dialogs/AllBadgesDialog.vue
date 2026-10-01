@@ -122,7 +122,7 @@
 import { ref, computed, watch, inject } from "vue";
 import axios from "axios";
 import { getToken } from "@/service/AccessToken";
-import { badgeRarity, formatPercent, useBadgeStats } from "@/utils/badgeRarity";
+import { badgeRarityOf, useBadgeStats } from "@/utils/badgeRarity";
 
 const props = defineProps({
   modelValue: {
@@ -211,11 +211,7 @@ const getEarnedDate = (rewardPk: number) => {
 
 // Percentage of the community with each badge, and its rarity tier.
 const badgeStats = useBadgeStats(axiosInstance);
-const rarityOf = (rewardPk: number) => {
-  if (!badgeStats.value) return null;
-  const percent = badgeStats.value[Number(rewardPk)] ?? 0;
-  return { ...badgeRarity(percent), percent: formatPercent(percent) };
-};
+const rarityOf = (rewardPk: number) => badgeRarityOf(badgeStats.value, rewardPk);
 
 const getRewardImage = (pictureHash: string) => {
   if (!pictureHash) return "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png";

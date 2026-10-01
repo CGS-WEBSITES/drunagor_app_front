@@ -83,18 +83,14 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import AllBadgesDialog from "@/components/dialogs/AllBadgesDialog.vue";
-import { badgeRarity, formatPercent, useBadgeStats } from "@/utils/badgeRarity";
+import { badgeRarityOf, useBadgeStats } from "@/utils/badgeRarity";
 
 const userRewards = ref<any[]>([]);
 const showAllBadges = ref(false);
 
 // Percentage of the community with each badge, and its rarity tier.
 const badgeStats = useBadgeStats(axios);
-const rarityOf = (rewardPk: number) => {
-  if (!badgeStats.value) return null;
-  const percent = badgeStats.value[Number(rewardPk)] ?? 0;
-  return { ...badgeRarity(percent), percent: formatPercent(percent) };
-};
+const rarityOf = (rewardPk: number) => badgeRarityOf(badgeStats.value, rewardPk);
 
 const userId = computed(() => {
   const userData = JSON.parse(localStorage.getItem("app_user") || "{}");

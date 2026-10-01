@@ -40,8 +40,11 @@ let loading: Promise<void> | null = null;
 
 const CACHE_KEY = "badgeRarity.v1";
 const CACHE_HOURS = 24;
-const SAMPLE_SIZE = 250;
-const CONCURRENCY = 6;
+const SAMPLE_SIZE = 150;
+const CONCURRENCY = 12;
+
+// True while the first measurement runs, so badges can show it's coming.
+export const badgeStatsMeasuring = ref(false);
 
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("accessToken")}` });
 
@@ -110,6 +113,7 @@ export function useBadgeStats(axios: any) {
       loading = Promise.resolve();
       return stats;
     }
+    badgeStatsMeasuring.value = true;
     loading = axios
       .get("/rl_users_rewards/stats", { headers: authHeaders() })
       .then(({ data }: any) => {
@@ -130,7 +134,15 @@ export function useBadgeStats(axios: any) {
         // Can't measure now: badges show without percentages.
         stats.value = null;
         loading = null;
-      });
+      })
+      .finally(() => (badgeStatsMeasuring.value = false));
   }
   return stats;
+}
+
+// What a badge shows: its share and tier, a placeholder while measuring, or nothing.
+export function badgeRarityOf(percents: Record<number, number> | null, rewardPk: number) {
+  if (!percents) return badgeStatsMeasuring.value ? { label: "Measuring", color: "rgba(255,255,255,0.45)", percent: "…" } : null;
+  const percent = percents[Number(rewardPk)] ?? 0;
+  return { ...badgeRarity(percent), percent: formatPercent(percent) };
 }
