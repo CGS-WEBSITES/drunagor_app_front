@@ -237,7 +237,8 @@ function openHeroEquipmentSkills() {
     right: 0;
     bottom: 0;
     left: 40%;
-    justify-content: center;
+    /* Always from the top-left, whatever the hero has. */
+    justify-content: flex-start;
     container-type: size;
   }
   .stat small {
