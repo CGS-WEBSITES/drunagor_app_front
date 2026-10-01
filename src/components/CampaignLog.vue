@@ -38,17 +38,12 @@
             <strong>{{ skillCount }}</strong>
             <small>Skills</small>
           </div>
-          <div v-if="state?.stashedCardIds?.length" class="stat" title="Items in the stash">
-            <SlotIcon type="Stash" :size="18" />
-            <strong>{{ state.stashedCardIds.length }}</strong>
-            <small>Stash</small>
-          </div>
         </div>
 
         <!-- Equipped items -->
         <div v-if="equipped.length" class="hero-sum__items">
           <div v-for="item in equipped" :key="item.key" class="sum-item">
-            <SlotIcon :type="item.type" :size="24" />
+            <span class="sum-item__icon"><SlotIcon :type="item.type" :size="24" /></span>
             <div class="sum-item__text">
               <strong>{{ item.name }}</strong>
               <small>{{ item.sub }}</small>
@@ -105,7 +100,8 @@ const state = computed(() => heroStore.findInCampaignOptional(props.heroId, prop
 const adventure = computed(() => state.value?.sequentialAdventureState as any);
 const skillCount = computed(() => (state.value?.skillIds ?? []).length);
 
-const SLOTS = ["weaponId", "offHandId", "armorId", "trinketId", "bagOneId", "bagTwoId"] as const;
+// What the hero is using: bags and the stash are carried, not used.
+const SLOTS = ["weaponId", "offHandId", "armorId", "trinketId"] as const;
 const equipped = computed(() =>
   SLOTS.map((key) => {
     const id = (state.value?.equipment as any)?.[key] as string | undefined;
@@ -160,31 +156,41 @@ function openHeroEquipmentSkills() {
   align-items: center;
   padding: 8px 14px 12px;
 }
-/* Stat tiles: icon, number, label. */
+/* Stats: one strip, equal columns, everything centered. */
 .hero-sum__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  overflow: hidden;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 10px;
 }
 .stat {
   display: grid;
-  grid-template-areas: "icon value" "icon label";
-  grid-template-columns: auto 1fr;
-  column-gap: 8px;
+  grid-template-areas: "icon value" "label label";
+  justify-content: center;
   align-items: center;
-  min-width: 78px;
-  padding: 6px 10px;
-  background: rgb(var(--v-theme-secondary));
-  border-radius: 8px;
+  column-gap: 5px;
+  row-gap: 2px;
+  padding: 7px 4px;
+  text-align: center;
 }
 .stat > :first-child {
   grid-area: icon;
 }
 .stat strong {
   grid-area: value;
-  font-size: 1rem;
+}
+.stat small {
+  grid-area: label;
+}
+.stat + .stat {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.stat strong {
+  font-size: 1.1rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1;
 }
 .stat strong span {
   font-size: 0.75rem;
@@ -192,8 +198,7 @@ function openHeroEquipmentSkills() {
   opacity: 0.6;
 }
 .stat small {
-  grid-area: label;
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -212,6 +217,14 @@ function openHeroEquipmentSkills() {
   padding: 6px 10px;
   background: rgb(var(--v-theme-secondary));
   border-radius: 8px;
+}
+/* Same box for every icon, so names line up. */
+.sum-item__icon {
+  display: flex;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
 }
 .sum-item__text {
   display: flex;
@@ -244,10 +257,6 @@ function openHeroEquipmentSkills() {
   }
   .hero-sum__info {
     padding: 12px 12px 0;
-  }
-  .stat {
-    flex: 1 1 calc(33% - 6px);
-    min-width: 0;
   }
 }
 .action-buttons-container {
