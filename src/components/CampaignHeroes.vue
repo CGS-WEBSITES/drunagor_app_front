@@ -48,10 +48,19 @@
         </div>
       </div>
 
-      <!-- My content: the boxes you own. Tap to add or remove. -->
+      <!-- My content: the boxes you own. Folds to their symbols; open it to add or remove. -->
       <div v-if="contentScope === 'mine'" class="heroes-content">
-        <span class="heroes-content__label">My hero content</span>
-        <div class="heroes-content__list">
+        <button class="heroes-content__head" :aria-expanded="!contentFolded" @click="contentFolded = !contentFolded">
+          <span class="heroes-content__label">My hero content</span>
+          <span v-if="contentFolded" class="heroes-content__symbols">
+            <template v-for="box in heroBoxes" :key="box.id">
+              <img v-if="box.symbol && configurationStore.isEnabledHeroContent(box.id)" :src="box.symbol" :alt="box.label" :title="box.label" />
+            </template>
+          </span>
+          <span class="heroes-content__count">{{ enabledBoxCount }}/{{ heroBoxes.length }}</span>
+          <v-icon size="20">{{ contentFolded ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
+        </button>
+        <div v-show="!contentFolded" class="heroes-content__list">
           <button
             v-for="box in heroBoxes"
             :key="box.id"
@@ -218,6 +227,8 @@ const heroBoxes = computed(() =>
     .map((id) => ({ id: id as ContentId, label: contentLabel(id as ContentId), symbol: CONTENT_SYMBOLS[id as ContentId] }))
     .sort((a, b) => a.label.localeCompare(b.label)),
 );
+const contentFolded = useStorage("heroes.contentFolded", false);
+const enabledBoxCount = computed(() => heroBoxes.value.filter((box) => configurationStore.isEnabledHeroContent(box.id)).length);
 function toggleContent(id: ContentId) {
   const enabled = configurationStore.enabledHeroContent;
   const index = enabled.indexOf(id);
@@ -442,9 +453,36 @@ onMounted(() => {
 .heroes-content {
   margin: -4px 0 18px;
 }
+.heroes-content__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 32px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.heroes-content__symbols {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.heroes-content__symbols img {
+  width: auto;
+  height: 18px;
+  opacity: 0.85;
+}
+.heroes-content__count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0.6;
+}
 .heroes-content__label {
   display: block;
-  margin-bottom: 8px;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.5px;

@@ -248,14 +248,10 @@
           >
             
             <v-col cols="auto" class="d-flex justify-center align-center">
-              <v-btn
-                icon
-                variant="text"
-                @click="goToCampaigns"
-                :size="display.xs ? 'large' : 'x-large'"
-              >
+              <button class="dash-nav" @click="goToCampaigns">
                 <v-icon>mdi-cards</v-icon>
-              </v-btn>
+                <span>Heroes</span>
+              </button>
             </v-col>
             
             <v-col class="px-2 d-flex justify-center align-center">
@@ -274,14 +270,12 @@
             </v-col>
 
             <v-col cols="auto" class="d-flex justify-center align-center">
-              <v-btn
-                icon
-                variant="text"
-                @click="goToGroup"
-                :size="display.xs ? 'large' : 'x-large'"
-              >
-                <v-icon>mdi-account-group</v-icon>
-              </v-btn>
+              <button class="dash-nav" @click="goToGroup">
+                <v-badge :model-value="friendRequests > 0" :content="friendRequests" color="red" offset-x="-2" offset-y="2">
+                  <v-icon>mdi-account-group</v-icon>
+                </v-badge>
+                <span>Friends</span>
+              </button>
             </v-col>
 
           </v-row>
@@ -613,6 +607,19 @@ const goToCampaigns = () => router.push({ name: "HeroesManager" });
 const goToEvents = () => router.push({ name: "Events" });
 const goToGroup = () => router.push({ name: "SocialHub" });
 
+// Pending friend requests, shown on the Friends button.
+const friendRequests = ref(0);
+const loadFriendRequests = async () => {
+  try {
+    const { data } = await (axios as any).get("/friends/list_requests", {
+      params: { recipient_users_fk: userStore.user.users_pk, accepted: false, active: true },
+    });
+    friendRequests.value = (data?.friends || []).length;
+  } catch {
+    friendRequests.value = 0;
+  }
+};
+
 function importCampaign(token: string) {}
   
 const openHub = async () => {
@@ -939,6 +946,7 @@ onBeforeMount(async () => {
 
   // Pre-load the recent campaign so it is instant inside the play dialog
   loadRecentCampaign();
+  loadFriendRequests();
 
   try {
     const res = await (axios as any).get("/rl_campaigns_users/search", {
@@ -1055,5 +1063,26 @@ onBeforeMount(async () => {
 body {
   font-family: "Poppins", sans-serif !important;
   overflow: hidden;
+}
+/* Bottom bar side buttons: icon with its name under it. */
+.dash-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 64px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transition: background 0.15s ease;
+}
+.dash-nav:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dash-nav span {
+  opacity: 0.8;
 }
 </style>

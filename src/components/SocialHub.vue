@@ -1,150 +1,117 @@
 <template>
-  <v-container max-width="850" class="pa-4 pt-0 mt-0 social-wrapper">
-    
-    <v-row justify="center" class="ma-0">
-      <v-col cols="12" class="pa-0 pt-2">
-        <h1 class="text-h4 font-weight-bold mb-4 text-center text-white">Social Hub</h1>
-      </v-col>
-    </v-row>
+  <div class="social">
+    <!-- Friends · Requests · Find players -->
+    <div class="social-seg">
+      <button v-for="tab in tabs" :key="tab.value" :class="{ active: view === tab.value }" @click="view = tab.value">
+        <v-icon size="18">{{ tab.icon }}</v-icon>
+        <span>{{ tab.label }}</span>
+        <span v-if="tab.count" class="social-seg__count" :class="{ 'social-seg__count--alert': tab.value === 'requests' }">{{ tab.count }}</span>
+      </button>
+    </div>
 
-    <v-card color="transparent" flat>
-      <v-tabs
-        v-model="mainTab"
-        grow
-        bg-color="secondary"
-        rounded="lg"
-        class="mb-6 elevation-4"
-        indicator-color="white"
+    <v-text-field
+      v-if="view === 'search'"
+      v-model="globalSearchQuery"
+      placeholder="Search players by name"
+      variant="solo-filled"
+      prepend-inner-icon="mdi-magnify"
+      clearable
+      hide-details
+      density="comfortable"
+      class="social__search"
+      autofocus
+      @update:model-value="searchSoon"
+    />
+    <v-text-field
+      v-else-if="currentList.length > 6 || friendSearchQuery"
+      v-model="friendSearchQuery"
+      placeholder="Filter"
+      variant="solo-filled"
+      prepend-inner-icon="mdi-filter-variant"
+      clearable
+      hide-details
+      density="comfortable"
+      class="social__search"
+    />
+
+    <!-- Friends and requests -->
+    <div v-if="view !== 'search'" class="social-list">
+      <div
+        v-for="item in filteredFriendsList"
+        :key="item.friends_pk"
+        class="person"
+        role="button"
+        tabindex="0"
+        @click="navigateToUser(item.friends_id)"
+        @keydown.enter="navigateToUser(item.friends_id)"
       >
-        <v-tab value="network">
-          <v-icon start>mdi-account-group</v-icon>
-          My Network
-          <v-badge v-if="requests.length > 0" color="red" dot offset-x="-10" offset-y="-10"></v-badge>
-        </v-tab>
-        <v-tab value="search">
-          <v-icon start>mdi-magnify</v-icon>
-          Find Players
-        </v-tab>
-      </v-tabs>
+        <div class="person__bg" :style="getBackgroundStyle(item.background_hash)"></div>
+        <v-avatar size="48" rounded="lg" class="person__avatar">
+          <v-img :src="item.image" />
+        </v-avatar>
+        <div class="person__text">
+          <strong>{{ item.user_name }}</strong>
+          <small v-if="!item.accepted">Wants to be your friend</small>
+        </div>
+        <template v-if="!item.accepted">
+          <v-btn
+            size="small"
+            color="green"
+            variant="flat"
+            :loading="processingRequest === item.friends_pk"
+            @click.stop="acceptFriend(item)"
+          >
+            Accept
+          </v-btn>
+          <v-btn size="small" icon="mdi-close" variant="text" title="Decline" @click.stop="declineFriend(item.friends_pk)" />
+        </template>
+        <v-icon v-else class="person__go">mdi-chevron-right</v-icon>
+      </div>
 
-      <v-window v-model="mainTab" class="overflow-visible">
-        
-        <v-window-item value="network">
-          <v-card color="primary" rounded="lg" elevation="6" class="pa-4 fixed-main-card">
-            <v-tabs v-model="activeTab" class="mb-4 overflow-visible-tabs" centered>
-              <v-tab value="friends" class="text-h6">Friends</v-tab>
-              <v-badge
-                :model-value="requests.length > 0"
-                color="red"
-                :content="requests.length"
-                location="top end"
-                offset-x="8"
-                offset-y="8"
-              >
-                <v-tab value="requests" class="text-h6">Requests</v-tab>
-              </v-badge>
-            </v-tabs>
+      <div v-if="!loaded" class="social-empty"><v-progress-circular indeterminate /></div>
+      <div v-else-if="!filteredFriendsList.length" class="social-empty">
+        <v-icon size="44">{{ view === "friends" ? "mdi-account-multiple-outline" : "mdi-email-open-outline" }}</v-icon>
+        <p v-if="friendSearchQuery">Nobody here matches "{{ friendSearchQuery }}".</p>
+        <p v-else-if="view === 'friends'">No friends yet. Find the people you play with.</p>
+        <p v-else>No pending requests.</p>
+        <v-btn v-if="!friendSearchQuery" color="accent" variant="flat" prepend-icon="mdi-account-search" @click="view = 'search'">
+          Find players
+        </v-btn>
+      </div>
+    </div>
 
-            <div class="search-bar-center mb-4">
-              <v-text-field
-                v-model="friendSearchQuery"
-                placeholder="Filter list..."
-                variant="solo-filled"
-                prepend-inner-icon="mdi-filter"
-                hide-details
-                density="compact"
-                class="max-width-search"
-              ></v-text-field>
-            </div>
+    <!-- Find players -->
+    <div v-else class="social-list">
+      <div
+        v-for="user in filteredGlobalUsers"
+        :key="user.users_pk"
+        class="person"
+        role="button"
+        tabindex="0"
+        @click="navigateToUser(user.users_pk)"
+        @keydown.enter="navigateToUser(user.users_pk)"
+      >
+        <div class="person__bg" :style="getBackgroundStyle(user.background_hash)"></div>
+        <v-avatar size="48" rounded="lg" class="person__avatar">
+          <v-img :src="user.picture_hash" />
+        </v-avatar>
+        <div class="person__text">
+          <strong>{{ user.user_name }}</strong>
+          <small v-if="user.join_date">Joined {{ user.join_date }}</small>
+        </div>
+        <v-chip v-if="friendIds.has(user.users_pk)" size="small" color="green" variant="tonal">Friend</v-chip>
+        <v-icon class="person__go">mdi-chevron-right</v-icon>
+      </div>
 
-            <div class="scroll-area">
-              <v-virtual-scroll 
-                :items="filteredFriendsList" 
-                height="100%"
-                item-height="110" 
-                class="rounded-lg"
-              >
-                <template #default="{ item }">
-                  <v-card class="pa-1 mb-3 cursor-pointer position-relative" rounded="lg" elevation="10" @click="navigateToUser(item.friends_id)">
-                    <div class="background-overlay" :style="getBackgroundStyle(item.background_hash)"></div>
-                    <v-row align="center" class="ma-0 fill-height position-relative" style="z-index: 1">
-                      <v-col cols="3" sm="2" class="d-flex justify-center">
-                        <v-avatar size="60" rounded="lg" class="elevation-4 bg-black-alpha">
-                          <v-img :src="item.image"></v-img>
-                        </v-avatar>
-                      </v-col>
-                      <v-col cols="5" sm="6">
-                        <div class="text-subtitle-1 font-weight-bold text-truncate text-white">{{ item.user_name }}</div>
-                      </v-col>
-                      <v-col cols="4" class="d-flex justify-end pr-2" v-if="!item.accepted">
-                        <v-btn icon="mdi-check" color="green" size="x-small" class="mr-1" @click.stop="acceptFriend(item)"></v-btn>
-                        <v-btn icon="mdi-close" color="red" size="x-small" @click.stop="declineFriend(item.friends_pk)"></v-btn>
-                      </v-col>
-                    </v-row>
-                  </v-card>
-                </template>
-              </v-virtual-scroll>
-              
-              <div v-if="filteredFriendsList.length === 0" class="d-flex justify-center align-center h-100 opacity-50">
-                <p>No players found here.</p>
-              </div>
-            </div>
-          </v-card>
-        </v-window-item>
-
-        <v-window-item value="search">
-          <v-card color="primary" rounded="lg" elevation="6" class="pa-4 fixed-main-card">
-            
-            <div class="tabs-placeholder mb-4"></div>
-
-            <div class="search-bar-center mb-4">
-              <v-text-field
-                v-model="globalSearchQuery"
-                placeholder="Search players..."
-                variant="solo-filled"
-                append-inner-icon="mdi-magnify"
-                @input="fetchUsers"
-                hide-details
-                density="compact"
-                class="max-width-search"
-              ></v-text-field>
-            </div>
-
-            <div class="scroll-area">
-              <div class="results-wrapper">
-                <v-card 
-                  v-for="user in filteredGlobalUsers" 
-                  :key="user.users_pk" 
-                  class="pa-1 mb-3 cursor-pointer position-relative" 
-                  rounded="lg" 
-                  elevation="10" 
-                  @click="navigateToUser(user.users_pk)"
-                >
-                  <div class="background-overlay" :style="getBackgroundStyle(user.background_hash)"></div>
-                  <v-row align="center" class="ma-0 fill-height position-relative" style="z-index: 1">
-                    <v-col cols="3" sm="2" class="d-flex justify-center pl-4">
-                      <v-avatar size="60" rounded="lg" class="elevation-4 bg-black-alpha">
-                        <v-img :src="user.picture_hash"></v-img>
-                      </v-avatar>
-                    </v-col>
-                    <v-col cols="9">
-                      <div class="text-subtitle-1 font-weight-bold text-white">{{ user.user_name }}</div>
-                      <div class="text-caption text-grey-lighten-1">Joined: {{ user.join_date }}</div>
-                    </v-col>
-                  </v-row>
-                </v-card>
-
-                <v-alert v-if="globalSearchQuery && filteredGlobalUsers.length === 0" type="info" variant="tonal">
-                  No players found.
-                </v-alert>
-              </div>
-            </div>
-          </v-card>
-        </v-window-item>
-
-      </v-window>
-    </v-card>
-  </v-container>
+      <div v-if="!globalSearchQuery" class="social-empty">
+        <v-icon size="44">mdi-account-search-outline</v-icon>
+        <p>Type a name to find players, then open their profile to add them.</p>
+      </div>
+      <div v-else-if="!filteredGlobalUsers.length" class="social-empty">
+        <p>No players found.</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -158,8 +125,9 @@ const userStore = useUserStore();
 const router = useRouter();
 const userId = userStore.user?.users_pk;
 
-const mainTab = ref("network");
-const activeTab = ref("friends");
+// friends | requests | search
+const view = ref("friends");
+const loaded = ref(false);
 const processingRequest = ref(null);
 let pollingInterval = null;
 
@@ -169,15 +137,23 @@ const users = ref([]);
 const friendSearchQuery = ref("");
 const globalSearchQuery = ref("");
 
+const tabs = computed(() => [
+  { value: "friends", label: "Friends", icon: "mdi-account-multiple", count: friends.value.length },
+  { value: "requests", label: "Requests", icon: "mdi-account-clock", count: requests.value.length },
+  { value: "search", label: "Find", icon: "mdi-account-search", count: 0 },
+]);
+const currentList = computed(() => (view.value === "requests" ? requests.value : friends.value));
+const friendIds = computed(() => new Set(friends.value.map((friend) => friend.friends_id)));
+
 const filteredFriendsList = computed(() => {
-  const list = activeTab.value === "friends" ? friends.value : requests.value;
-  if (!friendSearchQuery.value) return list;
-  return list.filter((item) => item.user_name.toLowerCase().includes(friendSearchQuery.value.toLowerCase()));
+  const query = (friendSearchQuery.value || "").toLowerCase();
+  if (!query) return currentList.value;
+  return currentList.value.filter((item) => item.user_name.toLowerCase().includes(query));
 });
 
 const filteredGlobalUsers = computed(() => {
-  if (!globalSearchQuery.value) return users.value;
-  return users.value.filter((user) => user.user_name.toLowerCase().startsWith(globalSearchQuery.value.toLowerCase()));
+  if (!globalSearchQuery.value) return [];
+  return users.value.filter((user) => user.user_name.toLowerCase().includes(globalSearchQuery.value.toLowerCase()));
 });
 
 const getBackgroundStyle = (hash) => ({
@@ -185,7 +161,6 @@ const getBackgroundStyle = (hash) => ({
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-  borderRadius: '8px', zIndex: 0, filter: 'brightness(0.4)'
 });
 
 const navigateToUser = (id) => {
@@ -214,12 +189,22 @@ const fetchFriendsData = async () => {
       accepted: false
     }));
   } catch (e) { console.error(e); }
+  finally { loaded.value = true; }
+};
+
+// Search once the typing pauses.
+let searchTimer = null;
+const searchSoon = () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(fetchUsers, 300);
 };
 
 const fetchUsers = async () => {
   if (!globalSearchQuery.value) { users.value = []; return; }
+  const query = globalSearchQuery.value;
   try {
     const response = await axios.get(`${apiUrl}/users/search`, { params: { user_name: globalSearchQuery.value } });
+    if (query !== globalSearchQuery.value) return;
     users.value = (response.data.users || []).map(u => ({
       ...u,
       picture_hash: u.picture_hash ? `https://assets.drunagor.app/Profile/${u.picture_hash}` : "https://assets.drunagor.app/Profile/user.png"
@@ -249,77 +234,145 @@ const declineFriend = async (pk) => {
 
 onMounted(() => {
   fetchFriendsData();
-  pollingInterval = setInterval(() => { if (mainTab.value === 'network') fetchFriendsData(); }, 8000);
+  pollingInterval = setInterval(() => { if (view.value !== 'search') fetchFriendsData(); }, 8000);
 });
 
-onBeforeUnmount(() => { if (pollingInterval) clearInterval(pollingInterval); });
-watch(mainTab, (val) => { if (val === 'network') fetchFriendsData(); });
+onBeforeUnmount(() => { if (pollingInterval) clearInterval(pollingInterval); clearTimeout(searchTimer); });
+watch(view, (val) => { friendSearchQuery.value = ""; if (val !== 'search') fetchFriendsData(); });
 </script>
 
 <style scoped>
-.social-wrapper {
-  align-self: flex-start !important;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
+.social {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 16px 32px;
+  font-family: "Poppins", sans-serif;
 }
-
-/* O CARD PRINCIPAL AGORA TEM ALTURA FIXA BASEADA NA TELA */
-.fixed-main-card {
+/* Pill tabs, like the heroes filters. */
+.social-seg {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+}
+.social-seg button {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 42px;
+  padding: 0 8px;
+  border-radius: 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.65;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.social-seg button.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
+}
+.social-seg__count {
+  min-width: 20px;
+  padding: 1px 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  text-align: center;
+}
+.social-seg__count--alert {
+  background: #e05353;
+  color: #fff;
+}
+.social__search {
+  margin-bottom: 12px;
+}
+.social-list {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 220px) !important; /* Trava a altura do card */
-  min-height: 500px;
+  gap: 8px;
 }
-
-/* ÁREA DE SCROLL: Ocupa todo o resto do card */
-.scroll-area {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding-right: 4px; /* Espaço para a scrollbar não colar no card */
-}
-
-/* Garante que o scrollbar fique bonitinho */
-.scroll-area::-webkit-scrollbar {
-  width: 6px;
-}
-.scroll-area::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-}
-
-/* Placeholder para compensar a falta das abas na aba de busca */
-.tabs-placeholder {
-  height: 48px; /* Mesma altura de um v-tabs */
-}
-
-.search-bar-center {
-  width: 100%;
+/* A person: their profile background, faded, behind avatar and name. */
+.person {
+  position: relative;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 8px 10px 10px;
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  cursor: pointer;
 }
-
-.max-width-search {
-  max-width: 340px;
+.person > :not(.person__bg) {
+  position: relative;
 }
-
-.background-overlay {
-  z-index: 0;
-  transition: filter 0.3s;
+.person__bg {
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+  transition: opacity 0.2s ease;
 }
-
-.cursor-pointer:hover .background-overlay {
-  filter: brightness(0.6) !important;
+.person:hover .person__bg {
+  opacity: 0.4;
 }
-
-.bg-black-alpha {
-  background-color: rgba(0,0,0,0.5) !important;
+.person__avatar {
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.5);
 }
-
-.overflow-visible-tabs :deep(.v-slide-group__container) {
-  overflow: visible !important;
+.person__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
 }
-
-.results-wrapper {
-  width: 100%;
+.person__text strong {
+  overflow: hidden;
+  font-size: 0.95rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.person__text small {
+  font-size: 0.72rem;
+  opacity: 0.65;
+}
+.person__go {
+  opacity: 0.5;
+}
+.social-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 16px;
+  text-align: center;
+  opacity: 0.8;
+}
+.social-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+/* Phones: icon over label, the count as a corner badge. */
+@media (max-width: 420px) {
+  .social-seg button {
+    flex-direction: column;
+    gap: 2px;
+    min-height: 52px;
+    font-size: 0.68rem;
+  }
+  .social-seg__count {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+  }
 }
 </style>
