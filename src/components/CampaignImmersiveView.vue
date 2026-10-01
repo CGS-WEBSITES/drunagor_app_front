@@ -426,7 +426,7 @@
       <v-card color="black">
         <InteractViewNew
           v-if="interactionsDialog.visible"
-          :current-door="activeCampaignData.door"
+          :current-door="doorSceneTarget"
           :wing="activeCampaignData.wing"
           @close="interactionsDialog.visible = false"
           @open-scene="handleOpenScene"
@@ -436,22 +436,11 @@
 
     <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
       <v-card color="black" class="book-dialog-card">
-        <v-toolbar color="primary" density="compact" class="d-none d-md-block">
-          <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
-          <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
-        </v-toolbar>
-        <v-btn
-            v-if="$vuetify.display.smAndDown"
-            icon="mdi-close"
-            color="red"
-            variant="elevated"
-            size="small"
-            class="mobile-close-book-btn"
-            elevation="8"
-            @click="bookDialog.visible = false"
-        ></v-btn>
-        <CampaignBookNew 
-          ref="campaignBookRef" 
+        <CampaignBookNew
+          ref="campaignBookRef"
+          closable
+          :current-door="activeCampaignData.door"
+          @close="bookDialog.visible = false"
           :campaign-wing="bookContext" 
           :campaign-type="activeCampaignData.campaign || campaign?.campaign || ''" 
           :active-wing="activeCampaignData.wing || campaign?.wing || ''"
@@ -2255,6 +2244,13 @@ const qrToDoorMap: Record<string, string> = {
   "book02.09": "LIBRARY",
   "book02.10": "LABORATORY"
 };
+
+// The book scene for the party's door (its "book…" id), so the book can offer "You are here".
+const doorSceneTarget = computed(() => {
+  const door = (activeCampaignData.value.door || "").toUpperCase();
+  const key = Object.keys(qrToDoorMap).find((id) => id.startsWith("book") && qrToDoorMap[id] === door);
+  return key || activeCampaignData.value.door || "";
+});
 
 function isProgressionValid(newDoor: string): boolean {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
