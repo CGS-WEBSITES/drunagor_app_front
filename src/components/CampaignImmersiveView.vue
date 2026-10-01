@@ -12,6 +12,7 @@
       @touchend="handleTouchEnd"
       @wheel.prevent="handleZoom"
     >
+      <div class="map-ambience" :style="{ backgroundImage: `url(${ambienceArt})` }"></div>
       <div class="map-content" :style="mapTransformStyle">
         <img
           v-if="currentBackgroundImage"
@@ -20,7 +21,7 @@
           class="map-image"
           alt="Campaign Map"
           @error="handleImageError"
-          @load="updateBounds"
+          @load="onMapLoad"
         />
         <div
           v-else
@@ -34,18 +35,17 @@
     <div class="hud-layer">
       <div class="hud-area top-left">
         <div class="interactive-content d-flex flex-column align-start">
-          <div class="objective-panel mb-2">
-            <div
-              class="objective-label text-uppercase text-caption font-weight-bold text-blue-lighten-3"
-            >
-              Current Objective:
-            </div>
-            <div class="objective-text text-white font-weight-bold text-shadow">
-              {{ currentLocationDisplay }}
-            </div>
+          <!-- Where the party is and what to do now. -->
+          <div class="now-card mb-2">
+            <small>{{ activeCampaignData.wing || "Campaign" }}</small>
+            <strong>{{ activeCampaignData.door || "First Setup" }}</strong>
+            <button class="now-card__read" @click.stop="readTheScene">
+              <v-icon size="16">mdi-book-open-page-variant</v-icon>
+              Read scene
+            </button>
           </div>
 
-          <div class="d-flex flex-column gap-2 mt-1">
+          <div v-if="!smAndDown" class="d-flex flex-column gap-2 mt-1">
             <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
               <template v-slot:activator="{ props }">
                 <div 
@@ -223,45 +223,27 @@
 
       <div class="hud-area bottom-left">
         <div class="interactive-content d-flex flex-column align-start gap-2">
-          <div class="d-flex gap-2">
-            <v-tooltip text="Player List" location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-account-group"
-                  class="square-hud-btn"
-                  @click.stop="playerListDialogVisible = true"
-                ></v-btn>
+          <div class="hud-btns">
+            <button class="hud-btn" title="Players" @click.stop="playerListDialogVisible = true">
+              <v-icon>mdi-account-group</v-icon><span>Party</span>
+            </button>
+            <button class="hud-btn hud-btn--save" title="Save game" @click.stop="manualSave">
+              <v-icon>mdi-content-save</v-icon><span>Save</span>
+            </button>
+            <button class="hud-btn" title="Fit the map to the screen" @click.stop="fitMap">
+              <v-icon>mdi-fit-to-screen-outline</v-icon><span>Fit map</span>
+            </button>
+            <!-- Leaving sits away from Save, behind a menu. -->
+            <v-menu v-if="showSaveCampaignButton" location="top start" :offset="8">
+              <template #activator="{ props: menuProps }">
+                <button v-bind="menuProps" class="hud-btn" title="More">
+                  <v-icon>mdi-dots-horizontal</v-icon><span>More</span>
+                </button>
               </template>
-            </v-tooltip>
-
-            <v-tooltip text="Save Game" location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-content-save"
-                  class="square-hud-btn"
-                  color="success"
-                  @click.stop="manualSave"
-                ></v-btn>
-              </template>
-            </v-tooltip>
-
-            <v-tooltip
-              text="Leave Campaign"
-              location="top"
-              v-if="showSaveCampaignButton"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-delete-forever"
-                  class="square-hud-btn"
-                  color="grey-darken-3"
-                  @click.stop="confirmLeave"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+              <v-list density="compact" class="bg-grey-darken-4">
+                <v-list-item prepend-icon="mdi-delete-forever" title="Leave campaign" base-color="red-lighten-2" @click="confirmLeave" />
+              </v-list>
+            </v-menu>
           </div>
         </div>
       </div>
@@ -287,6 +269,10 @@
               ></v-img>
             </div>
             <div class="hero-name-tag">{{ hero.name }}</div>
+            <div v-if="hero.sequentialAdventureState" class="hero-stats">
+              <span title="Life"><v-icon size="12" color="#e05353">mdi-heart</v-icon>{{ hero.sequentialAdventureState.lifepoints ?? 0 }}</span>
+              <span title="Available cubes"><v-icon size="12">mdi-cube-outline</v-icon>{{ hero.sequentialAdventureState.availableCubes ?? 0 }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -309,6 +295,7 @@
                   alt="icon"
                   class="tab-icon-img"
                 />
+                <span class="tab-label">Interactions</span>
               </div>
             </template>
           </v-tooltip>
@@ -323,6 +310,7 @@
                 <v-icon size="large" color="#e0e0e0"
                   >mdi-book-open-page-variant</v-icon
                 >
+                <span class="tab-label">Read scene</span>
               </div>
             </template>
           </v-tooltip>
@@ -341,12 +329,22 @@
                 @click.stop="handleNextAction"
               >
                 <v-icon size="large" color="black">{{ nextButtonIcon }}</v-icon>
+                <span class="tab-label tab-label--next">{{ nextButtonLabel }}</span>
               </div>
             </template>
           </v-tooltip>
         </div>
       </div>
     </div>
+
+    <!-- Phones: books and references in a dock instead of the side tabs. -->
+    <nav v-if="smAndDown" class="imm-dock">
+      <button @click.stop="openBookDialog"><v-icon>mdi-book-open-variant</v-icon><span>Books</span></button>
+      <button @click.stop="openKeywordsDialog"><v-icon>mdi-book-search-outline</v-icon><span>Keywords</span></button>
+      <button v-if="isWing1Or2" @click.stop="runesDialogVisible = true"><v-icon>mdi-cards-variant</v-icon><span>Runes</span></button>
+      <button @click.stop="openOnlyInstructions"><img src="@/assets/door.png" alt="" /><span>Rules</span></button>
+      <button @click.stop="tharmagarDialogVisible = true"><v-icon>mdi-comment-question-outline</v-icon><span>Tharmagar</span></button>
+    </nav>
 
     <v-dialog v-model="dashboardExitDialog.visible" max-width="400">
         <v-card class="bg-grey-darken-3 rounded-lg border-thin">
@@ -909,6 +907,9 @@ import { useTutorialStore } from "@/store/TutorialStore";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
 import { firstSetupSteps } from "@/data/assembly/firstSetup";
 import { useDisplay } from "vuetify";
+import { useEventListener } from "@vueuse/core";
+import underkeepArt from "@/assets/underkeep.png";
+import underkeep2Art from "@/assets/underkeep2.png";
 import { useUserStore } from "@/store/UserStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
@@ -991,6 +992,7 @@ const router = useRouter();
 const campaignStore = CampaignStore();
 const tutorialStore = useTutorialStore();
 const { smAndDown } = useDisplay();
+useEventListener(window, "resize", () => fitMap());
 const userStore = useUserStore();
 const heroDataRepository = new HeroDataRepository();
 
@@ -1576,7 +1578,7 @@ let isDragging = false;
 let startPos = { x: 0, y: 0 };
 let initialPinchDistance = 0;
 let initialScale = 1;
-const MIN_SCALE = 1;
+const MIN_SCALE = 0.6;
 const MAX_SCALE = 4;
 
 const mapTransformStyle = computed(() => ({
@@ -1588,26 +1590,86 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+// Size of the map image as drawn at scale 1 (object-fit: contain).
+function renderedMapSize() {
+  const img = mapImageRef.value;
+  const container = mapContainerRef.value?.getBoundingClientRect();
+  if (!img?.naturalWidth || !container) return null;
+  const ratio = Math.min(container.width / img.naturalWidth, container.height / img.naturalHeight);
+  return { width: img.naturalWidth * ratio, height: img.naturalHeight * ratio, container };
+}
+
+// Keeps the map's centre over the image while panning.
 function updateBounds() {
-  if (!mapContainerRef.value || !mapImageRef.value) return;
-  const container = mapContainerRef.value.getBoundingClientRect();
-  const scaledWidth = mapImageRef.value.naturalWidth * transform.value.scale;
-  const scaledHeight = mapImageRef.value.naturalHeight * transform.value.scale;
-  
-  if (scaledWidth <= container.width) {
-      transform.value.x = 0;
-  } else {
-      const overflowX = (scaledWidth - container.width) / 2;
-      transform.value.x = clamp(transform.value.x, -overflowX, overflowX);
-  }
-  
-  if (scaledHeight <= container.height) {
-      transform.value.y = 0;
-  } else {
-      const overflowY = (scaledHeight - container.height) / 2;
-      transform.value.y = clamp(transform.value.y, -overflowY, overflowY);
+  const size = renderedMapSize();
+  if (!size) return;
+  const limitX = (size.width * transform.value.scale) / 2;
+  const limitY = (size.height * transform.value.scale) / 2;
+  transform.value.x = clamp(transform.value.x, -limitX, limitX);
+  transform.value.y = clamp(transform.value.y, -limitY, limitY);
+}
+
+// The tiles only fill part of each map image: find them (non-dark pixels),
+// then zoom so they fill the space between the HUD pieces.
+const mapContentBox = ref<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+function measureMapContent() {
+  const img = mapImageRef.value;
+  mapContentBox.value = null;
+  if (!img?.naturalWidth) return;
+  try {
+    const width = 200;
+    const height = Math.max(1, Math.round((width * img.naturalHeight) / img.naturalWidth));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return;
+    context.drawImage(img, 0, 0, width, height);
+    const data = context.getImageData(0, 0, width, height).data;
+    let x0 = width, y0 = height, x1 = -1, y1 = -1;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        if (data[i + 3] > 40 && data[i] + data[i + 1] + data[i + 2] > 90) {
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+          if (y < y0) y0 = y;
+          if (y > y1) y1 = y;
+        }
+      }
+    }
+    if (x1 >= 0) mapContentBox.value = { x0: x0 / width, y0: y0 / height, x1: (x1 + 1) / width, y1: (y1 + 1) / height };
+  } catch {
+    // Unreadable image: fit the whole picture.
   }
 }
+
+function fitMap() {
+  const size = renderedMapSize();
+  if (!size) return;
+  const box = mapContentBox.value ?? { x0: 0, y0: 0, x1: 1, y1: 1 };
+  // Free space between the HUD pieces.
+  const pad = smAndDown.value ? { top: 110, bottom: 200, side: 64 } : { top: 110, bottom: 215, side: 220 };
+  const freeWidth = Math.max(100, size.container.width - pad.side * 2);
+  const freeHeight = Math.max(100, size.container.height - pad.top - pad.bottom);
+  const boxWidth = (box.x1 - box.x0) * size.width;
+  const boxHeight = (box.y1 - box.y0) * size.height;
+  const scale = clamp(Math.min(freeWidth / boxWidth, freeHeight / boxHeight), 0.6, MAX_SCALE);
+  const centreX = ((box.x0 + box.x1) / 2 - 0.5) * size.width;
+  const centreY = ((box.y0 + box.y1) / 2 - 0.5) * size.height;
+  transform.value = { x: -centreX * scale, y: (pad.top - pad.bottom) / 2 - centreY * scale, scale };
+}
+
+function onMapLoad() {
+  measureMapContent();
+  fitMap();
+}
+
+// The wing's art, blurred, behind the map.
+const ambienceArt = computed(() => {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  return wing.includes("WING 3") || wing.includes("WING 4") ? underkeep2Art : underkeepArt;
+});
 
 function handleZoom(e: WheelEvent) {
   const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -2547,6 +2609,7 @@ watch(
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1010;
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
@@ -2557,6 +2620,7 @@ watch(
 }
 
 .map-viewport {
+  position: relative;
   width: 100%;
   height: 100%;
   background: #050505;
@@ -2571,14 +2635,24 @@ watch(
   cursor: grabbing;
 }
 
+.map-ambience {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  filter: blur(22px) brightness(0.28) saturate(1.1);
+  transform: scale(1.1);
+  pointer-events: none;
+}
+
 .map-content {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   transform-origin: center center;
-  will-change: transform;
 }
 
 .map-image {
@@ -3348,5 +3422,212 @@ watch(
 
 .opening-door-text :deep(img):hover {
   transform: scale(1.01);
+}
+
+/* "Now": where the party is, with a shortcut to the scene. */
+.now-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 10px 12px 12px;
+  background: rgba(10, 10, 10, 0.78);
+  border-left: 4px solid #ffab00;
+  border-radius: 0 12px 12px 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.now-card small {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.now-card strong {
+  font-size: 1.1rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+.now-card__read {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  background: rgba(255, 171, 0, 0.18);
+  border: 1px solid rgba(255, 171, 0, 0.5);
+  border-radius: 999px;
+  color: #ffd180;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  pointer-events: auto;
+}
+.now-card__read:hover {
+  background: rgba(255, 171, 0, 0.3);
+}
+
+/* Party / Save / Fit / More, each with its name. */
+.hud-btns {
+  display: flex;
+  gap: 6px;
+}
+.hud-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 58px;
+  height: 56px;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #444;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  pointer-events: auto;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.hud-btn span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.hud-btn:hover {
+  background: rgba(45, 45, 45, 0.95);
+  transform: translateY(-2px);
+}
+.hud-btn--save {
+  border-color: rgba(76, 175, 80, 0.7);
+}
+.hud-btn--save .v-icon {
+  color: #81c784;
+}
+
+/* Right side actions carry their names. */
+.right-tab-btn {
+  width: auto !important;
+  min-width: 60px;
+  gap: 8px;
+  padding: 0 14px;
+  justify-content: flex-start !important;
+}
+.interaction-tab {
+  padding: 0 14px 0 0 !important;
+}
+.tab-label {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tab-label--next {
+  color: #111;
+}
+
+/* Life and cubes under each hero. */
+.hero-stats {
+  display: flex;
+  gap: 4px;
+  margin-top: 3px;
+}
+.hero-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 999px;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+/* Phone dock */
+.imm-dock {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  gap: 2px;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: rgba(12, 12, 12, 0.94);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+.imm-dock button {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 48px;
+  border-radius: 10px;
+  color: #ddd;
+  font-family: "Poppins", sans-serif;
+}
+.imm-dock button img {
+  width: 22px;
+  height: 22px;
+}
+.imm-dock button span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.imm-dock button:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 960px) {
+  /* Party / Save / Fit / More: a column under the Now card, icons only. */
+  .bottom-left {
+    top: 112px;
+    bottom: auto !important;
+  }
+  .hud-btns {
+    flex-direction: column;
+  }
+  .hud-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .hud-btn span {
+    display: none;
+  }
+  /* Heroes and actions sit just above the dock. */
+  .bottom-center {
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+    left: 12px !important;
+    transform: none !important;
+  }
+  .bottom-right {
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .right-tab-btn .tab-label:not(.tab-label--next) {
+    display: none;
+  }
+  .now-card {
+    min-width: 0;
+    max-width: 190px;
+    padding: 8px 10px 10px;
+  }
+  .now-card strong {
+    font-size: 0.9rem;
+  }
+  .hero-stats span {
+    padding: 1px 4px;
+    font-size: 0.6rem;
+  }
 }
 </style>
