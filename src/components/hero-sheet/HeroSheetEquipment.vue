@@ -6,42 +6,51 @@
     <div class="equip__filters">
       <v-switch
         v-model="filterProficiencies"
-        color="accent"
+        color="#2e9e3a"
         density="compact"
         hide-details
         inset
         label="Only usable"
-        class="equip__filter"
-      />
+        class="equip__filter ios-switch"
+      >
+        <template #thumb="{ model }">
+          <v-icon v-if="model.value" size="12" color="#2e9e3a">mdi-check</v-icon>
+        </template>
+      </v-switch>
       <v-switch
         v-if="sources?.length"
         v-model="allBoxes"
-        color="accent"
+        color="#2e9e3a"
         density="compact"
         hide-details
         inset
         label="All boxes"
-        class="equip__filter"
-      />
+        class="equip__filter ios-switch"
+      >
+        <template #thumb="{ model }">
+          <v-icon v-if="model.value" size="12" color="#2e9e3a">mdi-check</v-icon>
+        </template>
+      </v-switch>
     </div>
 
     <!-- Equipped items; empty slots wait below as small "+" buttons. -->
     <p v-if="!shownSlots.length" class="equip__empty">Nothing equipped yet.</p>
-    <div v-for="slot in shownSlots" :key="slot.key" class="equip__slot">
+    <div v-for="slot in shownSlots" :key="slot.key" class="equip__slot" :class="{ 'equip__slot--bags': slot.key === firstShownBag }">
       <span class="equip__label"><SlotIcon :type="slot.iconType" :size="18" class="mr-2" />{{ slot.label }}</span>
 
-      <div v-if="state.equipment[slot.key]" class="item-row">
-        <SlotIcon :type="typeOf(state.equipment[slot.key])" :size="22" class="item-row__type" />
-        <div class="item-row__text">
-          <strong>{{ itemName(state.equipment[slot.key]) }}</strong>
-          <small>{{ itemSub(state.equipment[slot.key]) }}</small>
+      <div v-if="state.equipment[slot.key]" class="item-line">
+        <div class="item-row">
+          <div class="item-row__text">
+            <strong>{{ itemName(state.equipment[slot.key]) }}</strong>
+            <small>{{ rowSub(state.equipment[slot.key]) }}</small>
+          </div>
+          <ItemSourceMarks :item-id="state.equipment[slot.key]" symbols />
+          <button class="item-row__btn item-row__btn--stash" title="Move to the stash" aria-label="Move to the stash" @click="stashSlot(slot.key)">
+            <SlotIcon type="Stash" :size="18" />
+          </button>
         </div>
-        <ItemSourceMarks :item-id="state.equipment[slot.key]" />
-        <button class="item-row__btn item-row__btn--stash" title="Move to the stash" @click="stashSlot(slot.key)">
-          <v-icon size="15">mdi-treasure-chest</v-icon> Stash
-        </button>
         <button class="item-row__icon" title="Remove" @click="state.equipment[slot.key] = ''">
-          <v-icon size="18">mdi-delete-outline</v-icon>
+          <v-icon size="20">mdi-delete</v-icon>
         </button>
       </div>
 
@@ -84,7 +93,7 @@
     </div>
 
     <!-- Stash -->
-    <h3 class="sheet-title mt-6 d-flex align-center"><SlotIcon type="Stash" :size="20" class="mr-2" />Stash</h3>
+    <h3 class="sheet-title equip__stash-title">Stash</h3>
     <v-autocomplete
       :model-value="null"
       :items="stashOptions"
@@ -113,18 +122,19 @@
     </v-autocomplete>
     <p class="equip__hint">Stashed items can't be used during a scenario.</p>
 
-    <div v-for="(id, index) in state.stashedCardIds" :key="`${id}-${index}`" class="item-row">
-      <SlotIcon :type="typeOf(id)" :size="22" class="item-row__type" />
-      <div class="item-row__text">
-        <strong>{{ itemName(id) }}</strong>
-        <small>{{ itemSub(id) }}</small>
+    <div v-for="(id, index) in state.stashedCardIds" :key="`${id}-${index}`" class="item-line">
+      <div class="item-row">
+        <div class="item-row__text">
+          <strong>{{ itemName(id) }}</strong>
+          <small>{{ rowSub(id) }}</small>
+        </div>
+        <ItemSourceMarks :item-id="id" symbols />
+        <button class="item-row__btn item-row__btn--equip" title="Equip" aria-label="Equip" @click="equipFromStash(index)">
+          <v-icon size="20">mdi-arrow-up-bold</v-icon>
+        </button>
       </div>
-      <ItemSourceMarks :item-id="id" />
-      <button class="item-row__btn item-row__btn--equip" title="Equip" @click="equipFromStash(index)">
-        Equip <v-icon size="15">mdi-arrow-up</v-icon>
-      </button>
       <button class="item-row__icon" title="Remove from the stash" @click="state.stashedCardIds.splice(index, 1)">
-        <v-icon size="18">mdi-delete-outline</v-icon>
+        <v-icon size="20">mdi-delete</v-icon>
       </button>
     </div>
     <p v-if="!state.stashedCardIds.length" class="equip__empty">The stash is empty.</p>
@@ -173,11 +183,21 @@ const filterProficiencies = ref(true);
 // Slot being filled right now (its search is open).
 const picking = ref<SlotKey | null>(null);
 const shownSlots = computed(() => slots.filter((slot) => props.state.equipment[slot.key] || picking.value === slot.key));
+// The bag slots start after a divider.
+const firstShownBag = computed(() => shownSlots.value.find((slot) => slot.key === "bagOneId" || slot.key === "bagTwoId")?.key);
 const emptySlots = computed(() => slots.filter((slot) => !props.state.equipment[slot.key] && picking.value !== slot.key));
 
 const itemName = (id: string) => {
   const item = allItemsRepository.find(id);
   return item ? t(item.translation_key) : id;
+};
+
+// In a row the slot says what it is: just the kinds (Heavy | Light…).
+const rowSub = (id: string) => {
+  const item: any = allItemsRepository.find(id);
+  if (!item) return "";
+  const kinds = item.weaponTypes ?? item.offHandTypes ?? item.armorTypes ?? (item.consumableType ? [item.consumableType] : []);
+  return kinds.length ? kinds.join(" | ") : item.itemType;
 };
 
 const itemSub = (id: string) => {
@@ -187,7 +207,6 @@ const itemSub = (id: string) => {
   return [item.itemType, ...(kinds.length ? [kinds.join(" | ")] : [])].join(" · ");
 };
 
-const typeOf = (id: string) => allItemsRepository.find(id)?.itemType ?? "Bag";
 
 // In a campaign, only its own boxes unless "All boxes" is on.
 const allBoxes = ref(false);
@@ -296,24 +315,42 @@ function equipFromStash(index: number) {
   font-size: 0.75rem;
   opacity: 0.55;
 }
+.equip__stash-title {
+  margin: 24px 0 10px;
+}
+.equip__slot--bags {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+/* A row plus its trash button, outside the row. */
+.item-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
 .item-row {
   display: flex;
-  flex-wrap: wrap;
+  flex: 1;
   align-items: center;
-  gap: 6px 8px;
-  min-height: 44px;
-  margin-bottom: 6px;
-  padding: 6px 8px 6px 12px;
-  background: rgba(255, 255, 255, 0.08);
+  gap: 8px;
+  min-width: 0;
+  min-height: 46px;
+  overflow: hidden;
+  padding-left: 12px;
+  background: rgb(var(--v-theme-secondary));
   border-radius: 6px;
 }
 .item-row__type {
-  flex-shrink: 0;
-  opacity: 0.9;
+  display: flex;
+  flex: 0 0 26px;
+  align-items: center;
+  justify-content: center;
 }
 .item-row__text {
   display: flex;
-  flex: 1 1 140px;
+  flex: 1;
   flex-direction: column;
   min-width: 0;
 }
@@ -324,16 +361,20 @@ function equipFromStash(index: number) {
   white-space: nowrap;
 }
 .item-row__text small {
+  overflow: hidden;
   font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   opacity: 0.65;
 }
+/* Stash / Equip sit flush at the end of the row. */
 .item-row__btn {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 4px;
-  padding: 5px 10px;
-  border-radius: 4px;
+  align-self: stretch;
+  justify-content: center;
+  width: 44px;
   color: #fff;
   font-size: 0.72rem;
   font-weight: 800;
@@ -345,7 +386,6 @@ function equipFromStash(index: number) {
 }
 .item-row__btn--stash {
   background: rgb(var(--v-theme-accent));
-  color: #141414;
 }
 .item-row__btn--equip {
   background: #4f9a4b;
@@ -358,5 +398,24 @@ function equipFromStash(index: number) {
 }
 .item-row__icon:hover {
   opacity: 1;
+}
+/* Switches: grey track, white knob; green with a check when on. */
+.ios-switch :deep(.v-switch__track) {
+  height: 26px;
+  min-width: 46px;
+  background: #bdbdbd;
+  border: 2px solid rgba(0, 0, 0, 0.15);
+  opacity: 1;
+}
+.ios-switch :deep(.v-selection-control--dirty .v-switch__track) {
+  background: #2e9e3a;
+}
+.ios-switch :deep(.v-switch__thumb) {
+  width: 22px;
+  height: 22px;
+  background: #fff;
+  color: #2e9e3a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transform: none;
 }
 </style>

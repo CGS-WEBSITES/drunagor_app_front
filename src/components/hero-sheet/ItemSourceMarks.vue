@@ -1,6 +1,18 @@
 <template>
+  <!-- symbols: just the box symbols (season flag for Drunagor Nights), for tight rows. -->
+  <span v-if="symbols" class="item-symbols">
+    <img
+      v-for="source in sources"
+      :key="source"
+      :src="symbolOf(source)"
+      :alt="ITEM_SOURCE_MARKS[source].label"
+      :title="ITEM_SOURCE_MARKS[source].label"
+      class="item-symbols__img"
+      :class="{ 'item-symbols__img--flag': !!ITEM_SOURCE_MARKS[source].flag }"
+    />
+  </span>
   <!-- The boxes an item comes in, as small labels. Drunagor Nights shows its season flag. -->
-  <span class="item-marks">
+  <span v-else class="item-marks">
     <span
       v-for="source in sources"
       :key="source"
@@ -16,10 +28,12 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { ITEM_SOURCE_MARKS } from "@/data/heroMeta";
+import { CONTENT_SYMBOLS, ITEM_SOURCE_MARKS, type ItemSource } from "@/data/heroMeta";
 import { allItemsRepository } from "@/data/repository/AllItemsRepository";
 
-const props = defineProps<{ itemId: string }>();
+const props = defineProps<{ itemId: string; symbols?: boolean }>();
+const symbolOf = (source: ItemSource) =>
+  ITEM_SOURCE_MARKS[source].flag ?? CONTENT_SYMBOLS[source as "core" | "awakenings" | "apocalypse"] ?? "";
 const sources = computed(() => allItemsRepository.sourcesOf(props.itemId));
 </script>
 
@@ -46,5 +60,19 @@ const sources = computed(() => allItemsRepository.sourcesOf(props.itemId));
 }
 .item-mark__flag {
   height: 14px;
+}
+.item-symbols {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.85;
+}
+.item-symbols__img {
+  width: auto;
+  height: 20px;
+}
+.item-symbols__img--flag {
+  height: 24px;
 }
 </style>

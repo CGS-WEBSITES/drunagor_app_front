@@ -9,9 +9,7 @@
         elevation="16"
         width="100%"
         class="d-flex flex-column"
-        :class="{ 'cursor-pointer transition-swing': isOwner }"
         style="overflow: hidden;"
-        @click="goToCampaign"
       >
         <!-- Banner Image -->
         <v-img
@@ -151,9 +149,7 @@
           elevation="16"
           width="100%"
           class="d-flex flex-column"
-        :class="{ 'cursor-pointer transition-swing': isOwner }"
           style="overflow: hidden;"
-          @click="goToCampaign"
         >
           <!-- Banner Image -->
           <v-img
@@ -297,7 +293,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, inject } from "vue";
-import { useRouter } from "vue-router";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -317,7 +312,6 @@ const props = defineProps({
 
 const emit = defineEmits(["loaded"]);
 
-const router = useRouter();
 const userStore = useUserStore();
 const campaignStore = CampaignStore();
 const { mdAndUp } = useDisplay();
@@ -618,12 +612,6 @@ const calculateAvatarSize = computed(() => {
   }
   return heroCount <= 4 ? 68 : 54;
 });
-
-// Go to campaign details
-const goToCampaign = () => {
-  if (!campaign.value || !isOwner.value) return;
-  router.push({ name: "Campaign", params: { id: campaign.value.campaignId } });
-};
 
 // Format wing name to exclude "advanced"
 const formatWingName = (wing: string | null) => {
