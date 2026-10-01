@@ -3497,9 +3497,13 @@ watch(
 }
 
 @media (max-width: 960px) {
-  /* Party / Save / Fit / More: a column in the bottom left corner, icons only. */
+  /* Party / Save / Fit / More: a row in the bottom left corner, icons only;
+     the heroes sit just above it so nothing overlaps. */
   .hud-btns {
-    flex-direction: column;
+    gap: 6px;
+  }
+  .bottom-center {
+    bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
   }
   .hud-btn {
     width: 40px;
