@@ -212,8 +212,8 @@ const getEarnedDate = (rewardPk: number) => {
 // Percentage of the community with each badge, and its rarity tier.
 const badgeStats = useBadgeStats(axiosInstance);
 const rarityOf = (rewardPk: number) => {
-  const percent = badgeStats.value?.[Number(rewardPk)];
-  if (percent == null) return null;
+  if (!badgeStats.value) return null;
+  const percent = badgeStats.value[Number(rewardPk)] ?? 0;
   return { ...badgeRarity(percent), percent: formatPercent(percent) };
 };
 
