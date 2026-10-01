@@ -1,38 +1,51 @@
 <template>
-  <div class="hero-sum">
-    <!-- Folded: one compact row. -->
-    <div v-if="collapsed" class="hero-sum__row" @click="collapsed = false">
-      <img :src="portrait" alt="" class="hero-sum__mini" />
-      <div class="hero-sum__row-text">
-        <strong>{{ hero.name }}</strong>
-        <small>{{ hero.race }} | {{ classLabel }}</small>
-      </div>
-      <div class="hero-sum__actions" @click.stop>
-        <v-btn size="small" variant="text" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
-        <v-btn size="small" variant="text" append-icon="mdi-chevron-down" @click="collapsed = false">Show</v-btn>
-      </div>
-    </div>
+  <div class="hero-sum" :class="{ 'hero-sum--folded': folded }">
+    <div class="hero-sum__main">
+      <img :src="heroArt" :alt="hero.name" class="hero-sum__art" @click="isPhone && (collapsed = !collapsed)" />
 
-    <div v-else class="hero-sum__main">
-      <!-- PC: the hero's art. Phones: a banner built from its parts. -->
-      <img :src="heroArt" :alt="hero.name" class="hero-sum__art d-none d-md-block" />
-      <HeroBanner :hero="hero" class="d-md-none" />
-
-      <div class="hero-sum__info">
+      <div v-show="!folded" class="hero-sum__info">
+        <!-- Numbers at a glance -->
         <div class="hero-sum__stats">
           <template v-if="adventure">
-            <span class="stat" title="Life points"><v-icon size="16" color="#e05353">mdi-heart</v-icon>{{ adventure.lifepoints ?? 0 }}</span>
-            <span class="stat" title="Available / used cubes"><v-icon size="16">mdi-cube-outline</v-icon>{{ adventure.availableCubes ?? 0 }}/{{ adventure.usedCubes ?? 0 }}</span>
-            <span class="stat" title="Curse cubes"><v-icon size="16" color="#9c6ade">mdi-cube</v-icon>{{ adventure.curseCubes ?? 0 }}</span>
-            <span class="stat" title="Trauma cubes"><v-icon size="16" color="#9e9e9e">mdi-cube</v-icon>{{ adventure.traumaCubes ?? 0 }}</span>
+            <div class="stat" title="Life points">
+              <v-icon size="18" color="#e05353">mdi-heart</v-icon>
+              <strong>{{ adventure.lifepoints ?? 0 }}</strong>
+              <small>Life</small>
+            </div>
+            <div class="stat" title="Available / used action cubes">
+              <v-icon size="18">mdi-cube-outline</v-icon>
+              <strong>{{ adventure.availableCubes ?? 0 }}<span>/{{ adventure.usedCubes ?? 0 }}</span></strong>
+              <small>Cubes</small>
+            </div>
+            <div class="stat" title="Curse cubes">
+              <v-icon size="18" color="#9c6ade">mdi-cube</v-icon>
+              <strong>{{ adventure.curseCubes ?? 0 }}</strong>
+              <small>Curse</small>
+            </div>
+            <div class="stat" title="Trauma cubes">
+              <v-icon size="18" color="#9e9e9e">mdi-cube</v-icon>
+              <strong>{{ adventure.traumaCubes ?? 0 }}</strong>
+              <small>Trauma</small>
+            </div>
           </template>
-          <span class="stat" title="Class abilities"><v-icon size="16" color="accent">mdi-star-circle</v-icon>{{ state?.classAbilityCount ?? 0 }}</span>
-          <span class="stat" title="Skills"><v-icon size="16">mdi-lightning-bolt</v-icon>{{ skillCount }} skills</span>
-          <span v-if="state?.stashedCardIds?.length" class="stat" title="Items in the stash">
-            <SlotIcon type="Stash" :size="16" />{{ state.stashedCardIds.length }} in stash
-          </span>
+          <div class="stat" title="Class abilities">
+            <v-icon size="18" color="accent">mdi-star-circle</v-icon>
+            <strong>{{ state?.classAbilityCount ?? 0 }}</strong>
+            <small>Abilities</small>
+          </div>
+          <div class="stat" title="Skills">
+            <v-icon size="18">mdi-lightning-bolt</v-icon>
+            <strong>{{ skillCount }}</strong>
+            <small>Skills</small>
+          </div>
+          <div v-if="state?.stashedCardIds?.length" class="stat" title="Items in the stash">
+            <SlotIcon type="Stash" :size="18" />
+            <strong>{{ state.stashedCardIds.length }}</strong>
+            <small>Stash</small>
+          </div>
         </div>
 
+        <!-- Equipped items -->
         <div v-if="equipped.length" class="hero-sum__items">
           <div v-for="item in equipped" :key="item.key" class="sum-item">
             <SlotIcon :type="item.type" :size="24" />
@@ -43,12 +56,15 @@
           </div>
         </div>
         <p v-else class="hero-sum__muted">No items equipped</p>
-
-        <div class="hero-sum__footer">
-          <v-btn size="small" variant="text" append-icon="mdi-chevron-up" @click="collapsed = true">Hide</v-btn>
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
-        </div>
       </div>
+    </div>
+
+    <div class="hero-sum__footer">
+      <v-btn v-if="isPhone" size="small" variant="text" :append-icon="collapsed ? 'mdi-chevron-down' : 'mdi-chevron-up'" @click="collapsed = !collapsed">
+        {{ collapsed ? "Show details" : "Hide details" }}
+      </v-btn>
+      <v-spacer />
+      <v-btn size="small" variant="tonal" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
     </div>
   </div>
 </template>
@@ -61,8 +77,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import type { HeroData } from "@/data/repository/HeroData";
 import { useRouter } from "vue-router";
 import SlotIcon from "@/components/hero-sheet/SlotIcon.vue";
-import HeroBanner from "@/components/hero-sheet/HeroBanner.vue";
-import { heroClassLabel, heroPortrait } from "@/data/heroMeta";
+import { useDisplay } from "vuetify";
 import { useStorage } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 
@@ -81,9 +96,11 @@ const hero = heroDataRepository.find(props.heroId) ?? ({} as HeroData);
 const heroStore = HeroStore();
 // Folded cards stay folded, per campaign and hero.
 const heroArt = (hero.images as any)?.trackerInfo || hero.images?.avatar;
-const portrait = hero.id ? heroPortrait(hero) : "";
-const classLabel = heroClassLabel(hero.class ?? "");
+// Phones can fold a hero down to its art; on PC everything shows.
+const { smAndDown } = useDisplay();
+const isPhone = computed(() => smAndDown.value);
 const collapsed = useStorage(`campaign.${props.campaignId}.hero.${props.heroId}.collapsed`, false);
+const folded = computed(() => isPhone.value && collapsed.value);
 const state = computed(() => heroStore.findInCampaignOptional(props.heroId, props.campaignId));
 const adventure = computed(() => state.value?.sequentialAdventureState as any);
 const skillCount = computed(() => (state.value?.skillIds ?? []).length);
@@ -134,75 +151,54 @@ function openHeroEquipmentSkills() {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
-  padding: 14px;
+  padding: 14px 14px 0;
 }
 .hero-sum__footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: auto;
-}
-/* Folded row */
-.hero-sum__row {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 10px 8px 8px;
-  cursor: pointer;
+  padding: 8px 14px 12px;
 }
-.hero-sum__mini {
-  width: 44px;
-  height: 44px;
-  border-radius: 8px;
-  background: rgb(var(--v-theme-secondary));
-  object-fit: cover;
-  object-position: top;
-}
-.hero-sum__row-text {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-.hero-sum__row-text strong {
-  font-size: 0.95rem;
-  text-transform: uppercase;
-}
-.hero-sum__row-text small {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-.hero-sum__actions {
-  display: flex;
-  gap: 2px;
-}
-@media (max-width: 959px) {
-  .hero-sum__main {
-    flex-direction: column;
-  }
-  .hero-sum__info {
-    padding: 12px;
-  }
-}
+/* Stat tiles: icon, number, label. */
 .hero-sum__stats {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 .stat {
-  display: inline-flex;
+  display: grid;
+  grid-template-areas: "icon value" "icon label";
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
+  min-width: 78px;
+  padding: 6px 10px;
   background: rgb(var(--v-theme-secondary));
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 700;
+  border-radius: 8px;
 }
-/* Items as rows, like the design: icon, name, kind. */
+.stat > :first-child {
+  grid-area: icon;
+}
+.stat strong {
+  grid-area: value;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.stat strong span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.6;
+}
+.stat small {
+  grid-area: label;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
 .hero-sum__items {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -237,6 +233,22 @@ function openHeroEquipmentSkills() {
   margin: 0;
   font-size: 0.75rem;
   opacity: 0.6;
+}
+@media (max-width: 959px) {
+  .hero-sum__main {
+    flex-direction: column;
+  }
+  .hero-sum__art {
+    width: 100%;
+    cursor: pointer;
+  }
+  .hero-sum__info {
+    padding: 12px 12px 0;
+  }
+  .stat {
+    flex: 1 1 calc(33% - 6px);
+    min-width: 0;
+  }
 }
 .action-buttons-container {
   margin-top: 10px;

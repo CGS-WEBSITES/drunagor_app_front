@@ -28,9 +28,9 @@
 
       <div class="sheet-grid">
         <div class="sheet-stack">
-        <!-- Vitals -->
+        <!-- Resources: life, cubes, class abilities -->
         <SheetCard id="vitals">
-          <h3 class="sheet-title">Vitals</h3>
+          <h3 class="sheet-title">Resources</h3>
           <StatStepper v-model="adventure.lifepoints" label="Life points" icon="mdi-heart" icon-color="#e05353" class="mb-4" />
 
           <div class="sheet-subtitle">Cubes</div>
@@ -55,7 +55,7 @@
             </button>
           </div>
 
-          <div class="sheet-subtitle">Resources</div>
+          <div class="sheet-subtitle">Class resources</div>
           <div class="sheet-pairs">
             <StatStepper
               v-for="resource in RESOURCE_DEFINITIONS"
@@ -330,17 +330,16 @@ onMounted(async () => {
     object-position: left top;
   }
 }
-/* Lined up with the name printed on the art. */
-/* Box and owner in a strip under the art. */
+/* Box and owner over the art, under the printed name. */
 .sheet-banner__meta {
+  position: absolute;
+  bottom: 16px;
+  left: 4.8%;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px 16px;
-  padding: 10px 18px;
-  background: rgba(0, 0, 0, 0.35);
+  flex-direction: column;
+  gap: 2px;
   color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
 }
 .sheet-banner__box {
   display: flex;

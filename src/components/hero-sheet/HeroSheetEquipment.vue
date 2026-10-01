@@ -25,7 +25,9 @@
       />
     </div>
 
-    <div v-for="slot in slots" :key="slot.key" class="equip__slot" :class="{ 'equip__slot--gap': slot.key === 'bagOneId' }">
+    <!-- Equipped items; empty slots wait below as small "+" buttons. -->
+    <p v-if="!shownSlots.length" class="equip__empty">Nothing equipped yet.</p>
+    <div v-for="slot in shownSlots" :key="slot.key" class="equip__slot">
       <span class="equip__label"><SlotIcon :type="slot.iconType" :size="18" class="mr-2" />{{ slot.label }}</span>
 
       <div v-if="state.equipment[slot.key]" class="item-row">
@@ -56,7 +58,10 @@
         hide-details
         class="equip__select"
         prepend-inner-icon="mdi-magnify"
-        @update:model-value="(id: string | null) => id && (state.equipment[slot.key] = id)"
+        autofocus
+        menu
+        @update:model-value="(id: string | null) => { if (id) { state.equipment[slot.key] = id; picking = null; } }"
+        @update:menu="(open: boolean) => !open && picking === slot.key && (picking = null)"
       >
         <template #item="{ props: itemProps, item }">
           <v-list-item v-bind="itemProps" :title="undefined">
@@ -70,6 +75,12 @@
           </v-list-item>
         </template>
       </v-autocomplete>
+    </div>
+
+    <div v-if="emptySlots.length" class="equip__add">
+      <button v-for="slot in emptySlots" :key="slot.key" class="equip__add-btn" @click="picking = slot.key">
+        <v-icon size="14">mdi-plus</v-icon><SlotIcon :type="slot.iconType" :size="16" />{{ slot.label }}
+      </button>
     </div>
 
     <!-- Stash -->
@@ -151,13 +162,18 @@ const slots: Slot[] = [
   { key: "offHandId", label: "Off hand", iconType: "Off Hand", type: "Off Hand" },
   { key: "armorId", label: "Armor", iconType: "Armor", type: "Armor" },
   { key: "trinketId", label: "Trinket", iconType: "Trinket", type: "Trinket" },
-  // Bag slots only hold potions and other consumables.
-  { key: "bagOneId", label: "Bag slot 1", iconType: "Consumable", type: "Consumable" },
-  { key: "bagTwoId", label: "Bag slot 2", iconType: "Consumable", type: "Consumable" },
+  // Bag slots hold consumables: potions, scrolls, gems, tools…
+  { key: "bagOneId", label: "Bag 1", iconType: "Consumable", type: "Consumable" },
+  { key: "bagTwoId", label: "Bag 2", iconType: "Consumable", type: "Consumable" },
 ];
 
 
 const filterProficiencies = ref(true);
+
+// Slot being filled right now (its search is open).
+const picking = ref<SlotKey | null>(null);
+const shownSlots = computed(() => slots.filter((slot) => props.state.equipment[slot.key] || picking.value === slot.key));
+const emptySlots = computed(() => slots.filter((slot) => !props.state.equipment[slot.key] && picking.value !== slot.key));
 
 const itemName = (id: string) => {
   const item = allItemsRepository.find(id);
@@ -226,6 +242,29 @@ function equipFromStash(index: number) {
 .equip__filter :deep(.v-label) {
   font-size: 0.75rem;
   opacity: 0.8;
+}
+.equip__add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.equip__add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.8;
+  transition: border-color 0.15s ease, opacity 0.15s ease;
+}
+.equip__add-btn:hover {
+  border-color: rgb(var(--v-theme-accent));
+  opacity: 1;
 }
 .equip__slot {
   margin-bottom: 10px;

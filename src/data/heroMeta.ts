@@ -85,12 +85,11 @@ export const CONTENT_BOX_IMAGES: Partial<Record<ContentId, string>> = {
   "rise-of-the-undead-dragon": `${LIBRARY}/box-undeaddragon.png`,
 };
 
-// Equipment slot icons from the design (white on transparent). Weapon has no
-// design icon yet, so it falls back to a Material icon.
+// Equipment slot icons from the design (white on transparent). 
 const TRACKER_ICONS = import.meta.glob("@/assets/icons/TRACKER/CAMPAIGN/HERO BOX/*.png", { eager: true, import: "default" }) as Record<string, string>;
 const trackerIcon = (file: string) => Object.entries(TRACKER_ICONS).find(([path]) => path.endsWith(`/${file}.png`))?.[1];
 export const SLOT_ICONS: Record<string, { image?: string; mdi: string }> = {
-  Weapon: { mdi: "mdi-sword-cross" },
+  Weapon: { image: trackerIcon("WEAPON ICON"), mdi: "mdi-sword-cross" },
   "Off Hand": { image: trackerIcon("OFF HAND ICON"), mdi: "mdi-shield-half-full" },
   Armor: { image: trackerIcon("Vector"), mdi: "mdi-shield-account" },
   Trinket: { image: trackerIcon("Vector-1"), mdi: "mdi-diamond-stone" },
