@@ -25,8 +25,30 @@
         <v-card class="pa-3 pa-sm-8 rounded-xl main-tutorial-card text-left" color="primary" elevation="16">
           <v-card-text class="text-grey-lighten-2 text-body-1 px-1 px-sm-3">
             <p class="mb-8 font-weight-medium text-center text-sm-left text-body-1 text-grey-lighten-1">
-              Welcome, Retailer! Start by assembling your OP Kit. Then follow the three steps below to create and run your Drunagor Nights events.
+              Welcome, Retailer! Drunagor Nights is an in-store campaign: players come back night after night, and the app keeps their Heroes and progress. You prepare the box once, create the events, and get the table ready; the app guides the players through the rest.
             </p>
+
+            <!-- Who does what on a Drunagor Night -->
+            <div class="roles mb-8">
+              <div class="role">
+                <h3><v-icon size="20" color="amber-accent-2">mdi-store</v-icon> You</h3>
+                <ul>
+                  <li>Assemble the OP Kit <span>(once)</span></li>
+                  <li>Create your store and events</li>
+                  <li>Prepare the table before each night</li>
+                  <li>Give each table its QR Code or code</li>
+                </ul>
+              </div>
+              <div class="role">
+                <h3><v-icon size="20" color="amber-accent-2">mdi-account-group</v-icon> Your players</h3>
+                <ul>
+                  <li>Join the table (QR Code or code)</li>
+                  <li>Choose and prepare their Heroes</li>
+                  <li>Assemble the First Setup</li>
+                  <li>Play, guided by the app</li>
+                </ul>
+              </div>
+            </div>
 
             <!-- Box Assembly & Organization Guide Card -->
             <v-card 
@@ -62,6 +84,9 @@
                 {{ step.title }}
               </h2>
               <p v-for="(line, i) in step.text" :key="i" class="mb-3 text-grey-lighten-1" v-html="line"></p>
+              <ul v-if="step.list" class="step-list mb-3">
+                <li v-for="(item, i) in step.list" :key="i" v-html="item"></li>
+              </ul>
 
               <div class="d-flex align-center justify-space-between mb-2 mt-4 px-1">
                 <span class="text-caption text-grey-lighten-1">Screenshots:</span>
@@ -160,23 +185,29 @@ const eventSteps = [
   {
     title: "Create your account and store",
     text: [
-      `Open the <span class="text-white font-weight-bold">Drunagor.app</span> and log in or create your retailer account.`,
-      `When you click <span class="text-white font-weight-bold">Create New Event</span> for the first time, you'll be asked to create your store.`,
+      `Open the <span class="text-white font-weight-bold">Drunagor.app</span> and log in, or create your <span class="text-white font-weight-bold">retailer account</span>.`,
+      `The first time you click <span class="text-white font-weight-bold">Create New Event</span>, the app asks you to create your store: its name and address are what players see when they look for events near them.`,
     ],
     images: [img1_1, img1_2, img1_3, img2_1, img2_2, img2_3],
   },
   {
     title: "Create your event",
-    text: [
-      `On the event screen, choose the store where the event will be played (you can have more than one), the Season, the Date and the Time.`,
+    text: [`Each Drunagor Night is an event. On the event screen, choose:`],
+    list: [
+      `<strong>Store</strong> – where it will be played (you can have more than one).`,
+      `<strong>Season and Wing</strong> – the adventure the tables will play that night.`,
+      `<strong>Date and Time</strong>.`,
+      `<strong>Tables</strong> – how many, and how many players sit at each one.`,
     ],
     images: [img3_1, img3_2, img3_3],
   },
   {
-    title: "Run your tables",
-    text: [
-      `After creating the event you land on its <span class="text-white font-weight-bold">Tables</span> screen. Print each table's <span class="text-white font-weight-bold">QR Code</span> or show it on a screen: players scan it to join the table, pick their Heroes and start the campaign.`,
-      `Before each Drunagor Night, open <span class="text-white font-weight-bold">Manage Event › Table Assembly</span> (or scan the "Setup the Game Table" QR Code) to prepare the table. The players prepare their Heroes and the First Setup.`,
+    title: "Run your night",
+    text: [`Open the event in <span class="text-white font-weight-bold">Manage Event</span>:`],
+    list: [
+      `<strong>Before the players arrive</strong> – follow <strong>Table Assembly</strong> (about 3 minutes) to lay out the components. You can also scan the "Setup the Game Table" QR Code from the OP Kit.`,
+      `<strong>When they arrive</strong> – each table has a <strong>QR Code</strong> and a short <strong>table code</strong>. Print the QR Code or show it on a screen, or just tell players the code: they open <strong>My Events › Join table</strong> and scan it or type it in.`,
+      `<strong>At the table</strong> – players choose their Heroes in the lobby and the app shows each one how to prepare their Hero. The party leader starts the game, and the app walks them through the First Setup and their first turns.`,
     ],
     images: [img4_1, img4_2, img4_3],
   },
@@ -392,4 +423,42 @@ const openLightbox = (imgSrc: string) => {
   word-break: break-word;
 }
 
+
+/* Who does what */
+.roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.role {
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+}
+.role h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #fff;
+  font-size: 1rem;
+}
+.role ul,
+.step-list {
+  margin: 0;
+  padding-left: 18px;
+  color: #bdbdbd;
+  font-size: 0.9rem;
+}
+.role li,
+.step-list li {
+  margin-bottom: 4px;
+}
+.role li span {
+  opacity: 0.6;
+}
+.step-list :deep(strong) {
+  color: #fff;
+}
 </style>
