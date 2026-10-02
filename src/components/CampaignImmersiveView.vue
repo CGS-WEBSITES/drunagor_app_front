@@ -41,6 +41,14 @@
           </div>
 
           <div class="side-tabs">
+            <v-tooltip text="How to assemble the First Setup" location="right" v-if="isFirstSetupDoor">
+              <template v-slot:activator="{ props }">
+                <div v-bind="props" class="bookmark-tab left-side start-here-tab" @click.stop="openFirstSetupGuide">
+                  <v-icon icon="mdi-map-legend" color="amber-accent-2"></v-icon>
+                  <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">FIRST SETUP</span>
+                </div>
+              </template>
+            </v-tooltip>
             <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
               <template v-slot:activator="{ props }">
                 <div 
@@ -393,25 +401,29 @@
                 <v-icon start icon="mdi-map" class="mr-2"></v-icon> First Setup
             </v-card-title>
             <p class="text-center text-body-2 text-grey-lighten-1 px-6 mb-2">
-                Welcome to <strong>Drunagor Nights</strong>. Assemble the First Room, then follow the
-                <strong>"Start Here"</strong> guide to play your first turns.
+                Welcome to <strong>Drunagor Nights</strong>. Your party assembles the First Room on the table.
+                <template v-if="tutorialPromptDialog.offerStartHere">Then follow the <strong>"Start Here"</strong> guide to play your first turns.</template>
             </p>
             <v-card-text class="pa-2 pa-sm-4">
                 <AssemblyGuide
                   :steps="firstSetupSteps"
-                  finish-label="Continue to Start Here"
-                  @finish="acceptTutorial"
+                  :finish-label="tutorialPromptDialog.offerStartHere ? 'Continue to Start Here' : 'Start playing'"
+                  @finish="tutorialPromptDialog.offerStartHere ? acceptTutorial() : (tutorialPromptDialog.visible = false)"
                 />
             </v-card-text>
             <v-card-actions class="justify-space-between px-6 pb-4">
                 <v-checkbox
+                  v-if="tutorialPromptDialog.offerStartHere"
                   v-model="tutorialPromptDialog.dontShowAgain"
                   label="Don't show again"
                   color="amber-accent-4"
                   density="compact"
                   hide-details
                 ></v-checkbox>
-                <v-btn color="grey" variant="text" @click="declineTutorial">Skip</v-btn>
+                <v-spacer v-if="!tutorialPromptDialog.offerStartHere" />
+                <v-btn color="grey" variant="text" @click="tutorialPromptDialog.offerStartHere ? declineTutorial() : (tutorialPromptDialog.visible = false)">
+                  {{ tutorialPromptDialog.offerStartHere ? "Skip" : "Close" }}
+                </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -1041,7 +1053,7 @@ const onSaving = () => {
   if (savingStateTimeout) clearTimeout(savingStateTimeout);
 };
 
-const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
+const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false, offerStartHere: false });
 const bookContext = ref('');
 
 const partyCode = ref<string | null>(null);
@@ -1962,17 +1974,31 @@ function declineTutorial() {
     };
 }
 
-function checkTutorialTrigger() {
+const isFirstSetupDoor = computed(() => (activeCampaignData.value.door || "").toUpperCase() === "FIRST SETUP");
+
+// The First Setup guide; Start Here follows it in the tutorial wings unless the
+// players already skipped it (in the lobby or here) or turned it off.
+function openFirstSetupGuide() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const door = (activeCampaignData.value.door || '').toUpperCase();
-    
     const isTargetWing = wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL");
-    if (tutorialStore.shouldShowStartHere && isTargetWing && door === "FIRST SETUP") {
-        if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
-            tutorialPromptDialog.value.visible = true;
-            sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
-        }
+    const offerStartHere =
+        isTargetWing && tutorialStore.shouldShowStartHere && !sessionStorage.getItem(`tutorial_shown_${props.campaignId}`);
+    tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere };
+    if (offerStartHere) sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
+}
+
+// Players assemble the First Setup themselves, so its guide opens once per
+// campaign (on this device) when the party reaches that door.
+function checkTutorialTrigger() {
+    if (!isFirstSetupDoor.value) return;
+    const seenKey = `first_setup_seen_${props.campaignId}`;
+    try {
+        if (localStorage.getItem(seenKey)) return;
+        localStorage.setItem(seenKey, '1');
+    } catch {
+        // Storage blocked: show it anyway.
     }
+    openFirstSetupGuide();
 }
 
 let isFirstLoad = true;
