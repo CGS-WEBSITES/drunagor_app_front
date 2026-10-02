@@ -226,6 +226,16 @@
               <p class="md-head__sub mb-3 text-center">
                 Prepare the table before each Drunagor Night. Heroes and the First Setup are handled by the players.
               </p>
+              <a
+          :href="TABLE_ASSEMBLY_PDF"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="pdf-download"
+        >
+          <v-icon size="20">mdi-file-pdf-box</v-icon>
+          <span>Download PDF version</span>
+          <v-icon size="16" class="pdf-download__go">mdi-download</v-icon>
+        </a>
               <AssemblyGuide :steps="tableAssemblySteps" />
             </div>
           </v-window-item>
@@ -451,7 +461,7 @@ import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
 import { extractTime, formatEventDate } from "@/utils/dateHelpers";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
-import { tableAssemblySteps } from "@/data/assembly/tableAssembly";
+import { tableAssemblySteps, TABLE_ASSEMBLY_PDF } from "@/data/assembly/tableAssembly";
 
 const { smAndDown } = useDisplay();
 
@@ -1607,5 +1617,30 @@ watch(currentPage, () => {
   .qr-code-container {
     padding: 16px !important;
   }
+}
+
+/* Download PDF version */
+.pdf-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto 20px;
+  padding: 10px 16px;
+  background: rgba(188, 163, 65, 0.14);
+  border: 1px solid rgba(188, 163, 65, 0.6);
+  border-radius: 999px;
+  color: #e6cf73 !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.pdf-download:hover {
+  background: rgba(188, 163, 65, 0.26);
+}
+.pdf-download__go {
+  opacity: 0.8;
 }
 </style>

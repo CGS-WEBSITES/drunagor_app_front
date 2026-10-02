@@ -12,6 +12,17 @@
           </div>
 
           <!-- Retailer Logged In: Show Assembly Guide -->
+          <a
+          v-if="isRetailer"
+          :href="TABLE_ASSEMBLY_PDF"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="pdf-download"
+        >
+          <v-icon size="20">mdi-file-pdf-box</v-icon>
+          <span>Download PDF version</span>
+          <v-icon size="16" class="pdf-download__go">mdi-download</v-icon>
+        </a>
           <v-card v-slot:default v-if="isRetailer" class="pa-0 rounded-xl main-card text-left" color="primary" elevation="16">
             <AssemblyGuide :steps="tableAssemblySteps" />
           </v-card>
@@ -67,7 +78,7 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
-import { tableAssemblySteps } from "@/data/assembly/tableAssembly";
+import { tableAssemblySteps, TABLE_ASSEMBLY_PDF } from "@/data/assembly/tableAssembly";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -150,5 +161,30 @@ const goToRegister = () => {
 .back-button:hover {
   transform: translateX(-4px);
   background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Download PDF version */
+.pdf-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto 20px;
+  padding: 10px 16px;
+  background: rgba(188, 163, 65, 0.14);
+  border: 1px solid rgba(188, 163, 65, 0.6);
+  border-radius: 999px;
+  color: #e6cf73 !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.pdf-download:hover {
+  background: rgba(188, 163, 65, 0.26);
+}
+.pdf-download__go {
+  opacity: 0.8;
 }
 </style>
