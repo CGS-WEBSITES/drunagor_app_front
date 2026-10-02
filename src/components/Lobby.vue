@@ -171,7 +171,9 @@
                     class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative my-1"
                     @click="toggleHeroDetails(`mine-${hero.pk}`)"
                   >
-                      <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover></v-img>
+                      <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover>
+                        <span v-if="barkOf(hero.name) && expandedHeroKey !== `mine-${hero.pk}`" class="hero-bark">{{ barkOf(hero.name) }}</span>
+                      </v-img>
                       <v-expand-transition>
                           <HeroSummaryPanel
                             v-if="expandedHeroKey === `mine-${hero.pk}`"
@@ -196,7 +198,9 @@
                     class="hero-selection-card rounded-lg elevation-6 overflow-hidden"
                     @click="toggleHeroDetails(`new-${heroData.id}`)"
                   >
-                      <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52" cover></v-img>
+                      <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52" cover>
+                        <span v-if="barkOf(heroData.name) && expandedHeroKey !== `new-${heroData.id}`" class="hero-bark">{{ barkOf(heroData.name) }}</span>
+                      </v-img>
                       <v-expand-transition>
                           <HeroSummaryPanel
                             v-if="expandedHeroKey === `new-${heroData.id}`"
@@ -375,6 +379,7 @@ import { CampaignStore } from '@/store/CampaignStore';
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { Campaign } from "@/store/Campaign";
 import HeroSummaryPanel from "@/components/HeroSummaryPanel.vue";
+import heroSummaries from "@/data/book/HeroSummary.json";
 import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vue";
 
 const router = useRouter();
@@ -432,6 +437,8 @@ const toggleHeroDetails = (key: string) => {
 
 // Act 3: once a hero is confirmed, the player gathers that hero's components.
 const heroPreparationDialog = ref(false);
+// A Hero's one-line bark, shown when hovering it in Choose your Hero.
+const barkOf = (name: string) => (heroSummaries as Record<string, { bark?: string }>)[name]?.bark ?? "";
 const preparedHeroName = ref('');
 const loadingHeroes = ref(false);
 const showCampaignDialog = ref(false);
@@ -1327,5 +1334,26 @@ onBeforeUnmount(() => {
 }
 .overlay-gradient {
     background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
+}
+
+/* Hovering a Hero shows its bark over the art. */
+.hero-bark {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 18px 14px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.88), transparent);
+  color: #ffe082;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.hero-selection-card:hover .hero-bark {
+  opacity: 1;
+  transform: none;
 }
 </style>

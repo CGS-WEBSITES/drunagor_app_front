@@ -1,82 +1,62 @@
 <template>
-  <v-dialog v-model="model" max-width="640" scrollable persistent>
-    <v-card color="#1e1e1e" class="rounded-lg">
-      <v-card-title class="text-white text-center pt-4 pb-1 cinzel-text">
-        Prepare your Hero
-      </v-card-title>
-      <div class="text-center text-caption text-grey-lighten-1 px-4 pb-3">
-        Gather {{ heroName }}'s components before the adventure starts.
+  <!-- Act 3: after picking a Hero, the player gathers that Hero's components step by step. -->
+  <v-dialog v-model="model" max-width="900" :fullscreen="smAndDown" scrollable persistent>
+    <v-card color="#1e1e1e" class="prep-card">
+      <div class="prep-head">
+        <div>
+          <small>Prepare your Hero</small>
+          <strong class="cinzel-text">{{ heroName }}</strong>
+        </div>
+        <v-btn icon="mdi-close" variant="text" size="small" title="Close" @click="model = false" />
       </div>
-
-      <v-card-text class="pa-3">
-        <div v-if="heroSection" class="prep-page mb-3">
-          <h3 class="prep-title">{{ heroSection.title }}</h3>
-          <div class="prep-body" v-html="heroSection.body"></div>
-        </div>
-        <div v-if="gift" class="prep-page mb-3">
-          <h3 class="prep-title">TAKE YOUR GIFT EQUIPMENT</h3>
-          <div class="prep-body">
-            <p>Ask the Store Owner for the shared <strong>Gift Equipment Pack</strong>. Choose 1 Gift Equipment card from it and equip it to the matching slot on your Hero Board.</p>
-            <p>Check your Hero’s Proficiency at the bottom of the Hero Board before equipping a card.</p>
-            <p>Recommended for {{ heroName }}: <strong>{{ gift.name }}</strong>. {{ gift.description }}</p>
-            <p>The Gift Equipment card you use during the Adventure is your reward for playing, and you can keep it after the event, while supplies last.</p>
-          </div>
-        </div>
-        <div v-if="generalSection" class="prep-page">
-          <h3 class="prep-title">{{ generalSection.title }}</h3>
-          <div class="prep-body" v-html="generalSection.body"></div>
-        </div>
+      <v-card-text class="pa-2 pa-sm-4">
+        <AssemblyGuide :key="heroName" :steps="steps" finish-label="I'm ready" @finish="model = false" />
       </v-card-text>
-
-      <v-card-actions class="pa-4">
-        <v-btn block color="success" variant="flat" size="large" class="font-weight-bold" @click="model = false">
-          <v-icon start>mdi-check</v-icon> I have my components
-        </v-btn>
-      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import heroPreparation from "@/data/book/HeroPreparation.json";
+import { useDisplay } from "vuetify";
+import AssemblyGuide from "@/components/AssemblyGuide.vue";
 import heroSummaries from "@/data/book/HeroSummary.json";
 import type { HeroSummary } from "@/components/HeroSummaryPanel.vue";
+import { heroPreparationSteps } from "@/data/assembly/heroPreparation";
 
-type Section = { id?: string; title: string; body: string };
-type SeasonPreparation = { general: Section; heroes: Record<string, Section> };
-
+// season is kept for the callers; the Core Heroes prepare the same way in both seasons.
 const props = defineProps<{ heroName: string; season: "s1" | "s2" }>();
 const model = defineModel<boolean>({ default: false });
+const { smAndDown } = useDisplay();
 
-const data = heroPreparation as Record<"s1" | "s2", SeasonPreparation>;
-
-const generalSection = computed(() => data[props.season].general);
-
-const gift = computed(
-  () => (heroSummaries as Record<string, HeroSummary>)[props.heroName]?.gift,
-);
-
-// Season 2 has no page for every hero (e.g. Elros), so fall back to Season 1.
-const heroSection = computed(
-  () => data[props.season].heroes[props.heroName] ?? data.s1.heroes[props.heroName],
+const steps = computed(() =>
+  heroPreparationSteps(props.heroName, (heroSummaries as Record<string, HeroSummary>)[props.heroName]?.gift),
 );
 </script>
 
 <style scoped>
-.prep-page {
-  background-color: #fff;
-  color: #212121;
-  border-radius: 8px;
-  padding: 16px;
+.prep-card {
+  border-radius: 14px !important;
 }
-.prep-title {
-  font-family: "Cinzel", serif;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
+.prep-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 10px 4px 20px;
 }
-.prep-body :deep(img) {
-  max-width: 100%;
-  height: auto;
+.prep-head > div {
+  display: flex;
+  flex-direction: column;
+}
+.prep-head small {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.prep-head strong {
+  font-size: 1.3rem;
 }
 </style>
