@@ -499,16 +499,8 @@
                 />
               </v-col>
               <v-col cols="12" md="6" class="py-0">
-                <v-btn
-                  class="mb-4"
-                  block
-                  color="green"
-                  @click="showCampaignDialog = true"
-                  :disabled="
-                    !currentPlayer ||
-                    currentPlayer.event_status !== 'Joined the Quest'
-                  "
-                  >Join Campaign</v-btn
+                <v-btn class="mb-4" block color="green" prepend-icon="mdi-qrcode-scan" @click="showJoinTable = true"
+                  >Join table</v-btn
                 >
               </v-col>
               <v-col cols="12" md="6" class="py-0">
@@ -622,10 +614,13 @@
     </v-dialog>
 
     <v-dialog v-model="showCampaignDialog" max-width="320" persistent />
+    <!-- Join table: scan the QR Code or type the table code. -->
+    <HUB v-model="showJoinTable" />
   </v-card>
 </template>
 
 <script setup lang="ts">
+import HUB from "@/components/HUB.vue";
 import { ref, computed, onMounted, inject, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
@@ -666,6 +661,7 @@ const showQuitSuccessAlert = ref(false);
 const showQuitErrorAlert = ref(false);
 const quitErrorMessage = ref("");
 const showCampaignDialog = ref(false);
+const showJoinTable = ref(false);
 const showPlaytestDialog = ref(false);
 
 const isGenConActive = computed(() => false);

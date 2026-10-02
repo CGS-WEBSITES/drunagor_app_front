@@ -121,7 +121,7 @@
               <div>
                 <h3 class="md-head__title">Tables</h3>
                 <p class="md-head__sub">
-                  {{ seatStats.taken }}/{{ seatStats.total }} seats taken · players join by scanning the table's QR code
+                  {{ seatStats.taken }}/{{ seatStats.total }} seats taken · players join by scanning the table's QR code or typing its code
                 </p>
               </div>
               <div class="md-head__actions">
@@ -165,9 +165,16 @@
                     <span v-else class="md-seat"></span>
                   </template>
                 </div>
-                <button class="md-table__qr" @click="generateQRCode(table)">
-                  <v-icon size="18">mdi-qrcode</v-icon> QR code
-                </button>
+                <div class="md-table__join">
+                  <button class="md-table__code" title="Players can type this code to join. Click to copy." @click="copyTableCode(table)">
+                    <small>Code</small>
+                    <strong>{{ tableCode(table) }}</strong>
+                    <v-icon size="14">{{ copiedTable === table.event_tables_pk ? "mdi-check" : "mdi-content-copy" }}</v-icon>
+                  </button>
+                  <button class="md-table__qr" @click="generateQRCode(table)">
+                    <v-icon size="18">mdi-qrcode</v-icon> QR code
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -276,14 +283,19 @@
             </div>
           </div>
 
+          <div v-if="selectedTable" class="qr-table-code mb-4">
+            <small>Table code</small>
+            <strong>{{ tableCode(selectedTable) }}</strong>
+          </div>
+
           <v-alert
             v-if="qrCodeData"
             type="success"
             variant="tonal"
             class="mb-4"
           >
-            Share this QR code with your players. They must scan it to join the
-            table.
+            Players join the table by scanning this QR code, or by typing the table code in
+            <strong>My Events › Join table</strong>.
           </v-alert>
 
           <v-btn
@@ -456,6 +468,7 @@ import { useDisplay } from "vuetify";
 import { jsPDF } from "jspdf";
 import QrcodeVue from "qrcode-vue3";
 import QRCode from "qrcode";
+import { lobbyCode } from "@/utils/lobbyCode";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
@@ -877,6 +890,15 @@ const captureQrPngFromCanvas = async () => {
     console.error("Failed to read QR canvas:", err);
     qrPngDataUrl.value = "";
   }
+};
+
+// Short code players can type instead of scanning the QR code.
+const tableCode = (table) => lobbyCode(props.event.events_pk, table.event_tables_pk);
+const copiedTable = ref(null);
+const copyTableCode = (table) => {
+  navigator.clipboard?.writeText(tableCode(table));
+  copiedTable.value = table.event_tables_pk;
+  setTimeout(() => (copiedTable.value = null), 1500);
 };
 
 const generateQRCode = async (table) => {
@@ -1642,5 +1664,60 @@ watch(currentPage, () => {
 }
 .pdf-download__go {
   opacity: 0.8;
+}
+
+/* Table code (players can type it instead of scanning) */
+.md-table__join {
+  display: flex;
+  gap: 6px;
+}
+.md-table__join .md-table__qr {
+  flex: 1;
+}
+.md-table__code {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  position: relative;
+  min-width: 0;
+}
+.md-table__code small {
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.md-table__code strong {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+.md-table__code .v-icon {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  opacity: 0.6;
+}
+.qr-table-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.qr-table-code small {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.qr-table-code strong {
+  font-family: "Roboto Mono", monospace;
+  font-size: 1.8rem;
+  letter-spacing: 4px;
 }
 </style>

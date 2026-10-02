@@ -9,7 +9,7 @@
     <v-card color="#121212" class="rounded-lg">
       <v-toolbar color="transparent" density="compact" class="border-b border-opacity-25 pl-2 pr-2 flex-shrink-0">
         <v-toolbar-title class="text-subtitle-1 font-weight-bold text-white">
-           SCAN QR CODE
+           JOIN A TABLE
         </v-toolbar-title>
         <v-btn icon @click="closeDialog" density="compact" color="white">
           <v-icon>mdi-close</v-icon>
@@ -40,8 +40,26 @@
             </div>
             
             <p class="text-caption text-grey-lighten-1 mb-4 font-weight-medium">
-               Point your camera at the <span class="text-white font-weight-bold">Event QR Code</span> to join the table.
+               Point your camera at the <span class="text-white font-weight-bold">table's QR Code</span>.
             </p>
+
+            <!-- Or type the code the Store Owner gives you. -->
+            <div class="code-divider"><span>or enter the table code</span></div>
+            <form class="code-form" @submit.prevent="joinWithCode">
+              <v-text-field
+                :model-value="codeInput"
+                placeholder="e.g. KQA-EVMV"
+                variant="outlined"
+                density="comfortable"
+                hide-details
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                class="code-input"
+                @update:model-value="(value) => (codeInput = (value || '').toUpperCase())"
+              />
+              <v-btn type="submit" color="success" variant="flat" size="large" :loading="processing" :disabled="!codeInput.trim()">Join</v-btn>
+            </form>
 
             <v-alert v-if="errorMessage" type="error" variant="tonal" density="compact" class="mb-3 text-left">
                {{ errorMessage }}
@@ -73,6 +91,7 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onBeforeUnmount, watch, inject } from 'vue';
 import { useRouter } from 'vue-router';
+import { parseLobbyCode } from '@/utils/lobbyCode';
 import {
   BrowserMultiFormatReader,
   BarcodeFormat,
@@ -216,6 +235,43 @@ const processQrCodeData = async (qrContent: string) => {
     }
 };
 
+// Joining with the table code instead of the QR Code.
+const codeInput = ref('');
+const joinWithCode = async () => {
+    errorMessage.value = '';
+    const target = parseLobbyCode(codeInput.value);
+    if (!target) {
+        errorMessage.value = "That code doesn't look right. Check it with the Store Owner.";
+        return;
+    }
+    processing.value = true;
+    try {
+        const { data: tables } = await axios.get(`/event_tables/list/${target.eventPk}`);
+        const table = (tables.tables || []).find((item: any) => Number(item.event_tables_pk) === target.tablePk);
+        if (!table) {
+            errorMessage.value = 'No table found for this code. It may have been removed.';
+            return;
+        }
+        const { data: seats } = await axios.get('/rl_events_users/table_players', {
+            params: { events_fk: target.eventPk, event_tables_pk: target.tablePk },
+        });
+        const me = JSON.parse(localStorage.getItem('app_user') || '{}')?.users_pk;
+        const seated = (seats.players || []).some((player: any) => player.users_pk === me);
+        if (!seated && Number(seats.available_seats) <= 0) {
+            errorMessage.value = 'This table is full!';
+            return;
+        }
+        codeInput.value = '';
+        goToLobby(target.eventPk, target.tablePk);
+    } catch (error: any) {
+        errorMessage.value = error.response?.status === 404
+            ? 'No table found for this code. It may have been removed.'
+            : 'Could not check this code. Try again.';
+    } finally {
+        processing.value = false;
+    }
+};
+
 const switchCamera = () => {
   if (availableCameras.value.length <= 1) return;
   codeReader.reset();
@@ -286,5 +342,38 @@ onBeforeUnmount(() => {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* Table code */
+.code-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 4px 0 12px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.code-divider::before,
+.code-divider::after {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.15);
+    content: "";
+}
+.code-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 320px;
+    margin: 0 auto 12px;
+}
+.code-input :deep(input) {
+    font-family: "Roboto Mono", monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-align: center;
 }
 </style>

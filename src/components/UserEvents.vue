@@ -297,17 +297,8 @@
               <button class="event-detail__action event-detail__action--quit" @click="quitEvent()">
                 Quit event
               </button>
-              <button
-                class="event-detail__action event-detail__action--join"
-                :disabled="!currentPlayer || currentPlayer.event_status !== 'Joined the Quest'"
-                :title="
-                  currentPlayer?.event_status !== 'Joined the Quest'
-                    ? 'Available once the retailer starts your campaign'
-                    : ''
-                "
-                @click="showCampaignDialog = true"
-              >
-                Join campaign
+              <button class="event-detail__action event-detail__action--join" @click="showJoinTable = true">
+                <v-icon start size="18">mdi-qrcode-scan</v-icon> Join table
               </button>
             </div>
           </v-card>
@@ -483,10 +474,13 @@
         </v-dialog>
       </div>
     </v-card>
+    <!-- Join table: scan the QR Code or type the table code. -->
+    <HUB v-model="showJoinTable" />
   </v-col>
 </template>
 
 <script setup>
+import HUB from "@/components/HUB.vue";
 import { ref, computed, watch, onMounted, onUnmounted, inject } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useEventStore } from "@/store/EventStore";
@@ -581,6 +575,7 @@ const sharedLink = ref("");
 const showDialog = ref(false);
 const showAlert = ref(false);
 const showCampaignDialog = ref(false);
+const showJoinTable = ref(false);
 const showLoadDialog = ref(false);
 const campaigns = ref([]);
 const selectedLoadCampaign = ref(null);
