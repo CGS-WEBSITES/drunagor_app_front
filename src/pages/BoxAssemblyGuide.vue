@@ -17,7 +17,7 @@
       <!-- Main Header Title (Outside Card) -->
       <div class="text-center mt-2 mb-4">
         <h1 class="main-header-title text-white font-weight-black text-center text-uppercase">
-          BOX ASSEMBLY<br />& OGANIZATION
+          BOX ASSEMBLY<br />& ORGANIZATION
         </h1>
       </div>
 
@@ -26,14 +26,18 @@
         
         <!-- Subtitle Text (INSIDE Card at the Top) -->
         <p class="subtitle-text text-center font-style-italic mb-6 mx-auto">
-          Navigate through this page to learn how to organize your components and assemble your game box for Drunagor Nights. If you prefer to follow a PDF guide,
-          <a
-            href="https://s3.us-east-2.amazonaws.com/assets.drunagor.app/retaitlertutorial/box-assembly-guide/RETAILER+MANUAL+-+OP+KIT+preparation.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="pdf-guide-link"
-          >click here<v-icon size="x-small" style="color: #BCA341;" class="ml-0.5">mdi-open-in-new</v-icon></a>.
+          Navigate through this page to learn how to organize your components and assemble your game box for Drunagor Nights. Prefer paper? Download the PDF version.
         </p>
+        <a
+          href="https://assets.drunagor.app/retaitlertutorial/box-assembly-guide/RETAILER%20MANUAL%20-%20OP%20KIT%20preparation.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="pdf-download"
+        >
+          <v-icon size="20">mdi-file-pdf-box</v-icon>
+          <span>Download PDF version</span>
+          <v-icon size="16" class="pdf-download__go">mdi-download</v-icon>
+        </a>
 
         <!-- The four steps, from guideSteps below. -->
         <div v-for="step in guideSteps" :key="step.n" class="step-section mb-4">
@@ -1216,5 +1220,30 @@ const findParentItem = (id?: string) =>
 .byod-fallback,
 .trays-fallback {
   background: rgba(0, 0, 0, 0.4);
+}
+
+/* Download PDF version */
+.pdf-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto 20px;
+  padding: 10px 16px;
+  background: rgba(188, 163, 65, 0.14);
+  border: 1px solid rgba(188, 163, 65, 0.6);
+  border-radius: 999px;
+  color: #e6cf73 !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.pdf-download:hover {
+  background: rgba(188, 163, 65, 0.26);
+}
+.pdf-download__go {
+  opacity: 0.8;
 }
 </style>
