@@ -25,7 +25,7 @@
         <v-card class="pa-3 pa-sm-8 rounded-xl main-tutorial-card text-left" color="primary" elevation="16">
           <v-card-text class="text-grey-lighten-2 text-body-1 px-1 px-sm-3">
             <p class="mb-8 font-weight-medium text-center text-sm-left text-body-1 text-grey-lighten-1">
-              Welcome to the Drunagor Retailer Tutorial. Below is a step-by-step guide to help you set up your store account, schedule events, and manage game tables.
+              Welcome, Retailer! Start by assembling your OP Kit. Then follow the three steps below to create and run your Drunagor Nights events.
             </p>
 
             <!-- Box Assembly & Organization Guide Card -->
@@ -36,10 +36,10 @@
             >
               <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
                 <v-icon color="amber-accent-2" class="mr-3">mdi-package-variant-closed</v-icon>
-                Box Assembly & Organization Guide
+                Assemble your OP Kit
               </h2>
               <p class="mb-5 text-grey-lighten-1 text-body-2">
-                Follow our interactive step-by-step checklist to learn how to organize your components and assemble the game box for Drunagor Nights.
+                Just received Drunagor Nights? Follow the step-by-step guide to sort the Core Box, the Build Your Own Dungeon add-on and the Organized Play Kit into one box ready for your events.
               </p>
               <div class="d-flex justify-center w-100">
                 <v-btn
@@ -49,37 +49,32 @@
                   class="font-weight-black text-black text-none text-uppercase assembly-guide-btn mx-auto"
                   @click.stop="router.push({ name: 'BoxAssemblyGuide' })"
                 >
-                  <span class="btn-label-text">ASSEMBLY & ORGANIZATION GUIDE</span>
+                  <span class="btn-label-text">OP KIT ASSEMBLY GUIDE</span>
                   <v-icon end size="small" class="ml-2 flex-shrink-0">mdi-arrow-right</v-icon>
                 </v-btn>
               </div>
             </v-card>
 
-            <!-- Step 1 -->
-            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
+            <!-- Creating and running events -->
+            <v-card v-for="(step, n) in eventSteps" :key="step.title" class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
               <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
-                <v-icon color="amber-accent-2" class="mr-3">mdi-numeric-1-circle</v-icon>
-                Open the Adventure Setup
+                <v-icon color="amber-accent-2" class="mr-3">mdi-numeric-{{ n + 1 }}-circle</v-icon>
+                {{ step.title }}
               </h2>
-              <p class="mb-5 text-grey-lighten-1">
-                Open the <span class="text-white font-weight-bold">Drunagor.app</span> and log in or create your retailer account.
-              </p>
-              
-              <!-- Swipe helper indicator -->
-              <div class="d-flex align-center justify-space-between mb-2 px-1">
+              <p v-for="(line, i) in step.text" :key="i" class="mb-3 text-grey-lighten-1" v-html="line"></p>
+
+              <div class="d-flex align-center justify-space-between mb-2 mt-4 px-1">
                 <span class="text-caption text-grey-lighten-1">Screenshots:</span>
                 <span class="text-caption text-amber-accent-2 d-flex align-center swipe-hint">
                   Scroll sideways <v-icon size="small" class="ml-1 animate-swipe">mdi-swap-horizontal</v-icon>
                 </span>
               </div>
-
-              <!-- Horizontal swiper for Step 1 -->
               <div class="d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container">
-                <v-card 
-                  v-for="(img, idx) in step1Images" 
+                <v-card
+                  v-for="(img, idx) in step.images"
                   :key="idx"
-                  flat 
-                  class="image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" 
+                  flat
+                  class="image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden"
                   width="180"
                   @click="openLightbox(img)"
                 >
@@ -95,178 +90,6 @@
                   </div>
                 </v-card>
               </div>
-            </v-card>
-
-            <!-- Step 2 -->
-            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
-              <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
-                <v-icon color="amber-accent-2" class="mr-3">mdi-numeric-2-circle</v-icon>
-                Create Your Store
-              </h2>
-              <p class="mb-5 text-grey-lighten-1">
-                When you click "Create New Event", you'll be asked to first create a store.
-              </p>
-
-              <!-- Swipe helper indicator -->
-              <div class="d-flex align-center justify-space-between mb-2 px-1">
-                <span class="text-caption text-grey-lighten-1">Screenshots:</span>
-                <span class="text-caption text-amber-accent-2 d-flex align-center swipe-hint">
-                  Scroll sideways <v-icon size="small" class="ml-1 animate-swipe">mdi-swap-horizontal</v-icon>
-                </span>
-              </div>
-
-              <!-- Horizontal swiper for Step 2 -->
-              <div class="d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container">
-                <v-card 
-                  v-for="(img, idx) in step2Images" 
-                  :key="idx"
-                  flat 
-                  class="image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" 
-                  width="180"
-                  @click="openLightbox(img)"
-                >
-                  <v-img :src="img" aspect-ratio="9/16" contain class="thumbnail-img">
-                    <template v-slot:placeholder>
-                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-3">
-                        <v-progress-circular indeterminate color="primary" size="24"></v-progress-circular>
-                      </div>
-                    </template>
-                  </v-img>
-                  <div class="tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity">
-                    <v-icon size="x-small" class="mr-1">mdi-magnify-plus</v-icon> Click to Zoom
-                  </div>
-                </v-card>
-              </div>
-            </v-card>
-
-            <!-- Step 3 -->
-            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
-              <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
-                <v-icon color="amber-accent-2" class="mr-3">mdi-numeric-3-circle</v-icon>
-                Create Your Event
-              </h2>
-              <p class="mb-5 text-grey-lighten-1">
-                After the store is created, the event creation screen will become accessible. On the event screen, select which store the event will be played at (since there is the possibility of having multiple stores), along with the Season, Time, and Date of the event. After creating the event, you'll be presented with a tutorial guide. If it is your first time setting up an Drunagor Nights event, you should follow the instructions presented there.
-              </p>
-
-              <!-- Swipe helper indicator -->
-              <div class="d-flex align-center justify-space-between mb-2 px-1">
-                <span class="text-caption text-grey-lighten-1">Screenshots:</span>
-                <span class="text-caption text-amber-accent-2 d-flex align-center swipe-hint">
-                  Scroll sideways <v-icon size="small" class="ml-1 animate-swipe">mdi-swap-horizontal</v-icon>
-                </span>
-              </div>
-
-              <!-- Horizontal swiper for Step 3 -->
-              <div class="d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container">
-                <v-card 
-                  v-for="(img, idx) in step3Images" 
-                  :key="idx"
-                  flat 
-                  class="image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" 
-                  width="180"
-                  @click="openLightbox(img)"
-                >
-                  <v-img :src="img" aspect-ratio="9/16" contain class="thumbnail-img">
-                    <template v-slot:placeholder>
-                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-3">
-                        <v-progress-circular indeterminate color="primary" size="24"></v-progress-circular>
-                      </div>
-                    </template>
-                  </v-img>
-                  <div class="tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity">
-                    <v-icon size="x-small" class="mr-1">mdi-magnify-plus</v-icon> Click to Zoom
-                  </div>
-                </v-card>
-              </div>
-            </v-card>
-
-            <!-- Step 4 -->
-            <v-card class="mb-8 pa-5 pa-sm-6 step-card rounded-xl" flat>
-              <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
-                <v-icon color="amber-accent-2" class="mr-3">mdi-numeric-4-circle</v-icon>
-                Manage Your Tables & QR Codes
-              </h2>
-              <p class="mb-5 text-grey-lighten-1">
-                Once created, you will land on the "tables" screen where you will have access to the TABLE QR CODE. Print this QR code or display it on a screen at each play table. When players arrive at your store, they will scan this QR code with their mobile devices to automatically join your event, access the active campaign session, track achievements, and sync their game state directly.
-              </p>
-
-              <!-- Swipe helper indicator -->
-              <div class="d-flex align-center justify-space-between mb-2 px-1">
-                <span class="text-caption text-grey-lighten-1">Screenshots:</span>
-                <span class="text-caption text-amber-accent-2 d-flex align-center swipe-hint">
-                  Scroll sideways <v-icon size="small" class="ml-1 animate-swipe">mdi-swap-horizontal</v-icon>
-                </span>
-              </div>
-
-              <!-- Horizontal swiper for Step 4 -->
-              <div class="d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container">
-                <v-card 
-                  v-for="(img, idx) in step4Images" 
-                  :key="idx"
-                  flat 
-                  class="image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" 
-                  width="180"
-                  @click="openLightbox(img)"
-                >
-                  <v-img :src="img" aspect-ratio="9/16" contain class="thumbnail-img">
-                    <template v-slot:placeholder>
-                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-3">
-                        <v-progress-circular indeterminate color="primary" size="24"></v-progress-circular>
-                      </div>
-                    </template>
-                  </v-img>
-                  <div class="tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity">
-                    <v-icon size="x-small" class="mr-1">mdi-magnify-plus</v-icon> Click to Zoom
-                  </div>
-                </v-card>
-              </div>
-            </v-card>
-
-            <!-- Step 5 -->
-            <v-card class="mb-4 pa-5 pa-sm-6 step-card rounded-xl" flat>
-              <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
-                <v-icon color="amber-accent-2" class="mr-3">mdi-numeric-5-circle</v-icon>
-                First Setup Prep
-              </h2>
-              <p class="mb-5 text-grey-lighten-1">
-                The First Setup is also accessible through the manage events screen, in the "FIRST SETUP" TAB.
-              </p>
-
-              <!-- Swipe helper indicator -->
-              <div class="d-flex align-center justify-space-between mb-2 px-1">
-                <span class="text-caption text-grey-lighten-1">Screenshots:</span>
-                <span class="text-caption text-amber-accent-2 d-flex align-center swipe-hint">
-                  Scroll sideways <v-icon size="small" class="ml-1 animate-swipe">mdi-swap-horizontal</v-icon>
-                </span>
-              </div>
-
-              <!-- Horizontal swiper for Step 5 -->
-              <div class="d-flex ga-4 overflow-x-auto pb-3 px-1 flex-nowrap swiper-container">
-                <v-card 
-                  v-for="(img, idx) in step5Images" 
-                  :key="idx"
-                  flat 
-                  class="image-thumbnail-card flex-shrink-0 rounded-lg overflow-hidden" 
-                  width="180"
-                  @click="openLightbox(img)"
-                >
-                  <v-img :src="img" aspect-ratio="9/16" contain class="thumbnail-img">
-                    <template v-slot:placeholder>
-                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-3">
-                        <v-progress-circular indeterminate color="primary" size="24"></v-progress-circular>
-                      </div>
-                    </template>
-                  </v-img>
-                  <div class="tap-zoom-hint text-center py-1 text-caption text-grey-lighten-1 bg-black-opacity">
-                    <v-icon size="x-small" class="mr-1">mdi-magnify-plus</v-icon> Click to Zoom
-                  </div>
-                </v-card>
-              </div>
-
-              <v-alert type="info" variant="tonal" border="start" color="amber-accent-2" class="mt-4 text-body-2 text-left leading-relaxed">
-                The First Room is prepared by the Store Owner. Players will learn how to set up future Rooms when they reach Door 1.
-              </v-alert>
             </v-card>
 
             <!-- Back to login prompt -->
@@ -331,14 +154,33 @@ import img4_1 from "@/assets/retailertutorial/04.01.png";
 import img4_2 from "@/assets/retailertutorial/04.02.png";
 import img4_3 from "@/assets/retailertutorial/04.03.png";
 
-import img5_1 from "@/assets/retailertutorial/05.01.png";
-import img5_2 from "@/assets/retailertutorial/05.02.png";
 
-const step1Images = [img1_1, img1_2, img1_3];
-const step2Images = [img2_1, img2_2, img2_3];
-const step3Images = [img3_1, img3_2, img3_3];
-const step4Images = [img4_1, img4_2, img4_3];
-const step5Images = [img5_1, img5_2];
+// Creating and running events, after the OP Kit is assembled.
+const eventSteps = [
+  {
+    title: "Create your account and store",
+    text: [
+      `Open the <span class="text-white font-weight-bold">Drunagor.app</span> and log in or create your retailer account.`,
+      `When you click <span class="text-white font-weight-bold">Create New Event</span> for the first time, you'll be asked to create your store.`,
+    ],
+    images: [img1_1, img1_2, img1_3, img2_1, img2_2, img2_3],
+  },
+  {
+    title: "Create your event",
+    text: [
+      `On the event screen, choose the store where the event will be played (you can have more than one), the Season, the Date and the Time.`,
+    ],
+    images: [img3_1, img3_2, img3_3],
+  },
+  {
+    title: "Run your tables",
+    text: [
+      `After creating the event you land on its <span class="text-white font-weight-bold">Tables</span> screen. Print each table's <span class="text-white font-weight-bold">QR Code</span> or show it on a screen: players scan it to join the table, pick their Heroes and start the campaign.`,
+      `Before each Drunagor Night, open <span class="text-white font-weight-bold">Manage Event › Table Assembly</span> (or scan the "Setup the Game Table" QR Code) to prepare the table. The players prepare their Heroes and the First Setup.`,
+    ],
+    images: [img4_1, img4_2, img4_3],
+  },
+];
 
 const showLightbox = ref(false);
 const activeImage = ref("");
