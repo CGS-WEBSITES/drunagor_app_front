@@ -151,6 +151,20 @@
       <div class="hud-area top-right">
         <div class="interactive-content d-flex flex-column align-end gap-2">
           <div class="d-flex flex-row align-center gap-2 mb-1">
+            <v-menu v-if="smAndDown" location="bottom end" :offset="6">
+              <template #activator="{ props: menuProps }">
+                <v-btn v-bind="menuProps" icon="mdi-menu" class="square-hud-btn" title="Menu"></v-btn>
+              </template>
+              <v-list density="compact" class="bg-grey-darken-4">
+                <v-list-item prepend-icon="mdi-account-group" title="Party" @click="playerListDialogVisible = true" />
+                <v-list-item prepend-icon="mdi-content-save" title="Save game" base-color="green-lighten-2" @click="manualSave" />
+                <v-list-item prepend-icon="mdi-fit-to-screen-outline" title="Fit map" @click="fitMap" />
+                <template v-if="showSaveCampaignButton">
+                  <v-divider class="my-1" />
+                  <v-list-item prepend-icon="mdi-delete-forever" title="Leave campaign" base-color="red-lighten-2" @click="confirmLeave" />
+                </template>
+              </v-list>
+            </v-menu>
             <v-tooltip text="Exit to Dashboard" location="bottom">
               <template v-slot:activator="{ props }">
                 <v-btn
@@ -218,7 +232,7 @@
 
       <div class="hud-area bottom-left">
         <div class="interactive-content d-flex flex-column align-start gap-2">
-          <div class="hud-btns">
+          <div v-if="!smAndDown" class="hud-btns">
             <button class="hud-btn" title="Players" @click.stop="playerListDialogVisible = true">
               <v-icon>mdi-account-group</v-icon><span>Party</span>
             </button>
@@ -264,10 +278,6 @@
               ></v-img>
             </div>
             <div class="hero-name-tag">{{ hero.name }}</div>
-            <div v-if="hero.sequentialAdventureState" class="hero-stats">
-              <span title="Life"><v-icon size="12" color="#e05353">mdi-heart</v-icon>{{ hero.sequentialAdventureState.lifepoints ?? 0 }}</span>
-              <span title="Available cubes"><v-icon size="12">mdi-cube-outline</v-icon>{{ hero.sequentialAdventureState.availableCubes ?? 0 }}</span>
-            </div>
           </div>
         </div>
       </div>
@@ -606,26 +616,18 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="heroCardDialog.visible" max-width="600" scrollable>
-      <v-card class="bg-grey-darken-4 rounded-xl hero-detail-card" v-if="heroCardDialog.hero">
-        <v-toolbar color="rgba(0,0,0,0.6)" density="compact" theme="dark" class="px-2">
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" @click="heroCardDialog.visible = false"></v-btn>
-        </v-toolbar>
-        <v-card-text class="pa-0">
-          <div class="hero-tracker-header">
-            <v-img :src="heroCardDialog.hero.images.trackerInfo || heroCardDialog.hero.images.background" width="100%" max-height="300" cover></v-img>
-          </div>
-          <v-container fluid class="pa-4">
-            <HeroDetailSummary :campaign-id="campaignId" :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id" class="mb-4" />
-            <v-divider class="my-4 border-opacity-25"></v-divider>
-            <CampaignLogSequentialAdventure :campaign-id="campaignId" :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id" :hero="heroCardDialog.hero" :hide-manage-button="true" />
-          </v-container>
+    <v-dialog v-model="heroCardDialog.visible" max-width="760" scrollable>
+      <v-card v-if="heroCardDialog.hero" class="hero-dialog">
+        <div class="hero-dialog__head">
+          <v-btn icon="mdi-close" variant="text" size="small" @click="heroCardDialog.visible = false"></v-btn>
+        </div>
+        <v-card-text class="pa-3">
+          <CampaignLog
+            :campaign-id="campaignId"
+            :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
+            :is-sequential-adventure="true"
+          />
         </v-card-text>
-        <v-card-actions class="bg-grey-darken-3 pa-4 d-flex justify-space-between gap-4">
-          <v-btn color="amber-accent-4" variant="elevated" class="flex-grow-1 text-black font-weight-bold" prepend-icon="mdi-sack" @click="openResources(heroCardDialog.hero.heroId || heroCardDialog.hero.id)">Resources</v-btn>
-          <v-btn color="light-blue-accent-3" variant="elevated" class="flex-grow-1 text-black font-weight-bold" prepend-icon="mdi-shield-sword" @click="openEquipment(heroCardDialog.hero.heroId || heroCardDialog.hero.id)">Equipment</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -917,8 +919,7 @@ import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
-import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
-import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
+import CampaignLog from "@/components/CampaignLog.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import TharmagarChat from "@/components/TharmagarChat.vue";
 
@@ -1628,7 +1629,12 @@ function fitMap() {
   if (!size) return;
   const box = mapContentBox.value ?? { x0: 0, y0: 0, x1: 1, y1: 1 };
   // Free space between the HUD pieces.
-  const pad = smAndDown.value ? { top: 110, bottom: 200, side: 64 } : { top: 110, bottom: 215, side: 220 };
+  const short = size.container.height < 560;
+  const pad = smAndDown.value
+    ? short
+      ? { top: 16, bottom: 90, side: 80 }
+      : { top: 110, bottom: 140, side: 64 }
+    : { top: 110, bottom: 170, side: 220 };
   const freeWidth = Math.max(100, size.container.width - pad.side * 2);
   const freeHeight = Math.max(100, size.container.height - pad.top - pad.bottom);
   const boxWidth = (box.x1 - box.x0) * size.width;
@@ -2183,22 +2189,6 @@ function onImgError(e: any) {
 
 function onMonsterImgError(e: any) {
   e.target.style.display = "none";
-}
-
-function openResources(id: string) {
-  heroCardDialog.value.visible = false;
-  router.push({
-    name: "HeroSequentialState",
-    params: { campaignId: props.campaignId, heroId: id },
-  });
-}
-
-function openEquipment(id: string) {
-  heroCardDialog.value.visible = false;
-  router.push({
-    name: "Hero",
-    params: { campaignId: props.campaignId, heroId: id },
-  });
 }
 
 function exitToDashboard() {
@@ -3477,33 +3467,11 @@ watch(
   color: #111;
 }
 
-/* Life and cubes under each hero. */
-.hero-stats {
-  display: flex;
-  gap: 4px;
-  margin-top: 3px;
-}
-.hero-stats span {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 1px 6px;
-  background: rgba(30, 30, 30, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
-  font-family: "Poppins", sans-serif;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
 
 @media (max-width: 960px) {
-  /* Party / Save / Fit / More: a row in the bottom left corner, icons only;
-     the heroes sit just above it so nothing overlaps. */
-  .hud-btns {
-    gap: 6px;
-  }
+  /* Heroes right at the bottom edge. */
   .bottom-center {
-    bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+    bottom: max(6px, env(safe-area-inset-bottom)) !important;
   }
   .hud-btn {
     width: 40px;
@@ -3523,10 +3491,6 @@ watch(
   }
   .now-card strong {
     font-size: 0.9rem;
-  }
-  .hero-stats span {
-    padding: 1px 4px;
-    font-size: 0.6rem;
   }
 }
 
@@ -3590,6 +3554,43 @@ watch(
     width: 46px;
     min-height: 44px;
     padding: 8px;
+  }
+}
+
+/* Heroes sit at the bottom edge. */
+.bottom-center {
+  margin-bottom: -18px;
+  padding-bottom: 0 !important;
+}
+
+/* Hero dialog: the campaign hero card. */
+.hero-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+  border-radius: 16px !important;
+}
+.hero-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 6px 0;
+}
+
+/* Short screens (phones on their side): smaller side tabs. */
+@media (max-height: 560px) {
+  .side-tabs {
+    gap: 3px;
+  }
+  .side-tabs .bookmark-tab.left-side {
+    min-height: 36px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  .now-card {
+    padding: 6px 10px 8px;
+  }
+  .hero-token {
+    width: 46px !important;
+    height: 68px !important;
   }
 }
 </style>
