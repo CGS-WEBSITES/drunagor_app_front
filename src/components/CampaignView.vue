@@ -669,6 +669,8 @@ const checkUserRole = async () => {
 const triggerAutoSave = () => {
   if (!isAdminUser.value) return;
   if (isSyncingFromServer.value) return;
+  // The immersive view saves on its own; this saver is only mounted in the classic view.
+  if (isImmersiveMode.value) return;
 
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout);

@@ -1,7 +1,7 @@
 <template>
     <div>
       <!-- Renderiza o Dashboard correto com base em roles_fk -->
-      <UserEvents v-if="user?.roles_fk === 2" />
+      <UserEvents v-if="user?.roles_fk === 2 || user?.roles_fk === 1" />
       <RetailEvents v-else-if="user?.roles_fk === 3" />
       <p v-else>Loading dashboard...</p>
     </div>

@@ -245,7 +245,7 @@ class BotPlayer {
         user_name: this.userName,
         email: this.email,
         password: md5(BOT_PASSWORD),
-        roles_fk: 1,
+        roles_fk: 2,
         active: true,
         verified: true,
         agreement: true,
