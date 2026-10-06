@@ -1,7 +1,12 @@
 <template>
   <v-card color="primary" class="home-feed fill-height d-flex flex-column w-100">
     <div class="home-scroll">
-      <div v-if="loading" class="home-loading"><v-progress-circular indeterminate /></div>
+      <div v-if="loading" class="home-skeleton" aria-label="Loading">
+        <span class="home-skeleton__hero"></span>
+        <span class="home-skeleton__grid"><i></i><i></i><i></i><i></i></span>
+        <span class="home-skeleton__row"></span>
+        <span class="home-skeleton__row"></span>
+      </div>
 
       <template v-else>
         <!-- Continue: the last campaign, whatever box it is. -->
@@ -1383,5 +1388,41 @@ onMounted(async () => {
 .box-mark img {
   width: auto;
   height: 16px;
+}
+/* Loading: grey shapes where the cards will be. */
+.home-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.home-skeleton span {
+  display: block;
+  background: linear-gradient(90deg, rgba(var(--v-theme-on-surface), 0.06) 0%, rgba(var(--v-theme-on-surface), 0.12) 50%, rgba(var(--v-theme-on-surface), 0.06) 100%);
+  background-size: 200% 100%;
+  border-radius: 14px;
+  animation: home-shimmer 1.4s ease-in-out infinite;
+}
+.home-skeleton__hero {
+  height: 190px;
+}
+.home-skeleton__row {
+  height: 66px;
+}
+.home-skeleton__grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  background: none !important;
+  animation: none !important;
+}
+.home-skeleton__grid i {
+  display: block;
+  height: 66px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 14px;
+}
+@keyframes home-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 </style>

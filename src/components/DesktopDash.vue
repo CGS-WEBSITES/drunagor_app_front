@@ -86,11 +86,12 @@
                   <img v-if="campaignMark(campaign.type).symbol" :src="campaignMark(campaign.type).symbol" alt="" />
                   {{ campaignMark(campaign.type).label }}
                 </span>
-                <span v-if="campaign.detail" class="dash-campaign__box text-truncate">{{ campaign.detail }}</span>
+                <span class="dash-campaign__box text-truncate">{{ campaign.detail || "\u00a0" }}</span>
 
                 <span v-if="campaign.isUnderkeep" class="dash-campaign__progress">{{ campaign.progress }}%</span>
               </div>
               <v-progress-linear v-if="campaign.isUnderkeep" :model-value="campaign.progress" color="accent" height="3" />
+              <div v-else class="dash-campaign__no-progress"></div>
               <!-- The party, standing like on the campaign list. -->
               <div class="party-row">
                 <template v-if="campaign.isUnderkeep">
@@ -119,6 +120,7 @@
 </template>
 
 <script setup lang="ts">
+import { HELMET_ICON } from "@/utils/icons";
 import { campaignMark } from "@/utils/campaignMark";
 import quickAccessBg from "@/assets/dashboard/quick-access-bg.png";
 import { computed, inject, onMounted, ref } from "vue";
@@ -156,7 +158,7 @@ const mainCards = computed(() => [
 
 const shortcuts = [
   { title: "FRIENDS", icon: "mdi-account-group", tint: "#6b1d22", to: "/socialhub" },
-  { title: "MY HEROES", icon: "mdi-shield-account", tint: "#1b4f5a", to: "/campaign-tracker/heroes" },
+  { title: "MY HEROES", icon: HELMET_ICON, tint: "#1b4f5a", to: "/campaign-tracker/heroes" },
   { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", tint: "#43306a", to: "/community-builds" },
   { title: "SETTINGS", icon: "mdi-cog", tint: "#4a5658", to: "/profile/settings" },
 ];
@@ -168,8 +170,7 @@ const events = ref<any[]>([]);
 const visibleEvents = computed(() => events.value.slice(0, MAX_EVENTS));
 const teaserEvent = computed(
   () =>
-    events.value[MAX_EVENTS] ??
-    events.value[0] ?? {
+    events.value[MAX_EVENTS] ?? {
       store_name: "Drunagor Nights",
       address: "Find a store near you",
       scenario: "Next adventure",
@@ -685,5 +686,9 @@ onMounted(() => {
 }
 .dash-campaign__info strong {
   padding-right: 56px;
+}
+/* Every campaign card has the same text block, so the heroes line up. */
+.dash-campaign__no-progress {
+  height: 3px;
 }
 </style>

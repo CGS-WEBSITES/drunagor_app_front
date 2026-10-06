@@ -249,7 +249,7 @@
             
             <v-col cols="auto" class="d-flex justify-center align-center">
               <button class="dash-nav" @click="goToCampaigns">
-                <v-icon>mdi-shield-sword</v-icon>
+                <v-icon :icon="HELMET_ICON" />
                 <span>Heroes</span>
               </button>
             </v-col>
@@ -543,6 +543,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { HeroStore } from "@/store/HeroStore";
 import axios from "axios";
 import DashboardEvents from "@/components/DashboardEvents.vue";
+import { HELMET_ICON } from "@/utils/icons";
 import HUB from "@/components/HUB.vue";
 import RecentCampaignWidget from "@/components/RecentCampaignWidget.vue";
 
