@@ -249,7 +249,7 @@
             
             <v-col cols="auto" class="d-flex justify-center align-center">
               <button class="dash-nav" @click="goToCampaigns">
-                <v-icon>mdi-cards</v-icon>
+                <v-icon>mdi-shield-sword</v-icon>
                 <span>Heroes</span>
               </button>
             </v-col>

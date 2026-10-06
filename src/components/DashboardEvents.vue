@@ -6,7 +6,6 @@
       <template v-else>
         <!-- Continue: the last campaign, whatever box it is. -->
         <section class="home-section">
-          <h3 class="home-label">Continue</h3>
           <button v-if="recentCampaign" class="continue-card" @click="resumeRecentCampaign">
             <span class="continue-card__media">
               <img :src="getCampaignBanner(recentCampaign.campaign) || ''" alt="" class="continue-card__art" />
@@ -510,8 +509,8 @@ const goToEvents = () => router.push({ name: "Events" });
 // Home shortcuts: the app is more than Drunagor Nights.
 const shortcuts = [
   { label: "Campaigns", icon: "mdi-book-open-page-variant", to: "/campaign-tracker/" },
-  { label: "Library", icon: "mdi-bookshelf", to: "/library" },
   { label: "Keywords", icon: "mdi-book-search-outline", to: "/campaign-tracker/keyword" },
+  { label: "Library", icon: "mdi-bookshelf", to: "/library" },
   { label: "Events", icon: "mdi-calendar-star", to: "/events" },
 ];
 
