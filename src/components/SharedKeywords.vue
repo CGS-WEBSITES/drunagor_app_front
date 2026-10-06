@@ -82,7 +82,7 @@ const goToSignup = () => {
 }
 
 .signup-btn {
-  background: linear-gradient(45deg, #d4af37, #f9e27d) !important;
+  background: linear-gradient(45deg, rgb(var(--v-theme-accent)), #f9e27d) !important;
   color: #000 !important;
   transition: transform 0.2s ease;
 }

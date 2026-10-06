@@ -1649,10 +1649,10 @@ watch(currentPage, () => {
   width: fit-content;
   margin: 0 auto 20px;
   padding: 10px 16px;
-  background: rgba(188, 163, 65, 0.14);
-  border: 1px solid rgba(188, 163, 65, 0.6);
+  background: rgba(var(--v-theme-accent), 0.14);
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
   border-radius: 999px;
-  color: #e6cf73 !important;
+  color: rgb(var(--v-theme-accent)) !important;
   font-family: "Poppins", sans-serif;
   font-size: 0.82rem;
   font-weight: 700;
@@ -1660,7 +1660,7 @@ watch(currentPage, () => {
   transition: background 0.15s ease;
 }
 .pdf-download:hover {
-  background: rgba(188, 163, 65, 0.26);
+  background: rgba(var(--v-theme-accent), 0.26);
 }
 .pdf-download__go {
   opacity: 0.8;

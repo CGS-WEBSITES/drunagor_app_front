@@ -28,7 +28,7 @@ export default createVuetify({
           primary: '#363636',
           secondary: '#3d3d3d',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -44,7 +44,7 @@ export default createVuetify({
           primary: '#3C7376',
           secondary: '#4F9398',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -60,7 +60,7 @@ export default createVuetify({
           primary: '#802222',
           secondary: '#3D3D3D',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -76,7 +76,7 @@ export default createVuetify({
           primary: '#5D3C76',
           secondary: '#774D98',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -92,7 +92,7 @@ export default createVuetify({
           primary: '#804F22',
           secondary: '#A66A32',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -108,7 +108,7 @@ export default createVuetify({
           primary: '#224780',
           secondary: '#2F60AA',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -124,7 +124,7 @@ export default createVuetify({
           primary: '#802222',
           secondary: '#A33131',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -140,7 +140,7 @@ export default createVuetify({
           primary: '#622280',
           secondary: '#783198',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',
@@ -156,7 +156,7 @@ export default createVuetify({
           primary: '#763C3C',
           secondary: '#9C5151',
           terciary: '#DDDDDD',
-          accent: '#BCA341', // Gold highlight (dashboard campaign cards)
+          accent: '#E2B42A', // Gold highlight (dashboard campaign cards)
           error: '#B00020',
           info: '#2196F3',
           success: '#4CAF50',

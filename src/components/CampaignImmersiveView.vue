@@ -2733,7 +2733,7 @@ watch(
 }
 
 .bookmark-tab.left-side {
-  border-left: 3px solid #d4af37;
+  border-left: 3px solid rgb(var(--v-theme-accent));
   border-radius: 0 8px 8px 0;
   margin-left: 0;
 }
@@ -2744,7 +2744,7 @@ watch(
 }
 
 .bookmark-tab.right-side {
-  border-right: 3px solid #d4af37;
+  border-right: 3px solid rgb(var(--v-theme-accent));
   border-radius: 8px 0 0 8px;
   margin-right: 0;
   justify-content: flex-end;

@@ -853,7 +853,7 @@ const findParentItem = (id?: string) =>
 }
 
 .pdf-guide-link {
-  color: #BCA341 !important;
+  color: rgb(var(--v-theme-accent)) !important;
   font-weight: 600;
   text-decoration: underline !important;
   transition: color 0.2s ease, text-shadow 0.2s ease;
@@ -864,7 +864,7 @@ const findParentItem = (id?: string) =>
 
 .pdf-guide-link:hover {
   color: #d8bd4f !important;
-  text-shadow: 0 0 8px rgba(188, 163, 65, 0.4);
+  text-shadow: 0 0 8px rgba(var(--v-theme-accent), 0.4);
 }
 
 /* Single Main Box Card */
@@ -935,7 +935,7 @@ const findParentItem = (id?: string) =>
 }
 
 .badge-step-3 {
-  background: #BCA341 !important;
+  background: rgb(var(--v-theme-accent)) !important;
 }
 
 .badge-step-4 {
@@ -1230,10 +1230,10 @@ const findParentItem = (id?: string) =>
   width: fit-content;
   margin: 0 auto 20px;
   padding: 10px 16px;
-  background: rgba(188, 163, 65, 0.14);
-  border: 1px solid rgba(188, 163, 65, 0.6);
+  background: rgba(var(--v-theme-accent), 0.14);
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
   border-radius: 999px;
-  color: #e6cf73 !important;
+  color: rgb(var(--v-theme-accent)) !important;
   font-family: "Poppins", sans-serif;
   font-size: 0.82rem;
   font-weight: 700;
@@ -1241,7 +1241,7 @@ const findParentItem = (id?: string) =>
   transition: background 0.15s ease;
 }
 .pdf-download:hover {
-  background: rgba(188, 163, 65, 0.26);
+  background: rgba(var(--v-theme-accent), 0.26);
 }
 .pdf-download__go {
   opacity: 0.8;
