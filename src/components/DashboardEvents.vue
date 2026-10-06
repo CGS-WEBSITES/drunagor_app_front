@@ -14,15 +14,32 @@
             <span class="continue-card__body">
               <span class="continue-card__text">
                 <strong>{{ recentCampaign.name }}</strong>
-                <small v-if="recentCampaign.wing || recentCampaign.door">
+                <span class="box-mark">
+                  <img v-if="campaignMark(recentCampaign.campaign).symbol" :src="campaignMark(recentCampaign.campaign).symbol" alt="" />
+                  {{ campaignMark(recentCampaign.campaign).label }}
+                </span>
+                <small v-if="isUnderkeep && (recentCampaign.wing || recentCampaign.door)">
                   {{ [recentCampaign.wing, recentCampaign.door].filter(Boolean).join(" · ") }}
                 </small>
               </span>
-              <!-- The party, beside the play button. -->
-              <span v-if="recentCampaignHeroes.length" class="continue-card__heroes">
-                <img v-for="(hero, idx) in recentCampaignHeroes.slice(0, 4)" :key="idx" :src="hero.images.avatar" :alt="hero.name" :title="hero.name" />
-              </span>
+              <span v-if="isUnderkeep" class="continue-card__percent">{{ recentProgress }}%</span>
               <v-icon class="continue-card__go">mdi-play-circle</v-icon>
+            </span>
+            <v-progress-linear v-if="isUnderkeep" :model-value="recentProgress" color="accent" height="3" />
+            <!-- The party: each player with their hero on Nights, the heroes otherwise. -->
+            <span v-if="isUnderkeep ? recentPartyPlayers.length : recentCampaignHeroes.length" class="party-row">
+              <template v-if="isUnderkeep">
+                <span v-for="(player, idx) in recentPartyPlayers.slice(0, 5)" :key="idx" class="party-hero">
+                  <img v-if="player.avatar" :src="player.avatar" alt="" />
+                  <v-icon v-else size="26" class="opacity-40">mdi-help</v-icon>
+                  <span class="party-hero__nick">{{ player.name }}</span>
+                </span>
+              </template>
+              <template v-else>
+                <span v-for="(hero, idx) in recentCampaignHeroes.slice(0, 5)" :key="idx" class="party-hero">
+                  <img :src="hero.images.avatar" :alt="hero.name" :title="hero.name" />
+                </span>
+              </template>
             </span>
           </button>
           <button v-else class="continue-card continue-card--empty" @click="router.push('/campaign-tracker/')">
@@ -405,6 +422,8 @@
 
 <script setup lang="ts">
 import HUB from "@/components/HUB.vue";
+import { campaignMark } from "@/utils/campaignMark";
+import { calculateCompletionPercentage } from "@/utils/campaignProgress";
 import { ref, computed, onMounted, inject, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
@@ -811,6 +830,30 @@ const getCampaignBanner = (campType: string) => {
   return UnderkeepBanner;
 };
 
+const recentProgress = computed(() => (recentCampaign.value ? calculateCompletionPercentage(recentCampaign.value) : 0));
+const recentPartyPlayers = ref<{ name: string; avatar: string | null }[]>([]);
+const loadRecentPartyPlayers = async (campaignsFk: number | string) => {
+  try {
+    const { data } = await axios.get("/rl_campaigns_users/list_players", { params: { campaigns_fk: campaignsFk } });
+    recentPartyPlayers.value = await Promise.all(
+      (data.Users || []).map(async (player: any) => {
+        let avatar: string | null = null;
+        if (player.playable_heroes_fk) {
+          try {
+            const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+            avatar = heroRepo.find(JSON.parse(atob(res.data.hero_hash)).heroId)?.images?.avatar ?? null;
+          } catch {
+            avatar = null;
+          }
+        }
+        return { name: player.user_name || "Player", avatar };
+      }),
+    );
+  } catch {
+    recentPartyPlayers.value = [];
+  }
+};
+
 const resumeRecentCampaign = () => {
   if (!recentCampaign.value) return;
   router.push({ name: "Campaign", params: { id: recentCampaign.value.campaignId } });
@@ -904,6 +947,7 @@ const loadRecentCampaign = async () => {
     }
 
     if (isUnderkeep.value) {
+      loadRecentPartyPlayers(rawCamp.campaigns_fk);
       // Fetch PLAYERS for Underkeep
       try {
         const resP = await axios.get("/rl_campaigns_users/search", {
@@ -1096,21 +1140,6 @@ onMounted(async () => {
   object-fit: cover;
   object-position: center 30%;
 }
-/* The party, beside the play button. */
-.continue-card__heroes {
-  display: flex;
-  flex-shrink: 0;
-  padding-left: 8px;
-}
-.continue-card__heroes img {
-  width: 34px;
-  height: 34px;
-  margin-left: -8px;
-  object-fit: cover;
-  background: rgb(var(--v-theme-surface));
-  border: 2px solid rgb(var(--v-theme-primary));
-  border-radius: 50%;
-}
 .continue-card__body {
   display: flex;
   align-items: center;
@@ -1129,6 +1158,9 @@ onMounted(async () => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.continue-card__text .box-mark {
+  margin-top: 2px;
+}
 .continue-card__text small {
   overflow: hidden;
   font-size: 0.72rem;
@@ -1136,9 +1168,15 @@ onMounted(async () => {
   white-space: nowrap;
   opacity: 0.7;
 }
+.continue-card__percent {
+  flex-shrink: 0;
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.05rem;
+  font-weight: 800;
+}
 .continue-card__go {
   flex-shrink: 0;
-  color: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-terciary));
   font-size: 32px !important;
 }
 .continue-card--empty {
@@ -1298,5 +1336,53 @@ onMounted(async () => {
 .event-row--empty {
   height: 64px;
   border-style: dashed;
+}
+/* Heroes standing side by side, like the campaign list. */
+.party-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  padding: 4px 12px 0;
+}
+.party-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+.party-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.party-hero__nick {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 14px 4px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  color: #fff;
+  font-size: clamp(0.55rem, 2.4vw, 0.72rem);
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.box-mark {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.box-mark img {
+  width: auto;
+  height: 16px;
 }
 </style>

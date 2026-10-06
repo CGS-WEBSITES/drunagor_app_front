@@ -47,8 +47,14 @@
       <section class="dash-section">
         <h2 class="dash-section__title">QUICK ACCESS</h2>
         <div class="dash-shortcuts">
-          <router-link v-for="item in shortcuts" :key="item.title" :to="item.to" class="dash-shortcut">
-            <img :src="item.image" alt="" />
+          <router-link
+            v-for="item in shortcuts"
+            :key="item.title"
+            :to="item.to"
+            class="dash-shortcut"
+            :style="{ '--tint': item.tint }"
+          >
+            <img :src="quickAccessBg" alt="" />
             <span><v-icon size="20" class="mr-2">{{ item.icon }}</v-icon>{{ item.title }}</span>
           </router-link>
         </div>
@@ -76,34 +82,29 @@
               <img :src="campaign.image" alt="" class="dash-campaign__img" />
               <div class="dash-campaign__info">
                 <strong class="text-truncate">{{ campaign.name }}</strong>
-                <span class="text-truncate">{{ campaign.game }}</span>
+                <span class="box-mark">
+                  <img v-if="campaignMark(campaign.type).symbol" :src="campaignMark(campaign.type).symbol" alt="" />
+                  {{ campaignMark(campaign.type).label }}
+                </span>
                 <span v-if="campaign.detail" class="dash-campaign__box text-truncate">{{ campaign.detail }}</span>
 
-                <div class="dash-campaign__party">
-                  <div class="dash-campaign__members">
-                    <template v-if="campaign.isUnderkeep">
-                      <div v-for="player in campaign.players" :key="player.name" class="dash-member" :title="player.name">
-                        <img v-if="player.avatar" :src="player.avatar" alt="" />
-                        <v-icon v-else size="16">mdi-account</v-icon>
-                        <span>{{ player.name }}</span>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-for="hero in campaign.heroes" :key="hero.id" class="dash-member dash-member--hero" :title="hero.name">
-                        <img :src="hero.avatar" alt="" />
-                      </div>
-                    </template>
+                <span v-if="campaign.isUnderkeep" class="dash-campaign__progress">{{ campaign.progress }}%</span>
+              </div>
+              <v-progress-linear v-if="campaign.isUnderkeep" :model-value="campaign.progress" color="accent" height="3" />
+              <!-- The party, standing like on the campaign list. -->
+              <div class="party-row">
+                <template v-if="campaign.isUnderkeep">
+                  <div v-for="player in campaign.players.slice(0, 5)" :key="player.name" class="party-hero">
+                    <img v-if="player.avatar" :src="player.avatar" alt="" />
+                    <v-icon v-else size="26" class="opacity-40">mdi-help</v-icon>
+                    <span class="party-hero__nick">{{ player.name }}</span>
                   </div>
-                  <span v-if="campaign.isUnderkeep" class="dash-campaign__progress">{{ campaign.progress }}%</span>
-                </div>
-                <v-progress-linear
-                  v-if="campaign.isUnderkeep"
-                  :model-value="campaign.progress"
-                  color="accent"
-                  height="3"
-                  rounded
-                  class="mt-1"
-                />
+                </template>
+                <template v-else>
+                  <div v-for="hero in campaign.heroes.slice(0, 5)" :key="hero.id" class="party-hero" :title="hero.name">
+                    <img :src="hero.avatar" alt="" />
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -118,6 +119,8 @@
 </template>
 
 <script setup lang="ts">
+import { campaignMark } from "@/utils/campaignMark";
+import quickAccessBg from "@/assets/dashboard/quick-access-bg.png";
 import { computed, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
@@ -152,10 +155,10 @@ const mainCards = computed(() => [
 ]);
 
 const shortcuts = [
-  { title: "FRIENDS", icon: "mdi-account-group", image: `${ASSETS}/Dashboard/btn-apoc.png`, to: "/socialhub" },
-  { title: "MY HEROES", icon: "mdi-shield-account", image: `${ASSETS}/Dashboard/btn-heropack.png`, to: "/campaign-tracker/heroes" },
-  { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", image: `${ASSETS}/Dashboard/btn-spoils.png`, to: "/community-builds" },
-  { title: "SETTINGS", icon: "mdi-cog", image: `${ASSETS}/Dashboard/btn-horseman.png`, to: "/profile/settings" },
+  { title: "FRIENDS", icon: "mdi-account-group", tint: "#8c2a2a", to: "/socialhub" },
+  { title: "MY HEROES", icon: "mdi-shield-account", tint: "#1f6470", to: "/campaign-tracker/heroes" },
+  { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", tint: "#5a3a86", to: "/community-builds" },
+  { title: "SETTINGS", icon: "mdi-cog", tint: "#4a5560", to: "/profile/settings" },
 ];
 
 // Next upcoming events: up to three rows of two, the last slot being the
@@ -200,6 +203,7 @@ type CampaignCard = {
   game: string;
   detail: string;
   image: string;
+  type: string;
   isUnderkeep: boolean;
   progress: number;
   heroes: HeroAvatar[];
@@ -252,6 +256,7 @@ const toCampaignCard = (raw: any) => {
     game: box.game,
     detail: isUnderkeep ? [data.wing, data.door].filter(Boolean).join(" · ") : "",
     image: box.image,
+    type,
     isUnderkeep,
     progress: isUnderkeep ? calculateCompletionPercentage(data) : 0,
     heroes: (parsed?.heroes || [])
@@ -469,12 +474,17 @@ onMounted(() => {
   text-decoration: none;
   transition: transform 0.2s ease;
 }
+/* The grey texture takes each button's color. */
+.dash-shortcut {
+  background: var(--tint);
+}
 .dash-shortcut img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  mix-blend-mode: multiply;
   transition: filter 0.2s ease;
 }
 .dash-shortcut:hover {
@@ -604,5 +614,70 @@ onMounted(() => {
 .dash-campaign__progress {
   font-weight: 700;
   color: rgb(var(--v-theme-accent));
+}
+/* Heroes standing side by side, like the campaign list. */
+.party-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  padding: 4px 12px 0;
+}
+.party-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+.party-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.party-hero__nick {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 14px 4px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  color: #fff;
+  font-size: clamp(0.55rem, 2.4vw, 0.72rem);
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.box-mark {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.box-mark img {
+  width: auto;
+  height: 16px;
+}
+.dash-campaign .party-row {
+  padding: 4px 10px 8px;
+}
+/* Progress sits top right, like the campaign list. */
+.dash-campaign__info {
+  position: relative;
+}
+.dash-campaign__info .dash-campaign__progress {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.dash-campaign__info strong {
+  padding-right: 56px;
 }
 </style>

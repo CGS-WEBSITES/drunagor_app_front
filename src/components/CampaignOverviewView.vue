@@ -406,10 +406,7 @@
 <script setup lang="ts">
 import underkeepBanner from "@/assets/underkeep.png";
 import underkeep2Banner from "@/assets/underkeep2.png";
-import s1Flag from "@/assets/s1flag.png";
-import s2Flag from "@/assets/s2flag.png";
-import { CONTENT_LABELS, CONTENT_SYMBOLS } from "@/data/heroMeta";
-import type { ContentId } from "@/data/type/ContentId";
+import { campaignMark } from "@/utils/campaignMark";
 import { calculateCompletionPercentage } from "@/utils/campaignProgress";
 import { ref, computed, onBeforeMount } from "vue";
 import { useRouter, useRoute } from "vue-router";
@@ -526,13 +523,6 @@ const CAMPAIGN_BANNERS: Record<string, string> = {
   underkeep2: underkeep2Banner,
 };
 
-// Symbol and name of the box a campaign is played with.
-const campaignMark = (type: string) => {
-  if (type === "underkeep") return { symbol: s1Flag, label: "Drunagor Nights · S1" };
-  if (type === "underkeep2") return { symbol: s2Flag, label: "Drunagor Nights · S2" };
-  const content = type as ContentId;
-  return { symbol: CONTENT_SYMBOLS[content], label: type === "core" ? "Corebox" : CONTENT_LABELS[content] ?? type };
-};
 
 // Cards whose hero row is folded away.
 const collapsed = ref(new Set<string>());
