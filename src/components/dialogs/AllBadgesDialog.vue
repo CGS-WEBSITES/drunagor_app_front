@@ -60,10 +60,10 @@
               </v-col>
 
               <v-col cols="9" sm="10" class="pl-2 d-flex flex-column justify-center" :class="{ 'pr-badge-rarity': rarityOf(reward.rewards_pk) }">
-                <p class="font-weight-bold white--text ma-0">
+                <p class="badge-name font-weight-bold white--text ma-0">
                   {{ reward.name }}
                 </p>
-                <p class="text-body-2 grey--text ma-0">
+                <p class="badge-desc text-body-2 grey--text ma-0">
                   {{ reward.description }}
                 </p>
               </v-col>
@@ -342,5 +342,19 @@ watch(
 }
 .pr-badge-rarity {
   padding-right: 96px !important;
+}
+
+/* Badge text never grows the card: name on one line, description on two. */
+.badge-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 </style>

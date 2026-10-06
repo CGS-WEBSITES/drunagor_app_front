@@ -38,10 +38,10 @@
                 </v-col>
 
                 <v-col cols="8" class="pl-0 d-flex flex-column justify-center" :class="{ 'pr-badge-rarity': rarityOf(item.rewardsPk) }">
-                  <p class="font-weight-bold white--text ma-0">
+                  <p class="badge-name font-weight-bold white--text ma-0">
                     {{ item.title }}
                   </p>
-                  <p class="text-body-2 grey--text ma-0">
+                  <p class="badge-desc text-body-2 grey--text ma-0">
                     {{ item.description }}
                   </p>
                 </v-col>
@@ -168,5 +168,19 @@ onMounted(() => {
 .clickable-badges-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Badge text never grows the card: name on one line, description on two. */
+.badge-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 </style>
