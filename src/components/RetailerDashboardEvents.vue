@@ -73,7 +73,7 @@
           <div class="play-row">
             <button class="play-card play-card--join" @click="showJoinTable = true">
               <v-icon size="24">mdi-qrcode-scan</v-icon>
-              <span><strong>Join a table</strong><small>Scan or type a table code</small></span>
+              <span><strong>Join a table</strong><small>QR Code or table code</small></span>
             </button>
             <button class="play-card" @click="router.push('/campaign-tracker/')">
               <v-icon size="24">mdi-book-open-page-variant</v-icon>
@@ -412,8 +412,8 @@ const teaserEvent = computed(() => upcomingRetailerEventsPreview.value[4] || nul
 
 // Quick actions for running Drunagor Nights.
 const shortcuts = [
-  { label: "Box guide", icon: "mdi-package-variant-closed", action: () => router.push("/box-assembly-guide") },
-  { label: "Retailer guide", icon: "mdi-school-outline", action: () => router.push("/retailer-tutorial") },
+  { label: "Box", icon: "mdi-package-variant-closed", action: () => router.push("/box-assembly-guide") },
+  { label: "Guide", icon: "mdi-school-outline", action: () => router.push("/retailer-tutorial") },
   { label: "Library", icon: "mdi-bookshelf", action: () => router.push("/library") },
   { label: "Keywords", icon: "mdi-book-search-outline", action: () => router.push("/campaign-tracker/keyword") },
 ];
@@ -1009,6 +1009,11 @@ onMounted(async () => {
   justify-content: center;
   gap: 4px;
   height: 66px;
+  min-width: 0;
+  padding: 0 4px;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
   font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -1112,6 +1117,7 @@ onMounted(async () => {
 .play-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
   gap: 8px;
 }
 .play-card {
@@ -1119,6 +1125,8 @@ onMounted(async () => {
   align-items: center;
   gap: 10px;
   padding: 12px;
+  height: 100%;
+  min-height: 72px;
   background: rgb(var(--v-theme-primary));
   border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
   border-radius: 14px;

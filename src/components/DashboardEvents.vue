@@ -1282,6 +1282,11 @@ onMounted(async () => {
   justify-content: center;
   gap: 4px;
   height: 66px;
+  min-width: 0;
+  padding: 0 4px;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
   font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;

@@ -13,6 +13,13 @@
           </div>
         </header>
 
+        <!-- Main shortcuts -->
+        <div class="dash-cards">
+          <router-link v-for="card in mainCards" :key="card.title" :to="card.to" class="dash-card">
+            <img :src="card.image" :alt="card.title" />
+          </router-link>
+        </div>
+
         <!-- The retailer's next events: click one to manage it. -->
         <section class="dash-section">
           <router-link to="/events" class="dash-section__title">
@@ -133,13 +140,19 @@ const avatarUrl = computed(() =>
   userStore.user?.picture_hash ? `${ASSETS}/Profile/${userStore.user.picture_hash}` : `${ASSETS}/Profile/user.png`,
 );
 
+const mainCards = [
+  { title: "Events", image: `${ASSETS}/Dashboard/btn-events3.png`, to: "/events" },
+  { title: "Campaign Manager", image: `${ASSETS}/Dashboard/btn-campaignmanager.png`, to: "/campaign-tracker/" },
+  { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" },
+  { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
+];
+
 // Retailers can play too: Join a table and their campaigns sit with the store tools.
 const shortcuts = [
   { title: "TABLE ASSEMBLY", icon: "mdi-table-furniture", tint: "#6b1d22", to: "/assembly-tutorial" },
   { title: "BOX ASSEMBLY GUIDE", icon: "mdi-package-variant", tint: "#43306a", to: "/box-assembly-guide" },
   { title: "MY STORES", icon: "mdi-store", tint: "#1b4f5a", to: "/profile/store-settings" },
   { title: "RETAILER GUIDE", icon: "mdi-school-outline", tint: "#6a4a1a", to: "/retailer-tutorial" },
-  { title: "SKU'S MANAGER", icon: "mdi-bookshelf", tint: "#1f5a3a", to: "/library" },
   { title: "HELP", icon: "mdi-help-circle", tint: "#4a5658", to: "/FAQforRetailers" },
 ];
 const showJoinTable = ref(false);
