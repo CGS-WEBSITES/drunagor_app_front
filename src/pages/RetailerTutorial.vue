@@ -9,10 +9,10 @@
           icon="mdi-arrow-left"
           variant="tonal"
           color="white"
-          @click="router.push({ name: 'Login' })"
+          @click="goBack"
           class="back-button position-absolute"
           style="left: 16px; top: 8px;"
-          title="Back to Login"
+          title="Back"
         ></v-btn>
 
         <!-- Centered Header -->
@@ -33,7 +33,7 @@
               <div class="role">
                 <h3><v-icon size="20" color="amber-accent-2">mdi-store</v-icon> You</h3>
                 <ul>
-                  <li>Assemble the OP Kit <span>(once)</span></li>
+                  <li>Assemble the game box <span>(once)</span></li>
                   <li>Create your store and events</li>
                   <li>Prepare the table before each night</li>
                   <li>Give each table its QR Code or code</li>
@@ -58,7 +58,7 @@
             >
               <h2 class="text-h5 font-weight-bold text-white mb-3 d-flex align-center">
                 <v-icon color="amber-accent-2" class="mr-3">mdi-package-variant-closed</v-icon>
-                Assemble your OP Kit
+                Assemble your game box
               </h2>
               <p class="mb-5 text-grey-lighten-1 text-body-2">
                 Just received Drunagor Nights? Follow the step-by-step guide to sort the Core Box, the Build Your Own Dungeon add-on and the Organized Play Kit into one box ready for your events.
@@ -71,7 +71,7 @@
                   class="font-weight-black text-black text-none text-uppercase assembly-guide-btn mx-auto"
                   @click.stop="router.push({ name: 'BoxAssemblyGuide' })"
                 >
-                  <span class="btn-label-text">OP KIT ASSEMBLY GUIDE</span>
+                  <span class="btn-label-text">BOX ASSEMBLY GUIDE</span>
                   <v-icon end size="small" class="ml-2 flex-shrink-0">mdi-arrow-right</v-icon>
                 </v-btn>
               </div>
@@ -180,7 +180,10 @@ import img4_2 from "@/assets/retailertutorial/04.02.png";
 import img4_3 from "@/assets/retailertutorial/04.03.png";
 
 
-// Creating and running events, after the OP Kit is assembled.
+// Back to the dashboard when signed in, to the login otherwise.
+const goBack = () => router.push(localStorage.getItem("accessToken") ? { name: "Dashboard" } : { name: "Login" });
+
+// Creating and running events, after the game box is assembled.
 const eventSteps = [
   {
     title: "Create your account and store",
@@ -205,7 +208,7 @@ const eventSteps = [
     title: "Run your night",
     text: [`Open the event in <span class="text-white font-weight-bold">Manage Event</span>:`],
     list: [
-      `<strong>Before the players arrive</strong> – follow <strong>Table Assembly</strong> (about 3 minutes) to lay out the components. You can also scan the "Setup the Game Table" QR Code from the OP Kit.`,
+      `<strong>Before the players arrive</strong> – follow <strong>Table Assembly</strong> (about 3 minutes) to lay out the components. You can also scan the "Setup the Game Table" QR Code from the Organized Play Kit.`,
       `<strong>When they arrive</strong> – each table has a <strong>QR Code</strong> and a short <strong>table code</strong>. Print the QR Code or show it on a screen, or just tell players the code: they open <strong>My Events › Join table</strong> and scan it or type it in.`,
       `<strong>At the table</strong> – players choose their Heroes in the lobby and the app shows each one how to prepare their Hero. The party leader starts the game, and the app walks them through the First Setup and their first turns.`,
     ],
