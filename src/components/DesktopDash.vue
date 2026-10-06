@@ -155,10 +155,10 @@ const mainCards = computed(() => [
 ]);
 
 const shortcuts = [
-  { title: "FRIENDS", icon: "mdi-account-group", tint: "#8c2a2a", to: "/socialhub" },
-  { title: "MY HEROES", icon: "mdi-shield-account", tint: "#1f6470", to: "/campaign-tracker/heroes" },
-  { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", tint: "#5a3a86", to: "/community-builds" },
-  { title: "SETTINGS", icon: "mdi-cog", tint: "#4a5560", to: "/profile/settings" },
+  { title: "FRIENDS", icon: "mdi-account-group", tint: "#6b1d22", to: "/socialhub" },
+  { title: "MY HEROES", icon: "mdi-shield-account", tint: "#1b4f5a", to: "/campaign-tracker/heroes" },
+  { title: "COMMUNITY BUILDS", icon: "mdi-hammer-wrench", tint: "#43306a", to: "/community-builds" },
+  { title: "SETTINGS", icon: "mdi-cog", tint: "#4a5658", to: "/profile/settings" },
 ];
 
 // Next upcoming events: up to three rows of two, the last slot being the
@@ -474,9 +474,9 @@ onMounted(() => {
   text-decoration: none;
   transition: transform 0.2s ease;
 }
-/* The grey texture takes each button's color. */
+/* Quick access: dark texture glowing into each button's color. */
 .dash-shortcut {
-  background: var(--tint);
+  background: linear-gradient(90deg, #141416 0%, #19191c 30%, var(--tint) 100%);
 }
 .dash-shortcut img {
   position: absolute;
@@ -484,8 +484,14 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  mix-blend-mode: multiply;
-  transition: filter 0.2s ease;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+  filter: none;
+  transition: opacity 0.2s ease;
+}
+.dash-shortcut:hover img {
+  opacity: 0.75;
+  filter: none;
 }
 .dash-shortcut:hover {
   transform: translateY(-2px);

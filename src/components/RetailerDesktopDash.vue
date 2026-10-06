@@ -50,14 +50,24 @@
         <section class="dash-section">
           <h2 class="dash-section__title">QUICK ACCESS</h2>
           <div class="dash-shortcuts">
-            <router-link v-for="item in shortcuts" :key="item.title" :to="item.to" class="dash-shortcut">
-              <img :src="item.image" alt="" />
+            <component
+              :is="item.to ? 'router-link' : 'button'"
+              v-for="item in shortcuts"
+              :key="item.title"
+              :to="item.to"
+              class="dash-shortcut"
+              :style="{ '--tint': item.tint }"
+              @click="item.action?.()"
+            >
+              <img :src="quickAccessBg" alt="" />
               <span><v-icon size="20" class="mr-2">{{ item.icon }}</v-icon>{{ item.title }}</span>
-            </router-link>
+            </component>
           </div>
         </section>
       </div>
     </div>
+    <!-- Join a table as a player: scan the QR Code or type the table code. -->
+    <HUB v-model="showJoinTable" />
 
     <ManageEventDialog
       v-model="manageDialog"
@@ -76,6 +86,8 @@ import { computed, inject, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
+import HUB from "@/components/HUB.vue";
+import quickAccessBg from "@/assets/dashboard/quick-access-bg.png";
 import EventListCard from "@/components/EventListCard.vue";
 import CreateEventCard from "@/components/CreateEventCard.vue";
 import EventFormDialog from "@/components/dialogs/EventFormDialog.vue";
@@ -98,12 +110,16 @@ const mainCards = [
   { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
 ];
 
+// Retailers can play too: Join a table and their campaigns sit with the store tools.
 const shortcuts = [
-  { title: "MY STORES", icon: "mdi-store", image: `${ASSETS}/Dashboard/btn-heropack.png`, to: "/profile/store-settings" },
-  { title: "TABLE ASSEMBLY", icon: "mdi-table-furniture", image: `${ASSETS}/Dashboard/btn-apoc.png`, to: "/assembly-tutorial" },
-  { title: "OP KIT GUIDE", icon: "mdi-package-variant", image: `${ASSETS}/Dashboard/btn-spoils.png`, to: "/retailer-tutorial" },
-  { title: "RETAILER FAQ", icon: "mdi-help-circle", image: `${ASSETS}/Dashboard/btn-horseman.png`, to: "/FAQforRetailers" },
+  { title: "JOIN A TABLE", icon: "mdi-qrcode-scan", tint: "#1f5a3a", action: () => (showJoinTable.value = true) },
+  { title: "MY CAMPAIGNS", icon: "mdi-book-open-page-variant", tint: "#6a4a1a", to: "/campaign-tracker/" },
+  { title: "TABLE ASSEMBLY", icon: "mdi-table-furniture", tint: "#6b1d22", to: "/assembly-tutorial" },
+  { title: "BOX ASSEMBLY GUIDE", icon: "mdi-package-variant", tint: "#43306a", to: "/box-assembly-guide" },
+  { title: "MY STORES", icon: "mdi-store", tint: "#1b4f5a", to: "/profile/store-settings" },
+  { title: "HELP", icon: "mdi-help-circle", tint: "#4a5658", to: "/FAQforRetailers" },
 ];
+const showJoinTable = ref(false);
 
 // The retailer's upcoming events.
 const upcomingEvents = ref<any[]>([]);
@@ -317,17 +333,24 @@ onMounted(loadEvents);
   text-decoration: none;
   transition: transform 0.2s ease;
 }
+/* Quick access: dark texture glowing into each button's color. */
+.dash-shortcut {
+  background: linear-gradient(90deg, #141416 0%, #19191c 30%, var(--tint) 100%);
+}
 .dash-shortcut img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.55);
-  transition: filter 0.2s ease;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+  filter: none;
+  transition: opacity 0.2s ease;
 }
 .dash-shortcut:hover img {
-  filter: brightness(0.75);
+  opacity: 0.75;
+  filter: none;
 }
 .dash-shortcut:hover {
   transform: translateY(-2px);
