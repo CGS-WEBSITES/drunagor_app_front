@@ -16,65 +16,81 @@
         </div>
       </div>
 
-      <!-- Filters -->
+      <!-- What you see first: your heroes or every hero, and one Filters button. -->
       <div class="heroes-toolbar">
         <div class="heroes-seg">
           <button v-for="option in viewOptions" :key="option.value" :class="{ active: view === option.value }" @click="view = option.value">
             {{ option.label }}
           </button>
         </div>
-        <div class="heroes-seg">
-          <button
-            v-for="option in contentOptions"
-            :key="option.value"
-            :class="{ active: contentScope === option.value }"
-            :title="option.value === 'mine' ? 'Only the boxes set in My hero content' : 'Heroes from every box'"
-            @click="contentScope = option.value"
-          >
-            {{ option.label }}
-          </button>
-        </div>
-        <div class="heroes-sort">
-          <span class="heroes-sort__label">Group by</span>
-          <button
-            v-for="option in groupOptions"
-            :key="option.value"
-            class="heroes-sort__item"
-            :class="{ active: groupBy === option.value }"
-            @click="groupBy = option.value"
-          >
-            {{ option.label }}
-          </button>
-        </div>
+        <button class="heroes-filters-btn" :class="{ open: filtersOpen }" @click="filtersOpen = !filtersOpen">
+          <v-icon size="20">mdi-tune-variant</v-icon>
+          Filters
+          <span v-if="activeFilterCount" class="heroes-filters-btn__count">{{ activeFilterCount }}</span>
+          <v-icon size="18" class="heroes-filters-btn__chevron">mdi-chevron-down</v-icon>
+        </button>
       </div>
 
-      <!-- My content: the boxes you own. Folds to their symbols; open it to add or remove. -->
-      <div v-if="contentScope === 'mine'" class="heroes-content">
-        <button class="heroes-content__head" :aria-expanded="!contentFolded" @click="contentFolded = !contentFolded">
-          <span class="heroes-content__label">My hero content</span>
-          <span v-if="contentFolded" class="heroes-content__symbols">
-            <template v-for="box in heroBoxes" :key="box.id">
-              <img v-if="box.symbol && configurationStore.isEnabledHeroContent(box.id)" :src="box.symbol" :alt="box.label" :title="box.label" />
-            </template>
-          </span>
-          <span class="heroes-content__count">{{ enabledBoxCount }}/{{ heroBoxes.length }}</span>
-          <v-icon size="20">{{ contentFolded ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
-        </button>
-        <div v-show="!contentFolded" class="heroes-content__list">
-          <button
-            v-for="box in heroBoxes"
-            :key="box.id"
-            class="heroes-content__box"
-            :class="{ on: configurationStore.isEnabledHeroContent(box.id) }"
-            :aria-pressed="configurationStore.isEnabledHeroContent(box.id)"
-            @click="toggleContent(box.id)"
-          >
-            <img v-if="box.symbol" :src="box.symbol" alt="" />
-            {{ box.label }}
-            <v-icon size="14">{{ configurationStore.isEnabledHeroContent(box.id) ? "mdi-check" : "mdi-plus" }}</v-icon>
-          </button>
+      <v-expand-transition>
+        <div v-show="filtersOpen" class="heroes-filters">
+          <div class="heroes-filters__row">
+            <span class="heroes-filters__label">Boxes</span>
+            <div class="heroes-seg">
+              <button
+                v-for="option in contentOptions"
+                :key="option.value"
+                :class="{ active: contentScope === option.value }"
+                :title="option.value === 'mine' ? 'Only the boxes set in My hero content' : 'Heroes from every box'"
+                @click="contentScope = option.value"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+          <div class="heroes-filters__row">
+            <div class="heroes-sort">
+              <span class="heroes-sort__label">Group by</span>
+              <button
+                v-for="option in groupOptions"
+                :key="option.value"
+                class="heroes-sort__item"
+                :class="{ active: groupBy === option.value }"
+                @click="groupBy = option.value"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+          <!-- My content: the boxes you own. Folds to their symbols; open it to add or remove. -->
+          <div v-if="contentScope === 'mine'" class="heroes-content">
+            <button class="heroes-content__head" :aria-expanded="!contentFolded" @click="contentFolded = !contentFolded">
+              <span class="heroes-content__label">My hero content</span>
+              <span v-if="contentFolded" class="heroes-content__symbols">
+                <template v-for="box in heroBoxes" :key="box.id">
+                  <img v-if="box.symbol && configurationStore.isEnabledHeroContent(box.id)" :src="box.symbol" :alt="box.label" :title="box.label" />
+                </template>
+              </span>
+              <span class="heroes-content__count">{{ enabledBoxCount }}/{{ heroBoxes.length }}</span>
+              <v-icon size="20">{{ contentFolded ? "mdi-chevron-down" : "mdi-chevron-up" }}</v-icon>
+            </button>
+            <div v-show="!contentFolded" class="heroes-content__list">
+              <button
+                v-for="box in heroBoxes"
+                :key="box.id"
+                class="heroes-content__box"
+                :class="{ on: configurationStore.isEnabledHeroContent(box.id) }"
+                :aria-pressed="configurationStore.isEnabledHeroContent(box.id)"
+                @click="toggleContent(box.id)"
+              >
+                <img v-if="box.symbol" :src="box.symbol" alt="" />
+                {{ box.label }}
+                <v-icon size="14">{{ configurationStore.isEnabledHeroContent(box.id) ? "mdi-check" : "mdi-plus" }}</v-icon>
+              </button>
+            </div>
+          </div>
+
         </div>
-      </div>
+      </v-expand-transition>
 
       <p v-if="view === 'all'" class="heroes-hint">
         <v-icon size="16" class="mr-1">mdi-information-outline</v-icon>Faded heroes aren't in your roster yet. Click one to add it.
@@ -228,6 +244,9 @@ const heroBoxes = computed(() =>
     .sort((a, b) => a.label.localeCompare(b.label)),
 );
 const contentFolded = useStorage("heroes.contentFolded", false);
+const filtersOpen = useStorage("heroes.filtersOpen", false);
+// Filters that differ from the defaults (shown on the Filters button).
+const activeFilterCount = computed(() => [contentScope.value !== "all", groupBy.value !== "class"].filter(Boolean).length);
 const enabledBoxCount = computed(() => heroBoxes.value.filter((box) => configurationStore.isEnabledHeroContent(box.id)).length);
 function toggleContent(id: ContentId) {
   const enabled = configurationStore.enabledHeroContent;
@@ -851,6 +870,75 @@ onMounted(() => {
   }
   .hero-tile__text small {
     font-size: 0.6rem;
+  }
+}
+
+/* Filters */
+.heroes-toolbar {
+  flex-wrap: nowrap;
+}
+.heroes-toolbar .heroes-seg {
+  flex: 1;
+}
+.heroes-filters-btn {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.heroes-filters-btn__count {
+  min-width: 18px;
+  padding: 1px 6px;
+  background: rgb(var(--v-theme-accent));
+  border-radius: 999px;
+  color: rgb(var(--v-theme-on-accent));
+  font-size: 0.68rem;
+  text-align: center;
+}
+.heroes-filters-btn__chevron {
+  transition: transform 0.2s ease;
+}
+.heroes-filters-btn.open .heroes-filters-btn__chevron {
+  transform: rotate(180deg);
+}
+.heroes-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: -6px 0 16px;
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+}
+.heroes-filters__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.heroes-filters__label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.heroes-filters .heroes-content {
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .heroes-toolbar .heroes-seg button {
+    padding: 8px 6px;
+  }
+  .heroes-filters-btn {
+    padding: 0 10px;
   }
 }
 </style>
