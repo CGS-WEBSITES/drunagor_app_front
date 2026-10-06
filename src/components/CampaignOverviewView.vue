@@ -55,57 +55,28 @@
       </v-col>
     </v-row>
 
-    <!-- Filters Toggle Button -->
-    <v-row class="mb-0 mx-0" no-gutters>
-      <v-col cols="12" class="pa-1">
-        <v-btn
-          variant="flat"
-          color="grey-darken-3"
-          @click="showFilters = !showFilters"
-          class="font-weight-black w-100 text-uppercase"
-          :style="{
-            height: '42px',
-            fontSize: '1rem !important',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            borderBottomLeftRadius: showFilters ? '0px !important' : '8px !important',
-            borderBottomRightRadius: showFilters ? '0px !important' : '8px !important',
-            borderTopLeftRadius: '8px !important',
-            borderTopRightRadius: '8px !important',
-            transition: 'border-radius 0.25s ease'
-          }"
-          :append-icon="showFilters ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-          prepend-icon="mdi-filter-variant"
-        >
-          Filters
-        </v-btn>
+    <!-- Filters -->
+    <div class="list-filters">
+      <button class="list-filters__toggle" :class="{ open: showFilters }" @click="showFilters = !showFilters">
+        <v-icon size="20">mdi-tune-variant</v-icon>
+        <span>Filters</span>
+        <span v-if="activeFilterCount" class="list-filters__count">{{ activeFilterCount }}</span>
+        <v-spacer />
+        <v-icon size="20" class="list-filters__chevron">mdi-chevron-down</v-icon>
+      </button>
 
-        <!-- Collapsible Filters Card inside the same column to merge perfectly with the button -->
-        <v-expand-transition>
-          <v-card 
-            v-show="showFilters" 
-            class="elevation-0" 
-            style="
-              border: 1px solid rgba(255, 255, 255, 0.12) !important;
-              border-top: none !important;
-              border-top-left-radius: 0px !important;
-              border-top-right-radius: 0px !important;
-              border-bottom-left-radius: 8px !important;
-              border-bottom-right-radius: 8px !important;
-              background-color: #121212 !important;
-            "
+      <v-expand-transition>
+        <div v-show="showFilters" class="list-filters__panel">
+          <v-select
+            v-model="selectedBoxFilter"
+            :items="boxOptions"
+            label="Box"
+            variant="outlined"
+            density="comfortable"
+            hide-details
+            clearable
+            class="list-filters__box"
           >
-            <v-card-text class="pt-2 pb-3 px-4 filter-card-layout">
-              <div class="w-100">
-                <v-select
-                  v-model="selectedBoxFilter"
-                  :items="boxOptions"
-                  label="Filter by Box"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  clearable
-                  style="max-width: 720px;"
-                >
                   <template #item="{ props, item }">
                     <v-list-item v-bind="props">
                       <template #prepend>
@@ -120,33 +91,25 @@
                       </template>
                     </v-list-item>
                   </template>
-                </v-select>
-              </div>
-
-              <div class="d-flex flex-wrap align-center ga-4">
-                <v-checkbox
-                  v-model="showOnlyFinished"
-                  label="Only Finished"
-                  color="red-darken-2"
-                  hide-details
-                  class="flex-grow-0"
-                ></v-checkbox>
-
-                <v-select
-                  v-model="sortOrder"
-                  :items="[{title: 'Newest First', value: 'desc'}, {title: 'Oldest First', value: 'asc'}]"
-                  label="Sort By"
-                  variant="outlined"
-                  density="compact"
-                  hide-details
-                  style="width: 160px; flex-grow: 0;"
-                ></v-select>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-expand-transition>
-      </v-col>
-    </v-row>
+          </v-select>
+          <div class="list-filters__row">
+            <v-select
+              v-model="sortOrder"
+              :items="[{ title: 'Newest first', value: 'desc' }, { title: 'Oldest first', value: 'asc' }]"
+              label="Sort"
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              class="list-filters__sort"
+            />
+            <button class="list-filters__chip" :class="{ active: showOnlyFinished }" @click="showOnlyFinished = !showOnlyFinished">
+              <v-icon size="18">{{ showOnlyFinished ? "mdi-check-circle" : "mdi-flag-checkered" }}</v-icon>
+              Only finished
+            </button>
+          </div>
+        </div>
+      </v-expand-transition>
+    </div>
 
     <div id="campaigns" class="grid gap-4 pt-4 place-items-center">
       <v-row v-if="loading" class="justify-center" no-gutters>
@@ -548,6 +511,8 @@ const boxOptions = [
 
 const showOnlyFinished = ref(false);
 const sortOrder = ref('desc');
+// How many filters differ from the defaults (shown on the Filters button).
+const activeFilterCount = computed(() => [!!selectedBoxFilter.value, showOnlyFinished.value, sortOrder.value !== "desc"].filter(Boolean).length);
 
 const extraCampaignData = ref<Record<string, { lastDoorName: string, isFinished: boolean, players: any[] }>>({});
 
@@ -1209,5 +1174,80 @@ onBeforeMount(async () => {
   .camp-card__heroes {
     grid-template-columns: repeat(auto-fill, minmax(96px, 110px));
   }
+}
+
+/* Filters */
+.list-filters {
+  margin: 12px 4px 0;
+  overflow: hidden;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.12);
+  border-radius: 12px;
+}
+.list-filters__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background 0.15s ease;
+}
+.list-filters__toggle:hover {
+  background: rgba(var(--v-theme-on-surface), 0.05);
+}
+.list-filters__count {
+  min-width: 20px;
+  padding: 1px 7px;
+  background: rgb(var(--v-theme-accent));
+  border-radius: 999px;
+  color: rgb(var(--v-theme-on-accent));
+  font-size: 0.7rem;
+  text-align: center;
+}
+.list-filters__chevron {
+  transition: transform 0.2s ease;
+}
+.list-filters__toggle.open .list-filters__chevron {
+  transform: rotate(180deg);
+}
+.list-filters__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+.list-filters__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.list-filters__sort {
+  flex: 0 1 200px;
+  min-width: 160px;
+}
+.list-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 16px;
+  background: rgb(var(--v-theme-secondary));
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.list-filters__chip.active {
+  background: rgba(var(--v-theme-accent), 0.18);
+  border-color: rgb(var(--v-theme-accent));
 }
 </style>
