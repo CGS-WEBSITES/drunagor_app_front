@@ -73,11 +73,11 @@
           <div class="play-row">
             <button class="play-card play-card--join" @click="showJoinTable = true">
               <v-icon size="24">mdi-qrcode-scan</v-icon>
-              <span><strong>Join a table</strong><small>QR Code or table code</small></span>
+              <span><strong>Join a table</strong><small>QR or table code</small></span>
             </button>
             <button class="play-card" @click="router.push('/campaign-tracker/')">
               <v-icon size="24">mdi-book-open-page-variant</v-icon>
-              <span><strong>My campaigns</strong><small>Heroes and progress</small></span>
+              <span><strong>My campaigns</strong><small>Your heroes</small></span>
             </button>
           </div>
         </section>
@@ -412,8 +412,8 @@ const teaserEvent = computed(() => upcomingRetailerEventsPreview.value[4] || nul
 
 // Quick actions for running Drunagor Nights.
 const shortcuts = [
-  { label: "Box", icon: "mdi-package-variant-closed", action: () => router.push("/box-assembly-guide") },
-  { label: "Guide", icon: "mdi-school-outline", action: () => router.push("/retailer-tutorial") },
+  { label: "Guides", icon: "mdi-compass-outline", action: () => router.push("/FAQforRetailers") },
+  { label: "Friends", icon: "mdi-account-group", action: () => router.push("/socialhub") },
   { label: "Library", icon: "mdi-bookshelf", action: () => router.push("/library") },
   { label: "Keywords", icon: "mdi-book-search-outline", action: () => router.push("/campaign-tracker/keyword") },
 ];
@@ -1138,9 +1138,13 @@ onMounted(async () => {
   min-width: 0;
 }
 .play-card strong {
+  white-space: nowrap;
   font-size: 0.85rem;
 }
 .play-card small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.68rem;
   opacity: 0.7;
 }
