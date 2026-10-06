@@ -13,22 +13,13 @@
           </div>
         </header>
 
-        <!-- Main shortcuts -->
-        <div class="dash-cards">
-          <router-link v-for="card in mainCards" :key="card.title" :to="card.to" class="dash-card">
-            <img :src="card.image" :alt="card.title" />
-          </router-link>
-        </div>
-
         <!-- The retailer's next events: click one to manage it. -->
         <section class="dash-section">
           <router-link to="/events" class="dash-section__title">
-            YOUR NEXT EVENTS <v-icon size="18">mdi-chevron-right</v-icon>
+            MY EVENTS <v-icon size="18">mdi-chevron-right</v-icon>
           </router-link>
           <div class="dash-panel">
-            <div v-if="loadingEvents" class="d-flex justify-center py-6">
-              <v-progress-circular indeterminate size="28" />
-            </div>
+            <div v-if="loadingEvents" class="dash-skeleton"><span></span><span></span></div>
             <div v-else class="dash-events">
               <EventListCard
                 v-for="event in upcomingEvents.slice(0, 5)"
@@ -46,22 +37,61 @@
           </div>
         </section>
 
+        <!-- Retailers can play too. -->
+        <section class="dash-section">
+          <h2 class="dash-section__title">PLAY</h2>
+          <div class="play-row">
+            <button class="play-card play-card--join" @click="showJoinTable = true">
+              <v-icon size="28">mdi-qrcode-scan</v-icon>
+              <span><strong>Join a table</strong><small>Scan the table's QR Code or type its code</small></span>
+            </button>
+            <router-link to="/campaign-tracker/" class="play-card">
+              <v-icon size="28">mdi-book-open-page-variant</v-icon>
+              <span><strong>My campaigns</strong><small>Your heroes and their progress</small></span>
+            </router-link>
+          </div>
+        </section>
+
         <!-- Quick access -->
         <section class="dash-section">
           <h2 class="dash-section__title">QUICK ACCESS</h2>
           <div class="dash-shortcuts">
-            <component
-              :is="item.to ? 'router-link' : 'button'"
+            <router-link
               v-for="item in shortcuts"
               :key="item.title"
               :to="item.to"
               class="dash-shortcut"
               :style="{ '--tint': item.tint }"
-              @click="item.action?.()"
             >
               <img :src="quickAccessBg" alt="" />
               <span><v-icon size="20" class="mr-2">{{ item.icon }}</v-icon>{{ item.title }}</span>
-            </component>
+            </router-link>
+          </div>
+        </section>
+
+        <!-- Every upcoming event, from every store. -->
+        <section class="dash-section">
+          <router-link to="/events" class="dash-section__title">
+            EVENTS <v-icon size="18">mdi-chevron-right</v-icon>
+          </router-link>
+          <div class="dash-panel">
+            <div v-if="loadingEvents" class="dash-skeleton"><span></span><span></span></div>
+            <div v-else class="dash-events">
+              <EventListCard
+                v-for="event in otherEvents"
+                :key="event.events_pk"
+                :event="event"
+                :timezone="timezone"
+                @open="router.push('/events')"
+              />
+              <router-link to="/events" class="dash-more-events">
+                <EventListCard v-if="otherTeaser" :event="otherTeaser" :timezone="timezone" class="dash-more-events__teaser" aria-hidden="true" />
+                <span class="dash-more-events__label">
+                  <v-icon size="22" class="mr-2">mdi-calendar-search</v-icon>
+                  {{ otherTeaser ? "See more events" : "See all events" }}
+                </span>
+              </router-link>
+            </div>
           </div>
         </section>
       </div>
@@ -103,23 +133,38 @@ const avatarUrl = computed(() =>
   userStore.user?.picture_hash ? `${ASSETS}/Profile/${userStore.user.picture_hash}` : `${ASSETS}/Profile/user.png`,
 );
 
-const mainCards = [
-  { title: "Events", image: `${ASSETS}/Dashboard/btn-events3.png`, to: "/events" },
-  { title: "Campaign Manager", image: `${ASSETS}/Dashboard/btn-campaignmanager.png`, to: "/campaign-tracker/" },
-  { title: "SKU's Manager", image: `${ASSETS}/Dashboard/btn-skusmannager.png`, to: "/library" },
-  { title: "My Profile", image: `${ASSETS}/Dashboard/btn-profile3.png`, to: "/profile/home" },
-];
-
 // Retailers can play too: Join a table and their campaigns sit with the store tools.
 const shortcuts = [
-  { title: "JOIN A TABLE", icon: "mdi-qrcode-scan", tint: "#1f5a3a", action: () => (showJoinTable.value = true) },
-  { title: "MY CAMPAIGNS", icon: "mdi-book-open-page-variant", tint: "#6a4a1a", to: "/campaign-tracker/" },
   { title: "TABLE ASSEMBLY", icon: "mdi-table-furniture", tint: "#6b1d22", to: "/assembly-tutorial" },
   { title: "BOX ASSEMBLY GUIDE", icon: "mdi-package-variant", tint: "#43306a", to: "/box-assembly-guide" },
   { title: "MY STORES", icon: "mdi-store", tint: "#1b4f5a", to: "/profile/store-settings" },
+  { title: "RETAILER GUIDE", icon: "mdi-school-outline", tint: "#6a4a1a", to: "/retailer-tutorial" },
+  { title: "SKU'S MANAGER", icon: "mdi-bookshelf", tint: "#1f5a3a", to: "/library" },
   { title: "HELP", icon: "mdi-help-circle", tint: "#4a5658", to: "/FAQforRetailers" },
 ];
 const showJoinTable = ref(false);
+
+// Every upcoming event from other stores.
+const allEvents = ref<any[]>([]);
+const loadAllEvents = async () => {
+  try {
+    const { data } = await axios.get("/events/list_events/", {
+      params: { past_events: "false", player_fk: userStore.user?.users_pk },
+    });
+    allEvents.value = data.events || [];
+  } catch {
+    allEvents.value = [];
+  }
+};
+const othersUpcoming = computed(() => {
+  const mine = new Set(upcomingEvents.value.map((event: any) => event.events_pk));
+  const now = Date.now();
+  return allEvents.value
+    .filter((event: any) => !mine.has(event.events_pk) && new Date(event.event_date).getTime() >= now)
+    .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+});
+const otherEvents = computed(() => othersUpcoming.value.slice(0, 3));
+const otherTeaser = computed(() => othersUpcoming.value[3] ?? null);
 
 // The retailer's upcoming events.
 const upcomingEvents = ref<any[]>([]);
@@ -184,7 +229,10 @@ const createEvent = async () => {
   }
 };
 
-onMounted(loadEvents);
+onMounted(() => {
+  loadEvents();
+  loadAllEvents();
+});
 </script>
 
 <style scoped>
@@ -363,5 +411,87 @@ onMounted(loadEvents);
   font-size: 0.9rem;
   font-weight: 700;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+.dash-more-events {
+  position: relative;
+  display: block;
+  min-height: 84px;
+  border-radius: 6px;
+  overflow: hidden;
+  color: inherit;
+  text-decoration: none;
+}
+.dash-more-events__teaser {
+  filter: blur(1.2px);
+  opacity: 0.8;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.dash-more-events__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  background: rgba(var(--v-theme-background), 0.3);
+  text-shadow: 0 1px 4px rgba(var(--v-theme-background), 0.9);
+}
+.dash-more-events:hover .dash-more-events__teaser {
+  opacity: 0.95;
+}
+/* Play */
+.play-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.play-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 12px;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.play-card:hover {
+  transform: translateY(-2px);
+}
+.play-card > span {
+  display: flex;
+  flex-direction: column;
+}
+.play-card strong {
+  font-size: 1rem;
+}
+.play-card small {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.play-card--join {
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
+}
+/* Loading */
+.dash-skeleton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.dash-skeleton span {
+  height: 96px;
+  background: linear-gradient(90deg, rgba(var(--v-theme-on-surface), 0.06) 0%, rgba(var(--v-theme-on-surface), 0.12) 50%, rgba(var(--v-theme-on-surface), 0.06) 100%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: dash-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes dash-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 </style>
