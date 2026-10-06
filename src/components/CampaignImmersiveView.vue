@@ -1974,7 +1974,8 @@ function declineTutorial() {
     };
 }
 
-const isFirstSetupDoor = computed(() => (activeCampaignData.value.door || "").toUpperCase() === "FIRST SETUP");
+// The first room: a new campaign may not have its door saved yet.
+const isFirstSetupDoor = computed(() => ["", "FIRST SETUP"].includes((activeCampaignData.value.door || "").trim().toUpperCase()));
 
 // The First Setup guide; Start Here follows it in the tutorial wings unless the
 // players already skipped it (in the lobby or here) or turned it off.
