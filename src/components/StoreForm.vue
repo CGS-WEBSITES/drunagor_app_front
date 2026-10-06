@@ -1,35 +1,15 @@
 <template>
   <v-container class="pa-0 pt-0 pb-4" max-width="800">
-    <!-- Save All Changes Button -->
-    <v-btn
-      color="#489E4C"
-      block
-      class="text-white font-weight-black mb-4 fancy-btn"
-      size="x-large"
-      elevation="0"
-      :loading="saving"
-      @click="saveAllChanges"
-      style="border-radius: 8px;"
-    >
-      SAVE ALL CHANGES
-    </v-btn>
-
-    <!-- Add Store Bar -->
-    <v-card
-      color="#212121"
-      class="mb-6 add-store-bar d-flex align-center justify-space-between"
-      ripple
-      @click="addStore"
-      style="border: 1px solid rgba(255, 255, 255, 0.1); cursor: pointer; border-radius: 8px; height: 56px; overflow: hidden;"
-    >
-      <div class="d-flex align-center justify-center flex-grow-1 font-weight-bold text-white text-subtitle-1">
-        <v-icon class="mr-2" size="20">mdi-plus-circle-outline</v-icon>
-        ADD STORE
+    <!-- Header: what this is, and add a store. -->
+    <div class="stores-head">
+      <div>
+        <h2>My stores</h2>
+        <p>Where you host Drunagor Nights. Players see these on the events map.</p>
       </div>
-      <div class="d-flex align-center justify-center px-4" style="border-left: 1px solid rgba(255, 255, 255, 0.1); height: 100%;">
-        <v-icon color="white">mdi-menu</v-icon>
-      </div>
-    </v-card>
+      <button class="stores-add" @click="addStore">
+        <v-icon size="20">mdi-plus</v-icon> Add store
+      </button>
+    </div>
 
     <!-- Alert Message -->
     <v-alert
@@ -47,15 +27,14 @@
       <v-card
         v-for="(store, index) in stores"
         :key="index"
-        class="mb-4 store-card"
-        color="secundary"
-        style="border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; overflow: hidden"
+        class="mb-3 store-card"
+        color="primary"
+        flat
       >
         <!-- Header -->
         <div
-          class="px-4 py-4 cursor-pointer select-none card-header"
+          class="px-4 py-3 cursor-pointer select-none card-header"
           @click="store.isExpanded = !store.isExpanded"
-          style="background-color: rgba(0, 0, 0, 0.2);"
         >
           <v-row align="center" no-gutters>
             <!-- Store Photo -->
@@ -95,28 +74,15 @@
                   EDITED
                 </v-chip>
                 
-                <v-tooltip location="top" v-if="store.stores_pk">
-                  <template #activator="{ props }">
-                    <v-icon
-                      v-bind="props"
-                      :color="store.verified ? 'green' : 'yellow'"
-                      size="20"
-                    >
-                      {{
-                        store.verified
-                          ? "mdi-check-decagram-outline"
-                          : "mdi-alert-octagram-outline"
-                      }}
-                    </v-icon>
-                  </template>
-                  <span>
-                    {{
-                      store.verified
-                        ? "Verified & eligible to host events"
-                        : "Under review (may take up to 3 business days)"
-                    }}
-                  </span>
-                </v-tooltip>
+                <span
+                  v-if="store.stores_pk"
+                  class="store-status"
+                  :class="store.verified ? 'store-status--ok' : 'store-status--review'"
+                  :title="store.verified ? 'Eligible to host events' : 'Under review (may take up to 3 business days)'"
+                >
+                  <v-icon size="14">{{ store.verified ? "mdi-check-decagram" : "mdi-clock-outline" }}</v-icon>
+                  {{ store.verified ? "Verified" : "In review" }}
+                </span>
               </div>
               <p class="text-caption text-grey-lighten-1 mb-0 text-truncate">
                 {{ store.addressLine1 }}{{ store.complement ? ', ' + store.complement : '' }}
@@ -157,7 +123,7 @@
                   Store Photo/Logo
                 </span>
                 <v-btn
-                  color="#489E4C"
+                  color="playbutton"
                   class="text-white font-weight-bold px-6"
                   style="border-radius: 6px"
                   :loading="store.uploadingImage"
@@ -192,11 +158,11 @@
             <!-- Store Form Fields -->
             <v-form :ref="el => { if (el) storeFormsRefs[index] = el }">
               <div class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Shop Name</div>
+                <div class="store-label">Shop Name</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="store.storename"
                   :rules="[(v) => !!v || 'Store name is required']"
@@ -207,11 +173,11 @@
               </div>
 
               <div class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Address Line 1</div>
+                <div class="store-label">Address Line 1</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="store.addressLine1"
                   placeholder="e.g. 12345 Street Name"
@@ -223,11 +189,11 @@
               </div>
 
               <div class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Address Line 2</div>
+                <div class="store-label">Address Line 2</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="store.complement"
                   placeholder="Apartment, suite, unit, building, floor, etc."
@@ -239,11 +205,11 @@
 
               <v-row dense>
                 <v-col cols="12" sm="6" class="mb-4">
-                  <div class="text-subtitle-2 text-white mb-1 font-weight-bold">City</div>
+                  <div class="store-label">City</div>
                   <v-text-field
                     variant="solo"
                     flat
-                    bg-color="#2c2c2c"
+                    bg-color="secondary"
                     density="comfortable"
                     v-model="store.city"
                     :rules="[(v) => !!v || 'City is required']"
@@ -253,11 +219,11 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" class="mb-4">
-                  <div class="text-subtitle-2 text-white mb-1 font-weight-bold">State</div>
+                  <div class="store-label">State</div>
                   <v-text-field
                     variant="solo"
                     flat
-                    bg-color="#2c2c2c"
+                    bg-color="secondary"
                     density="comfortable"
                     v-model="store.state"
                     :rules="[(v) => !!v || 'State is required']"
@@ -270,11 +236,11 @@
 
               <v-row dense>
                 <v-col cols="12" sm="6" class="mb-4">
-                  <div class="text-subtitle-2 text-white mb-1 font-weight-bold">ZIP Code</div>
+                  <div class="store-label">ZIP Code</div>
                   <v-text-field
                     variant="solo"
                     flat
-                    bg-color="#2c2c2c"
+                    bg-color="secondary"
                     density="comfortable"
                     v-model="store.zipcode"
                     :rules="[(v) => !!v || 'ZIP Code is required']"
@@ -284,7 +250,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" class="mb-4">
-                  <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Country</div>
+                  <div class="store-label">Country</div>
                   <v-autocomplete
                     v-model="store.country"
                     :items="countriesList"
@@ -292,7 +258,7 @@
                     item-value="countries_pk"
                     variant="solo"
                     flat
-                    bg-color="#2c2c2c"
+                    bg-color="secondary"
                     density="comfortable"
                     :rules="[(v) => !!v || 'Country is required']"
                     @update:modelValue="markAsDirty(index)"
@@ -304,11 +270,11 @@
 
               <v-row dense>
                 <v-col cols="12" sm="6" class="mb-4">
-                  <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Phone Number (optional)</div>
+                  <div class="store-label">Phone Number (optional)</div>
                   <v-text-field
                     variant="solo"
                     flat
-                    bg-color="#2c2c2c"
+                    bg-color="secondary"
                     density="comfortable"
                     v-model="store.phone"
                     @input="markAsDirty(index)"
@@ -317,11 +283,11 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" class="mb-4">
-                  <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Google Merchant ID (optional)</div>
+                  <div class="store-label">Google Merchant ID (optional)</div>
                   <v-text-field
                     variant="solo"
                     flat
-                    bg-color="#2c2c2c"
+                    bg-color="secondary"
                     density="comfortable"
                     v-model="store.MerchantID"
                     @input="markAsDirty(index)"
@@ -332,11 +298,11 @@
               </v-row>
 
               <div class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Website (optional)</div>
+                <div class="store-label">Website (optional)</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="store.site"
                   placeholder="https://example.com"
@@ -374,7 +340,7 @@
                 Store Photo/Logo
               </span>
               <v-btn
-                color="#489E4C"
+                color="playbutton"
                 class="text-white font-weight-bold px-6"
                 style="border-radius: 6px"
                 :loading="addStoreDialog.uploadingImage"
@@ -407,11 +373,11 @@
 
           <v-form ref="dialogFormRef">
             <div class="mb-4">
-              <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Shop Name</div>
+              <div class="store-label">Shop Name</div>
               <v-text-field
                 variant="solo"
                 flat
-                bg-color="#2c2c2c"
+                bg-color="secondary"
                 density="comfortable"
                 v-model="addStoreDialog.storename"
                 :rules="[(v) => !!v || 'Store name is required']"
@@ -421,11 +387,11 @@
             </div>
 
             <div class="mb-4">
-              <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Address Line 1</div>
+              <div class="store-label">Address Line 1</div>
               <v-text-field
                 variant="solo"
                 flat
-                bg-color="#2c2c2c"
+                bg-color="secondary"
                 density="comfortable"
                 v-model="addStoreDialog.addressLine1"
                 placeholder="e.g. 12345 Street Name"
@@ -436,11 +402,11 @@
             </div>
 
             <div class="mb-4">
-              <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Address Line 2</div>
+              <div class="store-label">Address Line 2</div>
               <v-text-field
                 variant="solo"
                 flat
-                bg-color="#2c2c2c"
+                bg-color="secondary"
                 density="comfortable"
                 v-model="addStoreDialog.complement"
                 placeholder="Apartment, suite, unit, building, floor, etc."
@@ -451,11 +417,11 @@
 
             <v-row dense>
               <v-col cols="12" sm="6" class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">City</div>
+                <div class="store-label">City</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="addStoreDialog.city"
                   :rules="[(v) => !!v || 'City is required']"
@@ -464,11 +430,11 @@
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">State</div>
+                <div class="store-label">State</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="addStoreDialog.state"
                   :rules="[(v) => !!v || 'State is required']"
@@ -480,11 +446,11 @@
 
             <v-row dense>
               <v-col cols="12" sm="6" class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">ZIP Code</div>
+                <div class="store-label">ZIP Code</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="addStoreDialog.zipcode"
                   :rules="[(v) => !!v || 'ZIP Code is required']"
@@ -493,7 +459,7 @@
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Country</div>
+                <div class="store-label">Country</div>
                 <v-autocomplete
                   v-model="addStoreDialog.country"
                   :items="countriesList"
@@ -501,7 +467,7 @@
                   item-value="countries_pk"
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   :rules="[(v) => !!v || 'Country is required']"
                   hide-details="auto"
@@ -512,11 +478,11 @@
 
             <v-row dense>
               <v-col cols="12" sm="6" class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Phone Number (optional)</div>
+                <div class="store-label">Phone Number (optional)</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="addStoreDialog.phone"
                   hide-details="auto"
@@ -524,11 +490,11 @@
                 ></v-text-field>
               </v-col>
               <v-col cols="12" sm="6" class="mb-4">
-                <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Google Merchant ID (optional)</div>
+                <div class="store-label">Google Merchant ID (optional)</div>
                 <v-text-field
                   variant="solo"
                   flat
-                  bg-color="#2c2c2c"
+                  bg-color="secondary"
                   density="comfortable"
                   v-model="addStoreDialog.MerchantID"
                   hide-details="auto"
@@ -538,11 +504,11 @@
             </v-row>
 
             <div class="mb-4">
-              <div class="text-subtitle-2 text-white mb-1 font-weight-bold">Website (optional)</div>
+              <div class="store-label">Website (optional)</div>
               <v-text-field
                 variant="solo"
                 flat
-                bg-color="#2c2c2c"
+                bg-color="secondary"
                 density="comfortable"
                 v-model="addStoreDialog.site"
                 placeholder="https://example.com"
@@ -571,6 +537,16 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- Save, only when something changed. -->
+    <v-slide-y-reverse-transition>
+      <div v-if="hasChanges" class="stores-save">
+        <span>Unsaved changes</span>
+        <v-btn color="playbutton" variant="flat" :loading="saving" prepend-icon="mdi-content-save" @click="saveAllChanges">
+          Save changes
+        </v-btn>
+      </div>
+    </v-slide-y-reverse-transition>
   </v-container>
 </template>
 
@@ -615,6 +591,7 @@ const countriesList = ref<Country[]>([]);
 const fileInputs = ref<any>({});
 const storeFormsRefs = ref<any>({});
 const pendingDeletions = ref<number[]>([]);
+const hasChanges = computed(() => pendingDeletions.value.length > 0 || stores.value.some((store) => store.isNew || store.isDirty));
 const saving = ref(false);
 const successAlert = ref({ show: false, message: "" });
 
@@ -1013,5 +990,84 @@ onMounted(async () => {
     linear-gradient(-45deg, transparent 75%, #1e1e1e 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+/* Stores */
+.stores-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-family: "Poppins", sans-serif;
+}
+.stores-head h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.stores-head p {
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.7;
+}
+.stores-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 18px;
+  background: rgb(var(--v-theme-playbutton));
+  border-radius: 12px;
+  color: rgb(var(--v-theme-on-playbutton));
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.store-card {
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1) !important;
+  border-radius: 14px !important;
+}
+.store-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.store-status--ok {
+  background: rgba(76, 175, 80, 0.18);
+  color: #81c784;
+}
+.store-status--review {
+  background: rgba(255, 193, 7, 0.18);
+  color: #ffd54f;
+}
+.store-label {
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.stores-save {
+  position: sticky;
+  bottom: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 10px 10px 10px 18px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.15);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font-weight: 700;
 }
 </style>
