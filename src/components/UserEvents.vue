@@ -67,7 +67,7 @@
         </div>
 
         <v-dialog v-model="dialog" max-width="560" scrollable>
-          <v-card class="event-detail" color="#2b2b2b">
+          <v-card class="event-detail" color="surface">
             <div v-if="loading" class="dialog-overlay">
               <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
@@ -203,7 +203,7 @@
         </div>
 
         <v-dialog v-model="myDialog" max-width="560" scrollable>
-          <v-card class="event-detail" color="#2b2b2b">
+          <v-card class="event-detail" color="surface">
             <div v-if="loading" class="dialog-overlay">
               <v-progress-circular indeterminate size="80" width="7" color="primary" />
             </div>
@@ -1524,8 +1524,8 @@ watch(
   margin: 0 0 2px;
 }
 .event-detail__scheduled {
-  background: #fff;
-  color: #000;
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
   border-radius: 6px;
   padding: 4px 10px;
   font-size: 0.8rem;
@@ -1534,8 +1534,8 @@ watch(
   display: flex;
   gap: 12px;
   align-items: center;
-  background: #fff;
-  color: #000;
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
   border-radius: 6px 6px 0 0;
   padding: 8px;
   cursor: pointer;
@@ -1602,13 +1602,14 @@ watch(
   color: #fff;
 }
 .event-detail__action--share {
-  background: #1e88e5;
+  background: rgb(var(--v-theme-secondary));
 }
 .event-detail__action--join {
-  background: #5fae54;
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton)) !important;
 }
 .event-detail__action--quit {
-  background: #e53935;
+  background: rgb(var(--v-theme-error));
 }
 .event-detail__action:disabled {
   opacity: 0.45;
@@ -1621,7 +1622,7 @@ watch(
   font-weight: 600;
 }
 .events-panel {
-  background: #0d0d0d !important;
+  background: rgb(var(--v-theme-background)) !important;
   border-radius: 8px 8px 0 0;
   overflow: hidden;
 }
@@ -1639,7 +1640,7 @@ watch(
 }
 .events-tabs {
   grid-template-columns: repeat(2, 1fr);
-  background: #4a4a4a;
+  background: rgb(var(--v-theme-secondary));
   min-height: 44px;
 }
 .events-sort {
@@ -1648,7 +1649,7 @@ watch(
   justify-content: space-between;
   gap: 4px 24px;
   padding: 4px 16px;
-  background: #2b2b2b;
+  background: rgb(var(--v-theme-surface));
   min-height: 36px;
   font-size: 0.8rem;
 }
@@ -1673,7 +1674,7 @@ watch(
   font-size: 1rem;
 }
 .events-sort__item.active {
-  border-bottom-color: #fff;
+  border-bottom-color: rgb(var(--v-theme-terciary));
 }
 /* Selected tab is light (theme "terciary"); the other one is dimmed. */
 .events-tabs {
@@ -1740,9 +1741,9 @@ watch(
     text-align: center;
   }
   .events-sort__item.active {
-    background: #fff;
-    border-color: #fff;
-    color: #000;
+    background: rgb(var(--v-theme-terciary));
+    border-color: rgb(var(--v-theme-terciary));
+    color: rgb(var(--v-theme-on-terciary));
   }
   .events-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -1767,7 +1768,7 @@ watch(
   border-radius: 8px;
   padding: 10px;
   margin-left: 18px;
-  background-color: #292929;
+  background-color: rgb(var(--v-theme-surface));
   cursor: pointer;
   transition: 0.2s ease-in-out;
 }
@@ -1825,7 +1826,7 @@ watch(
 }
 
 .EventsTabs {
-  background: #424242;
+  background: rgb(var(--v-theme-secondary));
   transform: translateY(-8px);
   position: relative;
 }
@@ -1833,13 +1834,13 @@ watch(
 .CreateNew {
   position: relative;
   transform: translateY(-8px) translateX(12px);
-  background-color: #484848;
+  background-color: rgb(var(--v-theme-secondary));
 }
 
 .SortBy {
   position: relative;
   transform: translateY(-8px) translateX(12px);
-  background-color: #292929;
+  background-color: rgb(var(--v-theme-surface));
 }
 
 .event-card:hover {
@@ -1855,7 +1856,7 @@ watch(
 }
 
 .dark-background {
-  background-color: #121212;
+  background-color: rgb(var(--v-theme-background));
   color: white;
 }
 
@@ -1901,7 +1902,7 @@ watch(
 }
 
 .redbutton {
-  background: #691d1d;
+  background: rgb(var(--v-theme-error));
   transform: translateY(px) translateX(-0px);
   width: 80px;
   height: 160px;
