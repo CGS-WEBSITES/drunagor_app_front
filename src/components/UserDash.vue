@@ -288,174 +288,41 @@
       :user="user" 
     />
 
-    <v-dialog v-model="showPlaySelectionDialog" max-width="500" scrollable>
-      <v-card color="grey-darken-4" rounded="xl" max-height="90vh">
-        <v-card-title class="d-flex justify-space-between align-center px-4 pt-4 pb-2">
-          <span class="text-h5 font-weight-bold">Choose your adventure</span>
-          <v-btn icon variant="text" @click="showPlaySelectionDialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-        
-        <v-card-text class="pa-0" style="overflow-y: auto;">
-          <!-- Return to Recent Campaign Option -->
-          <div v-if="recentCampaign" class="px-5 pt-3 pb-2 text-center">
-            <h3 class="text-h6 font-weight-bold text-amber-accent-2 mb-2">Return to Recent Campaign</h3>
-            
-            <v-card
-              color="secundary"
-              elevation="16"
-              width="100%"
-              class="mx-auto cursor-pointer transition-swing rounded-xl text-left"
-              style="overflow: hidden; max-width: 440px;"
-              @click="resumeRecentCampaign"
-            >
-              <!-- Banner Image -->
-              <v-img
-                :src="getCampaignBanner(recentCampaign.campaign)"
-                height="80"
-                cover
-              ></v-img>
+    <v-dialog v-model="showPlaySelectionDialog" max-width="460" scrollable>
+      <v-card class="play-sheet" rounded="xl">
+        <v-btn icon="mdi-close" variant="text" size="small" class="play-sheet__close" @click="showPlaySelectionDialog = false" />
+        <v-card-text class="pa-3">
+          <!-- Drunagor Nights: join the party's table. -->
+          <button class="play-choice" @click="playDrunagorNights">
+            <img src="@/assets/underkeep.png" alt="" class="play-choice__art" />
+            <span class="play-choice__body">
+              <span class="play-choice__text">
+                <strong>Drunagor Nights</strong>
+                <small>Join your party's table at the store: scan its QR Code or type its code.</small>
+              </span>
+              <span class="play-choice__action play-choice__action--nights">
+                <v-icon size="20">mdi-qrcode-scan</v-icon> Join a table
+              </span>
+            </span>
+          </button>
 
-              <v-card-title class="d-flex flex-column text-uppercase pb-1 px-3 pt-1">
-                <div class="d-flex justify-space-between align-center w-100">
-                  <span class="text-h6 font-weight-bold mb-0 text-truncate text-white" style="font-size: 0.95rem !important; letter-spacing: 0.5px;">
-                    {{ recentCampaign.name }}
-                  </span>
-                  <v-chip
-                    v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.isFinished"
-                    color="red-darken-4"
-                    size="x-small"
-                    variant="flat"
-                    class="font-weight-bold ml-2"
-                    style="height: 16px; font-size: 0.55rem;"
-                  >
-                    FINISHED
-                  </v-chip>
-                </div>
-
-                <div class="d-flex align-center text-subtitle-2 mt-0 text-grey-lighten-1 w-100" style="font-size: 0.7rem !important;">
-                  <span v-if="recentCampaign.wing">{{ formatWingName(recentCampaign.wing) }}</span>
-                  <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign) && recentCampaign.door" class="ml-2">
-                    - Door: <span class="text-white font-weight-bold">{{ recentCampaign.door }}</span>
-                  </span>
-                  <span v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="ml-auto text-amber-accent-2 font-weight-bold">
-                    {{ calculateCompletionPercentage(recentCampaign) }}%
-                  </span>
-                </div>
-              </v-card-title>
-
-              <v-progress-linear
-                v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)"
-                :model-value="calculateCompletionPercentage(recentCampaign)"
-                color="amber-accent-2"
-                height="3"
-                class="mb-0"
-              ></v-progress-linear>
-
-              <!-- Players list (Compact Chips) -->
-              <div v-if="['underkeep', 'underkeep2'].includes(recentCampaign.campaign)" class="mt-2 px-3 pt-0 pb-3">
-                <div class="d-flex flex-wrap align-center ga-1">
-                  <v-chip
-                    v-for="player in recentPlayers"
-                    :key="player.rl_campaigns_users_pk"
-                    color="grey-darken-3"
-                    variant="flat"
-                    size="small"
-                    class="text-white font-weight-bold pl-1"
-                    style="height: 24px;"
-                  >
-                    <v-avatar start size="18" class="mr-1">
-                      <v-img :src="getPlayerHeroAvatar(player) || 'https://assets.drunagor.app/Profile/user.png'"></v-img>
-                    </v-avatar>
-                    <span style="font-size: 0.7rem; text-transform: none;">{{ player.user_name }}</span>
-                  </v-chip>
-                  <span v-if="recentPlayers.length === 0" class="text-caption text-grey font-italic">No players synced yet.</span>
-                </div>
-              </div>
-
-              <!-- Legacy style: Hero Avatars -->
-              <div v-else class="mt-2 px-3 pt-0 pb-3">
-                <div class="d-flex flex-wrap align-center ga-1">
-                  <v-chip
-                    v-for="hero in getLegacyHeroes(recentCampaign)"
-                    :key="hero.heroId"
-                    color="grey-darken-3"
-                    variant="flat"
-                    size="small"
-                    class="text-white font-weight-bold pl-1"
-                    style="height: 24px;"
-                  >
-                    <v-avatar start size="18" class="mr-1">
-                      <v-img :src="hero.images.avatar"></v-img>
-                    </v-avatar>
-                    <span style="font-size: 0.7rem; text-transform: none;">{{ hero.name }}</span>
-                  </v-chip>
-                </div>
-              </div>
-            </v-card>
-          </div>
-
-          <v-divider v-if="recentCampaign" class="mx-6 border-opacity-50" color="grey"></v-divider>
-
-          <div class="pa-5 text-center">
-            <v-img 
-              src="@/assets/underkeep.png" 
-              height="140" 
-              cover
-              class="mb-4 rounded-xl elevation-4"
-            ></v-img>
-            
-            <h3 class="text-h5 font-weight-bold text-green-accent-3 mb-1">Drunagor Nights S1</h3>
-            <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
-              Scan the Lobby QR Code to join your party and dive into the Underkeep adventures.
-            </p>
-            
-            <v-btn 
-              color="green-accent-3" 
-              variant="flat" 
-              rounded="pill" 
-              size="x-large"
-              block
-              class="font-weight-black text-grey-darken-4"
-              @click="playDrunagorNights"
-            >
-              <v-icon left class="mr-2">mdi-qrcode-scan</v-icon>
-              Scan Lobby QR Code
-            </v-btn>
-          </div>
-
-          <v-divider class="mx-6 border-opacity-50" color="grey"></v-divider>
-
-          <div class="pa-5 text-center">
-            <div class="legacy-cluster mb-6 mt-2">
-              <div class="d-flex justify-center align-center ga-6 position-relative z-10">
-                <v-img :src="CoreLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
-                <v-img :src="AwakeningsLogo" height="70" max-width="110" contain class="legacy-logo"></v-img>
-              </div>
-              <div class="d-flex justify-center align-center mt-n6 position-relative z-20">
-                <v-img :src="ApocalypseLogo" height="80" max-width="130" contain class="legacy-logo apoc-logo"></v-img>
-              </div>
-            </div>
-            
-            <h3 class="text-h5 font-weight-bold text-amber-accent-2 mb-1">Legacy Campaign Tracker</h3>
-            <p class="text-body-2 text-grey-lighten-1 mb-5 px-2">
-              Manage your classic campaigns from Age of Darkness.
-            </p>
-            
-            <v-btn 
-              color="amber-accent-2" 
-              variant="flat" 
-              rounded="pill" 
-              size="x-large"
-              block
-              class="font-weight-black text-grey-darken-4"
-              @click="playLegacyCampaigns"
-            >
-              <v-icon left class="mr-2">mdi-book-open-page-variant</v-icon>
-              Open Tracker
-            </v-btn>
-          </div>
+          <!-- Legacy campaigns from the Age of Darkness boxes. -->
+          <button class="play-choice" @click="playLegacyCampaigns">
+            <span class="play-choice__logos">
+              <img :src="CoreLogo" alt="Age of Darkness" />
+              <img :src="AwakeningsLogo" alt="Awakenings" />
+              <img :src="ApocalypseLogo" alt="Apocalypse" />
+            </span>
+            <span class="play-choice__body">
+              <span class="play-choice__text">
+                <strong>Legacy campaigns</strong>
+                <small>Track your Age of Darkness, Awakenings and Apocalypse campaigns.</small>
+              </span>
+              <span class="play-choice__action play-choice__action--legacy">
+                <v-icon size="20">mdi-book-open-page-variant</v-icon> Open tracker
+              </span>
+            </span>
+          </button>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -1085,5 +952,94 @@ body {
 }
 .dash-nav span {
   opacity: 0.8;
+}
+
+/* Play */
+.play-sheet {
+  position: relative;
+  background: rgb(var(--v-theme-surface)) !important;
+  font-family: "Poppins", sans-serif;
+}
+.play-sheet__close {
+  position: absolute !important;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.55) !important;
+}
+.play-choice {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 16px;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.play-choice + .play-choice {
+  margin-top: 10px;
+}
+.play-choice:hover {
+  border-color: rgba(var(--v-theme-on-primary), 0.3);
+  transform: translateY(-2px);
+}
+.play-choice__art {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+.play-choice__logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 120px;
+  padding: 0 12px;
+  background: radial-gradient(circle at center, #2a2620 0%, #121212 100%);
+}
+.play-choice__logos img {
+  width: 30%;
+  height: 80px;
+  object-fit: contain;
+}
+.play-choice__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+.play-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.play-choice__text strong {
+  font-size: 1.15rem;
+}
+.play-choice__text small {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  opacity: 0.75;
+}
+.play-choice__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.play-choice__action--nights {
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
+}
+.play-choice__action--legacy {
+  background: rgb(var(--v-theme-secondary));
 }
 </style>
