@@ -342,7 +342,7 @@
       </div>
     </div>
 
-    <nav v-if="smAndDown && currentVolumeId && !isToolView" class="book-dock">
+    <nav v-if="smAndDown && currentVolumeId && !isToolView" class="book-dock" :class="{ 'book-dock--hidden': barHidden }">
       <button :disabled="!isStory || currentIndex === 0" @click="goToPage(currentIndex - 1)">
         <v-icon>mdi-chevron-left</v-icon><span>Previous</span>
       </button>
@@ -1845,5 +1845,49 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
   transition: width 0.2s ease-out, max-width 0.2s ease-out, max-height 0.2s ease-out;
   user-select: none;
   -webkit-user-drag: none;
+}
+
+/* The dock slides away with the header while reading down. */
+.book-dock {
+  transition: transform 0.25s ease;
+}
+.book-dock--hidden {
+  transform: translateY(100%);
+}
+/* Phone on its side: thin bars and a compact page banner, so the text gets the screen. */
+@media (max-height: 500px) {
+  .book-bar {
+    height: 42px;
+  }
+  .book-bar--hidden {
+    margin-top: -42px;
+  }
+  .book-bar__title small {
+    display: none;
+  }
+  .book-dock {
+    padding-top: 2px;
+    padding-bottom: calc(2px + env(safe-area-inset-bottom, 0px));
+  }
+  .book-dock button {
+    height: 36px;
+  }
+  .header-banner {
+    padding: 4px 12px 2px;
+    background-position: left center;
+  }
+  .section-title {
+    padding: 4px 0 4px;
+    margin-left: 110px;
+    font-size: 0.58rem;
+  }
+  .chapter-title-banner {
+    margin: 0 0 14px 110px;
+    padding: 0;
+    font-size: 1.15rem;
+  }
+  .content-container {
+    padding-top: 8px;
+  }
 }
 </style>
