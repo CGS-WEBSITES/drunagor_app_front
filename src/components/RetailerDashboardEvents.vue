@@ -45,10 +45,7 @@
 
         <!-- The rest of your upcoming events -->
         <section v-if="laterEvents.length" class="home-section">
-          <div class="home-label-row">
-            <h3 class="home-label">Upcoming events</h3>
-            <button class="home-link" @click="router.push('/events')">See all</button>
-          </div>
+          <h3 class="home-label">Upcoming events</h3>
           <div class="event-list">
             <button v-for="event in laterEvents" :key="event.events_pk" class="event-row" @click="openManageDialog(event)">
               <span class="date-chip">
@@ -60,6 +57,20 @@
                 <small>{{ extractTime(event.event_date, userTimezone) }} · {{ event.scenario }}</small>
               </span>
               <img v-if="getSeasonInfo(event.seasons_fk).flag" :src="getSeasonInfo(event.seasons_fk).flag || undefined" alt="" class="event-row__flag" />
+            </button>
+            <!-- One more event, blurred, as the way to the full list. -->
+            <button v-if="teaserEvent" class="event-row event-row--teaser" @click="router.push('/events')">
+              <span class="event-row__blur">
+                <span class="date-chip">
+                  <small>{{ extractMonth(teaserEvent.event_date, userTimezone) }}</small>
+                  <strong>{{ extractDay(teaserEvent.event_date, userTimezone) }}</strong>
+                </span>
+                <span class="event-text">
+                  <strong>{{ teaserEvent.store_name }}</strong>
+                  <small>{{ teaserEvent.scenario }}</small>
+                </span>
+              </span>
+              <span class="event-row__more">See all your events <v-icon size="18">mdi-arrow-right</v-icon></span>
             </button>
           </div>
         </section>
@@ -345,7 +356,8 @@ const upcomingRetailerEventsPreview = computed(() => {
 });
 
 const nextEvent = computed(() => upcomingRetailerEventsPreview.value[0] || null);
-const laterEvents = computed(() => upcomingRetailerEventsPreview.value.slice(1, 6));
+const laterEvents = computed(() => upcomingRetailerEventsPreview.value.slice(1, 4));
+const teaserEvent = computed(() => upcomingRetailerEventsPreview.value[4] || null);
 
 // Quick actions for running Drunagor Nights.
 const shortcuts = [
@@ -724,7 +736,7 @@ onMounted(async () => {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 4px 2px 16px;
+  padding: 0 0 16px;
   font-family: "Poppins", sans-serif;
 }
 .home-loading {
@@ -733,31 +745,24 @@ onMounted(async () => {
   padding: 48px 0;
 }
 .home-section {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .home-label {
-  margin: 0 0 8px 2px;
+  margin: 0 0 8px;
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.7px;
   text-transform: uppercase;
-  opacity: 0.65;
+  opacity: 0.7;
 }
-.home-label-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-}
-.home-link {
-  color: rgb(var(--v-theme-accent));
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-.home-empty {
-  padding: 16px;
-  font-size: 0.85rem;
-  text-align: center;
-  opacity: 0.6;
+/* Every card shares one look, from the theme. */
+.continue-card,
+.next-event,
+.shortcut,
+.event-row {
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 14px;
 }
 /* Continue */
 .continue-card {
@@ -765,14 +770,15 @@ onMounted(async () => {
   flex-direction: column;
   width: 100%;
   overflow: hidden;
-  background: rgb(var(--v-theme-primary));
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
   text-align: left;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s ease;
 }
 .continue-card:active {
   transform: scale(0.99);
+}
+.continue-card__media {
+  position: relative;
+  display: block;
 }
 .continue-card__art {
   display: block;
@@ -780,6 +786,23 @@ onMounted(async () => {
   height: 104px;
   object-fit: cover;
   object-position: center 30%;
+}
+/* The party's heroes stand on the art. */
+.continue-card__heroes {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  display: flex;
+}
+.continue-card__heroes img {
+  width: 44px;
+  height: 44px;
+  margin-left: -8px;
+  object-fit: cover;
+  background: rgb(var(--v-theme-surface));
+  border: 2px solid rgb(var(--v-theme-primary));
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 .continue-card__body {
   display: flex;
@@ -804,21 +827,12 @@ onMounted(async () => {
   font-size: 0.72rem;
   text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0.65;
-}
-.continue-card__party {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-}
-.continue-card__party .v-avatar {
-  margin-left: -6px;
-  border: 2px solid rgb(var(--v-theme-primary));
+  opacity: 0.7;
 }
 .continue-card__go {
-  margin-left: 8px;
-  color: rgb(var(--v-theme-accent));
-  font-size: 30px !important;
+  flex-shrink: 0;
+  color: rgb(var(--v-theme-playbutton));
+  font-size: 32px !important;
 }
 .continue-card--empty {
   flex-direction: row;
@@ -834,9 +848,6 @@ onMounted(async () => {
 .next-event {
   display: flex;
   overflow: hidden;
-  background: rgb(var(--v-theme-primary));
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
 }
 .next-event__info {
   display: flex;
@@ -854,8 +865,8 @@ onMounted(async () => {
   justify-content: center;
   gap: 2px;
   padding: 0 16px;
-  background: #4f9a4b;
-  color: #fff;
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -868,9 +879,9 @@ onMounted(async () => {
   justify-content: center;
   width: 48px;
   height: 52px;
-  background: #f2efe8;
+  background: rgb(var(--v-theme-terciary));
   border-radius: 10px;
-  color: #1a1a1a;
+  color: rgb(var(--v-theme-on-terciary));
   line-height: 1;
 }
 .date-chip small {
@@ -904,6 +915,11 @@ onMounted(async () => {
 .event-text__muted {
   opacity: 0.5 !important;
 }
+.event-status {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
 /* Shortcuts */
 .shortcuts {
   display: grid;
@@ -917,17 +933,14 @@ onMounted(async () => {
   justify-content: center;
   gap: 4px;
   height: 66px;
-  background: rgb(var(--v-theme-primary));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
   font-size: 0.66rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 .shortcut .v-icon {
-  color: rgb(var(--v-theme-accent));
+  color: rgb(var(--v-theme-terciary));
 }
-/* Events near you */
+/* Event list */
 .event-list {
   display: flex;
   flex-direction: column;
@@ -938,10 +951,8 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 10px 44px 10px 10px;
-  background: rgb(var(--v-theme-primary));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
   text-align: left;
 }
 .event-row__flag {
@@ -950,10 +961,36 @@ onMounted(async () => {
   right: 10px;
   width: 22px;
 }
-.event-status {
+/* The blurred teaser that leads to every event. */
+.event-row--teaser {
+  overflow: hidden;
+  padding-right: 10px;
+}
+.event-row__blur {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  filter: blur(2px);
+  opacity: 0.55;
+}
+.event-row__more {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 3px;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+.event-row--empty {
+  height: 64px;
+  border-style: dashed;
 }
 .next-event {
   flex-direction: column;
@@ -977,8 +1014,8 @@ onMounted(async () => {
   border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 .next-event__actions button:first-child {
-  background: #118d8e;
-  color: #fff;
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
 }
 .host-card {
   display: flex;
@@ -992,7 +1029,7 @@ onMounted(async () => {
   text-align: left;
 }
 .host-card .v-icon:last-child {
-  color: #118d8e;
+  color: rgb(var(--v-theme-playbutton));
   font-size: 30px !important;
 }
 </style>

@@ -36,7 +36,7 @@
           <v-row no-gutters align="end" class="pa-4 flex-nowrap">
             <v-col cols="auto">
               <v-avatar
-                size="100"
+                :size="display.xs ? 80 : 100"
                 rounded="lg"
                 style="
                   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -345,5 +345,11 @@ body {
 }
 .dash-nav span {
   opacity: 0.8;
+}
+/* Phones: a shorter cover photo, so the home starts higher. */
+@media (max-width: 599px) {
+  .full-screen-card {
+    height: 128px;
+  }
 }
 </style>
