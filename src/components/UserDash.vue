@@ -23,7 +23,7 @@
       >
         <v-card
           color="transparent"
-          :height="display.xs ? 118 : 166"
+          height="166"
           class="card-overlay1 full-screen-card"
           flat
         ></v-card>
@@ -37,7 +37,7 @@
           <v-row no-gutters align="end" class="pa-4 flex-nowrap">
             <v-col cols="auto">
               <v-avatar
-                :size="display.xs ? 80 : 100"
+                size="100"
                 rounded="lg"
                 style="
                   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -87,7 +87,7 @@
     <div
       class="flex-grow-1"
       :style="{
-        marginTop: display.xs ? '-95px' : '-85px',
+        marginTop: display.xs ? '-133px' : '-85px',
         overflow: 'hidden',
         minHeight: '0',
         zIndex: 1,
@@ -1084,11 +1084,5 @@ body {
 }
 .dash-nav span {
   opacity: 0.8;
-}
-/* Phones: a shorter cover photo, so the home starts higher. */
-@media (max-width: 599px) {
-  .full-screen-card {
-    height: 128px;
-  }
 }
 </style>

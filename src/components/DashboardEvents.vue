@@ -10,9 +10,6 @@
           <button v-if="recentCampaign" class="continue-card" @click="resumeRecentCampaign">
             <span class="continue-card__media">
               <img :src="getCampaignBanner(recentCampaign.campaign) || ''" alt="" class="continue-card__art" />
-              <span v-if="recentCampaignHeroes.length" class="continue-card__heroes">
-                <img v-for="(hero, idx) in recentCampaignHeroes.slice(0, 4)" :key="idx" :src="hero.images.avatar" :alt="hero.name" :title="hero.name" />
-              </span>
             </span>
             <span class="continue-card__body">
               <span class="continue-card__text">
@@ -20,6 +17,10 @@
                 <small v-if="recentCampaign.wing || recentCampaign.door">
                   {{ [recentCampaign.wing, recentCampaign.door].filter(Boolean).join(" · ") }}
                 </small>
+              </span>
+              <!-- The party, beside the play button. -->
+              <span v-if="recentCampaignHeroes.length" class="continue-card__heroes">
+                <img v-for="(hero, idx) in recentCampaignHeroes.slice(0, 4)" :key="idx" :src="hero.images.avatar" :alt="hero.name" :title="hero.name" />
               </span>
               <v-icon class="continue-card__go">mdi-play-circle</v-icon>
             </span>
@@ -69,7 +70,7 @@
 
         <!-- Events near you -->
         <section class="home-section">
-          <h3 class="home-label">Events near you</h3>
+          <h3 class="home-label">Events</h3>
           <div v-if="nearbyEvents.length" class="event-list">
             <button v-for="event in nearbyEvents" :key="event.events_pk" class="event-row" @click="openDialog(event)">
               <span class="date-chip">
@@ -1095,22 +1096,20 @@ onMounted(async () => {
   object-fit: cover;
   object-position: center 30%;
 }
-/* The party's heroes stand on the art. */
+/* The party, beside the play button. */
 .continue-card__heroes {
-  position: absolute;
-  right: 10px;
-  bottom: 8px;
   display: flex;
+  flex-shrink: 0;
+  padding-left: 8px;
 }
 .continue-card__heroes img {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   margin-left: -8px;
   object-fit: cover;
   background: rgb(var(--v-theme-surface));
   border: 2px solid rgb(var(--v-theme-primary));
   border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 .continue-card__body {
   display: flex;
