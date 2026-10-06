@@ -6,7 +6,7 @@
       <template v-else>
         <!-- Your next event, with what you do before and during it. -->
         <section class="home-section">
-          <h3 class="home-label">Next event</h3>
+          <h3 class="home-label">My events</h3>
           <div v-if="nextEvent" class="next-event">
             <button class="next-event__info" @click="openManageDialog(nextEvent)">
               <span class="date-chip">
@@ -31,21 +31,7 @@
             </span>
             <v-icon>mdi-plus-circle</v-icon>
           </button>
-        </section>
-
-        <!-- Quick actions -->
-        <section class="home-section">
-          <div class="shortcuts">
-            <button v-for="item in shortcuts" :key="item.label" class="shortcut" @click="item.action()">
-              <v-icon size="24">{{ item.icon }}</v-icon>
-              <span>{{ item.label }}</span>
-            </button>
-          </div>
-        </section>
-
-        <!-- The rest of your upcoming events -->
-        <section v-if="laterEvents.length" class="home-section">
-          <h3 class="home-label">Upcoming events</h3>
+          <div v-if="laterEvents.length" class="mt-2">
           <div class="event-list">
             <button v-for="event in laterEvents" :key="event.events_pk" class="event-row" @click="openManageDialog(event)">
               <span class="date-chip">
@@ -73,9 +59,68 @@
               <span class="event-row__more">See all your events <v-icon size="18">mdi-arrow-right</v-icon></span>
             </button>
           </div>
+          </div>
+        </section>
+
+        <!-- Retailers can play too. -->
+        <section class="home-section">
+          <h3 class="home-label">Play</h3>
+          <div class="play-row">
+            <button class="play-card play-card--join" @click="showJoinTable = true">
+              <v-icon size="24">mdi-qrcode-scan</v-icon>
+              <span><strong>Join a table</strong><small>Scan or type a table code</small></span>
+            </button>
+            <button class="play-card" @click="router.push('/campaign-tracker/')">
+              <v-icon size="24">mdi-book-open-page-variant</v-icon>
+              <span><strong>My campaigns</strong><small>Heroes and progress</small></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Quick actions -->
+        <section class="home-section">
+          <div class="shortcuts">
+            <button v-for="item in shortcuts" :key="item.label" class="shortcut" @click="item.action()">
+              <v-icon size="24">{{ item.icon }}</v-icon>
+              <span>{{ item.label }}</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="home-section">
+          <h3 class="home-label">Events</h3>
+          <div v-if="otherEvents.length" class="event-list">
+            <button v-for="event in otherEvents" :key="event.events_pk" class="event-row" @click="router.push('/events')">
+              <span class="date-chip">
+                <small>{{ extractMonth(event.event_date, userTimezone) }}</small>
+                <strong>{{ extractDay(event.event_date, userTimezone) }}</strong>
+              </span>
+              <span class="event-text">
+                <strong>{{ event.store_name }}</strong>
+                <small>{{ extractTime(event.event_date, userTimezone) }} · {{ event.scenario }}</small>
+                <small class="event-text__muted">{{ event.address }}</small>
+              </span>
+              <img v-if="getSeasonInfo(event.seasons_fk).flag" :src="getSeasonInfo(event.seasons_fk).flag || undefined" alt="" class="event-row__flag" />
+            </button>
+            <button v-if="otherTeaser" class="event-row event-row--teaser" @click="router.push('/events')">
+              <span class="event-row__blur">
+                <span class="date-chip">
+                  <small>{{ extractMonth(otherTeaser.event_date, userTimezone) }}</small>
+                  <strong>{{ extractDay(otherTeaser.event_date, userTimezone) }}</strong>
+                </span>
+                <span class="event-text">
+                  <strong>{{ otherTeaser.store_name }}</strong>
+                  <small>{{ otherTeaser.scenario }}</small>
+                </span>
+              </span>
+              <span class="event-row__more">See more events <v-icon size="18">mdi-arrow-right</v-icon></span>
+            </button>
+          </div>
+          <p v-else class="home-empty">No other upcoming events right now.</p>
         </section>
       </template>
     </div>
+    <HUB v-model="showJoinTable" />
 
     <ManageEventDialog
       v-model="manageDialog"
@@ -291,6 +336,7 @@ import { useDisplay } from "vuetify";
 import { useTutorialStore } from "@/store/TutorialStore";
 import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
 import ManageEventDialog from "@/components/dialogs/ManageEventDialog.vue";
+import HUB from "@/components/HUB.vue";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { extractMonth, extractDay, extractTime } from "@/utils/dateHelpers";
@@ -363,9 +409,33 @@ const teaserEvent = computed(() => upcomingRetailerEventsPreview.value[4] || nul
 const shortcuts = [
   { label: "New event", icon: "mdi-calendar-plus", action: () => goToEventsPageAndCreate() },
   { label: "Library", icon: "mdi-bookshelf", action: () => router.push("/library") },
-  { label: "OP Kit", icon: "mdi-package-variant-closed", action: () => router.push("/box-assembly-guide") },
-  { label: "Guide", icon: "mdi-school-outline", action: () => router.push("/retailer-tutorial") },
+  { label: "Box guide", icon: "mdi-package-variant-closed", action: () => router.push("/box-assembly-guide") },
+  { label: "Help", icon: "mdi-help-circle-outline", action: () => router.push("/FAQforRetailers") },
 ];
+
+// Every upcoming event (other stores' too), for retailers who play.
+const showJoinTable = ref(false);
+const allEvents = ref([]);
+const fetchAllEvents = async () => {
+  try {
+    const { data } = await axios.get("/events/list_events/", {
+      params: { past_events: "false", player_fk: userStore.user.users_pk },
+      headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+    });
+    allEvents.value = data.events || [];
+  } catch {
+    allEvents.value = [];
+  }
+};
+const othersUpcoming = computed(() => {
+  const mine = new Set(userCreatedEvents.value.map((event) => event.events_pk));
+  const now = new Date();
+  return allEvents.value
+    .filter((event) => !mine.has(event.events_pk) && new Date(event.event_date) >= now)
+    .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+});
+const otherEvents = computed(() => othersUpcoming.value.slice(0, 3));
+const otherTeaser = computed(() => othersUpcoming.value[3] || null);
 
 const getSeasonInfo = (fk) => {
   if (fk == 2) return { flag: s1flag, name: "Season 1" };
@@ -537,6 +607,7 @@ const handleSuccessContinue = () => {
 };
 
 onMounted(async () => {
+  fetchAllEvents();
   await fetchUserCreatedEvents();
 });
 </script>
@@ -1031,5 +1102,43 @@ onMounted(async () => {
 .host-card .v-icon:last-child {
   color: rgb(var(--v-theme-playbutton));
   font-size: 30px !important;
+}
+/* Play */
+.play-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.play-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 14px;
+  text-align: left;
+}
+.play-card > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.play-card strong {
+  font-size: 0.85rem;
+}
+.play-card small {
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+.play-card--join {
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
+}
+.home-empty {
+  padding: 16px;
+  font-size: 0.85rem;
+  text-align: center;
+  opacity: 0.6;
 }
 </style>
