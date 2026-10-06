@@ -8,8 +8,9 @@
           :style="{ cursor: embed ? 'default' : 'pointer' }"
           @click="!embed && toggleForm()"
         >
-          <span class="text-h5 font-weight-black pl-2 pt-2 pb-2 text-uppercase">
-            Support (SAC)
+          <span class="support-title">
+            <v-icon size="22">mdi-lifebuoy</v-icon>
+            Contact support
           </span>
           <v-icon v-if="!embed">
             {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
@@ -25,21 +26,11 @@
 
             <v-form ref="formRef" v-model="isFormValid">
               <!-- Email choice -->
-              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-2">Reply Email</p>
-              <v-radio-group v-model="emailOption" density="compact" hide-details class="mb-4 pl-3">
-                <v-radio
-                  label="Use account email"
-                  value="account"
-                  color="secundary"
-                  class="text-white"
-                ></v-radio>
-                <v-radio
-                  label="Use a different email"
-                  value="custom"
-                  color="secundary"
-                  class="text-white"
-                ></v-radio>
-              </v-radio-group>
+              <p class="support-label">Reply to</p>
+              <div class="support-choice mb-3 mx-3">
+                <button type="button" :class="{ active: emailOption === 'account' }" @click="emailOption = 'account'">My account email</button>
+                <button type="button" :class="{ active: emailOption === 'custom' }" @click="emailOption = 'custom'">Another email</button>
+              </div>
 
               <div class="px-3 mb-4">
                 <v-text-field
@@ -54,17 +45,16 @@
 
                 <v-text-field
                   v-else
-                  :value="accountEmail"
-                  label="Account email"
+                  :model-value="accountEmail"
                   variant="solo-filled"
-                  disabled
-                  class="opacity-70"
+                  readonly
+                  prepend-inner-icon="mdi-email-outline"
                   hide-details
                 ></v-text-field>
               </div>
 
               <!-- Message -->
-              <p class="text-h6 font-weight-medium pl-3 pb-3 pt-0">How can we help you?</p>
+              <p class="support-label">How can we help?</p>
               <div class="px-3">
                 <v-textarea
                   v-model="message"
@@ -82,13 +72,17 @@
             <!-- Action buttons -->
             <v-card-actions class="px-3">
               <v-btn
-                color="green"
-                class="px-6 font-weight-bold"
+                color="playbutton"
+                variant="flat"
+                size="large"
+                block
+                class="font-weight-bold"
+                prepend-icon="mdi-send"
                 :disabled="!isFormValid || loading"
                 :loading="loading"
                 @click="sendSupport"
               >
-                Send Request
+                Send request
               </v-btn>
               <v-btn v-if="!embed" color="red" text @click="cancelForm">
                 Cancel
@@ -212,5 +206,41 @@ const sendSupport = async () => {
 <style scoped>
 .opacity-70 {
   opacity: 0.7;
+}
+.support-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.support-label {
+  margin: 4px 12px 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.support-choice {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+}
+.support-choice button {
+  flex: 1;
+  height: 40px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.support-choice button.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
 }
 </style>

@@ -1,83 +1,125 @@
 <template>
-  <v-container class="py-4 py-md-8 faq-container" style="max-width: 1400px; width: 100%;">
-    <v-row justify="center" no-gutters>
-      <v-col cols="12">
-        <v-tabs
-          v-model="currentTab"
-          bg-color="primary"
-          class="mb-6 rounded-lg"
-          align-tabs="center"
-          grow
+  <!-- The layout sets the root padding, so spacing lives on the inner box. -->
+  <div class="help-page">
+  <div class="help">
+    <header class="help__head">
+      <h1>Help</h1>
+      <p>Guides for your store, answers to common questions, and our support team.</p>
+    </header>
+
+    <!-- Sections, always with their names. -->
+    <nav class="help-tabs">
+      <button v-for="tab in tabs" :key="tab.value" :class="{ active: currentTab === tab.value }" @click="currentTab = tab.value">
+        <v-icon size="20">{{ tab.icon }}</v-icon>
+        <span>{{ tab.label }}</span>
+      </button>
+    </nav>
+
+    <!-- Guides -->
+    <section v-if="currentTab === 'guides'" class="help-section">
+      <div class="guide-list">
+        <component
+          :is="guide.to ? 'router-link' : 'button'"
+          v-for="guide in guides"
+          :key="guide.title"
+          :to="guide.to"
+          class="guide"
+          @click="guide.action?.()"
         >
-          <v-tab value="assembly">
-            <v-icon start>mdi-wrench</v-icon>
-            <span class="d-none d-sm-inline mr-1">Assembly Guide</span>
-          </v-tab>
-          <v-tab value="faq">
-            <v-icon start>mdi-frequently-asked-questions</v-icon>
-            <span class="d-none d-sm-inline mr-1">FAQ</span>
-          </v-tab>
-          <v-tab value="retailer">
-            <v-icon start>mdi-book-open-variant</v-icon>
-            <span class="d-none d-sm-inline mr-1">Retailer Book</span>
-          </v-tab>
-          <!-- Support Tab for Users & Retailers -->
-          <v-tab v-if="user?.roles_fk" value="support">
-            <v-icon start>mdi-help-circle</v-icon>
-            <span class="d-none d-sm-inline mr-1">Support (SAC)</span>
-          </v-tab>
-        </v-tabs>
+          <span class="guide__icon"><v-icon size="26">{{ guide.icon }}</v-icon></span>
+          <span class="guide__text">
+            <strong>{{ guide.title }}</strong>
+            <small>{{ guide.text }}</small>
+          </span>
+          <v-icon class="guide__go">mdi-chevron-right</v-icon>
+        </component>
+      </div>
 
-        <v-window v-model="currentTab">
-          <v-window-item value="assembly">
-            <AssemblyGuide />
-          </v-window-item>
+      <h3 class="help-label">Printable versions</h3>
+      <div class="pdf-list">
+        <a v-for="pdf in pdfs" :key="pdf.title" :href="pdf.href" target="_blank" rel="noopener noreferrer" class="pdf">
+          <v-icon size="22">mdi-file-pdf-box</v-icon>
+          <span>{{ pdf.title }}</span>
+          <v-icon size="18" class="guide__go">mdi-download</v-icon>
+        </a>
+      </div>
+    </section>
 
-          <v-window-item value="faq">
-            <v-expansion-panels>
-              <v-expansion-panel
-                v-for="(item, i) in faqData"
-                :key="i"
-                elevation="2"
-              >
-                <v-expansion-panel-title expand-icon="mdi-chevron-down">
-                  <span class="font-weight-bold">Q: {{ item.question }}</span>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <div class="answer-content" v-html="item.answer"></div>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-window-item>
+    <!-- FAQ -->
+    <section v-else-if="currentTab === 'faq'" class="help-section">
+      <v-expansion-panels variant="accordion" class="faq">
+        <v-expansion-panel v-for="(item, i) in faqData" :key="i" bg-color="primary">
+          <v-expansion-panel-title expand-icon="mdi-chevron-down">
+            <span class="faq__q">{{ item.question }}</span>
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <div class="answer-content" v-html="item.answer"></div>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </section>
 
-          <v-window-item value="retailer">
-            <CampaignBookNew />
-          </v-window-item>
+    <!-- Books -->
+    <section v-else-if="currentTab === 'books'" class="help-section help-section--books">
+      <CampaignBookNew />
+    </section>
 
-          <!-- Support Window Item for Users & Retailers -->
-          <v-window-item v-if="user?.roles_fk" value="support">
-            <SupportForm :embed="true" />
-          </v-window-item>
-        </v-window>
-      </v-col>
-    </v-row>
-  </v-container>
+    <!-- Support -->
+    <section v-else class="help-section">
+      <SupportForm :embed="true" />
+    </section>
+
+    <!-- First Setup guide (the players assemble it). -->
+    <v-dialog v-model="firstSetupDialog" max-width="900" :fullscreen="smAndDown" scrollable>
+      <v-card color="surface" class="rounded-lg">
+        <div class="d-flex align-center justify-space-between px-4 pt-3">
+          <strong class="cinzel-text">First Setup</strong>
+          <v-btn icon="mdi-close" variant="text" size="small" @click="firstSetupDialog = false" />
+        </div>
+        <v-card-text class="pa-2 pa-sm-4">
+          <AssemblyGuide :steps="firstSetupSteps" />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+  </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
 import { useDisplay } from "vuetify";
-import RetailerBook from "./RetailerBook.vue";
 import CampaignBookNew from "./CampaignBookNew.vue";
 import AssemblyGuide from "./AssemblyGuide.vue";
 import SupportForm from "./SupportForm.vue";
 import { useUserStore } from "@/store/UserStore";
+import { firstSetupSteps } from "@/data/assembly/firstSetup";
+import { TABLE_ASSEMBLY_PDF } from "@/data/assembly/tableAssembly";
 
-const { mobile } = useDisplay();
+const { smAndDown } = useDisplay();
 const userStore = useUserStore();
 const user = computed(() => userStore.user);
 
-const currentTab = ref("assembly");
+const currentTab = ref("guides");
+const firstSetupDialog = ref(false);
+
+const tabs = computed(() => [
+  { value: "guides", label: "Guides", icon: "mdi-compass-outline" },
+  { value: "faq", label: "FAQ", icon: "mdi-frequently-asked-questions" },
+  { value: "books", label: "Books", icon: "mdi-book-open-variant" },
+  ...(user.value?.roles_fk ? [{ value: "support", label: "Support", icon: "mdi-lifebuoy" }] : []),
+]);
+
+// Every guide a retailer can use, in the order they need them.
+const guides = [
+  { title: "Retailer Guide", text: "How Drunagor Nights works for your store, step by step.", icon: "mdi-school-outline", to: "/retailer-tutorial" },
+  { title: "Box Assembly Guide", text: "Sort the boxes once, before your first event.", icon: "mdi-package-variant-closed", to: "/box-assembly-guide" },
+  { title: "Table Assembly", text: "Lay out the table before each Drunagor Night (about 3 minutes).", icon: "mdi-table-furniture", to: "/assembly-tutorial" },
+  { title: "First Setup", text: "How players assemble the first room of an Adventure.", icon: "mdi-map-legend", action: () => (firstSetupDialog.value = true) },
+];
+const pdfs = [
+  { title: "Box Assembly Guide (PDF)", href: "https://assets.drunagor.app/retaitlertutorial/box-assembly-guide/RETAILER%20MANUAL%20-%20OP%20KIT%20preparation.pdf" },
+  { title: "Table Assembly (PDF)", href: TABLE_ASSEMBLY_PDF },
+];
 
 const faqData = ref([
   {
@@ -187,39 +229,162 @@ const faqData = ref([
 </script>
 
 <style scoped>
+.help-page {
+  width: 100%;
+  align-self: flex-start;
+}
+.help {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 88px 16px 40px;
+  font-family: "Poppins", sans-serif;
+}
+.help__head h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.help__head p {
+  margin: 2px 0 16px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+/* Sections */
+.help-tabs {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+}
+.help-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 54px;
+  border-radius: 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.7;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.help-tabs button.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
+}
+@media (min-width: 600px) {
+  .help-tabs button {
+    flex-direction: row;
+    gap: 8px;
+    min-height: 46px;
+    font-size: 0.8rem;
+  }
+}
+.help-label {
+  margin: 20px 0 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+/* Guides */
+.guide-list,
+.pdf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.guide,
+.pdf {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 14px;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.guide:hover,
+.pdf:hover {
+  border-color: rgba(var(--v-theme-on-primary), 0.3);
+  transform: translateY(-1px);
+}
+.guide__icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 12px;
+}
+.guide__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.guide__text strong {
+  font-size: 0.98rem;
+}
+.guide__text small {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.guide__go {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+.pdf {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.pdf span {
+  flex: 1;
+}
+/* FAQ */
+.faq :deep(.v-expansion-panel) {
+  margin-bottom: 8px;
+  border-radius: 14px !important;
+}
+.faq :deep(.v-expansion-panel::after) {
+  display: none;
+}
+.faq__q {
+  font-weight: 700;
+  line-height: 1.4;
+}
 .answer-content {
   line-height: 1.7;
-  text-align: justify;
 }
-
 .answer-content :deep(ul) {
   padding-left: 24px;
-  margin-top: 12px;
-  margin-bottom: 12px;
+  margin: 12px 0;
 }
-
 .answer-content :deep(li) {
   margin-bottom: 8px;
 }
-
-.v-expansion-panel-title {
-  line-height: 1.4;
+.help-section--books {
+  overflow: hidden;
+  border-radius: 14px;
 }
-
-.readable-title {
-  white-space: normal;
-  line-height: 1.25rem;
-  height: auto;
-}
-
-.faq-container {
-  padding-top: 96px !important;
-}
-
 @media (max-width: 959px) {
-  .faq-container {
-    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+  .help {
+    padding-top: calc(76px + env(safe-area-inset-top, 0px));
   }
 }
 </style>
-
