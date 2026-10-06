@@ -1,169 +1,69 @@
 <template>
-  <v-card color="primary" class="fill-height d-flex flex-column w-100">
-    <div class="px-4 pt-3 pb-1">
-      <h3 :class="display.xs ? 'text-h6' : 'text-h5'" class="font-weight-bold">
-        MY UPCOMING EVENTS
-      </h3>
-    </div>
+  <v-card color="primary" class="home-feed fill-height d-flex flex-column w-100">
+    <div class="home-scroll">
+      <div v-if="loading" class="home-loading"><v-progress-circular indeterminate /></div>
 
-    <div class="flex-grow-1 mt-1 content-scroll" style="overflow-y: auto">
-      <div class="px-2 py-2 fill-height d-flex flex-column">
-        <div
-          v-if="loading"
-          class="d-flex justify-center align-center"
-          style="height: 200px"
-        >
-          <v-progress-circular indeterminate color="primary" />
-        </div>
-
-        <div v-else class="d-flex flex-column flex-grow-1">
-          <div v-if="upcomingRetailerEventsPreview.length > 0">
-            <v-row dense class="mx-0">
-              <v-col
-                cols="12"
-                md="6"
-                v-for="event in upcomingRetailerEventsPreview"
-                :key="event.events_pk"
-                class="pa-1"
-              >
-                <v-card
-                  color="terciary"
-                  class="pt-0 pb-2 event-card fill-height"
-                  @click="openManageDialog(event)"
-                >
-                  <v-img
-                    v-if="getSeasonInfo(event.seasons_fk).flag"
-                    :src="getSeasonInfo(event.seasons_fk).flag"
-                    class="season-flag"
-                  />
-                  <v-row
-                    no-gutters
-                    align="center"
-                    class="flex-nowrap w-100 fill-height pl-2"
-                  >
-                    <v-col cols="auto" class="d-flex justify-center px-1">
-                      <div
-                        class="text-center"
-                        style="min-width: 65px; color: black"
-                      >
-                        <p
-                          class="pt-3 text-caption font-weight-bold"
-                          style="line-height: 1.2"
-                        >
-                          {{ extractMonth(event.event_date, userTimezone) }}
-                        </p>
-                        <p
-                          class="cinzel-text text-h4 font-weight-bold my-1"
-                          style="line-height: 1"
-                        >
-                          {{ extractDay(event.event_date, userTimezone) }}
-                        </p>
-                        <p
-                          class="text-caption font-weight-bold"
-                          style="line-height: 1.2; font-size: 11px !important"
-                        >
-                          {{ extractTime(event.event_date, userTimezone) }}
-                        </p>
-                      </div>
-                    </v-col>
-
-                    <v-col class="py-2 pl-2 pr-2" style="min-width: 0">
-                      <h3
-                        class="pb-1 text-subtitle-1 font-weight-bold text-truncate pr-8"
-                      >
-                        <v-icon class="pr-1" size="small" color="black">
-                          mdi-chess-rook
-                        </v-icon>
-                        {{ event.store_name }}
-                      </h3>
-                      <p class="text-caption text-truncate pr-8">
-                        <v-icon color="red" size="small">mdi-map-marker</v-icon>
-                        {{ event.address }}
-                      </p>
-                      <p
-                        class="text-caption text-truncate pr-8"
-                        v-if="event.scenario"
-                      >
-                        <v-icon color="red" size="small"
-                          >mdi-sword-cross</v-icon
-                        >
-                        {{ event.scenario }}
-                      </p>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-
-              <v-col cols="12" md="6" class="pa-1">
-                <v-card
-                  class="highlight-card d-flex align-center justify-center"
-                  @click="goToEventsPageAndCreate"
-                >
-                  <div class="glow-effect"></div>
-                  <div
-                    class="d-flex flex-column align-center text-white z-index-2"
-                  >
-                    <v-icon size="40" color="white" class="floating-icon mb-1">
-                      mdi-plus-circle
-                    </v-icon>
-                    <span
-                      class="text-button font-weight-black letter-spacing-1"
-                    >
-                      CREATE NEW EVENT
-                    </span>
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
+      <template v-else>
+        <!-- Your next event, with what you do before and during it. -->
+        <section class="home-section">
+          <h3 class="home-label">Next event</h3>
+          <div v-if="nextEvent" class="next-event">
+            <button class="next-event__info" @click="openManageDialog(nextEvent)">
+              <span class="date-chip">
+                <small>{{ extractMonth(nextEvent.event_date, userTimezone) }}</small>
+                <strong>{{ extractDay(nextEvent.event_date, userTimezone) }}</strong>
+              </span>
+              <span class="event-text">
+                <strong>{{ nextEvent.store_name }}</strong>
+                <small>{{ extractTime(nextEvent.event_date, userTimezone) }} · {{ nextEvent.scenario }}</small>
+              </span>
+            </button>
+            <div class="next-event__actions">
+              <button @click="openManageDialog(nextEvent)"><v-icon size="18">mdi-account-group</v-icon> Manage</button>
+              <button @click="router.push('/assembly-tutorial')"><v-icon size="18">mdi-table-furniture</v-icon> Table</button>
+            </div>
           </div>
+          <button v-else class="host-card" @click="goToEventsPageAndCreate">
+            <v-icon size="30">mdi-calendar-star</v-icon>
+            <span class="event-text">
+              <strong>Host your Drunagor Nights</strong>
+              <small>No events scheduled. Create your first one.</small>
+            </span>
+            <v-icon>mdi-plus-circle</v-icon>
+          </button>
+        </section>
 
-          <div v-else class="d-flex fill-height align-center justify-center">
-            <v-card
-              color="transparent"
-              flat
-              class="text-center d-flex align-center justify-center flex-column"
-              :class="display.xs ? 'pa-2' : 'pa-6'"
-            >
-              <div
-                class="icon-circle-container"
-                :class="display.xs ? 'mb-3' : 'mb-6'"
-                :style="display.xs ? 'width: 80px; height: 80px;' : ''"
-              >
-                <div class="pulse-ring"></div>
-                <v-icon :size="display.xs ? 50 : 80" color="#118D8E"
-                  >mdi-calendar-star</v-icon
-                >
-              </div>
-
-              <h2
-                :class="display.xs ? 'text-subtitle-1' : 'text-h5'"
-                class="font-weight-bold text-white mb-1"
-              >
-                Host Your Drunagor Nights
-              </h2>
-              <p
-                :class="display.xs ? 'text-caption mb-4' : 'text-body-1 mb-8'"
-                class="text-grey-lighten-1"
-              >
-                No events scheduled at the moment.
-              </p>
-
-              <v-btn
-                color="#118D8E"
-                :size="display.xs ? 'large' : 'x-large'"
-                variant="elevated"
-                class="fancy-btn text-white font-weight-black"
-                :class="display.xs ? 'px-6' : 'px-12'"
-                elevation="12"
-                @click="goToEventsPageAndCreate"
-              >
-                <v-icon start class="mr-2">mdi-plus-thick</v-icon>
-                CREATE NEW EVENT
-              </v-btn>
-            </v-card>
+        <!-- Quick actions -->
+        <section class="home-section">
+          <div class="shortcuts">
+            <button v-for="item in shortcuts" :key="item.label" class="shortcut" @click="item.action()">
+              <v-icon size="24">{{ item.icon }}</v-icon>
+              <span>{{ item.label }}</span>
+            </button>
           </div>
-        </div>
-      </div>
+        </section>
+
+        <!-- The rest of your upcoming events -->
+        <section v-if="laterEvents.length" class="home-section">
+          <div class="home-label-row">
+            <h3 class="home-label">Upcoming events</h3>
+            <button class="home-link" @click="router.push('/events')">See all</button>
+          </div>
+          <div class="event-list">
+            <button v-for="event in laterEvents" :key="event.events_pk" class="event-row" @click="openManageDialog(event)">
+              <span class="date-chip">
+                <small>{{ extractMonth(event.event_date, userTimezone) }}</small>
+                <strong>{{ extractDay(event.event_date, userTimezone) }}</strong>
+              </span>
+              <span class="event-text">
+                <strong>{{ event.store_name }}</strong>
+                <small>{{ extractTime(event.event_date, userTimezone) }} · {{ event.scenario }}</small>
+              </span>
+              <img v-if="getSeasonInfo(event.seasons_fk).flag" :src="getSeasonInfo(event.seasons_fk).flag || undefined" alt="" class="event-row__flag" />
+            </button>
+          </div>
+        </section>
+      </template>
     </div>
 
     <ManageEventDialog
@@ -443,6 +343,17 @@ const upcomingRetailerEventsPreview = computed(() => {
     .sort((a, b) => new Date(a.event_date) - new Date(b.event_date))
     .slice(0, 3);
 });
+
+const nextEvent = computed(() => upcomingRetailerEventsPreview.value[0] || null);
+const laterEvents = computed(() => upcomingRetailerEventsPreview.value.slice(1, 6));
+
+// Quick actions for running Drunagor Nights.
+const shortcuts = [
+  { label: "New event", icon: "mdi-calendar-plus", action: () => goToEventsPageAndCreate() },
+  { label: "Library", icon: "mdi-bookshelf", action: () => router.push("/library") },
+  { label: "OP Kit", icon: "mdi-package-variant-closed", action: () => router.push("/box-assembly-guide") },
+  { label: "Guide", icon: "mdi-school-outline", action: () => router.push("/retailer-tutorial") },
+];
 
 const getSeasonInfo = (fk) => {
   if (fk == 2) return { flag: s1flag, name: "Season 1" };
@@ -803,5 +714,285 @@ onMounted(async () => {
     transform: scale(1);
     opacity: 1;
   }
+}
+/* Retailer home feed (same look as the player home) */
+.home-feed {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.home-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 2px 16px;
+  font-family: "Poppins", sans-serif;
+}
+.home-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+.home-section {
+  margin-bottom: 18px;
+}
+.home-label {
+  margin: 0 0 8px 2px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.home-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.home-link {
+  color: rgb(var(--v-theme-accent));
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.home-empty {
+  padding: 16px;
+  font-size: 0.85rem;
+  text-align: center;
+  opacity: 0.6;
+}
+/* Continue */
+.continue-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.continue-card:active {
+  transform: scale(0.99);
+}
+.continue-card__art {
+  display: block;
+  width: 100%;
+  height: 104px;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.continue-card__body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+.continue-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.continue-card__text strong {
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.continue-card__text small {
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.65;
+}
+.continue-card__party {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+.continue-card__party .v-avatar {
+  margin-left: -6px;
+  border: 2px solid rgb(var(--v-theme-primary));
+}
+.continue-card__go {
+  margin-left: 8px;
+  color: rgb(var(--v-theme-accent));
+  font-size: 30px !important;
+}
+.continue-card--empty {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-style: dashed;
+}
+.continue-card--empty .continue-card__text small {
+  white-space: normal;
+}
+/* Next event */
+.next-event {
+  display: flex;
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+.next-event__info {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: left;
+}
+.next-event__join {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 16px;
+  background: #4f9a4b;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.date-chip {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 52px;
+  background: #f2efe8;
+  border-radius: 10px;
+  color: #1a1a1a;
+  line-height: 1;
+}
+.date-chip small {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.date-chip strong {
+  font-family: "Cinzel", serif;
+  font-size: 1.35rem;
+}
+.event-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.event-text strong,
+.event-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.event-text strong {
+  font-size: 0.92rem;
+}
+.event-text small {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+.event-text__muted {
+  opacity: 0.5 !important;
+}
+/* Shortcuts */
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 66px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.shortcut .v-icon {
+  color: rgb(var(--v-theme-accent));
+}
+/* Events near you */
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.event-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 44px 10px 10px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  text-align: left;
+}
+.event-row__flag {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  width: 22px;
+}
+.event-status {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.next-event {
+  flex-direction: column;
+}
+.next-event__actions {
+  display: flex;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.next-event__actions button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 42px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.next-event__actions button + button {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.next-event__actions button:first-child {
+  background: #118d8e;
+  color: #fff;
+}
+.host-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px;
+  background: rgb(var(--v-theme-primary));
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  text-align: left;
+}
+.host-card .v-icon:last-child {
+  color: #118d8e;
+  font-size: 30px !important;
 }
 </style>
