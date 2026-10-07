@@ -1213,6 +1213,23 @@ function getMonsterStorageKey(doorName: string, index: number) {
 function getMonsterConfigForCurrentDoor(wing: string, doorName: string): MonsterSlot[] {
   const isWing1 = wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 01");
   const isWing2 = wing.includes("WING 2") || wing.includes("WING 02");
+
+  // Wing 1 Tutorial has its own Tutorial Monsters (same maps as Advanced).
+  if (wing.includes("TUTORIAL")) {
+    const fixed = (...cards: string[]) => cards.map((card) => ({ type: card, isRandom: false, fixedValue: card }));
+    switch (doorName) {
+      case "FIRST SETUP":
+        return fixed("tut_vampire");
+      case "THE BARRICADED PATH (TUTORIAL)":
+        return fixed("tut_archer", "tut_rotten");
+      case "THE KEEP'S COURTYARD (TUTORIAL)":
+        return fixed("tut_fallen_guardian");
+      case "THE GREAT HALL (TUTORIAL)":
+        return fixed("tut_cultist", "tut_reaper");
+      default:
+        return [];
+    }
+  }
   
   if (isWing1) {
     switch (doorName) {
@@ -1406,6 +1423,9 @@ const currentMonsters = computed(() => {
   return [];
 });
 
+// Tutorial maps, if added under campaign_background/wing1tutorial (same file names as wing1).
+const TUTORIAL_MAPS = import.meta.glob("../assets/campaign_background/wing1tutorial/*.png", { eager: true, import: "default" }) as Record<string, string>;
+
 const currentBackgroundImage = computed(() => {
   const wing = (activeCampaignData.value.wing || '').toUpperCase();
   const door = (activeCampaignData.value.door || '').toUpperCase();
@@ -1492,6 +1512,11 @@ const currentBackgroundImage = computed(() => {
       "seventh_door",
     ];
     doorFile = doorMap[idx] || "setup";
+  }
+  // Wing 1 Tutorial uses its own maps (tutorial monster markers) when they exist.
+  if (wing.includes("TUTORIAL")) {
+    const tutorialMap = TUTORIAL_MAPS[`../assets/campaign_background/wing1tutorial/wing1tutorial.${doorFile}.png`];
+    if (tutorialMap) return tutorialMap;
   }
   try {
     return new URL(
