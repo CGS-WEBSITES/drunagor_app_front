@@ -33,13 +33,22 @@
           :items="wingOptions"
           item-title="displayName"
           item-value="sceneries_pk"
+          item-props="props"
           placeholder="Choose the wing"
           variant="solo"
           density="compact"
           flat
           hide-details
           class="event-form__field"
-        />
+        >
+          <template #item="{ props: itemProps, item }">
+            <v-list-item v-bind="itemProps" :title="item.raw.displayName">
+              <template v-if="item.raw.locked" #append>
+                <v-icon size="18" title="Not available yet">mdi-lock</v-icon>
+              </template>
+            </v-list-item>
+          </template>
+        </v-select>
 
         <div class="event-form__row">
           <div>
@@ -81,6 +90,7 @@
               <span>Given to the players who finish the {{ wingLabel(form.scenario) }}.</span>
             </div>
           </template>
+          <span v-else-if="form.scenario" class="event-form__hint">This wing has no reward.</span>
           <span v-else class="event-form__hint">Pick a wing to see its reward.</span>
         </div>
 
@@ -112,10 +122,13 @@ const userStore = useUserStore();
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("accessToken")}` });
 
 // Retailer wings and the season each belongs to.
-const WING_SEASON = { 3: 2, 4: 2, 5: 3, 6: 3 };
+const WING_SEASON = { 2: 2, 3: 2, 4: 2, 5: 3, 6: 3 };
 const WING_LABELS = { 2: "Wing 1 Tutorial", 3: "Wing 1 Advanced", 4: "Wing 2 Advanced", 5: "Wing 3", 6: "Wing 4" };
 // The reward players get for each wing.
-const WING_REWARD = { 2: 2, 3: 2, 4: 3, 5: 5, 6: 6 };
+// Wing 1 Tutorial gives "Tutorial Completed"; Wing 1 Advanced gives none.
+const WING_REWARD = { 2: 2, 4: 3, 5: 5, 6: 6 };
+// Wings 3 and 4 can't be picked for new events yet.
+const LOCKED_WINGS = [5, 6];
 
 const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
 const minuteOptions = ["00", "15", "30", "45"];
@@ -146,7 +159,10 @@ const wingOptions = computed(() => {
     .map((s) => ({
       ...s,
       displayName: WING_LABELS[s.sceneries_pk] ? `${WING_LABELS[s.sceneries_pk]} - ${s.name}` : s.name,
-    }));
+      // An event already on a locked wing keeps it.
+      locked: LOCKED_WINGS.includes(s.sceneries_pk) && s.sceneries_pk !== props.event?.sceneries_fk,
+    }))
+    .map((s) => ({ ...s, props: { disabled: s.locked } }));
   return options;
 });
 
