@@ -650,7 +650,15 @@ const availableVolumes = computed<Volume[]>(() => {
       data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) 
     });
   } else {
-    // Outside a campaign (e.g. the retailer Help) every book but the Wing 1 Tutorial one.
+    // Outside a campaign (e.g. the retailer Help) every book.
+    vols.push({ 
+      id: 'wing_1_tutorial', 
+      title: 'Wing 1 Tutorial', 
+      subtitle: 'Campaign Book', 
+      icon: 'mdi-book-open-variant', 
+      type: 'story', 
+      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL")) 
+    });
     vols.push({ 
       id: 'wing_1_advanced', 
       title: 'Wing 1 Advanced', 
