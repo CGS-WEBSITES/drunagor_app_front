@@ -582,20 +582,36 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="instructionsDialogVisible" max-width="900" scrollable>
+    <!-- A tutorial mentioned in the rules, read right there. -->
+    <v-dialog v-model="tutorialPopup.visible" max-width="680" scrollable>
+      <v-card v-if="tutorialPopup.tutorial" class="tutorial-popup rounded-xl">
+        <div class="rules-head">
+          <div>
+            <small>Tutorial</small>
+            <strong>{{ tutorialPopup.tutorial.name }}</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="tutorialPopup.visible = false"></v-btn>
+        </div>
+        <v-card-text class="tutorial-popup__body" v-html="tutorialPopup.tutorial.body"></v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="instructionsDialogVisible" max-width="760" scrollable>
       <v-card class="book-style-card rounded-xl overflow-hidden">
-        <v-toolbar color="#10594f" density="compact" class="px-2">
-          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorData?.title?.toUpperCase() }} - RULES</v-toolbar-title>
-          <v-spacer></v-spacer>
+        <div class="rules-head">
+          <div>
+            <small>Rules</small>
+            <strong>{{ doorDisplayName(currentDoorData?.title) }}</strong>
+          </div>
           <v-btn icon="mdi-close" variant="text" color="white" @click="instructionsDialogVisible = false"></v-btn>
-        </v-toolbar>
-        
+        </div>
+
         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">
-          <v-container fluid v-if="currentDoorData">
-            
+          <v-container fluid v-if="currentDoorData" class="pa-0">
+
             <v-row>
                 <v-col cols="12">
-                    <div v-if="currentDoorData.instruction" v-html="currentDoorData.instruction" class="instruction-box"></div>
+                    <div v-if="currentDoorData.instruction" v-html="withTutorialLinks(currentDoorData.instruction)" class="rules-body" @click="onRulesClick"></div>
                     <div v-else class="text-center pa-10 text-grey font-italic">No specific rules required at this time.</div>
                 </v-col>
             </v-row>
@@ -913,6 +929,7 @@ import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
 
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
+import playerTutorialsData from "@/data/book/playerTutorials.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -1009,6 +1026,56 @@ const keywordsDialog = ref({ visible: false });
 const doorScannerDialog = ref({ visible: false });
 const narrativeDialogVisible = ref(false);
 const instructionsDialogVisible = ref(false);
+
+// Tutorials the door rules point to ("Read 'Tutorial – Commanders'…"), opened in a pop-up.
+const TUTORIAL_ALIASES: Record<string, string> = {
+  "monsters with multiple targets": "multi target monsters",
+  "minor action": "minor actions",
+  "darkness nodes tie breaker": "darkness nodes and tie breakers",
+  "learning class skills": "learning class abilities",
+};
+const tutorialKey = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/^\s*tutorial\s*[-–]\s*/, "")
+    .replace(/&amp;|&/g, " ")
+    .replace(/[^a-z ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+const TUTORIALS = new Map<string, { name: string; body: string }>(
+  (playerTutorialsData as any).chapters.flatMap((chapter: any) =>
+    chapter.tutorials.map((tutorial: any) => {
+      const name = tutorial.title.replace(/^TUTORIAL\s*[-–]\s*/i, "");
+      return [tutorialKey(name).replace(/\band\b /g, "and "), { name, body: tutorial.bodyHTML }];
+    }),
+  ),
+);
+const findTutorial = (text: string) => {
+  const key = tutorialKey(text);
+  return TUTORIALS.get(key) ?? TUTORIALS.get(TUTORIAL_ALIASES[key] ?? "") ?? null;
+};
+// 'Name' in the rules becomes a button when it names a tutorial.
+const withTutorialLinks = (html: string) =>
+  html.replace(/‘([^’]+?)’/g, (whole, inner) => {
+    const clean = inner.replace(/[,.]\s*$/, "");
+    const tutorial = findTutorial(clean);
+    if (!tutorial) return whole;
+    const trailing = inner.slice(clean.length);
+    return `<button type="button" class="tutorial-link" data-tutorial="${tutorialKey(tutorial.name)}"><i class="mdi mdi-school-outline"></i>${tutorial.name}</button>${trailing}`;
+  });
+const tutorialPopup = ref<{ visible: boolean; tutorial: { name: string; body: string } | null }>({ visible: false, tutorial: null });
+const onRulesClick = (event: MouseEvent) => {
+  const link = (event.target as HTMLElement).closest<HTMLElement>(".tutorial-link");
+  if (!link) return;
+  const tutorial = findTutorial(link.dataset.tutorial || "");
+  if (tutorial) tutorialPopup.value = { visible: true, tutorial };
+};
+// "THE KEEP'S COURTYARD (TUTORIAL)" → "The Keep's Courtyard".
+const doorDisplayName = (title?: string) =>
+  (title || "")
+    .replace(/\s*\(TUTORIAL\)\s*$/i, "")
+    .toLowerCase()
+    .replace(/(^|[\s-])([a-z])/g, (m, sep, ch) => sep + ch.toUpperCase());
 const openingDoorDialogVisible = ref(false);
 const zoomDialog = ref({ visible: false, image: "" });
 
@@ -3644,5 +3711,116 @@ watch(
     width: 46px !important;
     height: 68px !important;
   }
+}
+
+/* Rules and tutorial dialogs */
+.rules-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 8px 12px 20px;
+  background: #10594f;
+  color: #fff;
+}
+.rules-head > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.rules-head small {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.rules-head strong {
+  font-family: "Cinzel", serif;
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+/* The stored rules come as one grey box with red titles: show them as clean sections. */
+.rules-body :deep(> div) {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 400 !important;
+}
+.rules-body :deep(div[style*="color: red"]) {
+  margin: 18px 0 6px !important;
+  padding-left: 10px;
+  border-left: 3px solid #b3261e;
+  color: #8e1c16 !important;
+  font-size: 0.78rem;
+  font-weight: 800 !important;
+  letter-spacing: 0.6px;
+}
+.rules-body :deep(div[style*="color: red"]:first-child) {
+  margin-top: 0 !important;
+}
+.rules-body :deep(div[style*="#1a120f"]) {
+  margin-bottom: 0 !important;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  color: #2a211c !important;
+  font-size: 0.95rem;
+  font-weight: 500 !important;
+  line-height: 1.6;
+}
+.rules-body :deep(strong) {
+  font-weight: 700;
+}
+.rules-body :deep(.tutorial-link) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 2px;
+  padding: 2px 10px;
+  background: #10594f;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.6;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.rules-body :deep(.tutorial-link:hover) {
+  filter: brightness(1.2);
+}
+.tutorial-popup {
+  background: #f6f1e6 !important;
+}
+.tutorial-popup__body {
+  max-height: 75vh;
+  padding: 18px 22px !important;
+  color: #212121;
+  font-family: "EB Garamond", serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+.tutorial-popup__body :deep(ul) {
+  margin: 6px 0 10px;
+  padding-left: 22px;
+}
+.tutorial-popup__body :deep(li) {
+  margin-bottom: 6px;
+}
+.tutorial-popup__body :deep(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 12px auto;
+}
+.tutorial-popup__body :deep(img.inline-icon) {
+  display: inline-block;
+  height: 1.1em;
+  margin: 0 3px;
+  vertical-align: middle;
 }
 </style>
