@@ -1,324 +1,130 @@
 <template>
-  <v-card color="primary" class="fill-height d-flex flex-column w-100">
-    <v-tabs
-      v-model="activeTab"
-      bg-color="background"
-      grow
-      class="flex-grow-0 mb-3"
-    >
-      <v-tab value="upcoming">Events</v-tab>
-      <v-tab value="myevents">My Events</v-tab>
-    </v-tabs>
-
-    <div class="flex-grow-1 mt-2 content-scroll" style="overflow-y: auto">
-      <div
-        v-if="activeTab === 'upcoming'"
-        class="px-2 py-3 fill-height d-flex flex-column"
-      >
-        <div
-          v-if="loading"
-          class="d-flex justify-center align-center"
-          style="height: 200px"
-        >
-          <v-progress-circular indeterminate color="primary" />
-        </div>
-        <div v-else class="d-flex flex-column flex-grow-1">
-          <div v-if="upcomingEventsPreviewSliced.length > 0 || recentCampaign">
-            <v-row dense class="mx-n1">
-              <!-- Recent Campaign Card (Image 1 style: Heroes for Core/Apoc/Awak, Players for Underkeep) -->
-              <v-col
-                v-if="recentCampaign"
-                cols="12"
-                md="6"
-                class="px-1 py-1"
-              >
-                <v-card
-                  color="#1a1d24"
-                  elevation="6"
-                  class="cursor-pointer transition-swing rounded-lg overflow-hidden h-100 d-flex flex-column justify-space-between event-card"
-                  style="border: 1px solid rgba(255, 255, 255, 0.15); min-height: 96px;"
-                  @click="resumeRecentCampaign"
-                >
-                  <!-- Full-width Campaign Banner -->
-                  <v-img
-                    :src="getCampaignBanner(recentCampaign.campaign)"
-                    height="64"
-                    cover
-                    class="w-100"
-                  ></v-img>
-
-                  <!-- Bottom Bar: Party Name + Heroes (or Players if Underkeep) -->
-                  <div class="py-2 px-3 bg-grey-darken-4 text-white font-weight-bold text-subtitle-2 d-flex align-center justify-space-between flex-wrap" style="letter-spacing: 0.5px; height: 38px;">
-                    <span class="text-truncate mr-2 font-weight-bold text-subtitle-2" style="max-width: 170px;">
-                      {{ recentCampaign.name }}
-                    </span>
-
-                    <!-- Core / Apocalypse / Awakenings: Show HEROES -->
-                    <div v-if="!isUnderkeep && recentCampaignHeroes.length > 0" class="d-flex align-center gap-1">
-                      <v-avatar
-                        v-for="(hero, idx) in recentCampaignHeroes.slice(0, 4)"
-                        :key="idx"
-                        size="24"
-                        style="border: 1px solid rgba(255, 255, 255, 0.3);"
-                      >
-                        <v-img :src="hero.images.avatar" cover />
-                      </v-avatar>
-                    </div>
-
-                    <!-- Underkeep: Show PLAYERS -->
-                    <div v-else-if="isUnderkeep && recentCampaignPlayers.length > 0" class="d-flex align-center gap-1">
-                      <v-avatar
-                        v-for="(player, idx) in recentCampaignPlayers.slice(0, 4)"
-                        :key="idx"
-                        size="24"
-                        color="grey-darken-3"
-                        style="border: 1px solid rgba(255, 255, 255, 0.3);"
-                      >
-                        <v-img v-if="player.avatar" :src="player.avatar" cover />
-                        <span v-else class="text-caption font-weight-bold">{{ (player.name || 'P')[0].toUpperCase() }}</span>
-                      </v-avatar>
-                    </div>
-                  </div>
-                </v-card>
-              </v-col>
-
-              <v-col
-                cols="12"
-                md="6"
-                v-for="event in upcomingEventsPreviewSliced"
-                :key="event.events_pk"
-                class="px-1 py-1"
-              >
-                <v-card
-                  color="terciary"
-                  class="pt-0 pb-2 event-card"
-                  @click="openDialog(event)"
-                >
-                  <v-img
-                    v-if="getSeasonInfo(event.seasons_fk).flag"
-                    :src="getSeasonInfo(event.seasons_fk).flag"
-                    class="season-flag"
-                  />
-                  <v-row no-gutters align="center" class="flex-nowrap w-100">
-                    <v-col cols="auto" class="d-flex justify-center px-1">
-                      <div
-                        class="text-center"
-                        style="width: 70px; color: black"
-                      >
-                        <p
-                          class="pt-3 text-caption font-weight-bold"
-                          style="line-height: 1.2"
-                        >
-                          {{ extractMonth(event.event_date, userTimezone) }}
-                        </p>
-                        <p
-                          class="cinzel-text text-h4 font-weight-bold my-1"
-                          style="line-height: 1"
-                        >
-                          {{ extractDay(event.event_date, userTimezone) }}
-                        </p>
-                        <p
-                          class="text-caption font-weight-bold"
-                          style="line-height: 1.2; font-size: 11px !important"
-                        >
-                          {{ extractTime(event.event_date, userTimezone) }}
-                        </p>
-                      </div>
-                    </v-col>
-
-                    <v-col
-                      class="py-2 pl-2"
-                      style="min-width: 0; padding-right: 55px !important"
-                    >
-                      <h3
-                        class="pb-1 text-subtitle-1 font-weight-bold text-truncate"
-                        style="line-height: 1.2"
-                      >
-                        <v-icon class="pr-1" size="small" color="black"
-                          >mdi-chess-rook</v-icon
-                        >
-                        {{ event.store_name }}
-                      </h3>
-                      <p
-                        class="text-caption text-truncate mb-1"
-                        style="line-height: 1.2"
-                      >
-                        <v-icon color="red" size="small">mdi-map-marker</v-icon>
-                        {{ event.address }}
-                      </p>
-                      <p
-                        class="text-caption text-truncate mb-0"
-                        style="line-height: 1.2"
-                      >
-                        <v-icon color="red" size="small"
-                          >mdi-sword-cross</v-icon
-                        >
-                        {{ event.scenario }}
-                      </p>
-                      <p class="text-caption text-truncate mb-0" v-if="event.rewards?.length" style="line-height: 1.2">
-                        <v-icon color="red" size="small">mdi-star-circle</v-icon>
-                        Rewards:
-                        <span v-for="(reward, i) in event.rewards" :key="i" class="d-inline-flex align-center ml-1">
-                          <img :src="reward.image" height="14" width="14" style="object-fit: contain;" />
-                        </span>
-                      </p>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-            </v-row>
-            <v-btn
-              v-if="upcomingEventsPreview.length >= itemsLimit"
-              block
-              color="white"
-              class="text-black mt-2 see-all-btn"
-              @click="goToEvents"
-              >See all events</v-btn
-            >
-          </div>
-          <div v-else class="d-flex fill-height align-center justify-center">
-            <v-card
-              color="transparent"
-              flat
-              class="text-center pa-5 fill-height d-flex align-center justify-center"
-            >
-              <p>No upcoming events at the moment.</p>
-            </v-card>
-          </div>
-        </div>
+  <v-card color="primary" class="home-feed fill-height d-flex flex-column w-100">
+    <div class="home-scroll">
+      <div v-if="loading" class="home-skeleton" aria-label="Loading">
+        <span class="home-skeleton__hero"></span>
+        <span class="home-skeleton__grid"><i></i><i></i><i></i><i></i></span>
+        <span class="home-skeleton__row"></span>
+        <span class="home-skeleton__row"></span>
       </div>
 
-      <div v-else class="px-2 py-3 fill-height d-flex flex-column">
-        <div
-          v-if="loading"
-          class="d-flex justify-center align-center"
-          style="height: 200px"
-        >
-          <v-progress-circular indeterminate color="primary" />
-        </div>
-        <div v-else class="d-flex flex-column flex-grow-1">
-          <div v-if="myEventsPreviewSliced.length > 0">
-            <v-row dense class="mx-n1">
-              <v-col
-                cols="12"
-                md="6"
-                v-for="event in myEventsPreviewSliced"
-                :key="event.events_pk"
-                class="px-1"
-              >
-                <v-card
-                  color="terciary"
-                  class="pt-0 pb-2 event-card"
-                  @click="openMyEventsDialog(event)"
-                >
-                  <v-img
-                    v-if="getSeasonInfo(event.seasons_fk).flag"
-                    :src="getSeasonInfo(event.seasons_fk).flag"
-                    class="season-flag"
-                  />
-                  <v-row no-gutters align="center" class="flex-nowrap w-100">
-                    <v-col cols="auto" class="d-flex justify-center px-1">
-                      <div
-                        class="text-center"
-                        style="width: 70px; color: black"
-                      >
-                        <p
-                          class="pt-3 text-caption font-weight-bold"
-                          style="line-height: 1.2"
-                        >
-                          {{ extractMonth(event.event_date, userTimezone) }}
-                        </p>
-                        <p
-                          class="cinzel-text text-h4 font-weight-bold my-1"
-                          style="line-height: 1"
-                        >
-                          {{ extractDay(event.event_date, userTimezone) }}
-                        </p>
-                        <p
-                          class="text-caption font-weight-bold"
-                          style="line-height: 1.2; font-size: 11px !important"
-                        >
-                          {{ extractTime(event.event_date, userTimezone) }}
-                        </p>
-                      </div>
-                    </v-col>
-                    <v-col
-                      class="py-2 pl-2"
-                      style="min-width: 0; padding-right: 55px !important"
-                    >
-                      <h3
-                        class="pb-1 text-subtitle-1 font-weight-bold text-truncate"
-                        style="line-height: 1.2"
-                      >
-                        <v-icon class="pr-1" size="small" color="black"
-                          >mdi-chess-rook</v-icon
-                        >
-                        {{ event.store_name }}
-                      </h3>
-                      <p
-                        class="text-caption text-truncate mb-1"
-                        style="line-height: 1.2"
-                      >
-                        <v-icon color="red" size="small">mdi-map-marker</v-icon>
-                        {{ event.address }}
-                      </p>
-                      <p
-                        class="text-caption text-truncate"
-                        style="line-height: 1.2"
-                      >
-                        <v-icon color="red" size="small"
-                          >mdi-sword-cross</v-icon
-                        >
-                        {{ event.scenario }}
-                      </p>
-                    </v-col>
-                  </v-row>
-                  <div
-                    style="
-                      position: absolute;
-                      bottom: 8px;
-                      right: 8px;
-                      z-index: 3;
-                    "
-                  >
-                    <v-tooltip
-                      :text="getEventStatusInfo(event.status).tooltip"
-                      location="top"
-                    >
-                      <template #activator="{ props }">
-                        <v-icon
-                          v-bind="props"
-                          :color="getEventStatusInfo(event.status).color"
-                          size="large"
-                        >
-                          {{ getEventStatusInfo(event.status).icon }}
-                        </v-icon>
-                      </template>
-                    </v-tooltip>
-                  </div>
-                </v-card>
-              </v-col>
-            </v-row>
-            <v-btn
-              v-if="myEventsPreview.length >= itemsLimit"
-              block
-              color="white"
-              class="text-black mt-2 see-all-btn"
-              @click="goToEvents"
-              >See all events</v-btn
-            >
+      <template v-else>
+        <!-- Continue: the last campaign, whatever box it is. -->
+        <section class="home-section">
+          <button v-if="recentCampaign" class="continue-card" @click="resumeRecentCampaign">
+            <span class="continue-card__media">
+              <img :src="getCampaignBanner(recentCampaign.campaign) || ''" alt="" class="continue-card__art" />
+            </span>
+            <span class="continue-card__body">
+              <span class="continue-card__text">
+                <strong>{{ recentCampaign.name }}</strong>
+                <span class="box-mark">
+                  <img v-if="campaignMark(recentCampaign.campaign).symbol" :src="campaignMark(recentCampaign.campaign).symbol" alt="" />
+                  {{ campaignMark(recentCampaign.campaign).label }}
+                </span>
+                <small v-if="isUnderkeep && (recentCampaign.wing || recentCampaign.door)">
+                  {{ [recentCampaign.wing, recentCampaign.door].filter(Boolean).join(" · ") }}
+                </small>
+              </span>
+              <span v-if="isUnderkeep" class="continue-card__percent">{{ recentProgress }}%</span>
+              <v-icon class="continue-card__go">mdi-play-circle</v-icon>
+            </span>
+            <v-progress-linear v-if="isUnderkeep" :model-value="recentProgress" color="accent" height="3" />
+            <!-- The party: each player with their hero on Nights, the heroes otherwise. -->
+            <span v-if="isUnderkeep ? recentPartyPlayers.length : recentCampaignHeroes.length" class="party-row">
+              <template v-if="isUnderkeep">
+                <span v-for="(player, idx) in recentPartyPlayers.slice(0, 5)" :key="idx" class="party-hero">
+                  <img v-if="player.avatar" :src="player.avatar" alt="" />
+                  <v-icon v-else size="26" class="opacity-40">mdi-help</v-icon>
+                  <span class="party-hero__nick">{{ player.name }}</span>
+                </span>
+              </template>
+              <template v-else>
+                <span v-for="(hero, idx) in recentCampaignHeroes.slice(0, 5)" :key="idx" class="party-hero">
+                  <img :src="hero.images.avatar" :alt="hero.name" :title="hero.name" />
+                </span>
+              </template>
+            </span>
+          </button>
+          <button v-else class="continue-card continue-card--empty" @click="router.push('/campaign-tracker/')">
+            <v-icon size="28">mdi-sword-cross</v-icon>
+            <span class="continue-card__text">
+              <strong>Start your first adventure</strong>
+              <small>Tap Play to join a Drunagor Night, or open your campaigns.</small>
+            </span>
+          </button>
+        </section>
+
+        <!-- The next event you signed up for. -->
+        <section v-if="myEventsPreview.length" class="home-section">
+          <h3 class="home-label">Your next event</h3>
+          <div class="next-event">
+            <button class="next-event__info" @click="openMyEventsDialog(myEventsPreview[0])">
+              <span class="date-chip">
+                <small>{{ extractMonth(myEventsPreview[0].event_date, userTimezone) }}</small>
+                <strong>{{ extractDay(myEventsPreview[0].event_date, userTimezone) }}</strong>
+              </span>
+              <span class="event-text">
+                <strong>{{ myEventsPreview[0].store_name }}</strong>
+                <small>{{ extractTime(myEventsPreview[0].event_date, userTimezone) }} · {{ myEventsPreview[0].scenario }}</small>
+                <small class="event-status">
+                  <v-icon size="14" :color="getEventStatusInfo(myEventsPreview[0].status).color">{{ getEventStatusInfo(myEventsPreview[0].status).icon }}</v-icon>
+                  {{ myEventsPreview[0].status }}
+                </small>
+              </span>
+            </button>
+            <button class="next-event__join" @click="showJoinTable = true">
+              <v-icon size="20">mdi-qrcode-scan</v-icon> Join table
+            </button>
           </div>
-          <div v-else class="d-flex fill-height align-center justify-center">
-            <v-card
-              color="transparent"
-              flat
-              class="text-center pa-5 fill-height d-flex align-center justify-center"
-            >
-              <p>You have no upcoming events.</p>
-            </v-card>
+        </section>
+
+        <!-- Everything else the app does. -->
+        <section class="home-section">
+          <div class="shortcuts">
+            <button v-for="item in shortcuts" :key="item.label" class="shortcut" @click="router.push(item.to)">
+              <v-icon size="24">{{ item.icon }}</v-icon>
+              <span>{{ item.label }}</span>
+            </button>
           </div>
-        </div>
-      </div>
+        </section>
+
+        <!-- Events near you -->
+        <section class="home-section">
+          <h3 class="home-label">Events</h3>
+          <div v-if="nearbyEvents.length" class="event-list">
+            <button v-for="event in nearbyEvents" :key="event.events_pk" class="event-row" @click="openDialog(event)">
+              <span class="date-chip">
+                <small>{{ extractMonth(event.event_date, userTimezone) }}</small>
+                <strong>{{ extractDay(event.event_date, userTimezone) }}</strong>
+              </span>
+              <span class="event-text">
+                <strong>{{ event.store_name }}</strong>
+                <small>{{ extractTime(event.event_date, userTimezone) }} · {{ event.scenario }}</small>
+                <small class="event-text__muted">{{ event.address }}</small>
+              </span>
+              <img v-if="getSeasonInfo(event.seasons_fk).flag" :src="getSeasonInfo(event.seasons_fk).flag || undefined" alt="" class="event-row__flag" />
+            </button>
+            <!-- One more event, blurred, as the way to the full list. -->
+            <button v-if="teaserEvent" class="event-row event-row--teaser" @click="goToEvents">
+              <span class="event-row__blur">
+                <span class="date-chip">
+                  <small>{{ extractMonth(teaserEvent.event_date, userTimezone) }}</small>
+                  <strong>{{ extractDay(teaserEvent.event_date, userTimezone) }}</strong>
+                </span>
+                <span class="event-text">
+                  <strong>{{ teaserEvent.store_name }}</strong>
+                  <small>{{ teaserEvent.scenario }}</small>
+                </span>
+              </span>
+              <span class="event-row__more">See more events <v-icon size="18">mdi-arrow-right</v-icon></span>
+            </button>
+          </div>
+          <button v-else class="event-row event-row--teaser event-row--empty" @click="goToEvents">
+            <span class="event-row__more">Find events near you <v-icon size="18">mdi-arrow-right</v-icon></span>
+          </button>
+        </section>
+      </template>
     </div>
 
     <v-dialog v-model="dialog" max-width="600">
@@ -498,16 +304,8 @@
                 />
               </v-col>
               <v-col cols="12" md="6" class="py-0">
-                <v-btn
-                  class="mb-4"
-                  block
-                  color="green"
-                  @click="showCampaignDialog = true"
-                  :disabled="
-                    !currentPlayer ||
-                    currentPlayer.event_status !== 'Joined the Quest'
-                  "
-                  >Join Campaign</v-btn
+                <v-btn class="mb-4" block color="green" prepend-icon="mdi-qrcode-scan" @click="showJoinTable = true"
+                  >Join table</v-btn
                 >
               </v-col>
               <v-col cols="12" md="6" class="py-0">
@@ -621,12 +419,16 @@
     </v-dialog>
 
     <v-dialog v-model="showCampaignDialog" max-width="320" persistent />
+    <!-- Join table: scan the QR Code or type the table code. -->
+    <HUB v-model="showJoinTable" />
   </v-card>
 </template>
 
 <script setup lang="ts">
+import HUB from "@/components/HUB.vue";
+import { campaignMark } from "@/utils/campaignMark";
+import { calculateCompletionPercentage } from "@/utils/campaignProgress";
 import { ref, computed, onMounted, inject, watch } from "vue";
-import { useDisplay } from "vuetify";
 import { useUserStore } from "@/store/UserStore";
 import { useRouter } from "vue-router";
 import BaseAlert from "@/components/Alerts/BaseAlert.vue";
@@ -637,7 +439,6 @@ import genconLogo from "@/assets/cgsblue.png";
 const router = useRouter();
 const userStore = useUserStore();
 const axios: any = inject("axios");
-const display = useDisplay();
 
 const activeTab = ref<"upcoming" | "myevents">("upcoming");
 const loading = ref(true);
@@ -665,6 +466,7 @@ const showQuitSuccessAlert = ref(false);
 const showQuitErrorAlert = ref(false);
 const quitErrorMessage = ref("");
 const showCampaignDialog = ref(false);
+const showJoinTable = ref(false);
 const showPlaytestDialog = ref(false);
 
 const isGenConActive = computed(() => false);
@@ -699,18 +501,6 @@ const myEventsPreview = computed(() => {
   return filtered.length > 0 ? filtered : myEvents.value;
 });
 
-const itemsLimit = computed(() => {
-  if (display.xs.value) return 4;
-  if (display.sm.value || display.md.value) return 5;
-  return 12;
-});
-
-const upcomingEventsPreviewSliced = computed(() =>
-  upcomingEventsPreview.value.slice(0, itemsLimit.value),
-);
-const myEventsPreviewSliced = computed(() =>
-  myEventsPreview.value.slice(0, itemsLimit.value),
-);
 
 const currentPlayer = computed(() => {
   if (!userStore.user?.users_pk) return null;
@@ -720,6 +510,24 @@ const currentPlayer = computed(() => {
 });
 
 const goToEvents = () => router.push({ name: "Events" });
+
+// Home shortcuts: the app is more than Drunagor Nights.
+const shortcuts = [
+  { label: "Campaigns", icon: "mdi-book-open-page-variant", to: "/campaign-tracker/" },
+  { label: "Keywords", icon: "mdi-book-search-outline", to: "/campaign-tracker/keyword" },
+  { label: "Library", icon: "mdi-bookshelf", to: "/library" },
+  { label: "Events", icon: "mdi-calendar-star", to: "/events" },
+];
+
+// Events near you, without the ones you already joined.
+const nearbyEvents = computed(() => {
+  const joined = new Set(myEvents.value.map((event: any) => event.events_pk));
+  return upcomingEventsPreview.value.filter((event: any) => !joined.has(event.events_pk)).slice(0, 3);
+});
+const teaserEvent = computed(() => {
+  const joined = new Set(myEvents.value.map((event: any) => event.events_pk));
+  return upcomingEventsPreview.value.filter((event: any) => !joined.has(event.events_pk))[3] || null;
+});
 
 const openInGoogleMaps = () => {
   const event = dialog.value ? selectedEvent.value : selectedMyEvent.value;
@@ -1026,6 +834,30 @@ const getCampaignBanner = (campType: string) => {
   return UnderkeepBanner;
 };
 
+const recentProgress = computed(() => (recentCampaign.value ? calculateCompletionPercentage(recentCampaign.value) : 0));
+const recentPartyPlayers = ref<{ name: string; avatar: string | null }[]>([]);
+const loadRecentPartyPlayers = async (campaignsFk: number | string) => {
+  try {
+    const { data } = await axios.get("/rl_campaigns_users/list_players", { params: { campaigns_fk: campaignsFk } });
+    recentPartyPlayers.value = await Promise.all(
+      (data.Users || []).map(async (player: any) => {
+        let avatar: string | null = null;
+        if (player.playable_heroes_fk) {
+          try {
+            const res = await axios.get(`/playable_heroes/${player.playable_heroes_fk}`);
+            avatar = heroRepo.find(JSON.parse(atob(res.data.hero_hash)).heroId)?.images?.avatar ?? null;
+          } catch {
+            avatar = null;
+          }
+        }
+        return { name: player.user_name || "Player", avatar };
+      }),
+    );
+  } catch {
+    recentPartyPlayers.value = [];
+  }
+};
+
 const resumeRecentCampaign = () => {
   if (!recentCampaign.value) return;
   router.push({ name: "Campaign", params: { id: recentCampaign.value.campaignId } });
@@ -1110,7 +942,16 @@ const loadRecentCampaign = async () => {
       };
     }
 
+    // The party's heroes are saved with the campaign, whatever the box.
+    const savedHeroes = (parsed?.heroes || [])
+      .map((h: any) => heroRepo.find(h.heroId || h.id))
+      .filter((h: any) => !!h && h.images?.avatar);
+    if (savedHeroes.length) {
+      recentCampaignHeroes.value = savedHeroes;
+    }
+
     if (isUnderkeep.value) {
+      loadRecentPartyPlayers(rawCamp.campaigns_fk);
       // Fetch PLAYERS for Underkeep
       try {
         const resP = await axios.get("/rl_campaigns_users/search", {
@@ -1143,7 +984,7 @@ const loadRecentCampaign = async () => {
         } catch (e) {}
       }
 
-      recentCampaignHeroes.value = avatars;
+      if (!savedHeroes.length) recentCampaignHeroes.value = avatars;
     }
   } catch (err) {
     console.error("Error loading recent campaign in DashboardEvents:", err);
@@ -1241,5 +1082,352 @@ onMounted(async () => {
 }
 .see-all-btn {
   padding: 16px 18px;
+}
+
+/* Home feed */
+.home-feed {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.home-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 0 16px;
+  font-family: "Poppins", sans-serif;
+}
+.home-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+.home-section {
+  margin-bottom: 16px;
+}
+.home-label {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+/* Every card shares one look, from the theme. */
+.continue-card,
+.next-event,
+.shortcut,
+.event-row {
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 14px;
+}
+/* Continue */
+.continue-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.15s ease;
+}
+.continue-card:active {
+  transform: scale(0.99);
+}
+.continue-card__media {
+  position: relative;
+  display: block;
+}
+.continue-card__art {
+  display: block;
+  width: 100%;
+  height: 104px;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.continue-card__body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+.continue-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.continue-card__text strong {
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.continue-card__text .box-mark {
+  margin-top: 2px;
+}
+.continue-card__text small {
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.7;
+}
+.continue-card__percent {
+  flex-shrink: 0;
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+.continue-card__go {
+  flex-shrink: 0;
+  color: rgb(var(--v-theme-terciary));
+  font-size: 32px !important;
+}
+.continue-card--empty {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-style: dashed;
+}
+.continue-card--empty .continue-card__text small {
+  white-space: normal;
+}
+/* Next event */
+.next-event {
+  display: flex;
+  overflow: hidden;
+}
+.next-event__info {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: left;
+}
+.next-event__join {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 16px;
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.date-chip {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 52px;
+  background: rgb(var(--v-theme-terciary));
+  border-radius: 10px;
+  color: rgb(var(--v-theme-on-terciary));
+  line-height: 1;
+}
+.date-chip small {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.date-chip strong {
+  font-family: "Cinzel", serif;
+  font-size: 1.35rem;
+}
+.event-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.event-text strong,
+.event-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.event-text strong {
+  font-size: 0.92rem;
+}
+.event-text small {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+.event-text__muted {
+  opacity: 0.5 !important;
+}
+.event-status {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+/* Shortcuts */
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 66px;
+  min-width: 0;
+  padding: 0 4px;
+  overflow: hidden;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.shortcut .v-icon {
+  color: rgb(var(--v-theme-terciary));
+}
+/* Event list */
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.event-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 44px 10px 10px;
+  text-align: left;
+}
+.event-row__flag {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  width: 22px;
+}
+/* The blurred teaser that leads to every event. */
+.event-row--teaser {
+  overflow: hidden;
+  padding-right: 10px;
+}
+.event-row__blur {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  filter: blur(2px);
+  opacity: 0.55;
+}
+.event-row__more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+}
+.event-row--empty {
+  height: 64px;
+  border-style: dashed;
+}
+/* Heroes standing side by side, like the campaign list. */
+.party-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 2px;
+  padding: 4px 12px 0;
+}
+.party-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+.party-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.party-hero__nick {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  padding: 14px 4px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+  color: #fff;
+  font-size: clamp(0.55rem, 2.4vw, 0.72rem);
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.box-mark {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.box-mark img {
+  width: auto;
+  height: 16px;
+}
+/* Loading: grey shapes where the cards will be. */
+.home-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.home-skeleton span {
+  display: block;
+  background: linear-gradient(90deg, rgba(var(--v-theme-on-surface), 0.06) 0%, rgba(var(--v-theme-on-surface), 0.12) 50%, rgba(var(--v-theme-on-surface), 0.06) 100%);
+  background-size: 200% 100%;
+  border-radius: 14px;
+  animation: home-shimmer 1.4s ease-in-out infinite;
+}
+.home-skeleton__hero {
+  height: 190px;
+}
+.home-skeleton__row {
+  height: 66px;
+}
+.home-skeleton__grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  background: none !important;
+  animation: none !important;
+}
+.home-skeleton__grid i {
+  display: block;
+  height: 66px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 14px;
+}
+@keyframes home-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
 }
 </style>

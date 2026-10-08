@@ -165,13 +165,22 @@
                   <div v-if="myHeroes.length === 0" class="text-center text-grey py-4">
                       No available heroes found (or all taken).
                   </div>
-                  <div 
-                    v-for="hero in myHeroes" 
-                    :key="hero.pk" 
+                  <div
+                    v-for="hero in myHeroes"
+                    :key="hero.pk"
                     class="hero-selection-card rounded-lg elevation-6 overflow-hidden position-relative my-1"
-                    @click="selectHero(hero)"
+                    @click="toggleHeroDetails(`mine-${hero.pk}`)"
                   >
-                      <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover></v-img>
+                      <v-img :src="hero.trackerImage" width="100%" aspect-ratio="5.52" cover>
+                        <span v-if="barkOf(hero.name) && expandedHeroKey !== `mine-${hero.pk}`" class="hero-bark">{{ barkOf(hero.name) }}</span>
+                      </v-img>
+                      <v-expand-transition>
+                          <HeroSummaryPanel
+                            v-if="expandedHeroKey === `mine-${hero.pk}`"
+                            :hero-name="hero.name"
+                            @confirm="selectHero(hero)"
+                          />
+                      </v-expand-transition>
                   </div>
                   <v-btn block variant="outlined" color="grey-lighten-1" class="mt-4 border-dashed py-6" @click="heroDialogTab = 'new'">
                       <v-icon start>mdi-plus-circle-outline</v-icon> Create New Hero
@@ -183,8 +192,22 @@
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
               </div>
               <template v-else>
-                  <div v-for="heroData in availableHeroesToCreate" :key="heroData.id" class="hero-selection-card rounded-lg elevation-6 overflow-hidden" @click="createNewHero(heroData.id)">
-                      <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52" cover></v-img>
+                  <div
+                    v-for="heroData in availableHeroesToCreate"
+                    :key="heroData.id"
+                    class="hero-selection-card rounded-lg elevation-6 overflow-hidden"
+                    @click="toggleHeroDetails(`new-${heroData.id}`)"
+                  >
+                      <v-img :src="heroData.images.trackerimage" width="100%" aspect-ratio="5.52" cover>
+                        <span v-if="barkOf(heroData.name) && expandedHeroKey !== `new-${heroData.id}`" class="hero-bark">{{ barkOf(heroData.name) }}</span>
+                      </v-img>
+                      <v-expand-transition>
+                          <HeroSummaryPanel
+                            v-if="expandedHeroKey === `new-${heroData.id}`"
+                            :hero-name="heroData.name"
+                            @confirm="createNewHero(heroData.id)"
+                          />
+                      </v-expand-transition>
                   </div>
               </template>
               <v-btn block variant="text" color="white" class="mt-2" @click="heroDialogTab = 'mine'">
@@ -194,6 +217,12 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <HeroPreparationDialog
+      v-model="heroPreparationDialog"
+      :hero-name="preparedHeroName"
+      :season="heroPreparationSeason"
+    />
 
     <v-dialog v-model="showCampaignDialog" max-width="340">
       <v-card color="#1e1e1e" class="rounded-lg pa-2">
@@ -349,6 +378,9 @@ import { usePlayableHeroStore } from '@/store/PlayableHeroStore';
 import { CampaignStore } from '@/store/CampaignStore';
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import { Campaign } from "@/store/Campaign";
+import HeroSummaryPanel from "@/components/HeroSummaryPanel.vue";
+import heroSummaries from "@/data/book/HeroSummary.json";
+import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
@@ -396,6 +428,18 @@ const lobbySlots = ref<any[]>([
 
 const heroDialog = ref(false);
 const heroDialogTab = ref<'mine'|'new'>('mine');
+// Card whose details are open in the hero dialog ("mine-<pk>" or "new-<heroId>").
+const expandedHeroKey = ref<string | null>(null);
+
+const toggleHeroDetails = (key: string) => {
+    expandedHeroKey.value = expandedHeroKey.value === key ? null : key;
+};
+
+// Act 3: once a hero is confirmed, the player gathers that hero's components.
+const heroPreparationDialog = ref(false);
+// A Hero's one-line bark, shown when hovering it in Choose your Hero.
+const barkOf = (name: string) => (heroSummaries as Record<string, { bark?: string }>)[name]?.bark ?? "";
+const preparedHeroName = ref('');
 const loadingHeroes = ref(false);
 const showCampaignDialog = ref(false);
 const tutorialChoiceDialog = ref(false);
@@ -436,6 +480,10 @@ const currentSku = computed(() => {
     if (currentEventSeasonFk.value === null) return 39;
     return currentEventSeasonFk.value === 2 ? 38 : 39;
 });
+
+const heroPreparationSeason = computed<'s1' | 's2'>(() =>
+    currentEventSeasonFk.value === 2 ? 's1' : 's2'
+);
 
 const currentCampaignType = computed(() => {
     if (currentEventSeasonFk.value === null) return 'underkeep2';
@@ -810,6 +858,8 @@ const selectHero = async (hero: any) => {
     const mySlotIndex = lobbySlots.value.findIndex(s => s.player && s.player.users_fk === userStore.user.users_pk);
     if (mySlotIndex !== -1) lobbySlots.value[mySlotIndex].hero = hero;
     heroDialog.value = false;
+    preparedHeroName.value = hero.name;
+    heroPreparationDialog.value = true;
 
     const usersPk = userStore.user.users_pk;
 
@@ -1174,6 +1224,7 @@ const goToCampaign = () => {
 const openHeroSelection = async () => {
     heroDialog.value = true;
     heroDialogTab.value = 'mine';
+    expandedHeroKey.value = null;
     loadingHeroes.value = true;
     if (!playableHeroStore.loaded && userStore.user?.users_pk) {
         await playableHeroStore.fetchHeroes(userStore.user.users_pk);
@@ -1283,5 +1334,26 @@ onBeforeUnmount(() => {
 }
 .overlay-gradient {
     background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 60%, transparent 100%);
+}
+
+/* Hovering a Hero shows its bark over the art. */
+.hero-bark {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 18px 14px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.88), transparent);
+  color: #ffe082;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+.hero-selection-card:hover .hero-bark {
+  opacity: 1;
+  transform: none;
 }
 </style>

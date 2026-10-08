@@ -1,0 +1,78 @@
+<template>
+  <!-- symbols: just the box symbols (season flag for Drunagor Nights), for tight rows. -->
+  <span v-if="symbols" class="item-symbols">
+    <img
+      v-for="source in sources"
+      :key="source"
+      :src="symbolOf(source)"
+      :alt="ITEM_SOURCE_MARKS[source].label"
+      :title="ITEM_SOURCE_MARKS[source].label"
+      class="item-symbols__img"
+      :class="{ 'item-symbols__img--flag': !!ITEM_SOURCE_MARKS[source].flag }"
+    />
+  </span>
+  <!-- The boxes an item comes in, as small labels. Drunagor Nights shows its season flag. -->
+  <span v-else class="item-marks">
+    <span
+      v-for="source in sources"
+      :key="source"
+      class="item-mark"
+      :style="{ background: ITEM_SOURCE_MARKS[source].color }"
+      :title="ITEM_SOURCE_MARKS[source].label"
+    >
+      <img v-if="ITEM_SOURCE_MARKS[source].flag" :src="ITEM_SOURCE_MARKS[source].flag" alt="" class="item-mark__flag" />
+      {{ ITEM_SOURCE_MARKS[source].short }}
+    </span>
+  </span>
+</template>
+
+<script setup lang="ts">
+import { computed } from "vue";
+import { CONTENT_SYMBOLS, ITEM_SOURCE_MARKS, type ItemSource } from "@/data/heroMeta";
+import { allItemsRepository } from "@/data/repository/AllItemsRepository";
+
+const props = defineProps<{ itemId: string; symbols?: boolean }>();
+const symbolOf = (source: ItemSource) =>
+  ITEM_SOURCE_MARKS[source].flag ?? CONTENT_SYMBOLS[source as "core" | "awakenings" | "apocalypse"] ?? "";
+const sources = computed(() => allItemsRepository.sourcesOf(props.itemId));
+</script>
+
+<style scoped>
+.item-marks {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 3px;
+}
+.item-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.item-mark__flag {
+  height: 14px;
+}
+.item-symbols {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.85;
+}
+.item-symbols__img {
+  width: auto;
+  height: 20px;
+}
+.item-symbols__img--flag {
+  height: 24px;
+}
+</style>

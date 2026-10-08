@@ -1,69 +1,21 @@
 <template>
-  <span :data-testid="'campaign-log-status-' + heroId">
-    <template v-if="isAdmin && !loading">
-      <v-select
-        v-model="statusIds"
-        clearable
-        chips
-        :label="$t('text.add-or-remove-status')"
-        :hint="$t('text.status-info')"
-        :items="statuses"
-        item-title="name"
-        item-value="id"
-        multiple
-        variant="outlined"
-      ></v-select>
-    </template>
-
-    <template v-else-if="!loading">
-      <v-text-field
-        :model-value="statusDisplayText"
-        :label="$t('text.add-or-remove-status')"
-        variant="outlined"
-        readonly
-        persistent-hint
-        class="mb-4"
-        :disabled="!isAdmin"
-      ></v-text-field>
-    </template>
-
-    <template v-else>
-      <v-text-field
-        :label="$t('text.add-or-remove-status')"
-        variant="outlined"
-        loading
-        readonly
-        class="mb-4"
-        :disabled="!isAdmin"
-      ></v-text-field>
-    </template>
-
-    <v-sheet
-      v-if="statusIds.length > 0"
-      rounded
-      border="md"
-      class="mb-6 pa-6 text-white"
-      style="background-color: #1f2937 !important"
-    >
-      <ul>
-        <li
-          class="py-1"
-          v-for="status in findStatuses(statusIds)"
-          :key="status.id"
-        >
-          {{ status.name }}
-          <div class="px-4 font-italic" v-if="status.effect">
-            {{ status.effect }}
-          </div>
-        </li>
-      </ul>
-    </v-sheet>
-  </span>
+  <div :data-testid="'campaign-log-status-' + heroId">
+    <EffectPicker
+      v-model="statusIds"
+      title="Status"
+      :items="statuses"
+      :editable="isAdmin && !loading"
+      :loading="loading"
+      placeholder="Add or remove status"
+      :hint="t('text.status-info')"
+      empty-text="No status applied"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from "vue";
-import type { Status } from "@/data/repository/campaign/Status";
+import EffectPicker from "@/components/EffectPicker.vue";
+import { ref, watch, onMounted } from "vue";
 import { HeroStore } from "@/store/HeroStore";
 import { useUserStore } from "@/store/UserStore";
 import { CampaignStore } from "@/store/CampaignStore";
@@ -92,15 +44,6 @@ const campaignHeroRef = ref<any>(null);
 props.repository.load(configurationStore.enabledLanguage);
 const statuses = props.repository.findAll();
 
-const statusDisplayText = computed(() => {
-  if (statusIds.value.length === 0) {
-    return t('text.no-status', 'No status applied');
-  }
-  
-  const activeStatuses = findStatuses(statusIds.value);
-  return activeStatuses.map(status => status.name).join(', ');
-});
-
 const checkUserRole = async () => {
   try {
     if (!userStore.user?.users_pk) {
@@ -128,7 +71,7 @@ const checkUserRole = async () => {
       const hero = heroStore.findInCampaignOptional(props.heroId, props.campaignId);
       const isHeroOwner = hero && Number(hero.playableHeroesPk) === Number(campaignRelation.playable_heroes_fk);
       
-      isAdmin.value = isPartyAdmin || isHeroOwner;
+      isAdmin.value = !!(isPartyAdmin || isHeroOwner);
     } else {
       isAdmin.value = false;
     }
@@ -139,24 +82,6 @@ const checkUserRole = async () => {
     loading.value = false;
   }
 };
-
-function findStatuses(statusIdsList: string[]): Status[] {
-  const statusesFound: Status[] = [];
-  statusIdsList.forEach((statusId) => {
-    const status = props.repository.find(statusId);
-    if (status) {
-      statusesFound.push(status);
-    }
-  });
-  return statusesFound;
-}
-
-function syncToStore() {
-  if (campaignHeroRef.value && isAdmin.value) {
-    campaignHeroRef.value.statusIds = [...statusIds.value];
-    console.log("[CampaignLogStatus] Synced statusIds to store:", statusIds.value);
-  }
-}
 
 watch(statusIds, (newStatusIds) => {
   if (isAdmin.value && campaignHeroRef.value) {

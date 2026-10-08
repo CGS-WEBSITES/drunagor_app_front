@@ -6,6 +6,7 @@
 
 // Plugins
 import { registerPlugins } from "@/plugins";
+import { resolveApiEnv } from "@/dev/apiEnv";
 
 // Components
 import App from "./App.vue";
@@ -24,7 +25,9 @@ import "@/components/Composable/shepherd-theme.css";
 
 const app = createApp(App);
 
-registerPlugins(app, "prod");
+// Builds use prod unless built with VITE_API_ENV=test (the teste.drunagor.app deploy).
+// A local dev server uses the test API by default (see apiEnv).
+registerPlugins(app, resolveApiEnv(import.meta.env.VITE_API_ENV || "prod"));
 
 app.mount("#app");
 

@@ -5,506 +5,248 @@
     scroll-target="#app"
     max-width="900"
     :fullscreen="smAndDown"
-    persistent
   >
-    <v-card color="surface" class="d-flex flex-column" style="height: 100%; max-height: 100%;">
+    <v-card color="surface" class="manage-event-card d-flex flex-column">
       <div v-if="dialogLoading" class="dialog-overlay">
         <v-progress-circular indeterminate size="80" color="primary" />
       </div>
 
-      <v-card-title class="d-flex justify-space-between align-center flex-shrink-0">
-        <span class="text-h6">Manage Event</span>
-        <v-btn icon variant="text" @click="closeDialog">
+      <div class="manage-event__header">
+        <span class="manage-event__kicker">Manage event</span>
+        <h2 class="manage-event__title">{{ event?.store_name }}</h2>
+        <span class="manage-event__date">{{ formatEventDate(event?.event_date, userTimezone) }}</span>
+        <v-btn icon variant="text" size="small" class="manage-event__close" @click="closeDialog">
           <v-icon>mdi-close</v-icon>
         </v-btn>
-      </v-card-title>
+      </div>
 
-      <v-tabs
-        v-model="activeTab"
-        bg-color="background"
-        centered
-        grow
-        class="mb-4 flex-shrink-0"
-      >
-        <v-tab value="details">
-          <v-icon start>mdi-information-outline</v-icon> Details
-        </v-tab>
-        <v-tab value="tables">
-          <v-icon start>mdi-table-chair</v-icon> Tables
-        </v-tab>
-        <v-tab value="setup">
-          <v-icon start>mdi-map</v-icon> First Setup
-        </v-tab>
-        <v-tab value="players">
-          <v-icon start>mdi-account-group</v-icon> Players
-        </v-tab>
-      </v-tabs>
+      <nav class="manage-event__tabs">
+        <button
+          v-for="tab in manageTabs"
+          :key="tab.value"
+          class="manage-event__tab"
+          :class="{ active: activeTab === tab.value }"
+          @click="activeTab = tab.value"
+        >
+          <v-icon size="18">{{ tab.icon }}</v-icon>
+          <span>{{ tab.label }}</span>
+        </button>
+      </nav>
 
       <v-card-text class="flex-grow-1 overflow-y-auto pt-0">
         <v-window v-model="activeTab">
           <v-window-item value="details">
-            <v-card-text class="pt-0">
-              <p>
-                <v-icon>mdi-seat</v-icon> Available Seats:
-                {{ event?.seats_number }}
-              </p>
-              <p>
-                <v-icon>mdi-sword-cross</v-icon> Scenario:
-                {{ event?.scenario }}
-              </p>
-              <p v-if="getSeasonInfo(event?.seasons_fk).name">
-                <v-icon>mdi-shield-sun</v-icon> Season:
-                {{ getSeasonInfo(event.seasons_fk).name }}
-              </p>
-              <p class="text-end scheduled-box">
-                Scheduled for:
-                {{ formatEventDate(event?.event_date, userTimezone) }}
-              </p>
-            </v-card-text>
+            <!-- At a glance: when, which wing, how full. -->
+            <div class="md-summary">
+              <div class="md-tile">
+                <v-icon size="22" class="md-tile__icon">mdi-calendar-clock</v-icon>
+                <span class="md-tile__label">When</span>
+                <strong class="md-tile__value">{{ eventDay }}</strong>
+                <span class="md-tile__sub">{{ eventTime }}</span>
+              </div>
+              <div class="md-tile md-tile--flag">
+                <img v-if="seasonInfo.flag" :src="seasonInfo.flag" alt="" class="md-tile__banner" />
+                <v-icon size="22" class="md-tile__icon">mdi-sword-cross</v-icon>
+                <span class="md-tile__label">Wing</span>
+                <strong class="md-tile__value">{{ event?.scenario }}</strong>
+                <span class="md-tile__sub">{{ seasonInfo.name }}</span>
+              </div>
+              <div class="md-tile md-tile--link" @click="activeTab = 'tables'">
+                <v-icon size="22" class="md-tile__icon">mdi-account-group</v-icon>
+                <span class="md-tile__label">Seats taken</span>
+                <strong class="md-tile__value">{{ seatStats.taken }}/{{ seatStats.total }}</strong>
+                <span class="md-tile__sub">{{ tables.length }} {{ tables.length === 1 ? "table" : "tables" }} ›</span>
+              </div>
+            </div>
 
-            <v-card
-              color="primary"
-              min-height="130px"
-              class="mr-4 event-card"
-              @click="openInGoogleMaps()"
-            >
-              <v-row no-gutters>
-                <v-col cols="3" lg="3">
-                  <v-img
-                    :src="
-                      event?.picture_hash
-                        ? `https://assets.drunagor.app/${event.picture_hash}`
-                        : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png'
-                    "
-                    class="event-img"
-                  />
-                </v-col>
-                <v-col cols="9" class="pa-2">
-                  <h3 class="text-subtitle-1 font-weight-bold">
-                    {{ event?.store_name }}
-                  </h3>
-                  <p class="text-caption">
-                    <v-icon color="red">mdi-map-marker</v-icon>
-                    {{ event?.address }}
-                  </p>
-                </v-col>
-              </v-row>
-            </v-card>
+            <!-- Where -->
+            <div class="md-store">
+              <div class="md-store__info">
+                <img :src="storeImage" alt="" class="md-store__img" />
+                <div class="md-store__text">
+                  <span class="md-tile__label">Store</span>
+                  <h3>{{ event?.store_name }}</h3>
+                  <p><v-icon size="15" class="mr-1">mdi-map-marker</v-icon>{{ event?.address }}</p>
+                  <button v-if="event?.latitude" class="md-link" @click="openInGoogleMaps">
+                    Open in Google Maps <v-icon size="14">mdi-open-in-new</v-icon>
+                  </button>
+                </div>
+              </div>
+              <iframe
+                v-if="event?.latitude"
+                class="md-store__map"
+                :src="`https://www.google.com/maps?q=${event.latitude},${event.longitude}&z=15&output=embed`"
+                title="Store location"
+                loading="lazy"
+              />
+            </div>
 
-            <v-card color="primary" class="mr-4 mt-4 event-card">
-              <v-responsive
-                style="width: 100%; height: 200px"
-                aspect-ratio="16/9"
-              >
-                <iframe
-                  v-if="event?.latitude"
-                  :src="
-                    `https://www.google.com/maps?q=${event.latitude},${event.longitude}` +
-                    `&z=15&output=embed`
-                  "
-                  frameborder="0"
-                  style="border: 0; width: 100%; height: 100%"
-                  allowfullscreen
-                  loading="lazy"
-                />
-              </v-responsive>
-            </v-card>
+            <!-- What players get -->
+            <div class="md-section-title">Reward</div>
+            <div v-if="eventRewards.length" class="md-rewards">
+              <div v-for="reward in eventRewards" :key="reward.rewards_pk" class="md-reward">
+                <v-avatar size="52">
+                  <v-img :src="`https://assets.drunagor.app/${reward.picture_hash}`" />
+                </v-avatar>
+                <div>
+                  <strong>{{ reward.name }}</strong>
+                  <p v-if="reward.description">{{ reward.description }}</p>
+                </div>
+              </div>
+            </div>
+            <p v-else class="md-empty">No rewards linked to this event.</p>
 
-            <v-card-text>
-              <h3 class="text-h6 font-weight-bold">REWARDS:</h3>
-              <v-row
-                v-if="eventRewards.length"
-                v-for="(reward, index) in eventRewards"
-                :key="index"
-                class="align-center my-2"
-              >
-                <v-col cols="3" md="2">
-                  <v-avatar size="60">
-                    <v-img
-                      :src="`https://assets.drunagor.app/${reward.picture_hash}`"
-                    />
-                  </v-avatar>
-                </v-col>
-                <v-col cols="9" md="10">
-                  <h4 class="text-subtitle-1 font-weight-bold">
-                    {{ reward.name }}
-                  </h4>
-                </v-col>
-              </v-row>
-              <p v-else class="text-caption">
-                No rewards linked to this event.
-              </p>
-            </v-card-text>
+            <div class="md-actions">
+              <v-btn v-if="editable" color="accent" variant="flat" prepend-icon="mdi-pencil" @click="emit('edit', event)">
+                Edit event
+              </v-btn>
+              <v-btn variant="outlined" :prepend-icon="shareCopied ? 'mdi-check' : 'mdi-share-variant'" @click="shareEvent">
+                {{ shareCopied ? "Link copied" : "Share" }}
+              </v-btn>
+              <v-spacer />
+              <v-btn variant="tonal" color="error" prepend-icon="mdi-delete-outline" class="md-delete" @click="deleteConfirm = true">
+                Delete
+              </v-btn>
+            </div>
           </v-window-item>
 
           <v-window-item value="tables">
-            <v-alert type="info" variant="tonal" class="mb-4" border="start">
+            <v-alert v-if="qrTutorial.active" type="info" variant="tonal" class="mb-4" border="start">
               <div class="font-weight-bold">{{ tablesAlertCopy.title }}</div>
               <div class="mt-1">{{ tablesAlertCopy.message }}</div>
             </v-alert>
 
-            <v-row class="mb-4">
-              <v-col
-                cols="12"
-                class="d-flex justify-space-between align-center flex-wrap"
-              >
-                <h3 class="text-h6 mb-2 mb-md-0">Event Tables</h3>
-
-                <div class="d-flex gap-3 flex-wrap">
-                  <v-btn
-                    color="primary"
-                    @click="openCreateTableDialog"
-                    size="default"
-                  >
-                    <v-icon start>mdi-plus</v-icon> Create Table
-                  </v-btn>
-                  <v-btn
-                    color="secondary"
-                    @click="openCreateMultipleTablesDialog"
-                    size="default"
-                  >
-                    <v-icon start>mdi-table-multiple</v-icon> Create Multiple
-                    Tables
-                  </v-btn>
-                </div>
-              </v-col>
-            </v-row>
+            <!-- Tables -->
+            <div class="md-head">
+              <div>
+                <h3 class="md-head__title">Tables</h3>
+                <p class="md-head__sub">
+                  {{ seatStats.taken }}/{{ seatStats.total }} seats taken · players join by scanning the table's QR code or typing its code
+                </p>
+              </div>
+              <div class="md-head__actions">
+                <v-btn color="accent" variant="flat" size="small" prepend-icon="mdi-plus" @click="openCreateTableDialog">
+                  Add table
+                </v-btn>
+                <v-btn variant="outlined" size="small" prepend-icon="mdi-table-multiple" @click="openCreateMultipleTablesDialog">
+                  Add several
+                </v-btn>
+              </div>
+            </div>
 
             <div v-if="loadingTables" class="text-center py-6">
               <v-progress-circular indeterminate color="primary" />
             </div>
-
-            <v-row v-else>
-              <v-col
-                cols="12"
-                v-if="tables.length === 0"
-                class="text-center text-grey py-6"
-              >
-                No tables created yet. Create your first table!
-              </v-col>
-
-              <v-col
+            <div v-else-if="tables.length === 0" class="md-empty-box">
+              <v-icon size="36">mdi-table-furniture</v-icon>
+              <p>No tables yet. Add one so players can join.</p>
+            </div>
+            <div v-else class="md-tables">
+              <div
                 v-for="table in tables"
                 :key="table.event_tables_pk"
-                cols="12"
-                sm="6"
-                md="4"
+                class="md-table"
+                :class="{ 'md-table--full': table.is_full }"
               >
-                <v-card
-                  class="pa-4 table-card"
-                  elevation="4"
-                  rounded="lg"
-                  @click="generateQRCode(table)"
-                >
-                  <v-row no-gutters>
-                    <v-col
-                      cols="12"
-                      class="d-flex justify-space-between align-center mb-2"
-                    >
-                      <v-chip
-                        color="primary"
-                        size="small"
-                        label
-                        class="font-weight-bold"
-                      >
-                        <v-icon start color="white" size="small"
-                          >mdi-table-furniture</v-icon
-                        >
-                        <span class="table-number-text"
-                          >Table {{ table.table_number }}</span
-                        >
-                      </v-chip>
-
-                      <v-btn
-                        icon
-                        size="small"
-                        color="red"
-                        variant="text"
-                        @click.stop="deleteTable(table.event_tables_pk)"
-                      >
-                        <v-icon>mdi-delete</v-icon>
-                      </v-btn>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <div
-                        class="d-flex align-center justify-space-between mb-2"
-                      >
-                        <span class="text-caption text-grey">Players</span>
-                        <v-chip
-                          size="small"
-                          :color="table.is_full ? 'red' : 'green'"
-                          variant="flat"
-                        >
-                          {{ table.players_count }}/{{ table.max_players }}
-                        </v-chip>
-                      </div>
-
-                      <v-progress-linear
-                        :model-value="
-                          (table.players_count / table.max_players) * 100
-                        "
-                        :color="table.is_full ? 'red' : 'green'"
-                        height="8"
-                        rounded
-                      />
-                    </v-col>
-
-                    <v-col cols="12" class="mt-2" v-if="table.players && table.players.length > 0">
-                      <div class="d-flex flex-wrap gap-1">
-                        <v-chip
-                          v-for="p in table.players"
-                          :key="p.users_pk"
-                          size="x-small"
-                          color="surface"
-                          variant="outlined"
-                          class="mr-1 mb-1"
-                        >
-                          <v-avatar start size="16">
-                            <v-img
-                              :src="
-                                p.picture_hash
-                                  ? `https://assets.drunagor.app/Profile/${p.picture_hash}`
-                                  : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
-                              "
-                            />
-                          </v-avatar>
-                          {{ p.user_name }}
-                        </v-chip>
-                      </div>
-                    </v-col>
-
-                    <v-col cols="12" class="mt-3">
-                      <div class="text-caption text-grey">
-                        <v-icon size="small" class="mr-1">mdi-seat</v-icon>
-                        {{ table.available_seats }} seat(s) available
-                      </div>
-                    </v-col>
-
-                    <v-col cols="12" class="mt-2">
-                      <v-btn
-                        block
-                        size="small"
-                        color="white"
-                        variant="tonal"
-                        @click.stop="generateQRCode(table)"
-                      >
-                        <v-icon start size="small">mdi-qrcode</v-icon>
-                        Generate QR Code
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-            </v-row>
-          </v-window-item>
-
-          <v-window-item value="setup">
-            <div class="setup-guide-container">
-              <div class="mb-4 text-center">
-                <h3 class="text-h6 font-weight-bold mb-2">
-                  <v-icon color="primary" class="mr-2">mdi-map</v-icon>
-                  First Setup - {{ event?.scenario }}
-                </h3>
-                <p class="text-body-2 mb-4">
-                  Setting up the gaming table using the map below before your
-                  players arrive is highly recommended. It ensures a quick and
-                  smooth start to the adventure. Tap or click on the map to zoom and view full setup details
-                </p>
-                <div class="d-flex justify-center mb-4">
-                  <v-btn
-                    color="amber-accent-2"
-                    variant="tonal"
-                    rounded="pill"
-                    class="font-weight-bold text-white px-6"
-                    prepend-icon="mdi-help-circle-outline"
-                    @click="showTutorialPrompt = true"
-                  >
-                    Show Tutorial
+                <div class="md-table__top">
+                  <strong>Table {{ table.table_number }}</strong>
+                  <span class="md-table__count">{{ table.players_count }}/{{ table.max_players }}</span>
+                  <v-btn icon size="x-small" variant="text" title="Delete table" @click.stop="deleteTable(table.event_tables_pk)">
+                    <v-icon size="18">mdi-delete-outline</v-icon>
                   </v-btn>
                 </div>
+                <!-- One seat per player slot. -->
+                <div class="md-seats">
+                  <template v-for="seat in table.max_players" :key="seat">
+                    <v-avatar v-if="table.players?.[seat - 1]" size="30" class="md-seat md-seat--taken" :title="table.players[seat - 1].user_name">
+                      <v-img :src="avatarUrl(table.players[seat - 1].picture_hash)" />
+                    </v-avatar>
+                    <span v-else-if="seat <= table.players_count" class="md-seat md-seat--taken"><v-icon size="16">mdi-account</v-icon></span>
+                    <span v-else class="md-seat"></span>
+                  </template>
+                </div>
+                <div class="md-table__join">
+                  <button class="md-table__code" title="Players can type this code to join. Click to copy." @click="copyTableCode(table)">
+                    <small>Code</small>
+                    <strong>{{ tableCode(table) }}</strong>
+                    <v-icon size="14">{{ copiedTable === table.event_tables_pk ? "mdi-check" : "mdi-content-copy" }}</v-icon>
+                  </button>
+                  <button class="md-table__qr" @click="generateQRCode(table)">
+                    <v-icon size="18">mdi-qrcode</v-icon> QR code
+                  </button>
+                </div>
               </div>
+            </div>
 
-              <v-card
-                v-if="event?.scenario"
-                class="setup-preview-card mb-4"
-                elevation="4"
-                @click="openSetupDialog"
-              >
-                <InitialSetupViewer :scenario="event.scenario" preview-mode />
+            <!-- Players -->
+            <div class="md-head mt-8">
+              <div>
+                <h3 class="md-head__title">Players</h3>
+                <p class="md-head__sub">Let players in when they arrive, then start their quest.</p>
+              </div>
+              <v-btn icon size="small" variant="text" title="Refresh" @click="refreshPlayers">
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+            </div>
 
-                <div class="click-to-enlarge-hint">
-                  <v-icon color="white" size="small"
-                    >mdi-magnify-plus-outline</v-icon
-                  >
-                  <span class="ml-1">Tap / Click to Zoom</span>
+            <div v-if="playersByEvent.length === 0" class="md-empty-box">
+              <v-icon size="36">mdi-account-clock-outline</v-icon>
+              <p>No players yet. They'll show up here once they sign up for the event.</p>
+            </div>
+            <div v-else class="md-players">
+              <div v-for="player in playersByEvent" :key="player.users_pk" class="md-player">
+                <v-avatar size="44">
+                  <v-img :src="avatarUrl(player.picture_hash)" />
+                </v-avatar>
+                <div class="md-player__info">
+                  <strong>{{ player.user_name }}</strong>
+                  <span class="md-status" :class="statusClass(player.event_status)">{{ statusLabel(player.event_status) }}</span>
                 </div>
-              </v-card>
-
-              <v-alert v-else type="info" variant="tonal" class="text-center">
-                <v-icon size="48" class="mb-2">mdi-map-marker-off</v-icon>
-                <div class="text-body-1">
-                  No setup map available for this scenario
+                <div class="md-player__actions">
+                  <template v-if="player.event_status === 'Granted Passage'">
+                    <v-btn color="accent" variant="flat" size="small" prepend-icon="mdi-flag-checkered" @click="updatePlayerStatus(player, JoinedtheQuest)">
+                      Start
+                    </v-btn>
+                    <v-btn color="error" variant="text" size="small" class="md-delete" @click="updatePlayerStatus(player, turnedAwayStatus)">
+                      Turn away
+                    </v-btn>
+                  </template>
+                  <template v-else-if="player.event_status !== 'Joined the Quest' && player.event_status !== 'Turned Away'">
+                    <v-btn color="success" variant="flat" size="small" prepend-icon="mdi-check" @click="updatePlayerStatus(player, grantedStatus)">
+                      Let in
+                    </v-btn>
+                    <v-btn color="error" variant="text" size="small" class="md-delete" @click="updatePlayerStatus(player, turnedAwayStatus)">
+                      Turn away
+                    </v-btn>
+                  </template>
                 </div>
-              </v-alert>
+              </div>
+            </div>
+
+            <div v-if="totalPages > 1" class="d-flex justify-center mt-2">
+              <v-pagination v-model="currentPage" :length="totalPages" density="comfortable" />
             </div>
           </v-window-item>
 
-          <v-window-item value="players">
-            <v-row>
-              <v-col cols="12" class="d-flex align-end flex-column">
-                <p class="pb-3 font-weight-bold">
-                  PLAYERS INTERESTED
-                  <v-btn
-                    icon
-                    size="medium"
-                    variant="text"
-                    @click="refreshPlayers"
-                  >
-                    <v-icon class="mb-1" color="white">mdi-refresh</v-icon>
-                  </v-btn>
-                </p>
-              </v-col>
-
-              <v-col
-                cols="12"
-                v-for="player in playersByEvent"
-                :key="player.users_pk"
-                class="pa-1"
-              >
-                <v-card class="player-card mb-3" rounded="lg" elevation="10">
-                  <v-row no-gutters>
-                    <v-col cols="4" lg="1" class="d-flex">
-                      <v-img
-                        :src="
-                          player.picture_hash
-                            ? `https://assets.drunagor.app/Profile/${player.picture_hash}`
-                            : 'https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png'
-                        "
-                        alt="Player Image"
-                        max-width="90"
-                        max-height="90"
-                        class="rounded-lg"
-                      />
-                    </v-col>
-
-                    <v-col
-                      cols="8"
-                      class="pl-3 d-flex flex-column justify-center"
-                    >
-                      <p class="font-weight-bold text-truncate">
-                        {{ player.user_name }}
-                      </p>
-                      <p class="text-caption">
-                        Status: {{ player.event_status }}
-                      </p>
-                      <p
-                        v-if="player.status_date"
-                        class="text-caption grey--text"
-                      >
-                        Received:
-                        {{ formatEventDate(player.status_date, userTimezone) }}
-                      </p>
-                    </v-col>
-
-                    <v-col cols="12" md="3" class="d-flex flex-column">
-                      <template
-                        v-if="player.event_status === 'Granted Passage'"
-                      >
-                        <v-btn
-                          color="deep-purple"
-                          size="x-small"
-                          class="mt-2 mt-md-0 pa-0"
-                          block
-                          @click="updatePlayerStatus(player, JoinedtheQuest)"
-                        >
-                          <v-icon start>mdi-flag-checkered</v-icon>Start Event
-                        </v-btn>
-                        <v-btn
-                          color="red"
-                          size="x-small"
-                          class="mt-2"
-                          block
-                          @click="updatePlayerStatus(player, turnedAwayStatus)"
-                        >
-                          <v-icon start>mdi-close-circle-outline</v-icon>Turn
-                          Away
-                        </v-btn>
-                      </template>
-
-                      <template
-                        v-else-if="player.event_status === 'Joined the Quest'"
-                      >
-                        <v-row
-                          no-gutters
-                          class="fill-height"
-                          align="center"
-                          justify="center"
-                        >
-                          <v-chip
-                            color="yellow"
-                            text-color="black"
-                            class="ma-1"
-                            label
-                          >
-                            <v-icon start>mdi-sword-cross</v-icon>Playing
-                          </v-chip>
-                        </v-row>
-                      </template>
-
-                      <template
-                        v-else-if="player.event_status === 'Turned Away'"
-                      >
-                        <v-row
-                          no-gutters
-                          class="fill-height"
-                          align="center"
-                          justify="center"
-                        >
-                          <v-btn icon disabled class="ma-0 pa-0">
-                            <v-icon color="red" size="24"
-                              >mdi-close-circle</v-icon
-                            >
-                          </v-btn>
-                        </v-row>
-                      </template>
-
-                      <template v-else>
-                        <v-btn
-                          color="green"
-                          size="x-small"
-                          class="mt-2"
-                          block
-                          @click="updatePlayerStatus(player, grantedStatus)"
-                        >
-                          <v-icon start>mdi-check-circle-outline</v-icon>Grant
-                          Passage
-                        </v-btn>
-                        <v-btn
-                          color="red"
-                          size="x-small"
-                          class="mt-2"
-                          block
-                          @click="updatePlayerStatus(player, turnedAwayStatus)"
-                        >
-                          <v-icon start>mdi-close-circle-outline</v-icon>Turn
-                          Away
-                        </v-btn>
-                      </template>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-
-              <v-col
-                cols="12"
-                class="d-flex justify-center"
-                v-if="totalPages > 1"
-              >
-                <v-pagination v-model="currentPage" :length="totalPages" />
-              </v-col>
-            </v-row>
+          <v-window-item value="setup">
+            <div class="table-assembly-container">
+              <p class="md-head__sub mb-3 text-center">
+                Prepare the table before each Drunagor Night. Heroes and the First Setup are handled by the players.
+              </p>
+              <a
+          :href="TABLE_ASSEMBLY_PDF"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="pdf-download"
+        >
+          <v-icon size="20">mdi-file-pdf-box</v-icon>
+          <span>Download PDF version</span>
+          <v-icon size="16" class="pdf-download__go">mdi-download</v-icon>
+        </a>
+              <AssemblyGuide :steps="tableAssemblySteps" />
+            </div>
           </v-window-item>
+
         </v-window>
       </v-card-text>
     </v-card>
@@ -541,14 +283,19 @@
             </div>
           </div>
 
+          <div v-if="selectedTable" class="qr-table-code mb-4">
+            <small>Table code</small>
+            <strong>{{ tableCode(selectedTable) }}</strong>
+          </div>
+
           <v-alert
             v-if="qrCodeData"
             type="success"
             variant="tonal"
             class="mb-4"
           >
-            Share this QR code with your players. They must scan it to join the
-            table.
+            Players join the table by scanning this QR code, or by typing the table code in
+            <strong>My Events › Join table</strong>.
           </v-alert>
 
           <v-btn
@@ -622,86 +369,18 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="setupDialog" max-width="1400" :fullscreen="smAndDown">
-      <v-card color="surface">
-        <v-card-title class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center pa-4 ga-2">
-          <span class="text-h6 text-truncate w-100" style="max-width: 100%;">
-            <v-icon class="mr-2">mdi-map</v-icon>
-            First Setup - {{ event?.scenario }}
-          </span>
-
-          <div class="d-flex align-center gap-2 w-100 justify-space-between justify-sm-end flex-wrap">
-            <div class="d-flex align-center gap-2">
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="zoomOut"
-                :disabled="zoomLevel <= 1"
-              >
-                <v-icon>mdi-magnify-minus</v-icon>
-              </v-btn>
-
-              <v-chip size="small" variant="flat">
-                {{ Math.round(zoomLevel * 100) }}%
-              </v-chip>
-
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="zoomIn"
-                :disabled="zoomLevel >= 3"
-              >
-                <v-icon>mdi-magnify-plus</v-icon>
-              </v-btn>
-
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="resetZoom"
-                v-if="zoomLevel !== 1"
-              >
-                <v-icon>mdi-restore</v-icon>
-              </v-btn>
-            </div>
-
-            <div class="d-flex align-center">
-              <v-divider vertical class="mx-2" />
-              <v-btn icon variant="text" @click="setupDialog = false">
-                <v-icon>mdi-close</v-icon>
-              </v-btn>
-            </div>
-          </div>
-        </v-card-title>
-
-        <v-card-text class="pa-0 setup-dialog-content">
-          <div
-            ref="imageContainer"
-            class="image-zoom-container"
-            @wheel.prevent="handleWheel"
-            @mousedown="startPan"
-            @mousemove="handlePan"
-            @mouseup="endPan"
-            @mouseleave="endPan"
-            @touchstart="handleTouchStart"
-            @touchmove="handleTouchMove"
-            @touchend="handleTouchEnd"
-          >
-            <InitialSetupViewer
-              v-if="event?.scenario && setupDialog"
-              :scenario="event.scenario"
-              :style="{
-                transform: `translate(${panX}px, ${panY}px) scale(${zoomLevel})`,
-                transformOrigin: 'center center',
-                transition: isZooming ? 'none' : 'transform 0.1s ease-out',
-                cursor:
-                  zoomLevel > 1 ? (isPanning ? 'grabbing' : 'grab') : 'default',
-              }"
-            />
-          </div>
+    <v-dialog v-model="deleteConfirm" max-width="420">
+      <v-card>
+        <v-card-title class="text-h6">Delete this event?</v-card-title>
+        <v-card-text>
+          {{ event?.store_name }} · {{ formatEventDate(event?.event_date, userTimezone) }}.
+          Players will no longer see it. This cannot be undone.
         </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn variant="text" :disabled="deleting" @click="deleteConfirm = false">Cancel</v-btn>
+          <v-btn color="error" variant="flat" :loading="deleting" @click="deleteEvent">Delete</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -780,7 +459,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <TutorialPromptDialog v-model="showTutorialPrompt" start-with-guide />
   </v-dialog>
 </template>
 
@@ -790,12 +468,13 @@ import { useDisplay } from "vuetify";
 import { jsPDF } from "jspdf";
 import QrcodeVue from "qrcode-vue3";
 import QRCode from "qrcode";
-import InitialSetupViewer from "@/components/InitialSetupViewer.vue";
+import { lobbyCode } from "@/utils/lobbyCode";
 import s1flag from "@/assets/s1flag.png";
 import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
-import { formatEventDate } from "@/utils/dateHelpers";
-import TutorialPromptDialog from "@/components/dialogs/TutorialPromptDialog.vue";
+import { extractTime, formatEventDate } from "@/utils/dateHelpers";
+import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import { tableAssemblySteps, TABLE_ASSEMBLY_PDF } from "@/data/assembly/tableAssembly";
 
 const { smAndDown } = useDisplay();
 
@@ -804,9 +483,11 @@ const userStore = useUserStore();
 const props = defineProps({
   modelValue: { type: Boolean, required: true },
   event: { type: Object, default: null },
+  // Shows "Edit event": the parent owns the edit form and handles @edit.
+  editable: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["update:modelValue", "refresh"]);
+const emit = defineEmits(["update:modelValue", "refresh", "edit", "deleted"]);
 const axios = inject("axios");
 
 const activeTab = ref("details");
@@ -837,23 +518,6 @@ const showPlayers = ref(false);
 const tablePlayers = ref([]);
 const loadingTablePlayers = ref(false);
 const startInTables = ref(false);
-
-const setupDialog = ref(false);
-const showTutorialPrompt = ref(false);
-
-const zoomLevel = ref(1);
-const panX = ref(0);
-const panY = ref(0);
-const isPanning = ref(false);
-const isZooming = ref(false);
-const lastPanX = ref(0);
-const lastPanY = ref(0);
-const startX = ref(0);
-const startY = ref(0);
-const imageContainer = ref(null);
-
-let initialDistance = 0;
-let initialZoom = 1;
 
 const qrTutorial = ref({
   active: false,
@@ -913,118 +577,82 @@ const openInGoogleMaps = () => {
 
 const closeDialog = () => emit("update:modelValue", false);
 
-const openSetupDialog = () => {
-  setupDialog.value = true;
-  resetZoom();
-};
+const avatarUrl = (hash) =>
+  hash ? `https://assets.drunagor.app/Profile/${hash}` : "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/user.png";
 
-const zoomIn = () => {
-  if (zoomLevel.value < 3) {
-    zoomLevel.value = Math.min(3, zoomLevel.value + 0.25);
-  }
-};
+const storeImage = computed(() =>
+  props.event?.picture_hash
+    ? `https://assets.drunagor.app/${props.event.picture_hash}`
+    : "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/Profile/store.png",
+);
 
-const zoomOut = () => {
-  if (zoomLevel.value > 1) {
-    zoomLevel.value = Math.max(1, zoomLevel.value - 0.25);
-    if (zoomLevel.value === 1) {
-      panX.value = 0;
-      panY.value = 0;
+const seasonInfo = computed(() => getSeasonInfo(props.event?.seasons_fk));
+
+// "Tuesday, September 29, 2026" and "06:00 PM".
+const eventDay = computed(() =>
+  formatEventDate(props.event?.event_date, userTimezone.value, { weekday: true, dateOnly: true }),
+);
+const eventTime = computed(() => extractTime(props.event?.event_date, userTimezone.value));
+
+const seatStats = computed(() => ({
+  taken: tables.value.reduce((sum, table) => sum + (table.players_count || 0), 0),
+  total: tables.value.reduce((sum, table) => sum + (table.max_players || 0), 0),
+}));
+
+const STATUS_LABELS = {
+  "Granted Passage": "Let in",
+  "Joined the Quest": "Playing",
+  "Turned Away": "Turned away",
+};
+const statusLabel = (status) => STATUS_LABELS[status] || status || "Waiting";
+const statusClass = (status) =>
+  ({
+    "Granted Passage": "md-status--in",
+    "Joined the Quest": "md-status--playing",
+    "Turned Away": "md-status--out",
+  })[status] || "";
+
+const shareCopied = ref(false);
+const shareEvent = async () => {
+  const pk = props.event?.events_pk;
+  if (!pk) return;
+  const url = `${window.location.origin}/event/${btoa(String(pk))}`;
+  try {
+    if (navigator.share) {
+      await navigator.share({ title: props.event.store_name, url });
+      return;
     }
+    await navigator.clipboard.writeText(url);
+    shareCopied.value = true;
+    setTimeout(() => (shareCopied.value = false), 2000);
+  } catch (_) {
+    // Share sheet closed.
   }
 };
 
-const resetZoom = () => {
-  zoomLevel.value = 1;
-  panX.value = 0;
-  panY.value = 0;
-};
+const manageTabs = [
+  { value: "details", label: "Details", icon: "mdi-information-outline" },
+  { value: "tables", label: "Tables & players", icon: "mdi-table-chair" },
+  { value: "setup", label: "Table assembly", icon: "mdi-table-furniture" },
+];
 
-const handleWheel = (event) => {
-  isZooming.value = true;
-  const delta = event.deltaY > 0 ? -0.1 : 0.1;
-  zoomLevel.value = Math.max(1, Math.min(3, zoomLevel.value + delta));
+const deleteConfirm = ref(false);
+const deleting = ref(false);
 
-  if (zoomLevel.value === 1) {
-    panX.value = 0;
-    panY.value = 0;
-  }
-
-  setTimeout(() => {
-    isZooming.value = false;
-  }, 100);
-};
-
-const startPan = (event) => {
-  if (zoomLevel.value > 1) {
-    isPanning.value = true;
-    startX.value = event.clientX - panX.value;
-    startY.value = event.clientY - panY.value;
-  }
-};
-
-const handlePan = (event) => {
-  if (isPanning.value && zoomLevel.value > 1) {
-    panX.value = event.clientX - startX.value;
-    panY.value = event.clientY - startY.value;
-  }
-};
-
-const endPan = () => {
-  isPanning.value = false;
-};
-
-const getDistance = (touch1, touch2) => {
-  const dx = touch1.clientX - touch2.clientX;
-  const dy = touch1.clientY - touch2.clientY;
-  return Math.sqrt(dx * dx + dy * dy);
-};
-
-const handleTouchStart = (event) => {
-  if (event.touches.length === 2) {
-    initialDistance = getDistance(event.touches[0], event.touches[1]);
-    initialZoom = zoomLevel.value;
-    isZooming.value = true;
-  } else if (event.touches.length === 1 && zoomLevel.value > 1) {
-    isPanning.value = true;
-    const touch = event.touches[0];
-    startX.value = touch.clientX - panX.value;
-    startY.value = touch.clientY - panY.value;
-  }
-};
-
-const handleTouchMove = (event) => {
-  if (event.touches.length === 2 || (event.touches.length === 1 && zoomLevel.value > 1)) {
-    event.preventDefault();
-  }
-
-  if (event.touches.length === 2 && initialDistance > 0) {
-    const currentDistance = getDistance(event.touches[0], event.touches[1]);
-    const scale = currentDistance / initialDistance;
-    zoomLevel.value = Math.max(1, Math.min(3, initialZoom * scale));
-
-    if (zoomLevel.value === 1) {
-      panX.value = 0;
-      panY.value = 0;
-    }
-  } else if (
-    event.touches.length === 1 &&
-    isPanning.value &&
-    zoomLevel.value > 1
-  ) {
-    const touch = event.touches[0];
-    panX.value = touch.clientX - startX.value;
-    panY.value = touch.clientY - startY.value;
-  }
-};
-
-const handleTouchEnd = (event) => {
-  if (event.touches.length < 2) {
-    initialDistance = 0;
-    isZooming.value = false;
-  }
-  if (event.touches.length === 0) {
-    isPanning.value = false;
+const deleteEvent = async () => {
+  if (!props.event?.events_pk) return;
+  deleting.value = true;
+  try {
+    await axios.delete(`/events/${props.event.events_pk}/delete/`);
+    deleteConfirm.value = false;
+    emit("deleted", props.event);
+    emit("refresh");
+    closeDialog();
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    alert(error.response?.data?.message || "Failed to delete the event");
+  } finally {
+    deleting.value = false;
   }
 };
 
@@ -1262,6 +890,15 @@ const captureQrPngFromCanvas = async () => {
     console.error("Failed to read QR canvas:", err);
     qrPngDataUrl.value = "";
   }
+};
+
+// Short code players can type instead of scanning the QR code.
+const tableCode = (table) => lobbyCode(props.event.events_pk, table.event_tables_pk);
+const copiedTable = ref(null);
+const copyTableCode = (table) => {
+  navigator.clipboard?.writeText(tableCode(table));
+  copiedTable.value = table.event_tables_pk;
+  setTimeout(() => (copiedTable.value = null), 1500);
 };
 
 const generateQRCode = async (table) => {
@@ -1503,61 +1140,417 @@ watch(currentPage, () => {
 </script>
 
 <style scoped>
-.setup-guide-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.manage-event-card {
+  color: #fff;
+  font-family: "Poppins", sans-serif;
 }
-
-.setup-preview-card {
-  cursor: pointer;
-  transition: transform 0.2s ease-in-out;
+.manage-event__header {
   position: relative;
-  overflow: hidden;
-  border-radius: 12px;
+  flex-shrink: 0;
+  padding: 20px 56px 12px;
+  text-align: center;
 }
-
-.setup-preview-card:hover {
-  transform: translateY(-4px);
+.manage-event__kicker {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
-
-.click-to-enlarge-hint {
+.manage-event__title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.manage-event__date {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.manage-event__close {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
-  background-color: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: 10px 16px;
+  top: 12px;
+  right: 12px;
+}
+.manage-event__tabs {
+  display: flex;
+  flex-shrink: 0;
+  gap: 6px;
+  margin: 0 16px 16px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+}
+.manage-event__tab {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 6px;
   border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.6;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+.manage-event__tab.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
+}
+/* Details */
+.md-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.md-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.md-tile--link {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.md-tile--link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.md-tile__icon {
+  margin-bottom: 6px;
+  color: rgb(var(--v-theme-accent));
+}
+.md-tile__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.md-tile__value {
+  overflow: hidden;
+  font-size: 1rem;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.md-tile__sub {
   display: flex;
   align-items: center;
-  pointer-events: none;
-  z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  gap: 6px;
+  font-size: 0.8rem;
+  opacity: 0.75;
 }
-
-.setup-dialog-content {
+/* Season banner hanging from the top edge, like on the event cards. */
+.md-tile--flag {
+  position: relative;
+  padding-right: 64px;
+}
+.md-tile__banner {
+  position: absolute;
+  top: 0;
+  right: 14px;
+  width: 40px;
+  height: auto;
+}
+.md-store {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 12px;
   overflow: hidden;
-  max-height: 80vh;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
 }
-
-.image-zoom-container {
+.md-store__info {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+}
+.md-store__img {
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #fff;
+}
+.md-store__text {
+  min-width: 0;
+}
+.md-store__text h3 {
+  font-size: 1rem;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+.md-store__text p {
+  display: flex;
+  align-items: flex-start;
+  margin: 4px 0 8px;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+.md-store__map {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  min-height: 150px;
+  border: 0;
+}
+.md-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgb(var(--v-theme-accent));
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.md-section-title {
+  margin: 20px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.md-rewards {
+  display: grid;
+  gap: 8px;
+}
+.md-reward {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.md-reward p {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.md-empty {
+  font-size: 0.85rem;
+  opacity: 0.6;
+}
+.md-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* The theme's error red is too dark on this card: lift the text. */
+.md-delete {
+  color: #ff8a80 !important;
+}
+
+/* Tables & players */
+.md-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.md-head__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.md-head__sub {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.md-head__actions {
+  display: flex;
+  gap: 8px;
+}
+.md-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  text-align: center;
+  opacity: 0.7;
+}
+.md-empty-box p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.md-tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.md-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 12px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+.md-table--full {
+  border-color: rgba(var(--v-theme-accent), 0.6);
+}
+.md-table__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.md-table__top strong {
+  flex: 1;
+  text-transform: uppercase;
+}
+.md-table__count {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.md-seats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.md-seat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+}
+.md-seat--taken {
+  border: 2px solid rgb(var(--v-theme-accent));
+}
+.md-table__qr {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
+  gap: 6px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: background 0.2s ease;
+}
+.md-table__qr:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.md-players {
+  display: grid;
+  gap: 8px;
+}
+.md-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.md-player__info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+.md-player__info strong {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.md-player__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.md-status {
+  padding: 1px 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.md-status--in {
+  background: rgba(var(--v-theme-success), 0.25);
+}
+.md-status--playing {
+  background: rgb(var(--v-theme-accent));
+  color: #141414;
+}
+.md-status--out {
+  background: rgba(var(--v-theme-error), 0.3);
+}
+@media (max-width: 599px) {
+  .md-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+  .md-summary .md-tile:first-child {
+    grid-column: 1 / -1;
+  }
+  .md-store {
+    grid-template-columns: 1fr;
+  }
+  .md-store__map {
+    height: 160px;
+  }
+  .md-player {
+    flex-wrap: wrap;
+  }
+  .md-player__actions {
+    width: 100%;
+  }
+}
+.event-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+@media (max-width: 599px) {
+  .manage-event__tab {
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.66rem;
+  }
+}
+/* Fixed height so switching tabs does not resize the dialog. Vuetify sizes
+   dialog cards through flex-basis, read from --v-card-height. */
+.manage-event-card {
+  --v-card-height: min(85vh, 780px);
+  height: min(85vh, 780px);
 }
 
-.image-zoom-container > * {
-  max-width: 100%;
-  max-height: 80vh;
+.v-dialog--fullscreen .manage-event-card {
+  --v-card-height: 100%;
+  height: 100%;
+}
+
+.table-assembly-container {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .gap-2 {
@@ -1646,5 +1639,85 @@ watch(currentPage, () => {
   .qr-code-container {
     padding: 16px !important;
   }
+}
+
+/* Download PDF version */
+.pdf-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto 20px;
+  padding: 10px 16px;
+  background: rgba(var(--v-theme-accent), 0.14);
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
+  border-radius: 999px;
+  color: rgb(var(--v-theme-accent)) !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.pdf-download:hover {
+  background: rgba(var(--v-theme-accent), 0.26);
+}
+.pdf-download__go {
+  opacity: 0.8;
+}
+
+/* Table code (players can type it instead of scanning) */
+.md-table__join {
+  display: flex;
+  gap: 6px;
+}
+.md-table__join .md-table__qr {
+  flex: 1;
+}
+.md-table__code {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  position: relative;
+  min-width: 0;
+}
+.md-table__code small {
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.md-table__code strong {
+  font-family: "Roboto Mono", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+}
+.md-table__code .v-icon {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  opacity: 0.6;
+}
+.qr-table-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.qr-table-code small {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.qr-table-code strong {
+  font-family: "Roboto Mono", monospace;
+  font-size: 1.8rem;
+  letter-spacing: 4px;
 }
 </style>

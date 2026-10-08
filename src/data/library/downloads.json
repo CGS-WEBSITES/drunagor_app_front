@@ -1,0 +1,668 @@
+{
+  "General": {
+    "en": [
+      {
+        "label": "Update Pack Instructions",
+        "category": "Guides",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Updating-your-game_2.0.pdf"
+      },
+      {
+        "label": "Language Pack Instructions",
+        "category": "Guides",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/Language-Pack_Draft.pdf"
+      },
+      {
+        "label": "Reprint Storage Example",
+        "category": "Guides",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Storing-your-game.pdf"
+      },
+      {
+        "label": "All in Organization Example (Draft)",
+        "category": "Guides",
+        "url": "https://wearecgs.com/wp-content/uploads/2024/04/Storage_Example-0.1.pdf"
+      }
+    ]
+  },
+  "Corebox": {
+    "en": [
+      {
+        "label": "Core Rulebook",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AOD_Rulebook-2022-1.5.pdf"
+      },
+      {
+        "label": "Core Interactions Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AoD_InteractionsBook_v1.0_n.pdf"
+      },
+      {
+        "label": "Core Adv. Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AoD_AdventureBook_v1.0_n.pdf"
+      },
+      {
+        "label": "Core Campaign Log",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Campaign_Log.pdf"
+      },
+      {
+        "label": "Start Here! Guide",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Start-Here-2021.pdf"
+      },
+      {
+        "label": "Reprint Latest Errata",
+        "category": "Extras",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AoD_Remake_Errata_1.2_1-7.pdf"
+      },
+      {
+        "label": "Updated Core Component List",
+        "category": "Extras",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/ComponentsList.pdf"
+      },
+      {
+        "label": "Lich Boss Board",
+        "category": "Extras",
+        "url": "https://wearecgs.com/wp-content/uploads/2024/01/LICH-Board.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Rulebook",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Rulebook_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Interaction Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_InteractionsBook_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_AdventureBook_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Start Here! Guide",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Start-Here_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Cards_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Cards_Back_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_DOORS_Corebox_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_DOORS_Corebox_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Rulebook",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Rulebook_POLISH_v1-1.pdf"
+      },
+      {
+        "label": "Interaction Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Interactions-Book_POLISH_v1.pdf"
+      },
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Adventure-Book_POLISH_v1.pdf"
+      },
+      {
+        "label": "Start Here! Guide",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Start_Here_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Cards_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Cards_Back_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Doors_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_Doors_Back_POLISH_v1.pdf"
+      }
+    ],
+    "pt": [
+      {
+        "label": "Rulebook",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/09/Rulebook-2021-1.1-PTBR.pdf"
+      },
+      {
+        "label": "Interaction Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/09/AoD_InteractionsBook_v1-ptbr.pdf"
+      },
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/09/AoD_AdventureBook_v1.0_EDITABLE_pt-BR.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/09/FoldingDOORS_Corebox_Front_Editable_pt-BR.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/09/FoldingDOORS_Corebox_Back_EDITABLE_pt-BR.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/08/Cards_Corebox_Front_pt-BR_compressed.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/08/Cards_Corebox_Back_pt-BR_compressed.pdf"
+      }
+    ]
+  },
+  "Ruin of Luccanor": {
+    "en": [
+      {
+        "label": "Ruin of Luccanor Adv. Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AOD_AP_Luccanor_v5.0.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Luccanor-Adventure_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Cards_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Cards_Back_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Doors_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Doors_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Luccanor-Adventure_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Cards_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Cards_Back_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/UD_FoldingDOORs_BACK_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Doors_Back_POLISH_v1.pdf"
+      }
+    ],
+    "pt": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/AOD_AP_Luccanor_ADVENTURE-BOOK_v5.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/Cards_APL_Front_Editable_pt-BR.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/Cards_APL_Back_Editable_pt-BR.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/FoldingDOORS_APL_Front_Editable_pt-BR.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/FoldingDOORS_APL_Back_Editable_pt-BR.pdf"
+      }
+    ]
+  },
+  "Shadow World": {
+    "en": [
+      {
+        "label": "Shadow World Adv. Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AOD_AP_ShadowWorld_v5.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Shadow-World-Adventure_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Cards_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Cards_Back_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Doors_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Doors_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Shadow-World-Adventure_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Cards_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Cards_Back_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Doors_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APS_Doors_Back_POLISH_v1.pdf"
+      }
+    ],
+    "pt": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/AOD_AP_ShadowWorld_v5_Editable_pt-BR-1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/Cards_APS_Front_Editable_pt-BR.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/Cards_APS_Back_Editable_pt-BR.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/FoldingDOORS_shadow_world_Front_editable_pt-BR.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/07/FoldingDOORS_shadow_world_Back_Editable_pt-BR.pdf"
+      }
+    ]
+  },
+  "Rise of The Undead Dragon": {
+    "en": [
+      {
+        "label": "Rise of The Undead Dragon Adv. Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/AOD_UD_AdventureBook-_v4.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_AdventureBook_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_Cards_FRONT_ITALIAN_v1-1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_Cards_BACK_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_FoldingDOORS_FRONT_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_FoldingDOORS_BACK_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_AdventureBook_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_Cards_FRONT_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_FoldingDOORs_BACK_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/APL_Doors_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/UD_FoldingDOORs_FRONT_POLISH_v1.pdf"
+      }
+    ]
+  },
+  "Desert of Hellscar": {
+    "en": [
+      {
+        "label": "Desert of Hellscar Adv. Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/04/AOD_DH_AdventureBook_3.0-1.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_AdventureBook_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_Cards_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_Cards_Back_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_FoldingDOORS_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_FoldingDOORS_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_AdventureBook_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_Cards_FRONT_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_Cards_BACK_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_FoldingDOORs_FRONT_POLISH_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2025/02/DH_FoldingDOORs_BACK_POLISH_v1.pdf"
+      }
+    ]
+  },
+  "Monster Pack": {
+    "it": [
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/MP_Cards_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/MP_Cards_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Cards | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/MP_Cards_Front_POLISH_v1.pdf"
+      },
+      {
+        "label": "Cards | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/MP_Cards_Back_POLISH_v1.pdf"
+      }
+    ]
+  },
+  "Apocalypse": {
+    "en": [
+      {
+        "label": "Apocalypse Rules and Interactions Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/APOC_Rules_InteractionsBook_v2.pdf"
+      },
+      {
+        "label": "Apocalypse Adv. Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/APOK_Adventure_1.1.pdf"
+      },
+      {
+        "label": "Apocalypse Campaign Log",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/APOC_Story_record.pdf"
+      },
+      {
+        "label": "Extra Card Dividers for Apocalypse",
+        "category": "Extras",
+        "url": "https://wearecgs.com/wp-content/uploads/2024/06/Alternative-Card-Dividers-for-Apocalypse.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Interaction Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/08/AoD_InteractionsBook_v2.0_ITA_HR_compressed.pdf"
+      },
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/APOK_Adventure_Draft_1.1_ITA_LR.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_DOORS_Corebox_Front_ITALIAN_v1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_DOORS_Corebox_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Interaction Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/AoD_InteractionsBook_v2.0_PL_HR-compressed.pdf"
+      },
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/APOK_Adventure_Draft_1.1_PL_LR-1.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_APOK_Front_Editable_PL-1.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_APOK_Back_Editable_PL-1.pdf"
+      },
+      {
+        "label": "Doors | Darkness",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_APOK_DARKNESS_Front_Editable_PL-1.pdf"
+      }
+    ]
+  },
+  "Awakenings": {
+    "en": [
+      {
+        "label": "Awakenings Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Awakenings_Adventure_Draft_1.0.pdf"
+      },
+      {
+        "label": "Awakenings Campaign Log",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Story_record_Backers.pdf"
+      },
+      {
+        "label": "Updated Awakenings Component List",
+        "category": "Extras",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/11/Awakenings_Components-Updated_V1.pdf"
+      }
+    ],
+    "it": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://s3.us-east-2.amazonaws.com/assets.drunagor.app/book/BACKER'S_Adventure_Draft_1.0_ITA_LR.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_AWE_Front_Editable_ITA.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_AWE_Back_Editable_ITA.pdf"
+      },
+      {
+        "label": "Doors | Darkness",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2023/12/CORE_DOORS_Corebox_Back_ITALIAN_v1.pdf"
+      }
+    ],
+    "pl": [
+      {
+        "label": "Adventure Book",
+        "category": "Books",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/BACKERS_Adventure_Draft_1.0_PL_LR.pdf"
+      },
+      {
+        "label": "Doors | Front Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_AWE_Front_Editable_PL.pdf"
+      },
+      {
+        "label": "Doors | Back Side",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_AWE_Back_Editable_PL.pdf"
+      },
+      {
+        "label": "Doors | Darkness",
+        "category": "Components",
+        "url": "https://wearecgs.com/wp-content/uploads/2026/06/FoldingDOORS_AWE_DARKNESS_Front_Editable_PL.pdf"
+      }
+    ]
+  },
+  "Lorien": {
+    "en": [
+      {
+        "label": "Lorien Deluxe Playerboard",
+        "category": "Extras",
+        "url": "https://wearecgs.com/wp-content/uploads/2024/07/PB_Lorien_Deluxe.pdf"
+      }
+    ]
+  }
+}

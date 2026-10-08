@@ -1,138 +1,55 @@
 <template>
-  <v-card elevation="2" class="assembly-guide">
-    <v-card-text class="pa-0">
-      <v-sheet
-        class="image-container"
-        :class="isMobile ? 'pa-2' : 'pa-4'"
-        color="black"
-      >
-        <div class="image-wrapper" @click="openZoomDialog">
-          <v-img
-            :src="currentStepData.image"
-            :alt="`Assembly step ${currentStep + 1}`"
-            contain
-            class="rounded assembly-image"
-            :max-height="isMobile ? '45vh' : '55vh'"
-          >
-            <template v-slot:placeholder>
-              <v-row class="fill-height ma-0" align="center" justify="center">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                ></v-progress-circular>
-              </v-row>
-            </template>
-          </v-img>
+  <div class="guide">
+    <!-- Where you are -->
+    <header class="guide__head">
+      <div class="guide__steps" :style="{ '--steps': steps.length }">
+        <button
+          v-for="(step, index) in steps"
+          :key="index"
+          class="guide__step"
+          :class="{ done: index < currentStep, current: index === currentStep }"
+          :aria-label="`Step ${index + 1}`"
+          @click="goToStep(index)"
+        ></button>
+      </div>
+      <div class="guide__title">
+        <span class="guide__count">{{ currentStep + 1 }}/{{ steps.length }}</span>
+        <h3>{{ currentStepData.title || `Step ${currentStep + 1}` }}</h3>
+      </div>
+    </header>
 
-          <div class="zoom-hint-container">
-            <div class="zoom-hint">
-              <v-icon color="white" size="x-small">mdi-magnify-plus</v-icon>
-              <span class="text-caption ml-1">Tap to zoom</span>
-            </div>
-          </div>
-        </div>
-      </v-sheet>
+    <!-- Picture -->
+    <div class="guide__media" :class="{ 'guide__media--empty': !currentStepData.image }" @click="currentStepData.image && openZoomDialog()">
+      <template v-if="currentStepData.image">
+        <img :src="currentStepData.image" :alt="currentStepData.title || `Step ${currentStep + 1}`" />
+        <span class="guide__zoom"><v-icon size="18">mdi-magnify-plus-outline</v-icon></span>
+      </template>
+      <template v-else>
+        <v-icon size="40">mdi-image-outline</v-icon>
+        <span>Image coming soon</span>
+      </template>
+    </div>
 
-      <v-sheet
-        v-if="currentStepData.instruction"
-        class="instruction-box"
-        :class="isMobile ? 'pa-3' : 'pa-4 pa-md-6'"
-        color="grey-darken-4"
-      >
-        <div
-          :class="isMobile ? 'text-body-2' : 'text-body-1'"
-          class="text-justify mb-0 html-instruction"
-          v-html="currentStepData.instruction"
-          @click="handleInstructionClick"
-        ></div>
-      </v-sheet>
+    <!-- Text -->
+    <div class="guide__text html-instruction" v-html="currentStepData.instruction" @click="handleInstructionClick"></div>
 
-      <v-sheet class="navigation-bar pa-3 pa-sm-4" color="grey-darken-3">
-        <template v-if="isMobile">
-          <v-progress-linear
-            :model-value="progressPercentage"
-            color="primary"
-            height="3"
-            rounded
-            class="mb-3"
-          ></v-progress-linear>
-
-          <div class="d-flex justify-space-between align-center">
-            <v-btn
-              :disabled="currentStep === 0"
-              color="primary"
-              variant="elevated"
-              size="small"
-              @click="previousStep"
-            >
-              <v-icon start size="small">mdi-chevron-left</v-icon>
-              Prev
-            </v-btn>
-
-            <span class="text-body-2 font-weight-medium">
-              {{ currentStep + 1 }} / {{ assemblySteps.length }}
-            </span>
-
-            <v-btn
-              :disabled="currentStep === assemblySteps.length - 1"
-              color="primary"
-              variant="elevated"
-              size="small"
-              @click="nextStep"
-            >
-              Next
-              <v-icon end size="small">mdi-chevron-right</v-icon>
-            </v-btn>
-          </div>
-        </template>
-
-        <template v-else>
-          <v-row justify="space-between" align="center" no-gutters>
-            <v-col cols="auto">
-              <v-btn
-                :disabled="currentStep === 0"
-                color="primary"
-                variant="elevated"
-                size="large"
-                @click="previousStep"
-              >
-                <v-icon start>mdi-chevron-left</v-icon>
-                Previous
-              </v-btn>
-            </v-col>
-
-            <v-col cols="auto" class="text-center">
-              <div class="d-flex flex-column align-center">
-                <span class="text-body-1 font-weight-medium mb-1">
-                  Step {{ currentStep + 1 }} of {{ assemblySteps.length }}
-                </span>
-                <v-progress-linear
-                  :model-value="progressPercentage"
-                  color="primary"
-                  height="4"
-                  rounded
-                  style="width: 150px"
-                ></v-progress-linear>
-              </div>
-            </v-col>
-
-            <v-col cols="auto">
-              <v-btn
-                :disabled="currentStep === assemblySteps.length - 1"
-                color="primary"
-                variant="elevated"
-                size="large"
-                @click="nextStep"
-              >
-                Next
-                <v-icon end>mdi-chevron-right</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-        </template>
-      </v-sheet>
-    </v-card-text>
-  </v-card>
+    <!-- Navigation -->
+    <nav class="guide__nav">
+      <button class="guide__prev" :disabled="currentStep === 0" aria-label="Previous step" @click="previousStep">
+        <v-icon>mdi-chevron-left</v-icon>
+      </button>
+      <button v-if="showFinish" class="guide__next guide__next--finish" @click="emit('finish')">
+        {{ finishLabel }} <v-icon size="20">mdi-check</v-icon>
+      </button>
+      <button v-else class="guide__next" :disabled="isLastStep" @click="nextStep">
+        <span class="guide__next-label">
+          <small v-if="!isLastStep && steps[currentStep + 1]?.title">Next</small>
+          {{ isLastStep ? "Done" : steps[currentStep + 1]?.title || "Next" }}
+        </span>
+        <v-icon size="20">mdi-chevron-right</v-icon>
+      </button>
+    </nav>
+  </div>
 
   <v-dialog
     v-model="zoomDialog"
@@ -145,7 +62,7 @@
         class="d-flex justify-space-between align-center pa-2 pa-sm-3 zoom-header"
       >
         <span class="text-body-2 text-grey-lighten-1">
-          Step {{ currentStep + 1 }} / {{ assemblySteps.length }}
+          Step {{ currentStep + 1 }} / {{ steps.length }}
         </span>
         <v-btn
           icon
@@ -226,7 +143,7 @@
         <v-spacer></v-spacer>
 
         <v-btn
-          :disabled="currentStep === assemblySteps.length - 1"
+          :disabled="currentStep === steps.length - 1"
           color="primary"
           variant="tonal"
           size="small"
@@ -245,6 +162,14 @@ import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { assemblySteps } from "@/data/assembly/assembly";
 
+const props = defineProps({
+  steps: { type: Array, default: () => assemblySteps },
+  // When set, the last step shows this button instead of a disabled Next.
+  finishLabel: { type: String, default: "" },
+});
+
+const emit = defineEmits(["finish"]);
+
 const { mobile } = useDisplay();
 
 const currentStep = ref(0);
@@ -262,10 +187,13 @@ const dragStart = ref({ x: 0, y: 0 });
 
 const isMobile = computed(() => mobile.value);
 
-const currentStepData = computed(() => assemblySteps[currentStep.value]);
+const currentStepData = computed(() => props.steps[currentStep.value]);
+
+const isLastStep = computed(() => currentStep.value === props.steps.length - 1);
+const showFinish = computed(() => isLastStep.value && !!props.finishLabel);
 
 const progressPercentage = computed(
-  () => ((currentStep.value + 1) / assemblySteps.length) * 100,
+  () => ((currentStep.value + 1) / props.steps.length) * 100,
 );
 
 const zoomImageStyle = computed(() => ({
@@ -274,8 +202,13 @@ const zoomImageStyle = computed(() => ({
   transition: isDragging.value ? "none" : "transform 0.2s ease-out",
 }));
 
+const goToStep = (index) => {
+  currentStep.value = index;
+  scrollToTop();
+};
+
 const nextStep = () => {
-  if (currentStep.value < assemblySteps.length - 1) {
+  if (currentStep.value < props.steps.length - 1) {
     currentStep.value++;
     scrollToTop();
   }
@@ -289,7 +222,7 @@ const previousStep = () => {
 };
 
 const nextStepInZoom = () => {
-  if (currentStep.value < assemblySteps.length - 1) {
+  if (currentStep.value < props.steps.length - 1) {
     currentStep.value++;
     resetZoom();
   }
@@ -303,6 +236,7 @@ const previousStepInZoom = () => {
 };
 
 const scrollToTop = () => {
+  document.querySelectorAll(".guide__text").forEach((el) => (el.scrollTop = 0));
   const dialogContent = document.querySelector(".v-dialog .v-card-text");
   if (dialogContent) {
     dialogContent.scrollTo({ top: 0, behavior: "smooth" });
@@ -481,8 +415,26 @@ onUnmounted(() => {
   background-color: #1e1e1e;
 }
 
+/* Fixed heights so the card never resizes and Next stays in place. */
 .image-container {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 260px;
+}
+
+.image-placeholder {
+  height: 100%;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+}
+
+.step-title {
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .image-wrapper {
@@ -519,7 +471,8 @@ onUnmounted(() => {
 }
 
 .instruction-box {
-  min-height: 60px;
+  height: 180px;
+  overflow-y: auto;
   border-top: 2px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -659,8 +612,11 @@ onUnmounted(() => {
     font-size: 0.7rem !important;
   }
 
+  .image-container {
+    height: 230px;
+  }
   .instruction-box {
-    min-height: 50px;
+    height: 200px;
   }
 
   .zoom-image-wrapper {
@@ -674,11 +630,197 @@ onUnmounted(() => {
   }
 }
 
+/* Same type as the rest of the app. */
+.assembly-guide {
+  font-family: "Poppins", sans-serif;
+}
 .html-instruction,
 .html-instruction :deep(p),
 .html-instruction :deep(li) {
-  font-family: "EB Garamond", serif !important;
-  font-size: 1.15rem !important;
-  line-height: 1.6 !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.87);
+}
+.html-instruction :deep(em) {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem;
+}
+.html-instruction :deep(strong) {
+  color: #fff;
+}
+
+/* Guide */
+.guide {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgb(var(--v-theme-surface));
+  border-radius: 14px;
+  font-family: "Poppins", sans-serif;
+}
+.guide__head {
+  padding: 14px 16px 10px;
+}
+.guide__steps {
+  display: grid;
+  grid-template-columns: repeat(var(--steps), minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.guide__step {
+  height: 5px;
+  background: rgba(var(--v-theme-on-surface), 0.15);
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+.guide__step.done {
+  background: rgba(var(--v-theme-accent), 0.55);
+}
+.guide__step.current {
+  background: rgb(var(--v-theme-accent));
+}
+.guide__title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.guide__count {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  opacity: 0.6;
+}
+.guide__title h3 {
+  overflow: hidden;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* The picture keeps one height so the buttons never move. */
+.guide__media {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  height: clamp(200px, 38vh, 340px);
+  margin: 0 12px;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #1d1d1d 0%, #0b0b0b 100%);
+  border-radius: 12px;
+  cursor: zoom-in;
+}
+.guide__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.guide__media--empty {
+  flex-direction: column;
+  gap: 6px;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  cursor: default;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+.guide__zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  color: #fff;
+}
+.guide__text {
+  flex-shrink: 0;
+  height: 170px;
+  overflow-y: auto;
+  padding: 14px 16px 6px;
+}
+.guide__text :deep(p:last-child) {
+  margin-bottom: 0;
+}
+.guide__text :deep(p) {
+  margin-bottom: 10px;
+}
+.guide__text :deep(ul) {
+  margin: 0 0 10px 20px;
+}
+.guide__text :deep(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 12px auto;
+  border-radius: 6px;
+  cursor: zoom-in;
+}
+.guide__nav {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+.guide__prev {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 52px;
+  height: 50px;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 12px;
+}
+.guide__next {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  height: 50px;
+  padding: 0 14px 0 18px;
+  background: rgb(var(--v-theme-playbutton));
+  border-radius: 12px;
+  color: rgb(var(--v-theme-on-playbutton));
+  font-weight: 800;
+  text-align: left;
+}
+.guide__next-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.guide__next-label small {
+  font-size: 0.62rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.guide__next--finish {
+  justify-content: center;
+}
+.guide__prev:disabled,
+.guide__next:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+@media (max-height: 520px) {
+  .guide__media {
+    height: 46vh;
+  }
+  .guide__text {
+    height: 120px;
+  }
 }
 </style>

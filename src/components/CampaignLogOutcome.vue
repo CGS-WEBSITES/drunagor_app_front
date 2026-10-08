@@ -1,54 +1,26 @@
 <template>
-  <span :data-testid="'campaign-log-outcome-' + heroId">
-    <template v-if="isAdmin && !loading">
-      <v-select
-        v-model="outcomeIds"
-        clearable
-        chips
-        :label="dynamicLabel"
-        :hint="dynamicHint"
-        :items="outcomes"
-        item-title="name"
-        item-value="id"
-        multiple
-        variant="outlined"
-      ></v-select>
-    </template>
-
-    <template v-else-if="!loading">
-      <v-text-field
-        :model-value="outcomeDisplayText"
-        :label="dynamicLabel"
-        variant="outlined"
-        readonly
-        persistent-hint
-        class="mb-4"
-        :disabled="!isAdmin"
-      ></v-text-field>
-    </template>
-
-    <template v-else>
-      <v-text-field
-        :label="dynamicLabel"
-        variant="outlined"
-        loading
-        readonly
-        :disabled="!isAdmin"
-      ></v-text-field>
-    </template>
-  </span>
+  <div :data-testid="'campaign-log-outcome-' + heroId">
+    <EffectPicker
+      v-model="outcomeIds"
+      :title="campaign && campaign.campaign === 'underkeep' ? 'Dungeon role' : 'Outcome'"
+      :items="outcomes"
+      :editable="isAdmin && !loading"
+      :loading="loading"
+      :placeholder="dynamicLabel"
+      :hint="dynamicHint"
+      empty-text="No outcomes selected"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
+import EffectPicker from "@/components/EffectPicker.vue";
 import { ref, watch, computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { CampaignStore } from "@/store/CampaignStore";
-import { useUserStore } from "@/store/UserStore";
-import type { Outcome } from "@/data/repository/campaign/Outcome";
 import { HeroStore } from "@/store/HeroStore";
 import type { OutcomeRepository } from "@/data/repository/campaign/OutcomeRepository";
 import { ConfigurationStore } from "@/store/ConfigurationStore";
-import axios from "axios";
 
 const props = defineProps<{
   heroId: string;
@@ -58,7 +30,6 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const heroStore = HeroStore();
-const userStore = useUserStore();
 const configurationStore = ConfigurationStore();
 const campaignStore = CampaignStore();
 
@@ -85,30 +56,10 @@ const dynamicHint = computed(() => {
   return t("text.outcome-info");
 });
 
-const outcomeDisplayText = computed(() => {
-  if (outcomeIds.value.length === 0) {
-    return t("text.no-outcomes", "No outcomes selected");
-  }
-
-  const activeOutcomes = findOutcomes(outcomeIds.value);
-  return activeOutcomes.map((outcome) => outcome.name).join(", ");
-});
-
 const checkUserRole = async () => {
   isAdmin.value = true;
   loading.value = false;
 };
-
-function findOutcomes(outcomeIdsList: string[]): Outcome[] {
-  const outcomesFound: Outcome[] = [];
-  outcomeIdsList.forEach((outcomeId) => {
-    const outcome = props.repository.find(outcomeId);
-    if (outcome) {
-      outcomesFound.push(outcome);
-    }
-  });
-  return outcomesFound;
-}
 
 watch(
   outcomeIds,

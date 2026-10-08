@@ -37,15 +37,21 @@
                   ></v-img>
                 </v-col>
 
-                <v-col cols="8" class="pl-0 d-flex flex-column justify-center">
-                  <p class="font-weight-bold white--text ma-0">
+                <v-col cols="8" class="pl-0 d-flex flex-column justify-center" :class="{ 'pr-badge-rarity': rarityOf(item.rewardsPk) }">
+                  <p class="badge-name font-weight-bold white--text ma-0">
                     {{ item.title }}
                   </p>
-                  <p class="text-body-2 grey--text ma-0">
+                  <p class="badge-desc text-body-2 grey--text ma-0">
                     {{ item.description }}
                   </p>
                 </v-col>
               </v-row>
+
+              <!-- Share of the community that has it. -->
+              <div v-if="rarityOf(item.rewardsPk)" class="badge-rarity" :style="{ color: rarityOf(item.rewardsPk)!.color }">
+                <strong>{{ rarityOf(item.rewardsPk)!.percent }}</strong>
+                <span>{{ rarityOf(item.rewardsPk)!.label }}</span>
+              </div>
 
               <div class="date-position text-caption grey--text">
                 {{ item.date }}
@@ -77,9 +83,14 @@
 import { ref, onMounted, computed } from "vue";
 import axios from "axios";
 import AllBadgesDialog from "@/components/dialogs/AllBadgesDialog.vue";
+import { badgeRarityOf, useBadgeStats } from "@/utils/badgeRarity";
 
-const userRewards = ref([]);
+const userRewards = ref<any[]>([]);
 const showAllBadges = ref(false);
+
+// Percentage of the community with each badge, and its rarity tier.
+const badgeStats = useBadgeStats(axios);
+const rarityOf = (rewardPk: number) => badgeRarityOf(badgeStats.value, rewardPk);
 
 const userId = computed(() => {
   const userData = JSON.parse(localStorage.getItem("app_user") || "{}");
@@ -98,7 +109,8 @@ const fetchUserRewards = async () => {
       },
     });
 
-    userRewards.value = (response.data.rewards || []).map((reward) => ({
+    userRewards.value = (response.data.rewards || []).map((reward: any) => ({
+      rewardsPk: reward.rewards_pk,
       image: `https://assets.drunagor.app/${reward.picture_hash}`,
       title: reward.name,
       description: reward.description,
@@ -122,6 +134,32 @@ onMounted(() => {
   right: 12px; /* Distância da borda direita */
 }
 
+/* Rarity: big italic percentage, tier name under it. */
+.badge-rarity {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: "Poppins", sans-serif;
+  font-style: italic;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.badge-rarity strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.badge-rarity span {
+  margin-top: 2px;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+.pr-badge-rarity {
+  padding-right: 96px !important;
+}
+
 .clickable-badges-card {
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -130,5 +168,19 @@ onMounted(() => {
 .clickable-badges-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+}
+
+/* Badge text never grows the card: name on one line, description on two. */
+.badge-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.badge-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 </style>

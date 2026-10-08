@@ -19,4 +19,6 @@ const storeForms = ref([]); // Lista de formulários de loja
 </script>
 
 
+<style src="@/assets/css/account-card.css"></style>
+
 <style scoped></style>

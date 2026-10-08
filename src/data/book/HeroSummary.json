@@ -1,0 +1,62 @@
+{
+  "Vorn": {
+    "bark": "Stands between his allies and danger.",
+    "playstyle": [
+      "Draws enemy attacks and keeps foes focused on him",
+      "Gains Shield tokens that absorb damage before it hits",
+      "Prevents damage for himself and nearby allies"
+    ],
+    "gift": {
+      "name": "Bulwark Shield",
+      "description": "Another way to Prevent damage for yourself or a teammate."
+    }
+  },
+  "Lorelai": {
+    "bark": "Bends the battlefield to the Party's will.",
+    "playstyle": [
+      "Moves enemies out of position with her magic",
+      "Disrupts enemy plans before they can strike",
+      "Creates openings so her allies can attack safely"
+    ],
+    "gift": {
+      "name": "Bauble of Power",
+      "description": "Gives your magic Skills an incremental damage bonus."
+    }
+  },
+  "Jaheen": {
+    "bark": "Keeps the Party standing.",
+    "playstyle": [
+      "Heals allies after they take damage",
+      "Reacts to attacks to prevent damage to his allies",
+      "Cleanses harmful effects, like Curse Cubes, from the Party"
+    ],
+    "gift": {
+      "name": "Heroic Heart",
+      "description": "Improves your Cleanse effects."
+    }
+  },
+  "Maya": {
+    "bark": "The Party's main damage dealer.",
+    "playstyle": [
+      "Deals the most damage in the Party",
+      "Focuses on priority targets and takes them down fast",
+      "Relies on precise attacks instead of holding the frontline"
+    ],
+    "gift": {
+      "name": "Weakening Dagger",
+      "description": "Some protection and another chance to trigger Best Friends."
+    }
+  },
+  "Elros": {
+    "bark": "Leads the Party as a unified force.",
+    "playstyle": [
+      "Coordinates the Party's actions each round",
+      "Lets allies act beyond their own turns",
+      "Enhances his allies instead of fighting alone"
+    ],
+    "gift": {
+      "name": "Boots of Haste",
+      "description": "Reach advantageous positions or make an extra attack."
+    }
+  }
+}

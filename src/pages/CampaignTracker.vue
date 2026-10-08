@@ -17,7 +17,9 @@ const isMenuHidden = computed(() => {
     route.path.includes("/campaign-tracker/heroes") ||
     route.name === "HeroesManager" ||
     route.name === "Hero" ||
-    route.name === "HeroSequentialState"
+    route.name === "HeroSequentialState" ||
+    route.name === "StandaloneHero" ||
+    route.name === "StandaloneHeroSequentialState"
   );
 });
 </script>

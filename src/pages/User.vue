@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card color="primary" class="profile-card mx-auto py-0 mt-16" rounded="0" elevation="3" style="
+    <v-card color="primary" class="profile-card user-profile-card mx-auto py-0" rounded="0" elevation="3" style="
       overflow: visible;
       position: relative;
       text-align: center;
@@ -617,6 +617,16 @@ checkFriendStatus();
 </script>
 
 <style scoped>
+/* Start the banner right below the fixed top bar (48px desktop, 56px mobile);
+   the app already pads pages by 20px on desktop. */
+.user-profile-card {
+  margin-top: 28px;
+}
+@media (max-width: 959px) {
+  .user-profile-card {
+    margin-top: calc(56px + env(safe-area-inset-top, 0px));
+  }
+}
 .user-info {
   /* margin controlled by layout now */
 }

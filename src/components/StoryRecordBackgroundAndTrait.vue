@@ -1,53 +1,17 @@
 <template>
-  <div
-    id="story-record-background-and-trait"
-    class="grid gap-1 form-control w-full"
-  >
-    <v-row no-gutters>
-      <v-col cols="8" class="text-left"> Folk Hero </v-col>
-      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
-        <v-switch
-          v-model="backgroundAndTraitIds"
-          value="folk-hero"
-          color="primary"
-          hide-details
-          inset
-        ></v-switch>
-      </v-col>
-
-      <v-col cols="8" class="text-left"> Knight of Amira </v-col>
-      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
-        <v-switch
-          v-model="backgroundAndTraitIds"
-          value="knight-of-amir"
-          color="primary"
-          hide-details
-          inset
-        ></v-switch>
-      </v-col>
-
-      <v-col cols="8" class="text-left"> Redeemer </v-col>
-      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
-        <v-switch
-          v-model="backgroundAndTraitIds"
-          value="redeemer"
-          color="primary"
-          hide-details
-          inset
-        ></v-switch>
-      </v-col>
-
-      <v-col cols="8" class="text-left"> Passionate </v-col>
-      <v-col cols="4" class="d-flex flex-row justify-end pr-9">
-        <v-switch
-          v-model="backgroundAndTraitIds"
-          value="passionate"
-          color="primary"
-          hide-details
-          inset
-        ></v-switch>
-      </v-col>
-    </v-row>
+  <!-- Tap a background or trait to mark it. -->
+  <div id="story-record-background-and-trait" class="traits">
+    <button
+      v-for="option in options"
+      :key="option.id"
+      class="trait"
+      :class="{ on: backgroundAndTraitIds.includes(option.id) }"
+      :aria-pressed="backgroundAndTraitIds.includes(option.id)"
+      @click="toggle(option.id)"
+    >
+      <v-icon size="16">{{ backgroundAndTraitIds.includes(option.id) ? "mdi-check" : "mdi-plus" }}</v-icon>
+      {{ option.label }}
+    </button>
   </div>
 </template>
 
@@ -68,8 +32,43 @@ backgroundAndTraitIds.value =
 watch(backgroundAndTraitIds, async (newBackgroundAndTraitsIds) => {
   campaignStore.find(props.campaignId).backgroundAndTraitIds =
     newBackgroundAndTraitsIds;
-  console.log(newBackgroundAndTraitsIds);
 });
+
+const options = [
+  { id: "folk-hero", label: "Folk Hero" },
+  { id: "knight-of-amir", label: "Knight of Amira" },
+  { id: "redeemer", label: "Redeemer" },
+  { id: "passionate", label: "Passionate" },
+];
+function toggle(id: string) {
+  backgroundAndTraitIds.value = backgroundAndTraitIds.value.includes(id)
+    ? backgroundAndTraitIds.value.filter((value) => value !== id)
+    : [...backgroundAndTraitIds.value, id];
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.trait {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.trait.on {
+  background: rgba(var(--v-theme-accent), 0.18);
+  border-color: rgb(var(--v-theme-accent));
+  color: rgb(var(--v-theme-accent));
+  opacity: 1;
+}
+</style>

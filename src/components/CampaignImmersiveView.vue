@@ -20,7 +20,7 @@
           class="map-image"
           alt="Campaign Map"
           @error="handleImageError"
-          @load="updateBounds"
+          @load="onMapLoad"
         />
         <div
           v-else
@@ -34,18 +34,21 @@
     <div class="hud-layer">
       <div class="hud-area top-left">
         <div class="interactive-content d-flex flex-column align-start">
-          <div class="objective-panel mb-2">
-            <div
-              class="objective-label text-uppercase text-caption font-weight-bold text-blue-lighten-3"
-            >
-              Current Objective:
-            </div>
-            <div class="objective-text text-white font-weight-bold text-shadow">
-              {{ currentLocationDisplay }}
-            </div>
+          <!-- Where the party is and what to do now. -->
+          <div class="now-card mb-2">
+            <small>{{ activeCampaignData.wing || "Campaign" }}</small>
+            <strong>{{ activeCampaignData.door || "First Setup" }}</strong>
           </div>
 
-          <div class="d-flex flex-column gap-2 mt-1">
+          <div class="side-tabs">
+            <v-tooltip text="How to assemble the First Setup" location="right" v-if="isFirstSetupDoor">
+              <template v-slot:activator="{ props }">
+                <div v-bind="props" class="bookmark-tab left-side start-here-tab" @click.stop="openFirstSetupGuide">
+                  <v-icon icon="mdi-map-legend" color="amber-accent-2"></v-icon>
+                  <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">FIRST SETUP</span>
+                </div>
+              </template>
+            </v-tooltip>
             <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
               <template v-slot:activator="{ props }">
                 <div 
@@ -156,6 +159,20 @@
       <div class="hud-area top-right">
         <div class="interactive-content d-flex flex-column align-end gap-2">
           <div class="d-flex flex-row align-center gap-2 mb-1">
+            <v-menu v-if="smAndDown" location="bottom end" :offset="6">
+              <template #activator="{ props: menuProps }">
+                <v-btn v-bind="menuProps" icon="mdi-menu" class="square-hud-btn" title="Menu"></v-btn>
+              </template>
+              <v-list density="compact" class="bg-grey-darken-4">
+                <v-list-item prepend-icon="mdi-account-group" title="Party" @click="playerListDialogVisible = true" />
+                <v-list-item prepend-icon="mdi-content-save" title="Save game" base-color="green-lighten-2" @click="manualSave" />
+                <v-list-item prepend-icon="mdi-fit-to-screen-outline" title="Fit map" @click="fitMap" />
+                <template v-if="showSaveCampaignButton">
+                  <v-divider class="my-1" />
+                  <v-list-item prepend-icon="mdi-delete-forever" title="Leave campaign" base-color="red-lighten-2" @click="confirmLeave" />
+                </template>
+              </v-list>
+            </v-menu>
             <v-tooltip text="Exit to Dashboard" location="bottom">
               <template v-slot:activator="{ props }">
                 <v-btn
@@ -223,45 +240,27 @@
 
       <div class="hud-area bottom-left">
         <div class="interactive-content d-flex flex-column align-start gap-2">
-          <div class="d-flex gap-2">
-            <v-tooltip text="Player List" location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-account-group"
-                  class="square-hud-btn"
-                  @click.stop="playerListDialogVisible = true"
-                ></v-btn>
+          <div v-if="!smAndDown" class="hud-btns">
+            <button class="hud-btn" title="Players" @click.stop="playerListDialogVisible = true">
+              <v-icon>mdi-account-group</v-icon><span>Party</span>
+            </button>
+            <button class="hud-btn hud-btn--save" title="Save game" @click.stop="manualSave">
+              <v-icon>mdi-content-save</v-icon><span>Save</span>
+            </button>
+            <button class="hud-btn" title="Fit the map to the screen" @click.stop="fitMap">
+              <v-icon>mdi-fit-to-screen-outline</v-icon><span>Fit map</span>
+            </button>
+            <!-- Leaving sits away from Save, behind a menu. -->
+            <v-menu v-if="showSaveCampaignButton" location="top start" :offset="8">
+              <template #activator="{ props: menuProps }">
+                <button v-bind="menuProps" class="hud-btn" title="More">
+                  <v-icon>mdi-dots-horizontal</v-icon><span>More</span>
+                </button>
               </template>
-            </v-tooltip>
-
-            <v-tooltip text="Save Game" location="top">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-content-save"
-                  class="square-hud-btn"
-                  color="success"
-                  @click.stop="manualSave"
-                ></v-btn>
-              </template>
-            </v-tooltip>
-
-            <v-tooltip
-              text="Leave Campaign"
-              location="top"
-              v-if="showSaveCampaignButton"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  icon="mdi-delete-forever"
-                  class="square-hud-btn"
-                  color="grey-darken-3"
-                  @click.stop="confirmLeave"
-                ></v-btn>
-              </template>
-            </v-tooltip>
+              <v-list density="compact" class="bg-grey-darken-4">
+                <v-list-item prepend-icon="mdi-delete-forever" title="Leave campaign" base-color="red-lighten-2" @click="confirmLeave" />
+              </v-list>
+            </v-menu>
           </div>
         </div>
       </div>
@@ -309,6 +308,7 @@
                   alt="icon"
                   class="tab-icon-img"
                 />
+                <span class="tab-label">Interactions</span>
               </div>
             </template>
           </v-tooltip>
@@ -323,6 +323,7 @@
                 <v-icon size="large" color="#e0e0e0"
                   >mdi-book-open-page-variant</v-icon
                 >
+                <span class="tab-label">Read scene</span>
               </div>
             </template>
           </v-tooltip>
@@ -341,6 +342,7 @@
                 @click.stop="handleNextAction"
               >
                 <v-icon size="large" color="black">{{ nextButtonIcon }}</v-icon>
+                <span class="tab-label tab-label--next">{{ nextButtonLabel }}</span>
               </div>
             </template>
           </v-tooltip>
@@ -393,27 +395,35 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="tutorialPromptDialog.visible" max-width="400" persistent>
+    <v-dialog v-model="tutorialPromptDialog.visible" max-width="900" :fullscreen="smAndDown" scrollable persistent>
         <v-card class="bg-grey-darken-4 border-xl border-amber-accent-4 rounded-lg elevation-20">
             <v-card-title class="text-center text-uppercase font-weight-bold pt-6 text-h5 text-amber-accent-2" style="font-family: 'Cinzel', serif;">
-                <v-icon start icon="mdi-school" class="mr-2"></v-icon> Tutorial Available
+                <v-icon start icon="mdi-map" class="mr-2"></v-icon> First Setup
             </v-card-title>
-            <v-card-text class="py-4 px-6 text-body-1">
-                <p class="text-center">Welcome to <strong>Drunagor Nights</strong>.</p>
-                <p class="mt-2 text-center text-grey-lighten-1">Would you like to open the <strong>"Start Here"</strong> guide to learn the basics and setup your heroes?</p>
-                
+            <p class="text-center text-body-2 text-grey-lighten-1 px-6 mb-2">
+                Welcome to <strong>Drunagor Nights</strong>. Your party assembles the First Room on the table.
+                <template v-if="tutorialPromptDialog.offerStartHere">Then follow the <strong>"Start Here"</strong> guide to play your first turns.</template>
+            </p>
+            <v-card-text class="pa-2 pa-sm-4">
+                <AssemblyGuide
+                  :steps="firstSetupSteps"
+                  :finish-label="tutorialPromptDialog.offerStartHere ? 'Continue to Start Here' : 'Start playing'"
+                  @finish="tutorialPromptDialog.offerStartHere ? acceptTutorial() : (tutorialPromptDialog.visible = false)"
+                />
+            </v-card-text>
+            <v-card-actions class="justify-space-between px-6 pb-4">
                 <v-checkbox
+                  v-if="tutorialPromptDialog.offerStartHere"
                   v-model="tutorialPromptDialog.dontShowAgain"
-                  label="Don't ask me again"
+                  label="Don't show again"
                   color="amber-accent-4"
                   density="compact"
-                  class="mt-4"
                   hide-details
                 ></v-checkbox>
-            </v-card-text>
-            <v-card-actions class="justify-center pb-6 gap-4">
-                <v-btn color="grey" variant="text" @click="declineTutorial">Maybe Later</v-btn>
-                <v-btn color="amber-accent-4" variant="flat" class="text-black font-weight-bold px-6" @click="acceptTutorial">Read Now</v-btn>
+                <v-spacer v-if="!tutorialPromptDialog.offerStartHere" />
+                <v-btn color="grey" variant="text" @click="tutorialPromptDialog.offerStartHere ? declineTutorial() : (tutorialPromptDialog.visible = false)">
+                  {{ tutorialPromptDialog.offerStartHere ? "Skip" : "Close" }}
+                </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -422,7 +432,7 @@
       <v-card color="black">
         <InteractViewNew
           v-if="interactionsDialog.visible"
-          :current-door="activeCampaignData.door"
+          :current-door="doorSceneTarget"
           :wing="activeCampaignData.wing"
           @close="interactionsDialog.visible = false"
           @open-scene="handleOpenScene"
@@ -432,22 +442,11 @@
 
     <v-dialog v-model="bookDialog.visible" fullscreen transition="dialog-bottom-transition" :scrim="false">
       <v-card color="black" class="book-dialog-card">
-        <v-toolbar color="primary" density="compact" class="d-none d-md-block">
-          <v-btn icon="mdi-close" @click="bookDialog.visible = false"></v-btn>
-          <v-toolbar-title>{{ bookDialog.title }}</v-toolbar-title>
-        </v-toolbar>
-        <v-btn
-            v-if="$vuetify.display.smAndDown"
-            icon="mdi-close"
-            color="red"
-            variant="elevated"
-            size="small"
-            class="mobile-close-book-btn"
-            elevation="8"
-            @click="bookDialog.visible = false"
-        ></v-btn>
-        <CampaignBookNew 
-          ref="campaignBookRef" 
+        <CampaignBookNew
+          ref="campaignBookRef"
+          closable
+          :current-door="activeCampaignData.door"
+          @close="bookDialog.visible = false"
           :campaign-wing="bookContext" 
           :campaign-type="activeCampaignData.campaign || campaign?.campaign || ''" 
           :active-wing="activeCampaignData.wing || campaign?.wing || ''"
@@ -583,20 +582,36 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="instructionsDialogVisible" max-width="900" scrollable>
+    <!-- A tutorial mentioned in the rules, read right there. -->
+    <v-dialog v-model="tutorialPopup.visible" max-width="680" scrollable>
+      <v-card v-if="tutorialPopup.tutorial" class="tutorial-popup rounded-xl">
+        <div class="rules-head">
+          <div>
+            <small>Tutorial</small>
+            <strong>{{ tutorialPopup.tutorial.name }}</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="tutorialPopup.visible = false"></v-btn>
+        </div>
+        <v-card-text class="tutorial-popup__body" v-html="tutorialPopup.tutorial.body"></v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="instructionsDialogVisible" max-width="760" scrollable>
       <v-card class="book-style-card rounded-xl overflow-hidden">
-        <v-toolbar color="#10594f" density="compact" class="px-2">
-          <v-toolbar-title class="text-white font-weight-bold pl-2" style="font-family: serif">{{ currentDoorData?.title?.toUpperCase() }} - RULES</v-toolbar-title>
-          <v-spacer></v-spacer>
+        <div class="rules-head">
+          <div>
+            <small>Rules</small>
+            <strong>{{ doorDisplayName(currentDoorData?.title) }}</strong>
+          </div>
           <v-btn icon="mdi-close" variant="text" color="white" @click="instructionsDialogVisible = false"></v-btn>
-        </v-toolbar>
-        
+        </div>
+
         <v-card-text class="pa-4" style="max-height: 80vh; overflow-y: auto; overflow-x: hidden;">
-          <v-container fluid v-if="currentDoorData">
-            
+          <v-container fluid v-if="currentDoorData" class="pa-0">
+
             <v-row>
                 <v-col cols="12">
-                    <div v-if="currentDoorData.instruction" v-html="currentDoorData.instruction" class="instruction-box"></div>
+                    <div v-if="currentDoorData.instruction" v-html="withTutorialLinks(currentDoorData.instruction)" class="rules-body" @click="onRulesClick"></div>
                     <div v-else class="text-center pa-10 text-grey font-italic">No specific rules required at this time.</div>
                 </v-col>
             </v-row>
@@ -629,26 +644,18 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="heroCardDialog.visible" max-width="600" scrollable>
-      <v-card class="bg-grey-darken-4 rounded-xl hero-detail-card" v-if="heroCardDialog.hero">
-        <v-toolbar color="rgba(0,0,0,0.6)" density="compact" theme="dark" class="px-2">
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" @click="heroCardDialog.visible = false"></v-btn>
-        </v-toolbar>
-        <v-card-text class="pa-0">
-          <div class="hero-tracker-header">
-            <v-img :src="heroCardDialog.hero.images.trackerInfo || heroCardDialog.hero.images.background" width="100%" max-height="300" cover></v-img>
-          </div>
-          <v-container fluid class="pa-4">
-            <HeroDetailSummary :campaign-id="campaignId" :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id" class="mb-4" />
-            <v-divider class="my-4 border-opacity-25"></v-divider>
-            <CampaignLogSequentialAdventure :campaign-id="campaignId" :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id" :hero="heroCardDialog.hero" :hide-manage-button="true" />
-          </v-container>
+    <v-dialog v-model="heroCardDialog.visible" max-width="760" scrollable>
+      <v-card v-if="heroCardDialog.hero" class="hero-dialog">
+        <div class="hero-dialog__head">
+          <v-btn icon="mdi-close" variant="text" size="small" @click="heroCardDialog.visible = false"></v-btn>
+        </div>
+        <v-card-text class="pa-3">
+          <CampaignLog
+            :campaign-id="campaignId"
+            :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
+            :is-sequential-adventure="true"
+          />
         </v-card-text>
-        <v-card-actions class="bg-grey-darken-3 pa-4 d-flex justify-space-between gap-4">
-          <v-btn color="amber-accent-4" variant="elevated" class="flex-grow-1 text-black font-weight-bold" prepend-icon="mdi-sack" @click="openResources(heroCardDialog.hero.heroId || heroCardDialog.hero.id)">Resources</v-btn>
-          <v-btn color="light-blue-accent-3" variant="elevated" class="flex-grow-1 text-black font-weight-bold" prepend-icon="mdi-shield-sword" @click="openEquipment(heroCardDialog.hero.heroId || heroCardDialog.hero.id)">Equipment</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -913,11 +920,16 @@ import { ref, computed, nextTick, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { CampaignStore } from "@/store/CampaignStore";
 import { useTutorialStore } from "@/store/TutorialStore";
+import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import { firstSetupSteps } from "@/data/assembly/firstSetup";
+import { useDisplay } from "vuetify";
+import { useEventListener } from "@vueuse/core";
 import { useUserStore } from "@/store/UserStore";
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
 import axios from "axios";
 
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
+import playerTutorialsData from "@/data/book/playerTutorials.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -936,8 +948,7 @@ import CampaignPlayerList from "@/components/CampaignPlayerList.vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
 import CampaignLogImportHero from "@/components/CampaignLogImportHero.vue";
 import SelectDoor from "@/components/SelectDoor.vue";
-import CampaignLogSequentialAdventure from "@/components/CampaignLogSequentialAdventure.vue";
-import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
+import CampaignLog from "@/components/CampaignLog.vue";
 import ShareCampaignButton from "./ShareCampaignButton.vue";
 import TharmagarChat from "@/components/TharmagarChat.vue";
 
@@ -994,6 +1005,8 @@ const emit = defineEmits<{
 const router = useRouter();
 const campaignStore = CampaignStore();
 const tutorialStore = useTutorialStore();
+const { smAndDown } = useDisplay();
+useEventListener(window, "resize", () => fitMap());
 const userStore = useUserStore();
 const heroDataRepository = new HeroDataRepository();
 
@@ -1013,6 +1026,56 @@ const keywordsDialog = ref({ visible: false });
 const doorScannerDialog = ref({ visible: false });
 const narrativeDialogVisible = ref(false);
 const instructionsDialogVisible = ref(false);
+
+// Tutorials the door rules point to ("Read 'Tutorial – Commanders'…"), opened in a pop-up.
+const TUTORIAL_ALIASES: Record<string, string> = {
+  "monsters with multiple targets": "multi target monsters",
+  "minor action": "minor actions",
+  "darkness nodes tie breaker": "darkness nodes and tie breakers",
+  "learning class skills": "learning class abilities",
+};
+const tutorialKey = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/^\s*tutorial\s*[-–]\s*/, "")
+    .replace(/&amp;|&/g, " ")
+    .replace(/[^a-z ]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+const TUTORIALS = new Map<string, { name: string; body: string }>(
+  (playerTutorialsData as any).chapters.flatMap((chapter: any) =>
+    chapter.tutorials.map((tutorial: any) => {
+      const name = tutorial.title.replace(/^TUTORIAL\s*[-–]\s*/i, "");
+      return [tutorialKey(name).replace(/\band\b /g, "and "), { name, body: tutorial.bodyHTML }];
+    }),
+  ),
+);
+const findTutorial = (text: string) => {
+  const key = tutorialKey(text);
+  return TUTORIALS.get(key) ?? TUTORIALS.get(TUTORIAL_ALIASES[key] ?? "") ?? null;
+};
+// 'Name' in the rules becomes a button when it names a tutorial.
+const withTutorialLinks = (html: string) =>
+  html.replace(/‘([^’]+?)’/g, (whole, inner) => {
+    const clean = inner.replace(/[,.]\s*$/, "");
+    const tutorial = findTutorial(clean);
+    if (!tutorial) return whole;
+    const trailing = inner.slice(clean.length);
+    return `<button type="button" class="tutorial-link" data-tutorial="${tutorialKey(tutorial.name)}"><i class="mdi mdi-school-outline"></i>${tutorial.name}</button>${trailing}`;
+  });
+const tutorialPopup = ref<{ visible: boolean; tutorial: { name: string; body: string } | null }>({ visible: false, tutorial: null });
+const onRulesClick = (event: MouseEvent) => {
+  const link = (event.target as HTMLElement).closest<HTMLElement>(".tutorial-link");
+  if (!link) return;
+  const tutorial = findTutorial(link.dataset.tutorial || "");
+  if (tutorial) tutorialPopup.value = { visible: true, tutorial };
+};
+// "THE KEEP'S COURTYARD (TUTORIAL)" → "The Keep's Courtyard".
+const doorDisplayName = (title?: string) =>
+  (title || "")
+    .replace(/\s*\(TUTORIAL\)\s*$/i, "")
+    .toLowerCase()
+    .replace(/(^|[\s-])([a-z])/g, (m, sep, ch) => sep + ch.toUpperCase());
 const openingDoorDialogVisible = ref(false);
 const zoomDialog = ref({ visible: false, image: "" });
 
@@ -1057,7 +1120,7 @@ const onSaving = () => {
   if (savingStateTimeout) clearTimeout(savingStateTimeout);
 };
 
-const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false });
+const tutorialPromptDialog = ref({ visible: false, dontShowAgain: false, offerStartHere: false });
 const bookContext = ref('');
 
 const partyCode = ref<string | null>(null);
@@ -1098,11 +1161,6 @@ const enrichedHeroes = computed(() => {
 
 const activeCampaignData = computed(
   () => campaignStore.find(props.campaignId) || props.campaign || {},
-);
-
-const currentLocationDisplay = computed(
-  () =>
-    `${activeCampaignData.value.wing || "Unknown"} - ${activeCampaignData.value.door || "Setup"}`,
 );
 
 const isWing1Or2 = computed(() => {
@@ -1222,6 +1280,23 @@ function getMonsterStorageKey(doorName: string, index: number) {
 function getMonsterConfigForCurrentDoor(wing: string, doorName: string): MonsterSlot[] {
   const isWing1 = wing.includes("WING 1") || wing.includes("TUTORIAL") || wing.includes("WING 01");
   const isWing2 = wing.includes("WING 2") || wing.includes("WING 02");
+
+  // Wing 1 Tutorial has its own Tutorial Monsters (same maps as Advanced).
+  if (wing.includes("TUTORIAL")) {
+    const fixed = (...cards: string[]) => cards.map((card) => ({ type: card, isRandom: false, fixedValue: card }));
+    switch (doorName) {
+      case "FIRST SETUP":
+        return fixed("tut_vampire");
+      case "THE BARRICADED PATH (TUTORIAL)":
+        return fixed("tut_archer", "tut_rotten");
+      case "THE KEEP'S COURTYARD (TUTORIAL)":
+        return fixed("tut_fallen_guardian");
+      case "THE GREAT HALL (TUTORIAL)":
+        return fixed("tut_cultist", "tut_reaper");
+      default:
+        return [];
+    }
+  }
   
   if (isWing1) {
     switch (doorName) {
@@ -1415,6 +1490,9 @@ const currentMonsters = computed(() => {
   return [];
 });
 
+// Tutorial maps, if added under campaign_background/wing1tutorial (same file names as wing1).
+const TUTORIAL_MAPS = import.meta.glob("../assets/campaign_background/wing1tutorial/*.png", { eager: true, import: "default" }) as Record<string, string>;
+
 const currentBackgroundImage = computed(() => {
   const wing = (activeCampaignData.value.wing || '').toUpperCase();
   const door = (activeCampaignData.value.door || '').toUpperCase();
@@ -1502,6 +1580,11 @@ const currentBackgroundImage = computed(() => {
     ];
     doorFile = doorMap[idx] || "setup";
   }
+  // Wing 1 Tutorial uses its own maps (tutorial monster markers) when they exist.
+  if (wing.includes("TUTORIAL")) {
+    const tutorialMap = TUTORIAL_MAPS[`../assets/campaign_background/wing1tutorial/wing1tutorial.${doorFile}.png`];
+    if (tutorialMap) return tutorialMap;
+  }
   try {
     return new URL(
       `../assets/campaign_background/${wingFolder}/${wingFolder}.${doorFile}.png`,
@@ -1579,7 +1662,7 @@ let isDragging = false;
 let startPos = { x: 0, y: 0 };
 let initialPinchDistance = 0;
 let initialScale = 1;
-const MIN_SCALE = 1;
+const MIN_SCALE = 0.6;
 const MAX_SCALE = 4;
 
 const mapTransformStyle = computed(() => ({
@@ -1591,26 +1674,86 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+// Size of the map image as drawn at scale 1 (object-fit: contain).
+function renderedMapSize() {
+  const img = mapImageRef.value;
+  const container = mapContainerRef.value?.getBoundingClientRect();
+  if (!img?.naturalWidth || !container) return null;
+  const ratio = Math.min(container.width / img.naturalWidth, container.height / img.naturalHeight);
+  return { width: img.naturalWidth * ratio, height: img.naturalHeight * ratio, container };
+}
+
+// Keeps the map's centre over the image while panning.
 function updateBounds() {
-  if (!mapContainerRef.value || !mapImageRef.value) return;
-  const container = mapContainerRef.value.getBoundingClientRect();
-  const scaledWidth = mapImageRef.value.naturalWidth * transform.value.scale;
-  const scaledHeight = mapImageRef.value.naturalHeight * transform.value.scale;
-  
-  if (scaledWidth <= container.width) {
-      transform.value.x = 0;
-  } else {
-      const overflowX = (scaledWidth - container.width) / 2;
-      transform.value.x = clamp(transform.value.x, -overflowX, overflowX);
-  }
-  
-  if (scaledHeight <= container.height) {
-      transform.value.y = 0;
-  } else {
-      const overflowY = (scaledHeight - container.height) / 2;
-      transform.value.y = clamp(transform.value.y, -overflowY, overflowY);
+  const size = renderedMapSize();
+  if (!size) return;
+  const limitX = (size.width * transform.value.scale) / 2;
+  const limitY = (size.height * transform.value.scale) / 2;
+  transform.value.x = clamp(transform.value.x, -limitX, limitX);
+  transform.value.y = clamp(transform.value.y, -limitY, limitY);
+}
+
+// The tiles only fill part of each map image: find them (non-dark pixels),
+// then zoom so they fill the space between the HUD pieces.
+const mapContentBox = ref<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+function measureMapContent() {
+  const img = mapImageRef.value;
+  mapContentBox.value = null;
+  if (!img?.naturalWidth) return;
+  try {
+    const width = 200;
+    const height = Math.max(1, Math.round((width * img.naturalHeight) / img.naturalWidth));
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return;
+    context.drawImage(img, 0, 0, width, height);
+    const data = context.getImageData(0, 0, width, height).data;
+    let x0 = width, y0 = height, x1 = -1, y1 = -1;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        if (data[i + 3] > 40 && data[i] + data[i + 1] + data[i + 2] > 90) {
+          if (x < x0) x0 = x;
+          if (x > x1) x1 = x;
+          if (y < y0) y0 = y;
+          if (y > y1) y1 = y;
+        }
+      }
+    }
+    if (x1 >= 0) mapContentBox.value = { x0: x0 / width, y0: y0 / height, x1: (x1 + 1) / width, y1: (y1 + 1) / height };
+  } catch {
+    // Unreadable image: fit the whole picture.
   }
 }
+
+function fitMap() {
+  const size = renderedMapSize();
+  if (!size) return;
+  const box = mapContentBox.value ?? { x0: 0, y0: 0, x1: 1, y1: 1 };
+  // Free space between the HUD pieces.
+  const short = size.container.height < 560;
+  const pad = smAndDown.value
+    ? short
+      ? { top: 16, bottom: 90, side: 80 }
+      : { top: 110, bottom: 140, side: 64 }
+    : { top: 110, bottom: 170, side: 220 };
+  const freeWidth = Math.max(100, size.container.width - pad.side * 2);
+  const freeHeight = Math.max(100, size.container.height - pad.top - pad.bottom);
+  const boxWidth = (box.x1 - box.x0) * size.width;
+  const boxHeight = (box.y1 - box.y0) * size.height;
+  const scale = clamp(Math.min(freeWidth / boxWidth, freeHeight / boxHeight), 0.6, MAX_SCALE);
+  const centreX = ((box.x0 + box.x1) / 2 - 0.5) * size.width;
+  const centreY = ((box.y0 + box.y1) / 2 - 0.5) * size.height;
+  transform.value = { x: -centreX * scale, y: (pad.top - pad.bottom) / 2 - centreY * scale, scale };
+}
+
+function onMapLoad() {
+  measureMapContent();
+  fitMap();
+}
+
 
 function handleZoom(e: WheelEvent) {
   const delta = e.deltaY > 0 ? -0.1 : 0.1;
@@ -1923,17 +2066,32 @@ function declineTutorial() {
     };
 }
 
-function checkTutorialTrigger() {
+// The first room: a new campaign may not have its door saved yet.
+const isFirstSetupDoor = computed(() => ["", "FIRST SETUP"].includes((activeCampaignData.value.door || "").trim().toUpperCase()));
+
+// The First Setup guide; Start Here follows it in the tutorial wings unless the
+// players already skipped it (in the lobby or here) or turned it off.
+function openFirstSetupGuide() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const door = (activeCampaignData.value.door || '').toUpperCase();
-    
     const isTargetWing = wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL");
-    if (tutorialStore.shouldShowStartHere && isTargetWing && door === "FIRST SETUP") {
-        if (!sessionStorage.getItem(`tutorial_shown_${props.campaignId}`)) {
-            tutorialPromptDialog.value.visible = true;
-            sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
-        }
+    const offerStartHere =
+        isTargetWing && tutorialStore.shouldShowStartHere && !sessionStorage.getItem(`tutorial_shown_${props.campaignId}`);
+    tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere };
+    if (offerStartHere) sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
+}
+
+// Players assemble the First Setup themselves, so its guide opens once per
+// campaign (on this device) when the party reaches that door.
+function checkTutorialTrigger() {
+    if (!isFirstSetupDoor.value) return;
+    const seenKey = `first_setup_seen_${props.campaignId}`;
+    try {
+        if (localStorage.getItem(seenKey)) return;
+        localStorage.setItem(seenKey, '1');
+    } catch {
+        // Storage blocked: show it anyway.
     }
+    openFirstSetupGuide();
 }
 
 let isFirstLoad = true;
@@ -2152,22 +2310,6 @@ function onMonsterImgError(e: any) {
   e.target.style.display = "none";
 }
 
-function openResources(id: string) {
-  heroCardDialog.value.visible = false;
-  router.push({
-    name: "HeroSequentialState",
-    params: { campaignId: props.campaignId, heroId: id },
-  });
-}
-
-function openEquipment(id: string) {
-  heroCardDialog.value.visible = false;
-  router.push({
-    name: "Hero",
-    params: { campaignId: props.campaignId, heroId: id },
-  });
-}
-
 function exitToDashboard() {
     router.push({ name: "Dashboard" });
 }
@@ -2247,6 +2389,13 @@ const qrToDoorMap: Record<string, string> = {
   "book02.09": "LIBRARY",
   "book02.10": "LABORATORY"
 };
+
+// The book scene for the party's door (its "book…" id), so the book can offer "You are here".
+const doorSceneTarget = computed(() => {
+  const door = (activeCampaignData.value.door || "").toUpperCase();
+  const key = Object.keys(qrToDoorMap).find((id) => id.startsWith("book") && qrToDoorMap[id] === door);
+  return key || activeCampaignData.value.door || "";
+});
 
 function isProgressionValid(newDoor: string): boolean {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
@@ -2543,6 +2692,7 @@ watch(
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 1010;
   width: 100vw;
   height: 100dvh;
   overflow: hidden;
@@ -2553,6 +2703,7 @@ watch(
 }
 
 .map-viewport {
+  position: relative;
   width: 100%;
   height: 100%;
   background: #050505;
@@ -2568,13 +2719,13 @@ watch(
 }
 
 .map-content {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   transform-origin: center center;
-  will-change: transform;
 }
 
 .map-image {
@@ -2674,7 +2825,7 @@ watch(
 }
 
 .bookmark-tab.left-side {
-  border-left: 3px solid #d4af37;
+  border-left: 3px solid rgb(var(--v-theme-accent));
   border-radius: 0 8px 8px 0;
   margin-left: 0;
 }
@@ -2685,7 +2836,7 @@ watch(
 }
 
 .bookmark-tab.right-side {
-  border-right: 3px solid #d4af37;
+  border-right: 3px solid rgb(var(--v-theme-accent));
   border-radius: 8px 0 0 8px;
   margin-right: 0;
   justify-content: flex-end;
@@ -3344,5 +3495,332 @@ watch(
 
 .opening-door-text :deep(img):hover {
   transform: scale(1.01);
+}
+
+/* "Now": where the party is, with a shortcut to the scene. */
+.now-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  max-width: 280px;
+  padding: 10px 12px 12px;
+  background: rgba(10, 10, 10, 0.78);
+  border-left: 4px solid #ffab00;
+  border-radius: 0 12px 12px 0;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.now-card small {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.now-card strong {
+  font-size: 1.1rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+/* Party / Save / Fit / More, each with its name. */
+.hud-btns {
+  display: flex;
+  gap: 6px;
+}
+.hud-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 58px;
+  height: 56px;
+  background: rgba(20, 20, 20, 0.9);
+  border: 1px solid #444;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  pointer-events: auto;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.hud-btn span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.hud-btn:hover {
+  background: rgba(45, 45, 45, 0.95);
+  transform: translateY(-2px);
+}
+.hud-btn--save {
+  border-color: rgba(76, 175, 80, 0.7);
+}
+.hud-btn--save .v-icon {
+  color: #81c784;
+}
+
+/* Right side actions carry their names. */
+.right-tab-btn {
+  width: auto !important;
+  min-width: 60px;
+  gap: 8px;
+  padding: 0 14px;
+  justify-content: flex-start !important;
+}
+.interaction-tab {
+  padding: 0 14px 0 0 !important;
+}
+.tab-label {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tab-label--next {
+  color: #111;
+}
+
+
+@media (max-width: 960px) {
+  /* Heroes right at the bottom edge. */
+  .bottom-center {
+    bottom: max(6px, env(safe-area-inset-bottom)) !important;
+  }
+  .hud-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .hud-btn span {
+    display: none;
+  }
+  /* Phones: the right actions are icons only, so the heroes fit between. */
+  .right-tab-btn .tab-label {
+    display: none;
+  }
+  .now-card {
+    min-width: 0;
+    max-width: 190px;
+    padding: 8px 10px 10px;
+  }
+  .now-card strong {
+    font-size: 0.9rem;
+  }
+}
+
+/* Side tabs: same look, steadier layout. */
+.side-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.side-tabs .bookmark-tab.left-side {
+  gap: 10px;
+  width: 172px;
+  min-height: 44px;
+  margin: 0 !important;
+  padding: 8px 14px 8px 12px;
+  background: linear-gradient(90deg, rgba(28, 28, 28, 0.95), rgba(16, 16, 16, 0.92));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.side-tabs .bookmark-tab.left-side:hover {
+  background: linear-gradient(90deg, rgba(44, 44, 44, 0.98), rgba(24, 24, 24, 0.95));
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.55);
+  transform: translateX(6px);
+}
+.side-tabs .bookmark-tab.left-side:active {
+  transform: translateX(3px) scale(0.98);
+}
+/* Every icon in the same 26px box, so the labels line up. */
+.side-tabs .bookmark-tab.left-side > .v-icon,
+.side-tabs .bookmark-tab.left-side > img {
+  flex: 0 0 26px;
+  width: 26px !important;
+  height: 26px !important;
+  font-size: 22px !important;
+}
+.side-tabs .bookmark-tab.left-side > img {
+  object-fit: contain;
+  padding: 2px;
+}
+.side-tabs .text-label {
+  margin-left: 0 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.8px;
+  text-align: left;
+  white-space: nowrap;
+}
+.side-tabs .start-here-tab {
+  margin-bottom: 4px !important;
+}
+@media (max-width: 960px) {
+  /* Phones: square icon tabs, big enough to tap. */
+  .side-tabs {
+    gap: 4px;
+  }
+  .side-tabs .bookmark-tab.left-side {
+    justify-content: center;
+    width: 46px;
+    min-height: 44px;
+    padding: 8px;
+  }
+}
+
+/* Heroes sit at the bottom edge. */
+.bottom-center {
+  margin-bottom: -18px;
+  padding-bottom: 0 !important;
+}
+
+/* Hero dialog: the campaign hero card. */
+.hero-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+  border-radius: 16px !important;
+}
+.hero-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 6px 0;
+}
+
+/* Short screens (phones on their side): smaller side tabs. */
+@media (max-height: 560px) {
+  .side-tabs {
+    gap: 3px;
+  }
+  .side-tabs .bookmark-tab.left-side {
+    min-height: 36px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  .now-card {
+    padding: 6px 10px 8px;
+  }
+  .hero-token {
+    width: 46px !important;
+    height: 68px !important;
+  }
+}
+
+/* Rules and tutorial dialogs */
+.rules-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 8px 12px 20px;
+  background: #10594f;
+  color: #fff;
+}
+.rules-head > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.rules-head small {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.rules-head strong {
+  font-family: "Cinzel", serif;
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+/* The stored rules come as one grey box with red titles: show them as clean sections. */
+.rules-body :deep(> div) {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  font-family: "Poppins", sans-serif !important;
+  font-weight: 400 !important;
+}
+.rules-body :deep(div[style*="color: red"]) {
+  margin: 18px 0 6px !important;
+  padding-left: 10px;
+  border-left: 3px solid #b3261e;
+  color: #8e1c16 !important;
+  font-size: 0.78rem;
+  font-weight: 800 !important;
+  letter-spacing: 0.6px;
+}
+.rules-body :deep(div[style*="color: red"]:first-child) {
+  margin-top: 0 !important;
+}
+.rules-body :deep(div[style*="#1a120f"]) {
+  margin-bottom: 0 !important;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 10px;
+  color: #2a211c !important;
+  font-size: 0.95rem;
+  font-weight: 500 !important;
+  line-height: 1.6;
+}
+.rules-body :deep(strong) {
+  font-weight: 700;
+}
+.rules-body :deep(.tutorial-link) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 2px;
+  padding: 2px 10px;
+  background: #10594f;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.6;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+.rules-body :deep(.tutorial-link:hover) {
+  filter: brightness(1.2);
+}
+.tutorial-popup {
+  background: #f6f1e6 !important;
+}
+.tutorial-popup__body {
+  max-height: 75vh;
+  padding: 18px 22px !important;
+  color: #212121;
+  font-family: "EB Garamond", serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+}
+.tutorial-popup__body :deep(ul) {
+  margin: 6px 0 10px;
+  padding-left: 22px;
+}
+.tutorial-popup__body :deep(li) {
+  margin-bottom: 6px;
+}
+.tutorial-popup__body :deep(img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 12px auto;
+}
+.tutorial-popup__body :deep(img.inline-icon) {
+  display: inline-block;
+  height: 1.1em;
+  margin: 0 3px;
+  vertical-align: middle;
 }
 </style>

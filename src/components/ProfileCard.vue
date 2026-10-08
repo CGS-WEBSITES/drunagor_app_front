@@ -23,14 +23,14 @@
         max-height="529px"
         max-width="100%"
         cover
-        position="top center"
+        position="center center"
       >
         <p
           class="user-join-date"
           style="
             position: absolute;
-            bottom: 4px;
-            left: 4px;
+            bottom: 6px;
+            left: 10px;
             font-size: 0.7rem;
             color: #ddd;
             margin: 0;

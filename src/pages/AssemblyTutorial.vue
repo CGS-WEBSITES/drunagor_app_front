@@ -7,13 +7,24 @@
           <!-- Centered Header -->
           <div class="mb-8">
             <h1 class="text-h4 text-sm-h3 font-weight-black text-white cinzel-text page-title mt-1">
-              ASSEMBLY GUIDE
+              TABLE ASSEMBLY
             </h1>
           </div>
 
           <!-- Retailer Logged In: Show Assembly Guide -->
+          <a
+          v-if="isRetailer"
+          :href="TABLE_ASSEMBLY_PDF"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="pdf-download"
+        >
+          <v-icon size="20">mdi-file-pdf-box</v-icon>
+          <span>Download PDF version</span>
+          <v-icon size="16" class="pdf-download__go">mdi-download</v-icon>
+        </a>
           <v-card v-slot:default v-if="isRetailer" class="pa-0 rounded-xl main-card text-left" color="primary" elevation="16">
-            <AssemblyGuide />
+            <AssemblyGuide :steps="tableAssemblySteps" />
           </v-card>
 
           <!-- Not Logged In or Not a Retailer: Show Restrict Message -->
@@ -23,7 +34,7 @@
               Retailer Access Required
             </h2>
             <p class="mb-8 text-grey-lighten-2 text-body-1 mx-auto" style="max-width: 600px; line-height: 1.6;">
-              This step-by-step assembly guide is designed specifically for store owners and event organizers. 
+              This step-by-step table assembly guide is designed specifically for store owners and event organizers. 
               To access this guide, you must be logged in as a registered <span class="text-amber-accent-2 font-weight-bold">Retailer</span>.
             </p>
 
@@ -67,6 +78,7 @@ import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/store/UserStore";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import { tableAssemblySteps, TABLE_ASSEMBLY_PDF } from "@/data/assembly/tableAssembly";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -149,5 +161,30 @@ const goToRegister = () => {
 .back-button:hover {
   transform: translateX(-4px);
   background: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Download PDF version */
+.pdf-download {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin: 0 auto 20px;
+  padding: 10px 16px;
+  background: rgba(var(--v-theme-accent), 0.14);
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
+  border-radius: 999px;
+  color: rgb(var(--v-theme-accent)) !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+.pdf-download:hover {
+  background: rgba(var(--v-theme-accent), 0.26);
+}
+.pdf-download__go {
+  opacity: 0.8;
 }
 </style>

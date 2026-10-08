@@ -11,6 +11,16 @@ function requireAuth(to, from, next) {
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
+        // Dev-only page to preview onboarding screens without creating events.
+        ...(import.meta.env.DEV
+            ? [
+                {
+                    path: "/dev-preview/:screen?/:id?",
+                    name: "DevPreview",
+                    component: () => import("@/dev/DevPreview.vue"),
+                },
+            ]
+            : []),
         {
             path: "/landing-page",
             name: "Home",
@@ -271,7 +281,13 @@ const router = createRouter({
         },
     ],
     // Faz rolagem suave para hashes como #01.02 quando o componente do livro renderiza
-    scrollBehavior(to) {
+    scrollBehavior(to, from) {
+        // Profile tabs switch in place: keep the scroll position instead of jumping
+        // to the top (the profile page scrolls to its tabs itself).
+        const isProfileTab = (path) => path.startsWith("/profile/") && path !== "/profile/edit";
+        if (isProfileTab(to.path) && isProfileTab(from.path)) {
+            return false;
+        }
         if (to.hash) {
             return new Promise((resolve) => {
                 const tryScroll = (attempts = 0) => {

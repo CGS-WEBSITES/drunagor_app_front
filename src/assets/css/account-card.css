@@ -1,0 +1,83 @@
+/* Settings cards (My Account, Privacy, Ads, Support): dark card, small bold
+   labels over grey rounded fields. Shared by the profile Settings tab. */
+.account-card.v-card {
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary)) !important;
+  border-radius: 12px !important;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+}
+.account-card > .v-card-title {
+  min-height: 56px;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+.account-card > .v-card-title .text-h5 {
+  padding: 0 !important;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+}
+.account-card > .v-card-text,
+.account-card .v-expand-transition > .v-card-text {
+  padding: 4px 18px 18px !important;
+}
+
+/* Field labels */
+.account-card p.text-h6 {
+  margin: 14px 0 6px;
+  padding: 0 !important;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.3;
+}
+
+/* Grey, rounded, compact fields */
+.account-card .v-field {
+  min-height: 40px;
+  background: rgb(var(--v-theme-secondary)) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  font-size: 0.9rem;
+}
+.account-card .v-field__overlay {
+  opacity: 0 !important;
+}
+.account-card .v-field__outline {
+  display: none;
+}
+.account-card .v-field__input {
+  min-height: 40px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.account-card .v-field--disabled {
+  opacity: 0.6;
+}
+.account-card .v-input__details {
+  min-height: 16px;
+  padding-inline: 4px;
+}
+.account-card .v-text-field .v-input__control,
+.account-card .v-autocomplete .v-input__control,
+.account-card .v-select .v-input__control {
+  margin-bottom: 0;
+}
+
+/* Switch rows and dividers */
+.account-card .v-switch .v-label {
+  font-size: 0.8rem;
+  line-height: 1.35;
+  opacity: 0.9;
+}
+.account-card .v-divider {
+  margin: 14px 0;
+  opacity: 0.15;
+}
+.account-card .v-card-actions {
+  gap: 8px;
+  padding: 12px 0 0;
+}

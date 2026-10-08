@@ -123,14 +123,10 @@
           >
             
             <v-col cols="auto" class="d-flex justify-center align-center">
-              <v-btn
-                icon
-                variant="text"
-                @click="goToFAQ"
-                :size="display.xs ? 'large' : 'x-large'"
-              >
+              <button class="dash-nav" @click="goToFAQ">
                 <v-icon>mdi-help-circle-outline</v-icon>
-              </v-btn>
+                <span>Help</span>
+              </button>
             </v-col>
             
             <v-col class="px-2 d-flex justify-center align-center">
@@ -149,14 +145,10 @@
             </v-col>
 
             <v-col cols="auto" class="d-flex justify-center align-center">
-              <v-btn
-                icon
-                variant="text"
-                @click="goToStores"
-                :size="display.xs ? 'large' : 'x-large'"
-              >
+              <button class="dash-nav" @click="goToStores">
                 <v-icon>mdi-store</v-icon>
-              </v-btn>
+                <span>Stores</span>
+              </button>
             </v-col>
 
           </v-row>
@@ -332,5 +324,26 @@ onBeforeMount(async () => {
 body {
   font-family: "Poppins", sans-serif !important;
   overflow: hidden;
+}
+/* Bottom bar side buttons: icon with its name under it. */
+.dash-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 64px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transition: background 0.15s ease;
+}
+.dash-nav:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dash-nav span {
+  opacity: 0.8;
 }
 </style>

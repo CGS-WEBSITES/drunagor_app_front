@@ -1,37 +1,11 @@
 <template>
-  <span data-testid="story-record-unfolding">
-    <v-select
-      v-model="unfoldingIds"
-      clearable
-      chips
-      label="Add or remove unfolding"
-      :items="unfoldings"
-      item-title="name"
-      item-value="id"
-      multiple
-      variant="outlined"
-    ></v-select>
-
-    <v-sheet
-      v-if="unfoldingIds.length > 0"
-      rounded
-      border="md"
-      class="mb-6 pa-6 text-white"
-    >
-      <ul>
-        <li
-          class="py-1"
-          v-for="unfolding in findUnfoldings(unfoldingIds)"
-          :key="unfolding.id"
-        >
-          {{ unfolding.name }}
-        </li>
-      </ul>
-    </v-sheet>
-  </span>
+  <div data-testid="story-record-unfolding">
+    <EffectPicker v-model="unfoldingIds" title="Unfolding" :items="unfoldings" placeholder="Add or remove unfolding" />
+  </div>
 </template>
 
 <script setup lang="ts">
+import EffectPicker from "@/components/EffectPicker.vue";
 import { ref, watch } from "vue";
 import { StoryRecordUnfoldingRepository } from "@/data/repository/campaign/apocalypse/StoryRecordUnfoldingRepository";
 import { CampaignStore } from "@/store/CampaignStore";

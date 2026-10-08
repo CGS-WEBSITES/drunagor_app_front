@@ -68,111 +68,8 @@
       </v-card>
     </v-dialog>
 
-    <v-speed-dial
-      v-model="speedDialOpen"
-      transition="fade-transition"
-      class="d-none d-md-flex"
-    >
-      <template v-slot:activator="{ props: activatorProps }">
-        <v-btn
-          v-bind="activatorProps"
-          :color="speedDialOpen ? 'red' : 'green'"
-          size="large"
-          icon
-          class="speed-dial-activator d-none d-md-flex"
-          elevation="14"
-        >
-          <v-icon>{{
-            speedDialOpen ? "mdi-close" : "mdi-script-text-outline"
-          }}</v-icon>
-        </v-btn>
-      </template>
-
-      <v-btn
-        key="save"
-        size="small"
-        color="success"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('save')"
-      >
-        <v-icon>mdi-content-save-outline</v-icon>
-        <v-tooltip activator="parent" location="start">
-          {{ t("label.save-campaign-put") || "Save Campaign" }}
-        </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        v-if="
-          campaign &&
-          ['underkeep', 'underkeep2'].includes(campaign.campaign) &&
-          showLoadInstructions
-        "
-        key="load-instructions"
-        size="small"
-        color="info"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('load-instructions')"
-      >
-        <v-icon>mdi-lightbulb-on-outline</v-icon>
-        <v-tooltip activator="parent" location="start">
-          Load Instructions
-        </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="export"
-        size="small"
-        color="orange"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('export')"
-      >
-        <v-icon>mdi-export</v-icon>
-        <v-tooltip activator="parent" location="start">
-          Export Campaign
-        </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="player-list"
-        size="small"
-        color="secondary"
-        icon
-        class="speed-dial-item"
-        @click="openPlayerListDialog"
-      >
-        <v-icon>mdi-account-group</v-icon>
-        <v-tooltip activator="parent" location="start"> Player List </v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="tharmagar"
-        size="small"
-        color="amber-darken-2"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('tharmagar')"
-      >
-        <v-icon>mdi-comment-question-outline</v-icon>
-        <v-tooltip activator="parent" location="start">Ask Tharmagar</v-tooltip>
-      </v-btn>
-
-      <v-btn
-        key="remove"
-        size="small"
-        color="error"
-        icon
-        class="speed-dial-item"
-        @click="handleSpeedDialAction('remove')"
-      >
-        <v-icon>mdi-delete-outline</v-icon>
-        <v-tooltip activator="parent" location="start">
-          Remove Campaign
-        </v-tooltip>
-      </v-btn>
-    </v-speed-dial>
+    <!-- PC: back, the campaign's sections and Save. -->
+    <CampaignNavBar v-model="pageTab" @save="executeAction('save')" />
 
     <v-bottom-navigation
       v-model="bottomNavValue"
@@ -192,27 +89,9 @@
         <span class="bottom-nav-label font-weight-black text-grey-darken-4">Save</span>
       </v-btn>
 
-      <v-btn
-        v-if="
-          campaign &&
-          ['underkeep', 'underkeep2'].includes(campaign.campaign) &&
-          showLoadInstructions
-        "
-        value="load-instructions"
-        @click="handleBottomNavAction('load-instructions')"
-        class="bottom-nav-btn"
-      >
-        <v-icon>mdi-lightbulb-on-outline</v-icon>
-        <span class="bottom-nav-label">Guide</span>
-      </v-btn>
-
-      <v-btn
-        value="export"
-        @click="handleBottomNavAction('export')"
-        class="bottom-nav-btn"
-      >
-        <v-icon>mdi-export</v-icon>
-        <span class="bottom-nav-label">Export</span>
+      <v-btn value="heroes" class="bottom-nav-btn" :class="{ 'bottom-nav-btn--on': pageTab === 'heroes' }" @click="pageTab = 'heroes'">
+        <v-icon>mdi-account-group</v-icon>
+        <span class="bottom-nav-label">Heroes</span>
       </v-btn>
 
       <v-btn
@@ -229,6 +108,7 @@
         value="keywords"
         @click="handleBottomNavAction('keywords')"
         class="bottom-nav-btn"
+        :class="{ 'bottom-nav-btn--on': pageTab === 'keywords' }"
       >
         <v-icon>mdi-book-search-outline</v-icon>
         <span class="bottom-nav-label">Keywords</span>
@@ -238,16 +118,79 @@
         value="tharmagar"
         @click="handleBottomNavAction('tharmagar')"
         class="bottom-nav-btn"
+        :class="{ 'bottom-nav-btn--on': pageTab === 'tharmagar' }"
       >
         <v-icon>mdi-comment-question-outline</v-icon>
         <span class="bottom-nav-label">Tharmagar</span>
+      </v-btn>
+
+      <v-btn value="manage" class="bottom-nav-btn" :class="{ 'bottom-nav-btn--on': pageTab === 'manage' }" @click="pageTab = 'manage'">
+        <v-icon>mdi-cog-outline</v-icon>
+        <span class="bottom-nav-label">Manage</span>
       </v-btn>
     </v-bottom-navigation>
 
     <div class="campaign-content" :class="{ 'with-bottom-nav': true }">
       <v-container fluid>
         <template v-if="campaign">
-          <v-row justify="center" no-gutters>
+          <!-- Keywords, as part of the page -->
+          <div v-if="pageTab === 'keywords'" class="campaign-section">
+            <KeywordView />
+          </div>
+
+          <!-- Tharmagar -->
+          <div v-else-if="pageTab === 'tharmagar'" class="campaign-section campaign-section--chat">
+            <TharmagarChat />
+          </div>
+
+          <!-- Manage: invite, players, export, delete -->
+          <div v-else-if="pageTab === 'manage'" class="campaign-section manage">
+            <div class="invite-card">
+              <v-icon size="28" class="invite-card__icon">mdi-account-multiple-plus</v-icon>
+              <div class="invite-card__text">
+                <span class="invite-card__label">Invite code</span>
+                <span class="invite-card__hint">Friends use it to join this campaign</span>
+              </div>
+              <button v-if="partyCode" class="invite-card__code" :title="codeCopied ? 'Copied!' : 'Copy code'" @click="copyPartyCode">
+                {{ partyCode }}
+                <v-icon size="16">{{ codeCopied ? "mdi-check" : "mdi-content-copy" }}</v-icon>
+              </button>
+              <span v-else class="invite-card__code invite-card__code--loading">Generating…</span>
+            </div>
+
+            <section class="manage-card">
+              <div class="manage-card__head">
+                <h3>Players</h3>
+                <v-btn size="small" variant="tonal" prepend-icon="mdi-account-plus-outline" @click="shareCampaignRef?.openDialog?.()">Invite player</v-btn>
+              </div>
+              <CampaignPlayerList ref="campaignPlayerListRef" :campaign-id="campaignId" :show-remove-button="true" @player-removed="onPlayerRemoved" density="compact" />
+            </section>
+
+            <section class="manage-card">
+              <h3>Campaign</h3>
+              <div class="manage-actions">
+                <v-btn variant="tonal" prepend-icon="mdi-export" @click="executeAction('export')">Export campaign</v-btn>
+                <v-btn
+                  v-if="['underkeep', 'underkeep2'].includes(campaign.campaign) && showLoadInstructions"
+                  variant="tonal"
+                  prepend-icon="mdi-lightbulb-on-outline"
+                  @click="executeAction('load-instructions')"
+                >
+                  Load instructions
+                </v-btn>
+              </div>
+            </section>
+
+            <section class="manage-card manage-card--danger">
+              <div>
+                <h3>Delete campaign</h3>
+                <p>Removes the campaign for every player. This can't be undone.</p>
+              </div>
+              <v-btn variant="tonal" prepend-icon="mdi-delete-outline" class="manage-delete" @click="executeAction('remove')">Delete</v-btn>
+            </section>
+          </div>
+
+          <v-row v-show="pageTab === 'heroes'" justify="center" no-gutters>
             <v-col cols="12" lg="9" xl="8">
               <template
                 v-if="['underkeep', 'underkeep2'].includes(campaign.campaign)"
@@ -463,182 +406,59 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-row no-gutters align="center" class="mb-3">
-                    <v-col cols="12" class="d-flex align-center">
-                       <div class="d-flex align-center bg-grey-darken-4 px-3 py-2 rounded-lg border-thin w-100">
-                         <span class="text-caption font-weight-bold text-grey-lighten-1 mr-1 text-no-wrap" style="flex-shrink: 0;">CAMPAIGN ID:</span>
-                         <v-tooltip location="top">
-                           <template v-slot:activator="{ props }">
-                             <v-icon
-                               v-bind="props"
-                               size="small"
-                               color="grey-lighten-1"
-                               class="cursor-pointer mr-2"
-                             >
-                               mdi-information-outline
-                             </v-icon>
-                           </template>
-                           <span>Use this code to invite your friends</span>
-                         </v-tooltip>
-                         <v-chip v-if="partyCode" label size="small" color="amber-darken-2" variant="flat" class="font-weight-bold" style="flex-shrink: 0;">{{
-                           partyCode
-                         }}</v-chip>
-                         <v-chip v-else label size="small" color="grey" variant="flat" class="font-weight-bold" style="flex-shrink: 0;"
-                           >Generating...</v-chip
-                         >
-                         <v-spacer></v-spacer>
-                         <div class="d-flex align-center">
-                           <v-btn
-                             icon
-                             variant="text"
-                             color="success"
-                             class="mx-1"
-                             @click="handleSave"
-                           >
-                             <v-icon>mdi-content-save</v-icon>
-                             <v-tooltip activator="parent" location="top">Save Campaign</v-tooltip>
-                           </v-btn>
-                           <v-btn
-                             icon
-                             variant="text"
-                             color="grey-lighten-1"
-                             class="mx-1"
-                             @click="openPlayerListDialog"
-                           >
-                             <v-icon>mdi-account-group</v-icon>
-                             <v-tooltip activator="parent" location="top">Player List</v-tooltip>
-                           </v-btn>
-                           <v-btn
-                             icon
-                             variant="text"
-                             color="error"
-                             class="mx-1"
-                             @click="executeAction('remove')"
-                           >
-                             <v-icon>mdi-delete</v-icon>
-                             <v-tooltip activator="parent" location="top">Delete Campaign</v-tooltip>
-                           </v-btn>
-                         </div>
-                       </div>
-                    </v-col>
-                  </v-row>
+                  <!-- Awakenings and Apocalypse also keep a campaign log. -->
+                  <div v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)" class="log-switch" role="tablist">
+                    <button role="tab" :class="{ active: legacyTab === 'heroes' }" @click="legacyTab = 'heroes'">
+                      <v-icon size="18">mdi-account-multiple</v-icon>Heroes
+                    </button>
+                    <button role="tab" :class="{ active: legacyTab === 'log' }" @click="legacyTab = 'log'">
+                      <v-icon size="18">mdi-notebook</v-icon>Campaign log
+                    </button>
+                  </div>
 
-                  <v-tabs
-                    v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)"
-                    v-model="legacyTab"
-                    density="compact"
-                    grow
-                    bg-color="surface"
-                    class="mb-3 rounded"
-                    slider-color="white"
-                  >
-                    <v-tab value="heroes" class="text-caption">
-                      <v-icon size="small" class="mr-1">mdi-account-multiple</v-icon>
-                      Heroes
-                    </v-tab>
-                    <v-tab value="log" class="text-caption">
-                      <v-icon size="small" class="mr-1">mdi-notebook</v-icon>
-                      Campaign Log
-                    </v-tab>
-                  </v-tabs>
+                  <div v-if="['awakenings', 'apocalypse'].includes(campaign.campaign)" v-show="legacyTab === 'log'" class="log">
+                    <section class="log-card log-card--row">
+                      <div>
+                        <h3>Adventure mode</h3>
+                        <p>Track life, cubes and resources of each hero between scenarios.</p>
+                      </div>
+                      <v-switch
+                        :model-value="isSequentialAdventure"
+                        color="accent"
+                        hide-details
+                        inset
+                        density="compact"
+                        :aria-label="isSequentialAdventure ? 'Turn adventure mode off' : 'Turn adventure mode on'"
+                        @update:model-value="toggleSequentialAdventure"
+                      />
+                    </section>
 
-                  <div v-show="['awakenings', 'apocalypse'].includes(campaign.campaign) && legacyTab === 'log'">
-                    <v-row no-gutters class="mb-3 px-2">
-                      <v-col cols="12">
-                        <v-card color="primary" class="pa-4 mb-3">
-                          <v-card-title class="text-h6 pa-0 mb-3">
-                            Adventure Mode
-                          </v-card-title>
-                          <v-btn
-                            :color="isSequentialAdventure ? 'amber-darken-3' : 'grey-darken-2'"
-                            variant="tonal"
-                            size="small"
-                            prepend-icon="mdi-map-marker-path"
-                            @click="toggleSequentialAdventure"
-                            class="font-weight-bold rounded-lg w-100"
-                          >
-                            {{ isSequentialAdventure ? 'Adventure Mode ON' : 'Adventure Mode OFF' }}
-                          </v-btn>
-                        </v-card>
-                      </v-col>
-                    </v-row>
+                    <section class="log-card">
+                      <h3>Story record</h3>
+                      <StoryRecord :campaign-id="campaignId" />
+                    </section>
 
-                    <v-row
-                      no-gutters
-                      class="d-flex justify-center mb-3"
-                      v-if="
-                        campaign.campaign == 'awakenings' ||
-                        campaign.campaign == 'apocalypse'
-                      "
-                    >
-                      <v-col cols="12" class="px-2">
-                        <StoryRecord :campaign-id="campaignId" />
-                      </v-col>
-                    </v-row>
-
-                    <v-row
-                      no-gutters
-                      class="d-flex justify-center mb-3"
-                      v-if="campaign.campaign == 'apocalypse'"
-                    >
-                      <v-col cols="12" class="px-2">
-                        <v-sheet
-                          rounded
-                          border="md"
-                          class="pa-6 text-white bg-surface"
-                        >
-                          <StoryRecordLegacyTrail :campaign-id="campaignId" />
-                          <StoryRecordBackgroundAndTrait
-                            :campaign-id="campaignId"
-                          />
-                        </v-sheet>
-                      </v-col>
-                    </v-row>
+                    <template v-if="campaign.campaign == 'apocalypse'">
+                      <section class="log-card">
+                        <h3>Legacy trail</h3>
+                        <StoryRecordLegacyTrail :campaign-id="campaignId" />
+                      </section>
+                      <section class="log-card">
+                        <h3>Backgrounds & traits</h3>
+                        <StoryRecordBackgroundAndTrait :campaign-id="campaignId" />
+                      </section>
+                    </template>
                   </div>
 
                   <div v-show="!['awakenings', 'apocalypse'].includes(campaign.campaign) || legacyTab === 'heroes'">
-                    <v-row class="my-3" no-gutters>
-                      <v-col cols="12">
-                        <v-card class="pa-2" color="primary">
-                          <div class="d-flex justify-center flex-wrap gap-2">
-                            <CampaignLogAddHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                            <CampaignLogImportHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                            <CampaignLogRemoveHero
-                              :campaign-id="campaignId"
-                              class="mx-1 my-1"
-                            />
-                          </div>
-                        </v-card>
-                      </v-col>
-                    </v-row>
-
                     <v-row no-gutters>
                       <v-col cols="12">
-                        <v-sheet
-                          rounded
-                          border="md"
-                          class="text-white pa-2 shepherd-heroes-list"
-                        >
-                          <div
-                            v-if="
-                              heroStore.findAllInCampaign(campaignId).length === 0
-                            "
-                            class="text-center pa-4"
-                          >
-                            No heroes added to this campaign yet.
-                          </div>
+                        <div class="d-flex flex-column ga-3 shepherd-heroes-list">
                           <div
                             v-for="hero in heroStore.findAllInCampaign(
                               campaignId,
                             )"
                             :key="hero.heroId"
-                            class="mb-2"
                           >
                             <CampaignLog
                               :campaign-id="campaignId"
@@ -646,7 +466,9 @@
                               :is-sequential-adventure="isSequentialAdventure"
                             />
                           </div>
-                        </v-sheet>
+                          <!-- New, from another campaign or from My heroes. -->
+                          <CampaignAddHero :campaign-id="campaignId" tile />
+                        </div>
                       </v-col>
                     </v-row>
                   </div>
@@ -681,24 +503,6 @@
         :inviteCode="partyCode"
       />
     </div>
-
-    <v-dialog
-      v-model="tharmagarDialogVisible"
-      fullscreen
-      transition="dialog-bottom-transition"
-    >
-      <v-card color="black" class="position-relative">
-        <v-btn
-          icon="mdi-close"
-          variant="flat"
-          color="rgba(255,255,255,0.1)"
-          class="text-white"
-          style="position: absolute; top: 16px; right: 16px; z-index: 100"
-          @click="tharmagarDialogVisible = false"
-        ></v-btn>
-        <TharmagarChat />
-      </v-card>
-    </v-dialog>
 
     <!-- BADGE DIALOG FOR SEASON 1 WINGS -->
     <v-dialog v-model="newBadgeDialog.visible" max-width="500" persistent transition="dialog-bottom-transition">
@@ -775,28 +579,6 @@
       </template>
     </div>
 
-    <v-dialog
-      v-model="keywordsDialogVisible"
-      fullscreen
-      transition="dialog-bottom-transition"
-    >
-      <v-card color="#121212" class="text-white d-flex flex-column">
-        <v-card-title class="d-flex justify-between align-center border-b pa-4 flex-grow-0">
-          <span class="text-h5 font-weight-black">Campaign Keywords</span>
-          <v-spacer></v-spacer>
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            density="comfortable"
-            color="grey-lighten-1"
-            @click="keywordsDialogVisible = false"
-          ></v-btn>
-        </v-card-title>
-        <v-card-text class="pa-4 overflow-y-auto flex-grow-1">
-          <KeywordView />
-        </v-card-text>
-      </v-card>
-    </v-dialog>
   </template>
 </template>
 
@@ -814,6 +596,8 @@ import {
 } from "vue";
 import { ref as vueRef } from "vue";
 import CampaignLogAddHero from "@/components/CampaignLogAddHero.vue";
+import CampaignAddHero from "@/components/CampaignAddHero.vue";
+import CampaignNavBar from "@/components/CampaignNavBar.vue";
 import CampaignLogRemoveHero from "@/components/CampaignLogRemoveHero.vue";
 import CampaignLog from "@/components/CampaignLog.vue";
 import CampaignRemove from "@/components/CampaignRemove.vue";
@@ -864,7 +648,8 @@ const isSequentialAdventure = ref(true);
 const campaign = ref<Campaign | null>(null);
 const currentTab = ref("normal");
 const legacyTab = ref("heroes");
-const keywordsDialogVisible = ref(false);
+// Which section of the campaign is showing.
+const pageTab = ref<"heroes" | "keywords" | "tharmagar" | "manage">("heroes");
 
 watch(currentTab, () => {
   window.scrollTo({ top: 0, behavior: "instant" });
@@ -884,6 +669,8 @@ const checkUserRole = async () => {
 const triggerAutoSave = () => {
   if (!isAdminUser.value) return;
   if (isSyncingFromServer.value) return;
+  // The immersive view saves on its own; this saver is only mounted in the classic view.
+  if (isImmersiveMode.value) return;
 
   if (autoSaveTimeout) {
     clearTimeout(autoSaveTimeout);
@@ -992,8 +779,6 @@ const snackbarIcon = ref("mdi-check");
 const snackbarColor = ref("success");
 const snackbarIconColor = ref("white");
 const snackbarTimeout = ref(3000);
-const speedDialOpen = ref(true);
-const tharmagarDialogVisible = ref(false);
 const bottomNavValue = ref<string | null>(null);
 
 const savingState = ref<"idle" | "saving" | "saved" | "error">("idle");
@@ -1203,16 +988,22 @@ const generatePartyCode = () => {
   partyCode.value = `${prefix}${campaignId}`;
 };
 
+const codeCopied = ref(false);
+const copyPartyCode = async () => {
+  try {
+    await navigator.clipboard.writeText(partyCode.value ?? "");
+    codeCopied.value = true;
+    setTimeout(() => (codeCopied.value = false), 2000);
+  } catch {
+    // Clipboard blocked: the code stays visible to copy by hand.
+  }
+};
+
 const openPlayerListDialog = async () => {
   if (campaignPlayerListRef.value) {
     await campaignPlayerListRef.value.fetchPlayers();
   }
   playerListDialogVisible.value = true;
-};
-
-const handleSpeedDialAction = (action: string) => {
-  executeAction(action);
-  speedDialOpen.value = false;
 };
 
 const handleBottomNavAction = (action: string) => {
@@ -1242,10 +1033,10 @@ const executeAction = (action: string) => {
       campaignExportRef.value?.export?.();
       break;
     case "player-list":
-      openPlayerListDialog();
+      pageTab.value = "manage";
       break;
     case "tharmagar":
-      tharmagarDialogVisible.value = true;
+      pageTab.value = "tharmagar";
       break;
     case "remove":
       campaignRemoveRef.value?.openDialog?.();
@@ -1254,7 +1045,7 @@ const executeAction = (action: string) => {
 };
 
 function handleKeywordsAction() {
-  keywordsDialogVisible.value = true;
+  pageTab.value = "keywords";
 }
 
 const toggleSequentialAdventure = () => {
@@ -1532,6 +1323,212 @@ const checkAndAwardSeason1Achievements = async () => {
 </script>
 
 <style scoped>
+.log-switch {
+  display: flex;
+  gap: 4px;
+  max-width: 420px;
+  margin: 0 0 16px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+}
+.log-switch button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.log-switch button.active {
+  background: rgb(var(--v-theme-terciary));
+  color: rgb(var(--v-theme-on-terciary));
+  opacity: 1;
+}
+.log {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.log-card {
+  padding: 16px 18px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+}
+.log-card h3 {
+  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.log-card--row {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.log-card--row h3 {
+  margin-bottom: 2px;
+}
+.log-card--row p {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.log-card--row .v-switch {
+  flex: 0 0 auto;
+}
+
+.campaign-section {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+}
+/* Tharmagar fills the screen below the bar, framed like a scene. */
+.campaign-section--chat {
+  position: relative;
+  max-width: 1400px;
+  height: calc(100vh - 190px);
+  min-height: 460px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--v-theme-accent), 0.35);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.campaign-section--chat::after {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.75);
+  content: "";
+  pointer-events: none;
+}
+@media (max-width: 959px) {
+  .campaign-section--chat {
+    height: calc(100vh - 200px);
+    margin: 0 -12px 16px;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+}
+.manage {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.manage-card {
+  padding: 16px 18px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+}
+.manage-card h3 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.manage-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.manage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.manage-card--danger {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(255, 138, 128, 0.25);
+}
+.manage-card--danger h3 {
+  margin-bottom: 2px;
+}
+.manage-card--danger p {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.manage-delete {
+  background: rgba(255, 138, 128, 0.12) !important;
+  color: #ff8a80 !important;
+}
+.bottom-nav-btn--on {
+  color: rgb(var(--v-theme-accent)) !important;
+}
+
+.invite-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgb(var(--v-theme-primary));
+  border-radius: 12px;
+  font-family: "Poppins", sans-serif;
+}
+.invite-card__icon {
+  color: rgb(var(--v-theme-accent));
+}
+.invite-card__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.invite-card__label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.invite-card__hint {
+  font-size: 0.72rem;
+  opacity: 0.65;
+}
+.invite-card__code {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(var(--v-theme-accent), 0.18);
+  border: 1px solid rgba(var(--v-theme-accent), 0.6);
+  border-radius: 8px;
+  color: rgb(var(--v-theme-accent));
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+@media (max-width: 599px) {
+  .invite-card {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+  .invite-card__hint {
+    display: none;
+  }
+  .invite-card__code {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+  }
+}
+.invite-card__code--loading {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
 /* Global Snackbar */
 .global-snackbar {
   z-index: 9999 !important;
