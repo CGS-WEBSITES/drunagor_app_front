@@ -381,8 +381,8 @@ const getInteractionIntroBody = () => {
   if (!currentConfig.value) return "";
   const introItem = currentConfig.value.items.find((i:any) => i.type === "intro");
   if (introItem) return introItem.body.join("");
-  if (currentConfig.value.items.length > 0) return currentConfig.value.items[0].body.join("");
-  return "";
+  // Season 1 cards keep their intro in the subtitle; the first item is already choice 1.
+  return currentConfig.value.subtitle || "";
 };
 
 const interactionChoices = computed(() => {
