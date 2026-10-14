@@ -304,11 +304,7 @@
                 @click.stop="openInteractionsDialog"
               >
                 <span v-if="newInteractionsCount" class="interaction-tab__badge">{{ newInteractionsCount }}</span>
-                <img
-                  src="@/assets/interaction.png"
-                  alt="icon"
-                  class="tab-icon-img"
-                />
+                <v-icon size="large" color="white">mdi-magnify</v-icon>
                 <span class="tab-label">Interactions</span>
               </div>
             </template>
@@ -3041,8 +3037,6 @@ watch(
 .interaction-tab {
   position: relative;
   background-color: #bf529d !important;
-  padding: 0;
-  overflow: hidden;
   border: 1px solid #9c4381;
 }
 
@@ -3050,21 +3044,25 @@ watch(
 .interaction-tab--alert {
   animation: interaction-glow 1.6s ease-in-out infinite;
 }
+/* A notification count on the button's outer corner, clear of the icon. */
 .interaction-tab__badge {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  min-width: 18px;
-  height: 18px;
+  top: -7px;
+  left: -7px;
+  min-width: 20px;
+  height: 20px;
   padding: 0 5px;
   border-radius: 999px;
-  background: #fff;
-  color: #9c4381;
-  font-size: 0.7rem;
+  background: #e53935;
+  border: 2px solid #121212;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.68rem;
   font-weight: 800;
-  line-height: 18px;
+  line-height: 16px;
   text-align: center;
   z-index: 1;
+  pointer-events: none;
 }
 @keyframes interaction-glow {
   0%, 100% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(191, 82, 157, 0.7); }
@@ -3590,9 +3588,6 @@ watch(
   gap: 8px;
   padding: 0 14px;
   justify-content: flex-start !important;
-}
-.interaction-tab {
-  padding: 0 14px 0 0 !important;
 }
 .tab-label {
   font-family: "Poppins", sans-serif;
