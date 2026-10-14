@@ -1,74 +1,64 @@
 <template>
   <div class="interact-view-new">
-    <v-toolbar color="black" density="compact" class="px-2">
-      <v-toolbar-title class="text-white font-cinzel pl-2 text-center">
-        Room Interactions
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
+    <header class="iv-head">
+      <img src="@/assets/interaction.png" alt="" class="iv-head__icon" />
+      <div class="iv-head__text">
+        <span class="iv-head__kicker">Room interactions</span>
+        <strong class="iv-head__room">{{ roomName }}</strong>
+      </div>
       <v-btn icon="mdi-close" variant="text" color="white" @click="$emit('close')"></v-btn>
-    </v-toolbar>
+    </header>
 
-    <v-container fluid class="fill-height align-start pa-0 overflow-y-auto w-100 main-container-scroll">
-      
-      <v-row v-if="!interactionStageActive" class="w-100 ma-0" style="min-height: 100%;">
-        
-        <v-col cols="12" md="6" class="scanner-col d-flex flex-column align-center justify-center bg-grey-darken-4 border-r pa-6">
-            <div class="text-h6 text-white mb-4 font-weight-bold">Scan Interaction QR-CODE</div>
-            
-            <div class="video-wrapper">
-                <video id="interact-qr-video" class="qr-video" autoplay muted playsinline />
-                <div class="scan-overlay"></div>
-                <v-btn
-                  v-if="isCameraSwitchVisible"
-                  @click="switchCamera"
-                  icon="mdi-camera-flip"
-                  size="small"
-                  class="camera-switch"
-                  variant="flat"
-                />
+    <div class="main-container-scroll">
+      <div v-if="!interactionStageActive" class="iv-body">
+        <section class="iv-panel iv-list">
+          <h3 class="iv-panel__title">
+            Available here
+            <span v-if="visibleInteractions.length" class="iv-panel__count">{{ visibleInteractions.length }}</span>
+          </h3>
+
+          <div
+            v-for="interaction in visibleInteractions"
+            :key="interaction.id"
+            class="interaction-list-item"
+            :class="{ 'interaction-list-item--new': interaction.isNew }"
+            @click="chooseInteraction(interaction.id)"
+          >
+            <img src="@/assets/interaction.png" class="interaction-list-icon" alt="" />
+            <div class="interaction-list-title">
+              <span class="interaction-list-number">Interaction {{ interaction.number }}</span>
+              <span class="interaction-list-name">{{ interaction.title }}</span>
+              <div v-if="interaction.isNew || interaction.appOnly" class="interaction-list-tags">
+                <span v-if="interaction.isNew" class="interaction-tag interaction-tag--new">New in this room</span>
+                <span v-if="interaction.appOnly" class="interaction-tag">App only · no QR code</span>
+              </div>
             </div>
-            <div class="text-caption text-grey mt-2">Point camera at the QR Code</div>
-        </v-col>
+            <v-icon class="interaction-list-chevron">mdi-chevron-right</v-icon>
+          </div>
 
-        <!-- On phones the room's interactions come before the camera. -->
-        <v-col cols="12" md="6" class="list-col bg-grey-darken-3 pa-6" :class="{ 'order-first order-md-last': visibleInteractions.length }">
-            <div class="text-h6 text-white mb-6 font-weight-bold text-center">Available Here</div>
-            
-            <v-row justify="center" class="px-2">
-                <v-col 
-                  v-for="interaction in visibleInteractions" 
-                  :key="interaction.id" 
-                  cols="12" sm="10" md="12" lg="10"
-                  class="pa-2"
-                >
-                  <div
-                    class="interaction-list-item"
-                    :class="{ 'interaction-list-item--new': interaction.isNew }"
-                    @click="chooseInteraction(interaction.id)"
-                  >
-                      <img src="@/assets/interaction.png" class="interaction-list-icon" alt="Interact" />
+          <div v-if="visibleInteractions.length === 0" class="iv-empty">
+            <v-icon size="28">mdi-eye-off-outline</v-icon>
+            <span>No interactions in this room.</span>
+          </div>
+        </section>
 
-                      <div class="interaction-list-title font-weight-bold text-white">
-                          {{ interaction.title }}
-                          <div class="interaction-list-tags">
-                              <span v-if="interaction.isNew" class="interaction-tag interaction-tag--new">New in this room</span>
-                              <span v-if="interaction.appOnly" class="interaction-tag">App only · no QR code</span>
-                          </div>
-                      </div>
-
-                      <v-icon class="interaction-list-chevron">mdi-chevron-right</v-icon>
-                  </div>
-                </v-col>
-
-                <v-col cols="12" v-if="visibleInteractions.length === 0">
-                    <div class="text-center text-grey mt-10">
-                        <v-icon size="large" class="mb-2">mdi-eye-off</v-icon>
-                        <div>No visible interactions in this area.</div>
-                    </div>
-                </v-col>
-            </v-row>
-        </v-col>
-      </v-row>
+        <section class="iv-panel iv-scan">
+          <h3 class="iv-panel__title">Scan a QR code</h3>
+          <div class="video-wrapper">
+            <video id="interact-qr-video" class="qr-video" autoplay muted playsinline />
+            <div class="scan-frame"></div>
+            <v-btn
+              v-if="isCameraSwitchVisible"
+              @click="switchCamera"
+              icon="mdi-camera-flip"
+              size="small"
+              class="camera-switch"
+              variant="flat"
+            />
+          </div>
+          <p class="iv-scan__hint">Point the camera at the QR code on the Interaction token.</p>
+        </section>
+      </div>
 
       <div v-else class="interaction-detail-overlay w-100">
          <v-toolbar color="transparent" density="compact" class="px-4 pt-2">
@@ -145,8 +135,7 @@
              </div>
          </div>
       </div>
-
-    </v-container>
+    </div>
 
     <v-dialog v-model="barricadeCheck" max-width="440">
       <v-card class="barricade-check rounded-xl">
@@ -373,6 +362,14 @@ const switchCamera = () => {
 
 const room = computed(() => roomInteractions(props.wing, props.currentDoor));
 
+// "THE ENTRY HALL (TUTORIAL)" → "The Entry Hall".
+const roomName = computed(() =>
+    (props.currentDoor || "First Setup")
+        .replace(/\s*\(TUTORIAL\)\s*$/i, "")
+        .toLowerCase()
+        .replace(/(^|[\s-])([a-z])/g, (_m, sep, ch) => sep + ch.toUpperCase()),
+);
+
 // Newest first: what this room just added, then what is still on the board.
 const visibleInteractions = computed(() =>
     room.value.available
@@ -498,91 +495,195 @@ defineExpose({ ensureCameraPermission });
 </script>
 
 <style scoped>
-.main-container-scroll {
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
 .interact-view-new {
     background-color: #121212;
-    min-height: 100%;
+    height: 100%;
     color: white;
     display: flex;
     flex-direction: column;
 }
 
-.font-cinzel { font-family: 'Cinzel', serif; }
-
-.scanner-col {
-    position: relative;
-    min-height: 50vh;
+.main-container-scroll {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
+.font-cinzel { font-family: 'Cinzel', serif; }
+
+/* Header: the official icon, then the room the party is in. */
+.iv-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 8px 10px 16px;
+    background: #0b0b0c;
+    border-bottom: 1px solid rgba(191, 82, 157, 0.35);
+}
+.iv-head__icon {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.iv-head__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+.iv-head__kicker {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #d77fbc;
+}
+.iv-head__room {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* List and scanner side by side on PC, stacked (list first) on phones. */
+.iv-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 20px;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 24px;
+}
+.iv-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px;
+    background: #1b1b1d;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+}
+.iv-panel__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 4px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+}
+.iv-panel__count {
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #bf529d;
+    color: #fff;
+    font-size: 0.7rem;
+    line-height: 20px;
+    text-align: center;
+}
+.iv-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 28px 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.9rem;
+}
+
+.iv-scan {
+    align-items: center;
+}
+.iv-scan .iv-panel__title {
+    align-self: stretch;
+}
+.iv-scan__hint {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    text-align: center;
+}
 .video-wrapper {
     position: relative;
     width: 100%;
-    max-width: 320px;
+    max-width: 300px;
     aspect-ratio: 1;
-    border-radius: 16px;
+    border-radius: 14px;
     overflow: hidden;
-    border: 2px solid #007a68;
-    background: black;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    background: #000;
 }
-
 .qr-video { width: 100%; height: 100%; object-fit: cover; }
-
-.scan-overlay {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    border: 40px solid rgba(0,0,0,0.3); pointer-events: none;
+/* Corner marks around the scan area. */
+.scan-frame {
+    position: absolute;
+    inset: 18%;
+    pointer-events: none;
+    background:
+        linear-gradient(#2bb39a, #2bb39a) top left / 26px 3px,
+        linear-gradient(#2bb39a, #2bb39a) top left / 3px 26px,
+        linear-gradient(#2bb39a, #2bb39a) top right / 26px 3px,
+        linear-gradient(#2bb39a, #2bb39a) top right / 3px 26px,
+        linear-gradient(#2bb39a, #2bb39a) bottom left / 26px 3px,
+        linear-gradient(#2bb39a, #2bb39a) bottom left / 3px 26px,
+        linear-gradient(#2bb39a, #2bb39a) bottom right / 26px 3px,
+        linear-gradient(#2bb39a, #2bb39a) bottom right / 3px 26px;
+    background-repeat: no-repeat;
 }
-
 .camera-switch {
     position: absolute; top: 10px; right: 10px;
     background: rgba(0,0,0,0.6); color: white; z-index: 10;
 }
 
-.list-col {
-    min-height: 50vh;
-    overflow-y: auto;
-}
-
 .interaction-list-item {
     display: flex;
     align-items: center;
-    background-color: rgba(30, 30, 30, 0.8);
-    border: 2px solid rgba(191, 82, 157, 0.3);
-    border-radius: 12px;
-    padding: 12px 20px;
+    gap: 14px;
+    background-color: #242427;
+    border: 1px solid rgba(191, 82, 157, 0.25);
+    border-radius: 14px;
+    padding: 12px 10px 12px 12px;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.15s, border-color 0.15s;
 }
-
 .interaction-list-item:hover {
-    background-color: rgba(191, 82, 157, 0.15);
+    background-color: rgba(191, 82, 157, 0.14);
     border-color: #bf529d;
-    transform: translateX(4px);
-    box-shadow: 0 4px 15px rgba(191, 82, 157, 0.3);
 }
-
 .interaction-list-item:active {
-    transform: translateX(2px) scale(0.98);
-    box-shadow: 0 2px 8px rgba(191, 82, 157, 0.4);
+    transform: scale(0.99);
 }
-
 .interaction-list-icon {
-    width: 50px;
-    height: 50px;
-    margin-right: 20px;
+    width: 46px;
+    height: 46px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(191, 82, 157, 0.5));
+    flex-shrink: 0;
 }
-
 .interaction-list-title {
-    flex-grow: 1;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
     text-align: left;
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
+}
+.interaction-list-number {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #d77fbc;
+}
+.interaction-list-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
 }
 
 .interaction-list-item--new {
@@ -665,9 +766,10 @@ defineExpose({ ensureCameraPermission });
 }
 
 .interaction-list-chevron {
+    flex-shrink: 0;
     color: #bf529d;
-    font-size: 1.8rem;
-    opacity: 0.7;
+    font-size: 1.6rem;
+    opacity: 0.8;
     transition: transform 0.2s, opacity 0.2s;
 }
 
@@ -722,7 +824,10 @@ defineExpose({ ensureCameraPermission });
 }
 
 @media (max-width: 960px) {
-    .border-r { border-right: none !important; border-bottom: 1px solid #333; }
-    .scanner-col, .list-col { min-height: auto; }
+    .iv-body {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+        padding: 14px;
+    }
 }
 </style>
