@@ -608,7 +608,7 @@
 
             <v-row>
                 <v-col cols="12">
-                    <div v-if="currentDoorData.instruction" v-html="withTutorialLinks(currentDoorData.instruction)" class="rules-body" @click="onRulesClick"></div>
+                    <div v-if="currentDoorData.instruction" v-html="withTutorialLinks(withSetupIcons(currentDoorData.instruction))" class="rules-body" @click="onRulesClick"></div>
                     <div v-else class="text-center pa-10 text-grey font-italic">No specific rules required at this time.</div>
                 </v-col>
             </v-row>
@@ -927,6 +927,9 @@ import axios from "axios";
 
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
+import chestTokenIcon from "@/assets/setup/chest-token.webp";
+import runeTokenIcon from "@/assets/setup/rune-token.webp";
+import interactionIcon from "@/assets/interaction.png";
 import bookPagesData from "@/data/book/bookPages.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -1061,6 +1064,50 @@ const withTutorialLinks = (html: string) =>
     const trailing = inner.slice(clean.length);
     return `<button type="button" class="tutorial-link" data-tutorial="${tutorialKey(tutorial.name)}"><i class="mdi mdi-school-outline"></i>${tutorial.name}</button>${trailing}`;
   });
+// Setup lines ("2+ Players: 1 Pile of Runes, 2 GM - Rookie…") as rows of chips
+// with the same tokens the maps show.
+const SETUP_LABEL_ICONS: Record<string, string> = {
+  maps: "mdi-map-outline",
+  setup: "mdi-package-variant-closed",
+  monsters: "mdi-skull-outline",
+};
+const MINION_TOKEN = /^(GM|WM|BM)\b\s*[-–]?\s*/;
+function setupItem(raw: string, isMaps: boolean) {
+  const text = raw.trim();
+  if (isMaps) {
+    const door = text.match(/\((DOOR\s*\d+)\)/i);
+    const code = text.replace(/\(DOOR\s*\d+\)/i, "").trim();
+    return `<span class="setup-map">${code}</span>${door ? `<span class="setup-door">${door[1].toUpperCase()}</span>` : ""}`;
+  }
+  const match = text.match(/^(\+\s*)?(\d+)\s+(.*)$/);
+  const count = match ? match[2] : "";
+  const name = (match ? match[3] : text).replace(/\s*\(Interaction \d+\)/i, "");
+  let icon = `<i class="mdi mdi-skull-outline setup-chip__mdi"></i>`;
+  let label = name;
+  const minion = name.match(MINION_TOKEN);
+  if (minion) {
+    icon = `<span class="setup-token setup-token--${minion[1][0].toLowerCase()}">${minion[1][0]}</span>`;
+    label = name.replace(MINION_TOKEN, "").replace(/\s*[-–]\s*Tutorial$/i, "");
+  } else if (/piles? of runes/i.test(name)) icon = `<img src="${runeTokenIcon}" alt="" class="setup-chip__img">`;
+  else if (/chest/i.test(name)) icon = `<img src="${chestTokenIcon}" alt="" class="setup-chip__img">`;
+  else if (/interaction/i.test(name)) icon = `<img src="${interactionIcon}" alt="" class="setup-chip__img">`;
+  else if (/event/i.test(name)) icon = `<i class="mdi mdi-alert-decagram-outline setup-chip__mdi"></i>`;
+  return `<span class="setup-chip" title="${name}">${count ? `<b class="setup-chip__n">${count}</b>` : ""}${icon}<span>${label}</span></span>`;
+}
+const withSetupIcons = (html: string) =>
+  html.replace(
+    /<strong>\s*(Maps|Setup|Monsters|\d\+\s*Players)\s*:\s*<\/strong>\s*([^<]*)(?:<br\s*\/?>)?/gi,
+    (_whole, rawLabel: string, rest: string) => {
+      const key = rawLabel.toLowerCase();
+      const players = rawLabel.match(/^(\d\+)/);
+      const isMaps = key === "maps";
+      const icon = players ? "mdi-account-group-outline" : SETUP_LABEL_ICONS[key];
+      // "+ 1 GM…" rows add to the ones above.
+      const adds = !isMaps && /^\s*\+/.test(rest);
+      const items = rest.split(/,\s*/).filter((item) => item.trim()).map((item) => setupItem(item, isMaps)).join("");
+      return `<div class="setup-row"><span class="setup-row__label"><i class="mdi ${icon}"></i>${players ? players[1] : rawLabel}</span><span class="setup-row__items">${adds ? '<span class="setup-row__plus">+</span>' : ""}${items}</span></div>`;
+    },
+  );
 const tutorialPopup = ref<{ visible: boolean; tutorial: { name: string; body: string } | null }>({ visible: false, tutorial: null });
 const onRulesClick = (event: MouseEvent) => {
   const link = (event.target as HTMLElement).closest<HTMLElement>(".tutorial-link");
@@ -3806,6 +3853,127 @@ watch(
 }
 .rules-body :deep(.tutorial-link:hover) {
   filter: brightness(1.2);
+}
+/* Setup rows: label on the left, one chip per map, token or monster. */
+.rules-body :deep(.setup-row) {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 0;
+}
+.rules-body :deep(.setup-row + .setup-row) {
+  border-top: 1px dashed rgba(42, 33, 28, 0.15);
+}
+.rules-body :deep(.setup-row__label) {
+  flex: 0 0 74px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding-top: 4px;
+  color: #6b5a4e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.rules-body :deep(.setup-row__label .mdi) {
+  font-size: 1.05rem;
+}
+.rules-body :deep(.setup-row__items) {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.rules-body :deep(.setup-row__plus) {
+  color: #6b5a4e;
+  font-weight: 800;
+}
+.rules-body :deep(.setup-chip) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 4px;
+  background: #fff;
+  border: 1px solid rgba(42, 33, 28, 0.12);
+  border-radius: 999px;
+  color: #2a211c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.rules-body :deep(.setup-chip__n) {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #2a211c;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+}
+.rules-body :deep(.setup-chip__img) {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.rules-body :deep(.setup-chip__mdi) {
+  font-size: 1.1rem;
+  color: #8e1c16;
+}
+/* Minion tokens drawn like the ones on the maps. */
+.rules-body :deep(.setup-token) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  font-family: "Oswald", "Bebas Neue", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 2px #1d2b26, 0 0 2px #1d2b26;
+}
+.rules-body :deep(.setup-token--g) {
+  background: #7d8f87;
+  border: 2px solid #2bb39a;
+}
+.rules-body :deep(.setup-token--w) {
+  background: #ece6d4;
+  border: 2px solid #6f6a50;
+}
+.rules-body :deep(.setup-token--b) {
+  background: #3c4250;
+  border: 2px solid #11151d;
+}
+.rules-body :deep(.setup-map) {
+  padding: 2px 9px;
+  background: #2b2b2e;
+  border-radius: 6px;
+  color: #fff;
+  font-family: "Oswald", "Bebas Neue", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+@media (max-width: 480px) {
+  .rules-body :deep(.setup-row__label) {
+    flex-basis: 48px;
+  }
+}
+.rules-body :deep(.setup-door) {
+  padding: 2px 8px;
+  background: #ffe500;
+  border-radius: 3px;
+  color: #111;
+  font-family: "Oswald", "Bebas Neue", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 .tutorial-popup {
   background: #f6f1e6 !important;
