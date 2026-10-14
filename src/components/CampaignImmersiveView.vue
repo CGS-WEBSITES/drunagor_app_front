@@ -310,13 +310,16 @@
             </template>
           </v-tooltip>
 
-          <v-tooltip text="Read Scene" location="left">
+          <v-tooltip :text="pendingScene ? `Read the scene: ${pendingScene.title}` : 'Read Scene'" location="left">
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
                 class="right-tab-btn grey-tab"
+                :class="{ 'scene-tab--alert': pendingScene }"
                 @click.stop="readTheScene"
               >
+                <span v-if="pendingScene" class="interaction-tab__badge scene-tab__badge">!</span>
+                <span v-if="pendingScene" class="scene-tab__callout">Scene to read</span>
                 <v-icon size="large" color="#e0e0e0"
                   >mdi-book-open-page-variant</v-icon
                 >
@@ -2351,8 +2354,56 @@ function onSaveFail() {
   }, 4000);
 }
 
+// Scenes a room asks the party to read, by book page. Great Hall scenes come
+// from their Scene Trigger card, so they are ready there for when it fires.
+const ROOM_SCENES: { wing: (wing: string) => boolean; doors: Record<string, string> }[] = [
+  { wing: (w) => w.includes("TUTORIAL"), doors: { "FIRST SETUP": "book01.01", "THE GREAT HALL": "book01.02" } },
+  { wing: (w) => w.includes("WING 1") || w.includes("WING 01"), doors: { "FIRST SETUP": "book01.05", "THE GREAT HALL": "book01.06" } },
+  { wing: (w) => w.includes("WING 2") || w.includes("WING 02"), doors: { "FIRST SETUP": "book01.09", "THERE AND BACK AGAIN": "book01.13" } },
+  { wing: (w) => w.includes("WING 3"), doors: { "FIRST SETUP": "book02.01", "MAIN HALL": "book02.05" } },
+  { wing: (w) => w.includes("WING 4"), doors: { "FIRST SETUP": "book02.07" } },
+];
+const SCENE_TITLES = new Map<string, string>(
+  (bookPagesData as any[]).flatMap((page) => page.content.map((item: any) => [item.id, item.title])),
+);
+const sceneDoorKey = computed(() =>
+  (activeCampaignData.value.door || "FIRST SETUP").toUpperCase().replace(/\s*\(TUTORIAL\)\s*$/, "").trim(),
+);
+const roomSceneId = computed(() => {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  return ROOM_SCENES.find((entry) => entry.wing(wing))?.doors[sceneDoorKey.value] ?? null;
+});
+// Remembered on this device, so a scene already read stops calling.
+const readScenes = ref(new Set<string>());
+const sceneReadKey = (sceneId: string) => `scene_read_${props.campaignId}_${sceneId}`;
+const pendingScene = computed(() => {
+  const id = roomSceneId.value;
+  if (!id || readScenes.value.has(id)) return null;
+  try {
+    if (localStorage.getItem(sceneReadKey(id))) return null;
+  } catch {
+    // Storage blocked: keep calling until read in this session.
+  }
+  const title = doorDisplayName(SCENE_TITLES.get(id) || "");
+  return { id, title };
+});
+
 function readTheScene() {
+  const scene = pendingScene.value;
+  if (!scene) {
+    openBookDialog();
+    return;
+  }
+  readScenes.value = new Set(readScenes.value).add(scene.id);
+  try {
+    localStorage.setItem(sceneReadKey(scene.id), "1");
+  } catch {
+    // Storage blocked: remembered for this session only.
+  }
   openBookDialog();
+  nextTick(() => {
+    setTimeout(() => campaignBookRef.value?.openSceneByTarget(scene.id), 150);
+  });
 }
 
 function handleImageError() {
@@ -3770,6 +3821,41 @@ watch(
   }
 }
 
+/* Read Scene calls the party when the room has a scene to read. */
+.scene-tab--alert {
+  position: relative;
+  border-color: #ffd740 !important;
+  animation: scene-glow 1.6s ease-in-out infinite;
+}
+.scene-tab__badge {
+  background: #ffb300 !important;
+  color: #111 !important;
+}
+.scene-tab__callout {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 10px;
+  background: #ffd740;
+  border-radius: 999px;
+  color: #111;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+@keyframes scene-glow {
+  0%, 100% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(255, 215, 64, 0.6); }
+  50% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 16px 4px rgba(255, 215, 64, 0.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-tab--alert {
+    animation: none;
+  }
+}
 /* Runes & Game Mechanics */
 .runes-dialog {
   background: rgb(var(--v-theme-surface)) !important;
