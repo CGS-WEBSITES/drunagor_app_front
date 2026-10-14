@@ -494,6 +494,8 @@ interface Volume {
   icon: string;
   type: 'story' | 'reference';
   data?: any;
+  // Read page by page like a story, but listed with the rules and references.
+  reference?: boolean;
 }
 
 interface PageContentItem { id: string; title?: string; body: string; instruction?: string; setup?: string; }
@@ -566,6 +568,24 @@ function closeLightbox() {
 const rawStartHere = startHereData as PageSection[];
 const rawStartHereS1 = startHereS1Data as PageSection[];
 const rawStoryBooks = bookPagesData as PageSection[];
+
+// The Tutorials book reads like the others: one tutorial per page, its chapter on the banner.
+// "TUTORIAL - TURNS AND ROUNDS" → "Turns and Rounds".
+const tutorialTitle = (title: string) =>
+  title
+    .replace(/^\s*TUTORIAL\s*[-–]\s*/i, "")
+    .toLowerCase()
+    .replace(/(^|[\s-])([a-z])/g, (_m, sep, ch) => sep + ch.toUpperCase())
+    .replace(/(?<=\s)(And|Of|The|A|An|To|In|On|For)(?=\s)/g, (word) => word.toLowerCase());
+const tutorialPages: PageSection[] = (playerTutorialsData as any).chapters.flatMap((chapter: any, cIdx: number) =>
+  chapter.tutorials.map((tutorial: any, tIdx: number) => ({
+    section: chapter.chapterTitle,
+    layout: "",
+    background: "",
+    // The stored bodies are wrapped in bold sans-serif; read them in the book's type.
+    content: [{ id: `tut-${cIdx}-${tIdx}`, title: tutorialTitle(tutorial.title), body: tutorial.bodyHTML.replace(/ style="font-weight: bold; font-family: sans-serif;"/g, "") }],
+  })),
+);
 
 const availableVolumes = computed<Volume[]>(() => {
   const vols: Volume[] = [];
@@ -695,7 +715,7 @@ const availableVolumes = computed<Volume[]>(() => {
     });
   }
 
-  vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'reference', data: playerTutorialsData });
+  vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'story', reference: true, data: tutorialPages });
   vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
   vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
   vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
@@ -707,8 +727,8 @@ const availableVolumes = computed<Volume[]>(() => {
   return vols;
 });
 
-const storyVolumes = computed(() => availableVolumes.value.filter(v => v.type === 'story'));
-const referenceVolumes = computed(() => availableVolumes.value.filter(v => v.type === 'reference'));
+const storyVolumes = computed(() => availableVolumes.value.filter(v => v.type === 'story' && !v.reference));
+const referenceVolumes = computed(() => availableVolumes.value.filter(v => v.type === 'reference' || v.reference));
 
 const currentVolume = computed(() => availableVolumes.value.find(v => v.id === currentVolumeId.value));
 
@@ -734,11 +754,6 @@ const currentAuxiliaryData = computed(() => {
   if (currentVolumeId.value === 'mechanics') {
      const sections = raw.mechanics.map((m: any, i: number) => ({ id: `mech-${i}`, title: m.title, body: m.bodyHTML }));
      normalizedChapters.push({ title: 'Game Mechanics', sections });
-  } else if (currentVolumeId.value === 'tutorials') {
-     raw.chapters.forEach((ch: any, cIdx: number) => {
-        const sections = ch.tutorials.map((t: any, sIdx: number) => ({ id: `tut-${cIdx}-${sIdx}`, title: t.title, body: t.bodyHTML }));
-        normalizedChapters.push({ title: ch.chapterTitle, sections });
-     });
   } else {
      raw.chapters.forEach((ch: any, cIdx: number) => {
         const sections = ch.sections.map((s: any, sIdx: number) => ({ id: `ref-${cIdx}-${sIdx}`, title: s.title, body: s.bodyHTML }));
@@ -775,7 +790,8 @@ const currentVolumeGroups = computed(() => {
               });
            }
         });
-        if (items.length) groups[section.section] = items;
+        // Tutorials share a chapter across pages, so pages add to their group.
+        if (items.length) groups[section.section] = [...(groups[section.section] || []), ...items];
      });
   } else if (currentVolume.value?.type === 'reference') {
      currentAuxiliaryData.value.chapters.forEach(ch => {
