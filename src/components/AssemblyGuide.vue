@@ -18,10 +18,11 @@
       </div>
     </header>
 
-    <!-- Picture -->
-    <div class="guide__media" :class="{ 'guide__media--empty': !currentStepData.image }" @click="currentStepData.image && openZoomDialog()">
-      <template v-if="currentStepData.image">
-        <img :src="currentStepData.image" :alt="currentStepData.title || `Step ${currentStep + 1}`" />
+    <!-- Picture: the step's own, then any the text shows -->
+    <div class="guide__media" :class="{ 'guide__media--empty': !shownImage }" @click="shownImage && openZoomDialog(shownImage.src)">
+      <template v-if="shownImage">
+        <img :src="shownImage.src" :alt="shownImage.alt" />
+        <span v-if="stepImages.length > 1 && shownImage.alt" class="guide__caption">{{ shownImage.alt }}</span>
         <span class="guide__zoom"><v-icon size="18">mdi-magnify-plus-outline</v-icon></span>
       </template>
       <template v-else>
@@ -30,8 +31,21 @@
       </template>
     </div>
 
+    <div v-if="stepImages.length > 1" class="guide__thumbs">
+      <button
+        v-for="(picture, index) in stepImages"
+        :key="picture.src"
+        class="guide__thumb"
+        :class="{ active: index === imageIndex }"
+        :aria-label="picture.alt || `Picture ${index + 1}`"
+        @click="imageIndex = index"
+      >
+        <img :src="picture.src" alt="" />
+      </button>
+    </div>
+
     <!-- Text -->
-    <div class="guide__text html-instruction" v-html="currentStepData.instruction" @click="handleInstructionClick"></div>
+    <div class="guide__text html-instruction" v-html="stepText" @click="handleInstructionClick"></div>
 
     <!-- Navigation -->
     <nav class="guide__nav">
@@ -188,6 +202,23 @@ const dragStart = ref({ x: 0, y: 0 });
 const isMobile = computed(() => mobile.value);
 
 const currentStepData = computed(() => props.steps[currentStep.value]);
+
+// Pictures inside a step's text are too small to read there: they join the
+// step's picture above, with thumbnails to switch between them.
+const INLINE_IMAGE = /<img\b[^>]*>/gi;
+const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`, "i"))?.[1] ?? "";
+const stepImages = computed(() => {
+  const step = currentStepData.value || {};
+  const inline = (step.instruction || "").match(INLINE_IMAGE) || [];
+  return [
+    ...(step.image ? [{ src: step.image, alt: step.title || "" }] : []),
+    ...inline.map((tag) => ({ src: attr(tag, "src"), alt: attr(tag, "alt") })).filter((picture) => picture.src),
+  ];
+});
+const stepText = computed(() => (currentStepData.value?.instruction || "").replace(INLINE_IMAGE, ""));
+const imageIndex = ref(0);
+const shownImage = computed(() => stepImages.value[imageIndex.value] || stepImages.value[0] || null);
+watch(currentStep, () => (imageIndex.value = 0));
 
 const isLastStep = computed(() => currentStep.value === props.steps.length - 1);
 const showFinish = computed(() => isLastStep.value && !!props.finishLabel);
@@ -737,6 +768,49 @@ onUnmounted(() => {
   background: rgba(0, 0, 0, 0.7);
   border-radius: 50%;
   color: #fff;
+}
+.guide__caption {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 64px);
+  padding: 4px 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.guide__thumbs {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  margin: 8px 12px 0;
+  overflow-x: auto;
+}
+.guide__thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 44px;
+  padding: 0;
+  overflow: hidden;
+  background: #0b0b0b;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  opacity: 0.6;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.guide__thumb.active {
+  border-color: rgb(var(--v-theme-accent));
+  opacity: 1;
+}
+.guide__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .guide__text {
   flex-shrink: 0;
