@@ -30,7 +30,8 @@
             <div class="text-caption text-grey mt-2">Point camera at the QR Code</div>
         </v-col>
 
-        <v-col cols="12" md="6" class="list-col bg-grey-darken-3 pa-6">
+        <!-- On phones the room's interactions come before the camera. -->
+        <v-col cols="12" md="6" class="list-col bg-grey-darken-3 pa-6" :class="{ 'order-first order-md-last': visibleInteractions.length }">
             <div class="text-h6 text-white mb-6 font-weight-bold text-center">Available Here</div>
             
             <v-row justify="center" class="px-2">
@@ -40,16 +41,21 @@
                   cols="12" sm="10" md="12" lg="10"
                   class="pa-2"
                 >
-                  <div 
+                  <div
                     class="interaction-list-item"
-                    @click="selectInteraction(interaction.id)"
+                    :class="{ 'interaction-list-item--new': interaction.isNew }"
+                    @click="chooseInteraction(interaction.id)"
                   >
                       <img src="@/assets/interaction.png" class="interaction-list-icon" alt="Interact" />
-                      
+
                       <div class="interaction-list-title font-weight-bold text-white">
                           {{ interaction.title }}
+                          <div class="interaction-list-tags">
+                              <span v-if="interaction.isNew" class="interaction-tag interaction-tag--new">New in this room</span>
+                              <span v-if="interaction.appOnly" class="interaction-tag">App only · no QR code</span>
+                          </div>
                       </div>
-                      
+
                       <v-icon class="interaction-list-chevron">mdi-chevron-right</v-icon>
                   </div>
                 </v-col>
@@ -142,6 +148,36 @@
 
     </v-container>
 
+    <v-dialog v-model="barricadeCheck" max-width="440">
+      <v-card class="barricade-check rounded-xl">
+        <div class="barricade-check__head">
+          <img src="@/assets/interaction.png" alt="" class="barricade-check__icon" />
+          <div>
+            <div class="barricade-check__kicker">Interaction 1</div>
+            <div class="barricade-check__title">The Barricade</div>
+          </div>
+        </div>
+        <v-card-text class="barricade-check__body">
+          <template v-if="!barricadeNotYet">
+            This interaction has no QR code. The <strong>Game State Check-Up</strong> card on the Initiative Track,
+            on its <strong>‘The Barricade’</strong> side, tells you when to open it.
+            <div class="barricade-check__question">Have you read ‘The Barricade’ card?</div>
+          </template>
+          <template v-else>
+            Read the <strong>‘The Barricade’</strong> side of the Game State Check-Up card first. Come back here when it
+            tells you to resolve the interaction.
+          </template>
+        </v-card-text>
+        <v-card-actions class="barricade-check__actions">
+          <template v-if="!barricadeNotYet">
+            <v-btn variant="text" color="grey-lighten-1" @click="barricadeNotYet = true">Not yet</v-btn>
+            <v-btn variant="flat" color="playbutton" class="text-none font-weight-bold" @click="confirmBarricade">Yes, open it</v-btn>
+          </template>
+          <v-btn v-else variant="flat" color="playbutton" class="text-none font-weight-bold" @click="barricadeCheck = false">Got it</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="showCameraDeniedDialog" max-width="400">
       <v-card class="bg-grey-darken-3">
         <v-card-title>Camera Required</v-card-title>
@@ -160,6 +196,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } from '@zxing/library';
 
 import rawInteractionConfigsData from "@/data/book/interactionConfigurations.json";
+import { roomInteractions, BARRICADE } from "@/utils/roomInteractions";
 
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
@@ -190,7 +227,6 @@ import InteractionTheRunic from "@/assets/json/InteractionTheRunic.json";
 const props = defineProps<{
     currentDoor: string;
     wing: string;
-    campaignType?: string;
 }>();
 
 const emit = defineEmits(['close', 'open-scene']);
@@ -335,47 +371,33 @@ const switchCamera = () => {
   nextTick(() => startScanner());
 };
 
-const visibleInteractions = computed(() => {
-    const list: { id: string, number: number, title: string }[] = [];
-    const w = (props.wing || "").toUpperCase();
-    const d = (props.currentDoor || "").toUpperCase();
-    const t = (props.campaignType || "").toLowerCase();
-    
-    const isS1 = t === 'core' || t === 'apocalypse' || t === 'awakenings' || w.includes("WING 1") || w.includes("WING 2");
+const room = computed(() => roomInteractions(props.wing, props.currentDoor));
 
-    const add = (key: string) => { 
-        if(interactionMeta[key] && !list.find(i => i.id === key)) {
-            list.push({ id: key, ...interactionMeta[key] }); 
-        }
-    };
+// Newest first: what this room just added, then what is still on the board.
+const visibleInteractions = computed(() =>
+    room.value.available
+        .filter((id) => interactionMeta[id])
+        .map((id) => ({ id, ...interactionMeta[id], isNew: room.value.placedHere.includes(id), appOnly: id === BARRICADE }))
+        .sort((a, b) => Number(b.isNew) - Number(a.isNew) || a.number - b.number),
+);
 
-    if (isS1) {
-        // Show only Season 1 interactions (IDs 1 to 6)
-        add("https://qr1.be/WMJL");
-        add("https://qr1.be/FNMI");
-        add("https://qr1.be/0RLM");
-        add("https://qr1.be/60LT");
-        add("https://qr1.be/LPF2");
-        add("https://qr1.be/Y4ZP");
-    } else {
-        // Show Season 2 interactions based on wing progress
-        if (w.includes("WING 3")) {
-            const doorsOrder = ["FIRST SETUP", "DUNGEON FOYER", "QUEEN'S HALL", "THE FORGE", "ARTISAN'S GALLERY", "PROVING GROUNDS", "MAIN HALL"];
-            const idx = doorsOrder.indexOf(d);
-            if (idx >= 0) add("InteractionThePrisoner");
-            if (idx >= 2) add("InteractionTheSeed");
-            if (idx >= 3) add("InteractionTheForge");
-        }
+// The Barricade has no QR code: the Game State Check-Up card sends the party here.
+const barricadeCheck = ref(false);
+const barricadeNotYet = ref(false);
 
-        if (w.includes("WING 4")) {
-            add("InteractionTheRunic"); 
-            if (["DRACONIC CHAPEL", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionDraconianAltar");
-            if (["CRYPTS", "BOTH OPEN", "LIBRARY", "LABORATORY"].includes(d)) add("InteractionBeerFactory");
-        }
+function chooseInteraction(id: string) {
+    if (id === BARRICADE) {
+        barricadeNotYet.value = false;
+        barricadeCheck.value = true;
+        return;
     }
-    
-    return list.sort((a,b) => a.number - b.number);
-});
+    selectInteraction(id);
+}
+
+function confirmBarricade() {
+    barricadeCheck.value = false;
+    selectInteraction(BARRICADE);
+}
 
 const getInteractionIntroBody = () => {
   if (!currentConfig.value) return "";
@@ -561,6 +583,85 @@ defineExpose({ ensureCameraPermission });
     text-align: left;
     font-size: 1.1rem;
     letter-spacing: 0.5px;
+}
+
+.interaction-list-item--new {
+    border-color: #bf529d;
+    box-shadow: 0 0 14px rgba(191, 82, 157, 0.35);
+}
+
+.interaction-list-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.interaction-tag {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.interaction-tag--new {
+    color: #fff;
+    background: #bf529d;
+}
+
+.barricade-check {
+    background: rgb(var(--v-theme-surface));
+    border: 1px solid rgba(191, 82, 157, 0.45);
+}
+
+.barricade-check__head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 20px 4px;
+}
+
+.barricade-check__icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.barricade-check__kicker {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #bf529d;
+}
+
+.barricade-check__title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.barricade-check__body {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.barricade-check__question {
+    margin-top: 14px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.barricade-check__actions {
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 20px 18px;
 }
 
 .interaction-list-chevron {
