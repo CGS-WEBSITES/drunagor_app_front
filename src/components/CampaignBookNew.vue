@@ -1201,7 +1201,7 @@ function scrollToSceneWhenLoaded(id: string) {
     const container = scrollableContentRef.value;
     if (!target || !container) return;
     const until = Date.now() + 4000;
-    const pending = [...container.querySelectorAll("img")].filter(
+    const pending = Array.from(container.querySelectorAll("img")).filter(
         (img) => !img.complete && (img.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING),
     );
     for (const img of pending) {
