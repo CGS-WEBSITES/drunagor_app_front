@@ -1187,9 +1187,25 @@ function openSceneByTarget(target: string) {
         
         nextTick(() => {
             setTimeout(() => {
-                if (foundItemOriginalId) scrollToElement(foundItemOriginalId);
+                if (foundItemOriginalId) scrollToSceneWhenLoaded(foundItemOriginalId);
             }, 300);
         });
+    }
+}
+
+// Pictures above a scene finish loading after the jump and push it down,
+// so the jump repeats as each of them loads (for a few seconds at most).
+function scrollToSceneWhenLoaded(id: string) {
+    scrollToElement(id);
+    const target = document.getElementById(id);
+    const container = scrollableContentRef.value;
+    if (!target || !container) return;
+    const until = Date.now() + 4000;
+    const pending = [...container.querySelectorAll("img")].filter(
+        (img) => !img.complete && (img.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING),
+    );
+    for (const img of pending) {
+        img.addEventListener("load", () => Date.now() < until && scrollToElement(id), { once: true });
     }
 }
 
