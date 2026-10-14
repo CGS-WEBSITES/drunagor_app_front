@@ -1105,7 +1105,8 @@ const withSetupIcons = (html: string) =>
       // "+ 1 GM…" rows add to the ones above.
       const adds = !isMaps && /^\s*\+/.test(rest);
       const items = rest.split(/,\s*/).filter((item) => item.trim()).map((item) => setupItem(item, isMaps)).join("");
-      return `<div class="setup-row"><span class="setup-row__label"><i class="mdi ${icon}"></i>${players ? players[1] : rawLabel}</span><span class="setup-row__items">${adds ? '<span class="setup-row__plus">+</span>' : ""}${items}</span></div>`;
+      const title = players ? `${players[1]} players` : rawLabel;
+      return `<div class="setup-row"><div class="setup-row__label"><i class="mdi ${icon}"></i>${title}${adds ? '<span class="setup-row__adds">add</span>' : ""}</div><div class="setup-row__items">${items}</div></div>`;
     },
   );
 const tutorialPopup = ref<{ visible: boolean; tutorial: { name: string; body: string } | null }>({ visible: false, tutorial: null });
@@ -3863,41 +3864,43 @@ watch(
 .rules-body :deep(.tutorial-link:hover) {
   filter: brightness(1.2);
 }
-/* Setup rows: label on the left, one chip per map, token or monster. */
+/* Setup rows: a small title, then one chip per map, token or monster. */
 .rules-body :deep(.setup-row) {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 7px 0;
+  padding: 8px 0;
+}
+.rules-body :deep(.setup-row:first-child) {
+  padding-top: 2px;
 }
 .rules-body :deep(.setup-row + .setup-row) {
   border-top: 1px dashed rgba(42, 33, 28, 0.15);
 }
 .rules-body :deep(.setup-row__label) {
-  flex: 0 0 74px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 5px;
-  padding-top: 4px;
+  gap: 6px;
+  margin-bottom: 6px;
   color: #6b5a4e;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 .rules-body :deep(.setup-row__label .mdi) {
-  font-size: 1.05rem;
+  font-size: 1rem;
+}
+.rules-body :deep(.setup-row__adds) {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(42, 33, 28, 0.08);
+  font-size: 0.62rem;
+  letter-spacing: 0.4px;
 }
 .rules-body :deep(.setup-row__items) {
-  flex: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px;
-}
-.rules-body :deep(.setup-row__plus) {
-  color: #6b5a4e;
-  font-weight: 800;
 }
 .rules-body :deep(.setup-chip) {
   display: inline-flex;
@@ -3968,11 +3971,6 @@ watch(
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-}
-@media (max-width: 480px) {
-  .rules-body :deep(.setup-row__label) {
-    flex-basis: 48px;
-  }
 }
 .rules-body :deep(.setup-door) {
   padding: 2px 8px;
