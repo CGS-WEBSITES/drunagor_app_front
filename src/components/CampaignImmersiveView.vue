@@ -304,7 +304,7 @@
                 @click.stop="openInteractionsDialog"
               >
                 <span v-if="newInteractionsCount" class="interaction-tab__badge">{{ newInteractionsCount }}</span>
-                <v-icon size="large" color="white">mdi-magnify</v-icon>
+                <img src="@/assets/interaction.png" alt="" class="interaction-tab__icon" />
                 <span class="tab-label">Interactions</span>
               </div>
             </template>
@@ -3081,10 +3081,19 @@ watch(
   filter: brightness(1.2);
 }
 
+/* Dark like the other actions, so the official pink icon stands out. */
 .interaction-tab {
   position: relative;
-  background-color: #bf529d !important;
-  border: 1px solid #9c4381;
+  background: linear-gradient(135deg, #3a2233 0%, #24161f 100%) !important;
+  border: 1px solid #bf529d;
+  border-right: none;
+  color: #f3d3ea;
+}
+.interaction-tab__icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 /* New interactions in this room: a count and a glow until the party opens it. */
