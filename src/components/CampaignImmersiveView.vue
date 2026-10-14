@@ -293,16 +293,17 @@
       <div class="hud-area bottom-right">
         <div class="interactive-content d-flex flex-column align-end gap-3">
           <v-tooltip
-            text="Interactions"
+            :text="newInteractionsCount ? 'New interactions in this room' : 'Interactions'"
             location="left"
-            v-if="showInteractionsButton"
           >
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
                 class="right-tab-btn interaction-tab"
+                :class="{ 'interaction-tab--alert': newInteractionsCount }"
                 @click.stop="openInteractionsDialog"
               >
+                <span v-if="newInteractionsCount" class="interaction-tab__badge">{{ newInteractionsCount }}</span>
                 <img
                   src="@/assets/interaction.png"
                   alt="icon"
@@ -938,6 +939,7 @@ import CampaignBookNew from "@/components/CampaignBookNew.vue";
 import KeywordView from "@/components/KeywordView.vue";
 import NextDoorQRScanner from "@/components/NextDoorQRScanner.vue";
 import InteractViewNew from "@/components/InteractViewNew.vue";
+import { roomInteractions } from "@/utils/roomInteractions";
 
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
@@ -1607,36 +1609,16 @@ const isBossBattle = computed(() => {
   return false;
 });
 
-const showInteractionsButton = computed(() => {
-  const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  const door = (activeCampaignData.value.door || "").toUpperCase();
-  if (isBossBattle.value) return false;
-  if (wing.includes("WING 3"))
-    return [
-      "FIRST SETUP",
-      "DUNGEON FOYER",
-      "QUEEN'S HALL",
-      "THE FORGE",
-      "ARTISAN'S GALLERY",
-      "PROVING GROUNDS",
-    ].includes(door);
-  if (wing.includes("WING 4"))
-    return [
-      "FIRST SETUP",
-      "DRACONIC CHAPEL",
-      "CRYPTS",
-      "BOTH OPEN",
-      "LIBRARY",
-      "LABORATORY",
-    ].includes(door);
-  if (wing.includes("WING 1") || wing.includes("TUTORIAL")) {
-    return door.includes("THE ENTRY HALL");
-  }
-  if (wing.includes("WING 2")) {
-    return door.includes("THE GREAT CISTERN") || door.includes("THE BURIED ARMORY") || door.includes("FIRST SETUP");
-  }
-  return false;
-});
+// The Interactions button is always there; it lights up in a room that puts new
+// interactions on the board, until the party opens it.
+const currentRoomInteractions = computed(() =>
+  roomInteractions(activeCampaignData.value.wing || "", activeCampaignData.value.door || ""),
+);
+const seenInteractionRooms = ref(new Set<string>());
+const interactionRoomKey = computed(() => `${activeCampaignData.value.wing}|${activeCampaignData.value.door}`);
+const newInteractionsCount = computed(() =>
+  seenInteractionRooms.value.has(interactionRoomKey.value) ? 0 : currentRoomInteractions.value.placedHere.length,
+);
 
 const nextButtonLabel = computed(() => {
     if (isBossBattle.value) return "FINISH CAMPAIGN";
@@ -2131,6 +2113,7 @@ function openKeywordsDialog() {
 }
 
 function openInteractionsDialog() {
+  seenInteractionRooms.value = new Set(seenInteractionRooms.value).add(interactionRoomKey.value);
   interactionsDialog.value.visible = true;
 }
 
@@ -3056,10 +3039,42 @@ watch(
 }
 
 .interaction-tab {
+  position: relative;
   background-color: #bf529d !important;
   padding: 0;
   overflow: hidden;
   border: 1px solid #9c4381;
+}
+
+/* New interactions in this room: a count and a glow until the party opens it. */
+.interaction-tab--alert {
+  animation: interaction-glow 1.6s ease-in-out infinite;
+}
+.interaction-tab__badge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #fff;
+  color: #9c4381;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 18px;
+  text-align: center;
+  z-index: 1;
+}
+@keyframes interaction-glow {
+  0%, 100% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(191, 82, 157, 0.7); }
+  50% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 16px 4px rgba(191, 82, 157, 0.75); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .interaction-tab--alert {
+    animation: none;
+    box-shadow: 0 0 12px 3px rgba(191, 82, 157, 0.7);
+  }
 }
 
 .blue-tab {
