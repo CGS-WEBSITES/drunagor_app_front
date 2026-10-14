@@ -755,39 +755,25 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="runesDialogVisible" max-width="500">
-      <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
-        <v-toolbar color="black" density="compact" class="px-2">
-          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
-            <v-icon start color="amber-darken-2" class="mr-2">mdi-cards-variant</v-icon>
-            RUNE MECHANICS
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
+    <v-dialog v-model="runesDialogVisible" max-width="480" scrollable>
+      <v-card class="runes-dialog rounded-xl">
+        <div class="rules-head">
+          <div>
+            <small>Initiative Track</small>
+            <strong>Runes &amp; Game Mechanics</strong>
+          </div>
           <v-btn icon="mdi-close" variant="text" color="white" @click="runesDialogVisible = false"></v-btn>
-        </v-toolbar>
-        
-        <v-card-text class="pa-3 bg-grey-darken-4 d-flex flex-column gap-3" style="max-height: 80vh; overflow-y: auto;">
-          <!-- Runes Tracker -->
-          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
-            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center">
-              <v-icon start class="mr-2" size="small">mdi-counter</v-icon>
-              Runes Tracker
-            </div>
-            <div class="pa-2">
-              <CampaignRunes :campaign-id="campaignId" />
-            </div>
-          </div>
-          
-          <!-- Rune Cards -->
-          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
-            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center mb-1">
-              <v-icon start class="mr-2" size="small">mdi-cards-outline</v-icon>
-              Rune & Game State Cards
-            </div>
-            <div class="pa-2">
-              <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
-            </div>
-          </div>
+        </div>
+        <v-card-text class="runes-dialog__body">
+          <section class="runes-dialog__section">
+            <h4><v-icon size="16">mdi-counter</v-icon> Runes</h4>
+            <CampaignRunes :campaign-id="campaignId" />
+          </section>
+          <section class="runes-dialog__section">
+            <h4><v-icon size="16">mdi-cards-outline</v-icon> Rune, Game Mechanics &amp; State cards</h4>
+            <p>The cards on the Initiative Track right now. Tap one to read it.</p>
+            <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+          </section>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -3784,6 +3770,38 @@ watch(
   }
 }
 
+/* Runes & Game Mechanics */
+.runes-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+}
+.runes-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px !important;
+}
+.runes-dialog__section {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+}
+.runes-dialog__section h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.runes-dialog__section p {
+  margin: -4px 0 10px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
 /* Rules and tutorial dialogs */
 .rules-head {
   display: flex;
