@@ -261,9 +261,9 @@
             class="mb-4 text-left"
           ></v-text-field>
 
-          <v-divider class="mb-4" v-if="isWing3Scenario"></v-divider>
+          <v-divider class="mb-4" v-if="offersStartHere"></v-divider>
           
-          <template v-if="isWing3Scenario">
+          <template v-if="offersStartHere">
             <div class="text-body-2 mb-2">
               The <strong>"Start Here"</strong> feature is a <strong>guided gameplay introduction</strong> designed to teach you the basics of Drunagor.
             </div>
@@ -273,7 +273,7 @@
           </template>
         </v-card-text>
         <v-card-actions class="d-flex flex-column gap-2 px-4 pb-4">
-          <template v-if="isWing3Scenario">
+          <template v-if="offersStartHere">
             <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(true)" :disabled="!newCampaignName.trim()">
               <v-icon start>mdi-school</v-icon> Yes, Guide Me
             </v-btn>
@@ -490,9 +490,10 @@ const currentCampaignType = computed(() => {
     return currentEventSeasonFk.value === 2 ? 'underkeep' : 'underkeep2';
 });
 
-const isWing3Scenario = computed(() => {
+// Wings with a Start Here guide (1 and 3) ask whether the party wants it.
+const offersStartHere = computed(() => {
     const scenarioName = (eventDetails.value?.scenario || '').toLowerCase();
-    return scenarioName.includes('wing 03') || scenarioName.includes('wing 3');
+    return /wing 0?[13]\b/.test(scenarioName) || scenarioName.includes('tutorial');
 });
 
 const snackbar = ref({
