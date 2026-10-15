@@ -12,9 +12,11 @@ const image = (file, hero) => (NIGHTS_HEROES.includes(hero) ? `${IMG}/${file}-${
  */
 export function heroPreparationSteps(heroName, gift) {
   const hero = (heroName || "").toLowerCase();
-  const giftNote = gift
-    ? `<p><strong>Gift Equipment:</strong> ask the Store Owner for the Gift Equipment Pack and take 1 card. Recommended for ${heroName}: <strong>${gift.name}</strong>. ${gift.description}</p>`
-    : "";
+  // The Start Here book no longer has a Player Gifts page: its rules live here.
+  const giftNote = `<p><strong>Gift Equipment:</strong> ask the Store Owner for the Party's shared Gift Equipment Pack and take 1 card${
+    gift ? `. Recommended for ${heroName}: <strong>${gift.name}</strong>. ${gift.description}` : ""
+  }</p>
+<p>Check your Hero's Proficiency at the bottom of the Hero Board before equipping it. The Gift Equipment card is yours to keep after the event, while supplies last.</p>`;
 
   return [
     {
