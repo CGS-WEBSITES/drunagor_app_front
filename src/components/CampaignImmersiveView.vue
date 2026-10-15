@@ -654,8 +654,24 @@
             :campaign-id="campaignId"
             :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
             :is-sequential-adventure="true"
+            inline-edit
+            @edit="openHeroSheet"
           />
         </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- The hero sheet, edited without leaving the campaign. -->
+    <v-dialog v-model="heroSheetDialog.visible" fullscreen transition="dialog-bottom-transition">
+      <v-card class="hero-sheet-dialog">
+        <HeroDetailView
+          v-if="heroSheetDialog.visible && heroSheetDialog.heroId"
+          :key="heroSheetDialog.heroId"
+          :campaign-id-prop="campaignId"
+          :hero-id-prop="heroSheetDialog.heroId"
+          embedded
+          @close="heroSheetDialog.visible = false"
+        />
       </v-card>
     </v-dialog>
 
@@ -927,6 +943,7 @@ import CampaignBookNew from "@/components/CampaignBookNew.vue";
 import KeywordView from "@/components/KeywordView.vue";
 import NextDoorQRScanner from "@/components/NextDoorQRScanner.vue";
 import InteractViewNew from "@/components/InteractViewNew.vue";
+import HeroDetailView from "@/components/HeroDetailView.vue";
 import { roomInteractions } from "@/utils/roomInteractions";
 
 import CampaignRunes from "@/components/CampaignRunes.vue";
@@ -2310,6 +2327,12 @@ function confirmLeave() {
       leaveDialog.value.visible = false;
     },
   };
+}
+
+const heroSheetDialog = ref<{ visible: boolean; heroId: string | null }>({ visible: false, heroId: null });
+function openHeroSheet(heroId: string) {
+  heroCardDialog.value.visible = false;
+  heroSheetDialog.value = { visible: true, heroId };
 }
 
 function openHeroCard(h: any) {
@@ -3855,6 +3878,10 @@ watch(
   .scene-tab--alert {
     animation: none;
   }
+}
+.hero-sheet-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+  overflow-y: auto;
 }
 /* Runes & Game Mechanics */
 .runes-dialog {
