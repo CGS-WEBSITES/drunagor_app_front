@@ -462,6 +462,7 @@ import booktopImg from "@/assets/booktop.png";
 import booktops2Img from "@/assets/booktops2.png";
 import underkeepArt from "@/assets/underkeep.png";
 import underkeep2Art from "@/assets/underkeep2.png";
+import { isTestApi } from "@/utils/apiEnv";
 
 import { useDisplay } from "vuetify";
 const { smAndDown } = useDisplay();
@@ -670,15 +671,18 @@ const availableVolumes = computed<Volume[]>(() => {
       data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 4")) 
     });
   } else {
-    // Outside a campaign (e.g. the retailer Help) every book.
-    vols.push({ 
-      id: 'wing_1_tutorial', 
-      title: 'Wing 1 Tutorial', 
-      subtitle: 'Campaign Book', 
-      icon: 'mdi-book-open-variant', 
-      type: 'story', 
-      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL")) 
-    });
+    // Outside a campaign (e.g. the retailer Help) every book. Wing 1 Tutorial is
+    // frozen while it is reworked, so only the test server shows it.
+    if (isTestApi()) {
+      vols.push({
+        id: 'wing_1_tutorial',
+        title: 'Wing 1 Tutorial',
+        subtitle: 'Campaign Book',
+        icon: 'mdi-book-open-variant',
+        type: 'story',
+        data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL"))
+      });
+    }
     vols.push({ 
       id: 'wing_1_advanced', 
       title: 'Wing 1 Advanced', 

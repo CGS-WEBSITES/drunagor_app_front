@@ -123,14 +123,14 @@ const userStore = useUserStore();
 const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("accessToken")}` });
 
 // Retailer wings and the season each belongs to.
-const WING_SEASON = { 2: 2, 3: 2, 4: 2, 5: 3, 6: 3 };
+// Wing 1 Tutorial is frozen while it is reworked: only the test server lists it.
+const WING_SEASON = isTestApi() ? { 2: 2, 3: 2, 4: 2, 5: 3, 6: 3 } : { 3: 2, 4: 2, 5: 3, 6: 3 };
 const WING_LABELS = { 2: "Wing 1 Tutorial", 3: "Wing 1 Advanced", 4: "Wing 2 Advanced", 5: "Wing 3", 6: "Wing 4" };
 // The reward players get for each wing.
 // Wing 1 Advanced gives "Tutorial Completed", as validated.
 const WING_REWARD = { 2: 2, 3: 2, 4: 3, 5: 5, 6: 6 };
-// Wings 3 and 4 can't be picked for new events yet. Wing 1 Tutorial is frozen
-// while it is reworked: only the test server can create events with it.
-const LOCKED_WINGS = isTestApi() ? [5, 6] : [2, 5, 6];
+// Wings 3 and 4 can't be picked for new events yet.
+const LOCKED_WINGS = [5, 6];
 
 const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
 const minuteOptions = ["00", "15", "30", "45"];
