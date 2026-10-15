@@ -109,6 +109,7 @@
 import { computed, inject, reactive, ref, watch } from "vue";
 import { useUserStore } from "@/store/UserStore";
 import { parseApiDate } from "@/utils/dateHelpers";
+import { isTestApi } from "@/utils/apiEnv";
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -125,10 +126,11 @@ const authHeaders = () => ({ Authorization: `Bearer ${localStorage.getItem("acce
 const WING_SEASON = { 2: 2, 3: 2, 4: 2, 5: 3, 6: 3 };
 const WING_LABELS = { 2: "Wing 1 Tutorial", 3: "Wing 1 Advanced", 4: "Wing 2 Advanced", 5: "Wing 3", 6: "Wing 4" };
 // The reward players get for each wing.
-// Wing 1 Tutorial gives "Tutorial Completed"; Wing 1 Advanced gives none.
-const WING_REWARD = { 2: 2, 4: 3, 5: 5, 6: 6 };
-// Wings 3 and 4 can't be picked for new events yet.
-const LOCKED_WINGS = [5, 6];
+// Wing 1 Advanced gives "Tutorial Completed", as validated.
+const WING_REWARD = { 2: 2, 3: 2, 4: 3, 5: 5, 6: 6 };
+// Wings 3 and 4 can't be picked for new events yet. Wing 1 Tutorial is frozen
+// while it is reworked: only the test server can create events with it.
+const LOCKED_WINGS = isTestApi() ? [5, 6] : [2, 5, 6];
 
 const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
 const minuteOptions = ["00", "15", "30", "45"];
