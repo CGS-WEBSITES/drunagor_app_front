@@ -71,13 +71,15 @@
             </span>
           </div>
           <ul class="signals">
-            <li v-for="signal in signals" :key="signal.title" class="signal" :class="`signal--${signal.level}`">
-              <v-icon size="20" class="signal__icon">{{ STATUS_ICONS[signal.level] }}</v-icon>
-              <div>
-                <strong>{{ signal.title }}</strong>
-                <span>{{ signal.text }}</span>
-              </div>
-              <span class="signal__value">{{ signal.value }}</span>
+            <li v-for="signal in signals" :key="signal.title">
+              <button type="button" class="signal" :class="`signal--${signal.level}`" @click="openMetric(signal.metric)">
+                <v-icon size="20" class="signal__icon">{{ STATUS_ICONS[signal.level] }}</v-icon>
+                <div>
+                  <strong>{{ signal.title }}</strong>
+                  <span>{{ signal.text }}</span>
+                </div>
+                <span class="signal__value">{{ signal.value }}</span>
+              </button>
             </li>
           </ul>
         </section>
@@ -86,22 +88,20 @@
         <section class="kpis">
           <button
             v-for="kpi in kpis"
-            :key="kpi.label"
+            :key="kpi.metric.key"
             type="button"
             class="kpi"
-            :class="{ 'kpi--link': kpi.tab }"
-            :disabled="!kpi.tab"
-            @click="kpi.tab && (tab = kpi.tab)"
+            :aria-label="`${kpi.metric.label}: details`"
+            @click="openMetric(kpi.metric.key)"
           >
-            <span class="kpi__label"><v-icon size="16">{{ kpi.icon }}</v-icon>{{ kpi.label }}</span>
-            <strong class="kpi__value">{{ formatNumber(kpi.value) }}</strong>
-            <span v-if="kpi.baseline !== null" class="kpi__delta" :class="deltaClass(kpi.value, kpi.baseline)">
-              <v-icon size="14">{{ kpi.value > kpi.baseline ? "mdi-arrow-up" : kpi.value < kpi.baseline ? "mdi-arrow-down" : "mdi-minus" }}</v-icon>
-              {{ formatDelta(kpi.value, kpi.baseline) }} <em>vs last week</em>
+            <span class="kpi__label"><v-icon size="16">{{ kpi.metric.icon }}</v-icon>{{ kpi.metric.label }}<v-icon size="14" class="kpi__more">mdi-chevron-right</v-icon></span>
+            <strong class="kpi__value">{{ formatMetric(kpi.metric, kpi.value) }}</strong>
+            <span v-if="kpi.delta" class="kpi__delta" :class="kpi.delta.cls">
+              <v-icon size="14">{{ kpi.delta.icon }}</v-icon>{{ kpi.delta.text }} <em>vs last week</em>
             </span>
-            <span v-if="kpi.target" class="kpi__target">
-              <span class="kpi__bar"><span :style="{ width: `${Math.min(100, (kpi.value / kpi.target) * 100)}%` }"></span></span>
-              <small>{{ Math.min(100, Math.round((kpi.value / kpi.target) * 100)) }}% of the S1 target ({{ formatNumber(kpi.target) }})</small>
+            <span v-if="kpi.metric.target" class="kpi__target">
+              <span class="kpi__bar"><span :style="{ width: `${Math.min(100, (kpi.value / kpi.metric.target) * 100)}%` }"></span></span>
+              <small>{{ Math.min(100, Math.round((kpi.value / kpi.metric.target) * 100)) }}% of the S1 target ({{ formatNumber(kpi.metric.target) }})</small>
             </span>
           </button>
         </section>
@@ -116,12 +116,89 @@
               <canvas ref="cUsers" aria-label="Registered users per week"></canvas>
             </div>
             <div class="mini-stats">
-              <div><strong>{{ formatNumber(data.saude_geral.novos_usuarios_7d) }}</strong><span>new users (7d)</span></div>
-              <div><strong>{{ formatNumber(data.saude_geral.novos_usuarios_30d) }}</strong><span>new users (30d)</span></div>
-              <div><strong>{{ formatNumber(data.saude_geral.campanhas_novas_7d) }}</strong><span>new campaigns (7d)</span></div>
-              <div><strong>{{ formatNumber(data.saude_geral.campanhas_novas_30d) }}</strong><span>new campaigns (30d)</span></div>
-              <div><strong>{{ formatNumber(data.saude_geral.eventos_ativos) }}</strong><span>active events</span></div>
-              <div><strong>{{ formatNumber(data.saude_geral.eventos_passados_total) }}</strong><span>completed events</span></div>
+              <button v-for="key in MINI_KEYS" :key="key" type="button" @click="openMetric(key)">
+                <strong>{{ formatMetric(METRICS[key], METRICS[key].get(data)) }}</strong>
+                <span>{{ METRICS[key].label }}</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Retailer onboarding funnel (from the retailer list) -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-filter-variant</v-icon> Retailer onboarding</h2>
+              <small>tap a stage to see those retailers</small>
+            </div>
+            <ul class="bars">
+              <li v-for="(stage, index) in funnel" :key="stage.status">
+                <button type="button" class="bars__btn" @click="goToRetailers({ onboarding: stage.status })">
+                  <div class="bars__row">
+                    <span><span class="rank">{{ index + 1 }}</span>{{ onboardingLabel(stage.status) }}</span>
+                    <strong>{{ stage.count }}</strong>
+                  </div>
+                  <span class="bar"><span :style="{ width: `${barWidth(stage.count, funnelMax)}%` }"></span></span>
+                </button>
+              </li>
+            </ul>
+            <div class="off-track">
+              <span>Off track</span>
+              <button
+                v-for="stage in offTrack"
+                :key="stage.status"
+                type="button"
+                class="off-track__chip"
+                :style="{ '--chip': onboardingColor(stage.status) }"
+                @click="goToRetailers({ onboarding: stage.status })"
+              >
+                {{ onboardingLabel(stage.status) }} <strong>{{ stage.count }}</strong>
+              </button>
+            </div>
+          </section>
+
+          <!-- How active the stores are -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-storefront-check-outline</v-icon> Store activity</h2>
+              <small>{{ retailerList.length }} retailers</small>
+            </div>
+            <div class="tiles">
+              <button v-for="item in retailerActivity" :key="item.label" type="button" class="tile tile--btn" @click="goToRetailers(item.filter)">
+                <strong>{{ item.count }}</strong>
+                <span>{{ item.label }}</span>
+              </button>
+            </div>
+            <div class="mini-stats mini-stats--plain">
+              <div><strong>{{ formatNumber(retailerTotals.events) }}</strong><span>events by all stores</span></div>
+              <div><strong>{{ formatNumber(retailerTotals.players) }}</strong><span>players at their events</span></div>
+              <div><strong>{{ retailerTotals.withEvents }}</strong><span>stores with 1+ event</span></div>
+            </div>
+            <h3 class="panel__sub">Most active stores</h3>
+            <ul v-if="topStores.length" class="top-stores">
+              <li v-for="store in topStores" :key="store.users_pk">
+                <button type="button" @click="showRetailerEventsList(store)">
+                  <span>
+                    <strong>{{ store.store_name && store.store_name !== "-" ? store.store_name : store.name }}</strong>
+                    <small>{{ store.country || "-" }}</small>
+                  </span>
+                  <span class="top-stores__nums">{{ plural(store.events_count, "event") }} · {{ plural(store.players_count, "player") }}</span>
+                </button>
+              </li>
+            </ul>
+            <p v-else class="panel__empty">No store has run an event yet.</p>
+          </section>
+
+          <!-- Engagement ratios -->
+          <section class="panel panel--wide">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-heart-pulse</v-icon> Engagement</h2>
+              <small>ratios from this week's numbers</small>
+            </div>
+            <div class="ratios">
+              <div v-for="item in engagement" :key="item.label" class="ratio">
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+                <small>{{ item.hint }}</small>
+              </div>
             </div>
           </section>
 
@@ -226,7 +303,7 @@
         </div>
 
         <div class="table-scroll">
-          <v-table class="retailers-table">
+          <v-table class="retailers-table retailers-table--cards">
             <thead>
               <tr>
                 <th>Retailer</th>
@@ -278,6 +355,75 @@
         </div>
       </div>
     </template>
+
+    <!-- A metric: what it means and its last weeks -->
+    <v-dialog v-model="detail.visible" max-width="720" scrollable>
+      <v-card v-if="detailMetric" class="support-dialog rounded-xl">
+        <div class="support-dialog__head">
+          <div>
+            <small>Metric</small>
+            <strong>{{ detailMetric.label }}</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" @click="detail.visible = false" />
+        </div>
+        <v-card-text class="support-dialog__body">
+          <div class="detail-hero">
+            <v-icon size="28">{{ detailMetric.icon }}</v-icon>
+            <div>
+              <strong>{{ formatMetric(detailMetric, detailValue) }}</strong>
+              <span>{{ selectedWeek ? getWeekLabelByValue(selectedWeek) : "Now" }}</span>
+            </div>
+            <span v-if="detailDelta" class="kpi__delta" :class="detailDelta.cls">
+              <v-icon size="14">{{ detailDelta.icon }}</v-icon>{{ detailDelta.text }} <em>vs last week</em>
+            </span>
+          </div>
+          <div v-if="detailMetric.target" class="kpi__target">
+            <span class="kpi__bar"><span :style="{ width: `${Math.min(100, (detailValue / detailMetric.target) * 100)}%` }"></span></span>
+            <small>
+              {{ Math.min(100, Math.round((detailValue / detailMetric.target) * 100)) }}% of the Season 1 target ({{ formatNumber(detailMetric.target) }})
+              <template v-if="detailValue < detailMetric.target"> · {{ formatNumber(detailMetric.target - detailValue) }} to go</template>
+            </small>
+          </div>
+
+          <section class="dlg-section">
+            <h3>What it means</h3>
+            <p class="detail-text">{{ detailMetric.explain }}</p>
+            <p class="detail-text detail-text--muted"><strong>How it's counted:</strong> {{ detailMetric.counted }}</p>
+          </section>
+
+          <section v-if="detailMetric.history !== false" class="dlg-section">
+            <h3>Last {{ historyWeeks.length }} weeks</h3>
+            <v-progress-linear v-if="historyLoading" indeterminate color="accent" class="mb-2" />
+            <div v-show="detailRows.length > 1" class="chart-box chart-box--small">
+              <canvas ref="cDetail" :aria-label="`${detailMetric.label} per week`"></canvas>
+            </div>
+            <v-table v-if="detailRows.length" density="compact" class="retailers-table history-table">
+              <thead>
+                <tr><th>Week</th><th class="text-right">Value</th><th class="text-right">Change</th></tr>
+              </thead>
+              <tbody>
+                <tr v-for="row in [...detailRows].reverse()" :key="row.week">
+                  <td>{{ row.week }}</td>
+                  <td class="text-right"><strong>{{ formatMetric(detailMetric, row.value) }}</strong></td>
+                  <td class="text-right" :class="row.delta?.cls">{{ row.delta ? row.delta.text : "–" }}</td>
+                </tr>
+              </tbody>
+            </v-table>
+            <p v-else-if="!historyLoading" class="panel__empty">No earlier weeks to compare yet.</p>
+          </section>
+
+          <v-btn
+            v-if="detailMetric.tab === 'retailers'"
+            variant="tonal"
+            class="text-none align-self-start"
+            prepend-icon="mdi-storefront-outline"
+            @click="goToRetailers()"
+          >
+            Open the retailer list
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
     <!-- Retailer details -->
     <v-dialog v-model="detailsDialog" max-width="680" scrollable v-if="selectedRetailer">
@@ -623,18 +769,6 @@ const getPreviousWeekLabelByValue = (val: string) => {
   return "Previous Week";
 };
 
-const formatDelta = (current: number, baseline: number) => {
-  const diff = current - baseline;
-  const sign = diff >= 0 ? "+" : "";
-  let pct = 0;
-  if (baseline > 0) {
-    pct = (diff / baseline) * 100;
-  } else if (diff > 0) {
-    pct = 100;
-  }
-  return `${sign}${diff} (${sign}${pct.toFixed(1)}%)`;
-};
-
 const onWeekChange = async () => {
   await fetchDashboardData();
 };
@@ -659,26 +793,25 @@ const getInactivityDaysText = (lastAccessStr: string) => {
 const TEST_ACCOUNT = /duduflu|tester|@drunagor\.dev$|^zz_nights_bot/i;
 const isTestAccount = (r: any) => [r.name, r.user_name, r.email, r.store_name].some((value) => TEST_ACCOUNT.test(String(value || "").trim()));
 const hiddenTestAccounts = ref(0);
-// The week before the chosen one ends 7 days earlier.
-const baselineEnd = () => {
-  const end = selectedWeek.value ? new Date(selectedWeek.value + "T23:59:59") : new Date();
-  end.setDate(end.getDate() - 7);
-  return end;
-};
-const withoutTestAccounts = (raw: any) => {
-  if (!raw?.retailers) return raw;
+// Leaves our test accounts out of one week's report (endDate = that week's last day).
+const cleanTestAccounts = (raw: any, endDate: string) => {
+  if (!raw?.retailers) return { data: raw, hidden: 0 };
   const hidden = raw.retailers.filter(isTestAccount);
-  hiddenTestAccounts.value = hidden.length;
-  if (!hidden.length) return raw;
-  const before = baselineEnd();
+  if (!hidden.length) return { data: raw, hidden: 0 };
+  // The week before ends 7 days earlier.
+  const before = endDate ? new Date(endDate + "T23:59:59") : new Date();
+  before.setDate(before.getDate() - 7);
   const hiddenBefore = hidden.filter((r: any) => r.join_date && new Date(String(r.join_date).replace(/-/g, "/")) <= before).length;
   return {
-    ...raw,
-    retailers: raw.retailers.filter((r: any) => !isTestAccount(r)),
-    saude_geral: { ...raw.saude_geral, total_retailers: Math.max(0, Number(raw.saude_geral?.total_retailers ?? 0) - hidden.length) },
-    baseline: raw.baseline
-      ? { ...raw.baseline, total_retailers: Math.max(0, Number(raw.baseline.total_retailers ?? 0) - hiddenBefore) }
-      : raw.baseline,
+    hidden: hidden.length,
+    data: {
+      ...raw,
+      retailers: raw.retailers.filter((r: any) => !isTestAccount(r)),
+      saude_geral: { ...raw.saude_geral, total_retailers: Math.max(0, Number(raw.saude_geral?.total_retailers ?? 0) - hidden.length) },
+      baseline: raw.baseline
+        ? { ...raw.baseline, total_retailers: Math.max(0, Number(raw.baseline.total_retailers ?? 0) - hiddenBefore) }
+        : raw.baseline,
+    },
   };
 };
 
@@ -691,7 +824,10 @@ const fetchDashboardData = async () => {
       params.end_date = selectedWeek.value;
     }
     const response = await axios.get("/analytics/dashboard", { params });
-    dashboardData.value = withoutTestAccounts(response.data);
+    const cleaned = cleanTestAccounts(response.data, selectedWeek.value);
+    hiddenTestAccounts.value = cleaned.hidden;
+    dashboardData.value = cleaned.data;
+    if (selectedWeek.value) weekCache.value = { ...weekCache.value, [selectedWeek.value]: cleaned.data };
   } catch (err: any) {
     console.error("Error fetching analytics data:", err);
     error.value = err.response?.data?.message || "Could not retrieve statistics from backend. Make sure your role is support or admin.";
@@ -981,18 +1117,21 @@ const signals = computed(() => {
   return [
     {
       title: "Store onboarding",
+      metric: "storeRate",
       text: `${withStore} of ${retailers.length} retailers have created their store.`,
       value: `${storeRate.toFixed(0)}%`,
       level: (storeRate >= 60 ? "good" : storeRate >= 30 ? "warning" : "critical") as Level,
     },
     {
       title: "Organized play",
+      metric: "tables",
       text: `${plural(tables, "active event table")} (Season 1 target: ${TARGETS.tables}).`,
       value: `${tables}`,
       level: (tables >= TARGETS.tables / 2 ? "good" : tables >= TARGETS.tables / 4 ? "warning" : "critical") as Level,
     },
     {
       title: "Weekly active users",
+      metric: "active7d",
       text:
         activeBefore === null
           ? `${active} users active this week.`
@@ -1002,6 +1141,7 @@ const signals = computed(() => {
     },
     {
       title: "Quiet stores",
+      metric: "quietStores",
       text: `${plural(stale, "retailer")} with a store ${stale === 1 ? "has" : "have"} not logged in for 14+ days.`,
       value: `${stale}`,
       level: (stale === 0 ? "good" : staleRate <= 25 ? "warning" : "critical") as Level,
@@ -1014,23 +1154,320 @@ const overallStatus = computed(() => {
   return { level: worst, label: STATUS_LABELS[worst] };
 });
 
+// Every number the overview shows, with what it means and where it comes from,
+// so each card can open its own explanation and history.
+interface Metric {
+  key: string;
+  label: string;
+  icon: string;
+  get: (d: any) => number;
+  base?: (d: any) => number | null;
+  target?: number;
+  percent?: boolean;
+  lowerIsBetter?: boolean;
+  // false when the API only knows today's value (no week-by-week history).
+  history?: boolean;
+  explain: string;
+  counted: string;
+  tab?: string;
+}
+const num = (value: any) => Number(value ?? 0) || 0;
+const storeRateOf = (d: any) => {
+  const list = d?.retailers || [];
+  return list.length ? (list.filter((r: any) => r.stores_pk).length / list.length) * 100 : 0;
+};
+const quietStoresOf = (d: any) =>
+  (d?.retailers || []).filter((r: any) => r.stores_pk && getInactivityDays(r.last_access) >= 14).length;
+
+const METRICS: Record<string, Metric> = {
+  users: {
+    key: "users", label: "Registered users", icon: "mdi-account-group-outline", target: TARGETS.users,
+    get: (d) => num(d?.saude_geral?.total_users), base: (d) => (d?.baseline ? num(d.baseline.total_users) : null),
+    explain: "Every account created in the app since launch, players and retailers alike.",
+    counted: "All sign-ups up to the end of the chosen week. It only grows, so the weekly change is the number of new accounts.",
+  },
+  active7d: {
+    key: "active7d", label: "Active users (7d)", icon: "mdi-run-fast", target: TARGETS.active7d,
+    get: (d) => num(d?.saude_geral?.ativos_7d), base: (d) => (d?.baseline ? num(d.baseline.ativos_7d) : null),
+    explain: "People who used the app in the last 7 days of the week: the best sign of who is playing right now.",
+    counted: "Unique accounts with any activity (login, campaign, event, profile) in the 7 days that end with the chosen week.",
+  },
+  active30d: {
+    key: "active30d", label: "Active users (30d)", icon: "mdi-calendar-check-outline", target: TARGETS.active30d,
+    get: (d) => num(d?.saude_geral?.ativos_30d), base: (d) => (d?.baseline ? num(d.baseline.ativos_30d) : null),
+    explain: "People who used the app in the last 30 days. Slower than the 7-day number, it shows the size of the community.",
+    counted: "Unique accounts with any activity in the 30 days that end with the chosen week.",
+  },
+  retailers: {
+    key: "retailers", label: "Retailers", icon: "mdi-storefront-outline", target: TARGETS.retailers, tab: "retailers",
+    get: (d) => num(d?.saude_geral?.total_retailers), base: (d) => (d?.baseline ? num(d.baseline.total_retailers) : null),
+    explain: "Store owner accounts. They create the stores and the Drunagor Nights events players join.",
+    counted: "Retailer accounts registered up to the end of the chosen week. Our own test accounts (DuduFlu, Tester, @drunagor.dev) are left out.",
+  },
+  tables: {
+    key: "tables", label: "Active event tables", icon: "mdi-table-chair", target: TARGETS.tables,
+    get: (d) => num(d?.feature_usage?.events_tables), base: (d) => (d?.baseline ? num(d.baseline.events_tables) : null),
+    explain: "Tables open in Drunagor Nights events that are scheduled or running: the heart of organized play.",
+    counted: "Tables of active events at the end of the chosen week. Each table seats up to 4 players.",
+  },
+  campaigns: {
+    key: "campaigns", label: "Active campaigns", icon: "mdi-sword-cross", target: TARGETS.campaigns,
+    get: (d) => num(d?.saude_geral?.campanhas_ativas), base: (d) => (d?.baseline ? num(d.baseline.campanhas_ativas) : null),
+    explain: "Campaigns still in play, from every box: what the community is actually tracking in the app.",
+    counted: "Campaigns that are active (not finished or removed) at the end of the chosen week.",
+  },
+  storeRate: {
+    key: "storeRate", label: "Retailers with a store", icon: "mdi-store-check-outline", percent: true, tab: "retailers",
+    get: storeRateOf,
+    explain: "The first onboarding step: a retailer needs a store before they can create events.",
+    counted: "Retailers with a store ÷ all retailer accounts, without our test accounts.",
+  },
+  quietStores: {
+    key: "quietStores", label: "Quiet stores", icon: "mdi-sleep", lowerIsBetter: true, history: false, tab: "retailers",
+    get: quietStoresOf,
+    explain: "Retailers with a store who have not logged in for 14 days or more: the ones worth a call.",
+    counted: "Uses each retailer's last access as it is today, so it has no week-by-week history.",
+  },
+  newUsers7d: {
+    key: "newUsers7d", label: "New users (7d)", icon: "mdi-account-plus-outline",
+    get: (d) => num(d?.saude_geral?.novos_usuarios_7d),
+    explain: "Accounts created in the 7 days that end with the chosen week.",
+    counted: "Sign-ups with a join date inside that 7-day window.",
+  },
+  newUsers30d: {
+    key: "newUsers30d", label: "New users (30d)", icon: "mdi-account-multiple-plus-outline",
+    get: (d) => num(d?.saude_geral?.novos_usuarios_30d),
+    explain: "Accounts created in the 30 days that end with the chosen week.",
+    counted: "Sign-ups with a join date inside that 30-day window.",
+  },
+  newCampaigns7d: {
+    key: "newCampaigns7d", label: "New campaigns (7d)", icon: "mdi-flag-plus-outline",
+    get: (d) => num(d?.saude_geral?.campanhas_novas_7d),
+    explain: "Campaigns started in the 7 days that end with the chosen week, from any box.",
+    counted: "Campaigns with a start date inside that 7-day window.",
+  },
+  newCampaigns30d: {
+    key: "newCampaigns30d", label: "New campaigns (30d)", icon: "mdi-flag-outline",
+    get: (d) => num(d?.saude_geral?.campanhas_novas_30d),
+    explain: "Campaigns started in the 30 days that end with the chosen week.",
+    counted: "Campaigns with a start date inside that 30-day window.",
+  },
+  activeEvents: {
+    key: "activeEvents", label: "Active events", icon: "mdi-calendar-star",
+    get: (d) => num(d?.saude_geral?.eventos_ativos),
+    explain: "Drunagor Nights events scheduled or running at the end of the chosen week.",
+    counted: "Events still active (not past and not removed).",
+  },
+  completedEvents: {
+    key: "completedEvents", label: "Completed events", icon: "mdi-calendar-check",
+    get: (d) => num(d?.saude_geral?.eventos_passados_total),
+    explain: "Every Drunagor Nights event that already happened.",
+    counted: "All past events up to the end of the chosen week.",
+  },
+};
+
+const formatMetric = (metric: Metric, value: number) => (metric.percent ? `${value.toFixed(0)}%` : formatNumber(value));
+const metricDelta = (metric: Metric, value: number, before: number | null) => {
+  if (before === null || before === undefined) return null;
+  const diff = value - before;
+  const pct = before ? (diff / before) * 100 : diff ? 100 : 0;
+  const sign = diff > 0 ? "+" : "";
+  const better = metric.lowerIsBetter ? diff < 0 : diff > 0;
+  return {
+    text: metric.percent ? `${sign}${diff.toFixed(1)} pts` : `${sign}${formatNumber(diff)} (${sign}${pct.toFixed(1)}%)`,
+    cls: diff === 0 ? "delta--flat" : better ? "delta--up" : "delta--down",
+    icon: diff > 0 ? "mdi-arrow-up" : diff < 0 ? "mdi-arrow-down" : "mdi-minus",
+  };
+};
+
+const KPI_KEYS = ["users", "active7d", "active30d", "retailers", "tables", "campaigns"];
 const kpis = computed(() => {
   const d = dashboardData.value;
   if (!d) return [];
-  const b = d.baseline || null;
-  const pick = (key: string, from = d.saude_geral) => Number(from?.[key] ?? 0);
-  return [
-    { label: "Registered users", icon: "mdi-account-group-outline", value: pick("total_users"), baseline: b ? Number(b.total_users) : null, target: TARGETS.users },
-    { label: "Active users (7d)", icon: "mdi-run-fast", value: pick("ativos_7d"), baseline: b ? Number(b.ativos_7d) : null, target: TARGETS.active7d },
-    { label: "Active users (30d)", icon: "mdi-calendar-check-outline", value: pick("ativos_30d"), baseline: b ? Number(b.ativos_30d) : null, target: TARGETS.active30d },
-    { label: "Retailers", icon: "mdi-storefront-outline", value: pick("total_retailers"), baseline: b ? Number(b.total_retailers) : null, target: TARGETS.retailers, tab: "retailers" },
-    { label: "Active event tables", icon: "mdi-table-chair", value: pick("events_tables", d.feature_usage), baseline: b ? Number(b.events_tables) : null, target: TARGETS.tables },
-    { label: "Active campaigns", icon: "mdi-sword-cross", value: pick("campanhas_ativas"), baseline: b ? Number(b.campanhas_ativas) : null, target: TARGETS.campaigns },
-  ];
+  return KPI_KEYS.map((key) => {
+    const metric = METRICS[key];
+    const value = metric.get(d);
+    return { metric, value, delta: metricDelta(metric, value, metric.base?.(d) ?? null) };
+  });
+});
+const MINI_KEYS = ["newUsers7d", "newUsers30d", "newCampaigns7d", "newCampaigns30d", "activeEvents", "completedEvents"];
+
+// ---- History: the same report for earlier weeks, fetched when a card opens ----
+const HISTORY_WEEKS = 8;
+const weekCache = ref<Record<string, any>>({});
+const historyLoading = ref(false);
+const historyWeeks = computed(() => {
+  const index = Math.max(0, weekOptions.value.findIndex((w) => w.value === selectedWeek.value));
+  return weekOptions.value.slice(index, index + HISTORY_WEEKS).reverse();
+});
+const loadHistory = async () => {
+  const missing = historyWeeks.value.filter((w) => !weekCache.value[w.value]);
+  if (!missing.length) return;
+  historyLoading.value = true;
+  try {
+    const results = await Promise.allSettled(
+      missing.map((w) => axios.get("/analytics/dashboard", { params: { end_date: w.value } })),
+    );
+    const next = { ...weekCache.value };
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") next[missing[i].value] = cleanTestAccounts(result.value.data, missing[i].value).data;
+    });
+    weekCache.value = next;
+  } finally {
+    historyLoading.value = false;
+  }
+};
+
+const detail = ref<{ visible: boolean; key: string | null }>({ visible: false, key: null });
+const detailMetric = computed(() => (detail.value.key ? METRICS[detail.value.key] : null));
+const detailValue = computed(() => (detailMetric.value && dashboardData.value ? detailMetric.value.get(dashboardData.value) : 0));
+const detailDelta = computed(() => {
+  const metric = detailMetric.value;
+  if (!metric?.base || !dashboardData.value) return null;
+  return metricDelta(metric, detailValue.value, metric.base(dashboardData.value));
+});
+const detailRows = computed(() => {
+  const metric = detailMetric.value;
+  if (!metric || metric.history === false) return [];
+  let previous: number | null = null;
+  return historyWeeks.value
+    .filter((w) => weekCache.value[w.value])
+    .map((w) => {
+      const value = metric.get(weekCache.value[w.value]);
+      const row = { week: w.label.split(": ")[1] || w.label, value, delta: metricDelta(metric, value, previous) };
+      previous = value;
+      return row;
+    });
+});
+const openMetric = async (key: string) => {
+  detail.value = { visible: true, key };
+  if (dashboardData.value && selectedWeek.value) weekCache.value = { ...weekCache.value, [selectedWeek.value]: dashboardData.value };
+  if (METRICS[key].history !== false) {
+    await loadHistory();
+    nextTick(drawDetailChart);
+  }
+};
+const goToRetailers = (patch: Partial<Record<"onboarding" | "activity" | "store", string>> = {}) => {
+  detail.value.visible = false;
+  clearFilters();
+  if (patch.onboarding) onboardingStatusFilter.value = patch.onboarding;
+  if (patch.activity) lastActivityFilter.value = patch.activity;
+  if (patch.store) storeStatusFilter.value = patch.store;
+  tab.value = "retailers";
+};
+
+const cDetail = ref<HTMLCanvasElement | null>(null);
+let detailChart: Chart | null = null;
+const drawDetailChart = () => {
+  detailChart?.destroy();
+  detailChart = null;
+  const canvas = cDetail.value;
+  const metric = detailMetric.value;
+  if (!canvas || !metric || !detailRows.value.length) return;
+  const accent = themeColor(canvas, "accent");
+  const ink = themeColor(canvas, "on-surface", 0.6);
+  detailChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: detailRows.value.map((row) => row.week.split(" - ")[0]),
+      datasets: [
+        {
+          label: metric.label,
+          data: detailRows.value.map((row) => row.value),
+          borderColor: accent,
+          backgroundColor: themeColor(canvas, "accent", 0.12),
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: accent,
+          pointBorderColor: themeColor(canvas, "surface"),
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { displayColors: false, callbacks: { label: (ctx) => formatMetric(metric, Number(ctx.raw)) } },
+      },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: ink } },
+        y: {
+          grid: { color: themeColor(canvas, "on-surface", 0.08) },
+          border: { display: false },
+          ticks: { color: ink, callback: (v) => formatMetric(metric, Number(v)) },
+          ...(metric.percent ? { min: 0, max: 100 } : {}),
+        },
+      },
+    },
+  });
+};
+watch(() => detail.value.visible, (open) => {
+  if (!open) {
+    detailChart?.destroy();
+    detailChart = null;
+  }
 });
 
-const deltaClass = (current: number, baseline: number) =>
-  current > baseline ? "delta--up" : current < baseline ? "delta--down" : "delta--flat";
+// ---- Retailer insights from the retailer list ----
+const FUNNEL = [
+  "Cadastro realizado",
+  "Loja criada",
+  "Primeiro contato realizado",
+  "Em onboarding",
+  "Call agendada",
+  "Evento planejado",
+  "Evento realizado",
+  "Loja ativa",
+];
+const OFF_TRACK = ["Necessita contato", "Sem atividade", "Inativo"];
+const retailerList = computed<any[]>(() => dashboardData.value?.retailers || []);
+const funnel = computed(() =>
+  FUNNEL.map((status) => ({ status, count: retailerList.value.filter((r) => r.onboarding_status === status).length })),
+);
+const offTrack = computed(() =>
+  OFF_TRACK.map((status) => ({ status, count: retailerList.value.filter((r) => r.onboarding_status === status).length })),
+);
+const funnelMax = computed(() => Math.max(1, ...funnel.value.map((s) => s.count), ...offTrack.value.map((s) => s.count)));
+const retailerActivity = computed(() => {
+  const list = retailerList.value;
+  const days = (r: any) => getInactivityDays(r.last_access);
+  return [
+    { label: "Active in the last 7 days", count: list.filter((r) => days(r) <= 7).length, filter: { activity: "Ativo nos últimos 7 dias" } },
+    { label: "Active in the last 30 days", count: list.filter((r) => days(r) <= 30).length, filter: { activity: "Ativo nos últimos 30 dias" } },
+    { label: "Inactive 14+ days", count: list.filter((r) => days(r) >= 14).length, filter: { activity: "Inativo há 14+ dias" } },
+    { label: "Without a store", count: list.filter((r) => !r.stores_pk).length, filter: { store: "Sem Loja" } },
+  ];
+});
+const retailerTotals = computed(() => ({
+  events: retailerList.value.reduce((sum, r) => sum + num(r.events_count), 0),
+  players: retailerList.value.reduce((sum, r) => sum + num(r.players_count), 0),
+  withEvents: retailerList.value.filter((r) => num(r.events_count) > 0).length,
+}));
+const topStores = computed(() =>
+  [...retailerList.value]
+    .filter((r) => num(r.events_count) > 0 || num(r.players_count) > 0)
+    .sort((a, b) => num(b.events_count) - num(a.events_count) || num(b.players_count) - num(a.players_count))
+    .slice(0, 5),
+);
+
+// ---- Engagement ratios ----
+const engagement = computed(() => {
+  const g = dashboardData.value?.saude_geral || {};
+  const f = dashboardData.value?.feature_usage || {};
+  const ratio = (a: number, b: number) => (b ? a / b : 0);
+  return [
+    { label: "Weekly stickiness", value: `${(ratio(num(g.ativos_7d), num(g.ativos_30d)) * 100).toFixed(0)}%`, hint: "Active this week ÷ active this month. Higher means people come back every week." },
+    { label: "Monthly reach", value: `${(ratio(num(g.ativos_30d), num(g.total_users)) * 100).toFixed(1)}%`, hint: "Active this month ÷ all registered users." },
+    { label: "Campaigns per active user", value: ratio(num(g.campanhas_ativas), num(g.ativos_30d)).toFixed(1), hint: "Active campaigns ÷ users active this month." },
+    { label: "Players per event table", value: ratio(num(f.events_participants), num(f.events_tables)).toFixed(1), hint: "Event participants ÷ active event tables." },
+  ];
+});
 
 const features = computed(() => {
   const f = dashboardData.value?.feature_usage || {};
@@ -1527,6 +1964,7 @@ export default {
   margin-top: 14px;
 }
 .mini-stats > div,
+.mini-stats > button,
 .tile {
   display: flex;
   flex-direction: column;
@@ -1549,6 +1987,198 @@ export default {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+/* Everything that opens a detail looks pressable. */
+.signals > li {
+  display: flex;
+}
+.signal {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.signal:hover,
+.kpi:hover,
+.mini-stats > button:hover,
+.tile--btn:hover,
+.bars__btn:hover .bars__row > span,
+.top-stores button:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.07);
+}
+.kpi {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.kpi:hover {
+  border-color: rgba(var(--v-theme-accent), 0.6);
+}
+.kpi__more {
+  margin-left: auto;
+  opacity: 0.5;
+}
+.mini-stats > button,
+.tile--btn {
+  text-align: left;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.mini-stats--plain > div {
+  background: transparent;
+  padding: 6px 4px;
+}
+.bars__btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+}
+.bars__btn:hover .bars__row > span {
+  border-radius: 6px;
+}
+.panel__sub {
+  margin: 16px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.off-track {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(var(--v-theme-on-surface), 0.12);
+  font-size: 0.72rem;
+}
+.off-track > span {
+  margin-right: 4px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.off-track__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chip) 16%, transparent);
+  color: var(--chip);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.top-stores {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.top-stores button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-align: left;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.top-stores button > span:first-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.top-stores strong {
+  overflow: hidden;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-stores small {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+.top-stores__nums {
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ratios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.ratio {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  border-radius: 12px;
+}
+.ratio strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.ratio span {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.ratio small {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+/* Metric detail */
+.detail-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.detail-hero > .v-icon {
+  color: rgb(var(--v-theme-accent));
+}
+.detail-hero > div {
+  display: flex;
+  flex-direction: column;
+}
+.detail-hero strong {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.detail-hero > div > span {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+.detail-text {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.detail-text--muted {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.chart-box--small {
+  height: 200px;
+  margin-bottom: 8px;
+}
+.history-table {
+  min-width: 0 !important;
+}
+.cell-main--end {
+  justify-content: flex-end;
 }
 
 /* Ranked bars */
@@ -1701,13 +2331,13 @@ export default {
 }
 /* Phones: each retailer is a card with labelled facts. */
 @media (max-width: 699px) {
-  .retailers-table {
+  .retailers-table--cards {
     min-width: 0;
   }
-  .retailers-table :deep(thead) {
+  .retailers-table--cards :deep(thead) {
     display: none;
   }
-  .retailers-table :deep(tbody tr) {
+  .retailers-table--cards :deep(tbody tr) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 12px;
@@ -1716,13 +2346,13 @@ export default {
     background: rgba(var(--v-theme-on-surface), 0.04);
     border-radius: 12px;
   }
-  .retailers-table :deep(tbody td) {
+  .retailers-table--cards :deep(tbody td) {
     height: auto !important;
     padding: 0 !important;
     border: none !important;
     text-align: left !important;
   }
-  .retailers-table :deep(td[data-label])::before {
+  .retailers-table--cards :deep(td[data-label])::before {
     content: attr(data-label);
     display: block;
     margin-bottom: 2px;
@@ -1732,14 +2362,14 @@ export default {
     text-transform: uppercase;
     opacity: 0.5;
   }
-  .retailers-table :deep(td.cell--title),
-  .retailers-table :deep(td.cell--action) {
+  .retailers-table--cards :deep(td.cell--title),
+  .retailers-table--cards :deep(td.cell--action) {
     grid-column: 1 / -1;
   }
-  .retailers-table :deep(td.cell--title)::before {
+  .retailers-table--cards :deep(td.cell--title)::before {
     display: none;
   }
-  .retailers-table :deep(td.cell--action .v-btn) {
+  .retailers-table--cards :deep(td.cell--action .v-btn) {
     width: 100%;
   }
 }
