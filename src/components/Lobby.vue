@@ -374,6 +374,7 @@
 import { ref, onMounted, computed, inject, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useUserStore } from '@/store/UserStore';
+import { useTutorialStore } from "@/store/TutorialStore";
 import { usePlayableHeroStore } from '@/store/PlayableHeroStore';
 import { CampaignStore } from '@/store/CampaignStore';
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
@@ -1110,6 +1111,8 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
             sessionStorage.setItem(storageKey, 'true');
         } else {
             sessionStorage.removeItem(storageKey);
+            // Asking for the guide here undoes an old "Don't show again" on this device.
+            useTutorialStore().setStartHerePreference(false);
         }
     }
 
