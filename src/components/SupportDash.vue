@@ -219,7 +219,7 @@
           <v-select v-model="activityMetricsFilter" :items="toItems(activityMetricsOptions)" label="Events / players" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
         </div>
         <div class="filters__bar">
-          <span>{{ filteredRetailers.length }} of {{ dashboardData.retailers.length }} retailers</span>
+          <span>{{ filteredRetailers.length }} of {{ dashboardData.retailers.length }} retailers<template v-if="hiddenTestAccounts"> · {{ hiddenTestAccounts }} test {{ hiddenTestAccounts === 1 ? "account" : "accounts" }} hidden</template></span>
           <v-btn v-if="filtersActive" variant="text" size="small" prepend-icon="mdi-filter-remove-outline" class="text-none" @click="clearFilters">Clear filters</v-btn>
           <v-spacer />
           <v-btn variant="tonal" size="small" prepend-icon="mdi-download" class="text-none" :disabled="!filteredRetailers.length" @click="exportToCSV">Export CSV</v-btn>
@@ -655,6 +655,33 @@ const getInactivityDaysText = (lastAccessStr: string) => {
   return `${days} days inactive`;
 };
 
+// Our own test accounts (DuduFlu*, Tester*, anything @drunagor.dev) stay out of the numbers.
+const TEST_ACCOUNT = /duduflu|tester|@drunagor\.dev$|^zz_nights_bot/i;
+const isTestAccount = (r: any) => [r.name, r.user_name, r.email, r.store_name].some((value) => TEST_ACCOUNT.test(String(value || "").trim()));
+const hiddenTestAccounts = ref(0);
+// The week before the chosen one ends 7 days earlier.
+const baselineEnd = () => {
+  const end = selectedWeek.value ? new Date(selectedWeek.value + "T23:59:59") : new Date();
+  end.setDate(end.getDate() - 7);
+  return end;
+};
+const withoutTestAccounts = (raw: any) => {
+  if (!raw?.retailers) return raw;
+  const hidden = raw.retailers.filter(isTestAccount);
+  hiddenTestAccounts.value = hidden.length;
+  if (!hidden.length) return raw;
+  const before = baselineEnd();
+  const hiddenBefore = hidden.filter((r: any) => r.join_date && new Date(String(r.join_date).replace(/-/g, "/")) <= before).length;
+  return {
+    ...raw,
+    retailers: raw.retailers.filter((r: any) => !isTestAccount(r)),
+    saude_geral: { ...raw.saude_geral, total_retailers: Math.max(0, Number(raw.saude_geral?.total_retailers ?? 0) - hidden.length) },
+    baseline: raw.baseline
+      ? { ...raw.baseline, total_retailers: Math.max(0, Number(raw.baseline.total_retailers ?? 0) - hiddenBefore) }
+      : raw.baseline,
+  };
+};
+
 const fetchDashboardData = async () => {
   loading.value = true;
   error.value = null;
@@ -664,7 +691,7 @@ const fetchDashboardData = async () => {
       params.end_date = selectedWeek.value;
     }
     const response = await axios.get("/analytics/dashboard", { params });
-    dashboardData.value = response.data;
+    dashboardData.value = withoutTestAccounts(response.data);
   } catch (err: any) {
     console.error("Error fetching analytics data:", err);
     error.value = err.response?.data?.message || "Could not retrieve statistics from backend. Make sure your role is support or admin.";
