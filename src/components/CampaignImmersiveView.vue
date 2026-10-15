@@ -1226,8 +1226,7 @@ const isWing3Start = computed(() => {
     if (wing.includes("WING 3")) {
         return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
     }
-    // Wing 1 Advanced has no Start Here.
-    if ((wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) && !wing.includes("ADVANCED")) {
+    if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
         return door === "FIRST SETUP";
     }
     return false;
@@ -2104,12 +2103,9 @@ const isFirstSetupDoor = computed(() => ["", "FIRST SETUP"].includes((activeCamp
 
 // The First Setup guide; Start Here follows it in the tutorial wings unless the
 // players already skipped it (in the lobby or here) or turned it off.
-// Wing 1 Advanced is for players who already know the game, so it has no Start Here.
 function openFirstSetupGuide() {
     const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const isTargetWing =
-        (wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) &&
-        !wing.includes("ADVANCED");
+    const isTargetWing = wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL");
     const offerStartHere =
         isTargetWing && tutorialStore.shouldShowStartHere && !sessionStorage.getItem(`tutorial_shown_${props.campaignId}`);
     tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere };
