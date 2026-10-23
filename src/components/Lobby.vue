@@ -50,21 +50,22 @@
       </div>
 
       <div class="flex-grow-1 w-100 px-4 overflow-y-auto d-flex flex-column justify-center">
-        <v-row dense class="w-100 ma-0 justify-center">
+        <v-row dense class="lobby-slots-row w-100 ma-0 justify-center">
           <v-col
-            cols="6" 
+            cols="6"
+            md="3"
             v-for="(slot, index) in lobbySlots"
             :key="index"
             class="pa-3 d-flex justify-center"
           >
-            <v-card 
+            <v-card
               class="player-slot-card d-flex flex-column align-center justify-center elevation-10"
               :color="slot.player ? '#1e1e1e' : 'rgba(255,255,255,0.05)'"
               :variant="slot.player ? 'elevated' : 'outlined'"
               rounded="xl"
               @click="handleSlotClick(index)"
               v-ripple="!!slot.player"
-              style="width: 100%; max-width: 220px; aspect-ratio: 0.76; position: relative; overflow: hidden;"
+              style="width: 100%; aspect-ratio: 0.76; position: relative; overflow: hidden;"
             >
               <template v-if="!slot.player">
                 <div class="d-flex flex-column align-center justify-center fill-height" style="opacity: 0.3">
@@ -233,7 +234,7 @@
          <v-card-text class="d-flex flex-column ga-3 pt-2">
             <div class="text-caption text-grey mb-2 text-center">How do you want to start this adventure?</div>
              <v-btn block color="success" size="large" variant="flat" @click="openTutorialChoice">
-                 <v-icon start>mdi-plus-box</v-icon> New {{ currentCampaignType === 'underkeep' ? 'Underkeep 1' : 'Underkeep 2' }}
+                 <v-icon start>mdi-plus-box</v-icon> New Campaign
              </v-btn>
             <div class="d-flex align-center">
                 <v-divider></v-divider><span class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
@@ -1309,13 +1310,37 @@ onBeforeUnmount(() => {
 .cinzel-text { font-family: "Cinzel", serif; }
 .lobby-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, #1f2430 0%, #000000 100%); z-index: 0; }
 .responsive-container { margin: 0 auto; background: rgba(0,0,0,0.2); }
-@media (min-width: 960px) { .responsive-container { max-width: 480px; box-shadow: 0 0 50px rgba(0,0,0,0.5); } }
 @media (max-width: 959px) { .responsive-container { max-width: 100%; width: 100%; } }
 .hero-selection-card { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border: 1px solid rgba(255,255,255,0.2); }
 .hero-selection-card:active { transform: scale(0.98); }
 .border-dashed { border: 2px dashed rgba(255,255,255,0.2) !important; }
-.player-slot-card { border-color: rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; overflow: hidden; }
+/* Vuetify's v-row defaults to flex: 1 1 auto, stretching it (and the cards
+   inside) to fill the scroll area instead of sizing to the cards themselves. */
+.lobby-slots-row { flex: 0 1 auto !important; }
+.player-slot-card { max-width: 220px; height: auto !important; border-color: rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; overflow: hidden; }
 .player-slot-card:active { transform: scale(0.96); }
+
+/* Desktop: a framed panel with room for all 4 seats in a row, instead of a
+   narrow phone column floating, undefined, in the middle of the screen. */
+@media (min-width: 960px) {
+  .responsive-container {
+    max-width: 760px;
+    height: calc(100% - 48px) !important;
+    margin: 24px auto;
+    background: rgba(18, 18, 22, 0.88);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+  }
+  .lobby-slots-row {
+    gap: 8px 0;
+  }
+  .player-slot-card {
+    max-width: 170px;
+  }
+}
 .player-overlay-header { position: absolute; top: 0; left: 0; width: 100%; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); display: flex; align-items: center; padding: 8px; }
 .z-index-10 { z-index: 10; }
 
