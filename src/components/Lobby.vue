@@ -4,7 +4,7 @@
 
     <div class="responsive-container d-flex flex-column fill-height position-relative" style="z-index: 1;">
       
-      <div class="px-4 pt-4 pb-2 flex-shrink-0 w-100">
+      <div class="lobby-header px-4 pt-4 pb-2 flex-shrink-0 w-100">
         <div class="d-flex align-center justify-space-between mb-2">
            <v-btn icon="mdi-arrow-left" variant="text" color="white" @click="leaveLobby" :disabled="isReconnecting"></v-btn>
            
@@ -47,13 +47,28 @@
                  {{ selectedCampaignName }}
               </v-chip>
         </div>
+
+        <!-- Desktop only: a compact roster, echoing the big seats on the right. -->
+        <ul class="lobby-roster d-none d-md-flex">
+          <li v-for="(slot, index) in lobbySlots" :key="index" :class="{ 'lobby-roster__row--filled': slot.player }">
+            <template v-if="slot.player">
+              <v-avatar size="22"><v-img :src="slot.player.avatar"></v-img></v-avatar>
+              <span class="text-truncate">{{ slot.player.name }}</span>
+              <v-icon v-if="index === 0" color="amber" size="14" title="Drunagor Master">mdi-crown</v-icon>
+              <v-icon v-if="slot.hero" color="success" size="16" class="lobby-roster__check">mdi-check-circle</v-icon>
+            </template>
+            <template v-else>
+              <v-icon size="18" color="grey-darken-1">mdi-account-outline</v-icon>
+              <span class="text-grey-darken-1">Open seat</span>
+            </template>
+          </li>
+        </ul>
       </div>
 
-      <div class="flex-grow-1 w-100 px-4 overflow-y-auto d-flex flex-column justify-center">
+      <div class="lobby-slots-pane flex-grow-1 w-100 px-4 overflow-y-auto d-flex flex-column justify-center">
         <v-row dense class="lobby-slots-row w-100 ma-0 justify-center">
           <v-col
             cols="6"
-            md="3"
             v-for="(slot, index) in lobbySlots"
             :key="index"
             class="pa-3 d-flex justify-center"
@@ -113,8 +128,8 @@
         </v-row>
       </div>
 
-      <div class="flex-shrink-0 pa-6 w-100 bg-grey-darken-4 elevation-24 rounded-t-xl z-index-10">
-        <v-btn 
+      <div class="lobby-cta flex-shrink-0 pa-6 w-100 bg-grey-darken-4 elevation-24 rounded-t-xl z-index-10">
+        <v-btn
             block 
             :color="mainButtonConfig.color"
             height="64"
@@ -1322,23 +1337,104 @@ onBeforeUnmount(() => {
 
 /* Desktop: a framed panel with room for all 4 seats in a row, instead of a
    narrow phone column floating, undefined, in the middle of the screen. */
+/* Desktop: a command-table layout, not a phone screen stretched sideways.
+   A narrow control pane (event info, roster, the action button) sits beside
+   a stage where the party is assembled, each seat shown large. */
 @media (min-width: 960px) {
   .responsive-container {
-    max-width: 760px;
-    height: calc(100% - 48px) !important;
-    margin: 24px auto;
-    background: rgba(18, 18, 22, 0.88);
+    display: grid !important;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "header slots"
+      "header slots"
+      "cta    slots";
+    max-width: 1040px;
+    height: calc(100% - 64px) !important;
+    margin: 32px auto;
+    background: radial-gradient(circle at 15% 15%, rgba(255, 193, 7, 0.06), transparent 45%), rgba(14, 14, 18, 0.92);
     backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
+    border-radius: 28px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.02);
     overflow: hidden;
   }
+
+  .lobby-header {
+    grid-area: header;
+    padding: 28px 24px 20px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.18);
+  }
+  .lobby-header .d-flex.justify-space-between {
+    justify-content: flex-start !important;
+    gap: 12px;
+  }
+  .lobby-header .d-flex.flex-column.align-center {
+    align-items: flex-start !important;
+    text-align: left;
+  }
+
+  .lobby-roster {
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lobby-roster li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: "Poppins", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .lobby-roster li.lobby-roster__row--filled {
+    background: rgba(255, 193, 7, 0.07);
+    border-color: rgba(255, 193, 7, 0.25);
+    color: #fff;
+  }
+  .lobby-roster li span {
+    flex: 1;
+    min-width: 0;
+  }
+  .lobby-roster__check {
+    margin-left: auto;
+  }
+
+  .lobby-cta {
+    grid-area: cta;
+    padding: 20px 24px 28px !important;
+    background: rgba(0, 0, 0, 0.18) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .lobby-slots-pane {
+    grid-area: slots;
+    align-items: center;
+    justify-content: center;
+    padding: 32px !important;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.03), transparent 70%);
+  }
   .lobby-slots-row {
-    gap: 8px 0;
+    max-width: 560px;
+    gap: 20px 0;
   }
   .player-slot-card {
-    max-width: 170px;
+    max-width: 230px;
+  }
+  .player-slot-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
   }
 }
 .player-overlay-header { position: absolute; top: 0; left: 0; width: 100%; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); display: flex; align-items: center; padding: 8px; }
