@@ -685,13 +685,30 @@ onUnmounted(() => {
 .guide {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   background: rgb(var(--v-theme-surface));
   border-radius: 14px;
   font-family: "Poppins", sans-serif;
 }
 .guide__head {
   padding: 14px 16px 10px;
+}
+/* Wide enough (a desktop dialog): picture and text sit side by side, so the
+   text has real width to grow into instead of a tall column that scrolls. */
+@media (min-width: 760px) {
+  .guide {
+    display: grid;
+    grid-template-areas:
+      "head head"
+      "media text"
+      "thumbs text"
+      "nav nav";
+    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    column-gap: 20px;
+    align-items: start;
+  }
+  .guide__head {
+    grid-area: head;
+  }
 }
 .guide__steps {
   display: grid;
@@ -737,12 +754,19 @@ onUnmounted(() => {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  height: clamp(200px, 38vh, 340px);
+  height: clamp(180px, 30vh, 300px);
   margin: 0 12px;
   overflow: hidden;
   background: radial-gradient(circle at center, #1d1d1d 0%, #0b0b0b 100%);
   border-radius: 12px;
   cursor: zoom-in;
+}
+@media (min-width: 760px) {
+  .guide__media {
+    grid-area: media;
+    height: clamp(220px, 30vh, 300px);
+    margin: 0;
+  }
 }
 .guide__media img {
   width: 100%;
@@ -791,6 +815,12 @@ onUnmounted(() => {
   margin: 8px 12px 0;
   overflow-x: auto;
 }
+@media (min-width: 760px) {
+  .guide__thumbs {
+    grid-area: thumbs;
+    margin: 8px 0 0;
+  }
+}
 .guide__thumb {
   flex-shrink: 0;
   width: 64px;
@@ -812,11 +842,18 @@ onUnmounted(() => {
   height: 100%;
   object-fit: cover;
 }
+/* The text grows to fit its content instead of hiding it behind its own
+   scrollbar: the dialog around the guide scrolls as a whole if it has to. */
 .guide__text {
   flex-shrink: 0;
-  height: 170px;
-  overflow-y: auto;
   padding: 14px 16px 6px;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 760px) {
+  .guide__text {
+    grid-area: text;
+    padding: 2px 16px 6px 4px;
+  }
 }
 .guide__text :deep(p:last-child) {
   margin-bottom: 0;
@@ -840,6 +877,12 @@ onUnmounted(() => {
   gap: 8px;
   padding: 10px 12px 12px;
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+@media (min-width: 760px) {
+  .guide__nav {
+    grid-area: nav;
+    margin-top: 16px;
+  }
 }
 .guide__prev {
   display: grid;
@@ -891,10 +934,7 @@ onUnmounted(() => {
 }
 @media (max-height: 520px) {
   .guide__media {
-    height: 46vh;
-  }
-  .guide__text {
-    height: 120px;
+    height: 38vh;
   }
 }
 </style>
