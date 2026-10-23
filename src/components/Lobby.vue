@@ -240,24 +240,43 @@
       :season="heroPreparationSeason"
     />
 
-    <v-dialog v-model="showCampaignDialog" max-width="340">
-      <v-card color="#1e1e1e" class="rounded-lg pa-2">
-         <v-card-title class="text-white d-flex justify-space-between align-center">
-            <span class="text-body-1 font-weight-bold">Start Game</span>
-            <v-btn icon variant="text" size="small" @click="showCampaignDialog = false"><v-icon>mdi-close</v-icon></v-btn>
-         </v-card-title>
-         <v-card-text class="d-flex flex-column ga-3 pt-2">
-            <div class="text-caption text-grey mb-2 text-center">How do you want to start this adventure?</div>
-             <v-btn block color="success" size="large" variant="flat" @click="openTutorialChoice">
-                 <v-icon start>mdi-plus-box</v-icon> New Campaign
-             </v-btn>
-            <div class="d-flex align-center">
-                <v-divider></v-divider><span class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
-            </div>
-            <v-btn block color="blue-darken-2" size="large" variant="flat" @click="fetchAndShowLoadDialog">
-                <v-icon start>mdi-folder-open</v-icon> Load Campaign
-            </v-btn>
-         </v-card-text>
+    <v-dialog v-model="showCampaignDialog" max-width="420" scrollable>
+      <v-card class="start-sheet" rounded="xl">
+        <v-btn icon="mdi-close" variant="text" size="small" class="start-sheet__close" @click="showCampaignDialog = false" />
+        <v-card-text class="pa-3">
+          <div class="start-sheet__kicker">Lobby</div>
+          <h3 class="start-sheet__title">How do you want to start?</h3>
+
+          <!-- Fresh campaign, themed to the Season this wing belongs to. -->
+          <button class="start-choice" @click="openTutorialChoice">
+            <img :src="currentCampaignType === 'underkeep' ? underkeepArt : underkeep2Art" alt="" class="start-choice__art" />
+            <span class="start-choice__body">
+              <span class="start-choice__text">
+                <strong>New Campaign</strong>
+                <small>Begin a fresh adventure for this table.</small>
+              </span>
+              <span class="start-choice__action start-choice__action--new">
+                <v-icon size="20">mdi-plus-box</v-icon> Start fresh
+              </span>
+            </span>
+          </button>
+
+          <!-- Resume a campaign the party already started. -->
+          <button class="start-choice" @click="fetchAndShowLoadDialog">
+            <span class="start-choice__icon-art">
+              <v-icon size="40">mdi-folder-open-outline</v-icon>
+            </span>
+            <span class="start-choice__body">
+              <span class="start-choice__text">
+                <strong>Load Campaign</strong>
+                <small>Continue a campaign already in progress.</small>
+              </span>
+              <span class="start-choice__action start-choice__action--load">
+                <v-icon size="20">mdi-folder-open</v-icon> Browse campaigns
+              </span>
+            </span>
+          </button>
+        </v-card-text>
       </v-card>
     </v-dialog>
 
@@ -398,6 +417,8 @@ import { Campaign } from "@/store/Campaign";
 import HeroSummaryPanel from "@/components/HeroSummaryPanel.vue";
 import heroSummaries from "@/data/book/HeroSummary.json";
 import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vue";
+import underkeepArt from "@/assets/underkeep.png";
+import underkeep2Art from "@/assets/underkeep2.png";
 
 const router = useRouter();
 const route = useRoute();
@@ -1480,5 +1501,103 @@ onBeforeUnmount(() => {
 .hero-selection-card:hover .hero-bark {
   opacity: 1;
   transform: none;
+}
+
+/* Start Game: two picture cards instead of two flat buttons, same language
+   as the Play dialog on the dashboard. */
+.start-sheet {
+  position: relative;
+  background: rgb(var(--v-theme-surface)) !important;
+  font-family: "Poppins", sans-serif;
+}
+.start-sheet__close {
+  position: absolute !important;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.55) !important;
+}
+.start-sheet__kicker {
+  margin: 4px 2px 2px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-accent));
+}
+.start-sheet__title {
+  margin: 0 2px 16px;
+  font-family: "Cinzel", serif;
+  font-size: 1.3rem;
+  color: #fff;
+}
+.start-choice {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 16px;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.start-choice + .start-choice {
+  margin-top: 10px;
+}
+.start-choice:hover {
+  border-color: rgba(var(--v-theme-on-primary), 0.3);
+  transform: translateY(-2px);
+}
+.start-choice__art {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+.start-choice__icon-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  background: radial-gradient(circle at center, #2a2620 0%, #121212 100%);
+  color: rgba(255, 255, 255, 0.4);
+}
+.start-choice__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+.start-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.start-choice__text strong {
+  font-size: 1.15rem;
+}
+.start-choice__text small {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  opacity: 0.75;
+}
+.start-choice__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.start-choice__action--new {
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
+}
+.start-choice__action--load {
+  background: rgb(var(--v-theme-secondary));
 }
 </style>
