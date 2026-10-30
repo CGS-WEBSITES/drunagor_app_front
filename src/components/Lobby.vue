@@ -23,23 +23,6 @@
             <div style="width: 40px;"></div>
          </div>
 
-         <div v-if="isLeader && !selectedCampaign" class="px-4 mt-2">
-              <v-text-field
-                  v-model="newCampaignName"
-                  label="Campaign Name / Lobby Name"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="rgba(255,255,255,0.05)"
-                  color="amber-accent-2"
-                  hide-details
-                  class="text-left font-weight-bold text-white mb-2"
-              ></v-text-field>
-         </div>
-         <div v-else-if="!isLeader && !selectedCampaign && newCampaignName" class="text-center mt-2">
-              <v-chip color="amber-accent-2" variant="outlined" class="font-weight-bold w-100 justify-center mb-2">
-                  Lobby Name: {{ newCampaignName }}
-              </v-chip>
-         </div>
 
          <div v-if="selectedCampaign" class="text-center mt-2">
               <v-chip color="purple-accent-2" variant="flat" :closable="isLeader" @click:close="clearCampaign" class="font-weight-bold w-100 justify-center">
@@ -282,32 +265,32 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="tutorialChoiceDialog" max-width="400" persistent>
-      <v-card color="#1e1e1e" class="rounded-lg border-thin border-amber">
-        <v-card-title class="text-center text-amber-accent-2 cinzel-text pt-4">
-          New Adventure Setup
-        </v-card-title>
-        <v-card-text class="text-center text-grey-lighten-1 pb-4">
+    <!-- New campaign: only its name to settle, then play. -->
+    <v-dialog v-model="tutorialChoiceDialog" max-width="420">
+      <v-card class="start-sheet" rounded="xl">
+        <v-btn icon="mdi-close" variant="text" size="small" class="start-sheet__close" @click="tutorialChoiceDialog = false" />
+        <img :src="currentCampaignType === 'underkeep' ? underkeepArt : underkeep2Art" alt="" class="setup-art" />
+        <form class="pa-4" @submit.prevent="newCampaignName.trim() && handleTutorialChoice(false)">
+          <div class="start-sheet__kicker">New campaign</div>
+          <h3 class="start-sheet__title mb-1">{{ eventDetails?.scenario || "New adventure" }}</h3>
+          <p class="setup-hint">Name your campaign so the party can find it later.</p>
           <v-text-field
             v-model="newCampaignName"
-            label="Campaign Name"
+            label="Campaign name"
             variant="outlined"
-            bg-color="grey-darken-4"
-            color="amber-accent-2"
+            color="accent"
+            prepend-inner-icon="mdi-pencil-outline"
             hide-details
-            class="mb-4 text-left"
+            autofocus
+            class="mb-4"
           ></v-text-field>
 
-          <TutorialBookPdfCard v-if="isTutorialLobby" title="Prefer the printed book?" />
-        </v-card-text>
-        <v-card-actions class="d-flex flex-column gap-2 px-4 pb-4">
-          <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
-            <v-icon start>mdi-play</v-icon> Start Campaign
-          </v-btn>
-          <v-btn block color="grey-darken-3" variant="flat" size="large" @click="tutorialChoiceDialog = false">
-            Cancel
-          </v-btn>
-        </v-card-actions>
+          <TutorialBookPdfCard v-if="isTutorialLobby" compact title="Prefer paper? Print the Tutorial book" class="mb-4" />
+
+          <button type="submit" class="start-choice__action start-choice__action--new w-100" :disabled="!newCampaignName.trim()">
+            <v-icon size="20">mdi-play</v-icon> Start campaign
+          </button>
+        </form>
       </v-card>
     </v-dialog>
 
@@ -1581,5 +1564,20 @@ onBeforeUnmount(() => {
 }
 .start-choice__action--load {
   background: rgb(var(--v-theme-secondary));
+}
+.start-choice__action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.setup-art {
+  display: block;
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+}
+.setup-hint {
+  margin: 0 2px 14px;
+  font-size: 0.85rem;
+  opacity: 0.75;
 }
 </style>
