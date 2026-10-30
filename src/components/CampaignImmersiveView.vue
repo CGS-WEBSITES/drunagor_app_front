@@ -51,16 +51,14 @@
             </v-tooltip>
             <v-tooltip text="Tutorial book (PDF to print)" location="right" v-if="isTutorialWing">
               <template v-slot:activator="{ props }">
-                <a
+                <div
                    v-bind="props"
-                   :href="TUTORIAL_BOOK_PDF"
-                   target="_blank"
-                   rel="noopener noreferrer"
-                   class="bookmark-tab left-side start-here-tab mb-2 text-decoration-none"
+                   class="bookmark-tab left-side start-here-tab mb-2"
+                   @click.stop="pdfConfirmVisible = true"
                 >
                    <v-icon icon="mdi-file-pdf-box" color="amber-accent-2"></v-icon>
                    <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">PDF</span>
-                </a>
+                </div>
               </template>
             </v-tooltip>
 
@@ -792,6 +790,8 @@
       </v-card>
     </v-dialog>
 
+    <TutorialPdfConfirm v-model="pdfConfirmVisible" />
+
     <!-- Wing 1 Tutorial: each physical trigger card opens its page of the book. -->
     <v-dialog v-model="triggersDialogVisible" max-width="480" scrollable>
       <v-card class="runes-dialog rounded-xl">
@@ -804,13 +804,22 @@
         </div>
         <v-card-text class="runes-dialog__body">
           <p class="triggers-intro">When a Trigger card ACTIVATES on the Initiative Track, open its page. Doors bring their own pages through <strong>Read Scene</strong>.</p>
-          <button v-for="trigger in TUTORIAL_TRIGGERS" :key="trigger.page" type="button" class="trigger-row" @click="openTutorialPage(trigger.page)">
-            <v-icon size="26">{{ trigger.icon }}</v-icon>
+          <button
+            v-for="trigger in tutorialTriggers"
+            :key="trigger.page"
+            type="button"
+            class="trigger-row"
+            :class="{ 'trigger-row--locked': trigger.locked }"
+            :disabled="trigger.locked"
+            @click="openTutorialPage(trigger.page)"
+          >
+            <v-icon size="26">{{ trigger.locked ? "mdi-lock-outline" : trigger.icon }}</v-icon>
             <span>
               <small>{{ trigger.card }}</small>
-              <strong>{{ trigger.name }}</strong>
+              <strong>{{ trigger.locked ? "Not yet" : trigger.name }}</strong>
+              <em v-if="trigger.locked" class="trigger-row__hint">{{ trigger.lockHint }}</em>
             </span>
-            <v-icon size="20" class="trigger-row__go">mdi-chevron-right</v-icon>
+            <v-icon v-if="!trigger.locked" size="20" class="trigger-row__go">mdi-chevron-right</v-icon>
           </button>
         </v-card-text>
       </v-card>
@@ -978,7 +987,7 @@ import chestTokenIcon from "@/assets/setup/chest-token.webp";
 import runeTokenIcon from "@/assets/setup/rune-token.webp";
 import interactionIcon from "@/assets/interaction.png";
 import bookPagesData from "@/data/book/bookPages.json";
-import { TUTORIAL_BOOK_PDF } from "@/utils/tutorialBook";
+import TutorialPdfConfirm from "@/components/TutorialPdfConfirm.vue";
 import tutorialBookS1Data from "@/data/book/TutorialBookS1.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -2445,18 +2454,45 @@ const pendingScene = computed(() => {
 // ---- Wing 1 Tutorial: its book, page by page ----
 const isTutorialWing = computed(() => (activeCampaignData.value.wing || "").toUpperCase().includes("TUTORIAL"));
 const triggersDialogVisible = ref(false);
+const pdfConfirmVisible = ref(false);
 // The physical cards that send the party to the book, in the order they come up.
 const TUTORIAL_TRIGGERS = [
-  { page: "tut1.overview", card: "Start", name: "Overview and your First Turns", icon: "mdi-flag-variant-outline" },
-  { page: "tut1.trigger-1", card: "Tutorial Trigger 1", name: "Recall Actions", icon: "mdi-numeric-1-box-outline" },
-  { page: "tut1.trigger-2", card: "Tutorial Trigger 2", name: "Folding Doors", icon: "mdi-numeric-2-box-outline" },
-  { page: "tut1.trigger-3", card: "Tutorial Trigger 3", name: "Interactions", icon: "mdi-numeric-3-box-outline" },
-  { page: "tut1.scene-hail", card: "Scene Trigger", name: "Hail to His Majesty", icon: "mdi-crown-outline" },
-  { page: "tut1.scene-darkness", card: "Scene Trigger", name: "Age of Darkness", icon: "mdi-weather-night" },
-  { page: "tut1.scene-end", card: "Endgame Trigger", name: "Into the Underkeep", icon: "mdi-flag-checkered" },
-  { page: "tut1.clarifications-1", card: "Undead King", name: "Card Clarifications", icon: "mdi-help-circle-outline" },
+  { page: "tut1.overview", card: "Start", name: "Overview and your First Turns", icon: "mdi-flag-variant-outline", door: 0 },
+  { page: "tut1.trigger-1", card: "Tutorial Trigger 1", name: "Recall Actions", icon: "mdi-numeric-1-box-outline", door: 0 },
+  { page: "tut1.trigger-2", card: "Tutorial Trigger 2", name: "Folding Doors", icon: "mdi-numeric-2-box-outline", door: 0, after: "tut1.trigger-1" },
+  { page: "tut1.trigger-3", card: "Tutorial Trigger 3", name: "Interactions", icon: "mdi-numeric-3-box-outline", door: 1 },
+  { page: "tut1.scene-hail", card: "Scene Trigger", name: "Hail to His Majesty", icon: "mdi-crown-outline", door: 4 },
+  { page: "tut1.scene-darkness", card: "Scene Trigger", name: "Age of Darkness", icon: "mdi-weather-night", door: 4, after: "tut1.scene-hail" },
+  { page: "tut1.scene-end", card: "Endgame Trigger", name: "Into the Underkeep", icon: "mdi-flag-checkered", door: 4, after: "tut1.scene-darkness" },
+  { page: "tut1.clarifications-1", card: "Undead King", name: "Card Clarifications", icon: "mdi-help-circle-outline", door: 4 },
 ];
+// The Tutorial's rooms in order; a trigger card only shows up once its room is open.
+const TUTORIAL_DOORS = ["FIRST SETUP", "THE BARRICADED PATH", "THE KEEP'S COURTYARD", "THE ENTRY HALL", "THE GREAT HALL"];
+const TUTORIAL_DOOR_NAMES = ["First Setup", "Door 1 – The Barricaded Path", "Door 2 – The Keep's Courtyard", "Door 3 – The Entry Hall", "Door 4 – The Great Hall"];
+const tutorialDoorIndex = computed(() => Math.max(0, TUTORIAL_DOORS.indexOf((activeCampaignData.value.door || "FIRST SETUP").trim().toUpperCase())));
+// Trigger pages already opened on this device: the next card in a chain follows them.
+const triggersSeenKey = computed(() => `tutorial_triggers_${props.campaignId}`);
+const readTriggerPages = (): string[] => {
+  try { return JSON.parse(localStorage.getItem(triggersSeenKey.value) || "[]"); } catch { return []; }
+};
+const seenTriggerPages = ref<string[]>(readTriggerPages());
+const tutorialTriggers = computed(() =>
+  TUTORIAL_TRIGGERS.map((t) => {
+    const prev = t.after && TUTORIAL_TRIGGERS.find((x) => x.page === t.after);
+    const lockedByDoor = tutorialDoorIndex.value < t.door;
+    const lockedByChain = !!prev && !seenTriggerPages.value.includes(prev.page);
+    return {
+      ...t,
+      locked: lockedByDoor || lockedByChain,
+      lockHint: lockedByDoor ? `Unlocks at ${TUTORIAL_DOOR_NAMES[t.door]}` : lockedByChain && prev ? `Comes after ${prev.name}` : "",
+    };
+  }),
+);
 function openTutorialPage(pageId: string) {
+  if (!seenTriggerPages.value.includes(pageId)) {
+    seenTriggerPages.value = [...seenTriggerPages.value, pageId];
+    try { localStorage.setItem(triggersSeenKey.value, JSON.stringify(seenTriggerPages.value)); } catch { /* private mode: progress lasts this visit */ }
+  }
   triggersDialogVisible.value = false;
   openBookDialog();
   nextTick(() => {
@@ -4013,6 +4049,22 @@ watch(
 }
 .trigger-row strong {
   font-size: 0.95rem;
+}
+.trigger-row--locked {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.trigger-row--locked:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+.trigger-row--locked > .v-icon:first-child {
+  color: rgba(255, 255, 255, 0.5);
+}
+.trigger-row__hint {
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
 }
 .trigger-row__go {
   opacity: 0.5;
