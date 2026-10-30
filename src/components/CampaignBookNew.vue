@@ -449,8 +449,6 @@ import {
 import KeywordView from "@/components/KeywordView.vue";
 import InteractView from "@/components/InteractViewNew.vue"; 
 
-import startHereData from "@/data/book/StartHere.json";
-import startHereS1Data from "@/data/book/StartHereS1.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
@@ -576,8 +574,6 @@ function closeLightbox() {
   zoomLevel.value = 1;
 }
 
-const rawStartHere = startHereData as PageSection[];
-const rawStartHereS1 = startHereS1Data as PageSection[];
 const rawStoryBooks = bookPagesData as PageSection[];
 
 // The Tutorials book reads like the others: one tutorial per page, its chapter on the banner.
@@ -613,40 +609,9 @@ const availableVolumes = computed<Volume[]>(() => {
   const wingKey = (props.campaignWing || "").toUpperCase();
   const isS1 = isSeason1.value;
 
-  // The Wing 1 Tutorial has its own book that teaches as you play: no Start
-  // Here, no separate Tutorials book, no separate story book.
+  // The Wing 1 Tutorial has its own book that teaches as you play: no separate
+  // Tutorials book, no separate story book. Start Here is retired everywhere.
   const isTutorialWing = wingKey.includes("TUTORIAL");
-  // Start Here volume should be accessible in Wing 3 and Wing 1
-  const showStartHere = !isTutorialWing && (wingKey.includes("WING 3") || wingKey.includes("WING 1") || wingKey.includes("START"));
-
-  if (showStartHere) {
-    vols.push({ 
-      id: 'start_here', 
-      title: 'Start Here', 
-      subtitle: 'Tutorial', 
-      icon: 'mdi-school', 
-      type: 'story', 
-      data: isS1 ? rawStartHereS1 : rawStartHere 
-    });
-  } else if (!wingKey) {
-    // General Library view: show both Start Here books so users can access either Season 1 or Season 2 tutorials
-    vols.push({ 
-      id: 'start_here_s1', 
-      title: 'Start Here (S1)', 
-      subtitle: 'Tutorial', 
-      icon: 'mdi-school', 
-      type: 'story', 
-      data: rawStartHereS1 
-    });
-    vols.push({ 
-      id: 'start_here_s2', 
-      title: 'Start Here (S2)', 
-      subtitle: 'Tutorial', 
-      icon: 'mdi-school', 
-      type: 'story', 
-      data: rawStartHere 
-    });
-  }
 
   if (isTutorialWing) {
     vols.push(tutorialBookVolume);

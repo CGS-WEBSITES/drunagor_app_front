@@ -49,16 +49,18 @@
                 </div>
               </template>
             </v-tooltip>
-            <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
+            <v-tooltip text="Tutorial book (PDF to print)" location="right" v-if="isTutorialWing">
               <template v-slot:activator="{ props }">
-                <div 
-                   v-bind="props" 
-                   class="bookmark-tab left-side start-here-tab mb-2" 
-                   @click.stop="openStartHere"
+                <a
+                   v-bind="props"
+                   :href="TUTORIAL_BOOK_PDF"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="bookmark-tab left-side start-here-tab mb-2 text-decoration-none"
                 >
-                   <v-icon icon="mdi-school" color="amber-accent-2"></v-icon>
-                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">START HERE</span>
-                </div>
+                   <v-icon icon="mdi-file-pdf-box" color="amber-accent-2"></v-icon>
+                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">PDF</span>
+                </a>
               </template>
             </v-tooltip>
 
@@ -976,6 +978,7 @@ import chestTokenIcon from "@/assets/setup/chest-token.webp";
 import runeTokenIcon from "@/assets/setup/rune-token.webp";
 import interactionIcon from "@/assets/interaction.png";
 import bookPagesData from "@/data/book/bookPages.json";
+import { TUTORIAL_BOOK_PDF } from "@/utils/tutorialBook";
 import tutorialBookS1Data from "@/data/book/TutorialBookS1.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -1263,20 +1266,6 @@ const activeCampaignData = computed(
 const isWing1Or2 = computed(() => {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
   return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
-});
-
-const isWing3Start = computed(() => {
-    const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const door = (activeCampaignData.value.door || '').toUpperCase();
-    if (wing.includes("WING 3")) {
-        return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
-    }
-    // The Tutorial wing has its own book instead.
-    if (wing.includes("TUTORIAL")) return false;
-    if (wing.includes("WING 1") || wing.includes("WING 01")) {
-        return door === "FIRST SETUP";
-    }
-    return false;
 });
 
 const currentDoorData = computed(() => {
@@ -2113,17 +2102,6 @@ function openStartHere() {
     bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
 }
 
-function openStartHerePage(target: string) {
-    bookContext.value = "START HERE";
-    bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
-    nextTick(() => {
-        setTimeout(() => {
-            if (campaignBookRef.value) {
-                campaignBookRef.value.openSceneByTarget(target);
-            }
-        }, 150);
-    });
-}
 
 function acceptTutorial() {
     if (tutorialPromptDialog.value.dontShowAgain) {
@@ -2148,15 +2126,9 @@ function declineTutorial() {
 // The first room: a new campaign may not have its door saved yet.
 const isFirstSetupDoor = computed(() => ["", "FIRST SETUP"].includes((activeCampaignData.value.door || "").trim().toUpperCase()));
 
-// The First Setup guide; Start Here follows it in the tutorial wings unless the
-// players already skipped it (in the lobby or here) or turned it off.
+// The First Setup guide. Start Here is retired: the Wing 1 Tutorial has its own book.
 function openFirstSetupGuide() {
-    const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const isTargetWing = !wing.includes("TUTORIAL") && (wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01"));
-    const offerStartHere =
-        isTargetWing && tutorialStore.shouldShowStartHere && !sessionStorage.getItem(`tutorial_shown_${props.campaignId}`);
-    tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere };
-    if (offerStartHere) sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
+    tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere: false };
 }
 
 // Players assemble the First Setup themselves, so its guide opens once per
