@@ -216,6 +216,8 @@ import InteractionTheRunic from "@/assets/json/InteractionTheRunic.json";
 const props = defineProps<{
     currentDoor: string;
     wing: string;
+    // Opens straight on this Interaction (a book button, not a QR code).
+    startWith?: string;
 }>();
 
 const emit = defineEmits(['close', 'open-scene']);
@@ -280,7 +282,9 @@ onMounted(() => {
     }
     interactionConfigs.value = configs;
 
-    if (!interactionStageActive.value) {
+    if (props.startWith) {
+        selectInteraction(props.startWith);
+    } else if (!interactionStageActive.value) {
         startScanner();
     }
 });
