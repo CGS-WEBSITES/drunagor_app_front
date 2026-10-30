@@ -185,7 +185,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { BrowserMultiFormatReader, BarcodeFormat, DecodeHintType } from '@zxing/library';
 
 import rawInteractionConfigsData from "@/data/book/interactionConfigurations.json";
-import { roomInteractions, BARRICADE } from "@/utils/roomInteractions";
+import { roomInteractions, BARRICADE, interactionFromCode } from "@/utils/roomInteractions";
 
 import BarricadeImg from "@/assets/Interaction_01_The Barricade-min.png";
 import ArmorImg from "@/assets/Interaction_03_ShinningArmor-min.png";
@@ -339,9 +339,7 @@ const startScanner = async () => {
             return;
         }
         if (result) {
-            const text = result.getText().trim();
-            let id = text.includes("interaction/") ? text.split("/")[1] : text;
-            selectInteraction(id);
+            selectInteraction(interactionFromCode(result.getText()));
         }
     });
 

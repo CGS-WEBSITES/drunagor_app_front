@@ -86,3 +86,13 @@ export function roomInteractions(wing: string, door: string): RoomInteractions {
   if (w.includes("WING 1") || w.includes("WING 01") || w.includes("TUTORIAL")) return fromPlan(WING_1, d);
   return NONE;
 }
+
+// Interactions printed in the Tutorial book PDF link to drunagor.app/interaction/<slug>.
+export const INTERACTION_SLUGS: Record<string, string> = { barricade: BARRICADE };
+
+// The interaction key a scanned code stands for: an app link by its slug, anything else as-is.
+export function interactionFromCode(text: string): string {
+  const match = text.trim().match(/\/interaction\/([\w-]+)/i);
+  if (!match) return text.trim();
+  return INTERACTION_SLUGS[match[1].toLowerCase()] || match[1];
+}
