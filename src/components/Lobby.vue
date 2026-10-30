@@ -531,7 +531,9 @@ const currentCampaignType = computed(() => {
 // Wings with a Start Here guide (1 and 3) ask whether the party wants it.
 const offersStartHere = computed(() => {
     const scenarioName = (eventDetails.value?.scenario || '').toLowerCase();
-    return /wing 0?[13]\b/.test(scenarioName) || scenarioName.includes('tutorial');
+    // The Wing 1 Tutorial teaches through its own book, not Start Here.
+    if (scenarioName.includes('tutorial')) return false;
+    return /wing 0?[13]\b/.test(scenarioName);
 });
 
 const snackbar = ref({
