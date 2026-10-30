@@ -59,6 +59,14 @@
               </div>
             </div>
 
+            <!-- The Wing 1 Tutorial can be run from the printed book alone. -->
+            <TutorialBookPdfCard
+              v-if="isTutorialScenario(event?.scenario)"
+              title="Print the Tutorial book for your tables"
+              text="This event plays the Wing 1 Tutorial. Players can run it with the printed book alone: it teaches the game step by step, and its QR code opens the Interaction in the app."
+              class="mb-4"
+            />
+
             <!-- Where -->
             <div class="md-store">
               <div class="md-store__info">
@@ -474,6 +482,8 @@ import s2flag from "@/assets/s2flag.png";
 import { useUserStore } from "@/store/UserStore";
 import { extractTime, formatEventDate } from "@/utils/dateHelpers";
 import AssemblyGuide from "@/components/AssemblyGuide.vue";
+import TutorialBookPdfCard from "@/components/TutorialBookPdfCard.vue";
+import { isTutorialScenario } from "@/utils/tutorialBook";
 import { tableAssemblySteps, TABLE_ASSEMBLY_PDF } from "@/data/assembly/tableAssembly";
 
 const { smAndDown } = useDisplay();
