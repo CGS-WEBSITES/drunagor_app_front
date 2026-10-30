@@ -454,6 +454,7 @@ import startHereS1Data from "@/data/book/StartHereS1.json";
 import bookPagesData from "@/data/book/bookPages.json";
 import gameMechanicsData from "@/data/book/gameMechanicsRulebook.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
+import tutorialBookS1Data from "@/data/book/TutorialBookS1.json";
 import firstEncounterClarificationsData from "@/data/book/firstEncounterClarifications.json";
 import secondEncounterClarificationsData from "@/data/book/secondEncounterClarifications.json";
 import dragonClarificationsData from "@/data/book/dragonClarifications.json";
@@ -476,7 +477,11 @@ const props = defineProps<{
   // Shows a close button in the header (the book inside a dialog).
   closable?: boolean;
 }>();
-const emit = defineEmits<{ (e: "close"): void }>();
+const emit = defineEmits<{
+  (e: "close"): void;
+  // A book button that opens an Interaction (the Tutorial's Barricade has no QR code in the app).
+  (e: "open-interaction", id: string): void;
+}>();
 
 const isSeason1 = computed(() => {
   const t = (props.campaignType || "").toLowerCase();
@@ -530,6 +535,11 @@ function figureize(html?: string) {
 
 function handleBodyClick(event: MouseEvent) {
   const clicked = event.target as HTMLElement;
+  const action = clicked?.closest?.<HTMLElement>("[data-interaction]");
+  if (action) {
+    emit("open-interaction", action.dataset.interaction || "");
+    return;
+  }
   const figure = clicked?.closest?.(".book-figure");
   const target = (figure ? figure.querySelector("img") : clicked) as HTMLElement;
   if (target && target.tagName === 'IMG') {
@@ -588,13 +598,26 @@ const tutorialPages: PageSection[] = (playerTutorialsData as any).chapters.flatM
   })),
 );
 
+// The Wing 1 Tutorial book: lessons, scenes and clarifications in the order the table plays them.
+const tutorialBookVolume: Volume = {
+  id: 'tutorial_book',
+  title: 'Into the Underkeep',
+  subtitle: 'Tutorial',
+  icon: 'mdi-school',
+  type: 'story',
+  data: tutorialBookS1Data as PageSection[],
+};
+
 const availableVolumes = computed<Volume[]>(() => {
   const vols: Volume[] = [];
   const wingKey = (props.campaignWing || "").toUpperCase();
   const isS1 = isSeason1.value;
 
-  // Start Here volume should be accessible in Wing 3, Wing 1, or Tutorial
-  const showStartHere = wingKey.includes("WING 3") || wingKey.includes("WING 1") || wingKey.includes("TUTORIAL") || wingKey.includes("START");
+  // The Wing 1 Tutorial has its own book that teaches as you play: no Start
+  // Here, no separate Tutorials book, no separate story book.
+  const isTutorialWing = wingKey.includes("TUTORIAL");
+  // Start Here volume should be accessible in Wing 3 and Wing 1
+  const showStartHere = !isTutorialWing && (wingKey.includes("WING 3") || wingKey.includes("WING 1") || wingKey.includes("START"));
 
   if (showStartHere) {
     vols.push({ 
@@ -625,15 +648,8 @@ const availableVolumes = computed<Volume[]>(() => {
     });
   }
 
-  if (wingKey.includes("TUTORIAL") || wingKey.includes("WING 1 TUTORIAL")) {
-    vols.push({ 
-      id: 'wing_1_tutorial', 
-      title: 'Wing 1 Tutorial', 
-      subtitle: 'Campaign Book', 
-      icon: 'mdi-book-open-variant', 
-      type: 'story', 
-      data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL")) 
-    });
+  if (isTutorialWing) {
+    vols.push(tutorialBookVolume);
   } else if (wingKey.includes("WING 1 ADVANCED")) {
     vols.push({ 
       id: 'wing_1_advanced', 
@@ -674,14 +690,7 @@ const availableVolumes = computed<Volume[]>(() => {
     // Outside a campaign (e.g. the retailer Help) every book. Wing 1 Tutorial is
     // frozen while it is reworked, so only the test server shows it.
     if (isTestApi()) {
-      vols.push({
-        id: 'wing_1_tutorial',
-        title: 'Wing 1 Tutorial',
-        subtitle: 'Campaign Book',
-        icon: 'mdi-book-open-variant',
-        type: 'story',
-        data: rawStoryBooks.filter(p => p.section.toUpperCase().includes("WING 1 - TUTORIAL"))
-      });
+      vols.push(tutorialBookVolume);
     }
     vols.push({ 
       id: 'wing_1_advanced', 
@@ -717,7 +726,9 @@ const availableVolumes = computed<Volume[]>(() => {
     });
   }
 
-  vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'story', reference: true, data: tutorialPages });
+  if (!isTutorialWing) {
+    vols.push({ id: 'tutorials', title: 'Tutorials', subtitle: 'Reference', icon: 'mdi-help-circle-outline', type: 'story', reference: true, data: tutorialPages });
+  }
   vols.push({ id: 'mechanics', title: 'Game Mechanics', subtitle: 'Rules', icon: 'mdi-cogs', type: 'reference', data: gameMechanicsData });
   vols.push({ id: 'enc_1', title: '1st Encounter', subtitle: 'Rules', icon: 'mdi-numeric-1-box-outline', type: 'reference', data: firstEncounterClarificationsData });
   vols.push({ id: 'enc_2', title: '2nd Encounter', subtitle: 'Rules', icon: 'mdi-numeric-2-box-outline', type: 'reference', data: secondEncounterClarificationsData });
@@ -1861,6 +1872,139 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 .instruction-card :deep(img):hover {
   transform: scale(1.01);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Into the Underkeep – Tutorial: lessons, pictures with captions, and the
+   moments the book sends the party back to the table. */
+.body-text :deep(.tb-lesson) {
+  margin: 1.8rem 0 0.6rem;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #10594f;
+  color: #10594f;
+  font-family: "Cinzel", serif;
+  font-size: calc(1.25rem * var(--book-font-scale, 1));
+  font-weight: 700;
+}
+.body-text :deep(.tb-lesson:first-child) {
+  margin-top: 0.4rem;
+}
+.body-text :deep(.tb-blue) {
+  color: #10594f;
+  font-weight: 700;
+}
+.body-text :deep(.tb-red) {
+  color: #b3261e;
+  font-weight: 700;
+}
+.body-text :deep(ul) {
+  margin: 0 0 1rem 1.4rem;
+  padding: 0;
+}
+.body-text :deep(ul ul) {
+  margin: 0.3rem 0 0.4rem 1.2rem;
+}
+.body-text :deep(li) {
+  margin-bottom: 0.4rem;
+  color: #212121;
+  font-family: "EB Garamond", serif;
+  font-size: calc(1.12rem * var(--book-font-scale, 1));
+  line-height: 1.5;
+}
+.body-text :deep(.tb-figure) {
+  margin: 0.4rem 0 1.4rem;
+}
+.body-text :deep(.tb-figure--pair) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.body-text :deep(.tb-figure--pair .tb-caption) {
+  grid-column: 1 / -1;
+}
+.body-text :deep(p.tb-caption) {
+  margin: 6px 0 0 !important;
+  color: #5b5047 !important;
+  font-size: calc(0.98rem * var(--book-font-scale, 1));
+  font-style: italic;
+  text-align: center;
+  text-indent: 0;
+}
+.body-text :deep(p.tb-fluff) {
+  color: #796c50 !important;
+  font-style: italic;
+}
+.body-text :deep(.tb-hint),
+.body-text :deep(.tb-rule) {
+  margin: 0.4rem 0 1.4rem;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-family: "EB Garamond", serif;
+  font-size: calc(1.08rem * var(--book-font-scale, 1));
+  line-height: 1.5;
+}
+.body-text :deep(.tb-hint) {
+  background: #e7f1ef;
+  border-left: 4px solid #10594f;
+  color: #212121;
+}
+.body-text :deep(.tb-rule) {
+  background: #f6e9e7;
+  border-left: 4px solid #b3261e;
+  color: #212121;
+}
+.body-text :deep(.tb-rule > strong) {
+  display: block;
+  margin-bottom: 4px;
+  color: #b3261e;
+  font-family: "Cinzel", serif;
+}
+.body-text :deep(.tb-rule p) {
+  margin: 0 !important;
+  text-indent: 0;
+}
+/* The book hands the game back to the table. */
+.body-text :deep(p.tb-stop) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1.6rem 0 0.4rem !important;
+  padding: 12px 14px;
+  background: #1f1b18;
+  border-radius: 10px;
+  color: #f3e6c8 !important;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-indent: 0;
+}
+.body-text :deep(p.tb-stop .mdi) {
+  font-size: 1.3rem;
+  color: #e0b341;
+}
+.body-text :deep(.tb-action) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #bf529d;
+  border-radius: 10px;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-indent: 0;
+}
+.body-text :deep(.tb-action:hover) {
+  filter: brightness(1.1);
+}
+.body-text :deep(p.tb-clar) {
+  text-indent: 0;
+}
+.body-text :deep(p.tb-example) {
+  margin-top: -0.6rem !important;
+  color: #5b5047 !important;
+  font-style: italic;
+  text-indent: 0;
 }
 
 /* Ensure inline-icons are not styled with pointer cursor or hover effects */
