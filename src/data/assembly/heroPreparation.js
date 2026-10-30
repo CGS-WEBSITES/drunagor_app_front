@@ -12,9 +12,11 @@ const image = (file, hero) => (NIGHTS_HEROES.includes(hero) ? `${IMG}/${file}-${
  */
 export function heroPreparationSteps(heroName, gift) {
   const hero = (heroName || "").toLowerCase();
-  const giftNote = gift
-    ? `<p><strong>Gift Equipment:</strong> ask the Store Owner for the Gift Equipment Pack and take 1 card. Recommended for ${heroName}: <strong>${gift.name}</strong>. ${gift.description}</p>`
-    : "";
+  // The Start Here book no longer has a Player Gifts page: its rules live here.
+  const giftNote = `<p><strong>Gift Equipment:</strong> ask the Store Owner for the Party's shared Gift Equipment Pack and take 1 card${
+    gift ? `. Recommended for ${heroName}: <strong>${gift.name}</strong>. ${gift.description}` : ""
+  }</p>
+<p>Check your Hero's Proficiency at the bottom of the Hero Board before equipping it. The Gift Equipment card is yours to keep after the event, while supplies last.</p>`;
 
   return [
     {
@@ -84,8 +86,14 @@ export function heroPreparationSteps(heroName, gift) {
       title: "8 – Picking Action Cubes",
       image: image("08-picking-action-cube", hero),
       instruction: `<p>Take your Hero's starting Action Cubes. This information is shown on their Initiative card.</p>
-${giftNote}
-<p><strong>Your Hero preparation is complete!</strong> When the party leader starts the game, you'll go to the First Setup: assemble it as shown in the illustration, open the book tab to read the scenario instructions, and then begin playing.</p>
+${giftNote}`,
+    },
+    // Its own step, not tacked onto the last one, so nothing needs a scroll to be read.
+    {
+      id: 10,
+      title: "Ready to Play",
+      image: image("08-picking-action-cube", hero),
+      instruction: `<p><strong>Your Hero preparation is complete!</strong> When the party leader starts the game, you'll go to the First Setup: assemble it as shown in the illustration, open the book tab to read the scenario instructions, and then begin playing.</p>
 <p><em>If this is your first time playing Chronicles of Drunagor, a pop-up will offer the Tutorial. Accept it to learn these steps and the basics of the gameplay.</em></p>
 <p>Have a great Adventure!</p>`,
     },

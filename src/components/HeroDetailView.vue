@@ -3,8 +3,9 @@
   <div class="sheet-page">
     <HeroSavePut ref="heroSavePutRef" :campaign-id="campaignId" :hero-id="heroId" @success="onSaved" @fail="onSaveFail" />
 
-    <div class="sheet-top">
-      <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="goBack">Back to campaign</v-btn>
+    <div class="sheet-top" :class="{ 'sheet-top--embedded': embedded }">
+      <v-btn v-if="embedded" variant="text" prepend-icon="mdi-close" @click="goBack">Close</v-btn>
+      <v-btn v-else variant="text" prepend-icon="mdi-arrow-left" @click="goBack">Back to campaign</v-btn>
     </div>
 
     <div v-if="!isLoaded" class="text-center py-16">
@@ -25,7 +26,13 @@
         </div>
       </header>
 
-      <div class="sheet-grid">
+      <!-- Another player's hero: shown, not edited. -->
+      <div v-if="!canEdit" class="sheet-readonly">
+        <v-icon size="18">mdi-lock-outline</v-icon>
+        Only the player of {{ heroData.name }} can edit this hero.
+      </div>
+
+      <div class="sheet-grid" :class="{ 'sheet-grid--readonly': !canEdit }" :inert="!canEdit || undefined">
         <div class="sheet-stack">
           <!-- Resources: life, cubes, class abilities -->
           <SheetCard id="vitals">
@@ -103,7 +110,7 @@
       </div>
 
       <!-- Leaving the party lives here, away from the campaign list. -->
-      <div v-if="!isNights" class="sheet-danger">
+      <div v-if="!isNights && canEdit" class="sheet-danger">
         <div>
           <strong>Remove {{ heroData.name }} from this campaign</strong>
           <p>The hero leaves the party with its items and effects. My heroes is not affected.</p>
@@ -113,7 +120,7 @@
     </template>
 
     <v-slide-y-reverse-transition>
-      <div v-if="dirty" class="sheet-savebar">
+      <div v-if="dirty && canEdit" class="sheet-savebar" :class="{ 'sheet-savebar--embedded': embedded }">
         <span><v-icon size="18" class="mr-2">mdi-pencil-circle</v-icon>You have unsaved changes</span>
         <v-btn color="accent" variant="flat" prepend-icon="mdi-content-save" :loading="isSaving" @click="save">Save</v-btn>
       </div>
@@ -146,6 +153,7 @@ import type { Campaign } from "@/store/Campaign";
 import { CampaignLoadFromStorage } from "@/utils/CampaignLoadFromStorage";
 import { CONTENT_LABELS, CONTENT_SYMBOLS, type ItemSource } from "@/data/heroMeta";
 import HeroSavePut from "@/components/HeroSavePut.vue";
+import { useCanEditHero } from "@/utils/heroOwner";
 import StatStepper from "@/components/hero-sheet/StatStepper.vue";
 import SheetCard from "@/components/hero-sheet/SheetCard.vue";
 import HeroSheetEquipment from "@/components/hero-sheet/HeroSheetEquipment.vue";
@@ -162,7 +170,9 @@ const heroDataRepository = new HeroDataRepository();
 const allEffects = useCampaignEffects();
 
 // Ids come from the route, or from props (dev preview).
-const props = defineProps<{ campaignIdProp?: string; heroIdProp?: string }>();
+// embedded: shown in a dialog inside the campaign, which closes instead of navigating.
+const props = defineProps<{ campaignIdProp?: string; heroIdProp?: string; embedded?: boolean }>();
+const emit = defineEmits<{ close: [] }>();
 const params = route.params as { heroId?: string; campaignId?: string };
 const heroId = String(props.heroIdProp ?? params.heroId);
 const campaignId = String(props.campaignIdProp ?? params.campaignId);
@@ -174,6 +184,7 @@ const dirty = ref(false);
 const campaign = ref<Campaign | null>(null);
 
 const state = computed(() => heroStore.findInCampaignOptional(heroId, campaignId));
+const canEdit = useCanEditHero(() => state.value?.playableHeroesPk);
 const heroData = computed(() => heroDataRepository.find(heroId) ?? null);
 const adventure = computed(() => (state.value?.sequentialAdventureState as any) ?? null);
 const isNights = computed(() => ["underkeep", "underkeep2"].includes(campaign.value?.campaign ?? ""));
@@ -244,12 +255,19 @@ async function removeHero() {
 }
 
 function goBack() {
+  if (props.embedded) {
+    emit("close");
+    return;
+  }
   router.push({ name: "Campaign", params: { id: campaignId } } as any);
 }
 
 onMounted(async () => {
   try {
-    await new CampaignLoadFromStorage().loadCampaignComplete(campaignId);
+    // Inside the campaign it is already loaded, and reloading would drop unsaved changes.
+    if (!props.embedded || !campaignStore.findOptional(campaignId)) {
+      await new CampaignLoadFromStorage().loadCampaignComplete(campaignId);
+    }
     campaign.value = campaignStore.findOptional(campaignId) ?? null;
     fillDefaults();
   } catch (error) {
@@ -274,6 +292,39 @@ onMounted(async () => {
 }
 .sheet-top {
   margin: 0 -8px 8px;
+}
+.sheet-top--embedded {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: -12px -16px 8px;
+  padding: 6px 8px;
+  background: rgb(var(--v-theme-surface));
+}
+.sheet-readonly {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.sheet-grid--readonly {
+  opacity: 0.85;
+}
+/* In a dialog the bar sits at the bottom of the sheet, not of the page. */
+.sheet-savebar.sheet-savebar--embedded {
+  position: sticky;
+  bottom: 12px;
+  left: auto;
+  width: fit-content;
+  margin: 16px auto 0;
+  transform: none;
 }
 .sheet-banner {
   position: relative;

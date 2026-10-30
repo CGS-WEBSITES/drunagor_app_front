@@ -18,10 +18,11 @@
       </div>
     </header>
 
-    <!-- Picture -->
-    <div class="guide__media" :class="{ 'guide__media--empty': !currentStepData.image }" @click="currentStepData.image && openZoomDialog()">
-      <template v-if="currentStepData.image">
-        <img :src="currentStepData.image" :alt="currentStepData.title || `Step ${currentStep + 1}`" />
+    <!-- Picture: the step's own, then any the text shows -->
+    <div class="guide__media" :class="{ 'guide__media--empty': !shownImage }" @click="shownImage && openZoomDialog(shownImage.src)">
+      <template v-if="shownImage">
+        <img :src="shownImage.src" :alt="shownImage.alt" />
+        <span v-if="stepImages.length > 1 && shownImage.alt" class="guide__caption">{{ shownImage.alt }}</span>
         <span class="guide__zoom"><v-icon size="18">mdi-magnify-plus-outline</v-icon></span>
       </template>
       <template v-else>
@@ -30,8 +31,21 @@
       </template>
     </div>
 
+    <div v-if="stepImages.length > 1" class="guide__thumbs">
+      <button
+        v-for="(picture, index) in stepImages"
+        :key="picture.src"
+        class="guide__thumb"
+        :class="{ active: index === imageIndex }"
+        :aria-label="picture.alt || `Picture ${index + 1}`"
+        @click="imageIndex = index"
+      >
+        <img :src="picture.src" alt="" />
+      </button>
+    </div>
+
     <!-- Text -->
-    <div class="guide__text html-instruction" v-html="currentStepData.instruction" @click="handleInstructionClick"></div>
+    <div class="guide__text html-instruction" v-html="stepText" @click="handleInstructionClick"></div>
 
     <!-- Navigation -->
     <nav class="guide__nav">
@@ -188,6 +202,23 @@ const dragStart = ref({ x: 0, y: 0 });
 const isMobile = computed(() => mobile.value);
 
 const currentStepData = computed(() => props.steps[currentStep.value]);
+
+// Pictures inside a step's text are too small to read there: they join the
+// step's picture above, with thumbnails to switch between them.
+const INLINE_IMAGE = /<img\b[^>]*>/gi;
+const attr = (tag, name) => tag.match(new RegExp(`\\s${name}="([^"]*)"`, "i"))?.[1] ?? "";
+const stepImages = computed(() => {
+  const step = currentStepData.value || {};
+  const inline = (step.instruction || "").match(INLINE_IMAGE) || [];
+  return [
+    ...(step.image ? [{ src: step.image, alt: step.title || "" }] : []),
+    ...inline.map((tag) => ({ src: attr(tag, "src"), alt: attr(tag, "alt") })).filter((picture) => picture.src),
+  ];
+});
+const stepText = computed(() => (currentStepData.value?.instruction || "").replace(INLINE_IMAGE, ""));
+const imageIndex = ref(0);
+const shownImage = computed(() => stepImages.value[imageIndex.value] || stepImages.value[0] || null);
+watch(currentStep, () => (imageIndex.value = 0));
 
 const isLastStep = computed(() => currentStep.value === props.steps.length - 1);
 const showFinish = computed(() => isLastStep.value && !!props.finishLabel);
@@ -654,13 +685,30 @@ onUnmounted(() => {
 .guide {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   background: rgb(var(--v-theme-surface));
   border-radius: 14px;
   font-family: "Poppins", sans-serif;
 }
 .guide__head {
   padding: 14px 16px 10px;
+}
+/* Wide enough (a desktop dialog): picture and text sit side by side, so the
+   text has real width to grow into instead of a tall column that scrolls. */
+@media (min-width: 760px) {
+  .guide {
+    display: grid;
+    grid-template-areas:
+      "head head"
+      "media text"
+      "thumbs text"
+      "nav nav";
+    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    column-gap: 20px;
+    align-items: start;
+  }
+  .guide__head {
+    grid-area: head;
+  }
 }
 .guide__steps {
   display: grid;
@@ -706,12 +754,19 @@ onUnmounted(() => {
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  height: clamp(200px, 38vh, 340px);
+  height: clamp(180px, 30vh, 300px);
   margin: 0 12px;
   overflow: hidden;
   background: radial-gradient(circle at center, #1d1d1d 0%, #0b0b0b 100%);
   border-radius: 12px;
   cursor: zoom-in;
+}
+@media (min-width: 760px) {
+  .guide__media {
+    grid-area: media;
+    height: clamp(220px, 30vh, 300px);
+    margin: 0;
+  }
 }
 .guide__media img {
   width: 100%;
@@ -738,11 +793,67 @@ onUnmounted(() => {
   border-radius: 50%;
   color: #fff;
 }
+.guide__caption {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 64px);
+  padding: 4px 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.guide__thumbs {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+  margin: 8px 12px 0;
+  overflow-x: auto;
+}
+@media (min-width: 760px) {
+  .guide__thumbs {
+    grid-area: thumbs;
+    margin: 8px 0 0;
+  }
+}
+.guide__thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 44px;
+  padding: 0;
+  overflow: hidden;
+  background: #0b0b0b;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  opacity: 0.6;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.guide__thumb.active {
+  border-color: rgb(var(--v-theme-accent));
+  opacity: 1;
+}
+.guide__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The text grows to fit its content instead of hiding it behind its own
+   scrollbar: the dialog around the guide scrolls as a whole if it has to. */
 .guide__text {
   flex-shrink: 0;
-  height: 170px;
-  overflow-y: auto;
   padding: 14px 16px 6px;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 760px) {
+  .guide__text {
+    grid-area: text;
+    padding: 2px 16px 6px 4px;
+  }
 }
 .guide__text :deep(p:last-child) {
   margin-bottom: 0;
@@ -766,6 +877,12 @@ onUnmounted(() => {
   gap: 8px;
   padding: 10px 12px 12px;
   border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+@media (min-width: 760px) {
+  .guide__nav {
+    grid-area: nav;
+    margin-top: 16px;
+  }
 }
 .guide__prev {
   display: grid;
@@ -817,10 +934,7 @@ onUnmounted(() => {
 }
 @media (max-height: 520px) {
   .guide__media {
-    height: 46vh;
-  }
-  .guide__text {
-    height: 120px;
+    height: 38vh;
   }
 }
 </style>

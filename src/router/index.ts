@@ -72,6 +72,11 @@ const router = createRouter({
       component: () => import("@/components/ForgotPassword.vue"),
     },
     {
+      path: "/interaction/:code",
+      name: "Interaction",
+      component: () => import("@/pages/InteractionPage.vue"),
+    },
+    {
       path: "/gama",
       name: "Gama",
       component: () => import("@/pages/Gama.vue"),

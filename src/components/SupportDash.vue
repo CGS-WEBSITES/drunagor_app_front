@@ -1,1159 +1,590 @@
 <template>
-  <v-container class="support-dashboard-container pa-4" fluid>
-    <!-- Header -->
-    <v-row class="mb-4">
-      <v-col cols="12" class="d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-4">
-        <div>
-          <h1 class="text-h4 font-weight-black cinzel-text text-uppercase text-white">Support & Analytics</h1>
-          <p class="text-subtitle-2 text-grey-lighten-1">Real-time metrics and retailer administration</p>
-        </div>
-        <div class="d-flex flex-column flex-sm-row align-start align-sm-center ga-3 w-100 w-sm-auto">
-          <v-select
-            v-model="selectedWeek"
-            :items="weekOptions"
-            item-title="label"
-            item-value="value"
-            label="Selecione a Semana"
-            variant="solo-filled"
-            density="compact"
-            color="warning"
-            bg-color="#181a21"
-            hide-details
-            style="width: 280px; max-width: 100%;"
-            @update:model-value="onWeekChange"
-          ></v-select>
-          <v-btn
-            color="primary"
-            variant="outlined"
-            prepend-icon="mdi-refresh"
-            @click="fetchDashboardData"
-            :loading="loading"
-            class="font-weight-bold"
-            height="44"
-          >
-            Refresh Data
-          </v-btn>
-        </div>
-      </v-col>
-    </v-row>
+  <!-- The layout sets an inline padding on the root, so the spacing lives on the inner box. -->
+  <div class="support-page">
+  <div class="support">
+    <!-- Header: title, the week being read, refresh -->
+    <header class="support-head">
+      <div class="support-head__title">
+        <span class="support-kicker">Support</span>
+        <h1>Support &amp; Analytics</h1>
+        <p v-if="selectedWeek">
+          {{ getWeekLabelByValue(selectedWeek) }}
+          <span class="support-head__vs">vs {{ getPreviousWeekLabelByValue(selectedWeek) }}</span>
+        </p>
+      </div>
+      <div class="support-head__actions">
+        <v-select
+          v-model="selectedWeek"
+          :items="weekOptions"
+          item-title="label"
+          item-value="value"
+          label="Week"
+          variant="solo-filled"
+          density="compact"
+          bg-color="secondary"
+          hide-details
+          flat
+          class="support-head__week"
+          @update:model-value="onWeekChange"
+        />
+        <v-btn
+          icon="mdi-refresh"
+          variant="tonal"
+          :loading="loading"
+          aria-label="Refresh data"
+          @click="fetchDashboardData"
+        />
+      </div>
+    </header>
 
-    <!-- Loading State -->
-    <div v-if="loading && !dashboardData" class="d-flex flex-column justify-center align-center py-12">
-      <v-progress-circular
-        indeterminate
-        color="primary"
-        size="64"
-        width="6"
-        class="mb-4"
-      ></v-progress-circular>
-      <span class="text-body-1 text-grey-lighten-1">Retrieving database metrics...</span>
+    <div v-if="loading && !dashboardData" class="support-state">
+      <v-progress-circular indeterminate color="accent" size="48" width="5" />
+      <span>Loading the metrics…</span>
     </div>
 
-    <!-- Error State -->
-    <v-alert
-      v-else-if="error"
-      type="error"
-      title="Error Loading Data"
-      :text="error"
-      variant="tonal"
-      class="mb-6"
-    ></v-alert>
+    <v-alert v-else-if="error" type="error" variant="tonal" title="Could not load the data" :text="error" class="mb-6" />
 
-    <!-- Dashboard Content -->
-    <div v-else-if="dashboardData">
-      <!-- Tabs Navigation (Visible Premium Styled Control) -->
-      <div class="tabs-wrapper mb-6">
-        <v-tabs
-          v-model="tab"
-          bg-color="#181a21"
-          color="warning"
-          slider-color="warning"
-          align-tabs="center"
-          grow
-          height="60"
+    <template v-else-if="dashboardData">
+      <!-- Tabs -->
+      <div class="support-tabs" role="tablist">
+        <button
+          v-for="item in [{ value: 'stats', label: 'Overview', icon: 'mdi-chart-box-outline' }, { value: 'retailers', label: `Retailers (${dashboardData.retailers.length})`, icon: 'mdi-storefront-outline' }]"
+          :key="item.value"
+          role="tab"
+          :aria-selected="tab === item.value"
+          :class="{ active: tab === item.value }"
+          @click="tab = item.value"
         >
-          <v-tab value="stats" class="text-subtitle-1 font-weight-bold cinzel-text text-uppercase py-4">
-            <v-icon start size="22" color="warning">mdi-chart-bar</v-icon>
-            Statistics
-          </v-tab>
-          <v-tab value="retailers" class="text-subtitle-1 font-weight-bold cinzel-text text-uppercase py-4">
-            <v-icon start size="22" color="warning">mdi-storefront-outline</v-icon>
-            Retailers ({{ dashboardData.retailers.length }})
-          </v-tab>
-        </v-tabs>
+          <v-icon size="18">{{ item.icon }}</v-icon>
+          {{ item.label }}
+        </button>
       </div>
 
-      <!-- Windows -->
-      <v-window v-model="tab">
-        <!-- TAB 1: STATISTICS -->
-        <v-window-item value="stats">
-          <!-- Health Score Signal & Executive Warnings -->
-          <v-row class="mb-6">
-            <v-col cols="12">
-              <v-card color="#1f222b" class="pa-4" rounded="lg" elevation="2" style="border: 1px solid rgba(251, 140, 0, 0.4) !important;">
-                <div class="d-flex flex-column flex-md-row justify-space-between align-start align-md-center ga-4">
-                  <div>
-                    <div class="d-flex align-center mb-1 ga-2">
-                      <span class="text-overline text-grey-lighten-2 cinzel-text font-weight-black">System Health Index</span>
-                      <v-chip color="warning" size="small" class="font-weight-black text-uppercase">Atenção</v-chip>
-                    </div>
-                    <h2 class="text-h5 font-weight-black text-white cinzel-text">EXECUTIVE HEALTH SCORE SIGNAL</h2>
-                    <p class="text-caption text-grey-lighten-1 mt-1">Overall index is governed by onboarding creation conversion, Organized Play (OP) activity, and active user retention.</p>
-                  </div>
-                  <div class="d-flex flex-wrap ga-3">
-                    <div class="bg-black-opacity rounded px-4 py-2 text-center" style="border: 1px solid rgba(255,255,255,0.06)">
-                      <div class="text-caption text-grey">ONBOARDING CONV.</div>
-                      <div class="text-h6 font-weight-bold text-red-accent-2">16.7%</div>
-                    </div>
-                    <div class="bg-black-opacity rounded px-4 py-2 text-center" style="border: 1px solid rgba(255,255,255,0.06)">
-                      <div class="text-caption text-grey">ACTIVE EVENTS (OP)</div>
-                      <div class="text-h6 font-weight-bold text-red-accent-2">1 Mesa</div>
-                    </div>
-                    <div class="bg-black-opacity rounded px-4 py-2 text-center" style="border: 1px solid rgba(255,255,255,0.06)">
-                      <div class="text-caption text-grey">7D RETENTION RATE</div>
-                      <div class="text-h6 font-weight-bold text-warning">1.6%</div>
-                    </div>
-                  </div>
-                </div>
-                <v-divider class="my-4 rgba-white-bd"></v-divider>
-                <div class="text-body-2 text-white">
-                  <div class="d-flex align-center mb-2">
-                    <v-icon color="red" size="18" class="mr-2">mdi-alert-octagon</v-icon>
-                    <span><strong>Critical Onboarding Bottleneck:</strong> Only 1 of 6 retailers registered in the last 30 days completed store creation. High drop-off rate (~83.3%).</span>
-                  </div>
-                  <div class="d-flex align-center mb-2">
-                    <v-icon color="red" size="18" class="mr-2">mdi-alert-outline</v-icon>
-                    <span><strong>Low OP Activity:</strong> Only 1 active event table is running across all verified retailers. Action required to stimulate local play.</span>
-                  </div>
-                  <div class="d-flex align-center">
-                    <v-icon color="warning" size="18" class="mr-2">mdi-trending-down</v-icon>
-                    <span><strong>Traffic Deceleration:</strong> Active user base dropped to 18 active users weekly (down from 826 during the campaign peak). Stabilization normal but retention needs monitoring.</span>
-                  </div>
-                </div>
-              </v-card>
-            </v-col>
-          </v-row>
-
-          <!-- KPI Row -->
-          <v-row class="mb-6">
-            <!-- Total Users -->
-            <v-col cols="12" sm="6" md="3">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100 d-flex flex-column justify-space-between">
+      <!-- OVERVIEW -->
+      <div v-show="tab === 'stats'" class="overview">
+        <!-- What needs attention, computed from the data -->
+        <section class="panel attention">
+          <div class="panel__head">
+            <h2><v-icon size="18">mdi-pulse</v-icon> Needs attention</h2>
+            <span class="status-pill" :class="`status-pill--${overallStatus.level}`">
+              <v-icon size="14">{{ STATUS_ICONS[overallStatus.level] }}</v-icon>{{ overallStatus.label }}
+            </span>
+          </div>
+          <ul class="signals">
+            <li v-for="signal in signals" :key="signal.title">
+              <button type="button" class="signal" :class="`signal--${signal.level}`" @click="openMetric(signal.metric)">
+                <v-icon size="20" class="signal__icon">{{ STATUS_ICONS[signal.level] }}</v-icon>
                 <div>
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-overline text-grey-lighten-1">Total Users</span>
-                    <v-icon color="grey-lighten-1">mdi-account-group</v-icon>
-                  </div>
-                  <div class="text-h3 font-weight-black text-white">{{ dashboardData.saude_geral.total_users }}</div>
+                  <strong>{{ signal.title }}</strong>
+                  <span>{{ signal.text }}</span>
                 </div>
-                <div class="text-caption text-grey-lighten-1 mt-2">Historical registrations</div>
-              </v-card>
-            </v-col>
+                <span class="signal__value">{{ signal.value }}</span>
+              </button>
+            </li>
+          </ul>
+        </section>
 
-            <!-- Active Users (12M) -->
-            <v-col cols="12" sm="6" md="3">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100 d-flex flex-column justify-space-between">
-                <div>
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-overline text-grey-lighten-1">Active Users (12M)</span>
-                    <v-icon color="success">mdi-account-check</v-icon>
-                  </div>
-                  <div class="text-h3 font-weight-black text-white">{{ dashboardData.saude_geral.ativos_12m }}</div>
-                </div>
-                <div class="text-caption text-success mt-2">
-                  {{ ((dashboardData.saude_geral.ativos_12m / dashboardData.saude_geral.total_users) * 100).toFixed(1) }}% activity rate
-                </div>
-              </v-card>
-            </v-col>
+        <!-- KPIs: value, change from last week, progress to the Season 1 target -->
+        <section class="kpis">
+          <button
+            v-for="kpi in kpis"
+            :key="kpi.metric.key"
+            type="button"
+            class="kpi"
+            :aria-label="`${kpi.metric.label}: details`"
+            @click="openMetric(kpi.metric.key)"
+          >
+            <span class="kpi__label"><v-icon size="16">{{ kpi.metric.icon }}</v-icon>{{ kpi.metric.label }}<v-icon size="14" class="kpi__more">mdi-chevron-right</v-icon></span>
+            <strong class="kpi__value">{{ formatMetric(kpi.metric, kpi.value) }}</strong>
+            <span v-if="kpi.delta" class="kpi__delta" :class="kpi.delta.cls">
+              <v-icon size="14">{{ kpi.delta.icon }}</v-icon>{{ kpi.delta.text }} <em>vs last week</em>
+            </span>
+            <span v-if="kpi.metric.target" class="kpi__target">
+              <span class="kpi__bar"><span :style="{ width: `${Math.min(100, (kpi.value / kpi.metric.target) * 100)}%` }"></span></span>
+              <small>{{ Math.min(100, Math.round((kpi.value / kpi.metric.target) * 100)) }}% of the S1 target ({{ formatNumber(kpi.metric.target) }})</small>
+            </span>
+          </button>
+        </section>
 
-            <!-- Weekly / Monthly Active -->
-            <v-col cols="12" sm="6" md="3">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100 d-flex flex-column justify-space-between">
-                <div>
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-overline text-grey-lighten-1">Active (7d / 30d)</span>
-                    <v-icon color="warning">mdi-run-fast</v-icon>
-                  </div>
-                  <div class="text-h3 font-weight-black text-white">
-                    {{ dashboardData.saude_geral.ativos_7d }} <span class="text-h5 text-grey">/ {{ dashboardData.saude_geral.ativos_30d }}</span>
-                  </div>
-                </div>
-                <div class="text-caption text-grey-lighten-1 mt-2">Unique users performing actions</div>
-              </v-card>
-            </v-col>
+        <div class="overview-grid">
+          <!-- Growth line -->
+          <section class="panel panel--wide">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-chart-line</v-icon> Registered users, week by week</h2>
+            </div>
+            <div class="chart-box">
+              <canvas ref="cUsers" aria-label="Registered users per week"></canvas>
+            </div>
+            <div class="mini-stats">
+              <button v-for="key in MINI_KEYS" :key="key" type="button" @click="openMetric(key)">
+                <strong>{{ formatMetric(METRICS[key], METRICS[key].get(data)) }}</strong>
+                <span>{{ METRICS[key].label }}</span>
+              </button>
+            </div>
+          </section>
 
-            <!-- Registered Retailers (Clickable to switch tab) -->
-            <v-col cols="12" sm="6" md="3">
-              <v-card
-                color="primary"
-                elevation="2"
-                rounded="lg"
-                class="pa-4 h-100 d-flex flex-column justify-space-between hover-card-btn"
-                @click="tab = 'retailers'"
-                style="cursor: pointer;"
+          <!-- Retailer onboarding funnel (from the retailer list) -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-filter-variant</v-icon> Retailer onboarding</h2>
+              <small>tap a stage to see those retailers</small>
+            </div>
+            <ul class="bars">
+              <li v-for="(stage, index) in funnel" :key="stage.status">
+                <button type="button" class="bars__btn" @click="goToRetailers({ onboarding: stage.status })">
+                  <div class="bars__row">
+                    <span><span class="rank">{{ index + 1 }}</span>{{ onboardingLabel(stage.status) }}</span>
+                    <strong>{{ stage.count }}</strong>
+                  </div>
+                  <span class="bar"><span :style="{ width: `${barWidth(stage.count, funnelMax)}%` }"></span></span>
+                </button>
+              </li>
+            </ul>
+            <div class="off-track">
+              <span>Off track</span>
+              <button
+                v-for="stage in offTrack"
+                :key="stage.status"
+                type="button"
+                class="off-track__chip"
+                :style="{ '--chip': onboardingColor(stage.status) }"
+                @click="goToRetailers({ onboarding: stage.status })"
               >
-                <div>
-                  <div class="d-flex justify-space-between align-center mb-1">
-                    <span class="text-overline text-grey-lighten-1">Retailers</span>
-                    <v-icon color="blue">mdi-store</v-icon>
-                  </div>
-                  <div class="text-h3 font-weight-black text-white">{{ dashboardData.saude_geral.total_retailers }}</div>
+                {{ onboardingLabel(stage.status) }} <strong>{{ stage.count }}</strong>
+              </button>
+            </div>
+          </section>
+
+          <!-- How active the stores are -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-storefront-check-outline</v-icon> Store activity</h2>
+              <small>{{ retailerList.length }} retailers</small>
+            </div>
+            <div class="tiles">
+              <button v-for="item in retailerActivity" :key="item.label" type="button" class="tile tile--btn" @click="goToRetailers(item.filter)">
+                <strong>{{ item.count }}</strong>
+                <span>{{ item.label }}</span>
+              </button>
+            </div>
+            <div class="mini-stats mini-stats--plain">
+              <div><strong>{{ formatNumber(retailerTotals.events) }}</strong><span>events by all stores</span></div>
+              <div><strong>{{ formatNumber(retailerTotals.players) }}</strong><span>players at their events</span></div>
+              <div><strong>{{ retailerTotals.withEvents }}</strong><span>stores with 1+ event</span></div>
+            </div>
+            <h3 class="panel__sub">Most active stores</h3>
+            <ul v-if="topStores.length" class="top-stores">
+              <li v-for="store in topStores" :key="store.users_pk">
+                <button type="button" @click="showRetailerEventsList(store)">
+                  <span>
+                    <strong>{{ store.store_name && store.store_name !== "-" ? store.store_name : store.name }}</strong>
+                    <small>{{ store.country || "-" }}</small>
+                  </span>
+                  <span class="top-stores__nums">{{ plural(store.events_count, "event") }} · {{ plural(store.players_count, "player") }}</span>
+                </button>
+              </li>
+            </ul>
+            <p v-else class="panel__empty">No store has run an event yet.</p>
+          </section>
+
+          <!-- Engagement ratios -->
+          <section class="panel panel--wide">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-heart-pulse</v-icon> Engagement</h2>
+              <small>ratios from this week's numbers</small>
+            </div>
+            <div class="ratios">
+              <div v-for="item in engagement" :key="item.label" class="ratio">
+                <strong>{{ item.value }}</strong>
+                <span>{{ item.label }}</span>
+                <small>{{ item.hint }}</small>
+              </div>
+            </div>
+          </section>
+
+          <!-- Feature adoption -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-gesture-tap</v-icon> Feature adoption</h2>
+              <small>share of all users</small>
+            </div>
+            <ul class="bars">
+              <li v-for="feature in features" :key="feature.label" :title="`${feature.label}: ${formatNumber(feature.users)} users`">
+                <div class="bars__row">
+                  <span><v-icon size="16">{{ feature.icon }}</v-icon>{{ feature.label }}</span>
+                  <strong>{{ formatNumber(feature.users) }} <em>· {{ percentOf(feature.users, data.saude_geral.total_users) }}</em></strong>
                 </div>
-                <div class="text-caption text-warning font-weight-bold mt-2 d-flex align-center">
-                  Manage Retailers <v-icon end size="16">mdi-arrow-right</v-icon>
+                <span class="bar"><span :style="{ width: `${barWidth(feature.users, data.saude_geral.total_users)}%` }"></span></span>
+                <small>{{ feature.detail }}</small>
+              </li>
+            </ul>
+          </section>
+
+          <!-- Boxes: campaigns, owned, wishlist -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-package-variant-closed</v-icon> Boxes</h2>
+              <div class="seg" role="tablist">
+                <button v-for="option in SKU_VIEWS" :key="option.value" role="tab" :aria-selected="skuView === option.value" :class="{ active: skuView === option.value }" @click="skuView = option.value">
+                  {{ option.label }}
+                </button>
+              </div>
+            </div>
+            <ul v-if="skuRanking.length" class="bars">
+              <li v-for="item in skuRanking" :key="item.sku" :title="`${item.sku}: ${formatNumber(item.count)}`">
+                <div class="bars__row">
+                  <span>{{ item.sku }}</span>
+                  <strong>{{ formatNumber(item.count) }}</strong>
                 </div>
-              </v-card>
-            </v-col>
-          </v-row>
+                <span class="bar"><span :style="{ width: `${barWidth(item.count, skuRanking[0].count)}%` }"></span></span>
+              </li>
+            </ul>
+            <p v-else class="panel__empty">No data for this view.</p>
+          </section>
 
-          <!-- Weekly Comparative Table -->
-          <v-row class="mb-6">
-            <v-col cols="12">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
-                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
-                  <v-icon start color="warning">mdi-table-large</v-icon> WEEKLY COMPARATIVE TRACKING (SEASON 1 EVALUATION)
-                </v-card-title>
-                <v-table class="bg-transparent text-white w-100">
-                  <thead>
-                    <tr style="border-bottom: 2px solid rgba(255,255,255,0.12)">
-                      <th class="text-left font-weight-black text-warning cinzel-text">METRIC / KPI</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">BASELINE ({{ getPreviousWeekLabelByValue(selectedWeek) }})</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">CURRENT ({{ getWeekLabelByValue(selectedWeek) }})</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">WEEKLY DELTA</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">TARGET META S1</th>
-                      <th class="text-center font-weight-black text-warning cinzel-text">STATUS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="hover-row" v-if="dashboardData.baseline">
-                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-account-group</v-icon> Total Registered Users</td>
-                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.total_users }}</td>
-                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.total_users }}</td>
-                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.total_users, dashboardData.baseline.total_users)">
-                        {{ formatDelta(dashboardData.saude_geral.total_users, dashboardData.baseline.total_users) }}
-                      </td>
-                      <td class="text-center text-grey-lighten-2">1,500</td>
-                      <td class="text-center">
-                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.total_users, 1500)" class="font-weight-black">
-                          {{ formatPercentageMet(dashboardData.saude_geral.total_users, 1500) }}
-                        </v-chip>
-                      </td>
-                    </tr>
-                    <tr class="hover-row" v-if="dashboardData.baseline">
-                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-run-fast</v-icon> Weekly Active Users (7d)</td>
-                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.ativos_7d }}</td>
-                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.ativos_7d }}</td>
-                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.ativos_7d, dashboardData.baseline.ativos_7d)">
-                        {{ formatDelta(dashboardData.saude_geral.ativos_7d, dashboardData.baseline.ativos_7d) }}
-                      </td>
-                      <td class="text-center text-grey-lighten-2">200</td>
-                      <td class="text-center">
-                        <v-chip size="x-small" :color="dashboardData.saude_geral.ativos_7d < 20 ? 'red' : getStatusChipColor(dashboardData.saude_geral.ativos_7d, 200)" class="font-weight-black">
-                          {{ dashboardData.saude_geral.ativos_7d < 20 ? 'Critical' : formatPercentageMet(dashboardData.saude_geral.ativos_7d, 200) }}
-                        </v-chip>
-                      </td>
-                    </tr>
-                    <tr class="hover-row" v-if="dashboardData.baseline">
-                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-calendar-check</v-icon> Monthly Active Users (30d)</td>
-                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.ativos_30d }}</td>
-                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.ativos_30d }}</td>
-                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.ativos_30d, dashboardData.baseline.ativos_30d)">
-                        {{ formatDelta(dashboardData.saude_geral.ativos_30d, dashboardData.baseline.ativos_30d) }}
-                      </td>
-                      <td class="text-center text-grey-lighten-2">1,000</td>
-                      <td class="text-center">
-                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.ativos_30d, 1000)" class="font-weight-black">
-                          {{ formatPercentageMet(dashboardData.saude_geral.ativos_30d, 1000) }}
-                        </v-chip>
-                      </td>
-                    </tr>
-                    <tr class="hover-row" v-if="dashboardData.baseline">
-                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-store</v-icon> Registered Retailers</td>
-                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.total_retailers }}</td>
-                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.total_retailers }}</td>
-                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.total_retailers, dashboardData.baseline.total_retailers)">
-                        {{ formatDelta(dashboardData.saude_geral.total_retailers, dashboardData.baseline.total_retailers) }}
-                      </td>
-                      <td class="text-center text-grey-lighten-2">75</td>
-                      <td class="text-center">
-                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.total_retailers, 75)" class="font-weight-black">
-                          {{ formatPercentageMet(dashboardData.saude_geral.total_retailers, 75) }}
-                        </v-chip>
-                      </td>
-                    </tr>
-                    <tr class="hover-row" v-if="dashboardData.baseline">
-                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-map-marker-radius</v-icon> Active Event Tables</td>
-                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.events_tables }}</td>
-                      <td class="text-center font-weight-bold">{{ dashboardData.feature_usage.events_tables }}</td>
-                      <td class="text-center" :class="getDeltaColor(dashboardData.feature_usage.events_tables, dashboardData.baseline.events_tables)">
-                        {{ formatDelta(dashboardData.feature_usage.events_tables, dashboardData.baseline.events_tables) }}
-                      </td>
-                      <td class="text-center text-grey-lighten-2">20</td>
-                      <td class="text-center">
-                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.feature_usage.events_tables, 20)" class="font-weight-black">
-                          {{ formatPercentageMet(dashboardData.feature_usage.events_tables, 20) }}
-                        </v-chip>
-                      </td>
-                    </tr>
-                    <tr class="hover-row" v-if="dashboardData.baseline">
-                      <td class="font-weight-bold text-white"><v-icon start size="16" class="mr-1" color="grey">mdi-television-play</v-icon> Active Campaigns</td>
-                      <td class="text-center text-grey-lighten-2">{{ dashboardData.baseline.campanhas_ativas }}</td>
-                      <td class="text-center font-weight-bold">{{ dashboardData.saude_geral.campanhas_ativas }}</td>
-                      <td class="text-center" :class="getDeltaColor(dashboardData.saude_geral.campanhas_ativas, dashboardData.baseline.campanhas_ativas)">
-                        {{ formatDelta(dashboardData.saude_geral.campanhas_ativas, dashboardData.baseline.campanhas_ativas) }}
-                      </td>
-                      <td class="text-center text-grey-lighten-2">1,200</td>
-                      <td class="text-center">
-                        <v-chip size="x-small" :color="getStatusChipColor(dashboardData.saude_geral.campanhas_ativas, 1200)" class="font-weight-black">
-                          {{ formatPercentageMet(dashboardData.saude_geral.campanhas_ativas, 1200) }}
-                        </v-chip>
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-table>
-              </v-card>
-            </v-col>
-          </v-row>
-
-          <!-- Executive Summary & Geographic -->
-          <v-row class="mb-6">
-            <!-- Growth & Engagement -->
-            <v-col cols="12" md="6">
-              <v-card color="primary" elevation="2" rounded="lg" class="h-100 pa-4">
-                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
-                  <v-icon start color="warning">mdi-bulletin-board</v-icon> GROWTH & ENGAGEMENT
-                </v-card-title>
-                <div class="text-body-2 text-white">
-                  <div class="d-flex align-start mb-3">
-                    <v-icon color="success" class="mr-2 mt-1" size="small">mdi-checkbox-blank-circle</v-icon>
-                    <span>
-                      <strong>Onboarding Spike:</strong> Out of the <strong>{{ dashboardData.saude_geral.novos_usuarios_30d }}</strong> new signups in the last 30 days, <strong>{{ dashboardData.saude_geral.novos_usuarios_7d }} ({{ ((dashboardData.saude_geral.novos_usuarios_7d / dashboardData.saude_geral.novos_usuarios_30d) * 100 || 0).toFixed(1) }}%)</strong> registered in the last 7 days.
-                    </span>
-                  </div>
-
-                  <div class="d-flex align-start mb-3">
-                    <v-icon color="warning" class="mr-2 mt-1" size="small">mdi-checkbox-blank-circle</v-icon>
-                    <span>
-                      <strong>Weekly Community:</strong> <strong>{{ dashboardData.saude_geral.ativos_7d }}</strong> users active in the last week, matching <strong>{{ ((dashboardData.saude_geral.ativos_7d / dashboardData.saude_geral.ativos_12m) * 100 || 0).toFixed(1) }}%</strong> of the yearly active base.
-                    </span>
-                  </div>
-
-                  <div class="d-flex align-start mb-4">
-                    <v-icon color="blue" class="mr-2 mt-1" size="small">mdi-checkbox-blank-circle</v-icon>
-                    <span>
-                      <strong>Campaign Expansion:</strong> <strong>{{ dashboardData.saude_geral.campanhas_novas_7d }}</strong> new campaigns created in the last 7 days (out of <strong>{{ dashboardData.saude_geral.campanhas_novas_30d }}</strong> in the last month).
-                    </span>
-                  </div>
-
-                  <v-divider class="my-4"></v-divider>
-
-                  <div class="d-flex justify-space-between align-center bg-black-opacity rounded pa-3">
-                    <div class="text-center flex-grow-1">
-                      <div class="text-caption text-grey-lighten-1">ACTIVE CAMPAIGNS</div>
-                      <div class="text-h6 font-weight-black text-white">{{ dashboardData.saude_geral.campanhas_ativas }}</div>
-                    </div>
-                    <v-divider vertical class="mx-3"></v-divider>
-                    <div class="text-center flex-grow-1">
-                      <div class="text-caption text-grey-lighten-1">ACTIVE EVENTS</div>
-                      <div class="text-h6 font-weight-black text-white">{{ dashboardData.saude_geral.eventos_ativos }}</div>
-                    </div>
-                    <v-divider vertical class="mx-3"></v-divider>
-                    <div class="text-center flex-grow-1">
-                      <div class="text-caption text-grey-lighten-1">COMPLETED EVENTS</div>
-                      <div class="text-h6 font-weight-black text-white">{{ dashboardData.saude_geral.eventos_passados_total }}</div>
-                    </div>
-                  </div>
+          <!-- Countries -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-earth</v-icon> Top countries</h2>
+              <small>users</small>
+            </div>
+            <ul class="bars">
+              <li v-for="(country, index) in topCountries" :key="country.country" :title="`${country.country}: ${formatNumber(country.count)} users`">
+                <div class="bars__row">
+                  <span><span class="rank">{{ index + 1 }}</span>{{ country.country }}</span>
+                  <strong>{{ formatNumber(country.count) }}</strong>
                 </div>
-              </v-card>
-            </v-col>
+                <span class="bar"><span :style="{ width: `${barWidth(country.count, topCountries[0]?.count)}%` }"></span></span>
+              </li>
+            </ul>
+          </section>
 
-            <!-- Top Countries -->
-            <v-col cols="12" md="6">
-              <v-card color="primary" elevation="2" rounded="lg" class="h-100 pa-4">
-                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
-                  <v-icon start color="warning">mdi-earth</v-icon> GEOGRAPHIC DISTRIBUTION
-                </v-card-title>
-                <v-list bg-color="transparent" class="pa-0">
-                  <v-list-item
-                    v-for="(country, idx) in dashboardData.saude_geral.countries.slice(0, 6)"
-                    :key="country.country"
-                    class="px-2 py-1 rounded mb-2 hover-bg"
-                  >
-                    <template v-slot:prepend>
-                      <div class="rank-badge mr-3 d-flex justify-center align-center font-weight-black">
-                        {{ idx + 1 }}
-                      </div>
-                    </template>
-                    <v-list-item-title class="font-weight-medium text-white">{{ country.country }}</v-list-item-title>
-                    <template v-slot:append>
-                      <v-chip size="small" class="font-weight-black" style="background-color: rgba(255, 255, 255, 0.1) !important; color: white !important;">
-                        {{ country.count }} users
-                      </v-chip>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-col>
-          </v-row>
+          <!-- Profiles & social -->
+          <section class="panel">
+            <div class="panel__head">
+              <h2><v-icon size="18">mdi-account-heart-outline</v-icon> Profiles &amp; friends</h2>
+            </div>
+            <div class="tiles">
+              <div class="tile"><strong>{{ formatNumber(data.feature_usage.profile_pic) }}</strong><span>custom profile pictures</span></div>
+              <div class="tile"><strong>{{ formatNumber(data.feature_usage.profile_bg) }}</strong><span>custom backgrounds</span></div>
+              <div class="tile"><strong>{{ formatNumber(data.feature_usage.profile_zip) }}</strong><span>zip codes filled</span></div>
+              <div class="tile"><strong>{{ formatNumber(data.feature_usage.friends_friendships) }}</strong><span>friendships · {{ formatNumber(data.feature_usage.friends_interacted) }} users</span></div>
+            </div>
+          </section>
+        </div>
+      </div>
 
-          <!-- Feature Adoption & Profile Customizations -->
-          <v-row class="mb-6">
-            <!-- Feature Tracking -->
-            <v-col cols="12" md="6">
-              <v-card color="primary" elevation="2" rounded="lg" class="h-100 pa-4">
-                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
-                  <v-icon start color="warning">mdi-chart-line</v-icon> FEATURE ADOPTION & USE
-                </v-card-title>
-                <div class="px-2">
-                  <!-- Library Usage -->
-                  <div class="mb-4">
-                    <div class="d-flex justify-space-between align-center mb-1">
-                      <span class="text-body-2 font-weight-bold text-white">
-                        <v-icon start size="18" color="blue-lighten-2">mdi-library-shelves</v-icon> Library (Collections)
-                      </span>
-                      <span class="text-caption text-grey">{{ dashboardData.feature_usage.library_users }} users</span>
-                    </div>
-                    <v-progress-linear color="blue" height="6" :model-value="(dashboardData.feature_usage.library_users / dashboardData.saude_geral.total_users) * 100" rounded></v-progress-linear>
-                    <div class="d-flex justify-space-between text-caption text-grey-lighten-2 mt-1">
-                      <span>Total items added: {{ dashboardData.feature_usage.library_items }}</span>
-                      <span>Average: {{ dashboardData.feature_usage.library_avg }} per collection</span>
-                    </div>
+      <!-- RETAILERS -->
+      <div v-show="tab === 'retailers'" class="panel retailers">
+        <div class="filters">
+          <v-text-field
+            v-model="search"
+            prepend-inner-icon="mdi-magnify"
+            placeholder="Search name, email or store"
+            variant="solo-filled"
+            density="compact"
+            bg-color="secondary"
+            flat
+            hide-details
+            clearable
+            class="filters__search"
+          />
+          <v-select v-model="storeStatusFilter" :items="toItems(storeStatusOptions)" label="Store" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+          <v-select v-model="onboardingStatusFilter" :items="toItems(onboardingStatusOptions)" label="Onboarding" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+          <v-select v-model="countryFilter" :items="toItems(countryOptions)" label="Country" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+          <v-select v-model="lastActivityFilter" :items="toItems(lastActivityOptions)" label="Last activity" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+          <v-select v-model="activityMetricsFilter" :items="toItems(activityMetricsOptions)" label="Events / players" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+        </div>
+        <div class="filters__bar">
+          <span>{{ filteredRetailers.length }} of {{ dashboardData.retailers.length }} retailers<template v-if="hiddenTestAccounts"> · {{ hiddenTestAccounts }} test {{ hiddenTestAccounts === 1 ? "account" : "accounts" }} hidden</template></span>
+          <v-btn v-if="filtersActive" variant="text" size="small" prepend-icon="mdi-filter-remove-outline" class="text-none" @click="clearFilters">Clear filters</v-btn>
+          <v-spacer />
+          <v-btn variant="tonal" size="small" prepend-icon="mdi-download" class="text-none" :disabled="!filteredRetailers.length" @click="exportToCSV">Export CSV</v-btn>
+        </div>
+
+        <div class="table-scroll">
+          <v-table class="retailers-table retailers-table--cards">
+            <thead>
+              <tr>
+                <th>Retailer</th>
+                <th>Store</th>
+                <th>Onboarding</th>
+                <th>Last access</th>
+                <th class="text-center">Events</th>
+                <th class="text-center">Players</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in filteredRetailers" :key="item.stores_pk ? 'store-' + item.stores_pk : 'user-' + item.users_pk">
+                <td data-label="Retailer" class="cell--title">
+                  <div class="cell-main">
+                    {{ item.name }}
+                    <v-icon v-if="item.verified === false" size="16" color="error" title="Not validated">mdi-alert-decagram</v-icon>
+                    <v-icon v-else size="16" color="success" title="Validated">mdi-check-decagram</v-icon>
                   </div>
+                  <div class="cell-sub">{{ item.email }}</div>
+                  <div v-if="item.phone" class="cell-sub">{{ item.phone }}</div>
+                </td>
+                <td data-label="Store">
+                  <div class="cell-main">{{ item.store_name && item.store_name !== "-" ? item.store_name : "No store yet" }}</div>
+                  <div class="cell-sub"><v-icon size="12">mdi-map-marker-outline</v-icon> {{ item.country || "-" }}</div>
+                </td>
+                <td data-label="Onboarding">
+                  <span class="onboarding-chip" :style="{ '--chip': onboardingColor(item.onboarding_status) }">{{ onboardingLabel(item.onboarding_status) }}</span>
+                </td>
+                <td data-label="Last access">
+                  <div class="cell-main">{{ formatDate(item.last_access) }}</div>
+                  <div class="cell-sub" :class="`inactive--${inactivityLevel(item.last_access)}`">{{ getInactivityDaysText(item.last_access) }}</div>
+                </td>
+                <td data-label="Events" class="text-center">
+                  <button type="button" class="count-btn" :disabled="!item.events_count" @click="showRetailerEventsList(item)">{{ item.events_count }}</button>
+                </td>
+                <td data-label="Players" class="text-center">
+                  <button type="button" class="count-btn" :disabled="!item.players_count" @click="showRetailerPlayersList(item)">{{ item.players_count }}</button>
+                </td>
+                <td class="text-right cell--action">
+                  <v-btn variant="tonal" size="small" class="text-none" @click="showRetailerDetails(item)">Manage</v-btn>
+                </td>
+              </tr>
+              <tr v-if="filteredRetailers.length === 0">
+                <td colspan="7" class="panel__empty">No retailers match these filters.</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </div>
+      </div>
+    </template>
 
-                  <!-- Custom Heroes -->
-                  <div class="mb-4">
-                    <div class="d-flex justify-space-between align-center mb-1">
-                      <span class="text-body-2 font-weight-bold text-white">
-                        <v-icon start size="18" color="amber-lighten-2">mdi-shield-sword</v-icon> Playable Heroes (Custom)
-                      </span>
-                      <span class="text-caption text-grey">{{ dashboardData.feature_usage.heroes_creators }} users</span>
-                    </div>
-                    <v-progress-linear color="amber" height="6" :model-value="(dashboardData.feature_usage.heroes_creators / dashboardData.saude_geral.total_users) * 100" rounded></v-progress-linear>
-                    <div class="d-flex justify-space-between text-caption text-grey-lighten-2 mt-1">
-                      <span>Total heroes: {{ dashboardData.feature_usage.heroes_count }}</span>
-                      <span>Average: {{ dashboardData.feature_usage.heroes_avg }} per creator</span>
-                    </div>
-                  </div>
+    <!-- A metric: what it means and its last weeks -->
+    <v-dialog v-model="detail.visible" max-width="720" scrollable>
+      <v-card v-if="detailMetric" class="support-dialog rounded-xl">
+        <div class="support-dialog__head">
+          <div>
+            <small>Metric</small>
+            <strong>{{ detailMetric.label }}</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" @click="detail.visible = false" />
+        </div>
+        <v-card-text class="support-dialog__body">
+          <div class="detail-hero">
+            <v-icon size="28">{{ detailMetric.icon }}</v-icon>
+            <div>
+              <strong>{{ formatMetric(detailMetric, detailValue) }}</strong>
+              <span>{{ selectedWeek ? getWeekLabelByValue(selectedWeek) : "Now" }}</span>
+            </div>
+            <span v-if="detailDelta" class="kpi__delta" :class="detailDelta.cls">
+              <v-icon size="14">{{ detailDelta.icon }}</v-icon>{{ detailDelta.text }} <em>vs last week</em>
+            </span>
+          </div>
+          <div v-if="detailMetric.target" class="kpi__target">
+            <span class="kpi__bar"><span :style="{ width: `${Math.min(100, (detailValue / detailMetric.target) * 100)}%` }"></span></span>
+            <small>
+              {{ Math.min(100, Math.round((detailValue / detailMetric.target) * 100)) }}% of the Season 1 target ({{ formatNumber(detailMetric.target) }})
+              <template v-if="detailValue < detailMetric.target"> · {{ formatNumber(detailMetric.target - detailValue) }} to go</template>
+            </small>
+          </div>
 
-                  <!-- Local Events -->
-                  <div>
-                    <div class="d-flex justify-space-between align-center mb-1">
-                      <span class="text-body-2 font-weight-bold text-white">
-                        <v-icon start size="18" color="purple-lighten-2">mdi-map-marker-radius</v-icon> Local Events & Mesas
-                      </span>
-                      <span class="text-caption text-grey">{{ dashboardData.feature_usage.events_participants }} participants</span>
-                    </div>
-                    <v-progress-linear color="purple" height="6" :model-value="(dashboardData.feature_usage.events_participants / dashboardData.saude_geral.total_users) * 100" rounded></v-progress-linear>
-                    <div class="d-flex justify-space-between text-caption text-grey-lighten-2 mt-1">
-                      <span>Active mesas: {{ dashboardData.feature_usage.events_tables }}</span>
-                      <span>Active QR codes: {{ dashboardData.feature_usage.events_qrs }}</span>
-                    </div>
-                  </div>
-                </div>
-              </v-card>
-            </v-col>
+          <section class="dlg-section">
+            <h3>What it means</h3>
+            <p class="detail-text">{{ detailMetric.explain }}</p>
+            <p class="detail-text detail-text--muted"><strong>How it's counted:</strong> {{ detailMetric.counted }}</p>
+          </section>
 
-            <!-- Customizations & Social -->
-            <v-col cols="12" md="6">
-              <v-card color="primary" elevation="2" rounded="lg" class="h-100 pa-4">
-                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
-                  <v-icon start color="warning">mdi-account-cog</v-icon> CUSTOMIZATION & SOCIALS
-                </v-card-title>
-                <v-row dense>
-                  <v-col cols="6" class="pb-2 pr-1">
-                    <div class="stat-inner pa-3 rounded text-center">
-                      <div class="text-caption text-grey-lighten-2 mb-1">PROFILE PICTURES</div>
-                      <div class="text-h5 font-weight-bold text-white">{{ dashboardData.feature_usage.profile_pic }}</div>
-                      <div class="text-caption text-grey">users customized</div>
-                    </div>
-                  </v-col>
-                  <v-col cols="6" class="pb-2 pl-1">
-                    <div class="stat-inner pa-3 rounded text-center">
-                      <div class="text-caption text-grey-lighten-2 mb-1">PROFILE BACKGROUNDS</div>
-                      <div class="text-h5 font-weight-bold text-white">{{ dashboardData.feature_usage.profile_bg }}</div>
-                      <div class="text-caption text-grey">users customized</div>
-                    </div>
-                  </v-col>
-                  <v-col cols="6" class="pt-2 pr-1">
-                    <div class="stat-inner pa-3 rounded text-center">
-                      <div class="text-caption text-grey-lighten-2 mb-1">ADDRESS ZIPCODES</div>
-                      <div class="text-h5 font-weight-bold text-white">{{ dashboardData.feature_usage.profile_zip }}</div>
-                      <div class="text-caption text-grey">profiles filled</div>
-                    </div>
-                  </v-col>
-                  <v-col cols="6" class="pt-2 pl-1">
-                    <div class="stat-inner pa-3 rounded text-center">
-                      <div class="text-caption text-grey-lighten-2 mb-1">ACTIVE FRIENDSHIPS</div>
-                      <div class="text-h5 font-weight-bold text-white">{{ dashboardData.feature_usage.friends_friendships }}</div>
-                      <div class="text-caption text-grey">{{ dashboardData.feature_usage.friends_interacted }} users interacted</div>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
-
-          <!-- SKU analysis section -->
-          <v-row>
-            <!-- Campaigns by SKU -->
-            <v-col cols="12" md="4">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100">
-                <v-card-title class="cinzel-text text-subtitle-1 text-white px-0 border-b pb-2 mb-3">
-                  <v-icon start color="warning">mdi-television-play</v-icon> ACTIVE CAMPAIGNS BY SKU
-                </v-card-title>
-                <v-list bg-color="transparent" class="pa-0">
-                  <v-list-item v-for="item in dashboardData.sku_analysis.campaigns" :key="item.sku" class="hover-bg py-1">
-                    <v-list-item-title class="font-weight-medium text-white">{{ item.sku }}</v-list-item-title>
-                    <template v-slot:append>
-                       <v-chip size="small" class="font-weight-black" style="background-color: rgba(255, 255, 255, 0.1) !important; color: white !important;">{{ item.count }}</v-chip>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-col>
-
-            <!-- Owned by SKU -->
-            <v-col cols="12" md="4">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100">
-                <v-card-title class="cinzel-text text-subtitle-1 text-white px-0 border-b pb-2 mb-3">
-                  <v-icon start color="warning">mdi-package-variant-closed</v-icon> OWNED BY SKU
-                </v-card-title>
-                <v-list bg-color="transparent" class="pa-0 overflow-y-auto" max-height="300">
-                  <v-list-item v-for="item in dashboardData.sku_analysis.owned" :key="item.sku" class="hover-bg py-1">
-                    <v-list-item-title class="font-weight-medium text-white">{{ item.sku }}</v-list-item-title>
-                    <template v-slot:append>
-                      <v-chip size="small" color="success" class="font-weight-black">{{ item.count }}</v-chip>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-col>
-
-            <!-- Wishlist by SKU -->
-            <v-col cols="12" md="4">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4 h-100">
-                <v-card-title class="cinzel-text text-subtitle-1 text-white px-0 border-b pb-2 mb-3">
-                  <v-icon start color="warning">mdi-heart</v-icon> WISHLIST BY SKU
-                </v-card-title>
-                <v-list bg-color="transparent" class="pa-0 overflow-y-auto" max-height="300">
-                  <v-list-item v-for="item in dashboardData.sku_analysis.wishlist" :key="item.sku" class="hover-bg py-1">
-                    <v-list-item-title class="font-weight-medium text-white">{{ item.sku }}</v-list-item-title>
-                    <template v-slot:append>
-                      <v-chip size="small" color="warning" class="font-weight-black">{{ item.count }}</v-chip>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </v-card>
-            </v-col>
-          </v-row>
-
-          <!-- Trend & Analytics Charts (9 Grid) -->
-          <v-row class="mt-6 mb-6">
-            <v-col cols="12">
-              <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
-                <v-card-title class="cinzel-text text-h6 text-white px-0 border-b pb-2 mb-4">
-                  <v-icon start color="warning">mdi-chart-areaspline</v-icon> PERFORMANCE TRENDS & ANALYTICS CHARTS
-                </v-card-title>
-                <v-row>
-                  <!-- Chart 1: Progress vs Meta -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">1. Progress vs Meta S1</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cGoals"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 2: User Growth Trend -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">2. Weekly User Growth</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cUsers"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 3: Active Users by Window -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">3. Activity Windows</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cWindows"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 4: Momentum (30d Active) -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">4. Activity Momentum (30d)</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cMom"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 5: Feature Adoption -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">5. Feature Adoption</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cFeat"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 6: Active Campaigns by SKU -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">6. Campaigns by SKU</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cSKUCamp"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 7: Owned by SKU -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">7. Owned by SKU (Top 7)</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cSKUOwn"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 8: Wishlist by SKU -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">8. Wishlist by SKU (Top 7)</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cSKUWish"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                  <!-- Chart 9: Geographic Distribution -->
-                  <v-col cols="12" md="4" class="py-2">
-                    <v-card color="#1f222b" rounded="lg" class="pa-3 h-100" style="border: 1px solid rgba(255, 255, 255, 0.08) !important;">
-                      <div class="text-subtitle-2 font-weight-bold text-warning mb-2 text-uppercase cinzel-text">9. Geographic (Top 5)</div>
-                      <div style="position: relative; height: 220px; width: 100%;">
-                        <canvas ref="cGeog"></canvas>
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-          </v-row>
-        </v-window-item>
-
-        <!-- TAB 2: RETAILERS -->
-        <v-window-item value="retailers">
-          <v-card color="primary" elevation="2" rounded="lg" class="pa-4">
-            <!-- Search & Filters -->
-            <v-row class="mb-4" align="center">
-              <v-col cols="12" md="3">
-                <v-text-field
-                  v-model="search"
-                  prepend-inner-icon="mdi-magnify"
-                  label="Pesquisar lojistas..."
-                  variant="solo-filled"
-                  hide-details
-                  color="warning"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <v-select
-                  v-model="storeStatusFilter"
-                  :items="storeStatusOptions"
-                  label="Status da Loja"
-                  variant="solo-filled"
-                  hide-details
-                  color="warning"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <v-select
-                  v-model="onboardingStatusFilter"
-                  :items="onboardingStatusOptions"
-                  label="Etapa de Onboarding"
-                  variant="solo-filled"
-                  hide-details
-                  color="warning"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="3">
-                <v-select
-                  v-model="countryFilter"
-                  :items="countryOptions"
-                  label="Filtrar por País"
-                  variant="solo-filled"
-                  hide-details
-                  color="warning"
-                ></v-select>
-              </v-col>
-            </v-row>
-            <v-row class="mb-4" align="center">
-              <v-col cols="12" sm="6" md="4">
-                <v-select
-                  v-model="lastActivityFilter"
-                  :items="lastActivityOptions"
-                  label="Última Atividade"
-                  variant="solo-filled"
-                  hide-details
-                  color="warning"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="4">
-                <v-select
-                  v-model="activityMetricsFilter"
-                  :items="activityMetricsOptions"
-                  label="Métricas (Eventos/Jogadores)"
-                  variant="solo-filled"
-                  hide-details
-                  color="warning"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="4" class="d-flex justify-sm-end">
-                <v-btn
-                  color="success"
-                  prepend-icon="mdi-export"
-                  @click="exportToCSV"
-                  class="font-weight-bold w-100"
-                  height="48"
-                >
-                  Exportar CSV
-                </v-btn>
-              </v-col>
-            </v-row>
-
-            <!-- Lojistas Table -->
-            <v-table class="retailers-table bg-transparent text-white">
+          <section v-if="detailMetric.history !== false" class="dlg-section">
+            <h3>Last {{ historyWeeks.length }} weeks</h3>
+            <v-progress-linear v-if="historyLoading" indeterminate color="accent" class="mb-2" />
+            <div v-show="detailRows.length > 1" class="chart-box chart-box--small">
+              <canvas ref="cDetail" :aria-label="`${detailMetric.label} per week`"></canvas>
+            </div>
+            <v-table v-if="detailRows.length" density="compact" class="retailers-table history-table">
               <thead>
-                <tr class="border-b">
-                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Retailer (Account)</th>
-                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Store / Country</th>
-                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Onboarding Status</th>
-                  <th class="text-left font-weight-black text-warning py-3 cinzel-text">Last Access</th>
-                  <th class="text-center font-weight-black text-warning py-3 cinzel-text">Events / Players</th>
-                  <th class="text-center font-weight-black text-warning py-3 cinzel-text">Actions</th>
-                </tr>
+                <tr><th>Week</th><th class="text-right">Value</th><th class="text-right">Change</th></tr>
               </thead>
               <tbody>
-                <tr v-for="item in filteredRetailers" :key="item.stores_pk ? ('store-' + item.stores_pk) : ('user-' + item.users_pk)" class="border-b hover-row">
-                  <td class="py-3">
-                    <div class="d-flex align-center flex-wrap ga-1">
-                      <span class="font-weight-bold text-white text-subtitle-1">{{ item.name }}</span>
-                      <v-chip
-                        size="x-small"
-                        :color="item.verified !== false ? 'success' : 'red-darken-2'"
-                        class="font-weight-black text-uppercase"
-                      >
-                        {{ item.verified !== false ? 'Validated' : 'Not Validated' }}
-                      </v-chip>
-                    </div>
-                    <div class="text-caption text-grey-lighten-2">{{ item.email }}</div>
-                    <div class="text-caption text-grey-lighten-2" v-if="item.phone">Tel: {{ item.phone }}</div>
-                  </td>
-                  <td class="py-3">
-                    <div class="font-weight-medium text-white">{{ item.store_name }}</div>
-                    <div class="text-caption text-warning font-weight-bold">
-                      <v-icon start size="14">mdi-earth</v-icon> {{ item.country }}
-                    </div>
-                  </td>
-                  <td class="py-3">
-                    <v-chip size="small" :color="getStatusColor(item.onboarding_status)" class="font-weight-black">
-                      {{ item.onboarding_status }}
-                    </v-chip>
-                  </td>
-                  <td class="py-3">
-                    <div class="d-flex align-center">
-                      <v-badge
-                        dot
-                        :color="getInactivityAlertColor(item.last_access)"
-                        inline
-                        class="mr-2"
-                        v-if="getInactivityDays(item.last_access) >= 3"
-                      ></v-badge>
-                      <div>
-                        <div class="font-weight-medium">{{ formatDate(item.last_access) }}</div>
-                        <div class="text-caption text-grey-lighten-1">
-                          {{ getInactivityDaysText(item.last_access) }}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td class="py-3 text-center">
-                    <div class="d-flex justify-center ga-1">
-                      <v-chip
-                        size="small"
-                        color="purple"
-                        variant="flat"
-                        class="font-weight-bold"
-                        @click="showRetailerEventsList(item)"
-                        style="cursor: pointer;"
-                      >
-                        {{ item.events_count }} events
-                      </v-chip>
-                      <v-chip
-                        size="small"
-                        color="blue"
-                        variant="flat"
-                        class="font-weight-bold"
-                        @click="showRetailerPlayersList(item)"
-                        style="cursor: pointer;"
-                      >
-                        {{ item.players_count }} players
-                      </v-chip>
-                    </div>
-                  </td>
-                  <td class="py-3 text-center">
-                    <v-btn
-                      color="warning"
-                      variant="flat"
-                      size="small"
-                      prepend-icon="mdi-cog"
-                      class="font-weight-bold"
-                      @click="showRetailerDetails(item)"
-                    >
-                      Manage
-                    </v-btn>
-                  </td>
-                </tr>
-                <tr v-if="filteredRetailers.length === 0">
-                  <td colspan="6" class="text-center py-8 text-grey-lighten-1">
-                    No retailers match the current filters.
-                  </td>
+                <tr v-for="row in [...detailRows].reverse()" :key="row.week">
+                  <td>{{ row.week }}</td>
+                  <td class="text-right"><strong>{{ formatMetric(detailMetric, row.value) }}</strong></td>
+                  <td class="text-right" :class="row.delta?.cls">{{ row.delta ? row.delta.text : "–" }}</td>
                 </tr>
               </tbody>
             </v-table>
-          </v-card>
-        </v-window-item>
-      </v-window>
-    </div>
+            <p v-else-if="!historyLoading" class="panel__empty">No earlier weeks to compare yet.</p>
+          </section>
 
-    <!-- Retailer Details Modal Dialog -->
-    <v-dialog v-model="detailsDialog" max-width="700" scrollable v-if="selectedRetailer">
-      <v-card color="primary" class="text-white rounded-lg">
-        <v-card-title class="d-flex justify-space-between align-center border-b pb-3 mb-4 pt-4 px-6">
-          <span class="text-h5 font-weight-black cinzel-text text-warning text-uppercase">
-            Retailer Details
-          </span>
-          <v-btn icon @click="detailsDialog = false" variant="text" color="grey">
-            <v-icon>mdi-close</v-icon>
+          <v-btn
+            v-if="detailMetric.tab === 'retailers'"
+            variant="tonal"
+            class="text-none align-self-start"
+            prepend-icon="mdi-storefront-outline"
+            @click="goToRetailers()"
+          >
+            Open the retailer list
           </v-btn>
-        </v-card-title>
-
-        <v-card-text class="px-6 pb-6 pt-0">
-          <v-row dense>
-            <!-- Account Validation Banner (Prominent Action for Fake/Not Validated Accounts) -->
-            <v-col cols="12" class="mb-4">
-              <v-card
-                :color="selectedRetailer.verified !== false ? 'rgba(76, 175, 80, 0.12)' : 'rgba(244, 67, 54, 0.12)'"
-                rounded="lg"
-                class="pa-4 d-flex flex-column flex-sm-row justify-space-between align-start align-sm-center ga-3"
-                :style="selectedRetailer.verified !== false ? 'border: 1px solid rgba(76, 175, 80, 0.5) !important;' : 'border: 1px solid rgba(244, 67, 54, 0.5) !important;'"
-              >
-                <div>
-                  <div class="d-flex align-center ga-2 mb-1">
-                    <v-icon :color="selectedRetailer.verified !== false ? 'success' : 'red'">
-                      {{ selectedRetailer.verified !== false ? 'mdi-check-decagram' : 'mdi-alert-decagram' }}
-                    </v-icon>
-                    <span class="font-weight-black text-subtitle-1 cinzel-text" :class="selectedRetailer.verified !== false ? 'text-success' : 'text-red'">
-                      {{ selectedRetailer.verified !== false ? 'VALIDATED RETAILER' : 'NOT VALIDATED / FAKE STORE' }}
-                    </span>
-                  </div>
-                  <p class="text-caption text-grey-lighten-1 mb-0">
-                    {{ selectedRetailer.verified !== false ? 'This account is verified as a legitimate lojista.' : 'This account is flagged as not validated / fake lojista and can be filtered out.' }}
-                  </p>
-                </div>
-                <v-btn
-                  :color="selectedRetailer.verified !== false ? 'red-darken-2' : 'success'"
-                  variant="flat"
-                  class="font-weight-bold shrink-0"
-                  :loading="savingValidation"
-                  @click="toggleValidationStatus(!selectedRetailer.verified)"
-                >
-                  <v-icon start>{{ selectedRetailer.verified !== false ? 'mdi-account-cancel' : 'mdi-account-check' }}</v-icon>
-                  {{ selectedRetailer.verified !== false ? 'INVALIDATE ACCOUNT' : 'VALIDATE ACCOUNT' }}
-                </v-btn>
-              </v-card>
-            </v-col>
-
-            <!-- Account Details Card -->
-            <v-col cols="12" class="mb-4">
-              <v-card color="surface" rounded="lg" class="pa-4">
-                <div class="text-overline text-warning mb-2 font-weight-black cinzel-text">ACCOUNT INFO</div>
-                <v-row dense>
-                  <v-col cols="6" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">NAME</div>
-                    <div class="text-body-1 font-weight-bold">{{ selectedRetailer.name }}</div>
-                  </v-col>
-                  <v-col cols="6" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">NICKNAME</div>
-                    <div class="text-body-1 font-weight-bold">{{ selectedRetailer.user_name }}</div>
-                  </v-col>
-                  <v-col cols="12" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">EMAIL</div>
-                    <div class="text-body-1 font-weight-bold">
-                      <a :href="'mailto:' + selectedRetailer.email" class="text-warning text-decoration-none">
-                        {{ selectedRetailer.email }}
-                      </a>
-                    </div>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="text-caption text-grey-lighten-2">JOIN DATE</div>
-                    <div class="text-body-1">{{ formatDate(selectedRetailer.join_date) }}</div>
-                  </v-col>
-                  <v-col cols="6">
-                    <div class="text-caption text-grey-lighten-2">USER ID</div>
-                    <div class="text-body-1">#{{ selectedRetailer.users_pk }}</div>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-
-            <!-- Onboarding Management (Admin / Support editable fields) -->
-            <v-col cols="12" class="mb-4">
-              <v-card color="surface" rounded="lg" class="pa-4 border-warning border">
-                <div class="text-overline text-warning mb-3 font-weight-black cinzel-text">
-                  <v-icon start size="16">mdi-cog-outline</v-icon> MANAGE ONBOARDING
-                </div>
-                <v-row dense>
-                  <!-- Onboarding Status Select -->
-                  <v-col cols="12" sm="6" class="pb-2">
-                    <v-select
-                      v-model="editOnboardingStatus"
-                      :items="onboardingStatusOptions.slice(1)" 
-                      label="Onboarding Status"
-                      variant="outlined"
-                      density="compact"
-                      color="warning"
-                      hide-details
-                    ></v-select>
-                  </v-col>
-                  
-                  <!-- Phone Number input -->
-                  <v-col cols="12" sm="6" class="pb-2">
-                    <v-text-field
-                      v-model="editPhone"
-                      label="Phone / WhatsApp"
-                      variant="outlined"
-                      density="compact"
-                      color="warning"
-                      hide-details
-                      prepend-inner-icon="mdi-phone"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-col>
-
-            <!-- Store Details Card -->
-            <v-col cols="12">
-              <v-card color="surface" rounded="lg" class="pa-4" v-if="selectedRetailer.stores_pk">
-                <div class="d-flex justify-space-between align-center mb-2">
-                  <span class="text-overline text-warning font-weight-black cinzel-text">STORE INFO</span>
-                  <div class="d-flex gap-1">
-                    <v-chip size="small" :color="selectedRetailer.store_verified ? 'success' : 'warning'" class="mr-1 font-weight-black">
-                      {{ selectedRetailer.store_verified ? 'Verified' : 'Unverified' }}
-                    </v-chip>
-                    <v-chip size="small" :color="selectedRetailer.store_active ? 'blue' : 'grey'" class="font-weight-black">
-                      {{ selectedRetailer.store_active ? 'Active' : 'Inactive' }}
-                    </v-chip>
-                  </div>
-                </div>
-
-                <v-progress-circular v-if="loadingStoreDetails" indeterminate color="warning" class="my-4 d-block mx-auto"></v-progress-circular>
-
-                <v-row dense v-else-if="storeDetails">
-                  <v-col cols="12" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">STORE NAME</div>
-                    <div class="text-body-1 font-weight-black">{{ storeDetails.name }}</div>
-                  </v-col>
-                  <v-col cols="12" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">ADDRESS</div>
-                    <div class="text-body-2">{{ storeDetails.address }}</div>
-                  </v-col>
-                  <v-col cols="6" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">ZIPCODE</div>
-                    <div class="text-body-2">{{ storeDetails.zip_code }}</div>
-                  </v-col>
-                  <v-col cols="6" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">STATE</div>
-                    <div class="text-body-2">{{ storeDetails.state || '-' }}</div>
-                  </v-col>
-                  <v-col cols="12" class="pb-2" v-if="storeDetails.web_site">
-                    <div class="text-caption text-grey-lighten-2">WEBSITE</div>
-                    <div class="text-body-2">
-                      <a :href="storeDetails.web_site" target="_blank" class="text-warning text-decoration-none font-weight-bold">
-                        {{ storeDetails.web_site }}
-                      </a>
-                    </div>
-                  </v-col>
-                  <v-col cols="6" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">COORDINATES</div>
-                    <div class="text-body-2 text-grey">Lat: {{ storeDetails.latitude || '-' }} | Lng: {{ storeDetails.longitude || '-' }}</div>
-                  </v-col>
-                  <v-col cols="6" class="pb-2">
-                    <div class="text-caption text-grey-lighten-2">MERCHANT ID</div>
-                    <div class="text-body-2 text-grey-lighten-1">{{ storeDetails.merchant_id || '-' }}</div>
-                  </v-col>
-
-                  <!-- Map section -->
-                  <v-col cols="12" class="mt-3" v-if="storeDetails.latitude">
-                    <v-responsive aspect-ratio="16/9" style="width: 100%; height: 180px;" class="rounded border">
-                      <iframe
-                        :src="`https://www.google.com/maps?q=${storeDetails.latitude},${storeDetails.longitude}&z=15&output=embed`"
-                        frameborder="0"
-                        style="border: 0; width: 100%; height: 100%"
-                        allowfullscreen
-                        loading="lazy"
-                      />
-                    </v-responsive>
-                  </v-col>
-                </v-row>
-              </v-card>
-
-              <!-- No store registered message -->
-              <v-card color="surface" rounded="lg" class="pa-4 text-center py-6" v-else>
-                <v-icon size="40" color="grey" class="mb-2">mdi-store-off</v-icon>
-                <div class="text-body-1 font-weight-bold text-grey-lighten-1">No store registered</div>
-                <div class="text-caption text-grey">This retailer has not set up their store profile yet.</div>
-              </v-card>
-            </v-col>
-          </v-row>
         </v-card-text>
-
-        <v-card-actions class="px-6 pb-4 pt-0 justify-end ga-2">
-          <v-btn color="grey" variant="text" class="font-weight-bold" @click="detailsDialog = false" :disabled="saving">
-            Cancel
-          </v-btn>
-          <v-btn color="warning" variant="flat" class="font-weight-bold px-4" @click="saveRetailerChanges" :loading="saving">
-            Save Changes
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Retailer Events Dialog -->
-    <v-dialog v-model="eventsDialog" max-width="800" scrollable>
-      <v-card color="primary" class="text-white rounded-lg">
-        <v-card-title class="d-flex justify-space-between align-center border-b pb-3 mb-4 pt-4 px-6">
-          <span class="text-h5 font-weight-black cinzel-text text-warning text-uppercase">
-            Eventos da Loja: {{ eventsRetailerName }}
-          </span>
-          <v-btn icon @click="eventsDialog = false" variant="text" color="grey">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
+    <!-- Retailer details -->
+    <v-dialog v-model="detailsDialog" max-width="680" scrollable v-if="selectedRetailer">
+      <v-card class="support-dialog rounded-xl">
+        <div class="support-dialog__head">
+          <div>
+            <small>Retailer</small>
+            <strong>{{ selectedRetailer.name }}</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" @click="detailsDialog = false" />
+        </div>
 
-        <v-card-text class="px-6 pb-6 pt-0">
-          <div v-if="loadingEvents" class="d-flex flex-column justify-center align-center py-8">
-            <v-progress-circular indeterminate color="warning" size="48" class="mb-2"></v-progress-circular>
-            <span class="text-body-2 text-grey">Carregando eventos...</span>
+        <v-card-text class="support-dialog__body">
+          <!-- Validation -->
+          <div class="validation" :class="selectedRetailer.verified !== false ? 'validation--ok' : 'validation--bad'">
+            <v-icon size="22">{{ selectedRetailer.verified !== false ? "mdi-check-decagram" : "mdi-alert-decagram" }}</v-icon>
+            <div>
+              <strong>{{ selectedRetailer.verified !== false ? "Validated retailer" : "Not validated" }}</strong>
+              <span>{{ selectedRetailer.verified !== false ? "This account is a confirmed store owner." : "Flagged as not validated or fake; it can be filtered out." }}</span>
+            </div>
+            <v-btn
+              :color="selectedRetailer.verified !== false ? 'error' : 'success'"
+              variant="flat"
+              size="small"
+              class="text-none font-weight-bold"
+              :loading="savingValidation"
+              @click="toggleValidationStatus(!selectedRetailer.verified)"
+            >
+              {{ selectedRetailer.verified !== false ? "Invalidate" : "Validate" }}
+            </v-btn>
           </div>
 
-          <div v-else-if="retailerEvents.length === 0" class="text-center py-8 text-grey">
-            <v-icon size="48" class="mb-2" color="grey">mdi-calendar-remove</v-icon>
-            <div class="text-body-1 font-weight-bold">Nenhum evento ativo</div>
-            <p class="text-caption">Esta loja não possui eventos ativos criados.</p>
-          </div>
+          <!-- Account -->
+          <section class="dlg-section">
+            <h3>Account</h3>
+            <dl class="facts">
+              <div><dt>Nickname</dt><dd>{{ selectedRetailer.user_name }}</dd></div>
+              <div><dt>User ID</dt><dd>#{{ selectedRetailer.users_pk }}</dd></div>
+              <div class="facts__wide"><dt>Email</dt><dd><a :href="'mailto:' + selectedRetailer.email">{{ selectedRetailer.email }}</a></dd></div>
+              <div><dt>Joined</dt><dd>{{ formatDate(selectedRetailer.join_date) }}</dd></div>
+              <div><dt>Last access</dt><dd>{{ formatDate(selectedRetailer.last_access) }}</dd></div>
+            </dl>
+          </section>
 
-          <v-table class="bg-transparent text-white" v-else>
+          <!-- Onboarding (editable) -->
+          <section class="dlg-section">
+            <h3>Onboarding</h3>
+            <div class="dlg-fields">
+              <v-select v-model="editOnboardingStatus" :items="toItems(onboardingStatusOptions.slice(1))" label="Status" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+              <v-text-field v-model="editPhone" label="Phone / WhatsApp" prepend-inner-icon="mdi-phone" variant="solo-filled" density="compact" bg-color="secondary" flat hide-details />
+            </div>
+          </section>
+
+          <!-- Store -->
+          <section class="dlg-section">
+            <h3>
+              Store
+              <template v-if="selectedRetailer.stores_pk">
+                <span class="mini-chip" :class="selectedRetailer.store_verified ? 'mini-chip--ok' : 'mini-chip--warn'">{{ selectedRetailer.store_verified ? "Verified" : "Unverified" }}</span>
+                <span class="mini-chip" :class="selectedRetailer.store_active ? 'mini-chip--ok' : ''">{{ selectedRetailer.store_active ? "Active" : "Inactive" }}</span>
+              </template>
+            </h3>
+            <template v-if="selectedRetailer.stores_pk">
+              <v-progress-linear v-if="loadingStoreDetails" indeterminate color="accent" />
+              <template v-else-if="storeDetails">
+                <dl class="facts">
+                  <div class="facts__wide"><dt>Name</dt><dd>{{ storeDetails.name }}</dd></div>
+                  <div class="facts__wide"><dt>Address</dt><dd>{{ storeDetails.address }}</dd></div>
+                  <div><dt>Zip code</dt><dd>{{ storeDetails.zip_code || "-" }}</dd></div>
+                  <div><dt>State</dt><dd>{{ storeDetails.state || "-" }}</dd></div>
+                  <div v-if="storeDetails.web_site" class="facts__wide"><dt>Website</dt><dd><a :href="storeDetails.web_site" target="_blank" rel="noopener">{{ storeDetails.web_site }}</a></dd></div>
+                  <div><dt>Merchant ID</dt><dd>{{ storeDetails.merchant_id || "-" }}</dd></div>
+                </dl>
+                <iframe
+                  v-if="storeDetails.latitude"
+                  class="store-map"
+                  :src="`https://www.google.com/maps?q=${storeDetails.latitude},${storeDetails.longitude}&z=15&output=embed`"
+                  loading="lazy"
+                  title="Store location"
+                />
+              </template>
+            </template>
+            <p v-else class="panel__empty"><v-icon size="18">mdi-store-off-outline</v-icon> This retailer has not set up a store yet.</p>
+          </section>
+        </v-card-text>
+
+        <div class="support-dialog__actions">
+          <v-btn variant="text" class="text-none" :disabled="saving" @click="detailsDialog = false">Cancel</v-btn>
+          <v-btn color="accent" variant="flat" class="text-none font-weight-bold" :loading="saving" @click="saveRetailerChanges">Save changes</v-btn>
+        </div>
+      </v-card>
+    </v-dialog>
+
+    <!-- A store's events -->
+    <v-dialog v-model="eventsDialog" max-width="720" scrollable>
+      <v-card class="support-dialog rounded-xl">
+        <div class="support-dialog__head">
+          <div>
+            <small>Events</small>
+            <strong>{{ eventsRetailerName }}</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" @click="eventsDialog = false" />
+        </div>
+        <v-card-text class="support-dialog__body">
+          <v-progress-linear v-if="loadingEvents" indeterminate color="accent" />
+          <p v-else-if="retailerEvents.length === 0" class="panel__empty">This store has no events yet.</p>
+          <v-table v-else class="retailers-table">
             <thead>
-              <tr class="border-b">
-                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Cenário</th>
-                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Data do Evento</th>
-                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Jogadores</th>
-                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Status</th>
-              </tr>
+              <tr><th>Wing</th><th>Date</th><th class="text-center">Players</th><th class="text-center">Status</th></tr>
             </thead>
             <tbody>
-              <tr v-for="evt in retailerEvents" :key="evt.events_pk" class="border-b hover-row">
-                <td class="py-3 font-weight-bold">{{ evt.scenario }}</td>
-                <td class="py-3">{{ formatDate(evt.event_date) }}</td>
-                <td class="py-3 text-center">
-                  <v-chip size="small" color="blue" class="font-weight-black">
-                    {{ evt.players_count }} jogadores
-                  </v-chip>
-                </td>
-                <td class="py-3 text-center">
-                  <v-chip size="small" :color="evt.active ? 'success' : 'grey'" class="font-weight-black">
-                    {{ evt.active ? 'Ativo' : 'Inativo' }}
-                  </v-chip>
-                </td>
+              <tr v-for="evt in retailerEvents" :key="evt.events_pk">
+                <td class="cell-main">{{ evt.scenario }}</td>
+                <td>{{ formatDate(evt.event_date) }}</td>
+                <td class="text-center">{{ evt.players_count }}</td>
+                <td class="text-center"><span class="mini-chip" :class="evt.active ? 'mini-chip--ok' : ''">{{ evt.active ? "Active" : "Inactive" }}</span></td>
               </tr>
             </tbody>
           </v-table>
         </v-card-text>
-
-        <v-card-actions class="px-6 pb-4 pt-0 justify-end">
-          <v-btn color="warning" variant="flat" class="font-weight-bold px-4" @click="eventsDialog = false">
-            Fechar
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <!-- Retailer Players Dialog -->
-    <v-dialog v-model="playersDialog" max-width="800" scrollable>
-      <v-card color="primary" class="text-white rounded-lg">
-        <v-card-title class="d-flex justify-space-between align-center border-b pb-3 mb-4 pt-4 px-6">
-          <span class="text-h5 font-weight-black cinzel-text text-warning text-uppercase">
-            Jogadores Frequentes: {{ playersRetailerName }}
-          </span>
-          <v-btn icon @click="playersDialog = false" variant="text" color="grey">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-
-        <v-card-text class="px-6 pb-6 pt-0">
-          <div v-if="loadingPlayers" class="d-flex flex-column justify-center align-center py-8">
-            <v-progress-circular indeterminate color="warning" size="48" class="mb-2"></v-progress-circular>
-            <span class="text-body-2 text-grey">Carregando jogadores...</span>
+    <!-- A store's players -->
+    <v-dialog v-model="playersDialog" max-width="720" scrollable>
+      <v-card class="support-dialog rounded-xl">
+        <div class="support-dialog__head">
+          <div>
+            <small>Regular players</small>
+            <strong>{{ playersRetailerName }}</strong>
           </div>
-
-          <div v-else-if="retailerPlayers.length === 0" class="text-center py-8 text-grey">
-            <v-icon size="48" class="mb-2" color="grey">mdi-account-off</v-icon>
-            <div class="text-body-1 font-weight-bold">Nenhum jogador frequente</div>
-            <p class="text-caption">Nenhum jogador participou de eventos nesta loja ainda.</p>
-          </div>
-
-          <v-table class="bg-transparent text-white" v-else>
+          <v-btn icon="mdi-close" variant="text" @click="playersDialog = false" />
+        </div>
+        <v-card-text class="support-dialog__body">
+          <v-progress-linear v-if="loadingPlayers" indeterminate color="accent" />
+          <p v-else-if="retailerPlayers.length === 0" class="panel__empty">No player has joined this store's events yet.</p>
+          <v-table v-else class="retailers-table">
             <thead>
-              <tr class="border-b">
-                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Jogador</th>
-                <th class="text-left font-weight-black text-warning py-3 cinzel-text">Email</th>
-                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Eventos Jogados</th>
-                <th class="text-center font-weight-black text-warning py-3 cinzel-text">Última Visita</th>
-              </tr>
+              <tr><th>Player</th><th>Email</th><th class="text-center">Events</th><th class="text-center">Last visit</th></tr>
             </thead>
             <tbody>
-              <tr v-for="player in retailerPlayers" :key="player.users_pk" class="border-b hover-row">
-                <td class="py-3">
-                  <div class="font-weight-bold">{{ player.player_nick }}</div>
-                  <div class="text-caption text-grey" v-if="player.player_name">{{ player.player_name }}</div>
+              <tr v-for="player in retailerPlayers" :key="player.users_pk">
+                <td>
+                  <div class="cell-main">{{ player.player_nick }}</div>
+                  <div v-if="player.player_name" class="cell-sub">{{ player.player_name }}</div>
                 </td>
-                <td class="py-3 text-caption text-grey-lighten-2">{{ player.player_email }}</td>
-                <td class="py-3 text-center">
-                  <v-chip size="small" color="purple" class="font-weight-black">
-                    {{ player.checked_in_events_count }} eventos
-                  </v-chip>
-                </td>
-                <td class="py-3 text-center">{{ formatDate(player.last_interaction_date) }}</td>
+                <td class="cell-sub">{{ player.player_email }}</td>
+                <td class="text-center">{{ player.checked_in_events_count }}</td>
+                <td class="text-center">{{ formatDate(player.last_interaction_date) }}</td>
               </tr>
             </tbody>
           </v-table>
         </v-card-text>
-
-        <v-card-actions class="px-6 pb-4 pt-0 justify-end">
-          <v-btn color="warning" variant="flat" class="font-weight-bold px-4" @click="playersDialog = false">
-            Fechar
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-container>
+  </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted, watch, inject, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch, inject, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { Chart, registerables } from 'chart.js';
 
@@ -1338,68 +769,8 @@ const getPreviousWeekLabelByValue = (val: string) => {
   return "Previous Week";
 };
 
-const formatDelta = (current: number, baseline: number) => {
-  const diff = current - baseline;
-  const sign = diff >= 0 ? "+" : "";
-  let pct = 0;
-  if (baseline > 0) {
-    pct = (diff / baseline) * 100;
-  } else if (diff > 0) {
-    pct = 100;
-  }
-  return `${sign}${diff} (${sign}${pct.toFixed(1)}%)`;
-};
-
-const getDeltaColor = (current: number, baseline: number, invert = false) => {
-  const diff = current - baseline;
-  if (diff === 0) return "text-grey text-center";
-  if (diff > 0) return invert ? "text-red font-weight-bold text-center" : "text-success font-weight-bold text-center";
-  return invert ? "text-success font-weight-bold text-center" : "text-red font-weight-bold text-center";
-};
-
-const formatPercentageMet = (current: number, target: number) => {
-  const pct = Math.round((current / target) * 100);
-  return `${Math.min(100, pct)}% Met`;
-};
-
-const getStatusChipColor = (current: number, target: number) => {
-  const pct = (current / target) * 100;
-  if (pct >= 90) return "success";
-  if (pct >= 50) return "warning";
-  return "red";
-};
-
 const onWeekChange = async () => {
   await fetchDashboardData();
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Loja ativa":
-      return "success";
-    case "Evento realizado":
-      return "info";
-    case "Evento planejado":
-      return "primary";
-    case "Em onboarding":
-      return "warning";
-    case "Primeiro contato realizado":
-      return "teal";
-    case "Loja criada":
-      return "blue-lighten-2";
-    case "Cadastro realizado":
-      return "grey-lighten-1";
-    case "Sem atividade":
-      return "amber-darken-3";
-    case "Necessita contato":
-      return "red-lighten-1";
-    case "Call agendada":
-      return "deep-purple-accent-2";
-    case "Inativo":
-      return "red-darken-4";
-    default:
-      return "grey";
-  }
 };
 
 const getInactivityDays = (lastAccessStr: any) => {
@@ -1411,19 +782,37 @@ const getInactivityDays = (lastAccessStr: any) => {
   return diffDays;
 };
 
-const getInactivityAlertColor = (lastAccessStr: string) => {
-  const days = getInactivityDays(lastAccessStr);
-  if (days >= 14) return "red";
-  if (days >= 7) return "orange";
-  if (days >= 3) return "yellow-darken-2";
-  return "success";
-};
-
 const getInactivityDaysText = (lastAccessStr: string) => {
   const days = getInactivityDays(lastAccessStr);
   if (days <= 0) return "Active today";
   if (days === 1) return "1 day inactive";
   return `${days} days inactive`;
+};
+
+// Our own test accounts (DuduFlu*, Tester*, anything @drunagor.dev) stay out of the numbers.
+const TEST_ACCOUNT = /duduflu|tester|@drunagor\.dev$|^zz_nights_bot/i;
+const isTestAccount = (r: any) => [r.name, r.user_name, r.email, r.store_name].some((value) => TEST_ACCOUNT.test(String(value || "").trim()));
+const hiddenTestAccounts = ref(0);
+// Leaves our test accounts out of one week's report (endDate = that week's last day).
+const cleanTestAccounts = (raw: any, endDate: string) => {
+  if (!raw?.retailers) return { data: raw, hidden: 0 };
+  const hidden = raw.retailers.filter(isTestAccount);
+  if (!hidden.length) return { data: raw, hidden: 0 };
+  // The week before ends 7 days earlier.
+  const before = endDate ? new Date(endDate + "T23:59:59") : new Date();
+  before.setDate(before.getDate() - 7);
+  const hiddenBefore = hidden.filter((r: any) => r.join_date && new Date(String(r.join_date).replace(/-/g, "/")) <= before).length;
+  return {
+    hidden: hidden.length,
+    data: {
+      ...raw,
+      retailers: raw.retailers.filter((r: any) => !isTestAccount(r)),
+      saude_geral: { ...raw.saude_geral, total_retailers: Math.max(0, Number(raw.saude_geral?.total_retailers ?? 0) - hidden.length) },
+      baseline: raw.baseline
+        ? { ...raw.baseline, total_retailers: Math.max(0, Number(raw.baseline.total_retailers ?? 0) - hiddenBefore) }
+        : raw.baseline,
+    },
+  };
 };
 
 const fetchDashboardData = async () => {
@@ -1435,7 +824,10 @@ const fetchDashboardData = async () => {
       params.end_date = selectedWeek.value;
     }
     const response = await axios.get("/analytics/dashboard", { params });
-    dashboardData.value = response.data;
+    const cleaned = cleanTestAccounts(response.data, selectedWeek.value);
+    hiddenTestAccounts.value = cleaned.hidden;
+    dashboardData.value = cleaned.data;
+    if (selectedWeek.value) weekCache.value = { ...weekCache.value, [selectedWeek.value]: cleaned.data };
   } catch (err: any) {
     console.error("Error fetching analytics data:", err);
     error.value = err.response?.data?.message || "Could not retrieve statistics from backend. Make sure your role is support or admin.";
@@ -1687,319 +1079,554 @@ const formatDate = (dateStr: any) => {
   }
 };
 
-// Chart Canvas Refs
-const cGoals = ref<HTMLCanvasElement | null>(null);
-const cUsers = ref<HTMLCanvasElement | null>(null);
-const cWindows = ref<HTMLCanvasElement | null>(null);
-const cMom = ref<HTMLCanvasElement | null>(null);
-const cFeat = ref<HTMLCanvasElement | null>(null);
-const cSKUCamp = ref<HTMLCanvasElement | null>(null);
-const cSKUOwn = ref<HTMLCanvasElement | null>(null);
-const cSKUWish = ref<HTMLCanvasElement | null>(null);
-const cGeog = ref<HTMLCanvasElement | null>(null);
+// ---- Overview ----
+const data = computed(() => dashboardData.value || {});
 
-// Chart instances store
-const chartInstances = {
-  goals: null as Chart | null,
-  users: null as Chart | null,
-  windows: null as Chart | null,
-  mom: null as Chart | null,
-  feat: null as Chart | null,
-  skuCamp: null as Chart | null,
-  skuOwn: null as Chart | null,
-  skuWish: null as Chart | null,
-  geog: null as Chart | null
+// Season 1 targets.
+const TARGETS = { users: 1500, active7d: 200, active30d: 1000, retailers: 75, tables: 20, campaigns: 1200 };
+
+type Level = "good" | "warning" | "critical";
+const STATUS_ICONS: Record<Level, string> = {
+  good: "mdi-check-circle",
+  warning: "mdi-alert",
+  critical: "mdi-alert-octagon",
+};
+const STATUS_LABELS: Record<Level, string> = { good: "On track", warning: "Watch", critical: "Critical" };
+const LEVEL_ORDER: Level[] = ["good", "warning", "critical"];
+
+const percentOf = (part: number, whole: number) => (whole ? `${((part / whole) * 100).toFixed(1)}%` : "0%");
+const formatNumber = (value: number) => (Number(value) || 0).toLocaleString("en-US");
+const plural = (count: number, one: string, many = `${one}s`) => `${formatNumber(count)} ${Number(count) === 1 ? one : many}`;
+// Bars never vanish: a non-zero value keeps a sliver.
+const barWidth = (value: number, max: number) => (max ? Math.max(value ? 2 : 0, (value / max) * 100) : 0);
+
+// What needs attention, worked out from this week's numbers.
+const signals = computed(() => {
+  const d = dashboardData.value;
+  if (!d) return [];
+  const retailers = d.retailers || [];
+  const withStore = retailers.filter((r: any) => r.stores_pk).length;
+  const storeRate = retailers.length ? (withStore / retailers.length) * 100 : 0;
+  const tables = d.feature_usage?.events_tables ?? 0;
+  const active = d.saude_geral?.ativos_7d ?? 0;
+  const activeBefore = d.baseline?.ativos_7d ?? null;
+  const activeChange = activeBefore ? ((active - activeBefore) / activeBefore) * 100 : 0;
+  const stale = retailers.filter((r: any) => r.stores_pk && getInactivityDays(r.last_access) >= 14).length;
+  const staleRate = withStore ? (stale / withStore) * 100 : 0;
+
+  return [
+    {
+      title: "Store onboarding",
+      metric: "storeRate",
+      text: `${withStore} of ${retailers.length} retailers have created their store.`,
+      value: `${storeRate.toFixed(0)}%`,
+      level: (storeRate >= 60 ? "good" : storeRate >= 30 ? "warning" : "critical") as Level,
+    },
+    {
+      title: "Organized play",
+      metric: "tables",
+      text: `${plural(tables, "active event table")} (Season 1 target: ${TARGETS.tables}).`,
+      value: `${tables}`,
+      level: (tables >= TARGETS.tables / 2 ? "good" : tables >= TARGETS.tables / 4 ? "warning" : "critical") as Level,
+    },
+    {
+      title: "Weekly active users",
+      metric: "active7d",
+      text:
+        activeBefore === null
+          ? `${active} users active this week.`
+          : `${active} users active this week, ${activeBefore} the week before.`,
+      value: activeBefore === null ? `${active}` : `${activeChange >= 0 ? "+" : ""}${activeChange.toFixed(0)}%`,
+      level: (activeChange >= 0 ? "good" : activeChange >= -20 ? "warning" : "critical") as Level,
+    },
+    {
+      title: "Quiet stores",
+      metric: "quietStores",
+      text: `${plural(stale, "retailer")} with a store ${stale === 1 ? "has" : "have"} not logged in for 14+ days.`,
+      value: `${stale}`,
+      level: (stale === 0 ? "good" : staleRate <= 25 ? "warning" : "critical") as Level,
+    },
+  ];
+});
+
+const overallStatus = computed(() => {
+  const worst = signals.value.reduce<Level>((acc, s) => (LEVEL_ORDER.indexOf(s.level) > LEVEL_ORDER.indexOf(acc) ? s.level : acc), "good");
+  return { level: worst, label: STATUS_LABELS[worst] };
+});
+
+// Every number the overview shows, with what it means and where it comes from,
+// so each card can open its own explanation and history.
+interface Metric {
+  key: string;
+  label: string;
+  icon: string;
+  get: (d: any) => number;
+  base?: (d: any) => number | null;
+  target?: number;
+  percent?: boolean;
+  lowerIsBetter?: boolean;
+  // false when the API only knows today's value (no week-by-week history).
+  history?: boolean;
+  explain: string;
+  counted: string;
+  tab?: string;
+}
+const num = (value: any) => Number(value ?? 0) || 0;
+const storeRateOf = (d: any) => {
+  const list = d?.retailers || [];
+  return list.length ? (list.filter((r: any) => r.stores_pk).length / list.length) * 100 : 0;
+};
+const quietStoresOf = (d: any) =>
+  (d?.retailers || []).filter((r: any) => r.stores_pk && getInactivityDays(r.last_access) >= 14).length;
+
+const METRICS: Record<string, Metric> = {
+  users: {
+    key: "users", label: "Registered users", icon: "mdi-account-group-outline", target: TARGETS.users,
+    get: (d) => num(d?.saude_geral?.total_users), base: (d) => (d?.baseline ? num(d.baseline.total_users) : null),
+    explain: "Every account created in the app since launch, players and retailers alike.",
+    counted: "All sign-ups up to the end of the chosen week. It only grows, so the weekly change is the number of new accounts.",
+  },
+  active7d: {
+    key: "active7d", label: "Active users (7d)", icon: "mdi-run-fast", target: TARGETS.active7d,
+    get: (d) => num(d?.saude_geral?.ativos_7d), base: (d) => (d?.baseline ? num(d.baseline.ativos_7d) : null),
+    explain: "People who used the app in the last 7 days of the week: the best sign of who is playing right now.",
+    counted: "Unique accounts with any activity (login, campaign, event, profile) in the 7 days that end with the chosen week.",
+  },
+  active30d: {
+    key: "active30d", label: "Active users (30d)", icon: "mdi-calendar-check-outline", target: TARGETS.active30d,
+    get: (d) => num(d?.saude_geral?.ativos_30d), base: (d) => (d?.baseline ? num(d.baseline.ativos_30d) : null),
+    explain: "People who used the app in the last 30 days. Slower than the 7-day number, it shows the size of the community.",
+    counted: "Unique accounts with any activity in the 30 days that end with the chosen week.",
+  },
+  retailers: {
+    key: "retailers", label: "Retailers", icon: "mdi-storefront-outline", target: TARGETS.retailers, tab: "retailers",
+    get: (d) => num(d?.saude_geral?.total_retailers), base: (d) => (d?.baseline ? num(d.baseline.total_retailers) : null),
+    explain: "Store owner accounts. They create the stores and the Drunagor Nights events players join.",
+    counted: "Retailer accounts registered up to the end of the chosen week. Our own test accounts (DuduFlu, Tester, @drunagor.dev) are left out.",
+  },
+  tables: {
+    key: "tables", label: "Active event tables", icon: "mdi-table-chair", target: TARGETS.tables,
+    get: (d) => num(d?.feature_usage?.events_tables), base: (d) => (d?.baseline ? num(d.baseline.events_tables) : null),
+    explain: "Tables open in Drunagor Nights events that are scheduled or running: the heart of organized play.",
+    counted: "Tables of active events at the end of the chosen week. Each table seats up to 4 players.",
+  },
+  campaigns: {
+    key: "campaigns", label: "Active campaigns", icon: "mdi-sword-cross", target: TARGETS.campaigns,
+    get: (d) => num(d?.saude_geral?.campanhas_ativas), base: (d) => (d?.baseline ? num(d.baseline.campanhas_ativas) : null),
+    explain: "Campaigns still in play, from every box: what the community is actually tracking in the app.",
+    counted: "Campaigns that are active (not finished or removed) at the end of the chosen week.",
+  },
+  storeRate: {
+    key: "storeRate", label: "Retailers with a store", icon: "mdi-store-check-outline", percent: true, tab: "retailers",
+    get: storeRateOf,
+    explain: "The first onboarding step: a retailer needs a store before they can create events.",
+    counted: "Retailers with a store ÷ all retailer accounts, without our test accounts.",
+  },
+  quietStores: {
+    key: "quietStores", label: "Quiet stores", icon: "mdi-sleep", lowerIsBetter: true, history: false, tab: "retailers",
+    get: quietStoresOf,
+    explain: "Retailers with a store who have not logged in for 14 days or more: the ones worth a call.",
+    counted: "Uses each retailer's last access as it is today, so it has no week-by-week history.",
+  },
+  newUsers7d: {
+    key: "newUsers7d", label: "New users (7d)", icon: "mdi-account-plus-outline",
+    get: (d) => num(d?.saude_geral?.novos_usuarios_7d),
+    explain: "Accounts created in the 7 days that end with the chosen week.",
+    counted: "Sign-ups with a join date inside that 7-day window.",
+  },
+  newUsers30d: {
+    key: "newUsers30d", label: "New users (30d)", icon: "mdi-account-multiple-plus-outline",
+    get: (d) => num(d?.saude_geral?.novos_usuarios_30d),
+    explain: "Accounts created in the 30 days that end with the chosen week.",
+    counted: "Sign-ups with a join date inside that 30-day window.",
+  },
+  newCampaigns7d: {
+    key: "newCampaigns7d", label: "New campaigns (7d)", icon: "mdi-flag-plus-outline",
+    get: (d) => num(d?.saude_geral?.campanhas_novas_7d),
+    explain: "Campaigns started in the 7 days that end with the chosen week, from any box.",
+    counted: "Campaigns with a start date inside that 7-day window.",
+  },
+  newCampaigns30d: {
+    key: "newCampaigns30d", label: "New campaigns (30d)", icon: "mdi-flag-outline",
+    get: (d) => num(d?.saude_geral?.campanhas_novas_30d),
+    explain: "Campaigns started in the 30 days that end with the chosen week.",
+    counted: "Campaigns with a start date inside that 30-day window.",
+  },
+  activeEvents: {
+    key: "activeEvents", label: "Active events", icon: "mdi-calendar-star",
+    get: (d) => num(d?.saude_geral?.eventos_ativos),
+    explain: "Drunagor Nights events scheduled or running at the end of the chosen week.",
+    counted: "Events still active (not past and not removed).",
+  },
+  completedEvents: {
+    key: "completedEvents", label: "Completed events", icon: "mdi-calendar-check",
+    get: (d) => num(d?.saude_geral?.eventos_passados_total),
+    explain: "Every Drunagor Nights event that already happened.",
+    counted: "All past events up to the end of the chosen week.",
+  },
+};
+
+const formatMetric = (metric: Metric, value: number) => (metric.percent ? `${value.toFixed(0)}%` : formatNumber(value));
+const metricDelta = (metric: Metric, value: number, before: number | null) => {
+  if (before === null || before === undefined) return null;
+  const diff = value - before;
+  const pct = before ? (diff / before) * 100 : diff ? 100 : 0;
+  const sign = diff > 0 ? "+" : "";
+  const better = metric.lowerIsBetter ? diff < 0 : diff > 0;
+  return {
+    text: metric.percent ? `${sign}${diff.toFixed(1)} pts` : `${sign}${formatNumber(diff)} (${sign}${pct.toFixed(1)}%)`,
+    cls: diff === 0 ? "delta--flat" : better ? "delta--up" : "delta--down",
+    icon: diff > 0 ? "mdi-arrow-up" : diff < 0 ? "mdi-arrow-down" : "mdi-minus",
+  };
+};
+
+const KPI_KEYS = ["users", "active7d", "active30d", "retailers", "tables", "campaigns"];
+const kpis = computed(() => {
+  const d = dashboardData.value;
+  if (!d) return [];
+  return KPI_KEYS.map((key) => {
+    const metric = METRICS[key];
+    const value = metric.get(d);
+    return { metric, value, delta: metricDelta(metric, value, metric.base?.(d) ?? null) };
+  });
+});
+const MINI_KEYS = ["newUsers7d", "newUsers30d", "newCampaigns7d", "newCampaigns30d", "activeEvents", "completedEvents"];
+
+// ---- History: the same report for earlier weeks, fetched when a card opens ----
+const HISTORY_WEEKS = 8;
+const weekCache = ref<Record<string, any>>({});
+const historyLoading = ref(false);
+const historyWeeks = computed(() => {
+  const index = Math.max(0, weekOptions.value.findIndex((w) => w.value === selectedWeek.value));
+  return weekOptions.value.slice(index, index + HISTORY_WEEKS).reverse();
+});
+const loadHistory = async () => {
+  const missing = historyWeeks.value.filter((w) => !weekCache.value[w.value]);
+  if (!missing.length) return;
+  historyLoading.value = true;
+  try {
+    const results = await Promise.allSettled(
+      missing.map((w) => axios.get("/analytics/dashboard", { params: { end_date: w.value } })),
+    );
+    const next = { ...weekCache.value };
+    results.forEach((result, i) => {
+      if (result.status === "fulfilled") next[missing[i].value] = cleanTestAccounts(result.value.data, missing[i].value).data;
+    });
+    weekCache.value = next;
+  } finally {
+    historyLoading.value = false;
+  }
+};
+
+const detail = ref<{ visible: boolean; key: string | null }>({ visible: false, key: null });
+const detailMetric = computed(() => (detail.value.key ? METRICS[detail.value.key] : null));
+const detailValue = computed(() => (detailMetric.value && dashboardData.value ? detailMetric.value.get(dashboardData.value) : 0));
+const detailDelta = computed(() => {
+  const metric = detailMetric.value;
+  if (!metric?.base || !dashboardData.value) return null;
+  return metricDelta(metric, detailValue.value, metric.base(dashboardData.value));
+});
+const detailRows = computed(() => {
+  const metric = detailMetric.value;
+  if (!metric || metric.history === false) return [];
+  let previous: number | null = null;
+  return historyWeeks.value
+    .filter((w) => weekCache.value[w.value])
+    .map((w) => {
+      const value = metric.get(weekCache.value[w.value]);
+      const row = { week: w.label.split(": ")[1] || w.label, value, delta: metricDelta(metric, value, previous) };
+      previous = value;
+      return row;
+    });
+});
+const openMetric = async (key: string) => {
+  detail.value = { visible: true, key };
+  if (dashboardData.value && selectedWeek.value) weekCache.value = { ...weekCache.value, [selectedWeek.value]: dashboardData.value };
+  if (METRICS[key].history !== false) {
+    await loadHistory();
+    nextTick(drawDetailChart);
+  }
+};
+const goToRetailers = (patch: Partial<Record<"onboarding" | "activity" | "store", string>> = {}) => {
+  detail.value.visible = false;
+  clearFilters();
+  if (patch.onboarding) onboardingStatusFilter.value = patch.onboarding;
+  if (patch.activity) lastActivityFilter.value = patch.activity;
+  if (patch.store) storeStatusFilter.value = patch.store;
+  tab.value = "retailers";
+};
+
+const cDetail = ref<HTMLCanvasElement | null>(null);
+let detailChart: Chart | null = null;
+const drawDetailChart = () => {
+  detailChart?.destroy();
+  detailChart = null;
+  const canvas = cDetail.value;
+  const metric = detailMetric.value;
+  if (!canvas || !metric || !detailRows.value.length) return;
+  const accent = themeColor(canvas, "accent");
+  const ink = themeColor(canvas, "on-surface", 0.6);
+  detailChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: detailRows.value.map((row) => row.week.split(" - ")[0]),
+      datasets: [
+        {
+          label: metric.label,
+          data: detailRows.value.map((row) => row.value),
+          borderColor: accent,
+          backgroundColor: themeColor(canvas, "accent", 0.12),
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3,
+          pointRadius: 4,
+          pointBackgroundColor: accent,
+          pointBorderColor: themeColor(canvas, "surface"),
+          pointBorderWidth: 2,
+          pointHoverRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { displayColors: false, callbacks: { label: (ctx) => formatMetric(metric, Number(ctx.raw)) } },
+      },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: ink } },
+        y: {
+          grid: { color: themeColor(canvas, "on-surface", 0.08) },
+          border: { display: false },
+          ticks: { color: ink, callback: (v) => formatMetric(metric, Number(v)) },
+          ...(metric.percent ? { min: 0, max: 100 } : {}),
+        },
+      },
+    },
+  });
+};
+watch(() => detail.value.visible, (open) => {
+  if (!open) {
+    detailChart?.destroy();
+    detailChart = null;
+  }
+});
+
+// ---- Retailer insights from the retailer list ----
+const FUNNEL = [
+  "Cadastro realizado",
+  "Loja criada",
+  "Primeiro contato realizado",
+  "Em onboarding",
+  "Call agendada",
+  "Evento planejado",
+  "Evento realizado",
+  "Loja ativa",
+];
+const OFF_TRACK = ["Necessita contato", "Sem atividade", "Inativo"];
+const retailerList = computed<any[]>(() => dashboardData.value?.retailers || []);
+const funnel = computed(() =>
+  FUNNEL.map((status) => ({ status, count: retailerList.value.filter((r) => r.onboarding_status === status).length })),
+);
+const offTrack = computed(() =>
+  OFF_TRACK.map((status) => ({ status, count: retailerList.value.filter((r) => r.onboarding_status === status).length })),
+);
+const funnelMax = computed(() => Math.max(1, ...funnel.value.map((s) => s.count), ...offTrack.value.map((s) => s.count)));
+const retailerActivity = computed(() => {
+  const list = retailerList.value;
+  const days = (r: any) => getInactivityDays(r.last_access);
+  return [
+    { label: "Active in the last 7 days", count: list.filter((r) => days(r) <= 7).length, filter: { activity: "Ativo nos últimos 7 dias" } },
+    { label: "Active in the last 30 days", count: list.filter((r) => days(r) <= 30).length, filter: { activity: "Ativo nos últimos 30 dias" } },
+    { label: "Inactive 14+ days", count: list.filter((r) => days(r) >= 14).length, filter: { activity: "Inativo há 14+ dias" } },
+    { label: "Without a store", count: list.filter((r) => !r.stores_pk).length, filter: { store: "Sem Loja" } },
+  ];
+});
+const retailerTotals = computed(() => ({
+  events: retailerList.value.reduce((sum, r) => sum + num(r.events_count), 0),
+  players: retailerList.value.reduce((sum, r) => sum + num(r.players_count), 0),
+  withEvents: retailerList.value.filter((r) => num(r.events_count) > 0).length,
+}));
+const topStores = computed(() =>
+  [...retailerList.value]
+    .filter((r) => num(r.events_count) > 0 || num(r.players_count) > 0)
+    .sort((a, b) => num(b.events_count) - num(a.events_count) || num(b.players_count) - num(a.players_count))
+    .slice(0, 5),
+);
+
+// ---- Engagement ratios ----
+const engagement = computed(() => {
+  const g = dashboardData.value?.saude_geral || {};
+  const f = dashboardData.value?.feature_usage || {};
+  const ratio = (a: number, b: number) => (b ? a / b : 0);
+  return [
+    { label: "Weekly stickiness", value: `${(ratio(num(g.ativos_7d), num(g.ativos_30d)) * 100).toFixed(0)}%`, hint: "Active this week ÷ active this month. Higher means people come back every week." },
+    { label: "Monthly reach", value: `${(ratio(num(g.ativos_30d), num(g.total_users)) * 100).toFixed(1)}%`, hint: "Active this month ÷ all registered users." },
+    { label: "Campaigns per active user", value: ratio(num(g.campanhas_ativas), num(g.ativos_30d)).toFixed(1), hint: "Active campaigns ÷ users active this month." },
+    { label: "Players per event table", value: ratio(num(f.events_participants), num(f.events_tables)).toFixed(1), hint: "Event participants ÷ active event tables." },
+  ];
+});
+
+const features = computed(() => {
+  const f = dashboardData.value?.feature_usage || {};
+  return [
+    { label: "Library", icon: "mdi-bookshelf", users: f.library_users ?? 0, detail: `${plural(f.library_items, "item")} · ${f.library_avg ?? 0} per collection` },
+    { label: "Custom heroes", icon: "mdi-shield-sword-outline", users: f.heroes_creators ?? 0, detail: `${plural(f.heroes_count, "hero", "heroes")} · ${f.heroes_avg ?? 0} per creator` },
+    { label: "Events", icon: "mdi-map-marker-radius-outline", users: f.events_participants ?? 0, detail: `${plural(f.events_tables, "table")} · ${plural(f.events_qrs, "QR code")}` },
+    { label: "Friends", icon: "mdi-account-multiple-outline", users: f.friends_interacted ?? 0, detail: plural(f.friends_friendships, "friendship") },
+  ].sort((a, b) => b.users - a.users);
+});
+
+const SKU_VIEWS = [
+  { value: "campaigns", label: "Campaigns" },
+  { value: "owned", label: "Owned" },
+  { value: "wishlist", label: "Wishlist" },
+];
+const skuView = ref("campaigns");
+const skuRanking = computed(() =>
+  [...(dashboardData.value?.sku_analysis?.[skuView.value] || [])].sort((a: any, b: any) => b.count - a.count).slice(0, 8),
+);
+const topCountries = computed(() =>
+  [...(dashboardData.value?.saude_geral?.countries || [])].sort((a: any, b: any) => b.count - a.count).slice(0, 6),
+);
+
+// ---- Retailers: English labels over the stored values ----
+const LABELS: Record<string, string> = {
+  Todos: "All",
+  "Apenas Validadas": "Validated only",
+  "Não Validadas / Fakes": "Not validated / fake",
+  "Com Loja": "With a store",
+  "Sem Loja": "Without a store",
+  "Loja Verificada": "Store verified",
+  "Loja Não Verificada": "Store not verified",
+  "Loja Ativa": "Store active",
+  "Loja Inativa": "Store inactive",
+  "Cadastro realizado": "Signed up",
+  "Loja criada": "Store created",
+  "Primeiro contato realizado": "First contact made",
+  "Em onboarding": "Onboarding",
+  "Evento planejado": "Event planned",
+  "Evento realizado": "Event held",
+  "Loja ativa": "Active store",
+  "Sem atividade": "No activity",
+  "Necessita contato": "Needs contact",
+  "Call agendada": "Call scheduled",
+  Inativo: "Inactive",
+  "Ativo nas últimas 24h": "Active in the last 24h",
+  "Ativo nos últimos 7 dias": "Active in the last 7 days",
+  "Ativo nos últimos 30 dias": "Active in the last 30 days",
+  "Inativo há 3+ dias": "Inactive 3+ days",
+  "Inativo há 7+ dias": "Inactive 7+ days",
+  "Inativo há 14+ dias": "Inactive 14+ days",
+  "Com Eventos (1+)": "With events",
+  "Sem Eventos": "Without events",
+  "Com Jogadores (1+)": "With players",
+  "Sem Jogadores": "Without players",
+};
+const toItems = (options: any[]) => options.map((value) => ({ value, title: LABELS[value] ?? value }));
+const onboardingLabel = (status: string) => LABELS[status] ?? status ?? "-";
+
+// Onboarding chip tint, from the stage's meaning.
+const ONBOARDING_COLORS: Record<string, string> = {
+  "Loja ativa": "#3fb46a",
+  "Evento realizado": "#3fb46a",
+  "Evento planejado": "#4f8fe0",
+  "Em onboarding": "#4f8fe0",
+  "Primeiro contato realizado": "#4f8fe0",
+  "Call agendada": "#4f8fe0",
+  "Loja criada": "#9aa0a6",
+  "Cadastro realizado": "#9aa0a6",
+  "Sem atividade": "#e0a030",
+  "Necessita contato": "#e0a030",
+  Inativo: "#e05a4f",
+};
+const onboardingColor = (status: string) => ONBOARDING_COLORS[status] ?? "#9aa0a6";
+
+const inactivityLevel = (lastAccess: string) => {
+  const days = getInactivityDays(lastAccess);
+  return days >= 14 ? "critical" : days >= 7 ? "warning" : "good";
+};
+
+const filtersActive = computed(
+  () =>
+    !!search.value ||
+    [storeStatusFilter, onboardingStatusFilter, lastActivityFilter, countryFilter, activityMetricsFilter].some((f) => f.value !== "Todos"),
+);
+const clearFilters = () => {
+  search.value = "";
+  for (const filter of [storeStatusFilter, onboardingStatusFilter, lastActivityFilter, countryFilter, activityMetricsFilter]) filter.value = "Todos";
+};
+
+// ---- Chart: registered users per week (one series, so no legend) ----
+const cUsers = ref<HTMLCanvasElement | null>(null);
+let usersChart: Chart | null = null;
+
+const themeColor = (el: Element, name: string, alpha = 1) => {
+  const rgb = getComputedStyle(el).getPropertyValue(`--v-theme-${name}`).trim();
+  return rgb ? `rgba(${rgb}, ${alpha})` : `rgba(224, 179, 65, ${alpha})`;
 };
 
 const initCharts = () => {
-  // Destroy existing charts to prevent canvas reuse issues
-  Object.keys(chartInstances).forEach((key) => {
-    const inst = (chartInstances as any)[key];
-    if (inst) {
-      inst.destroy();
-      (chartInstances as any)[key] = null;
-    }
-  });
-
-  if (!dashboardData.value) return;
-  const data = dashboardData.value;
-
-  // Chart 1: S1 Goals Progress
-  if (cGoals.value) {
-    chartInstances.goals = new Chart(cGoals.value, {
-      type: "bar",
-      data: {
-        labels: ["Users (1.5k)", "Retailers (75)", "Campaigns (1.2k)", "Events (20)"],
-        datasets: [{
-          label: "% of Goal Met",
-          data: [
-            Math.min(100, Math.round((data.saude_geral.total_users / 1500) * 100)),
-            Math.min(100, Math.round((data.saude_geral.total_retailers / 75) * 100)),
-            Math.min(100, Math.round((data.saude_geral.campanhas_ativas / 1200) * 100)),
-            Math.min(100, Math.round((data.feature_usage.events_tables / 20) * 100))
-          ],
-          backgroundColor: ["#e0b341", "#5b8fd6", "#5bbf6a", "#e0564b"],
-          borderWidth: 0,
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (ctx) => `${ctx.raw}% Completed`
-            }
-          }
-        },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
-          y: { min: 0, max: 100, ticks: { color: "#9a9488", callback: (val) => `${val}%` } }
-        }
-      }
-    });
-  }
-
-  // Chart 2: Weekly User Growth
-  if (cUsers.value) {
-    chartInstances.users = new Chart(cUsers.value, {
-      type: "line",
-      data: {
-        labels: data.user_growth_trend.labels,
-        datasets: [{
-          label: "Total Users",
-          data: data.user_growth_trend.data,
-          borderColor: "#e0b341",
-          backgroundColor: "rgba(224, 179, 65, 0.1)",
+  usersChart?.destroy();
+  usersChart = null;
+  const canvas = cUsers.value;
+  const trend = dashboardData.value?.user_growth_trend;
+  if (!canvas || !trend) return;
+  const accent = themeColor(canvas, "accent");
+  const ink = themeColor(canvas, "on-surface", 0.6);
+  const grid = themeColor(canvas, "on-surface", 0.08);
+  usersChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: trend.labels,
+      datasets: [
+        {
+          label: "Registered users",
+          data: trend.data,
+          borderColor: accent,
+          backgroundColor: themeColor(canvas, "accent", 0.12),
+          borderWidth: 2,
           fill: true,
-          tension: 0.3
-        }]
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBorderWidth: 2,
+          pointHoverBorderColor: themeColor(canvas, "surface"),
+          pointHoverBackgroundColor: accent,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { displayColors: false, callbacks: { label: (ctx) => `${formatNumber(Number(ctx.raw))} users` } },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
-          y: { ticks: { color: "#9a9488" } }
-        }
-      }
-    });
-  }
-
-  // Chart 3: Active Users by Window
-  if (cWindows.value) {
-    chartInstances.windows = new Chart(cWindows.value, {
-      type: "bar",
-      data: {
-        labels: ["Active 7d", "Active 30d", "Active 12M"],
-        datasets: [{
-          data: [data.saude_geral.ativos_7d, data.saude_geral.ativos_30d, data.saude_geral.ativos_12m],
-          backgroundColor: ["#e0564b", "#e0b341", "#5bbf6a"],
-          borderRadius: 6
-        }]
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: ink, maxRotation: 0, autoSkipPadding: 16 } },
+        y: { grid: { color: grid }, border: { display: false }, ticks: { color: ink, callback: (v) => formatNumber(Number(v)) } },
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
-          y: { ticks: { color: "#9a9488" } }
-        }
-      }
-    });
-  }
-
-  // Chart 4: Activity Momentum (30d)
-  if (cMom.value) {
-    chartInstances.mom = new Chart(cMom.value, {
-      type: "doughnut",
-      data: {
-        labels: ["New Users (30d)", "New Campaigns (30d)"],
-        datasets: [{
-          data: [data.saude_geral.novos_usuarios_30d, data.saude_geral.campanhas_novas_30d],
-          backgroundColor: ["#5b8fd6", "#4fb8b0"],
-          borderWidth: 1,
-          borderColor: "#1f222b"
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "bottom", labels: { color: "#f4f1ea", boxWidth: 12 } }
-        }
-      }
-    });
-  }
-
-  // Chart 5: Feature Adoption
-  if (cFeat.value) {
-    chartInstances.feat = new Chart(cFeat.value, {
-      type: "bar",
-      data: {
-        labels: ["Library", "Custom Heroes", "Social", "Events"],
-        datasets: [{
-          data: [
-            data.feature_usage.library_users,
-            data.feature_usage.heroes_creators,
-            data.feature_usage.friends_interacted,
-            data.feature_usage.events_participants
-          ],
-          backgroundColor: ["#5b8fd6", "#e0b341", "#a98ad6", "#4fb8b0"],
-          borderRadius: 6
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: "#9a9488" } },
-          y: { ticks: { color: "#9a9488" } }
-        }
-      }
-    });
-  }
-
-  // Chart 6: Active Campaigns by SKU
-  if (cSKUCamp.value) {
-    const list = data.sku_analysis.campaigns || [];
-    chartInstances.skuCamp = new Chart(cSKUCamp.value, {
-      type: "bar",
-      data: {
-        labels: list.map((i: any) => i.sku),
-        datasets: [{
-          data: list.map((i: any) => i.count),
-          backgroundColor: "#5b8fd6",
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: "#9a9488" } },
-          y: { grid: { display: false }, ticks: { color: "#9a9488" } }
-        }
-      }
-    });
-  }
-
-  // Chart 7: Owned by SKU
-  if (cSKUOwn.value) {
-    const list = (data.sku_analysis.owned || []).slice(0, 7);
-    chartInstances.skuOwn = new Chart(cSKUOwn.value, {
-      type: "bar",
-      data: {
-        labels: list.map((i: any) => i.sku),
-        datasets: [{
-          data: list.map((i: any) => i.count),
-          backgroundColor: "#5bbf6a",
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: "#9a9488" } },
-          y: { grid: { display: false }, ticks: { color: "#9a9488" } }
-        }
-      }
-    });
-  }
-
-  // Chart 8: Wishlist by SKU
-  if (cSKUWish.value) {
-    const list = (data.sku_analysis.wishlist || []).slice(0, 7);
-    chartInstances.skuWish = new Chart(cSKUWish.value, {
-      type: "bar",
-      data: {
-        labels: list.map((i: any) => i.sku),
-        datasets: [{
-          data: list.map((i: any) => i.count),
-          backgroundColor: "#e0b341",
-          borderRadius: 4
-        }]
-      },
-      options: {
-        indexAxis: "y",
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: "#9a9488" } },
-          y: { grid: { display: false }, ticks: { color: "#9a9488" } }
-        }
-      }
-    });
-  }
-
-  // Chart 9: Geographic (Top 5)
-  if (cGeog.value) {
-    const list = (data.saude_geral.countries || []).slice(0, 5);
-    chartInstances.geog = new Chart(cGeog.value, {
-      type: "pie",
-      data: {
-        labels: list.map((i: any) => i.country),
-        datasets: [{
-          data: list.map((i: any) => i.count),
-          backgroundColor: ["#e0b341", "#5b8fd6", "#5bbf6a", "#e0564b", "#a98ad6"],
-          borderWidth: 1,
-          borderColor: "#1f222b"
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: "bottom", labels: { color: "#f4f1ea", boxWidth: 12 } }
-        }
-      }
-    });
-  }
+    },
+  });
 };
 
-// Render charts on tab change or dashboard data updates
-watch(
-  () => tab.value,
-  (newTab) => {
-    if (newTab === "stats") {
-      nextTick(() => {
-        setTimeout(initCharts, 50);
-      });
-    }
-  }
-);
-
-watch(
-  () => dashboardData.value,
-  (newData) => {
-    if (newData && tab.value === "stats") {
-      nextTick(() => {
-        setTimeout(initCharts, 50);
-      });
-    }
-  }
-);
+watch(tab, (newTab) => {
+  if (newTab === "stats") nextTick(initCharts);
+});
+watch(dashboardData, (newData) => {
+  if (newData && tab.value === "stats") nextTick(initCharts);
+});
 
 onMounted(async () => {
   generateWeeks();
   await fetchDashboardData();
-  if (dashboardData.value && tab.value === "stats") {
-    nextTick(() => {
-      setTimeout(initCharts, 100);
-    });
-  }
 });
+
+onBeforeUnmount(() => usersChart?.destroy());
 </script>
 
 <script lang="ts">
@@ -2009,97 +1636,903 @@ export default {
 </script>
 
 <style scoped>
-.support-dashboard-container {
-  padding-top: 80px !important;
-  width: 100% !important;
-  max-width: 100% !important;
+/* Layout and type follow the rest of the app; colors come from the theme. */
+.support-page {
+  width: 100%;
 }
-
+.support {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 48px 16px 48px;
+  font-family: "Poppins", sans-serif;
+  color: rgb(var(--v-theme-on-surface));
+}
 @media (max-width: 959px) {
-  .support-dashboard-container {
-    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+  .support {
+    padding-top: 72px;
   }
 }
 
-.cinzel-text {
-  font-family: "Cinzel", serif !important;
+.support-kicker {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-accent));
 }
 
-.text-warning {
-  color: #FB8C00 !important;
+/* Header */
+.support-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.support-head h1 {
+  font-family: "Cinzel", serif;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  line-height: 1.2;
+}
+.support-head p {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.support-head__vs {
+  margin-left: 6px;
+  font-weight: 500;
+  opacity: 0.6;
+}
+.support-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.support-head__week {
+  width: 260px;
+  max-width: 70vw;
 }
 
-.bg-black-opacity {
-  background-color: rgba(0, 0, 0, 0.4);
+.support-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 0;
+  opacity: 0.8;
 }
 
-.stat-inner {
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.rank-badge {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: rgba(251, 140, 0, 0.15);
-  color: #FB8C00;
-  border: 1px solid rgba(251, 140, 0, 0.3);
-  font-size: 11px;
-}
-
-.hover-bg {
-  transition: background-color 0.15s ease;
-}
-.hover-bg:hover {
-  background-color: rgba(255, 255, 255, 0.03) !important;
-}
-
-.hover-row:hover {
-  background-color: rgba(255, 255, 255, 0.02) !important;
-}
-
-.gap-1 {
+/* Tabs */
+.support-tabs {
+  display: inline-flex;
   gap: 4px;
-}
-
-/* Premium Visible Tabs Header */
-.tabs-wrapper {
-  background-color: #181a21;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 18px;
+  padding: 4px;
+  background: rgb(var(--v-theme-secondary));
   border-radius: 12px;
+}
+.support-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.7;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+.support-tabs button.active {
+  background: rgb(var(--v-theme-surface));
+  opacity: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Panels */
+.panel {
+  padding: 16px;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 16px;
+}
+.panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.panel__head h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+.panel__head small {
+  font-size: 0.72rem;
+  opacity: 0.6;
+}
+.panel__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 20px 0;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  text-align: center;
+}
+
+.overview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Status: reserved colors, always with an icon and a word */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.status-pill--good,
+.signal--good .signal__icon {
+  color: #4cc27a;
+}
+.status-pill--warning,
+.signal--warning .signal__icon {
+  color: #f0b23a;
+}
+.status-pill--critical,
+.signal--critical .signal__icon {
+  color: #ef6a5e;
+}
+.status-pill--good { background: rgba(76, 194, 122, 0.14); }
+.status-pill--warning { background: rgba(240, 178, 58, 0.14); }
+.status-pill--critical { background: rgba(239, 106, 94, 0.14); }
+
+.signals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.signal {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  border-left: 3px solid currentColor;
+  border-radius: 10px;
+}
+.signal--good { border-left-color: #4cc27a; }
+.signal--warning { border-left-color: #f0b23a; }
+.signal--critical { border-left-color: #ef6a5e; }
+.signal > div {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.signal strong {
+  font-size: 0.85rem;
+}
+.signal span {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+.signal__value {
+  font-size: 1rem !important;
+  font-weight: 800;
+  opacity: 1 !important;
+  white-space: nowrap;
+}
+
+/* KPIs */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+@media (max-width: 599px) {
+  .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .kpi {
+    padding: 12px;
+  }
+  .kpi__value {
+    font-size: 1.5rem;
+  }
+  .kpi__delta em {
+    display: none;
+  }
+}
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  text-align: left;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 14px;
+  color: inherit;
+  cursor: default;
+}
+.kpi--link {
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.kpi--link:hover {
+  border-color: rgb(var(--v-theme-accent));
+}
+.kpi__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+.kpi__value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.kpi__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.kpi__delta em {
+  margin-left: 4px;
+  font-style: normal;
+  font-weight: 500;
+  opacity: 0.6;
+  color: rgb(var(--v-theme-on-surface));
+}
+.delta--up { color: #4cc27a; }
+.delta--down { color: #ef6a5e; }
+.delta--flat { opacity: 0.6; }
+.kpi__target {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 2px;
+}
+.kpi__target small {
+  font-size: 0.68rem;
+  opacity: 0.6;
+}
+.kpi__bar,
+.bar {
+  display: block;
+  height: 6px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  border-radius: 999px;
+}
+.kpi__bar > span,
+.bar > span {
+  display: block;
+  height: 100%;
+  background: rgb(var(--v-theme-accent));
+  border-radius: 999px;
 }
 
-.tabs-wrapper :deep(.v-btn) {
-  transition: all 0.25s ease;
-  letter-spacing: 1px !important;
+/* Overview grid */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.panel--wide {
+  grid-column: 1 / -1;
+}
+@media (max-width: 899px) {
+  .overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.chart-box {
+  position: relative;
+  height: 240px;
+}
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+.mini-stats > div,
+.mini-stats > button,
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  border-radius: 10px;
+}
+.mini-stats strong,
+.tile strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.mini-stats span,
+.tile span {
+  font-size: 0.72rem;
+  opacity: 0.65;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.tabs-wrapper :deep(.v-tab--selected) {
-  background-color: rgba(251, 140, 0, 0.12) !important;
-  color: #FB8C00 !important;
-  font-weight: 900 !important;
-  border-bottom: 3px solid #FB8C00 !important;
+/* Everything that opens a detail looks pressable. */
+.signals > li {
+  display: flex;
+}
+.signal {
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.signal:hover,
+.kpi:hover,
+.mini-stats > button:hover,
+.tile--btn:hover,
+.bars__btn:hover .bars__row > span,
+.top-stores button:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.07);
+}
+.kpi {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.kpi:hover {
+  border-color: rgba(var(--v-theme-accent), 0.6);
+}
+.kpi__more {
+  margin-left: auto;
+  opacity: 0.5;
+}
+.mini-stats > button,
+.tile--btn {
+  text-align: left;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.mini-stats--plain > div {
+  background: transparent;
+  padding: 6px 4px;
+}
+.bars__btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+}
+.bars__btn:hover .bars__row > span {
+  border-radius: 6px;
+}
+.panel__sub {
+  margin: 16px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.off-track {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(var(--v-theme-on-surface), 0.12);
+  font-size: 0.72rem;
+}
+.off-track > span {
+  margin-right: 4px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.off-track__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chip) 16%, transparent);
+  color: var(--chip);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.top-stores {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.top-stores button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  text-align: left;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.top-stores button > span:first-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.top-stores strong {
+  overflow: hidden;
+  font-size: 0.85rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-stores small {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+.top-stores__nums {
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ratios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.ratio {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  background: rgba(var(--v-theme-on-surface), 0.04);
+  border-radius: 12px;
+}
+.ratio strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.ratio span {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.ratio small {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+/* Metric detail */
+.detail-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.detail-hero > .v-icon {
+  color: rgb(var(--v-theme-accent));
+}
+.detail-hero > div {
+  display: flex;
+  flex-direction: column;
+}
+.detail-hero strong {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.detail-hero > div > span {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+.detail-text {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.detail-text--muted {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.chart-box--small {
+  height: 200px;
+  margin-bottom: 8px;
+}
+.history-table {
+  min-width: 0 !important;
+}
+.cell-main--end {
+  justify-content: flex-end;
 }
 
-.tabs-wrapper :deep(.v-tab:hover:not(.v-tab--selected)) {
-  background-color: rgba(255, 255, 255, 0.03) !important;
-  color: #fff !important;
+/* Ranked bars */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bars__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-size: 0.82rem;
+}
+.bars__row > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bars__row strong {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.bars__row em {
+  font-style: normal;
+  font-weight: 500;
+  opacity: 0.6;
+}
+.bars small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  opacity: 0.55;
+}
+.rank {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  font-size: 0.68rem;
+  font-weight: 800;
 }
 
-/* Hover effect on clickable statistics cards */
-.hover-card-btn {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+/* Segmented control */
+.seg {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: rgb(var(--v-theme-secondary));
+  border-radius: 9px;
 }
-.hover-card-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid rgba(251, 140, 0, 0.4) !important;
+.seg button {
+  padding: 4px 10px;
+  border-radius: 7px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  opacity: 0.7;
+}
+.seg button.active {
+  background: rgb(var(--v-theme-surface));
+  opacity: 1;
 }
 
-.rgba-white-bd {
-  border-color: rgba(255, 255, 255, 0.08) !important;
+/* Retailers */
+.filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(140px, 1fr));
+  gap: 8px;
+}
+@media (max-width: 1199px) {
+  .filters {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+  .filters__search {
+    grid-column: 1 / -1;
+  }
+}
+.filters__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 8px;
+  font-size: 0.8rem;
+}
+.filters__bar > span {
+  opacity: 0.7;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.retailers-table {
+  min-width: 760px;
+  background: transparent !important;
+}
+.retailers-table :deep(th) {
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+.retailers-table :deep(td) {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  vertical-align: middle;
+}
+.retailers-table :deep(tbody tr:hover) {
+  background: rgba(var(--v-theme-on-surface), 0.03);
+}
+.cell-main {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+.cell-sub {
+  font-size: 0.74rem;
+  opacity: 0.65;
+}
+.inactive--warning {
+  color: #f0b23a;
+  opacity: 1;
+}
+.inactive--critical {
+  color: #ef6a5e;
+  opacity: 1;
+}
+.onboarding-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--chip) 18%, transparent);
+  color: var(--chip);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+/* Phones: each retailer is a card with labelled facts. */
+@media (max-width: 699px) {
+  .retailers-table--cards {
+    min-width: 0;
+  }
+  .retailers-table--cards :deep(thead) {
+    display: none;
+  }
+  .retailers-table--cards :deep(tbody tr) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+    margin-bottom: 10px;
+    padding: 12px;
+    background: rgba(var(--v-theme-on-surface), 0.04);
+    border-radius: 12px;
+  }
+  .retailers-table--cards :deep(tbody td) {
+    height: auto !important;
+    padding: 0 !important;
+    border: none !important;
+    text-align: left !important;
+  }
+  .retailers-table--cards :deep(td[data-label])::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+  .retailers-table--cards :deep(td.cell--title),
+  .retailers-table--cards :deep(td.cell--action) {
+    grid-column: 1 / -1;
+  }
+  .retailers-table--cards :deep(td.cell--title)::before {
+    display: none;
+  }
+  .retailers-table--cards :deep(td.cell--action .v-btn) {
+    width: 100%;
+  }
+}
+.count-btn {
+  min-width: 36px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  font-weight: 800;
+  transition: background 0.15s ease;
+}
+.count-btn:hover:not(:disabled) {
+  background: rgba(var(--v-theme-accent), 0.25);
+}
+.count-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Dialogs */
+.support-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+  font-family: "Poppins", sans-serif;
+}
+.support-dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 8px 14px 20px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+.support-dialog__head > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.support-dialog__head small {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-accent));
+}
+.support-dialog__head strong {
+  font-family: "Cinzel", serif;
+  font-size: 1.2rem;
+}
+.support-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 20px !important;
+}
+.support-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+}
+.validation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+.validation > div {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.validation strong {
+  font-size: 0.9rem;
+}
+.validation span {
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+.validation--ok {
+  background: rgba(76, 194, 122, 0.12);
+  color: #4cc27a;
+}
+.validation--bad {
+  background: rgba(239, 106, 94, 0.12);
+  color: #ef6a5e;
+}
+.validation--ok > div,
+.validation--bad > div {
+  color: rgb(var(--v-theme-on-surface));
+}
+.dlg-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin: 0;
+}
+.facts__wide {
+  grid-column: 1 / -1;
+}
+.facts dt {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+.facts dd {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.facts a {
+  color: rgb(var(--v-theme-accent));
+  text-decoration: none;
+}
+.dlg-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+@media (max-width: 559px) {
+  .dlg-fields,
+  .facts,
+  .tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.mini-chip {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(var(--v-theme-on-surface), 0.08);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 1;
+}
+.mini-chip--ok {
+  background: rgba(76, 194, 122, 0.16);
+  color: #4cc27a;
+}
+.mini-chip--warn {
+  background: rgba(240, 178, 58, 0.16);
+  color: #f0b23a;
+}
+.store-map {
+  width: 100%;
+  height: 180px;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 12px;
 }
 </style>

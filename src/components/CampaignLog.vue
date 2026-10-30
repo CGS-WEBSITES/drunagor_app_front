@@ -16,7 +16,8 @@
             <span class="stat" title="Class abilities"><v-icon size="16" color="accent">mdi-star-circle</v-icon><strong>{{ state?.classAbilityCount ?? 0 }}</strong><small>Abilities</small></span>
             <span class="stat" title="Skills"><v-icon size="16">mdi-lightning-bolt</v-icon><strong>{{ skillCount }}</strong><small>Skills</small></span>
           </div>
-          <v-btn v-if="!isPhone" size="small" variant="tonal" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
+          <v-btn v-if="!isPhone && canEdit" size="small" variant="tonal" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
+          <span v-else-if="!isPhone" class="hero-sum__owner"><v-icon size="14">mdi-lock-outline</v-icon> Only its player can edit</span>
         </div>
 
         <!-- Gear in use, one line each -->
@@ -36,7 +37,8 @@
         {{ collapsed ? "Show details" : "Hide details" }}
       </v-btn>
       <v-spacer />
-      <v-btn size="small" variant="tonal" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
+      <v-btn v-if="canEdit" size="small" variant="tonal" prepend-icon="mdi-pencil" class="shepherd-btn-equipment-skills" @click="openHeroEquipmentSkills">Edit hero</v-btn>
+      <span v-else class="hero-sum__owner"><v-icon size="14">mdi-lock-outline</v-icon> Only its player can edit</span>
     </div>
   </div>
 </template>
@@ -52,12 +54,17 @@ import SlotIcon from "@/components/hero-sheet/SlotIcon.vue";
 import { useDisplay } from "vuetify";
 import { useStorage } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
+import { useCanEditHero } from "@/utils/heroOwner";
 
 const props = defineProps<{
   heroId: string;
   campaignId: string;
   isSequentialAdventure: boolean;
+  // Edit in place (the parent opens the sheet) instead of going to the hero page.
+  inlineEdit?: boolean;
 }>();
+
+const emit = defineEmits<{ edit: [heroId: string] }>();
 
 const heroDataRepository = new HeroDataRepository();
 const router = useRouter();
@@ -74,6 +81,7 @@ const isPhone = computed(() => smAndDown.value);
 const collapsed = useStorage(`campaign.${props.campaignId}.hero.${props.heroId}.collapsed`, false);
 const folded = computed(() => isPhone.value && collapsed.value);
 const state = computed(() => heroStore.findInCampaignOptional(props.heroId, props.campaignId));
+const canEdit = useCanEditHero(() => state.value?.playableHeroesPk);
 const adventure = computed(() => state.value?.sequentialAdventureState as any);
 const skillCount = computed(() => (state.value?.skillIds ?? []).length);
 
@@ -96,6 +104,11 @@ const equipped = computed(() =>
 
 
 function openHeroEquipmentSkills() {
+  if (!canEdit.value) return;
+  if (props.inlineEdit) {
+    emit("edit", props.heroId);
+    return;
+  }
   router.push({
     name: "Hero",
     params: { campaignId: props.campaignId, heroId: props.heroId },
@@ -104,6 +117,15 @@ function openHeroEquipmentSkills() {
 </script>
 
 <style scoped>
+.hero-sum__owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .hero-sum {
   overflow: hidden;
   background: rgb(var(--v-theme-primary));

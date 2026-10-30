@@ -49,15 +49,15 @@
                 </div>
               </template>
             </v-tooltip>
-            <v-tooltip text="Read Tutorial" location="right" v-if="isWing3Start">
+            <v-tooltip text="Tutorial book (PDF to print)" location="right" v-if="isTutorialWing">
               <template v-slot:activator="{ props }">
-                <div 
-                   v-bind="props" 
-                   class="bookmark-tab left-side start-here-tab mb-2" 
-                   @click.stop="openStartHere"
+                <div
+                   v-bind="props"
+                   class="bookmark-tab left-side start-here-tab mb-2"
+                   @click.stop="pdfConfirmVisible = true"
                 >
-                   <v-icon icon="mdi-school" color="amber-accent-2"></v-icon>
-                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">START HERE</span>
+                   <v-icon icon="mdi-file-pdf-box" color="amber-accent-2"></v-icon>
+                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">PDF</span>
                 </div>
               </template>
             </v-tooltip>
@@ -109,6 +109,19 @@
                     class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
                     >RUNES</span
                   >
+                </div>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip text="Tutorial Trigger cards" location="right" v-if="isTutorialWing">
+              <template v-slot:activator="{ props }">
+                <div
+                  v-bind="props"
+                  class="bookmark-tab left-side"
+                  @click.stop="triggersDialogVisible = true"
+                >
+                  <v-icon icon="mdi-school-outline" size="28"></v-icon>
+                  <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2">TRIGGERS</span>
                 </div>
               </template>
             </v-tooltip>
@@ -293,33 +306,33 @@
       <div class="hud-area bottom-right">
         <div class="interactive-content d-flex flex-column align-end gap-3">
           <v-tooltip
-            text="Interactions"
+            :text="newInteractionsCount ? 'New interactions in this room' : 'Interactions'"
             location="left"
-            v-if="showInteractionsButton"
           >
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
                 class="right-tab-btn interaction-tab"
+                :class="{ 'interaction-tab--alert': newInteractionsCount }"
                 @click.stop="openInteractionsDialog"
               >
-                <img
-                  src="@/assets/interaction.png"
-                  alt="icon"
-                  class="tab-icon-img"
-                />
+                <span v-if="newInteractionsCount" class="interaction-tab__badge">{{ newInteractionsCount }}</span>
+                <img src="@/assets/interaction.png" alt="" class="interaction-tab__icon" />
                 <span class="tab-label">Interactions</span>
               </div>
             </template>
           </v-tooltip>
 
-          <v-tooltip text="Read Scene" location="left">
+          <v-tooltip :text="pendingScene ? `Read the scene: ${pendingScene.title}` : 'Read Scene'" location="left">
             <template v-slot:activator="{ props }">
               <div
                 v-bind="props"
                 class="right-tab-btn grey-tab"
+                :class="{ 'scene-tab--alert': pendingScene }"
                 @click.stop="readTheScene"
               >
+                <span v-if="pendingScene" class="interaction-tab__badge scene-tab__badge">!</span>
+                <span v-if="pendingScene" class="scene-tab__callout">Scene to read</span>
                 <v-icon size="large" color="#e0e0e0"
                   >mdi-book-open-page-variant</v-icon
                 >
@@ -402,13 +415,14 @@
             </v-card-title>
             <p class="text-center text-body-2 text-grey-lighten-1 px-6 mb-2">
                 Welcome to <strong>Drunagor Nights</strong>. Your party assembles the First Room on the table.
-                <template v-if="tutorialPromptDialog.offerStartHere">Then follow the <strong>"Start Here"</strong> guide to play your first turns.</template>
+                <template v-if="isTutorialWing">Then open the <strong>Tutorial book</strong>: it teaches you the game as you play.</template>
+                <template v-else-if="tutorialPromptDialog.offerStartHere">Then follow the <strong>"Start Here"</strong> guide to play your first turns.</template>
             </p>
             <v-card-text class="pa-2 pa-sm-4">
                 <AssemblyGuide
                   :steps="firstSetupSteps"
-                  :finish-label="tutorialPromptDialog.offerStartHere ? 'Continue to Start Here' : 'Start playing'"
-                  @finish="tutorialPromptDialog.offerStartHere ? acceptTutorial() : (tutorialPromptDialog.visible = false)"
+                  :finish-label="isTutorialWing ? 'Open the Tutorial book' : tutorialPromptDialog.offerStartHere ? 'Continue to Start Here' : 'Start playing'"
+                  @finish="isTutorialWing ? startTutorialBook() : tutorialPromptDialog.offerStartHere ? acceptTutorial() : (tutorialPromptDialog.visible = false)"
                 />
             </v-card-text>
             <v-card-actions class="justify-space-between px-6 pb-4">
@@ -434,6 +448,7 @@
           v-if="interactionsDialog.visible"
           :current-door="doorSceneTarget"
           :wing="activeCampaignData.wing"
+          :start-with="interactionsDialog.startWith"
           @close="interactionsDialog.visible = false"
           @open-scene="handleOpenScene"
         />
@@ -447,6 +462,7 @@
           closable
           :current-door="activeCampaignData.door"
           @close="bookDialog.visible = false"
+          @open-interaction="openInteractionFromBook"
           :campaign-wing="bookContext" 
           :campaign-type="activeCampaignData.campaign || campaign?.campaign || ''" 
           :active-wing="activeCampaignData.wing || campaign?.wing || ''"
@@ -611,7 +627,7 @@
 
             <v-row>
                 <v-col cols="12">
-                    <div v-if="currentDoorData.instruction" v-html="withTutorialLinks(currentDoorData.instruction)" class="rules-body" @click="onRulesClick"></div>
+                    <div v-if="currentDoorData.instruction" v-html="withTutorialLinks(withSetupIcons(currentDoorData.instruction))" class="rules-body" @click="onRulesClick"></div>
                     <div v-else class="text-center pa-10 text-grey font-italic">No specific rules required at this time.</div>
                 </v-col>
             </v-row>
@@ -654,8 +670,24 @@
             :campaign-id="campaignId"
             :hero-id="heroCardDialog.hero.heroId || heroCardDialog.hero.id"
             :is-sequential-adventure="true"
+            inline-edit
+            @edit="openHeroSheet"
           />
         </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <!-- The hero sheet, edited without leaving the campaign. -->
+    <v-dialog v-model="heroSheetDialog.visible" fullscreen transition="dialog-bottom-transition">
+      <v-card class="hero-sheet-dialog">
+        <HeroDetailView
+          v-if="heroSheetDialog.visible && heroSheetDialog.heroId"
+          :key="heroSheetDialog.heroId"
+          :campaign-id-prop="campaignId"
+          :hero-id-prop="heroSheetDialog.heroId"
+          embedded
+          @close="heroSheetDialog.visible = false"
+        />
       </v-card>
     </v-dialog>
 
@@ -758,39 +790,60 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="runesDialogVisible" max-width="500">
-      <v-card class="bg-grey-darken-4 rounded-xl border-thin overflow-hidden">
-        <v-toolbar color="black" density="compact" class="px-2">
-          <v-toolbar-title class="text-white cinzel-font font-weight-bold">
-            <v-icon start color="amber-darken-2" class="mr-2">mdi-cards-variant</v-icon>
-            RUNE MECHANICS
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
+    <TutorialPdfConfirm v-model="pdfConfirmVisible" />
+
+    <!-- Wing 1 Tutorial: each physical trigger card opens its page of the book. -->
+    <v-dialog v-model="triggersDialogVisible" max-width="480" scrollable>
+      <v-card class="runes-dialog rounded-xl">
+        <div class="rules-head">
+          <div>
+            <small>Into the Underkeep – Tutorial</small>
+            <strong>Trigger cards</strong>
+          </div>
+          <v-btn icon="mdi-close" variant="text" color="white" @click="triggersDialogVisible = false"></v-btn>
+        </div>
+        <v-card-text class="runes-dialog__body">
+          <p class="triggers-intro">When a Trigger card ACTIVATES on the Initiative Track, open its page. Doors bring their own pages through <strong>Read Scene</strong>.</p>
+          <button
+            v-for="trigger in tutorialTriggers"
+            :key="trigger.page"
+            type="button"
+            class="trigger-row"
+            :class="{ 'trigger-row--locked': trigger.locked }"
+            :disabled="trigger.locked"
+            @click="openTutorialPage(trigger.page)"
+          >
+            <v-icon size="26">{{ trigger.locked ? "mdi-lock-outline" : trigger.icon }}</v-icon>
+            <span>
+              <small>{{ trigger.card }}</small>
+              <strong>{{ trigger.locked ? "Not yet" : trigger.name }}</strong>
+              <em v-if="trigger.locked" class="trigger-row__hint">{{ trigger.lockHint }}</em>
+            </span>
+            <v-icon v-if="!trigger.locked" size="20" class="trigger-row__go">mdi-chevron-right</v-icon>
+          </button>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="runesDialogVisible" max-width="480" scrollable>
+      <v-card class="runes-dialog rounded-xl">
+        <div class="rules-head">
+          <div>
+            <small>Initiative Track</small>
+            <strong>Runes &amp; Game Mechanics</strong>
+          </div>
           <v-btn icon="mdi-close" variant="text" color="white" @click="runesDialogVisible = false"></v-btn>
-        </v-toolbar>
-        
-        <v-card-text class="pa-3 bg-grey-darken-4 d-flex flex-column gap-3" style="max-height: 80vh; overflow-y: auto;">
-          <!-- Runes Tracker -->
-          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
-            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center">
-              <v-icon start class="mr-2" size="small">mdi-counter</v-icon>
-              Runes Tracker
-            </div>
-            <div class="pa-2">
-              <CampaignRunes :campaign-id="campaignId" />
-            </div>
-          </div>
-          
-          <!-- Rune Cards -->
-          <div class="pa-1 bg-grey-darken-3 rounded-lg border-thin">
-            <div class="text-caption px-3 pt-2 text-grey-lighten-1 font-weight-bold text-uppercase d-flex align-center mb-1">
-              <v-icon start class="mr-2" size="small">mdi-cards-outline</v-icon>
-              Rune & Game State Cards
-            </div>
-            <div class="pa-2">
-              <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
-            </div>
-          </div>
+        </div>
+        <v-card-text class="runes-dialog__body">
+          <section class="runes-dialog__section">
+            <h4><v-icon size="16">mdi-counter</v-icon> Runes</h4>
+            <CampaignRunes :campaign-id="campaignId" />
+          </section>
+          <section class="runes-dialog__section">
+            <h4><v-icon size="16">mdi-cards-outline</v-icon> Rune, Game Mechanics &amp; State cards</h4>
+            <p>The cards on the Initiative Track right now. Tap one to read it.</p>
+            <CampaignRuneCards :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+          </section>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -930,7 +983,12 @@ import axios from "axios";
 
 import doorInstructionsData from "@/data/door/DoorInstructions.json";
 import playerTutorialsData from "@/data/book/playerTutorials.json";
+import chestTokenIcon from "@/assets/setup/chest-token.webp";
+import runeTokenIcon from "@/assets/setup/rune-token.webp";
+import interactionIcon from "@/assets/interaction.png";
 import bookPagesData from "@/data/book/bookPages.json";
+import TutorialPdfConfirm from "@/components/TutorialPdfConfirm.vue";
+import tutorialBookS1Data from "@/data/book/TutorialBookS1.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
 
@@ -938,6 +996,8 @@ import CampaignBookNew from "@/components/CampaignBookNew.vue";
 import KeywordView from "@/components/KeywordView.vue";
 import NextDoorQRScanner from "@/components/NextDoorQRScanner.vue";
 import InteractViewNew from "@/components/InteractViewNew.vue";
+import HeroDetailView from "@/components/HeroDetailView.vue";
+import { roomInteractions } from "@/utils/roomInteractions";
 
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
@@ -1051,6 +1111,10 @@ const TUTORIALS = new Map<string, { name: string; body: string }>(
   ),
 );
 const findTutorial = (text: string) => {
+  if ((activeCampaignData.value.wing || "").toUpperCase().includes("TUTORIAL")) {
+    const lesson = findBookLesson(text);
+    if (lesson) return lesson;
+  }
   const key = tutorialKey(text);
   return TUTORIALS.get(key) ?? TUTORIALS.get(TUTORIAL_ALIASES[key] ?? "") ?? null;
 };
@@ -1063,6 +1127,51 @@ const withTutorialLinks = (html: string) =>
     const trailing = inner.slice(clean.length);
     return `<button type="button" class="tutorial-link" data-tutorial="${tutorialKey(tutorial.name)}"><i class="mdi mdi-school-outline"></i>${tutorial.name}</button>${trailing}`;
   });
+// Setup lines ("2+ Players: 1 Pile of Runes, 2 GM - Rookie…") as rows of chips
+// with the same tokens the maps show.
+const SETUP_LABEL_ICONS: Record<string, string> = {
+  maps: "mdi-map-outline",
+  setup: "mdi-package-variant-closed",
+  monsters: "mdi-skull-outline",
+};
+const MINION_TOKEN = /^(GM|WM|BM)\b\s*[-–]?\s*/;
+function setupItem(raw: string, isMaps: boolean) {
+  const text = raw.trim();
+  if (isMaps) {
+    const door = text.match(/\((DOOR\s*\d+)\)/i);
+    const code = text.replace(/\(DOOR\s*\d+\)/i, "").trim();
+    return `<span class="setup-map">${code}</span>${door ? `<span class="setup-door">${door[1].toUpperCase()}</span>` : ""}`;
+  }
+  const match = text.match(/^(\+\s*)?(\d+)\s+(.*)$/);
+  const count = match ? match[2] : "";
+  const name = (match ? match[3] : text).replace(/\s*\(Interaction \d+\)/i, "");
+  let icon = `<i class="mdi mdi-skull-outline setup-chip__mdi"></i>`;
+  let label = name;
+  const minion = name.match(MINION_TOKEN);
+  if (minion) {
+    icon = `<span class="setup-token setup-token--${minion[1][0].toLowerCase()}">${minion[1][0]}</span>`;
+    label = name.replace(MINION_TOKEN, "").replace(/\s*[-–]\s*Tutorial$/i, "");
+  } else if (/piles? of runes/i.test(name)) icon = `<img src="${runeTokenIcon}" alt="" class="setup-chip__img">`;
+  else if (/chest/i.test(name)) icon = `<img src="${chestTokenIcon}" alt="" class="setup-chip__img">`;
+  else if (/interaction/i.test(name)) icon = `<img src="${interactionIcon}" alt="" class="setup-chip__img">`;
+  else if (/event/i.test(name)) icon = `<i class="mdi mdi-alert-decagram-outline setup-chip__mdi"></i>`;
+  return `<span class="setup-chip" title="${name}">${count ? `<b class="setup-chip__n">${count}</b>` : ""}${icon}<span>${label}</span></span>`;
+}
+const withSetupIcons = (html: string) =>
+  html.replace(
+    /<strong>\s*(Maps|Setup|Monsters|\d\+\s*Players)\s*:\s*<\/strong>\s*([^<]*)(?:<br\s*\/?>)?/gi,
+    (_whole, rawLabel: string, rest: string) => {
+      const key = rawLabel.toLowerCase();
+      const players = rawLabel.match(/^(\d\+)/);
+      const isMaps = key === "maps";
+      const icon = players ? "mdi-account-group-outline" : SETUP_LABEL_ICONS[key];
+      // "+ 1 GM…" rows add to the ones above.
+      const adds = !isMaps && /^\s*\+/.test(rest);
+      const items = rest.split(/,\s*/).filter((item) => item.trim()).map((item) => setupItem(item, isMaps)).join("");
+      const title = players ? `${players[1]} players` : rawLabel;
+      return `<div class="setup-row"><div class="setup-row__label"><i class="mdi ${icon}"></i>${title}${adds ? '<span class="setup-row__adds">add</span>' : ""}</div><div class="setup-row__items">${items}</div></div>`;
+    },
+  );
 const tutorialPopup = ref<{ visible: boolean; tutorial: { name: string; body: string } | null }>({ visible: false, tutorial: null });
 const onRulesClick = (event: MouseEvent) => {
   const link = (event.target as HTMLElement).closest<HTMLElement>(".tutorial-link");
@@ -1098,7 +1207,7 @@ function handleBodyClick(event: MouseEvent) {
     }
   }
 }
-const interactionsDialog = ref({ visible: false });
+const interactionsDialog = ref<{ visible: boolean; startWith?: string }>({ visible: false });
 const leaveDialog = ref({ visible: false, onConfirm: () => {} });
 const wing4ChoiceDialog = ref({ visible: false });
 const heroCardDialog = ref({ visible: false, hero: null as any });
@@ -1166,18 +1275,6 @@ const activeCampaignData = computed(
 const isWing1Or2 = computed(() => {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
   return wing.includes("WING 1") || wing.includes("WING 2") || wing.includes("WING 01") || wing.includes("WING 02") || wing.includes("TUTORIAL");
-});
-
-const isWing3Start = computed(() => {
-    const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const door = (activeCampaignData.value.door || '').toUpperCase();
-    if (wing.includes("WING 3")) {
-        return ["FIRST SETUP", "DUNGEON FOYER"].includes(door);
-    }
-    if (wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL")) {
-        return door === "FIRST SETUP";
-    }
-    return false;
 });
 
 const currentDoorData = computed(() => {
@@ -1606,36 +1703,16 @@ const isBossBattle = computed(() => {
   return false;
 });
 
-const showInteractionsButton = computed(() => {
-  const wing = (activeCampaignData.value.wing || "").toUpperCase();
-  const door = (activeCampaignData.value.door || "").toUpperCase();
-  if (isBossBattle.value) return false;
-  if (wing.includes("WING 3"))
-    return [
-      "FIRST SETUP",
-      "DUNGEON FOYER",
-      "QUEEN'S HALL",
-      "THE FORGE",
-      "ARTISAN'S GALLERY",
-      "PROVING GROUNDS",
-    ].includes(door);
-  if (wing.includes("WING 4"))
-    return [
-      "FIRST SETUP",
-      "DRACONIC CHAPEL",
-      "CRYPTS",
-      "BOTH OPEN",
-      "LIBRARY",
-      "LABORATORY",
-    ].includes(door);
-  if (wing.includes("WING 1") || wing.includes("TUTORIAL")) {
-    return door.includes("THE ENTRY HALL");
-  }
-  if (wing.includes("WING 2")) {
-    return door.includes("THE GREAT CISTERN") || door.includes("THE BURIED ARMORY") || door.includes("FIRST SETUP");
-  }
-  return false;
-});
+// The Interactions button is always there; it lights up in a room that puts new
+// interactions on the board, until the party opens it.
+const currentRoomInteractions = computed(() =>
+  roomInteractions(activeCampaignData.value.wing || "", activeCampaignData.value.door || ""),
+);
+const seenInteractionRooms = ref(new Set<string>());
+const interactionRoomKey = computed(() => `${activeCampaignData.value.wing}|${activeCampaignData.value.door}`);
+const newInteractionsCount = computed(() =>
+  seenInteractionRooms.value.has(interactionRoomKey.value) ? 0 : currentRoomInteractions.value.placedHere.length,
+);
 
 const nextButtonLabel = computed(() => {
     if (isBossBattle.value) return "FINISH CAMPAIGN";
@@ -2034,17 +2111,6 @@ function openStartHere() {
     bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
 }
 
-function openStartHerePage(target: string) {
-    bookContext.value = "START HERE";
-    bookDialog.value = { visible: true, title: "Start Here - Tutorial" };
-    nextTick(() => {
-        setTimeout(() => {
-            if (campaignBookRef.value) {
-                campaignBookRef.value.openSceneByTarget(target);
-            }
-        }, 150);
-    });
-}
 
 function acceptTutorial() {
     if (tutorialPromptDialog.value.dontShowAgain) {
@@ -2069,15 +2135,9 @@ function declineTutorial() {
 // The first room: a new campaign may not have its door saved yet.
 const isFirstSetupDoor = computed(() => ["", "FIRST SETUP"].includes((activeCampaignData.value.door || "").trim().toUpperCase()));
 
-// The First Setup guide; Start Here follows it in the tutorial wings unless the
-// players already skipped it (in the lobby or here) or turned it off.
+// The First Setup guide. Start Here is retired: the Wing 1 Tutorial has its own book.
 function openFirstSetupGuide() {
-    const wing = (activeCampaignData.value.wing || '').toUpperCase();
-    const isTargetWing = wing.includes("WING 3") || wing.includes("WING 1") || wing.includes("WING 01") || wing.includes("TUTORIAL");
-    const offerStartHere =
-        isTargetWing && tutorialStore.shouldShowStartHere && !sessionStorage.getItem(`tutorial_shown_${props.campaignId}`);
-    tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere };
-    if (offerStartHere) sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, 'true');
+    tutorialPromptDialog.value = { visible: true, dontShowAgain: false, offerStartHere: false };
 }
 
 // Players assemble the First Setup themselves, so its guide opens once per
@@ -2127,7 +2187,15 @@ function openKeywordsDialog() {
 }
 
 function openInteractionsDialog() {
-  interactionsDialog.value.visible = true;
+  seenInteractionRooms.value = new Set(seenInteractionRooms.value).add(interactionRoomKey.value);
+  interactionsDialog.value = { visible: true };
+}
+
+// The Tutorial book's Barricade button: its card was just read, so open it directly.
+function openInteractionFromBook(id: string) {
+  bookDialog.value.visible = false;
+  seenInteractionRooms.value = new Set(seenInteractionRooms.value).add(interactionRoomKey.value);
+  interactionsDialog.value = { visible: true, startWith: id };
 }
 
 function handleOpenScene(sceneTarget: string) {
@@ -2292,6 +2360,12 @@ function confirmLeave() {
   };
 }
 
+const heroSheetDialog = ref<{ visible: boolean; heroId: string | null }>({ visible: false, heroId: null });
+function openHeroSheet(heroId: string) {
+  heroCardDialog.value.visible = false;
+  heroSheetDialog.value = { visible: true, heroId };
+}
+
 function openHeroCard(h: any) {
   setTimeout(() => {
     heroCardDialog.value = { visible: true, hero: h };
@@ -2334,8 +2408,149 @@ function onSaveFail() {
   }, 4000);
 }
 
-function readTheScene() {
+// Scenes a room asks the party to read, by book page. Great Hall scenes come
+// from their Scene Trigger card, so they are ready there for when it fires.
+const ROOM_SCENES: { wing: (wing: string) => boolean; doors: Record<string, string> }[] = [
+  {
+    wing: (w) => w.includes("TUTORIAL"),
+    doors: {
+      "FIRST SETUP": "tut1.overview",
+      "THE BARRICADED PATH": "tut1.door-1",
+      "THE KEEP'S COURTYARD": "tut1.door-2",
+      "THE ENTRY HALL": "tut1.door-3",
+      "THE GREAT HALL": "tut1.door-4",
+    },
+  },
+  { wing: (w) => w.includes("WING 1") || w.includes("WING 01"), doors: { "FIRST SETUP": "book01.05", "THE GREAT HALL": "book01.06" } },
+  { wing: (w) => w.includes("WING 2") || w.includes("WING 02"), doors: { "FIRST SETUP": "book01.09", "THERE AND BACK AGAIN": "book01.13" } },
+  { wing: (w) => w.includes("WING 3"), doors: { "FIRST SETUP": "book02.01", "MAIN HALL": "book02.05" } },
+  { wing: (w) => w.includes("WING 4"), doors: { "FIRST SETUP": "book02.07" } },
+];
+const SCENE_TITLES = new Map<string, string>(
+  [...(bookPagesData as any[]), ...(tutorialBookS1Data as any[])].flatMap((page) => page.content.map((item: any) => [item.id, item.title])),
+);
+const sceneDoorKey = computed(() =>
+  (activeCampaignData.value.door || "FIRST SETUP").toUpperCase().replace(/\s*\(TUTORIAL\)\s*$/, "").trim(),
+);
+const roomSceneId = computed(() => {
+  const wing = (activeCampaignData.value.wing || "").toUpperCase();
+  return ROOM_SCENES.find((entry) => entry.wing(wing))?.doors[sceneDoorKey.value] ?? null;
+});
+// Remembered on this device, so a scene already read stops calling.
+const readScenes = ref(new Set<string>());
+const sceneReadKey = (sceneId: string) => `scene_read_${props.campaignId}_${sceneId}`;
+const pendingScene = computed(() => {
+  const id = roomSceneId.value;
+  if (!id || readScenes.value.has(id)) return null;
+  try {
+    if (localStorage.getItem(sceneReadKey(id))) return null;
+  } catch {
+    // Storage blocked: keep calling until read in this session.
+  }
+  const title = doorDisplayName(SCENE_TITLES.get(id) || "");
+  return { id, title };
+});
+
+// ---- Wing 1 Tutorial: its book, page by page ----
+const isTutorialWing = computed(() => (activeCampaignData.value.wing || "").toUpperCase().includes("TUTORIAL"));
+const triggersDialogVisible = ref(false);
+const pdfConfirmVisible = ref(false);
+// The physical cards that send the party to the book, in the order they come up.
+const TUTORIAL_TRIGGERS = [
+  { page: "tut1.overview", card: "Start", name: "Overview and your First Turns", icon: "mdi-flag-variant-outline", door: 0 },
+  { page: "tut1.trigger-1", card: "Tutorial Trigger 1", name: "Recall Actions", icon: "mdi-numeric-1-box-outline", door: 0 },
+  { page: "tut1.trigger-2", card: "Tutorial Trigger 2", name: "Folding Doors", icon: "mdi-numeric-2-box-outline", door: 0, after: "tut1.trigger-1" },
+  { page: "tut1.trigger-3", card: "Tutorial Trigger 3", name: "Interactions", icon: "mdi-numeric-3-box-outline", door: 1 },
+  { page: "tut1.scene-hail", card: "Scene Trigger", name: "Hail to His Majesty", icon: "mdi-crown-outline", door: 4 },
+  { page: "tut1.scene-darkness", card: "Scene Trigger", name: "Age of Darkness", icon: "mdi-weather-night", door: 4, after: "tut1.scene-hail" },
+  { page: "tut1.scene-end", card: "Endgame Trigger", name: "Into the Underkeep", icon: "mdi-flag-checkered", door: 4, after: "tut1.scene-darkness" },
+  { page: "tut1.clarifications-1", card: "Undead King", name: "Card Clarifications", icon: "mdi-help-circle-outline", door: 4 },
+];
+// The Tutorial's rooms in order; a trigger card only shows up once its room is open.
+const TUTORIAL_DOORS = ["FIRST SETUP", "THE BARRICADED PATH", "THE KEEP'S COURTYARD", "THE ENTRY HALL", "THE GREAT HALL"];
+const TUTORIAL_DOOR_NAMES = ["First Setup", "Door 1 – The Barricaded Path", "Door 2 – The Keep's Courtyard", "Door 3 – The Entry Hall", "Door 4 – The Great Hall"];
+const tutorialDoorIndex = computed(() => Math.max(0, TUTORIAL_DOORS.indexOf((activeCampaignData.value.door || "FIRST SETUP").trim().toUpperCase())));
+// Trigger pages already opened on this device: the next card in a chain follows them.
+const triggersSeenKey = computed(() => `tutorial_triggers_${props.campaignId}`);
+const readTriggerPages = (): string[] => {
+  try { return JSON.parse(localStorage.getItem(triggersSeenKey.value) || "[]"); } catch { return []; }
+};
+const seenTriggerPages = ref<string[]>(readTriggerPages());
+const tutorialTriggers = computed(() =>
+  TUTORIAL_TRIGGERS.map((t) => {
+    const prev = t.after && TUTORIAL_TRIGGERS.find((x) => x.page === t.after);
+    const lockedByDoor = tutorialDoorIndex.value < t.door;
+    const lockedByChain = !!prev && !seenTriggerPages.value.includes(prev.page);
+    return {
+      ...t,
+      locked: lockedByDoor || lockedByChain,
+      lockHint: lockedByDoor ? `Unlocks at ${TUTORIAL_DOOR_NAMES[t.door]}` : lockedByChain && prev ? `Comes after ${prev.name}` : "",
+    };
+  }),
+);
+function openTutorialPage(pageId: string) {
+  if (!seenTriggerPages.value.includes(pageId)) {
+    seenTriggerPages.value = [...seenTriggerPages.value, pageId];
+    try { localStorage.setItem(triggersSeenKey.value, JSON.stringify(seenTriggerPages.value)); } catch { /* private mode: progress lasts this visit */ }
+  }
+  triggersDialogVisible.value = false;
   openBookDialog();
+  nextTick(() => {
+    setTimeout(() => campaignBookRef.value?.openSceneByTarget(pageId), 150);
+  });
+}
+// The First Setup guide hands the party to the book's first page.
+function startTutorialBook() {
+  tutorialPromptDialog.value.visible = false;
+  sessionStorage.setItem(`tutorial_shown_${props.campaignId}`, "true");
+  openTutorialPage("tut1.overview");
+}
+// Lessons of the Tutorial book, by name, for the door rules' tutorial links.
+const TUTORIAL_BOOK_LESSONS = new Map<string, { name: string; body: string }>(
+  (tutorialBookS1Data as any[]).flatMap((page) => {
+    const body: string = page.content[0].body;
+    const parts = body.split(/(?=<h3 class="tb-lesson">)/);
+    return parts
+      .map((part) => {
+        const title = (part.match(/<h3 class="tb-lesson">([^<]*)<\/h3>/) || [])[1];
+        return title ? [tutorialKey(title), { name: title, body: part.replace(/<h3 class="tb-lesson">[^<]*<\/h3>/, "") }] : null;
+      })
+      .filter(Boolean) as [string, { name: string; body: string }][];
+  }),
+);
+// The door rules name some lessons differently from the book.
+const BOOK_LESSON_ALIASES: Record<string, string[]> = {
+  "monsters with multiple targets": ["multiple target monsters"],
+  "multi target monsters": ["multiple target monsters"],
+  "minor action": ["minor actions"],
+  "learning class skills": ["learning class abilities"],
+  "darkness nodes tie breaker": ["darkness nodes", "tie breaker"],
+  "darkness nodes and tie breakers": ["darkness nodes", "tie breaker"],
+};
+function findBookLesson(text: string) {
+  const key = tutorialKey(text);
+  const keys = TUTORIAL_BOOK_LESSONS.has(key) ? [key] : BOOK_LESSON_ALIASES[key] || [];
+  const found = keys.map((k) => TUTORIAL_BOOK_LESSONS.get(k)).filter(Boolean) as { name: string; body: string }[];
+  if (!found.length) return null;
+  return { name: found.map((l) => l.name).join(" & "), body: found.map((l) => (found.length > 1 ? `<h3 class="tb-lesson">${l.name}</h3>` : "") + l.body).join("") };
+}
+
+function readTheScene() {
+  const scene = pendingScene.value;
+  if (!scene) {
+    openBookDialog();
+    return;
+  }
+  readScenes.value = new Set(readScenes.value).add(scene.id);
+  try {
+    localStorage.setItem(sceneReadKey(scene.id), "1");
+  } catch {
+    // Storage blocked: remembered for this session only.
+  }
+  openBookDialog();
+  nextTick(() => {
+    setTimeout(() => campaignBookRef.value?.openSceneByTarget(scene.id), 150);
+  });
 }
 
 function handleImageError() {
@@ -3051,11 +3266,54 @@ watch(
   filter: brightness(1.2);
 }
 
+/* Dark like the other actions, so the official pink icon stands out. */
 .interaction-tab {
-  background-color: #bf529d !important;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid #9c4381;
+  position: relative;
+  background: linear-gradient(135deg, #3a2233 0%, #24161f 100%) !important;
+  border: 1px solid #bf529d;
+  border-right: none;
+  color: #f3d3ea;
+}
+.interaction-tab__icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* New interactions in this room: a count and a glow until the party opens it. */
+.interaction-tab--alert {
+  animation: interaction-glow 1.6s ease-in-out infinite;
+}
+/* A notification count on the button's outer corner, clear of the icon. */
+.interaction-tab__badge {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e53935;
+  border: 2px solid #121212;
+  color: #fff;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 16px;
+  text-align: center;
+  z-index: 1;
+  pointer-events: none;
+}
+@keyframes interaction-glow {
+  0%, 100% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(191, 82, 157, 0.7); }
+  50% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 16px 4px rgba(191, 82, 157, 0.75); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .interaction-tab--alert {
+    animation: none;
+    box-shadow: 0 0 12px 3px rgba(191, 82, 157, 0.7);
+  }
 }
 
 .blue-tab {
@@ -3572,9 +3830,6 @@ watch(
   padding: 0 14px;
   justify-content: flex-start !important;
 }
-.interaction-tab {
-  padding: 0 14px 0 0 !important;
-}
 .tab-label {
   font-family: "Poppins", sans-serif;
   font-size: 0.72rem;
@@ -3713,6 +3968,186 @@ watch(
   }
 }
 
+/* Read Scene calls the party when the room has a scene to read. */
+.scene-tab--alert {
+  position: relative;
+  border-color: #ffd740 !important;
+  animation: scene-glow 1.6s ease-in-out infinite;
+}
+.scene-tab__badge {
+  background: #ffb300 !important;
+  color: #111 !important;
+}
+.scene-tab__callout {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 10px;
+  background: #ffd740;
+  border-radius: 999px;
+  color: #111;
+  font-family: "Poppins", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+@keyframes scene-glow {
+  0%, 100% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 0 0 rgba(255, 215, 64, 0.6); }
+  50% { box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.6), 0 0 16px 4px rgba(255, 215, 64, 0.7); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-tab--alert {
+    animation: none;
+  }
+}
+.hero-sheet-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+  overflow-y: auto;
+}
+/* Tutorial trigger cards */
+.triggers-intro {
+  margin: 0 0 4px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.trigger-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  color: #fff;
+  text-align: left;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.trigger-row:hover {
+  background: rgba(16, 89, 79, 0.25);
+  border-color: rgba(16, 89, 79, 0.8);
+}
+.trigger-row > .v-icon:first-child {
+  color: #4fb3a3;
+}
+.trigger-row span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+.trigger-row small {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.trigger-row strong {
+  font-size: 0.95rem;
+}
+.trigger-row--locked {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.trigger-row--locked:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.07);
+}
+.trigger-row--locked > .v-icon:first-child {
+  color: rgba(255, 255, 255, 0.5);
+}
+.trigger-row__hint {
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+.trigger-row__go {
+  opacity: 0.5;
+}
+/* Lessons of the Tutorial book, read in the rules pop-up. */
+.tutorial-popup__body :deep(img:not(.inline-icon)) {
+  display: block;
+  max-width: 100%;
+  max-height: 46vh;
+  margin: 8px auto 0;
+  border-radius: 6px;
+}
+.tutorial-popup__body :deep(.tb-figure) {
+  margin-bottom: 12px;
+}
+.tutorial-popup__body :deep(.tb-figure--pair) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.tutorial-popup__body :deep(.tb-figure--pair .tb-caption) {
+  grid-column: 1 / -1;
+}
+.tutorial-popup__body :deep(.tb-caption) {
+  margin: 4px 0 0;
+  color: #5b5047;
+  font-size: 0.92rem;
+  font-style: italic;
+  text-align: center;
+}
+.tutorial-popup__body :deep(.tb-lesson) {
+  margin: 14px 0 6px;
+  color: #10594f;
+  font-family: "Cinzel", serif;
+  font-size: 1.1rem;
+}
+.tutorial-popup__body :deep(.tb-blue) {
+  color: #10594f;
+  font-weight: 700;
+}
+.tutorial-popup__body :deep(.tb-hint) {
+  margin: 8px 0;
+  padding: 10px 12px;
+  background: #e7f1ef;
+  border-left: 4px solid #10594f;
+  border-radius: 8px;
+}
+.tutorial-popup__body :deep(.tb-stop) {
+  display: none;
+}
+
+/* Runes & Game Mechanics */
+.runes-dialog {
+  background: rgb(var(--v-theme-surface)) !important;
+}
+.runes-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px !important;
+}
+.runes-dialog__section {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+}
+.runes-dialog__section h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+.runes-dialog__section p {
+  margin: -4px 0 10px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+}
 /* Rules and tutorial dialogs */
 .rules-head {
   display: flex;
@@ -3792,6 +4227,124 @@ watch(
 }
 .rules-body :deep(.tutorial-link:hover) {
   filter: brightness(1.2);
+}
+/* Setup rows: a small title, then one chip per map, token or monster. */
+.rules-body :deep(.setup-row) {
+  padding: 8px 0;
+}
+.rules-body :deep(.setup-row:first-child) {
+  padding-top: 2px;
+}
+.rules-body :deep(.setup-row + .setup-row) {
+  border-top: 1px dashed rgba(42, 33, 28, 0.15);
+}
+.rules-body :deep(.setup-row__label) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  color: #6b5a4e;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.rules-body :deep(.setup-row__label .mdi) {
+  font-size: 1rem;
+}
+.rules-body :deep(.setup-row__adds) {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(42, 33, 28, 0.08);
+  font-size: 0.62rem;
+  letter-spacing: 0.4px;
+}
+.rules-body :deep(.setup-row__items) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.rules-body :deep(.setup-chip) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 4px;
+  background: #fff;
+  border: 1px solid rgba(42, 33, 28, 0.12);
+  border-radius: 999px;
+  color: #2a211c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.rules-body :deep(.setup-chip__n) {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #2a211c;
+  color: #fff;
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+}
+.rules-body :deep(.setup-chip__img) {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.rules-body :deep(.setup-chip__mdi) {
+  font-size: 1.1rem;
+  color: #8e1c16;
+}
+/* Minion tokens drawn like the ones on the maps. */
+.rules-body :deep(.setup-token) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  font-family: "Oswald", "Bebas Neue", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 2px #1d2b26, 0 0 2px #1d2b26;
+}
+.rules-body :deep(.setup-token--g) {
+  background: #7d8f87;
+  border: 2px solid #2bb39a;
+}
+.rules-body :deep(.setup-token--w) {
+  background: #ece6d4;
+  border: 2px solid #6f6a50;
+}
+.rules-body :deep(.setup-token--b) {
+  background: #3c4250;
+  border: 2px solid #11151d;
+}
+.rules-body :deep(.setup-map) {
+  padding: 2px 9px;
+  background: #2b2b2e;
+  border-radius: 6px;
+  color: #fff;
+  font-family: "Oswald", "Bebas Neue", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.rules-body :deep(.setup-door) {
+  padding: 2px 8px;
+  background: #ffe500;
+  border-radius: 3px;
+  color: #111;
+  font-family: "Oswald", "Bebas Neue", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 .tutorial-popup {
   background: #f6f1e6 !important;

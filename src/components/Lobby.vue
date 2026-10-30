@@ -4,7 +4,7 @@
 
     <div class="responsive-container d-flex flex-column fill-height position-relative" style="z-index: 1;">
       
-      <div class="px-4 pt-4 pb-2 flex-shrink-0 w-100">
+      <div class="lobby-header px-4 pt-4 pb-2 flex-shrink-0 w-100">
         <div class="d-flex align-center justify-space-between mb-2">
            <v-btn icon="mdi-arrow-left" variant="text" color="white" @click="leaveLobby" :disabled="isReconnecting"></v-btn>
            
@@ -23,23 +23,6 @@
             <div style="width: 40px;"></div>
          </div>
 
-         <div v-if="isLeader && !selectedCampaign" class="px-4 mt-2">
-              <v-text-field
-                  v-model="newCampaignName"
-                  label="Campaign Name / Lobby Name"
-                  variant="outlined"
-                  density="compact"
-                  bg-color="rgba(255,255,255,0.05)"
-                  color="amber-accent-2"
-                  hide-details
-                  class="text-left font-weight-bold text-white mb-2"
-              ></v-text-field>
-         </div>
-         <div v-else-if="!isLeader && !selectedCampaign && newCampaignName" class="text-center mt-2">
-              <v-chip color="amber-accent-2" variant="outlined" class="font-weight-bold w-100 justify-center mb-2">
-                  Lobby Name: {{ newCampaignName }}
-              </v-chip>
-         </div>
 
          <div v-if="selectedCampaign" class="text-center mt-2">
               <v-chip color="purple-accent-2" variant="flat" :closable="isLeader" @click:close="clearCampaign" class="font-weight-bold w-100 justify-center">
@@ -47,24 +30,42 @@
                  {{ selectedCampaignName }}
               </v-chip>
         </div>
+
+        <TutorialBookPdfCard v-if="isTutorialLobby" compact title="Print the Tutorial book (PDF)" class="mt-3" />
+
+        <!-- Desktop only: a compact roster, echoing the big seats on the right. -->
+        <ul class="lobby-roster d-none d-md-flex">
+          <li v-for="(slot, index) in lobbySlots" :key="index" :class="{ 'lobby-roster__row--filled': slot.player }">
+            <template v-if="slot.player">
+              <v-avatar size="22"><v-img :src="slot.player.avatar"></v-img></v-avatar>
+              <span class="text-truncate">{{ slot.player.name }}</span>
+              <v-icon v-if="index === 0" color="amber" size="14" title="Drunagor Master">mdi-crown</v-icon>
+              <v-icon v-if="slot.hero" color="success" size="16" class="lobby-roster__check">mdi-check-circle</v-icon>
+            </template>
+            <template v-else>
+              <v-icon size="18" color="grey-darken-1">mdi-account-outline</v-icon>
+              <span class="text-grey-darken-1">Open seat</span>
+            </template>
+          </li>
+        </ul>
       </div>
 
-      <div class="flex-grow-1 w-100 px-4 overflow-y-auto d-flex flex-column justify-center">
-        <v-row dense class="w-100 ma-0 justify-center">
+      <div class="lobby-slots-pane flex-grow-1 w-100 px-4 overflow-y-auto d-flex flex-column justify-center">
+        <v-row dense class="lobby-slots-row w-100 ma-0 justify-center">
           <v-col
-            cols="6" 
+            cols="6"
             v-for="(slot, index) in lobbySlots"
             :key="index"
             class="pa-3 d-flex justify-center"
           >
-            <v-card 
+            <v-card
               class="player-slot-card d-flex flex-column align-center justify-center elevation-10"
               :color="slot.player ? '#1e1e1e' : 'rgba(255,255,255,0.05)'"
               :variant="slot.player ? 'elevated' : 'outlined'"
               rounded="xl"
               @click="handleSlotClick(index)"
               v-ripple="!!slot.player"
-              style="width: 100%; max-width: 220px; aspect-ratio: 0.76; position: relative; overflow: hidden;"
+              style="width: 100%; aspect-ratio: 0.76; position: relative; overflow: hidden;"
             >
               <template v-if="!slot.player">
                 <div class="d-flex flex-column align-center justify-center fill-height" style="opacity: 0.3">
@@ -112,8 +113,8 @@
         </v-row>
       </div>
 
-      <div class="flex-shrink-0 pa-6 w-100 bg-grey-darken-4 elevation-24 rounded-t-xl z-index-10">
-        <v-btn 
+      <div class="lobby-cta flex-shrink-0 pa-6 w-100 bg-grey-darken-4 elevation-24 rounded-t-xl z-index-10">
+        <v-btn
             block 
             :color="mainButtonConfig.color"
             height="64"
@@ -224,72 +225,72 @@
       :season="heroPreparationSeason"
     />
 
-    <v-dialog v-model="showCampaignDialog" max-width="340">
-      <v-card color="#1e1e1e" class="rounded-lg pa-2">
-         <v-card-title class="text-white d-flex justify-space-between align-center">
-            <span class="text-body-1 font-weight-bold">Start Game</span>
-            <v-btn icon variant="text" size="small" @click="showCampaignDialog = false"><v-icon>mdi-close</v-icon></v-btn>
-         </v-card-title>
-         <v-card-text class="d-flex flex-column ga-3 pt-2">
-            <div class="text-caption text-grey mb-2 text-center">How do you want to start this adventure?</div>
-             <v-btn block color="success" size="large" variant="flat" @click="openTutorialChoice">
-                 <v-icon start>mdi-plus-box</v-icon> New {{ currentCampaignType === 'underkeep' ? 'Underkeep 1' : 'Underkeep 2' }}
-             </v-btn>
-            <div class="d-flex align-center">
-                <v-divider></v-divider><span class="px-2 text-caption text-grey">OR</span><v-divider></v-divider>
-            </div>
-            <v-btn block color="blue-darken-2" size="large" variant="flat" @click="fetchAndShowLoadDialog">
-                <v-icon start>mdi-folder-open</v-icon> Load Campaign
-            </v-btn>
-         </v-card-text>
+    <v-dialog v-model="showCampaignDialog" max-width="420" scrollable>
+      <v-card class="start-sheet" rounded="xl">
+        <v-btn icon="mdi-close" variant="text" size="small" class="start-sheet__close" @click="showCampaignDialog = false" />
+        <v-card-text class="pa-3">
+          <div class="start-sheet__kicker">Lobby</div>
+          <h3 class="start-sheet__title">How do you want to start?</h3>
+
+          <!-- Fresh campaign, themed to the Season this wing belongs to. -->
+          <button class="start-choice" @click="openTutorialChoice">
+            <img :src="currentCampaignType === 'underkeep' ? underkeepArt : underkeep2Art" alt="" class="start-choice__art" />
+            <span class="start-choice__body">
+              <span class="start-choice__text">
+                <strong>New Campaign</strong>
+                <small>Begin a fresh adventure for this table.</small>
+              </span>
+              <span class="start-choice__action start-choice__action--new">
+                <v-icon size="20">mdi-plus-box</v-icon> Start fresh
+              </span>
+            </span>
+          </button>
+
+          <!-- Resume a campaign the party already started. -->
+          <button class="start-choice" @click="fetchAndShowLoadDialog">
+            <span class="start-choice__icon-art">
+              <v-icon size="40">mdi-folder-open-outline</v-icon>
+            </span>
+            <span class="start-choice__body">
+              <span class="start-choice__text">
+                <strong>Load Campaign</strong>
+                <small>Continue a campaign already in progress.</small>
+              </span>
+              <span class="start-choice__action start-choice__action--load">
+                <v-icon size="20">mdi-folder-open</v-icon> Browse campaigns
+              </span>
+            </span>
+          </button>
+        </v-card-text>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="tutorialChoiceDialog" max-width="400" persistent>
-      <v-card color="#1e1e1e" class="rounded-lg border-thin border-amber">
-        <v-card-title class="text-center text-amber-accent-2 cinzel-text pt-4">
-          New Adventure Setup
-        </v-card-title>
-        <v-card-text class="text-center text-grey-lighten-1 pb-4">
+    <!-- New campaign: only its name to settle, then play. -->
+    <v-dialog v-model="tutorialChoiceDialog" max-width="420">
+      <v-card class="start-sheet" rounded="xl">
+        <v-btn icon="mdi-close" variant="text" size="small" class="start-sheet__close" @click="tutorialChoiceDialog = false" />
+        <img :src="currentCampaignType === 'underkeep' ? underkeepArt : underkeep2Art" alt="" class="setup-art" />
+        <form class="pa-4" @submit.prevent="newCampaignName.trim() && handleTutorialChoice(false)">
+          <div class="start-sheet__kicker">New campaign</div>
+          <h3 class="start-sheet__title mb-1">{{ eventDetails?.scenario || "New adventure" }}</h3>
+          <p class="setup-hint">Name your campaign so the party can find it later.</p>
           <v-text-field
             v-model="newCampaignName"
-            label="Campaign Name"
+            label="Campaign name"
             variant="outlined"
-            bg-color="grey-darken-4"
-            color="amber-accent-2"
+            color="accent"
+            prepend-inner-icon="mdi-pencil-outline"
             hide-details
-            class="mb-4 text-left"
+            autofocus
+            class="mb-4"
           ></v-text-field>
 
-          <v-divider class="mb-4" v-if="isWing3Scenario"></v-divider>
-          
-          <template v-if="isWing3Scenario">
-            <div class="text-body-2 mb-2">
-              The <strong>"Start Here"</strong> feature is a <strong>guided gameplay introduction</strong> designed to teach you the basics of Drunagor.
-            </div>
-            <div class="text-body-2 font-weight-bold text-white">
-              Would you like to enable it?
-            </div>
-          </template>
-        </v-card-text>
-        <v-card-actions class="d-flex flex-column gap-2 px-4 pb-4">
-          <template v-if="isWing3Scenario">
-            <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(true)" :disabled="!newCampaignName.trim()">
-              <v-icon start>mdi-school</v-icon> Yes, Guide Me
-            </v-btn>
-            <v-btn block color="grey-darken-3" variant="flat" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
-              No, I know how to play
-            </v-btn>
-          </template>
-          <template v-else>
-            <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
-              <v-icon start>mdi-play</v-icon> Start Campaign
-            </v-btn>
-            <v-btn block color="grey-darken-3" variant="flat" size="large" @click="tutorialChoiceDialog = false">
-              Cancel
-            </v-btn>
-          </template>
-        </v-card-actions>
+          <TutorialBookPdfCard v-if="isTutorialLobby" compact title="Prefer paper? Print the Tutorial book" class="mb-4" />
+
+          <button type="submit" class="start-choice__action start-choice__action--new w-100" :disabled="!newCampaignName.trim()">
+            <v-icon size="20">mdi-play</v-icon> Start campaign
+          </button>
+        </form>
       </v-card>
     </v-dialog>
 
@@ -373,7 +374,10 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import TutorialBookPdfCard from '@/components/TutorialBookPdfCard.vue';
+import { isTutorialScenario } from '@/utils/tutorialBook';
 import { useUserStore } from '@/store/UserStore';
+import { useTutorialStore } from "@/store/TutorialStore";
 import { usePlayableHeroStore } from '@/store/PlayableHeroStore';
 import { CampaignStore } from '@/store/CampaignStore';
 import { HeroDataRepository } from "@/data/repository/HeroDataRepository";
@@ -381,6 +385,8 @@ import { Campaign } from "@/store/Campaign";
 import HeroSummaryPanel from "@/components/HeroSummaryPanel.vue";
 import heroSummaries from "@/data/book/HeroSummary.json";
 import HeroPreparationDialog from "@/components/dialogs/HeroPreparationDialog.vue";
+import underkeepArt from "@/assets/underkeep.png";
+import underkeep2Art from "@/assets/underkeep2.png";
 
 const router = useRouter();
 const route = useRoute();
@@ -490,10 +496,8 @@ const currentCampaignType = computed(() => {
     return currentEventSeasonFk.value === 2 ? 'underkeep' : 'underkeep2';
 });
 
-const isWing3Scenario = computed(() => {
-    const scenarioName = (eventDetails.value?.scenario || '').toLowerCase();
-    return scenarioName.includes('wing 03') || scenarioName.includes('wing 3');
-});
+// The Wing 1 Tutorial lobby offers its book as a PDF to print.
+const isTutorialLobby = computed(() => isTutorialScenario(eventDetails.value?.scenario));
 
 const snackbar = ref({
   show: false,
@@ -1109,6 +1113,8 @@ const executeStartGameFlow = async (campaignFk: number, wantsTutorial: boolean |
             sessionStorage.setItem(storageKey, 'true');
         } else {
             sessionStorage.removeItem(storageKey);
+            // Asking for the guide here undoes an old "Don't show again" on this device.
+            useTutorialStore().setStartHerePreference(false);
         }
     }
 
@@ -1305,13 +1311,118 @@ onBeforeUnmount(() => {
 .cinzel-text { font-family: "Cinzel", serif; }
 .lobby-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, #1f2430 0%, #000000 100%); z-index: 0; }
 .responsive-container { margin: 0 auto; background: rgba(0,0,0,0.2); }
-@media (min-width: 960px) { .responsive-container { max-width: 480px; box-shadow: 0 0 50px rgba(0,0,0,0.5); } }
 @media (max-width: 959px) { .responsive-container { max-width: 100%; width: 100%; } }
 .hero-selection-card { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; border: 1px solid rgba(255,255,255,0.2); }
 .hero-selection-card:active { transform: scale(0.98); }
 .border-dashed { border: 2px dashed rgba(255,255,255,0.2) !important; }
-.player-slot-card { border-color: rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; overflow: hidden; }
+/* Vuetify's v-row defaults to flex: 1 1 auto, stretching it (and the cards
+   inside) to fill the scroll area instead of sizing to the cards themselves. */
+.lobby-slots-row { flex: 0 1 auto !important; }
+.player-slot-card { max-width: 220px; height: auto !important; border-color: rgba(255,255,255,0.1); cursor: pointer; transition: all 0.2s; overflow: hidden; }
 .player-slot-card:active { transform: scale(0.96); }
+
+/* Desktop: a framed panel with room for all 4 seats in a row, instead of a
+   narrow phone column floating, undefined, in the middle of the screen. */
+/* Desktop: a command-table layout, not a phone screen stretched sideways.
+   A narrow control pane (event info, roster, the action button) sits beside
+   a stage where the party is assembled, each seat shown large. */
+@media (min-width: 960px) {
+  .responsive-container {
+    display: grid !important;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "header slots"
+      "header slots"
+      "cta    slots";
+    max-width: 1040px;
+    height: calc(100% - 64px) !important;
+    margin: 32px auto;
+    background: radial-gradient(circle at 15% 15%, rgba(255, 193, 7, 0.06), transparent 45%), rgba(14, 14, 18, 0.92);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+  }
+
+  .lobby-header {
+    grid-area: header;
+    padding: 28px 24px 20px !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.18);
+  }
+  .lobby-header .d-flex.justify-space-between {
+    justify-content: flex-start !important;
+    gap: 12px;
+  }
+  .lobby-header .d-flex.flex-column.align-center {
+    align-items: flex-start !important;
+    text-align: left;
+  }
+
+  .lobby-roster {
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px;
+    margin: 22px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lobby-roster li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: "Poppins", sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .lobby-roster li.lobby-roster__row--filled {
+    background: rgba(255, 193, 7, 0.07);
+    border-color: rgba(255, 193, 7, 0.25);
+    color: #fff;
+  }
+  .lobby-roster li span {
+    flex: 1;
+    min-width: 0;
+  }
+  .lobby-roster__check {
+    margin-left: auto;
+  }
+
+  .lobby-cta {
+    grid-area: cta;
+    padding: 20px 24px 28px !important;
+    background: rgba(0, 0, 0, 0.18) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .lobby-slots-pane {
+    grid-area: slots;
+    align-items: center;
+    justify-content: center;
+    padding: 32px !important;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.03), transparent 70%);
+  }
+  .lobby-slots-row {
+    max-width: 560px;
+    gap: 20px 0;
+  }
+  .player-slot-card {
+    max-width: 230px;
+  }
+  .player-slot-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+  }
+}
 .player-overlay-header { position: absolute; top: 0; left: 0; width: 100%; z-index: 2; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%); display: flex; align-items: center; padding: 8px; }
 .z-index-10 { z-index: 10; }
 
@@ -1355,5 +1466,118 @@ onBeforeUnmount(() => {
 .hero-selection-card:hover .hero-bark {
   opacity: 1;
   transform: none;
+}
+
+/* Start Game: two picture cards instead of two flat buttons, same language
+   as the Play dialog on the dashboard. */
+.start-sheet {
+  position: relative;
+  background: rgb(var(--v-theme-surface)) !important;
+  font-family: "Poppins", sans-serif;
+}
+.start-sheet__close {
+  position: absolute !important;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.55) !important;
+}
+.start-sheet__kicker {
+  margin: 4px 2px 2px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-accent));
+}
+.start-sheet__title {
+  margin: 0 2px 16px;
+  font-family: "Cinzel", serif;
+  font-size: 1.3rem;
+  color: #fff;
+}
+.start-choice {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: rgb(var(--v-theme-primary));
+  border: 1px solid rgba(var(--v-theme-on-primary), 0.1);
+  border-radius: 16px;
+  text-align: left;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+.start-choice + .start-choice {
+  margin-top: 10px;
+}
+.start-choice:hover {
+  border-color: rgba(var(--v-theme-on-primary), 0.3);
+  transform: translateY(-2px);
+}
+.start-choice__art {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+.start-choice__icon-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  background: radial-gradient(circle at center, #2a2620 0%, #121212 100%);
+  color: rgba(255, 255, 255, 0.4);
+}
+.start-choice__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+.start-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.start-choice__text strong {
+  font-size: 1.15rem;
+}
+.start-choice__text small {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  opacity: 0.75;
+}
+.start-choice__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.start-choice__action--new {
+  background: rgb(var(--v-theme-playbutton));
+  color: rgb(var(--v-theme-on-playbutton));
+}
+.start-choice__action--load {
+  background: rgb(var(--v-theme-secondary));
+}
+.start-choice__action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.setup-art {
+  display: block;
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+}
+.setup-hint {
+  margin: 0 2px 14px;
+  font-size: 0.85rem;
+  opacity: 0.75;
 }
 </style>
