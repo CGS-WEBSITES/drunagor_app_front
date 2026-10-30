@@ -1,23 +1,29 @@
 <template>
   <!-- The Wing 1 Tutorial can be played with the printed book alone: offer its PDF. -->
-  <a :href="TUTORIAL_BOOK_PDF" target="_blank" rel="noopener noreferrer" class="tbpdf" :class="{ 'tbpdf--compact': compact }">
+  <div>
+  <button type="button" class="tbpdf" :class="{ 'tbpdf--compact': compact }" @click="confirmOpen = true">
     <v-icon class="tbpdf__icon" :size="compact ? 26 : 36">mdi-printer-outline</v-icon>
     <span class="tbpdf__text">
       <strong>{{ title }}</strong>
       <span v-if="!compact">{{ text }}</span>
     </span>
     <v-icon class="tbpdf__go" size="20">mdi-download</v-icon>
-  </a>
+  </button>
+  <TutorialPdfConfirm v-model="confirmOpen" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { TUTORIAL_BOOK_PDF } from "@/utils/tutorialBook";
+import { ref } from "vue";
+import TutorialPdfConfirm from "@/components/TutorialPdfConfirm.vue";
 
 withDefaults(defineProps<{ compact?: boolean; title?: string; text?: string }>(), {
   compact: false,
   title: "Tutorial book (PDF)",
   text: "Print it and the Wing 1 Tutorial can be played with the book alone. Its QR code opens the Interaction.",
 });
+
+const confirmOpen = ref(false);
 </script>
 
 <style scoped>
@@ -25,12 +31,12 @@ withDefaults(defineProps<{ compact?: boolean; title?: string; text?: string }>()
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
   border: 1px solid rgba(var(--v-theme-warning), 0.55);
   background: rgba(var(--v-theme-warning), 0.12);
   color: rgb(var(--v-theme-on-surface));
-  text-decoration: none;
   text-align: left;
   transition: background 0.15s ease;
 }
