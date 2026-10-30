@@ -48,6 +48,8 @@
               </v-chip>
         </div>
 
+        <TutorialBookPdfCard v-if="isTutorialLobby" compact title="Print the Tutorial book (PDF)" class="mt-3" />
+
         <!-- Desktop only: a compact roster, echoing the big seats on the right. -->
         <ul class="lobby-roster d-none d-md-flex">
           <li v-for="(slot, index) in lobbySlots" :key="index" :class="{ 'lobby-roster__row--filled': slot.player }">
@@ -296,34 +298,15 @@
             class="mb-4 text-left"
           ></v-text-field>
 
-          <v-divider class="mb-4" v-if="offersStartHere"></v-divider>
-          
-          <template v-if="offersStartHere">
-            <div class="text-body-2 mb-2">
-              The <strong>"Start Here"</strong> feature is a <strong>guided gameplay introduction</strong> designed to teach you the basics of Drunagor.
-            </div>
-            <div class="text-body-2 font-weight-bold text-white">
-              Would you like to enable it?
-            </div>
-          </template>
+          <TutorialBookPdfCard v-if="isTutorialLobby" title="Prefer the printed book?" />
         </v-card-text>
         <v-card-actions class="d-flex flex-column gap-2 px-4 pb-4">
-          <template v-if="offersStartHere">
-            <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(true)" :disabled="!newCampaignName.trim()">
-              <v-icon start>mdi-school</v-icon> Yes, Guide Me
-            </v-btn>
-            <v-btn block color="grey-darken-3" variant="flat" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
-              No, I know how to play
-            </v-btn>
-          </template>
-          <template v-else>
-            <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
-              <v-icon start>mdi-play</v-icon> Start Campaign
-            </v-btn>
-            <v-btn block color="grey-darken-3" variant="flat" size="large" @click="tutorialChoiceDialog = false">
-              Cancel
-            </v-btn>
-          </template>
+          <v-btn block color="success" variant="elevated" size="large" @click="handleTutorialChoice(false)" :disabled="!newCampaignName.trim()">
+            <v-icon start>mdi-play</v-icon> Start Campaign
+          </v-btn>
+          <v-btn block color="grey-darken-3" variant="flat" size="large" @click="tutorialChoiceDialog = false">
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -408,6 +391,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, inject, onBeforeUnmount } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import TutorialBookPdfCard from '@/components/TutorialBookPdfCard.vue';
+import { isTutorialScenario } from '@/utils/tutorialBook';
 import { useUserStore } from '@/store/UserStore';
 import { useTutorialStore } from "@/store/TutorialStore";
 import { usePlayableHeroStore } from '@/store/PlayableHeroStore';
@@ -528,13 +513,8 @@ const currentCampaignType = computed(() => {
     return currentEventSeasonFk.value === 2 ? 'underkeep' : 'underkeep2';
 });
 
-// Wings with a Start Here guide (1 and 3) ask whether the party wants it.
-const offersStartHere = computed(() => {
-    const scenarioName = (eventDetails.value?.scenario || '').toLowerCase();
-    // The Wing 1 Tutorial teaches through its own book, not Start Here.
-    if (scenarioName.includes('tutorial')) return false;
-    return /wing 0?[13]\b/.test(scenarioName);
-});
+// The Wing 1 Tutorial lobby offers its book as a PDF to print.
+const isTutorialLobby = computed(() => isTutorialScenario(eventDetails.value?.scenario));
 
 const snackbar = ref({
   show: false,
