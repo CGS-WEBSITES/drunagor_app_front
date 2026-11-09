@@ -842,10 +842,15 @@ function handleMobileNavigation(item: NavigationItem) {
 
    if (item.viewType === 'player') {
       if (typeof item.sectionIndex === 'number') {
+         const pageChanged = currentIndex.value !== item.sectionIndex;
          currentIndex.value = item.sectionIndex;
          nextTick(() => {
+            // A new page opens at its top, not at the scroll of the page before.
+            if (pageChanged) scrollToTop();
+            const page = storyPages.value[item.sectionIndex as number] as any;
+            const isPageStart = page?.content?.[0]?.id === item.originalId;
             setTimeout(() => {
-               if (item.originalId) scrollToElement(item.originalId);
+               if (item.originalId && !isPageStart) scrollToSceneWhenLoaded(item.originalId);
                else scrollToTop();
             }, 150);
          });
@@ -1200,9 +1205,14 @@ function openSceneByTarget(target: string) {
         currentView.value = 'player';
         currentIndex.value = foundSectionIndex;
         
+        // A new page starts at its top: it must not keep the scroll of the page read before.
         nextTick(() => {
+            scrollToTop();
+            barHidden.value = false;
+            const page = storyPages.value[foundSectionIndex] as any;
+            const isPageStart = page?.content?.[0]?.id === foundItemOriginalId;
             setTimeout(() => {
-                if (foundItemOriginalId) scrollToSceneWhenLoaded(foundItemOriginalId);
+                if (foundItemOriginalId && !isPageStart) scrollToSceneWhenLoaded(foundItemOriginalId);
             }, 300);
         });
     }
