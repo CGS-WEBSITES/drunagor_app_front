@@ -258,7 +258,7 @@
 
                         <div
                           class="body-text mt-3 mx-6"
-                          :class="{ 'body-text-fullscreen': isFullscreen }"
+                          :class="{ 'body-text-fullscreen': isFullscreen, 'tb-book': currentVolumeId === 'tutorial_book' }"
                           v-html="figureize(item.body)"
                           @click="handleBodyClick"
                         ></div>
@@ -1963,6 +1963,56 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 .body-text :deep(.tb-rule p) {
   margin: 0 !important;
   text-indent: 0;
+}
+/* The Tutorial book looks like its printed PDF: a semibold sans body with flush
+   paragraphs, blue uppercase lesson titles and italic captions. */
+.body-text.tb-book :deep(p),
+.body-text.tb-book :deep(li),
+.body-text.tb-book :deep(.tb-hint),
+.body-text.tb-book :deep(.tb-rule) {
+  font-family: "Open Sans", sans-serif;
+  font-size: calc(1rem * var(--book-font-scale, 1));
+  font-weight: 600;
+  line-height: 1.5;
+  color: #2b2b2b;
+  text-indent: 0 !important;
+  text-align: left;
+}
+.body-text.tb-book :deep(p) {
+  margin: 0 0 0.6rem !important;
+}
+.body-text.tb-book :deep(strong),
+.body-text.tb-book :deep(b) {
+  font-weight: 800;
+}
+.body-text.tb-book :deep(.tb-lesson) {
+  margin: 1.6rem 0 0.5rem;
+  padding-bottom: 0;
+  border-bottom: none;
+  color: #1a9ad6;
+  font-family: "Open Sans", sans-serif;
+  font-size: calc(1.3rem * var(--book-font-scale, 1));
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+.body-text.tb-book :deep(.tb-lesson:first-child) {
+  margin-top: 0.4rem;
+}
+.body-text.tb-book :deep(.tb-blue) {
+  color: #1a9ad6;
+}
+.body-text.tb-book :deep(p.tb-caption) {
+  font-size: calc(0.92rem * var(--book-font-scale, 1));
+  font-weight: 400;
+  font-style: italic;
+  text-align: left;
+  color: #3c3c3c !important;
+}
+.body-text.tb-book :deep(p.tb-fluff) {
+  font-weight: 400;
+  font-style: italic;
+  color: #4a4a4a !important;
 }
 /* The book hands the game back to the table: a button that closes it. */
 .body-text :deep(p.tb-stop) {
