@@ -776,6 +776,8 @@ const confirmAddStore = async () => {
   });
 
   closeAddStoreDialog();
+  // "Add Store" saves right away: a store left unsaved was lost on leaving the page.
+  await saveAllChanges();
 };
 
 const markAsDirty = (index: number) => {
