@@ -41,23 +41,11 @@
           </div>
 
           <div class="side-tabs">
-            <v-tooltip text="How to assemble the First Setup" location="right" v-if="isFirstSetupDoor">
+            <v-tooltip text="How to assemble the First Setup" location="right" v-if="isFirstSetupDoor && !isTutorialWing">
               <template v-slot:activator="{ props }">
                 <div v-bind="props" class="bookmark-tab left-side start-here-tab" @click.stop="openFirstSetupGuide">
                   <v-icon icon="mdi-map-legend" color="amber-accent-2"></v-icon>
                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">FIRST SETUP</span>
-                </div>
-              </template>
-            </v-tooltip>
-            <v-tooltip text="Tutorial book (PDF to print)" location="right" v-if="isTutorialWing">
-              <template v-slot:activator="{ props }">
-                <div
-                   v-bind="props"
-                   class="bookmark-tab left-side start-here-tab mb-2"
-                   @click.stop="pdfConfirmVisible = true"
-                >
-                   <v-icon icon="mdi-file-pdf-box" color="amber-accent-2"></v-icon>
-                   <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2 text-amber-accent-2">PDF</span>
                 </div>
               </template>
             </v-tooltip>
@@ -67,7 +55,7 @@
                 <div
                   v-bind="props"
                   class="bookmark-tab left-side"
-                  @click.stop="openBookDialog"
+                  @click.stop="openBookFromTab"
                 >
                   <v-icon icon="mdi-book-open-variant"></v-icon>
                   <span
@@ -790,7 +778,7 @@
       </v-card>
     </v-dialog>
 
-    <TutorialPdfConfirm v-model="pdfConfirmVisible" />
+
 
     <!-- Wing 1 Tutorial: each physical trigger card opens its page of the book. -->
     <v-dialog v-model="triggersDialogVisible" max-width="480" scrollable>
@@ -987,7 +975,7 @@ import chestTokenIcon from "@/assets/setup/chest-token.webp";
 import runeTokenIcon from "@/assets/setup/rune-token.webp";
 import interactionIcon from "@/assets/interaction.png";
 import bookPagesData from "@/data/book/bookPages.json";
-import TutorialPdfConfirm from "@/components/TutorialPdfConfirm.vue";
+
 import tutorialBookS1Data from "@/data/book/TutorialBookS1.json";
 import startHereS1Data from "@/data/book/StartHereS1.json";
 import booktops2Img from "@/assets/booktops2.png"; 
@@ -2103,7 +2091,16 @@ onUnmounted(() => {
 
 function openBookDialog() { 
     bookContext.value = activeCampaignData.value.wing;
-    bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' }; 
+    bookDialog.value = { visible: true, title: activeCampaignData.value.wing || 'Campaign Book' };
+}
+
+// The Book tab: the Tutorial book reopens where the party stopped reading
+// ("Back to the game"), not on its first page.
+function openBookFromTab() {
+    openBookDialog();
+    if (isTutorialWing.value) {
+        nextTick(() => setTimeout(() => campaignBookRef.value?.resumeReading?.(), 150));
+    }
 }
 
 function openStartHere() {
@@ -2134,6 +2131,7 @@ function declineTutorial() {
 
 // The first room: a new campaign may not have its door saved yet.
 const isFirstSetupDoor = computed(() => ["", "FIRST SETUP"].includes((activeCampaignData.value.door || "").trim().toUpperCase()));
+const isTutorialWing = computed(() => (activeCampaignData.value.wing || "").toUpperCase().includes("TUTORIAL"));
 
 // The First Setup guide. Start Here is retired: the Wing 1 Tutorial has its own book.
 function openFirstSetupGuide() {
@@ -2143,7 +2141,8 @@ function openFirstSetupGuide() {
 // Players assemble the First Setup themselves, so its guide opens once per
 // campaign (on this device) when the party reaches that door.
 function checkTutorialTrigger() {
-    if (!isFirstSetupDoor.value) return;
+    // Wait for the campaign: the wing decides between the book and the assembly guide.
+    if (!activeCampaignData.value.wing || !isFirstSetupDoor.value) return;
     const seenKey = `first_setup_seen_${props.campaignId}`;
     try {
         if (localStorage.getItem(seenKey)) return;
@@ -2151,7 +2150,8 @@ function checkTutorialTrigger() {
     } catch {
         // Storage blocked: show it anyway.
     }
-    openFirstSetupGuide();
+    // The Tutorial book teaches the First Setup itself: open it instead of the assembly guide.
+    nextTick(() => (isTutorialWing.value ? startTutorialBook() : openFirstSetupGuide()));
 }
 
 let isFirstLoad = true;
@@ -2161,6 +2161,9 @@ watch(
     (newWing) => {
         if (newWing && !bookDialog.value.visible) {
             bookContext.value = newWing;
+        }
+        if (newWing) {
+            checkTutorialTrigger();
         }
     },
     { immediate: true }
@@ -2452,9 +2455,8 @@ const pendingScene = computed(() => {
 });
 
 // ---- Wing 1 Tutorial: its book, page by page ----
-const isTutorialWing = computed(() => (activeCampaignData.value.wing || "").toUpperCase().includes("TUTORIAL"));
 const triggersDialogVisible = ref(false);
-const pdfConfirmVisible = ref(false);
+
 // The physical cards that send the party to the book, in the order they come up.
 const TUTORIAL_TRIGGERS = [
   { page: "tut1.overview", card: "Start", name: "Overview and your First Turns", icon: "mdi-flag-variant-outline", door: 0 },
