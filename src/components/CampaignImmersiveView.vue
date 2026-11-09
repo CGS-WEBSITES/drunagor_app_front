@@ -318,6 +318,31 @@
       </div>
     </div>
 
+    <v-dialog v-model="welcomeBackVisible" max-width="560" scrollable>
+        <v-card class="exit-card rounded-lg">
+            <v-card-title class="exit-card__title">Welcome back</v-card-title>
+            <p class="exit-card__lead">Where the party left off<template v-if="activeCampaignData.door">, at <strong>{{ activeCampaignData.door }}</strong></template>.</p>
+            <v-card-text class="pt-0">
+                <section v-if="isWing1Or2 && (campaignRunes > 0 || campaignRuneCards.length)" class="wb-section">
+                    <h4><v-icon size="18">mdi-cards-variant</v-icon> Runes</h4>
+                    <div class="wb-runes">
+                        <img :src="runeTokenIcon" alt="" />
+                        <strong>{{ campaignRunes }}</strong>
+                        <span>{{ campaignRunes === 1 ? "Rune" : "Runes" }}</span>
+                    </div>
+                    <CampaignRuneCards v-if="campaignRuneCards.length" :campaign-id="campaignId" :campaign-type="activeCampaignData.campaign || 'underkeep'" />
+                </section>
+                <section v-if="myHero && myHeroFilled" class="wb-section">
+                    <h4><v-icon size="18">mdi-account</v-icon> Your Hero: {{ myHero.name }}</h4>
+                    <HeroDetailSummary :campaign-id="campaignId" :hero-id="myHero.heroId" />
+                </section>
+            </v-card-text>
+            <v-card-actions class="d-flex justify-end pa-4">
+                <v-btn color="amber-accent-3" variant="flat" class="text-black" @click="welcomeBackVisible = false">Continue</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
     <v-dialog v-model="dashboardExitDialog.visible" max-width="460">
         <v-card class="exit-card rounded-lg">
             <v-card-title class="exit-card__title">Before you leave</v-card-title>
@@ -332,18 +357,13 @@
                 <v-btn size="small" color="amber-accent-3" variant="flat" class="text-black" @click="runesDialogVisible = true">Runes</v-btn>
             </div>
 
-            <div class="exit-step">
-                <v-icon class="exit-step__icon" size="26">mdi-account-edit-outline</v-icon>
+            <div v-if="myHero" class="exit-step">
+                <v-avatar size="40"><v-img :src="myHero.images?.avatar || myHero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover /></v-avatar>
                 <div class="exit-step__text">
-                    <strong>Fill in your Hero</strong>
+                    <strong>Fill in {{ myHero.name }}</strong>
                     <span>Update your Hero's sheet: equipment, skills and progress.</span>
                 </div>
-            </div>
-            <div class="exit-heroes">
-                <button v-for="hero in enrichedHeroes" :key="hero.heroId" type="button" class="exit-hero" @click="openHeroSheet(hero.heroId)">
-                    <v-avatar size="40"><v-img :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover /></v-avatar>
-                    <span>{{ hero.name }}</span>
-                </button>
+                <v-btn size="small" color="amber-accent-3" variant="flat" class="text-black" @click="openHeroSheet(myHero.heroId)">Hero sheet</v-btn>
             </div>
 
             <v-card-actions class="d-flex justify-end pa-4 gap-2">
@@ -978,6 +998,8 @@ import { roomInteractions } from "@/utils/roomInteractions";
 
 import CampaignRunes from "@/components/CampaignRunes.vue";
 import CampaignRuneCards from "@/components/CampaignRuneCards.vue";
+import HeroDetailSummary from "@/components/HeroDetailSummary.vue";
+import { usePlayableHeroStore } from "@/store/PlayableHeroStore";
 import CampaignSavePut from "@/components/CampaignSavePut.vue";
 import CampaignExport from "@/components/CampaignExport.vue";
 import CampaignRemove from "@/components/CampaignRemove.vue";
@@ -1248,6 +1270,40 @@ const enrichedHeroes = computed(() => {
 const activeCampaignData = computed(
   () => campaignStore.find(props.campaignId) || props.campaign || {},
 );
+
+// The Hero of the signed-in player: the one made from their own saved heroes
+// (by its playable hero, or else by which Hero it is).
+const playableHeroStore = usePlayableHeroStore();
+const myHero = computed<any | null>(() => {
+  const mine = playableHeroStore.heroes;
+  if (!mine.length) return null;
+  const pks = mine.map((h: any) => h.pk);
+  return (
+    enrichedHeroes.value.find((h: any) => h.playableHeroesPk && pks.includes(h.playableHeroesPk)) ||
+    enrichedHeroes.value.find((h: any) => mine.some((m: any) => m.heroId === h.heroId)) ||
+    null
+  );
+});
+const campaignRunes = computed<number>(() => activeCampaignData.value.sequentialAdventureRunes ?? 0);
+const campaignRuneCards = computed<string[]>(() => activeCampaignData.value.runeCardIds ?? []);
+const myHeroFilled = computed(() => {
+  const h = myHero.value;
+  if (!h) return false;
+  const eq = h.equipment || {};
+  return Object.values(eq).some(Boolean) || (h.skillIds?.length ?? 0) > 0 || (h.stashedCardIds?.length ?? 0) > 0;
+});
+
+// Back to a campaign in progress: what the party recorded last time.
+const welcomeBackVisible = ref(false);
+async function offerWelcomeBack() {
+  try {
+    if (!playableHeroStore.loaded && userStore.user?.users_pk) await playableHeroStore.fetchHeroes(userStore.user.users_pk);
+  } catch {
+    // Without the player's heroes, only the Runes are shown.
+  }
+  const hasRunes = isWing1Or2.value && (campaignRunes.value > 0 || campaignRuneCards.value.length > 0);
+  if (hasRunes || myHeroFilled.value) welcomeBackVisible.value = true;
+}
 
 const isWing1Or2 = computed(() => {
   const wing = (activeCampaignData.value.wing || "").toUpperCase();
@@ -2072,6 +2128,7 @@ onMounted(async () => {
   await fetchAllDoors();
   await fetchOpenedDoors();
   startPolling();
+  setTimeout(offerWelcomeBack, 800);
 });
 
 onUnmounted(() => {
@@ -4431,5 +4488,33 @@ watch(
 }
 .exit-hero:hover {
   background: rgba(var(--v-theme-warning), 0.2);
+}
+
+.wb-section {
+  margin-bottom: 16px;
+}
+.wb-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+.wb-runes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.wb-runes img {
+  width: 40px;
+  height: 40px;
+}
+.wb-runes strong {
+  font-size: 1.8rem;
+  line-height: 1;
 }
 </style>
