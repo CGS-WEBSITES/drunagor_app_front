@@ -90,9 +90,15 @@ export function roomInteractions(wing: string, door: string): RoomInteractions {
 // Interactions printed in the Tutorial book PDF link to drunagor.app/interaction/<slug>.
 export const INTERACTION_SLUGS: Record<string, string> = { barricade: BARRICADE };
 
+// QR Tiger codes made for print outside the box, and the interaction each stands for.
+// DN_S01_TUTORIAL_BARRICADE: the Tutorial book PDF; it redirects to /interaction/barricade.
+const QR_ALIASES: Record<string, string> = { "https://qr1.be/OQLPX4": BARRICADE };
+
 // The interaction key a scanned code stands for: an app link by its slug, anything else as-is.
 export function interactionFromCode(text: string): string {
-  const match = text.trim().match(/\/interaction\/([\w-]+)/i);
-  if (!match) return text.trim();
+  const code = text.trim();
+  if (QR_ALIASES[code]) return QR_ALIASES[code];
+  const match = code.match(/\/interaction\/([\w-]+)/i);
+  if (!match) return code;
   return INTERACTION_SLUGS[match[1].toLowerCase()] || match[1];
 }
