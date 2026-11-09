@@ -57,7 +57,7 @@
       <!-- One header: close, library, where you are, contents, text size, tools.
            It slides away while reading down and comes back on the way up. -->
       <header class="book-bar" :class="{ 'book-bar--hidden': barHidden }">
-        <button v-if="closable" class="book-bar__icon" title="Close" @click="emit('close')">
+        <button v-if="closable" class="book-bar__icon" title="Close" @click="saveLastRead(currentVolumeId === 'tutorial_book'); emit('close')">
           <v-icon>mdi-close</v-icon>
         </button>
         <button v-if="isToolView" class="book-bar__icon" title="Back" @click="exitToolMode">
@@ -258,7 +258,7 @@
 
                         <div
                           class="body-text mt-3 mx-6"
-                          :class="{ 'body-text-fullscreen': isFullscreen, 'tb-book': currentVolumeId === 'tutorial_book' }"
+                          :class="{ 'body-text-fullscreen': isFullscreen }"
                           v-html="figureize(item.body)"
                           @click="handleBodyClick"
                         ></div>
@@ -550,6 +550,8 @@ function handleBodyClick(event: MouseEvent) {
   }
   // "You may leave this book aside…": back to the table.
   if (clicked?.closest?.(".tb-stop")) {
+    // Remember this spot: the book reopens here.
+    saveLastRead(true);
     emit("close");
     return;
   }
@@ -1023,11 +1025,17 @@ function loadLastRead() {
   }
 }
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
-function saveLastRead() {
+// True from closing the book until it is reopened: a hidden or reopening book
+// scrolls to the top, which is not where the reader stopped.
+let restoring = false;
+function saveLastRead(now = false) {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
+  const save = () => {
     const vol = currentVolume.value;
-    if (!vol || isToolView.value) return;
+    if (!vol || isToolView.value || restoring) return;
+    // A closing book scrolls back to 0: that is not where the reader stopped.
+    const el = scrollableContentRef.value;
+    if (el && !el.clientHeight) return;
     const entry: LastRead = {
       volumeId: vol.id,
       volumeTitle: vol.title,
@@ -1041,14 +1049,27 @@ function saveLastRead() {
     } catch {
       // Not remembered: fine.
     }
-  }, 400);
+  };
+  if (now) {
+    save();
+    restoring = true;
+  } else saveTimer = setTimeout(save, 400);
 }
 function resumeReading() {
   const entry = lastRead.value;
   if (!entry) return;
   switchVolume(entry.volumeId);
   if (isStory.value) currentIndex.value = entry.index;
-  nextTick(() => setTimeout(() => scrollableContentRef.value?.scrollTo({ top: entry.scrollTop }), 200));
+  // The pictures above the spot load late and push it down: keep scrolling there for a moment.
+  let tries = 0;
+  restoring = true;
+  const restore = () => {
+    const el = scrollableContentRef.value;
+    if (el) el.scrollTop = entry.scrollTop;
+    if (++tries < 12 && (!el || Math.abs(el.scrollTop - entry.scrollTop) > 4)) setTimeout(restore, 150);
+    else setTimeout(() => (restoring = false), 500);
+  };
+  nextTick(() => setTimeout(restore, 200));
 }
 watch(lastReadKey, loadLastRead, { immediate: true });
 
@@ -1169,6 +1190,7 @@ function findScene(target: string) {
 const hereScene = computed(() => (props.currentDoor ? findScene(props.currentDoor) : null));
 
 function openSceneByTarget(target: string) {
+  restoring = false;
     const found = findScene(target);
     const foundVolId = found?.volumeId;
     const foundSectionIndex = found?.sectionIndex ?? -1;
@@ -1202,7 +1224,7 @@ function scrollToSceneWhenLoaded(id: string) {
     }
 }
 
-defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, openSceneByTarget });
+defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, openSceneByTarget, resumeReading });
 </script>
 
 <style scoped>
@@ -1941,33 +1963,6 @@ defineExpose({ navigateToInteract, forceNavigateToInteract, navigateToKeywords, 
 .body-text :deep(.tb-rule p) {
   margin: 0 !important;
   text-indent: 0;
-}
-/* The Tutorial book reads like a manual: flush paragraphs, one body size,
-   lists and paragraphs on the same rhythm. */
-.body-text.tb-book :deep(p),
-.body-text.tb-book :deep(li) {
-  font-family: "EB Garamond", serif;
-  font-size: calc(1.14rem * var(--book-font-scale, 1));
-  line-height: 1.55;
-  text-indent: 0;
-  font-weight: 400;
-}
-.body-text.tb-book :deep(p) {
-  margin-bottom: 0.85rem;
-}
-.body-text.tb-book :deep(strong),
-.body-text.tb-book :deep(b) {
-  font-weight: 700;
-  color: #111;
-}
-.body-text.tb-book :deep(p.tb-fluff) {
-  padding-left: 14px;
-  border-left: 3px solid #d8ccb0;
-  font-size: calc(1.1rem * var(--book-font-scale, 1));
-}
-.body-text.tb-book :deep(.tb-lesson) {
-  font-size: calc(1.2rem * var(--book-font-scale, 1));
-  letter-spacing: 0.02em;
 }
 /* The book hands the game back to the table: a button that closes it. */
 .body-text :deep(p.tb-stop) {
