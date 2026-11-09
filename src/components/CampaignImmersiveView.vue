@@ -82,26 +82,8 @@
               </template>
             </v-tooltip>
 
-            <v-tooltip text="Rune Mechanics" location="right" v-if="isWing1Or2">
-              <template v-slot:activator="{ props }">
-                <div
-                  v-bind="props"
-                  class="bookmark-tab left-side"
-                  @click.stop="runesDialogVisible = true"
-                >
-                  <v-icon
-                    icon="mdi-cards-variant"
-                    size="28"
-                  ></v-icon>
-                  <span
-                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
-                    >RUNES</span
-                  >
-                </div>
-              </template>
-            </v-tooltip>
 
-            <v-tooltip text="Tutorial Trigger cards" location="right" v-if="isTutorialWing">
+            <v-tooltip text="Tutorial Triggers" location="right" v-if="isTutorialWing">
               <template v-slot:activator="{ props }">
                 <div
                   v-bind="props"
@@ -109,7 +91,7 @@
                   @click.stop="triggersDialogVisible = true"
                 >
                   <v-icon icon="mdi-school-outline" size="28"></v-icon>
-                  <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2">TRIGGERS</span>
+                  <span class="d-none d-md-inline font-weight-bold text-caption text-label ml-2">TUTORIAL TRIGGERS</span>
                 </div>
               </template>
             </v-tooltip>
@@ -135,24 +117,6 @@
               </template>
             </v-tooltip>
 
-            <v-tooltip text="Ask Tharmagar" location="right">
-              <template v-slot:activator="{ props }">
-                <div
-                  v-bind="props"
-                  class="bookmark-tab left-side blue-border-tab"
-                  @click.stop="tharmagarDialogVisible = true"
-                >
-                  <v-icon
-                    icon="mdi-comment-question-outline"
-                    size="28"
-                  ></v-icon>
-                  <span
-                    class="d-none d-md-inline font-weight-bold text-caption text-label ml-2"
-                    >THARMAGAR</span
-                  >
-                </div>
-              </template>
-            </v-tooltip>
           </div>
         </div>
       </div>
@@ -168,6 +132,7 @@
                 <v-list-item prepend-icon="mdi-account-group" title="Party" @click="playerListDialogVisible = true" />
                 <v-list-item prepend-icon="mdi-content-save" title="Save game" base-color="green-lighten-2" @click="manualSave" />
                 <v-list-item prepend-icon="mdi-fit-to-screen-outline" title="Fit map" @click="fitMap" />
+                <v-list-item v-if="isWing1Or2" prepend-icon="mdi-cards-variant" title="Runes" @click="runesDialogVisible = true" />
                 <template v-if="showSaveCampaignButton">
                   <v-divider class="my-1" />
                   <v-list-item prepend-icon="mdi-delete-forever" title="Leave campaign" base-color="red-lighten-2" @click="confirmLeave" />
@@ -259,6 +224,8 @@
                 </button>
               </template>
               <v-list density="compact" class="bg-grey-darken-4">
+                <v-list-item v-if="isWing1Or2" prepend-icon="mdi-cards-variant" title="Runes" @click="runesDialogVisible = true" />
+                <v-divider v-if="isWing1Or2" class="my-1" />
                 <v-list-item prepend-icon="mdi-delete-forever" title="Leave campaign" base-color="red-lighten-2" @click="confirmLeave" />
               </v-list>
             </v-menu>
@@ -351,14 +318,36 @@
       </div>
     </div>
 
-    <v-dialog v-model="dashboardExitDialog.visible" max-width="400">
-        <v-card class="bg-grey-darken-3 rounded-lg border-thin">
-            <v-card-title class="text-center text-white pt-4">Return to Dashboard?</v-card-title>
-            <v-card-text class="text-center text-grey-lighten-1 pb-4">
-                You will leave the campaign view. Your game state is saved automatically.
-            </v-card-text>
-            <v-card-actions class="d-flex justify-center pb-4 gap-3">
-                <v-btn color="grey" variant="text" @click="dashboardExitDialog.visible = false">Cancel</v-btn>
+    <v-dialog v-model="dashboardExitDialog.visible" max-width="460">
+        <v-card class="exit-card rounded-lg">
+            <v-card-title class="exit-card__title">Before you leave</v-card-title>
+            <p class="exit-card__lead">Your game state is saved automatically. Make sure the table is up to date in the app:</p>
+
+            <div v-if="isWing1Or2" class="exit-step">
+                <v-icon class="exit-step__icon" size="26">mdi-cards-variant</v-icon>
+                <div class="exit-step__text">
+                    <strong>Mark your Runes</strong>
+                    <span>Record the Runes the party has on the table.</span>
+                </div>
+                <v-btn size="small" color="amber-accent-3" variant="flat" class="text-black" @click="runesDialogVisible = true">Runes</v-btn>
+            </div>
+
+            <div class="exit-step">
+                <v-icon class="exit-step__icon" size="26">mdi-account-edit-outline</v-icon>
+                <div class="exit-step__text">
+                    <strong>Fill in your Hero</strong>
+                    <span>Update your Hero's sheet: equipment, skills and progress.</span>
+                </div>
+            </div>
+            <div class="exit-heroes">
+                <button v-for="hero in enrichedHeroes" :key="hero.heroId" type="button" class="exit-hero" @click="openHeroSheet(hero.heroId)">
+                    <v-avatar size="40"><v-img :src="hero.images?.avatar || hero.images?.trackerimage || '/assets/hero/avatar/default.webp'" cover /></v-avatar>
+                    <span>{{ hero.name }}</span>
+                </button>
+            </div>
+
+            <v-card-actions class="d-flex justify-end pa-4 gap-2">
+                <v-btn color="grey" variant="text" @click="dashboardExitDialog.visible = false">Stay</v-btn>
                 <v-btn color="error" variant="elevated" @click="exitToDashboard">Exit</v-btn>
             </v-card-actions>
         </v-card>
@@ -786,7 +775,7 @@
         <div class="rules-head">
           <div>
             <small>Into the Underkeep – Tutorial</small>
-            <strong>Trigger cards</strong>
+            <strong>Tutorial Triggers</strong>
           </div>
           <v-btn icon="mdi-close" variant="text" color="white" @click="triggersDialogVisible = false"></v-btn>
         </div>
@@ -4379,5 +4368,68 @@ watch(
   height: 1.1em;
   margin: 0 3px;
   vertical-align: middle;
+}
+
+/* Leaving the campaign: reminders to update Runes and Hero sheets. */
+.exit-card {
+  background: rgb(var(--v-theme-surface)) !important;
+  color: rgb(var(--v-theme-on-surface));
+}
+.exit-card__title {
+  padding: 20px 20px 4px;
+  font-weight: 700;
+}
+.exit-card__lead {
+  margin: 0 20px 14px;
+  font-size: 0.875rem;
+  opacity: 0.75;
+}
+.exit-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 16px 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-on-surface), 0.06);
+}
+.exit-step__icon {
+  color: rgb(var(--v-theme-warning));
+  flex-shrink: 0;
+}
+.exit-step__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.exit-step__text strong {
+  font-size: 0.95rem;
+}
+.exit-step__text span {
+  opacity: 0.75;
+}
+.exit-heroes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 16px 4px;
+}
+.exit-hero {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--v-theme-warning), 0.5);
+  background: rgba(var(--v-theme-warning), 0.1);
+  color: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.exit-hero:hover {
+  background: rgba(var(--v-theme-warning), 0.2);
 }
 </style>
