@@ -2526,6 +2526,8 @@ const BOOK_LESSON_ALIASES: Record<string, string[]> = {
   "learning class skills": ["learning class abilities"],
   "darkness nodes tie breaker": ["darkness nodes", "tie breaker"],
   "darkness nodes and tie breakers": ["darkness nodes", "tie breaker"],
+  "items i": ["items"],
+  "spawning the darkness": ["darkness"],
 };
 function findBookLesson(text: string) {
   const key = tutorialKey(text);
