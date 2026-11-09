@@ -4,7 +4,7 @@
     :campaign="campaign"
     :hero-store="heroStore"
     :user-store="userStore"
-    :show-save-campaign-button="false"
+    :show-save-campaign-button="true"
   />
 </template>
 
