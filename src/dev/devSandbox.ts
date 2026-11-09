@@ -46,6 +46,14 @@ export const createDevCampaign = (heroIds: string[]) => {
 
   // Let the First Setup prompt show again on every preview visit.
   sessionStorage.removeItem(`tutorial_shown_${DEV_CAMPAIGN_ID}`);
+  // And start the Tutorial from scratch: book opens on its own, triggers locked, no saved page.
+  try {
+    localStorage.removeItem(`first_setup_seen_${DEV_CAMPAIGN_ID}`);
+    localStorage.removeItem(`tutorial_triggers_${DEV_CAMPAIGN_ID}`);
+    localStorage.removeItem("book.lastRead.v1:WING 1 TUTORIAL");
+  } catch {
+    // Storage blocked: nothing saved anyway.
+  }
   return campaignStore.find(DEV_CAMPAIGN_ID);
 };
 
