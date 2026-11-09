@@ -1,15 +1,24 @@
 <template>
   <!-- The Wing 1 Tutorial can be played with the printed book alone: offer its PDF. -->
-  <div>
-  <button type="button" class="tbpdf" :class="{ 'tbpdf--compact': compact }" @click="confirmOpen = true">
-    <v-icon class="tbpdf__icon" :size="compact ? 26 : 36">mdi-printer-outline</v-icon>
-    <span class="tbpdf__text">
+  <div class="tbpdf" :class="{ 'tbpdf--compact': compact }">
+    <div class="tbpdf__icon">
+      <v-icon :size="compact ? 22 : 28">mdi-book-open-page-variant-outline</v-icon>
+    </div>
+    <div class="tbpdf__text">
       <strong>{{ title }}</strong>
       <span v-if="!compact">{{ text }}</span>
-    </span>
-    <v-icon class="tbpdf__go" size="20">mdi-download</v-icon>
-  </button>
-  <TutorialPdfConfirm v-model="confirmOpen" />
+    </div>
+    <v-btn
+      class="tbpdf__btn"
+      color="warning"
+      variant="flat"
+      :size="compact ? 'small' : 'default'"
+      prepend-icon="mdi-download"
+      @click="confirmOpen = true"
+    >
+      Download PDF
+    </v-btn>
+    <TutorialPdfConfirm v-model="confirmOpen" />
   </div>
 </template>
 
@@ -30,37 +39,60 @@ const confirmOpen = ref(false);
 .tbpdf {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   width: 100%;
-  padding: 12px 14px;
+  padding: 18px 20px;
   border-radius: 12px;
-  border: 1px solid rgba(var(--v-theme-warning), 0.55);
-  background: rgba(var(--v-theme-warning), 0.12);
+  border: 1px solid rgba(var(--v-theme-warning), 0.45);
+  background: rgba(var(--v-theme-warning), 0.1);
   color: rgb(var(--v-theme-on-surface));
-  text-align: left;
-  transition: background 0.15s ease;
 }
-.tbpdf:hover {
-  background: rgba(var(--v-theme-warning), 0.22);
-}
-.tbpdf__icon,
-.tbpdf__go {
-  color: rgb(var(--v-theme-warning));
+.tbpdf__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
+  border-radius: 12px;
+  background: rgba(var(--v-theme-warning), 0.18);
+  color: rgb(var(--v-theme-warning));
 }
 .tbpdf__text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   flex: 1;
   min-width: 0;
-  font-size: 0.85rem;
-  line-height: 1.3;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  opacity: 0.92;
 }
 .tbpdf__text strong {
-  font-size: 0.95rem;
+  font-size: 1rem;
+  opacity: 1;
+}
+.tbpdf__btn {
+  flex-shrink: 0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: none;
 }
 .tbpdf--compact {
-  padding: 8px 12px;
+  gap: 12px;
+  padding: 10px 14px;
+}
+.tbpdf--compact .tbpdf__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+}
+@media (max-width: 600px) {
+  .tbpdf {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+  .tbpdf__btn {
+    width: 100%;
+  }
 }
 </style>
