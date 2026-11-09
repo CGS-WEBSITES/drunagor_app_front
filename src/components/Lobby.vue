@@ -31,7 +31,6 @@
               </v-chip>
         </div>
 
-        <TutorialBookPdfCard v-if="isTutorialLobby" compact title="Print the Tutorial book (PDF)" class="mt-3" />
 
         <!-- Desktop only: a compact roster, echoing the big seats on the right. -->
         <ul class="lobby-roster d-none d-md-flex">
