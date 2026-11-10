@@ -83,14 +83,21 @@ export function heroPreparationSteps(heroName, gift) {
     },
     {
       id: 9,
-      title: "8 – Picking Action Cubes",
+      title: "8 – Adjust the Hero's Starting Health",
+      image: image("09-starting-health", hero),
+      instruction: `<p>Place a Pink Cube on the dark red space of your Hero's Health Track. This is their Starting and Maximum Health.</p>
+<p>Skills may grant additional Health points, such as the DEFENDER's "Constitution".</p>`,
+    },
+    {
+      id: 10,
+      title: "9 – Picking Action Cubes",
       image: image("08-picking-action-cube", hero),
       instruction: `<p>Take your Hero's starting Action Cubes. This information is shown on their Initiative card.</p>
 ${giftNote}`,
     },
     // Its own step, not tacked onto the last one, so nothing needs a scroll to be read.
     {
-      id: 10,
+      id: 11,
       title: "Ready to Play",
       image: image("08-picking-action-cube", hero),
       instruction: `<p><strong>Your Hero preparation is complete!</strong> When the party leader starts the game, you'll go to the First Setup: assemble it as shown in the illustration, open the book tab to read the scenario instructions, and then begin playing.</p>
